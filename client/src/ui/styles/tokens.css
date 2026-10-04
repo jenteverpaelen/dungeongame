@@ -1,0 +1,132 @@
+/* Design tokens. Dark, ornate, bronze-and-parchment frame language taken from Diablo 3's UI
+   (dark panels, gold-trimmed frames, rarity colours) around Idleon-style cute characters. */
+:root {
+  /* Surfaces */
+  --bg-0: #07060a;
+  --panel: rgba(16, 12, 9, 0.96);
+  --panel-2: #1b1510;
+  --panel-3: #251c14;
+  --inset: #0c0907;
+  /* Frame metals */
+  --frame-dark: #2a1f14;
+  --frame: #4a3720;
+  --frame-hi: #8c6a38;
+  --gold: #c9a45c;
+  --gold-hi: #f2d58c;
+  --gold-dim: #7a6236;
+  /* Text */
+  --text: #d9ccb2;
+  --text-dim: #8f8270;
+  --text-faint: #5f5548;
+  --text-bright: #f6eddb;
+  --affix: #6969ff;          /* D3 affix blue */
+  --affix-text: #8a8aff;
+  --power: #bf642f;           /* legendary power orange */
+  --set-on: #00ff00;
+  --set-off: #6e6e6e;
+  --enchanted: #d4a8ff;
+  --good: #3cd070;
+  --bad: #e04848;
+  /* Rarities (Diablo 3) */
+  --r-normal: #ffffff;
+  --r-magic: #6969ff;
+  --r-rare: #ffff00;
+  --r-legendary: #bf642f;
+  --r-set: #00ff00;
+  --r-ancient: #e8902f;
+  --r-primal: #e0302f;
+  /* Resources */
+  --life: #c0281c;
+  --life-hi: #ff5a46;
+  --fury: #d23a22;
+  --hatred: #b0204a;
+  --arcane: #3d6dff;
+  --xp: #e8c35a;
+  /* Typography */
+  --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-body: 'Alegreya Sans', 'Segoe UI', sans-serif;
+  --font-num: 'Lilita One', 'Arial Black', sans-serif;
+  --fs-xs: 11px;
+  --fs-s: 12.5px;
+  --fs-m: 14px;
+  --fs-l: 17px;
+  --fs-xl: 22px;
+  --fs-xxl: 30px;
+  /* Effects */
+  --shadow-panel: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.9);
+  --frame-border: 1px solid var(--frame-hi);
+  --radius: 3px;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-m);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+#game, #ui { position: fixed; inset: 0; }
+#ui { pointer-events: none; }
+#ui .interactive, #ui button, #ui input, #ui [data-interactive] { pointer-events: auto; }
+canvas { display: block; }
+
+/* Ornate frame used by every panel: dark body, double gold hairline, corner studs. */
+.frame {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(140, 106, 56, 0.16), transparent 60%),
+    linear-gradient(180deg, #1c150f 0%, #110d09 100%);
+  border: 1px solid #000;
+  box-shadow: inset 0 0 0 1px var(--frame-hi), inset 0 0 0 3px #0a0806, inset 0 0 0 4px var(--frame), var(--shadow-panel);
+  border-radius: var(--radius);
+}
+.frame::before, .frame::after {
+  content: '';
+  position: absolute;
+  width: 9px; height: 9px;
+  background: radial-gradient(circle at 35% 35%, var(--gold-hi), var(--gold-dim) 70%);
+  border: 1px solid #000;
+  transform: rotate(45deg);
+  top: -5px;
+}
+.frame::before { left: -5px; }
+.frame::after { right: -5px; }
+
+.title-plate {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-hi);
+  text-shadow: 0 1px 0 #000, 0 0 12px rgba(242, 213, 140, 0.25);
+}
+
+.btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-s);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-hi);
+  background: linear-gradient(180deg, #3a2a18 0%, #22180e 55%, #1a120a 100%);
+  border: 1px solid #000;
+  box-shadow: inset 0 0 0 1px var(--frame-hi), inset 0 1px 0 rgba(255, 230, 170, 0.25);
+  padding: 7px 14px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: filter 120ms, transform 80ms;
+}
+.btn:hover { filter: brightness(1.25); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { filter: grayscale(1) brightness(0.6); cursor: default; }
+.btn.primary { background: linear-gradient(180deg, #7a3a12 0%, #4a1f08 60%, #331404 100%); }
+
+.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--frame-hi) transparent; }
