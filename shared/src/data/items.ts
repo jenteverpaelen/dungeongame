@@ -223,8 +223,8 @@ export const SETS: Record<string, SetDef> = {
     ],
     bonuses: [
       { count: 2, text: 'Whirlwind gains the effect of the Dust Devils rune.' },
-      { count: 4, text: "You take 50% less damage while whirlwinding, and Whirlwind applies Rend's bleed." },
-      { count: 6, text: 'Whirlwind and Dust Devils deal 1,500% increased damage.' },
+      { count: 4, text: "You take 50% less damage while whirlwinding, and Whirlwind applies Rend's bleed, which deals 200% increased damage." },
+      { count: 6, text: "Whirlwind, Dust Devils and Whirlwind's bleeds deal 5,000% increased damage." },
     ],
     colors: { primary: 0x4a5a6a, secondary: 0x9fe3ff, glow: 0x3cff6e },
   },
@@ -238,7 +238,7 @@ export const SETS: Record<string, SetDef> = {
     bonuses: [
       { count: 2, text: '+1 maximum Sentry, and Sentry cooldown is reduced by 30%.' },
       { count: 4, text: 'Your Sentries also cast your Multishot and Cluster Arrow.' },
-      { count: 6, text: 'Sentries, Multishot and Cluster Arrow deal 600% increased damage for each active Sentry.' },
+      { count: 6, text: 'Sentries, Multishot and Cluster Arrow deal 250% increased damage for each active Sentry (max 4).' },
     ],
     colors: { primary: 0x3d4a2f, secondary: 0xc9a227, glow: 0x3cff6e },
   },
@@ -251,8 +251,8 @@ export const SETS: Record<string, SetDef> = {
     ],
     bonuses: [
       { count: 2, text: 'Meteor calls down a second meteor on a nearby enemy.' },
-      { count: 4, text: 'Dealing Arcane, Cold, Fire or Lightning damage increases your damage by 100% for 8 seconds per element (max 4).' },
-      { count: 6, text: 'Meteor deals 2,000% increased damage.' },
+      { count: 4, text: 'Dealing Arcane, Cold, Fire or Lightning damage increases your damage by 50% for 8 seconds per element (max 4).' },
+      { count: 6, text: 'Meteor deals 700% increased damage.' },
     ],
     colors: { primary: 0x23154a, secondary: 0xff9a3c, glow: 0x3cff6e },
   },

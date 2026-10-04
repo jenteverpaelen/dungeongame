@@ -54,6 +54,7 @@ export class GroundLayer extends Container {
   private readonly seed: number;
   private readonly rift: boolean;
   private plazaC: { x: number; y: number } | null = null;
+  private plazaR = 0;
   private shadows: GroundShadow[][] = [];
   private decals: GroundDecal[][] = [];
   private canvasCache: HTMLCanvasElement[] = [];
@@ -71,7 +72,7 @@ export class GroundLayer extends Container {
     // plaza centroid (town: stones are laid in concentric rings)
     let sx = 0, sy = 0, sn = 0;
     for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) if (map.tiles[y * map.w + x] === T_PLAZA) { sx += x; sy += y; sn++; }
-    if (sn > 20) this.plazaC = { x: (sx / sn) * 64 + 32, y: (sy / sn) * 64 + 32 };
+    if (sn > 20) { this.plazaC = { x: (sx / sn) * 64 + 32, y: (sy / sn) * 64 + 32 }; this.plazaR = Math.sqrt(sn / Math.PI) * 64 + 10; }
     this.onRender = (r: Renderer) => this.manage(r);
   }
 
@@ -259,6 +260,12 @@ export class GroundLayer extends Container {
           if (aoK + shd > 0) mixc(col, ao, Math.min(0.6, aoK + shd), col);
         }
 
+        if (this.plazaC) {
+          // the town square is a true circle (tiles are only an approximation of it)
+          const dd = Math.hypot(wx - this.plazaC.x, wy - this.plazaC.y);
+          mPlaza = 1 - ss(this.plazaR - 3, this.plazaR + 3, dd);
+          if (mPlaza > 0.5) { mPath = 0; }
+        }
         if (mPlaza > 0.5) {
           const t = ss(0.5, 0.56, mPlaza);
           mixc(col, st, t, col);
@@ -377,24 +384,46 @@ export class GroundLayer extends Container {
     const stoneCol = (h: number) => mix(P.stone, h < 0.5 ? P.stoneLight : mix(P.stone, P.grout, 0.25), Math.abs(h - 0.5) * 0.9);
     ctx.lineJoin = 'round';
     if (this.plazaC) {
-      const pc = this.plazaC;
-      const rMax = Math.hypot(Math.max(Math.abs(x0 - pc.x), Math.abs(x1 - pc.x)), Math.max(Math.abs(y0 - pc.y), Math.abs(y1 - pc.y)));
-      for (let ring = 0; ring * 13 < rMax + 13; ring++) {
+      const pc = this.plazaC, R = this.plazaR;
+      const rMax = Math.min(R - 16, Math.hypot(Math.max(Math.abs(x0 - pc.x), Math.abs(x1 - pc.x)), Math.max(Math.abs(y0 - pc.y), Math.abs(y1 - pc.y))));
+      const mosaic = 96;
+      for (let ring = 0; ring * 13 < rMax; ring++) {
         const rr = 8 + ring * 13;
+        if (rr > R - 18) break;
         const n = Math.max(6, Math.round((Math.PI * 2 * rr) / 15));
         for (let i = 0; i < n; i++) {
           const a = (i / n) * Math.PI * 2 + (ring % 2) * (Math.PI / n);
           const x = pc.x + Math.cos(a) * rr, y = pc.y + Math.sin(a) * rr;
           if (x < x0 || x > x1 || y < y0 || y > y1) continue;
-          if (at(x, y) !== 2) continue;
           const h = H(ring * 131 + i, 7);
+          // central hearth mosaic: warm sun rays in the inner rings
+          let fillc = stoneCol(h);
+          if (rr < mosaic) {
+            const ray = Math.cos(a * 8) > 0.55;
+            fillc = rr < 22 ? mix(0xe0a24a, 0xf2c86a, h) : ray ? mix(0xc98a4a, 0xe0a860, h) : mix(P.stone, 0x8a7a66, 0.35 + h * 0.2);
+          } else if (Math.abs(rr - mosaic - 6) < 7) fillc = mix(0x7a6a58, P.grout, 0.2 + h * 0.2);
           ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI / 2);
-          ctx.fillStyle = rgba(stoneCol(h));
+          ctx.fillStyle = rgba(fillc);
           ctx.strokeStyle = rgba(P.grout, 0.5); ctx.lineWidth = 1.4;
           ctx.beginPath(); ctx.roundRect(-6.4, -5.2, 12.8, 10.4, 3.4); ctx.fill(); ctx.stroke();
           ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(-5, -4, 7, 2.4, 1.2); ctx.fill();
           ctx.restore();
         }
+      }
+      // curb of long slabs around the square
+      const cr = R - 9;
+      const nC = Math.round((Math.PI * 2 * cr) / 30);
+      for (let i = 0; i < nC; i++) {
+        const a = (i / nC) * Math.PI * 2;
+        const x = pc.x + Math.cos(a) * cr, y = pc.y + Math.sin(a) * cr;
+        if (x < x0 - 20 || x > x1 + 20 || y < y0 - 20 || y > y1 + 20) continue;
+        const h = H(i, 991, 3);
+        ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI / 2);
+        ctx.fillStyle = rgba(mix(P.stoneLight, P.grout, 0.15 + h * 0.15));
+        ctx.strokeStyle = rgba(P.grout, 0.75); ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.roundRect(-14, -7, 28, 14, 3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.beginPath(); ctx.roundRect(-12, -5.6, 16, 3, 1.4); ctx.fill();
+        ctx.restore();
       }
     }
 

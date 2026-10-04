@@ -135,13 +135,13 @@ export function skillMult(p: Player, skillId: string): number {
   switch (skillId) {
     case 'whirlwind':
     case 'dust_devil':
-      return c.setCount('endless_storm') >= 6 ? 16 : 1;
+      return c.setCount('endless_storm') >= 6 ? 51 : 1;
     case 'sentry':
     case 'multishot':
     case 'cluster_arrow':
-      return c.setCount('siegebreaker') >= 6 ? 1 + 6 * activeSentries(p) : 1;
+      return c.setCount('siegebreaker') >= 6 ? 1 + 2.5 * Math.min(4, activeSentries(p)) : 1;
     case 'meteor':
-      return c.setCount('fallen_star') >= 6 ? 21 : 1;
+      return c.setCount('fallen_star') >= 6 ? 8 : 1;
   }
   return 1;
 }

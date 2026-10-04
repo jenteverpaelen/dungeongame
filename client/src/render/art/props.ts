@@ -205,7 +205,7 @@ export function drawProp(c: Ctx, kind: string, v: number, theme: ThemeKey): void
       break;
     }
     case 'pillar': {
-      const st = theme === 'riftAshen' ? 0x7a4a44 : theme === 'riftGlade' ? 0x5a8a86 : theme === 'ashen' ? 0x8a8078 : 0xb0a896;
+      const st = theme === 'riftAshen' ? 0x7a4a44 : theme === 'riftGlade' ? 0x5a8a86 : theme === 'ashen' ? 0x7a6e66 : 0xb0a896;
       const h = [62, 48, 74][v % 3];
       rbox(c, -20, -12, 40, 12, 2, shade(st, 0.12), { ow: W, hl: 0.2 });
       rbox(c, -15, -h, 30, h - 10, 2, st, { ow: W, hl: 0.25 });
@@ -213,7 +213,11 @@ export function drawProp(c: Ctx, kind: string, v: number, theme: ThemeKey): void
       // broken top
       poly(c, [-16, -h, -12, -h - 6, -4, -h - 2, 4, -h - 9, 10, -h - 3, 16, -h - 5, 16, -h + 2, -16, -h + 2], light(st, 0.1), { ow: W, hl: 0.2 });
       if (v === 1) ball(c, 24, -6, 10, 6, st, { ow: 2.4, hl: 0.25 });
-      if (theme === 'ashen' || theme === 'riftAshen') wash(c, (k) => k.rect(-15, -h * 0.5, 30, h * 0.4), 0x1a1210, 0.25);
+      if (theme === 'ashen' || theme === 'riftAshen') {
+        wash(c, (k) => k.rect(-15, -h * 0.45, 30, h * 0.35), 0x1a1210, 0.35);
+        crease(c, [-8, -h * 0.8, -4, -h * 0.6, -9, -h * 0.4], 1.4, 0x2a2020, 0.8);
+        c.ellipse(6, -h * 0.3, 1.4, 2.4); fill(c, 0xff7a1a);
+      }
       if (theme === 'glade' || theme === 'town') blob(c, [-15, -22, -8, -30, -2, -24, -6, -16], F.moss, { ow: 1.8 });
       break;
     }
@@ -545,10 +549,11 @@ export function drawDecal(c: Ctx, kind: string, v: number, theme: ThemeKey): voi
     }
     case 'cracks': {
       const glowy = theme === 'ashen' || theme === 'riftAshen';
-      const pts: number[][] = [[-14, -2, -6, 0, -2, -4, 6, -2, 14, 2], [-6, 0, -8, 5], [6, -2, 9, -6]];
-      for (const p of pts) { c.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i + 1]); }
-      c.stroke({ width: 2.6, color: shade(G.floorDark, 0.5), cap: 'round', join: 'round' });
-      if (glowy) { for (const p of pts) { c.moveTo(p[0], p[1]); for (let i = 2; i < p.length; i += 2) c.lineTo(p[i], p[i + 1]); } c.stroke({ width: 1, color: 0xff7a1a, cap: 'round', join: 'round' }); }
+      const k = glowy ? 1.7 : 1;
+      const pts: number[][] = [[-14, -2, -6, 0, -2, -4, 6, -2, 14, 2], [-6, 0, -8, 5], [6, -2, 9, -6], [-2, -4, 0, -9]];
+      const path = () => { for (const p of pts) { c.moveTo(p[0] * k, p[1] * k); for (let i = 2; i < p.length; i += 2) c.lineTo(p[i] * k, p[i + 1] * k); } };
+      path(); c.stroke({ width: 3, color: shade(G.floorDark, 0.55), cap: 'round', join: 'round' });
+      if (glowy) { path(); c.stroke({ width: 1.3, color: 0xff7a1a, cap: 'round', join: 'round' }); path(); c.stroke({ width: 0.5, color: 0xffd27a, cap: 'round', join: 'round' }); }
       break;
     }
     case 'ember': {

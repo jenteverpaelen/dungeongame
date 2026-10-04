@@ -157,7 +157,7 @@ export function channelTick(inst: Instance, p: Player, dtMs: number) {
       if (m.dead) continue;
       const r = strikeMob(inst, p, m, st);
       // 4pc: the bleed Whirlwind applies is Whirlwind damage, so the 6pc multiplier applies to it too
-      if (rend && !r.killed && !m.dead) applyRend(inst, p, rend, m, skillMult(p, 'whirlwind'));
+      if (rend && !r.killed && !m.dead) applyRend(inst, p, rend, m, skillMult(p, 'whirlwind') * 3); // 4pc: bleed +200%
     }
     inst.emit({ e: 'aoe', v: 'whirl', x: Math.round(p.x), y: Math.round(p.y), r: Math.round(radius), d: 260, el: elIdx(st.el), s: p.id }, p.x, p.y, p.id);
   }

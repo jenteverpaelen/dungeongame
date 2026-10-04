@@ -72,8 +72,8 @@ export const GROUND: Record<ThemeKey, GroundPalette> = {
     ao: 0x14200f, decalInk: 0x34552a,
   },
   ashen: {
-    floor: 0x57504b, floorDark: 0x46403c, floorLight: 0x6a625b, speck: 0x7c7268,
-    path: 0x6e655c, pathDark: 0x5a524b, pathLight: 0x837a70, pathEdge: 0x3a3430,
+    floor: 0x5a4f49, floorDark: 0x443a36, floorLight: 0x716459, speck: 0x8a7a6c,
+    path: 0x665a52, pathDark: 0x544a44, pathLight: 0x786c62, pathEdge: 0x342c28,
     stone: 0x7a7068, stoneLight: 0x8e847a, grout: 0x342e2b,
     wallTop: 0x2c2628, wallTopLight: 0x3a3234, face: 0x231d1f, faceDark: 0x161214, faceLight: 0x3e3436,
     liquid: 0xff7a22, liquidDeep: 0xd63e12, liquidEdge: 0x3a1c14, liquidGlow: true,

@@ -46,7 +46,7 @@ function baseMult(inst: Instance, p: Player, st: Strike): number {
   m *= 1 + (d.dmgPct + p.live.dmg + (st.gen ?? 0)) / 100;
   if (st.mult) m *= st.mult;
   const tal = talStacks(inst, p, st.el);
-  if (tal) m *= 1 + tal;
+  if (tal) m *= 1 + 0.5 * tal;
   const ouro = p.ctx.power('ouroboros_loop');
   if (ouro && OURO_CYCLE[p.ouroIdx] === st.el) m *= 1 + ouro / 100;
   return m;
