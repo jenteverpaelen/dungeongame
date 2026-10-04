@@ -9,6 +9,7 @@ import { sfx } from '../audio/sfx';
 import { installApi } from '../net/api';
 import { Connection } from '../net/connection';
 import { Scene } from '../render/scene';
+import type { ActingView, PlayerView } from '../render/types';
 import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, type PanelId } from '../ui/store';
 import { Input } from './input';
 import { Predictor } from './prediction';
@@ -159,6 +160,18 @@ export class Game {
       case 'shake':
         this.scene.shake(ev.m, ev.d);
         break;
+      case 'cast': {
+        const v = this.world.entities.get(ev.s)?.view as (ActingView & Partial<PlayerView>) | null | undefined;
+        const aps = ev.s === myId ? this.scene.myAps : 1.25;
+        v?.playAction?.({ skill: ev.sk, rune: ev.r, tx: ev.tx, ty: ev.ty, cycleMs: 1000 / Math.max(0.3, aps) });
+        break;
+      }
+      case 'proj': {
+        // Summons (sentries, hydras) and monsters animate their own shots.
+        const e = this.world.entities.get(ev.s);
+        if (e && e.kind !== 'player') (e.view as ActingView | null)?.playAction?.({ skill: 'shot', tx: ev.x + ev.vx, ty: ev.y + ev.vy, cycleMs: 1000 });
+        break;
+      }
     }
     this.scene.vfx.handle(ev);
   }

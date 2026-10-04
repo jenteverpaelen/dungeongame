@@ -16,7 +16,6 @@ import { Instance, createInstance } from '../src/sim/instance';
 import { createMob } from '../src/sim/monsters';
 import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
-import { Rng } from '../../shared/src/math';
 
 // Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
 // so a failing check reproduces exactly. Override with SIM_SEED=<n> to explore other outcomes.

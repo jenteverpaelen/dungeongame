@@ -7,14 +7,14 @@ import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
 import { F_LEFT, F_MOVING, type EntDesc } from '@shared/protocol';
 import {
-  buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView,
+  buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, setViewScale,
 } from './art';
 import type { EntityView, PlayerView, ViewState } from './types';
 import { Vfx } from './vfx';
 import type { ClientEntity, ClientWorld } from '../game/world';
 
-/** World units visible vertically; characters (~64 u) end up ~75 px tall at 1080p. */
-const VIEW_HEIGHT = 920;
+/** World units visible vertically; heroes (~64 u) end up ~110 px tall at 1080p, close to Diablo 3's on-screen size. */
+const VIEW_HEIGHT = 620;
 
 interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string }
 
@@ -190,7 +190,8 @@ export class Scene {
     this.time += dtMs / 1000;
     const viewDt = now < this.hitStopEnd ? 0 : dtMs / 1000;
     const scr = this.app.screen;
-    this.cam.zoom = scr.height / VIEW_HEIGHT;
+    const zoom = scr.height / VIEW_HEIGHT;
+    if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
 
     // Camera follows the predicted player with a small movement lead.
     if (me) {

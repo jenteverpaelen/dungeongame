@@ -19,6 +19,13 @@ import { NpcArt, PortalArt } from './npcs';
 import { PlayerArt } from './player';
 import { SummonArt } from './summons';
 
+/** Camera zoom × renderer resolution. Art bakes textures at this scale so sprites stay crisp when zoomed in.
+ *  Called by the scene whenever the window size changes. */
+export function setViewScale(scale: number): void {
+  viewScale = scale;
+}
+export let viewScale = 2;
+
 /** Must be called once after the Pixi renderer exists (art may bake textures). */
 export function initArt(renderer: Renderer): void {
   setRenderer(renderer);

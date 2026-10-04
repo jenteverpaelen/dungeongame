@@ -156,6 +156,8 @@ const rot = (x: number, y: number, a: number) => {
 // ─────────────────────────── view ───────────────────────────
 
 export class PlayerArt implements PlayerView {
+  /** Placeholder until the skill choreography lands (render/actions.ts). */
+  playAction(_a: import('../actions').ActionSpec): void {}
   readonly root = new Container();
   height = 66;
 

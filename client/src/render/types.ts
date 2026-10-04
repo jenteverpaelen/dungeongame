@@ -3,6 +3,7 @@
 
 import type { Container } from 'pixi.js';
 import type { PlayerLook } from '@shared/protocol';
+import type { ActionSpec } from './actions';
 
 /** Interpolated per-frame state handed to every entity view. */
 export interface ViewState {
@@ -39,6 +40,13 @@ export interface EntityView {
 
 export interface PlayerView extends EntityView {
   setLook(look: PlayerLook): void;
+  /** Perform a skill (see render/actions.ts for the choreography table). Called on every `cast` event. */
+  playAction(a: ActionSpec): void;
+}
+
+/** Optional on monster / summon views: react to their own attacks and shots (lunge, recoil, muzzle). */
+export interface ActingView extends EntityView {
+  playAction?(a: ActionSpec): void;
 }
 
 /** Overlay above an entity: player name + level, elite name + affixes + health bar. */
