@@ -16,6 +16,14 @@ import { Instance, createInstance } from '../src/sim/instance';
 import { createMob } from '../src/sim/monsters';
 import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
+import { Rng } from '../../shared/src/math';
+
+// Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
+// so a failing check reproduces exactly. Override with SIM_SEED=<n> to explore other outcomes.
+{
+  const rng = new Rng(Number(process.env.SIM_SEED ?? 0xc0ffee));
+  Math.random = () => rng.next();
+}
 
 // ─────────────────────────── Checks ───────────────────────────
 
@@ -529,7 +537,8 @@ function signatureBuilds() {
       check(link.n('tele:meteor') > 0, `mage: meteor telegraphs (${link.n('tele:meteor')})`);
       check(link.n('aoe:meteor') > 0, `mage: meteor impacts (${link.n('aoe:meteor')})`);
       check(link.n('aoe:molten') > 0, `mage: molten ground (${link.n('aoe:molten')})`);
-      check(link.n('tele:meteor') >= link.n('cast:meteor') * 1.5, 'mage: 2pc second meteor');
+      // The 2pc meteor needs a second enemy within 400 units, so lone survivors get a single meteor.
+      check(link.n('tele:meteor') >= link.n('cast:meteor') * 1.25, `mage: 2pc second meteor (${link.n('tele:meteor')} telegraphs / ${link.n('cast:meteor')} casts)`);
       check(sawFallenStar >= 2, `mage: Fallen Star 4pc stacks (${sawFallenStar})`);
     }
     inst.destroy();
