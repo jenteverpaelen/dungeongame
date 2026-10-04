@@ -23,7 +23,7 @@ export const MAX_MSGS_PER_SEC = 60;
 /** A client that keeps flooding past this many dropped messages per second is disconnected. */
 const FLOOD_KICK_DROPS = 600;
 /** Minimum spacing between `char` updates triggered by markDirty (ms). */
-const CHAR_THROTTLE_MS = 200;
+const CHAR_THROTTLE_MS = 1000; // XP, gold and level also ride in every snapshot's `me` block
 /** Close connections whose send buffer grows beyond this (the client cannot keep up). */
 const MAX_BUFFERED_BYTES = 4 * 1024 * 1024;
 const HELLO_TIMEOUT_MS = 10_000;

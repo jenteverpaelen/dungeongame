@@ -24,7 +24,11 @@ export function itemTypeLine(item: Item): string {
   const base = BASES[item.base];
   const rar = RARITY_LABEL[item.rarity];
   let noun = base?.noun ?? item.kind;
-  if (base?.weapon && !base.weapon.ranged && ['Sword', 'Axe', 'Mace'].includes(noun)) noun = `${base.weapon.twoHanded ? 'Two-Handed' : 'One-Handed'} ${noun}`;
+  if (base?.weapon && !base.weapon.ranged) {
+    if (base.id === 'sword2h') noun = 'Two-Handed Sword';
+    else if (base.id === 'axe2h') noun = 'Two-Handed Axe';
+    else if (['Sword', 'Axe', 'Mace'].includes(noun)) noun = `${base.weapon.twoHanded ? 'Two-Handed' : 'One-Handed'} ${noun}`;
+  }
   return `${rar ? rar + ' ' : ''}${noun}`;
 }
 

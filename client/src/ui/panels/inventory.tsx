@@ -3,13 +3,13 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AFFIX_BY_STAT, GEMS } from '@shared/data/items';
-import { gemName, salvageYield } from '@shared/cube';
+import { CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
 import { fmtCompact, fmtInt } from '@shared/format';
 import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
 import { canClassUse } from '@shared/items';
 import { compareItem, computeStats } from '@shared/stats';
 import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types';
-import { ui, useUI } from '../store';
+import { pushNotice, ui, useUI } from '../store';
 import { Check, PanelFrame, Wealth } from './common';
 import { cubeUI, invUI, setCubeItem } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
@@ -93,8 +93,13 @@ function usableBy(char: CharacterSave, item: Item): boolean {
   return item.reqLevel <= char.level && canClassUse(char.classId, item);
 }
 
-function openSalvage(item: Item) {
-  invUI.set({ confirm: { kind: 'salvage', item } });
+/** Shift + right-click: valuable items ask first, plain gear is broken down immediately. */
+function quickSalvage(item: Item) {
+  const char = ui.get().char;
+  if (!char || char.cube.level < (CUBE_FUNCTIONS.find((f) => f.op === 'salvage')?.unlock ?? 1)) { pushNotice('The Cube cannot salvage yet', 'warn'); return; }
+  const valuable = item.rarity === 'legendary' || item.rarity === 'set' || item.ancient > 0 || item.upgrade > 0 || item.enchanted !== undefined;
+  if (valuable) invUI.set({ confirm: { kind: 'salvage', item } });
+  else void run('salvage', { itemId: item.id });
 }
 
 function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
@@ -116,7 +121,7 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
         e.preventDefault();
         if (!item) return;
         hideTip();
-        if ((e as MouseEvent).shiftKey) openSalvage(item);
+        if ((e as MouseEvent).shiftKey) quickSalvage(item);
         else void run('unequip', { slot });
       }}
       onClick={() => { if (item && cubeOpen && !justDragged()) setCubeItem(item.id); }}
@@ -218,7 +223,7 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
         e.preventDefault();
         if (!item) return;
         hideTip();
-        if ((e as MouseEvent).shiftKey) openSalvage(item);
+        if ((e as MouseEvent).shiftKey) quickSalvage(item);
         else void run('equip', { itemId: item.id });
       }}
       onClick={() => { if (item && cubeOpen && !justDragged()) setCubeItem(item.id); }}

@@ -168,7 +168,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
               <IconDiamond size={7} />
             </div>
           )}
-          <div class="tt-name">{item.name}</div>
+          <div class="tt-name">{item.name}{item.upgrade > 0 && <span class="nm-up">+{item.upgrade}</span>}</div>
           <div class="tt-type">
             <span class="tt-kind">{itemTypeLine(item)}</span>
             <span class="tt-slot">{slotName(item)}</span>

@@ -999,3 +999,5 @@
 .bag-bar { margin: 8px 0 5px; }
 .wealth { margin-top: 6px; padding: 5px 10px; }
 .sheet { margin-top: 8px; }
+
+.nm-up { display: inline-block; margin-left: 8px; vertical-align: 2px; padding: 2px 6px 1px; font: 400 12px/1.1 var(--font-num); letter-spacing: 0.02em; color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 180, 0.6); background: linear-gradient(180deg, #ffe38c 0%, #e0aa38 55%, #a8741a 100%); border: 1px solid #2a1806; border-radius: 8px; box-shadow: 0 1px 3px #000, inset 0 1px 0 rgba(255, 255, 255, 0.7); }
