@@ -24,8 +24,10 @@ export function PanelFrame(p: {
       <header class="pn-head">
         <span class="pn-orn" />
         {p.icon && <span class="pn-icon">{p.icon}</span>}
-        <h2 class="title-plate">{p.title}</h2>
-        {p.sub && <span class="pn-sub">{p.sub}</span>}
+        <div class="pn-titles">
+          <h2 class="title-plate">{p.title}</h2>
+          {p.sub && <span class="pn-sub">{p.sub}</span>}
+        </div>
         <span class="pn-orn r" />
         <button class="pn-close" aria-label="Close" onClick={() => { p.onClose?.(); togglePanel(p.id, false); }}>
           <IconClose size={11} />
