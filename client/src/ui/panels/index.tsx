@@ -21,7 +21,8 @@ const LEFT_DOCK: PanelId[] = ['cube', 'skills', 'paragon', 'waypoint', 'obelisk'
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
-  const calc = () => Math.max(0.76, Math.min(1.1, window.innerHeight / 1080));
+  // Proportional to 1080p (where docks clear the HUD globes) down to 0.6, so 720p panels never cover the bottom bar.
+  const calc = () => Math.max(0.6, Math.min(1.1, window.innerHeight / 1080));
   const [s, set] = useState(calc);
   useEffect(() => {
     const on = () => set(calc());
