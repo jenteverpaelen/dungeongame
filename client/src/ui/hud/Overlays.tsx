@@ -1,0 +1,129 @@
+// Full-screen and modal overlays: death screen, AFK report, interact prompt and the F1 help panel.
+
+import { useRef } from 'preact/hooks';
+import { ui, togglePanel, useUI } from '../store';
+import { ZONES } from '@shared/data/zones';
+import { fmtDuration, fmtInt } from '@shared/format';
+import type { Materials } from '@shared/types';
+import type { NpcRole } from '@shared/mapgen';
+import { Divider } from './Glyphs';
+
+// ───────────────────────── Death ─────────────────────────
+
+export function DeathScreen() {
+  const dead = useUI((s) => s.me?.dead ?? 0);
+  const total = useRef(0);
+  if (dead <= 0) { total.current = 0; return null; }
+  total.current = Math.max(total.current, dead, 3000);
+  const secs = Math.ceil(dead / 1000);
+  return (
+    <div class="death">
+      <div class="death-veil" />
+      <div class="death-vignette" />
+      <div class="death-content">
+        <div class="death-skull" />
+        <h1>You Have Died</h1>
+        <Divider class="death-div" />
+        <div class="death-sub">Returning to the fight in <b>{secs}</b></div>
+        <div class="death-bar"><i style={{ width: `${(100 * (1 - dead / total.current)).toFixed(1)}%` }} /></div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────── AFK report ─────────────────────────
+
+const MAT_NAMES: Record<keyof Materials, string> = {
+  scrap: 'Reusable Parts', dust: 'Arcane Dust', crystal: 'Veiled Crystal', soul: 'Forgotten Soul', deathsBreath: "Death's Breath",
+};
+
+export function AfkModal() {
+  const afk = useUI((s) => s.afk);
+  if (!afk) return null;
+  const mats = (Object.keys(MAT_NAMES) as (keyof Materials)[]).filter((k) => (afk.mats[k] ?? 0) > 0);
+  const zone = ZONES[afk.zone]?.name ?? afk.zone;
+  const claim = () => ui.set({ afk: null });
+  return (
+    <div class="afk-backdrop interactive">
+      <div class="afk-modal frame">
+        <div class="afk-head">
+          <div class="afk-eyebrow">Your hero kept the hearth</div>
+          <h2 class="title-plate">While You Were Away</h2>
+          <div class="afk-time">{fmtDuration(afk.ms)}{zone ? <> <i>in</i> {zone}</> : null}</div>
+        </div>
+        <Divider class="afk-div" />
+        <div class="afk-rows">
+          <div class="afk-row"><span>Monsters slain</span><b>{fmtInt(afk.kills)}</b></div>
+          <div class="afk-row"><span>Experience</span><b class="xp">{fmtInt(afk.xp)}</b></div>
+          {afk.levels > 0 && <div class="afk-row hi"><span>Levels gained</span><b>+{afk.levels}</b></div>}
+          <div class="afk-row"><span>Gold</span><b class="gold">{fmtInt(afk.gold)}</b></div>
+        </div>
+        {mats.length > 0 && (
+          <div class="afk-mats">
+            <div class="afk-mats-title">Materials</div>
+            {mats.map((k) => <div class="afk-row sm" key={k}><span>{MAT_NAMES[k]}</span><b>{fmtInt(afk.mats[k] ?? 0)}</b></div>)}
+          </div>
+        )}
+        <button class="btn primary afk-claim" onClick={claim}>Claim</button>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────── Interact prompt ─────────────────────────
+
+const VERBS: Partial<Record<NpcRole, string>> = {
+  cube: 'Open', stash: 'Open', obelisk: 'Use', waypoint: 'Use', paragon: 'Visit', healer: 'Speak with', vendor: 'Trade with',
+};
+
+export function InteractPrompt() {
+  const it = useUI((s) => s.interact);
+  if (!it) return null;
+  const verb = VERBS[it.role];
+  if (!verb) return null; // training dummies and the like have nothing to press E for
+  return (
+    <div class="hud-interact" key={it.name}>
+      <span class="ip-key">E</span>
+      <span class="ip-text"><em>{verb}</em> {it.name}</span>
+    </div>
+  );
+}
+
+// ───────────────────────── Help (F1) ─────────────────────────
+
+const BINDS: [string, string][] = [
+  ['W A S D', 'Move'],
+  ['Space', 'Dash'],
+  ['E', 'Interact'],
+  ['I', 'Inventory'],
+  ['K', 'Skills'],
+  ['P', 'Paragon'],
+  ['U', 'The Ancients’ Cube'],
+  ['Enter', 'Chat'],
+  ['F1', 'This help'],
+  ['F2', 'Prototype tools'],
+  ['Esc', 'Close windows'],
+];
+
+export function HelpPanel() {
+  const open = useUI((s) => !!s.panels.help);
+  if (!open) return null;
+  return (
+    <div class="help-wrap">
+      <div class="help-panel frame interactive">
+        <button class="help-close" onClick={() => togglePanel('help', false)} aria-label="Close">&#x2715;</button>
+        <h2 class="title-plate">Controls</h2>
+        <Divider class="help-div" />
+        <ul class="help-binds">
+          {BINDS.map(([k, d]) => (
+            <li key={k}>
+              <span class="keys">{k.split(' ').map((c) => <kbd key={c}>{c}</kbd>)}</span>
+              <span class="desc">{d}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="help-note">Your primary attack and your four skills fire on their own. Choose where to stand, when to dash, and what to carry.</p>
+      </div>
+    </div>
+  );
+}

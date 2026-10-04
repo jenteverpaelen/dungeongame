@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hearthfall — Panels gallery</title>
+    <style>
+      /* A moody stand-in for the game world so panel translucency and glow read as they will in game. */
+      #game {
+        background:
+          radial-gradient(ellipse 60% 50% at 30% 40%, rgba(46, 74, 40, 0.55), transparent 70%),
+          radial-gradient(ellipse 50% 60% at 78% 62%, rgba(70, 40, 26, 0.5), transparent 70%),
+          repeating-linear-gradient(35deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 7px),
+          linear-gradient(180deg, #1a2418 0%, #121a12 55%, #0b100b 100%);
+      }
+      #game::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%); }
+      .gal-sheet { position: fixed; inset: 0; overflow: auto; padding: 24px; pointer-events: auto; }
+      .gal-grid { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="ui"></div>
+    <script type="module" src="/src/dev/galleryPanels.tsx"></script>
+  </body>
+</html>
