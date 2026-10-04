@@ -56,18 +56,28 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
   const cls = CLASSES[desc.t as ClassId];
   const color = lerpColor(cls?.themeColor ?? 0xd8cfc0, 0xffffff, 0.38);
   const name = text(desc.n ?? 'Hero', 13, color);
-  const pl = desc.pl ?? 0;
-  const lvl = text(pl > 0 ? `P${pl}` : `${desc.lv ?? 1}`, 10.5, pl > 0 ? 0x9fb4ff : 0xe8d9a8);
-  const pad = 4;
-  const lw = lvl.width + pad * 2;
-  const badge = new Graphics()
-    .roundRect(0, 0, lw, 13, 4).fill({ color: 0x120c08, alpha: 0.72 })
-    .roundRect(0, 0, lw, 13, 4).stroke({ width: 1, color: pl > 0 ? 0x5a6ab8 : 0x8a7240, alpha: 0.85 });
-  const total = lw + 4 + name.width;
-  badge.position.set(-total / 2, -14);
-  lvl.position.set(-total / 2 + pad, -14.5);
-  name.position.set(-total / 2 + lw + 4, -16.5);
+  const lvl = text('', 10.5, 0xe8d9a8);
+  const badge = new Graphics();
   inner.addChild(badge, lvl, name);
+  const layout = (lv: number, pl: number) => {
+    lvl.text = pl > 0 ? `P${pl}` : `${lv}`;
+    lvl.tint = pl > 0 ? 0x9fb4ff : 0xe8d9a8;
+    const pad = 4;
+    const lw = lvl.width + pad * 2;
+    badge.clear()
+      .roundRect(0, 0, lw, 13, 4).fill({ color: 0x120c08, alpha: 0.72 })
+      .roundRect(0, 0, lw, 13, 4).stroke({ width: 1, color: pl > 0 ? 0x5a6ab8 : 0x8a7240, alpha: 0.85 });
+    const total = lw + 4 + name.width;
+    badge.position.set(-total / 2, -14);
+    lvl.position.set(-total / 2 + pad, -14.5);
+    name.position.set(-total / 2 + lw + 4, -16.5);
+  };
+  let curLv = desc.lv ?? 1, curPl = desc.pl ?? 0;
+  layout(curLv, curPl);
+  V.levelHooks.set(desc.id, (lv, paragon) => {
+    if (paragon) curPl = lv; else curLv = lv;
+    layout(curLv, curPl);
+  });
   const fade = fader(V, root, inner);
   return {
     root,
@@ -76,7 +86,7 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
       if (isMe) root.alpha *= 0.85;
       root.visible = root.visible && (flags & F_DEAD) === 0;
     },
-    destroy() { root.destroy({ children: true }); },
+    destroy() { V.levelHooks.delete(desc.id); root.destroy({ children: true }); },
   };
 }
 

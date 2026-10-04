@@ -143,7 +143,7 @@ export interface FxTextures {
   ring: Texture; ringThick: Texture; ringHard: Texture; runeRing: Texture;
   spark: Texture; streak: Texture; star4: Texture; flare: Texture;
   smoke: Texture[]; shard: Texture[]; chunk: Texture[]; spike: Texture[];
-  slash: Texture; swipe: Texture; swipeWide: Texture; whirl: Texture;
+  slash: Texture; swipe: Texture; swipeWide: Texture; swipeThin: Texture; whirl: Texture;
   disc: Texture; scorch: Texture[]; crack: Texture[];
   poolLava: Texture; poolGoo: Texture; frostPatch: Texture; swirl: Texture; holeDark: Texture;
   arrow: Texture; bolt: Texture; rocket: Texture; seed: Texture; rock: Texture; bomb: Texture;
@@ -333,11 +333,12 @@ function bakeFxAtlas(): FxTextures {
   };
   const swipe = A.add(256, 256, sector(Math.PI * 0.85, 62));
   const swipeWide = A.add(256, 256, sector(Math.PI * 1.15, 58));
+  const swipeThin = A.add(256, 256, sector(Math.PI * 0.7, 100));
   const whirl = A.add(256, 256, (c) => {
-    const cx = 128, cy = 128, R = 124, rIn = 74;
+    const cx = 128, cy = 128, R = 124, rIn = 88;
     const g = c.createConicGradient(0, cx, cy);
-    g.addColorStop(0, W(0)); g.addColorStop(0.42, W(0.55)); g.addColorStop(0.495, W(1)); g.addColorStop(0.5, W(0));
-    g.addColorStop(0.5001, W(0)); g.addColorStop(0.92, W(0.55)); g.addColorStop(0.995, W(1)); g.addColorStop(1, W(0));
+    g.addColorStop(0, W(0)); g.addColorStop(0.2, W(0)); g.addColorStop(0.4, W(0.35)); g.addColorStop(0.495, W(1)); g.addColorStop(0.5, W(0));
+    g.addColorStop(0.7, W(0)); g.addColorStop(0.9, W(0.35)); g.addColorStop(0.995, W(1)); g.addColorStop(1, W(0));
     c.fillStyle = g;
     c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.arc(cx, cy, rIn, TAU, 0, true); c.fill();
     c.globalCompositeOperation = 'destination-in';
@@ -653,7 +654,7 @@ function bakeFxAtlas(): FxTextures {
     glow: t(glow), core: t(core), dot: t(dot), ring: t(ring), ringThick: t(ringThick), ringHard: t(ringHard), runeRing: t(runeRing),
     spark: t(spark), streak: t(streak), star4: t(star4), flare: t(flare),
     smoke: smoke.map(t), shard: shard.map(t), chunk: chunk.map(t), spike: spike.map(t),
-    slash: t(slash), swipe: t(swipe), swipeWide: t(swipeWide), whirl: t(whirl),
+    slash: t(slash), swipe: t(swipe), swipeWide: t(swipeWide), swipeThin: t(swipeThin), whirl: t(whirl),
     disc: t(disc), scorch: scorch.map(t), crack: crack.map(t),
     poolLava: t(poolLava), poolGoo: t(poolGoo), frostPatch: t(frostPatch), swirl: t(swirl), holeDark: t(holeDark),
     arrow: t(arrow), bolt: t(bolt), rocket: t(rocket), seed: t(seed), rock: t(rock), bomb: t(bomb),

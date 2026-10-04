@@ -89,6 +89,7 @@ export function hurtMob(inst: Instance, m: Mob, amount: number, el: Element, att
   const a = Math.max(1, Math.round(amount));
   m.lastDamagedT = inst.t;
   if (attacker) { attacker.dealt += a; attacker.sinceHitMs = 0; }
+  if (inst.dmgBySkill) inst.dmgBySkill.set(skill, (inst.dmgBySkill.get(skill) ?? 0) + a);
   if (m.dummy) {
     m.hp = Math.max(1, m.hp - a);
     emitDmg(inst, m, a, el, crit, dot, src, false, attacker);
@@ -227,8 +228,9 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
   p.hp -= amount;
   p.taken += amount;
   p.sinceHurtMs = 0;
-  const ev: { e: 'dmg'; t: number; a: number; el: number; s?: number; p: 1 } = { e: 'dmg', t: p.id, a: amount, el: ELEMENT_INDEX.indexOf(el), p: 1 };
+  const ev: { e: 'dmg'; t: number; a: number; el: number; s?: number; p?: 1 } = { e: 'dmg', t: p.id, a: amount, el: ELEMENT_INDEX.indexOf(el) };
   if (src) ev.s = src.id;
+  if (amount >= p.mhp * 0.1) ev.p = 1; // big hit on a player (camera shake / heavy hurt sound)
   inst.emit(ev, p.x, p.y, p.id);
   // Thorns reflect on melee hits (scaled by the main stat like D3 2.x)
   if (melee && src && !src.dead && p.ctx.d.thorns > 0) {

@@ -17,7 +17,7 @@ interface Style { color: number; alpha: number; fill: number }
 const STYLES: Record<string, Style> = {
   slam: { color: 0xff4a1a, alpha: 0.95, fill: 0.3 },
   boss_ring: { color: 0xff2a2a, alpha: 1, fill: 0.26 },
-  meteor: { color: 0xffa040, alpha: 0.5, fill: 0.16 },
+  meteor: { color: 0xffb050, alpha: 0.55, fill: 0.07 },
   frozen_orb: { color: 0x6fd0ff, alpha: 0.95, fill: 0.28 },
   mortar: { color: 0xff6a22, alpha: 0.95, fill: 0.3 },
   molten_death: { color: 0xff6a10, alpha: 1, fill: 0.32 },
@@ -45,14 +45,15 @@ export class Telegraphs {
   handle(ev: Tele): void {
     const V = this.V;
     const d = Math.max(0.12, ev.d / 1000);
-    const st = STYLES[ev.v] ?? STYLES.slam;
+    const el = ev.v === 'meteor' && V.real - this.meteorElAt < 2 ? this.meteorEl : ev.v === 'frozen_orb' ? EL_COLD : EL_FIRE;
+    let st = STYLES[ev.v] ?? STYLES.slam;
+    if (ev.v === 'meteor' && el === EL_COLD) st = { ...st, color: 0x8fdcff };
     const shape = this.shape(ev, st);
     const root = shape.root;
     V.teleLayer.addChild(root);
     let age = 0;
     let resolved = false;
     const extras: Effect[] = [];
-    const el = ev.v === 'meteor' && V.real - this.meteorElAt < 2 ? this.meteorEl : ev.v === 'frozen_orb' ? EL_COLD : EL_FIRE;
 
     switch (ev.v) {
       case 'meteor': extras.push(this.meteorFall(ev.x, ev.y, ev.r, d, el)); break;
@@ -77,7 +78,18 @@ export class Telegraphs {
       if (covers && covers.some((k) => V.consume('aoe:' + k, ev.x, ev.y, 0.4, 70))) return;
       if (covers) V.mark('tele:' + ev.v, ev.x, ev.y);
       switch (ev.v) {
-        case 'slam': this.aoe.slam(ev.x, ev.y, ev.r, 0, 0.8); break;
+        case 'slam': {
+          if (ev.a === undefined) { this.aoe.slam(ev.x, ev.y, ev.r, 0, 0.8); break; }
+          const w = ev.w !== undefined && ev.w > 0 ? ev.w : Math.PI / 3;
+          if (w <= Math.PI + 0.01) { this.aoe.fissure(ev.x, ev.y, ev.r, ev.a, 0, false); break; }
+          // Line: a row of impacts along its length.
+          const n = Math.max(2, Math.round(ev.r / (w * 0.9)));
+          for (let i = 0; i < n; i++) {
+            const d = ((i + 0.5) / n) * ev.r;
+            V.after(i * 0.03, () => this.aoe.slam(ev.x + Math.cos(ev.a!) * d, ev.y + Math.sin(ev.a!) * d, w * 0.6, 0, 0.5));
+          }
+          break;
+        }
         case 'frozen_orb': this.aoe.iceBurst(ev.x, ev.y, Math.max(50, ev.r)); break;
         case 'mortar': this.aoe.explosion(ev.x, ev.y, Math.max(40, ev.r), EL_FIRE, 0.8); break;
         case 'molten_death': this.aoe.explosion(ev.x, ev.y, Math.max(60, ev.r), EL_FIRE, 1.2); break;
@@ -222,7 +234,8 @@ export class Telegraphs {
           const fl = s.aAdd.add(T.flame, tx + rand(-6, 6), y, rand(0.18, 0.32));
           fl.z = tz + rand(-6, 6); fl.anchorY = 0.6; fl.w0 = size * rand(0.8, 1.2); fl.w1 = size * 0.2; fl.k = 1.6; fl.fo = 0.2;
           fl.rotation = Math.atan2(-H, -DX) + Math.PI / 2 + rand(-0.15, 0.15);
-          fl.tintFade(P.hot, P.main);
+          fl.a0 = 0.72;
+          fl.tintFade(cold ? P.hot : 0xffc868, P.main);
           if (Math.random() < 0.5) s.smoke(tx, y, tz, size * 0.5, size * 1.4, cold ? 0xbfe6f5 : 0x4a3e38, rand(0.5, 0.8), 0.4, 10);
           if (Math.random() < 0.4) s.ember(tx, y, tz, P.main, rand(0.4, 0.7), 5, 20);
         }

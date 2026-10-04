@@ -1,8 +1,7 @@
 // Player combat brain (ARCHITECTURE 1.4): auto-attack while moving + auto-cast of the 4 slotted skills.
 
 import { ACQUIRE_BUFFER } from '../shared';
-import { getBuff } from './effects';
-import { hasDot } from './effects';
+import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
 import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
 import { castPrimary, castSkill, channelTick, startChannel } from './skills';
@@ -26,7 +25,7 @@ export function pickTarget(inst: Instance, x: number, y: number, range: number, 
     if (!isTargetable(m)) continue;
     const d = Math.hypot(m.x - x, m.y - y) - m.r;
     if (d < bd) {
-      if (needLos && inst.cw.segmentBlocked(x, y, m.x, m.y)) continue;
+      if (needLos && shotBlocked(inst, x, y, m.x, m.y)) continue;
       bd = d; best = m;
     }
   }
@@ -37,7 +36,7 @@ export function pickTarget(inst: Instance, x: number, y: number, range: number, 
       if (!isTargetable(m) || (m.tier !== 1 && m.tier !== 2 && m.tier !== 4 && m.tier !== 5)) continue;
       const d = Math.hypot(m.x - x, m.y - y) - m.r;
       if (d <= Math.max(bd * 1.2, bd + 30) && d < ed) {
-        if (needLos && inst.cw.segmentBlocked(x, y, m.x, m.y)) continue;
+        if (needLos && shotBlocked(inst, x, y, m.x, m.y)) continue;
         ed = d; elite = m;
       }
     }

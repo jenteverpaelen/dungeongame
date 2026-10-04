@@ -3,7 +3,7 @@
 // that telegraphs and casts reuse.
 
 import type { GameEvent } from '@shared/protocol';
-import type { Effect, VfxCore } from './core';
+import type { VfxCore } from './core';
 import type { Combat } from './combat';
 import type { Fx } from './particles';
 import type { Slashes } from './slash';
@@ -53,7 +53,10 @@ export class AoeFx {
       case 'blackhole': this.blackhole(ev.x, ev.y, r, Math.max(0.4, d), ev.el); break;
       case 'nova': this.nova(ev.x, ev.y, r, ev.el, mine); break;
       case 'stomp': this.stomp(ev.x, ev.y, r, ev.el, mine); break;
-      case 'rend': this.rend(ev.x, ev.y, r, ev.el); break;
+      case 'rend':
+        if (V.consume('cast:rend', ev.x, ev.y, 0.15, 40)) break;
+        this.rend(ev.x, ev.y, r, ev.el);
+        break;
       case 'fissure': this.fissure(ev.x, ev.y, r, ev.a ?? 0, ev.el, mine); break;
       case 'rain': this.rain(ev.x, ev.y, r, Math.max(0.6, d), ev.el); break;
       case 'cluster': this.explosion(ev.x, ev.y, r, ev.el === EL_PHYS ? EL_FIRE : ev.el, 1.2, mine); break;
@@ -77,41 +80,53 @@ export class AoeFx {
     const V = this.V, s = V.sys, T = s.T;
     const P = pal(el);
     const k = power;
-    const z = 12;
+    const z = 14;
+    const sc = Math.max(0.6, r / 70);
     if (el === EL_LIGHT) {
-      s.flash(x, y, z, r * 3, 0xffffff, 0.12, 1);
-      s.flash(x, y, z, r * 2, 0xb9a2ff, 0.3, 0.8);
-      s.ring(s.gAdd, T.ringThick, x, y, r * 0.2, r * 1.1, 0xa98bff, 0.3, 0.9);
-      for (let i = 0; i < 5; i++) this.combat.zigzag(x, y - z, rand(0, TAU), r * rand(0.6, 1.1), 0xe6dcff, 0.18, 2.6);
-      for (let i = 0, n = s.n(14 * k); i < n; i++) s.spark(x, y, z, rand(0, TAU), rand(200, 420), 14, i % 2 ? 0xffffff : 0xb9a2ff, 0.28, 400);
-      this.combat.decal(T.scorch[0], x, y, r * 1.2, 0x000000, 0.35, 2.5);
+      s.flash(x, y, z, r * 2.6, 0xffffff, 0.08, 1);
+      s.glow(x, y, z, r * 0.8, r * 1.6, 0xb9a2ff, 0.22, 0.8, s.aAdd);
+      s.ring(s.gAdd, T.ring, x, y, r * 0.2, r * 1.15, 0xc9b6ff, 0.24, 0.9);
+      for (let i = 0; i < 6; i++) this.combat.zigzag(x, y - z, rand(0, TAU), r * rand(0.6, 1.2), 0xe6dcff, 0.2, 2.6);
+      for (let i = 0, n = s.n(16 * k); i < n; i++) s.spark(x, y, z, rand(0, TAU), rand(220, 460), 15, i % 2 ? 0xffffff : 0xb9a2ff, 0.3, 400);
+      for (let i = 0, n = s.n(3 * k); i < n; i++) s.smoke(x + rand(-r, r) * 0.3, y, z, r * 0.3, r * 0.9, 0x6a6080, rand(0.6, 0.9), 0.28, 40);
+      this.combat.decal(T.scorch[0], x, y, r * 1.1, 0x000000, 0.22, 2.2);
       V.sound('zap', x, y);
       V.sound(power > 1 ? 'explode' : 'grenade', x, y, 0.6);
       return;
     }
     if (el === EL_COLD) { this.iceBurst(x, y, r); return; }
-    const smokeCol = el === EL_POISON ? 0x5f8f3a : el === EL_ARCANE ? 0x3a2a50 : 0x3e3530;
-    s.flash(x, y, z, r * 2.8, P.hot, 0.12, 1);
-    const fb = s.aAdd.add(T.glow, x, y, 0.38 + 0.1 * k);
-    fb.z = z + 8; fb.w0 = r * 0.9; fb.w1 = r * 2.6; fb.se = 3; fb.fo = 0.15; fb.a0 = 0.95; fb.tintFade(P.hot, P.main);
-    s.ring(s.gAdd, T.ringThick, x, y, r * 0.25, r * 1.12, P.main, 0.32, 0.85);
-    s.ring(s.gNormal, T.ringThick, x, y, r * 0.3, r * 1.3, 0x3a2e24, 0.45, 0.32);
-    for (let i = 0, n = s.n(9 * k); i < n; i++) {
-      const a = rand(0, TAU), d = rand(0, r * 0.6);
-      const f = s.aAdd.add(T.flame, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.6, rand(0.28, 0.5));
-      f.anchorY = 0.85; f.z = rand(0, 10); f.vz = rand(60, 140); f.vx = Math.cos(a) * 60; f.vy = Math.sin(a) * 30; f.drag = 2;
-      f.w0 = rand(18, 30) * Math.max(0.7, r / 70); f.w1 = 4; f.k = 1.45; f.fo = 0.3; f.flick = 0.2;
-      f.tintFade(P.hot, P.main);
+    const smokeCol = el === EL_POISON ? 0x6f9f4a : el === EL_ARCANE ? 0x5a4a70 : 0x5e524a;
+    // White-hot core flash, then a billowing fireball of overlapping glows that rise and cool.
+    s.flash(x, y, z, r * 2.4, P.hot, 0.09, 1);
+    for (let i = 0, n = 4 + Math.round(2 * k); i < n; i++) {
+      const a = rand(0, TAU), d = rand(0, r * 0.35);
+      const g = s.aAdd.add(T.glow, x + Math.cos(a) * d, y + Math.sin(a) * d * 0.5, rand(0.3, 0.45) * (0.85 + 0.15 * k));
+      g.z = z + rand(0, 14); g.vz = rand(30, 90); g.drag = 2;
+      g.w0 = r * rand(0.6, 0.9); g.w1 = r * rand(1.3, 1.7); g.se = 3; g.fo = 0.25; g.a0 = 0.75;
+      g.tintFade(lerpColor(P.hot, P.main, 0.35), el === EL_FIRE || el === EL_PHYS ? 0xb83a0c : P.main);
     }
-    for (let i = 0, n = s.n(14 * k); i < n; i++) s.spark(x, y, z, rand(0, TAU), rand(200, 440) * Math.max(0.8, r / 80), rand(10, 18), lerpColor(P.hot, P.main, Math.random()), rand(0.25, 0.45), 700);
-    for (let i = 0, n = s.n(6 * k); i < n; i++) s.smoke(x + rand(-r, r) * 0.4, y + rand(-r, r) * 0.2, z + rand(0, 20), r * 0.5, r * 1.3, smokeCol, rand(0.8, 1.3), 0.5, rand(30, 60));
-    for (let i = 0, n = s.n(5 * k); i < n; i++) {
+    // Flame tongues thrown outward and up.
+    for (let i = 0, n = s.n(10 * k); i < n; i++) {
+      const a = (i / 10) * TAU + rand(-0.3, 0.3), sp = rand(120, 260) * sc;
+      const f = s.aAdd.add(T.flame, x + Math.cos(a) * r * 0.2, y + Math.sin(a) * r * 0.12, rand(0.3, 0.5));
+      f.anchorY = 0.8; f.z = rand(4, 16); f.vx = Math.cos(a) * sp; f.vy = Math.sin(a) * sp * 0.55; f.vz = rand(60, 150); f.drag = 3.5;
+      f.w0 = rand(20, 32) * sc; f.w1 = 5; f.k = 1.5; f.fo = 0.3; f.flick = 0.2; f.a0 = 0.85;
+      f.tintFade(lerpColor(P.hot, P.main, 0.3), P.main);
+    }
+    s.ring(s.gAdd, T.ring, x, y, r * 0.3, r * 1.25, P.hot, 0.26, 0.85);
+    s.ring(s.gNormal, T.ringThick, x, y, r * 0.3, r * 1.2, 0x3a2e24, 0.4, 0.3);
+    for (let i = 0, n = s.n(14 * k); i < n; i++) s.spark(x, y, z, rand(0, TAU), rand(220, 460) * sc, rand(10, 18), lerpColor(P.hot, P.main, Math.random()), rand(0.25, 0.45), 700);
+    // Smoke rolls in as the fire dies and lingers.
+    V.after(0.07, () => {
+      for (let i = 0, n = s.n(4 * k); i < n; i++) s.smoke(x + rand(-r, r) * 0.35, y + rand(-r, r) * 0.15, z + rand(6, 26), r * 0.45, r * 1.15, smokeCol, rand(0.9, 1.4), 0.34, rand(40, 70));
+    });
+    for (let i = 0, n = s.n(3 * k - 1); i < n; i++) {
       const a = rand(0, TAU);
-      s.chunk(x, y, z, Math.cos(a) * rand(80, 220), Math.sin(a) * rand(50, 130), rand(200, 380), rand(5, 9), 0x2e2622, rand(0.7, 1.1));
+      s.chunk(x, y, z, Math.cos(a) * rand(80, 220), Math.sin(a) * rand(50, 130), rand(200, 380), rand(5, 8), 0x4a3c34, rand(0.6, 0.9));
     }
     for (let i = 0, n = s.n(8 * k); i < n; i++) s.ember(x + rand(-r, r) * 0.5, y, rand(4, 30), P.main, rand(0.7, 1.2), 4, 80);
-    if (el === EL_POISON) this.combat.decal(T.poolGoo, x, y, r * 1.4, 0x5fae3a, 0.6, 3);
-    else this.combat.decal(T.scorch[(Math.random() * 2) | 0], x, y, r * 1.6, 0x000000, 0.55, 4);
+    if (el === EL_POISON) this.combat.decal(T.poolGoo, x, y, r * 1.4, 0x3f7a26, 0.5, 3);
+    else this.combat.decal(T.scorch[(Math.random() * 2) | 0], x, y, r * 1.5, 0x000000, 0.3, 3.5);
     if (power >= 1) V.shakeNear(x, y, mine ? 4 : 3, 140);
     V.sound(power >= 1 ? 'explode' : 'grenade', x, y, mine ? 1 : 0.7);
   }
@@ -141,8 +156,8 @@ export class AoeFx {
     const P = pal(cold ? EL_COLD : EL_FIRE);
     const k = small ? 0.55 : 1;
     s.flash(x, y, 14, r * 3.4 * k, cold ? 0xf0fbff : 0xfff0c0, 0.16, 1);
-    const fb = s.aAdd.add(T.glow, x, y, 0.55 * k + 0.1);
-    fb.z = 20; fb.w0 = r * 1.1; fb.w1 = r * 2.8; fb.se = 3; fb.fo = 0.1; fb.a0 = 1; fb.tintFade(P.hot, P.main);
+    const fb = s.aAdd.add(T.glow, x, y, 0.45 * k + 0.1);
+    fb.z = 20; fb.w0 = r * 1.0; fb.w1 = r * 2.3; fb.se = 3; fb.fo = 0.05; fb.a0 = 1; fb.tintFade(P.hot, P.main);
     s.ring(s.gAdd, T.ringThick, x, y, r * 0.2, r * 1.4, P.main, 0.5 * k + 0.1, 1);
     s.ring(s.aAdd, T.ringHard, x, y, r * 0.4, r * 1.7, 0xffffff, 0.35 * k + 0.08, 0.7, 2);
     // Ground dust shock ring.
@@ -172,10 +187,12 @@ export class AoeFx {
         f.tintFade(0xffe08a, 0xff4a10);
       }
       for (let i = 0, n = s.n(small ? 8 : 22); i < n; i++) s.ember(x + rand(-r, r) * 0.7, y + rand(-r, r) * 0.3, rand(4, 30), 0xffa040, rand(0.9, 1.6), rand(3, 6), 110);
-      for (let i = 0, n = s.n(small ? 3 : 8); i < n; i++) s.smoke(x + rand(-r, r) * 0.4, y, rand(10, 40), r * 0.6 * k + 20, r * 1.6 * k + 30, 0x352c27, rand(1.2, 2.0), 0.5, rand(40, 80));
-      this.combat.decal(T.scorch[(Math.random() * 2) | 0], x, y, r * 2.3 * k, 0x000000, 0.7, 6);
-      const cr = s.gAdd.add(T.crack[(Math.random() * 2) | 0], x, y, 2.6 * k + 0.6);
-      cr.w0 = cr.w1 = r * 1.7 * k; cr.rotation = rand(0, TAU); cr.a0 = 1; cr.fo = 0.25; cr.tintFade(0xffb040, 0x601000);
+      for (let i = 0, n = s.n(small ? 2 : 6); i < n; i++) s.smoke(x + rand(-r, r) * 0.4, y, rand(10, 40), r * 0.5 * k + 20, r * 1.3 * k + 30, 0x4e423b, rand(1.1, 1.8), 0.38, rand(50, 90));
+      this.combat.decal(T.scorch[(Math.random() * 2) | 0], x, y, r * 2.1 * k, 0x000000, small ? 0.28 : 0.45, small ? 3.5 : 6);
+      if (!small) {
+        const cr = s.gAdd.add(T.crack[(Math.random() * 2) | 0], x, y, 3.2);
+        cr.w0 = cr.w1 = r * 1.7; cr.rotation = rand(0, TAU); cr.a0 = 1; cr.fo = 0.25; cr.tintFade(0xffb040, 0x601000);
+      }
     }
     if (!small) V.shakeNear(x, y, mine ? 7 : 5, 240);
     else V.shakeNear(x, y, 2.5, 100);
@@ -225,7 +242,7 @@ export class AoeFx {
     const tex = kind === 'lava' ? T.poolLava : kind === 'goo' ? T.poolGoo : T.frostPatch;
     const layer = kind === 'frost' ? s.gAdd : s.gNormal;
     const base = layer.hold(tex, x, y);
-    base.tintTo(kind === 'goo' ? 0x6fbf3a : kind === 'frost' ? 0xbfe9ff : 0xffffff);
+    base.tintTo(kind === 'goo' ? 0x41862a : kind === 'frost' ? 0xbfe9ff : 0xffffff);
     base.rotation = rand(0, TAU);
     const glow = s.gAdd.hold(T.glow, x, y);
     glow.tintTo(kind === 'lava' ? 0xff6a10 : kind === 'goo' ? 0x7fdc4a : 0x7fd8ff);
@@ -239,10 +256,10 @@ export class AoeFx {
         base.place(x, y, 0);
         base.setScale(w * (0.75 + 0.25 * easeOut(fin)));
         base.rotation += dt * 0.05;
-        base.setAlpha((kind === 'goo' ? 0.82 : kind === 'frost' ? 0.6 : 0.95) * a);
+        base.setAlpha((kind === 'goo' ? 0.66 : kind === 'frost' ? 0.6 : 0.95) * a);
         glow.place(x, y, 0);
         glow.setScale(w * 1.25);
-        glow.setAlpha((kind === 'lava' ? 0.3 : 0.16) * a * (0.85 + 0.15 * Math.sin(age * 3 + x)));
+        glow.setAlpha((kind === 'lava' ? 0.3 : 0.09) * a * (0.85 + 0.15 * Math.sin(age * 3 + x)));
         // Bubbles / embers / gas.
         acc += dt * (r / 9) * s.budget;
         while (acc > 1) {
@@ -326,7 +343,7 @@ export class AoeFx {
         }
         if (age >= d) {
           s.flash(x, y, 10, r * 2.2, hot, 0.16, 1);
-          s.ring(s.gAdd, T.ringThick, x, y, r * 0.1, r * 1.1, main, 0.35, 1);
+          s.ring(s.gAdd, T.ring, x, y, r * 0.1, r * 1.0, main, 0.3, 0.8);
           for (let i = 0, n = s.n(16); i < n; i++) s.spark(x, y, 10, rand(0, TAU), rand(160, 360), 12, i % 2 ? hot : main, 0.3);
           if (cold) this.iceBurst(x, y, r * 0.6);
           return false;
@@ -349,8 +366,8 @@ export class AoeFx {
     s.flash(x, y, 20, r * 1.4, 0xe8fbff, 0.16, 1);
     s.ring(s.gAdd, T.ringThick, x, y, r * 0.1, r, 0x7fd8ff, exp + 0.25, 1);
     s.ring(s.aAdd, T.ringHard, x, y, r * 0.1, r * 1.03, 0xffffff, exp + 0.12, 0.9, 2);
-    this.combat.decal(T.frostPatch, x, y, r * 2.15, 0xbfe9ff, 0.55, 2.2, s.gAdd);
-    this.combat.decal(T.frostPatch, x, y, r * 2.1, 0xe6f6ff, 0.3, 2.6);
+    this.combat.decal(T.frostPatch, x, y, r * 2.15, 0x9fdcff, 0.32, 2.2, s.gAdd);
+    this.combat.decal(T.frostPatch, x, y, r * 2.1, 0xe6f6ff, 0.22, 2.6);
     // Shards racing outward with the ring.
     for (let i = 0, n = s.n(26); i < n; i++) {
       const a = (i / 26) * TAU + rand(-0.1, 0.1);
@@ -368,7 +385,7 @@ export class AoeFx {
       V.after(exp * (rr / r), () => {
         const sx = x + Math.cos(a) * rr, sy = y + Math.sin(a) * rr;
         const p = s.aBody.add(T.spike[i % 2], sx, sy, rand(0.9, 1.3));
-        p.anchorY = 0.95; p.w0 = rand(8, 12); p.w1 = rand(16, 22); p.se = 3; p.k = 1; p.fi = 0.04; p.fo = 0.7;
+        p.anchorY = 0.95; p.w0 = rand(10, 14); p.w1 = rand(20, 30); p.se = 3; p.k = 1; p.fi = 0.04; p.fo = 0.7;
         p.tintTo(0xcff2ff);
         s.glint(sx, sy, rand(8, 20), 12, 0xffffff, 0.3);
         if (Math.random() < 0.4) s.smoke(sx, sy, 4, 18, 40, 0xdff4ff, 0.8, 0.25, 10);
@@ -394,14 +411,14 @@ export class AoeFx {
     s.ring(s.gAdd, T.ringHard, x, y, r * 0.15, r * 1.02, fire ? 0xff8a3d : 0xffe9c0, 0.3, 0.6);
     for (let i = 0, n = s.n(18); i < n; i++) {
       const a = (i / 18) * TAU + rand(-0.15, 0.15);
-      s.dust(x + Math.cos(a) * 14, y + Math.sin(a) * 10, r * 0.35, r * 0.75, 0xb8a284, rand(0.6, 0.9), 0.5, Math.cos(a) * r * 3.2, Math.sin(a) * r * 2.4);
+      s.dust(x + Math.cos(a) * 14, y + Math.sin(a) * 10, r * 0.25, r * 0.6, 0x9c8a70, rand(0.5, 0.8), 0.32, Math.cos(a) * r * 3.2 * rand(0.8, 1.1), Math.sin(a) * r * 2.4 * rand(0.8, 1.1));
     }
     for (let i = 0, n = s.n(10); i < n; i++) {
       const a = rand(0, TAU), sp = rand(60, 180);
       s.chunk(x + Math.cos(a) * r * 0.3, y + Math.sin(a) * r * 0.2, 2, Math.cos(a) * sp, Math.sin(a) * sp * 0.6, rand(220, 420), rand(6, 11), i % 2 ? 0x8a7a66 : 0x6a5a4a, rand(0.8, 1.2));
     }
     const cr = s.gNormal.add(T.crack[(Math.random() * 2) | 0], x, y, 2.6);
-    cr.w0 = r * 1.2; cr.w1 = r * 1.5; cr.se = 3; cr.rotation = rand(0, TAU); cr.a0 = 0.6; cr.fo = 0.55; cr.tintTo(0x241a12);
+    cr.w0 = r * 1.0; cr.w1 = r * 1.2; cr.se = 3; cr.rotation = rand(0, TAU); cr.a0 = 0.42; cr.fo = 0.5; cr.tintTo(0x241a12);
     if (fire) {
       const g = s.gAdd.add(T.crack[0], x, y, 1.8);
       g.w0 = r * 1.2; g.w1 = r * 1.5; g.se = 3; g.rotation = cr.rotation; g.a0 = 1; g.fo = 0.3; g.tintFade(0xffb040, 0x801800);
@@ -417,7 +434,7 @@ export class AoeFx {
     const base = rand(0, TAU);
     for (let i = 0; i < 3; i++) {
       V.after(i * 0.045, () => {
-        this.slashes.spawn({ tex: T.swipe, x, y, z: WAIST - 4 + i * 4, r: r * 0.95, rot: base + i * 2.1, vr: 9, life: 0.26, color: i === 1 ? 0xff7080 : col, alpha: 0.95, grow: [0.85, 1.05] });
+        this.slashes.spawn({ tex: T.swipeThin, x, y, z: WAIST - 6 + i * 6, r: r * (0.8 + i * 0.1), rot: base + i * 2.1, vr: 11, life: 0.24, color: i === 1 ? 0xff8090 : col, alpha: 1, grow: [0.8, 1.05], squash: 0.55 });
       });
     }
     for (let i = 0, n = s.n(16); i < n; i++) {
@@ -440,16 +457,17 @@ export class AoeFx {
     for (let i = 0; i < rows; i++) {
       const d = 34 + (i / (rows - 1)) * (r - 34);
       const width = d * Math.tan(half);
-      const lat = 1 + Math.floor(width / 34);
+      const lat = 1 + Math.floor(width / 52);
       V.after(i * 0.032, () => {
         for (let j = 0; j < lat; j++) {
           const off = lat === 1 ? 0 : (j / (lat - 1) - 0.5) * 2 * width * 0.8;
           const px = x + Math.cos(a) * d - Math.sin(a) * off + rand(-6, 6);
           const py = y + Math.sin(a) * d + Math.cos(a) * off + rand(-6, 6);
           const sp = s.aBody.add(T.spike[(i + j) % 2], px, py, rand(0.55, 0.8));
-          sp.anchorY = 0.95; sp.w0 = 4; sp.w1 = rand(16, 24) * (0.8 + d / r * 0.4); sp.se = 3; sp.fo = 0.55; sp.fi = 0.02;
+          sp.anchorY = 0.95; sp.w0 = 5; sp.w1 = rand(18, 26) * (0.85 + d / r * 0.4); sp.se = 3; sp.fo = 0.5; sp.fi = 0.02;
           sp.tintTo(spikeCol);
-          s.dust(px, py, 16, 44, cold ? 0xdff4ff : 0xa89070, rand(0.5, 0.8), 0.5, rand(-30, 30), rand(-20, 20));
+          s.dust(px, py, 22, 60, cold ? 0xdff4ff : 0x9c8a70, rand(0.6, 0.9), 0.4, rand(-30, 30), rand(-20, 20));
+          s.smoke(px, py, 10, 16, 46, cold ? 0xdff4ff : 0xa89070, rand(0.5, 0.8), 0.3, 40);
           if (Math.random() < 0.6) s.chunk(px, py, 4, rand(-60, 60), rand(-30, 30), rand(180, 320), rand(5, 9), cold ? 0xd8f4ff : 0x6a5a4a, 0.8);
           if (fire) { s.ember(px, py, 6, 0xff8a3d, rand(0.5, 0.9), 5, 90); const g = s.gAdd.add(T.glow, px, py, 0.5); g.w0 = 30; g.w1 = 40; g.a0 = 0.5; g.fo = 0.3; g.k = 0.6; g.tintTo(0xff6a10); }
           if (cold) s.glint(px, py, 14, 12, 0xffffff, 0.3);
@@ -457,7 +475,7 @@ export class AoeFx {
         if (i % 2 === 0) {
           const cx = x + Math.cos(a) * d, cy = y + Math.sin(a) * d;
           const cr = (fire ? s.gAdd : s.gNormal).add(T.crack[i % 2], cx, cy, 2.4);
-          cr.w0 = cr.w1 = Math.max(70, width * 2.2); cr.rotation = rand(0, TAU); cr.a0 = fire ? 0.9 : 0.55; cr.fo = 0.5;
+          cr.w0 = cr.w1 = Math.max(60, width * 1.5); cr.rotation = rand(0, TAU); cr.a0 = fire ? 0.85 : 0.38; cr.fo = 0.5;
           if (fire) cr.tintFade(0xffb040, 0x801800); else cr.tintTo(cold ? 0x9fc8e0 : 0x241a12);
         }
       });
@@ -470,7 +488,7 @@ export class AoeFx {
   whirl(x: number, y: number, r: number, el: number): void {
     const s = this.V.sys, T = s.T;
     const col = el === EL_FIRE ? 0xff9a4a : el === EL_PHYS ? 0xfff2dc : pal(el).main;
-    this.slashes.spawn({ tex: T.whirl, x, y, z: WAIST, r: r * 0.95, rot: rand(0, TAU), vr: 16, life: 0.3, color: col, alpha: 0.6, grow: [0.95, 1.05], fadeIn: 0.15 });
+    this.slashes.spawn({ tex: T.whirl, x, y, z: WAIST, r: r * 0.95, rot: rand(0, TAU), vr: 16, life: 0.3, color: col, alpha: 0.42, grow: [0.95, 1.05], fadeIn: 0.15 });
     for (let i = 0, n = s.n(2); i < n; i++) {
       const a = rand(0, TAU);
       s.dust(x + Math.cos(a) * r * 0.7, y + Math.sin(a) * r * 0.5, 16, 40, 0xc9b597, rand(0.4, 0.6), 0.32, -Math.sin(a) * 120, Math.cos(a) * 80);
@@ -527,16 +545,16 @@ export class AoeFx {
     s.ring(s.gAdd, T.ringHard, x, y, r * 0.2, r, el === EL_PHYS ? 0xffd8a0 : P.main, 0.26, 0.7);
     for (let i = 0, n = s.n(12 * scale); i < n; i++) {
       const a = (i / 12) * TAU + rand(-0.2, 0.2);
-      s.dust(x + Math.cos(a) * 10, y + Math.sin(a) * 8, r * 0.3, r * 0.7, el === EL_POISON ? 0x7fae4a : 0xb8a284, rand(0.5, 0.8), 0.45, Math.cos(a) * r * 2.6, Math.sin(a) * r * 2);
+      s.dust(x + Math.cos(a) * 10, y + Math.sin(a) * 8, r * 0.25, r * 0.55, el === EL_POISON ? 0x6f9e40 : 0x8f7d64, rand(0.45, 0.7), 0.3, Math.cos(a) * r * 2.6, Math.sin(a) * r * 2);
     }
     for (let i = 0, n = s.n(6 * scale); i < n; i++) {
       const a = rand(0, TAU), sp = rand(60, 160);
       s.chunk(x, y, 4, Math.cos(a) * sp, Math.sin(a) * sp * 0.6, rand(200, 360), rand(5, 9), el === EL_POISON ? 0x7fce4a : 0x7a6a56, rand(0.7, 1.1), el === EL_POISON ? T.dot : undefined);
     }
     const cr = s.gNormal.add(T.crack[(Math.random() * 2) | 0], x, y, 2);
-    cr.w0 = r * 1.1; cr.w1 = r * 1.35; cr.se = 3; cr.rotation = rand(0, TAU); cr.a0 = 0.5; cr.fo = 0.5; cr.tintTo(0x241a12);
+    cr.w0 = r * 0.95; cr.w1 = r * 1.15; cr.se = 3; cr.rotation = rand(0, TAU); cr.a0 = 0.38; cr.fo = 0.5; cr.tintTo(0x241a12);
     if (el === EL_FIRE) for (let i = 0, n = s.n(10); i < n; i++) s.ember(x + rand(-r, r) * 0.6, y + rand(-r, r) * 0.4, 2, 0xff8a3d, rand(0.6, 1), 5, 80);
-    if (el === EL_POISON) this.combat.decal(T.poolGoo, x, y, r * 1.3, 0x5fae3a, 0.6, 2.5);
+    if (el === EL_POISON) this.combat.decal(T.poolGoo, x, y, r * 1.2, 0x3f7a26, 0.45, 2.5);
     V.shakeNear(x, y, r >= 110 ? 6 : 3, r >= 110 ? 200 : 120);
     V.sound('slam', x, y, r >= 110 ? 1 : 0.6);
   }
@@ -551,27 +569,15 @@ export class AoeFx {
     shade.tintTo(tint);
     const rim = s.gAdd.hold(T.ringHard, x, y);
     rim.tintTo(light ? 0xa98bff : fire ? 0xff8a3d : 0xffe2a0);
-    const clouds: Fx[] = [];
-    if (light) {
-      for (let i = 0; i < 5; i++) {
-        const c = s.aSmoke.hold(T.smoke[i % 3], x + rand(-r, r) * 0.6, y);
-        c.tintTo(0x2a2438); c.rotation = rand(0, TAU); c.u = rand(-r, r) * 0.6;
-        clouds.push(c);
-      }
-    }
     let age = 0, acc = 0, sndAt = 0;
-    const rate = (light ? 7 : 22) * Math.max(0.6, r / 110);
+    const rate = (light ? 7 : 42) * Math.max(0.6, r / 110);
     V.sound('rain', x, y);
     V.add({
       update: (dt) => {
         age += dt;
         const a = Math.min(clamp(age / 0.2, 0, 1), clamp((d - age) / 0.3, 0, 1));
-        shade.place(x, y, 0); shade.setScale(r * 2, 1); shade.setAlpha(0.16 * a);
+        shade.place(x, y, 0); shade.setScale(r * 2, 1); shade.setAlpha((light ? 0.26 : 0.16) * a);
         rim.place(x, y, 0); rim.setScale(r * 2.1, 1); rim.setAlpha(0.35 * a);
-        for (const c of clouds) {
-          c.place(x + c.u + Math.sin(age * 0.8 + c.u) * 10, y - 6, 300);
-          c.setScale(r * 0.9, 0.55); c.setAlpha(0.5 * a); c.rotation += dt * 0.2;
-        }
         if (age > sndAt && !light) { sndAt = age + 0.45; V.sound('rain', x, y, 0.45); }
         acc += dt * rate * s.budget;
         while (acc > 1 && age < d - 0.1) {
@@ -583,7 +589,7 @@ export class AoeFx {
         }
         return age < d;
       },
-      kill: () => { s.gNormal.kill(shade); s.gAdd.kill(rim); for (const c of clouds) s.aSmoke.kill(c); },
+      kill: () => { s.gNormal.kill(shade); s.gAdd.kill(rim); },
     });
   }
 
@@ -591,11 +597,11 @@ export class AoeFx {
     const V = this.V, s = V.sys, T = s.T;
     const t = 0.2, H = 420, DX = -70;
     const p = s.aBody.add(T.arrow, tx + DX, ty, t);
-    p.z = H; p.vx = -DX / t; p.vz = -H / t; p.align = true; p.w0 = p.w1 = 30; p.fo = 1; p.a0 = 1;
+    p.z = H; p.vx = -DX / t; p.vz = -H / t; p.align = true; p.w0 = p.w1 = 40; p.fo = 1; p.a0 = 1;
     p.tintTo(0xffffff);
     if (fire) { const f = s.aAdd.add(T.flame, tx + DX, ty, t); f.z = H; f.vx = -DX / t; f.vz = -H / t; f.w0 = 14; f.w1 = 10; f.k = 1.4; f.fo = 1; f.rotation = Math.atan2(H, -DX) - Math.PI / 2; f.tintTo(0xff8a3d); }
     const st = s.aAdd.add(T.streak, tx + DX, ty, t);
-    st.z = H; st.vx = -DX / t; st.vz = -H / t; st.align = true; st.anchorX = 0.9; st.w0 = st.w1 = 60; st.k = 0.4; st.a0 = 0.35; st.fo = 1;
+    st.z = H; st.vx = -DX / t; st.vz = -H / t; st.align = true; st.anchorX = 0.9; st.w0 = st.w1 = 90; st.k = 0.45; st.a0 = 0.55; st.fo = 1;
     st.tintTo(fire ? 0xffa040 : 0xfff4d6);
     V.after(t, () => {
       s.dust(tx, ty, 8, 22, 0xc9b597, 0.4, 0.4);
@@ -609,7 +615,7 @@ export class AoeFx {
   /** A lightning strike from the sky (Dark Cloud rune). */
   strike(tx: number, ty: number): void {
     const V = this.V, s = V.sys;
-    const top = ty - 300;
+    const top = ty - 230;
     let px = tx + rand(-30, 30), py = top;
     const segs = 7;
     for (let i = 1; i <= segs; i++) {
@@ -621,7 +627,7 @@ export class AoeFx {
     }
     s.flash(tx, ty, 4, 70, 0xe6dcff, 0.14, 1);
     for (let i = 0; i < 6; i++) s.spark(tx, ty, 4, rand(-Math.PI, 0), rand(120, 260), 10, 0xd6c2ff, 0.2, 500);
-    this.combat.decal(V.T.scorch[0], tx, ty, 34, 0x000000, 0.4, 1.5);
+    this.combat.decal(V.T.scorch[0], tx, ty, 26, 0x000000, 0.22, 1.2);
     V.sound('zap', tx, ty, 0.6);
   }
 }

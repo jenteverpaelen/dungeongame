@@ -122,6 +122,9 @@ export class CombatText {
   private make(amount: number, x: number, y: number, o: NumOpts, merged: boolean): Num {
     if (this.nums.length >= MAX_NUMS) this.evict();
     const st = STYLE[o.kind];
+    // Busy screen: regular numbers get smaller and shorter-lived so crits stay readable.
+    const busy = clamp((this.nums.length - 40) / 120, 0, 1);
+    const calm = st.thick || merged ? 1 : 1 - 0.22 * busy;
     const lane = o.lane ? this.nextLane(o.lane) : o.key ? this.nextLane(o.key) : 0;
     const laneX = [0, -20, 20, -10, 12][lane];
     const laneY = [0, -10, -5, -18, -13][lane];
@@ -130,9 +133,9 @@ export class CombatText {
       y: y + laneY,
       dx: (Math.random() - 0.5) * 22 + Math.sign(laneX) * 8,
       rise: st.rise[0] + Math.random() * (st.rise[1] - st.rise[0]),
-      age: 0, life: st.life + (merged ? 0.35 : 0),
+      age: 0, life: (st.life + (merged ? 0.35 : 0)) * (calm < 1 ? 0.75 + 0.25 * calm : 1),
       delay: Math.min(0.045, this.burst * 0.006),
-      px: st.px * (o.big ?? 1) * (o.faint ? 0.75 : 1) * (merged ? 1.12 : 1),
+      px: st.px * (o.big ?? 1) * (o.faint ? 0.75 : 1) * (merged ? 1.12 : 1) * calm,
       fill: toBgr(o.kind === NumKind.Dot && o.color !== undefined ? o.color : st.fill),
       outline: toBgr(st.outline),
       alpha: o.faint ? 0.5 : 1,
@@ -146,8 +149,38 @@ export class CombatText {
     };
     this.burst++;
     this.setText(n);
+    if (!this.avoid(n) && !n.thick && busy > 0.15) {
+      // No room in a crowd: drop this minor number rather than stacking an unreadable pile.
+      this.release(n);
+      return n;
+    }
     this.nums.push(n);
     return n;
+  }
+
+  /** Nudge a new number up out of young numbers it would overlap (crowds of different targets). */
+  private avoid(n: Num): boolean {
+    const zoom = this.zoom() || 1;
+    const size = this.atlas.size;
+    const w = (n.width * n.px) / size / zoom, h = (n.px * 0.8) / zoom;
+    const y0 = n.y;
+    for (let it = 0; it < 6; it++) {
+      let hit = false;
+      for (const o of this.nums) {
+        if (o.dead || this.time - o.born > 0.4) continue;
+        const ta = Math.max(0, o.age - o.delay);
+        const rt = clamp(ta / (o.life * 0.62), 0, 1);
+        const oy = o.y - easeOut3(rt) * o.rise, ox = o.x + easeOut(rt) * o.dx;
+        const ow = (o.width * o.px) / size / zoom, oh = (o.px * 0.8) / zoom;
+        if (Math.abs(n.x - ox) < (w + ow) * 0.5 && Math.abs(n.y - oy) < (h + oh) * 0.5) {
+          n.y = oy - (h + oh) * 0.5 - 1;
+          hit = true;
+        }
+      }
+      if (!hit) return true;
+      if (y0 - n.y > 70) return false;
+    }
+    return false;
   }
 
   private absorb(m: Num, amount: number, crit: boolean): void {

@@ -57,7 +57,7 @@ export class Casts {
       }
       case 'rend': {
         this.aoe.rend(x, y, ev.rad ?? 110, el);
-        V.mark('aoe:rend', x, y);
+        V.mark('cast:rend', x, y);
         break;
       }
       case 'ground_stomp': {

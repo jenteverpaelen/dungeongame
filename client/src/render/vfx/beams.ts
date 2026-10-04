@@ -2,7 +2,7 @@
 
 import type { GameEvent } from '@shared/protocol';
 import type { VfxCore } from './core';
-import { EL_COLD, EL_FIRE, TAU, clamp, easeIn, pal, rand } from './util';
+import { EL_COLD, EL_FIRE, TAU, clamp, easeIn, lerpColor, pal, rand } from './util';
 
 type Beam = Extract<GameEvent, { e: 'beam' }>;
 
@@ -45,8 +45,9 @@ export class Beams {
           const life = interval * 1.7;
           for (let i = 1; i < pts.length; i += 1) {
             const [px, py] = pts[i - 1], [qx, qy] = pts[i];
-            s.seg(s.aAdd, px, py, qx, qy, 9, glowCol, life, 0.35);
-            s.seg(s.aAdd, px, py, qx, qy, 2.3, P.hot, life, 1);
+            s.seg(s.aAdd, px, py, qx, qy, 16, glowCol, life, 0.4);
+            s.seg(s.aAdd, px, py, qx, qy, 6, lerpColor(glowCol, 0xffffff, 0.5), life, 0.55);
+            s.seg(s.aAdd, px, py, qx, qy, 2.6, P.hot, life, 1);
           }
           if (fork && Math.random() < 0.8) {
             const [fx, fy] = pts[(pts.length / 2) | 0];
@@ -57,7 +58,7 @@ export class Beams {
           }
           for (const [ex, ey] of [[ax, ay], [bx, by]]) {
             const g = s.aAdd.add(s.T.glow, ex, ey, life);
-            g.w0 = 34; g.w1 = 26; g.a0 = 0.7; g.fo = 0; g.tintTo(glowCol);
+            g.w0 = 50; g.w1 = 36; g.a0 = 0.8; g.fo = 0; g.tintTo(glowCol);
           }
         }
         return age < d;
@@ -93,8 +94,8 @@ export class Beams {
           const amp = Math.sin(f * Math.PI) * 9;
           const w = Math.sin(f * 10 - age * 24) * amp;
           const qx = ax + (bx - ax) * f + nx * w, qy = ay + (by - ay) * f + ny * w;
-          s.seg(s.aAdd, px, py, qx, qy, 6, 0x8a4dff, 0.04, 0.5);
-          s.seg(s.aAdd, px, py, qx, qy, 2, 0xf0d8ff, 0.04, 0.9);
+          s.seg(s.aAdd, px, py, qx, qy, 11, 0x8a4dff, 0.04, 0.5);
+          s.seg(s.aAdd, px, py, qx, qy, 3, 0xf0d8ff, 0.04, 0.95);
           px = qx; py = qy;
         }
         if (Math.random() < 0.7 * s.budget) {

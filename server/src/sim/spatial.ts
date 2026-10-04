@@ -52,8 +52,9 @@ export class SpatialHash<T extends Hashed> {
     this.size--;
   }
 
-  /** Call after changing e.x / e.y. */
+  /** Call after changing e.x / e.y. Entities that were removed are ignored. */
   update(e: T) {
+    if (e.hCell < 0) return;
     const c = this.cellOf(e.x, e.y);
     if (c === e.hCell) return;
     const old = this.cells[e.hCell];

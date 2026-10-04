@@ -291,7 +291,7 @@ function mapView() {
   const scr = app.screen;
   world.scale.set(ZOOM);
   world.position.set(Math.round(scr.width / 2 - fx * ZOOM), Math.round(scr.height / 2 - fy * ZOOM));
-  mapInfo = `map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
+  mapInfo = `${(globalThis as { __mapTiming?: string }).__mapTiming} [${((globalThis as { __chunkT?: number[] }).__chunkT ?? []).map((v) => v.toFixed(0)).join(" ")}] map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
 }
 
 function sheetsView() {

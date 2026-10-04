@@ -14,6 +14,7 @@ import {
 } from '../src/shared';
 import { Instance, createInstance } from '../src/sim/instance';
 import { createMob } from '../src/sim/monsters';
+import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
 
 // ─────────────────────────── Checks ───────────────────────────
@@ -101,7 +102,7 @@ class FakeLink implements PlayerLink {
     if ('v' in ev) this.evV[`${ev.e}:${ev.v}`] = (this.evV[`${ev.e}:${ev.v}`] ?? 0) + 1;
     if (this.keepLog) this.log.push(ev);
     if (ev.e === 'cast') this.evV[`cast:${ev.sk}`] = (this.evV[`cast:${ev.sk}`] ?? 0) + 1;
-    if (ev.e === 'dmg' && !ev.p) {
+    if (ev.e === 'dmg' && ev.t !== this.myId && this.descs.get(ev.t)?.k !== 'player') {
       if (!this.firstHit.has(ev.t)) this.firstHit.set(ev.t, this.tickNo);
       if (ev.s !== undefined) {
         const src = ev.s === this.myId ? 'me' : this.descs.get(ev.s)?.k === 'summon' ? `summon:${this.descs.get(ev.s)!.t}` : 'other';
@@ -255,12 +256,13 @@ class Bot {
     return [bx * TILE + TILE / 2 - px, by * TILE + TILE / 2 - py];
   }
 
-  /** Nearest live monster (whole map — exploration) by straight distance. */
+  /** Nearest live monster (whole map — exploration) by straight distance; treasure goblins nearby come first. */
   private nearestMob(px: number, py: number): Mob | null {
     let best: Mob | null = null, bd = Infinity;
     for (const m of this.inst.mobs) {
       if (m.dead || m.dummy) continue;
-      const d = (m.x - px) ** 2 + (m.y - py) ** 2;
+      let d = (m.x - px) ** 2 + (m.y - py) ** 2;
+      if (m.tier === 5 && d < 1600 * 1600) d *= 0.01;
       if (d < bd) { bd = d; best = m; }
     }
     return best;
@@ -544,6 +546,7 @@ function eliteScenario() {
   link.myId = inst.addPlayer(link);
   const p = inst.players[0];
   p.ctx.d.weaponMin = p.ctx.d.weaponMax = 0.0001;
+  p.ctx.d.thorns = 0; // the endgame kit's thorns would kill the test elites
   const affixes = ['fast', 'extra_health', 'molten', 'frozen', 'plagued', 'electrified', 'vortex', 'mortar'];
   for (let i = 0; i < affixes.length; i++) {
     const a = (i / affixes.length) * Math.PI * 2;
@@ -564,9 +567,14 @@ function eliteScenario() {
   check(link.n('beam:vortex') > 0, `vortex pull (${link.n('beam:vortex')})`);
   check(link.n('tele:mortar') > 0, `mortar shells (${link.n('tele:mortar')})`);
   check(link.n('tele:slam') > 0 && link.n('aoe:slam') > 0, `slam windup telegraph + hit (${link.n('tele:slam')})`);
-  // electrified: hit them for real
+  // electrified: hit it repeatedly (15% chance per hit, at most one burst per 0.4 s)
   p.ctx.d.weaponMin = 1; p.ctx.d.weaponMax = 2;
-  run(inst, 300, [new Bot(inst, link, true)], () => { p.hp = p.mhp; });
+  const elec = inst.mobs.filter((m) => m.affixes.includes('electrified') && !m.dead).sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y))[0];
+  run(inst, 200, [], () => {
+    p.hp = p.mhp;
+    if (elec && !elec.dead) strikeMob(inst, p, elec, { skill: 'test', coef: 0.001, el: 'physical', pct: 0, noProc: true });
+  });
+  if (process.env.SIM_DEBUG) console.log('   elec', elec?.id, elec?.dead, elec?.hp, elec && Math.hypot(elec.x - p.x, elec.y - p.y), inst.mobs.filter((m) => m.affixes.includes('electrified')).map((m) => `${m.id}:${m.dead}`));
   check(link.n('proj:spark') > 0 || Object.keys(link.evV).some((k) => k.startsWith('proj:spark')), `electrified sparks (${link.n('proj:spark')})`);
   // molten death explosion
   const molten = inst.mobs.find((m) => m.affixes.includes('molten'));
@@ -576,7 +584,7 @@ function eliteScenario() {
     run(inst, 30, []);
   }
   check(link.n('tele:molten_death') > 0, `molten death telegraph (${link.n('tele:molten_death')})`);
-  check(link.n('dmg') > 0 && [...link.log].some((e) => e.e === 'dmg' && e.p === 1), 'players took damage from elites');
+  check(link.n('dmg') > 0 && [...link.log].some((e) => e.e === 'dmg' && e.t === link.myId), 'players took damage from elites');
   const champs = [...link.descs.values()].filter((d) => d.k === 'mob' && (d.el === 1 || d.el === 2));
   check(champs.length >= 9 && champs.every((d) => (d.af?.length ?? 0) >= 2 && !!d.n), `elite descs carry names + affixes (${champs.length})`);
   inst.destroy();
@@ -591,28 +599,51 @@ function goblinScenario() {
   link.myId = inst.addPlayer(link);
   const p = inst.players[0];
   check(inst.debug(link, 'goblin') === null, 'debug goblin');
-  const gob = inst.mobs.find((m) => m.tier === 5)!;
+  const nearestGoblin = (i: Instance, x: number, y: number) => i.mobs.filter((m) => m.tier === 5 && !m.dead).sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y))[0];
+  const gob = nearestGoblin(inst, p.x, p.y);
   check(!!gob, 'goblin spawned');
   const d0 = Math.hypot(gob.x - p.x, gob.y - p.y);
   const bot = new Bot(inst, link, false);
   let maxD = d0, goldPiles = 0;
   const gold0 = save.gold;
-  run(inst, 20 * 30, [bot], () => {
+  let deadAt = -1;
+  run(inst, 20 * 40, [bot], (t) => {
     if (!gob.dead) maxD = Math.max(maxD, Math.hypot(gob.x - p.x, gob.y - p.y));
     goldPiles = Math.max(goldPiles, [...p.loot].filter((l) => l.payload.type === 'gold').length);
-    return gob.dead;
+    if (gob.dead && deadAt < 0) deadAt = t;
+    return deadAt >= 0 && t > deadAt + 80; // collect the gold
   });
-  console.log(`  goblin: start dist ${Math.round(d0)}, ${gob.dead ? (inst.mobs.includes(gob) ? 'escaped' : 'dead/escaped') : 'alive'}, gold +${save.gold - gold0}, notices ${link.n('notice')}`);
+  console.log(`  goblin: start dist ${Math.round(d0)}, max dist ${Math.round(maxD)}, ${gob.dead ? `gone after ${fmt(deadAt / 20, 1)} s` : 'alive'}, gold piles while hit ${goldPiles}, gold +${save.gold - gold0}, notices ${link.n('notice')}`);
   check(gob.noticedMs >= 0 || gob.dead, 'goblin noticed the player and fled');
   check(save.gold > gold0, 'goblin gold picked up');
   inst.destroy();
+  // modest melee hunter (L8, ilvl-8 rares): a real chase
+  {
+    const i3 = newField('whispering_glade');
+    const s3 = makeChar('warrior', 8);
+    const l3 = new FakeLink(s3);
+    l3.myId = i3.addPlayer(l3);
+    i3.debug(l3, 'goblin');
+    const p3 = i3.players[0];
+    const g3 = nearestGoblin(i3, p3.x, p3.y);
+    let firstHit = -1, end = -1, piles = 0;
+    run(i3, 20 * 30, [new Bot(i3, l3, true)], (t) => {
+      if (firstHit < 0 && g3.hp < g3.mhp) firstHit = t;
+      piles = Math.max(piles, [...p3.loot].filter((l) => l.payload.type === 'gold').length);
+      if (g3.dead) { end = t; return true; }
+    });
+    const escaped = g3.dead && g3.hp > 0;
+    console.log(`  L8 warrior vs goblin: first hit at ${fmt(firstHit / 20, 1)} s, ${escaped ? 'escaped' : g3.dead ? 'killed' : 'alive'} at ${fmt(end / 20, 1)} s, gold piles spilled ${piles}`);
+    summary.push(`goblin vs L8 warrior: first hit ${fmt(firstHit / 20, 1)} s, ${escaped ? 'escaped' : 'killed'} at ${fmt(end / 20, 1)} s`);
+    i3.destroy();
+  }
   // strong hunter: kill it, loot shower
   const inst2 = newField('whispering_glade');
   const save2 = makeChar('mage', 70, { endgame: true });
   const link2 = new FakeLink(save2);
   link2.myId = inst2.addPlayer(link2);
   inst2.debug(link2, 'goblin');
-  const gob2 = inst2.mobs.find((m) => m.tier === 5)!;
+  const gob2 = nearestGoblin(inst2, inst2.players[0].x, inst2.players[0].y);
   const spawned0 = inst2.counters.lootSpawned;
   run(inst2, 20 * 20, [new Bot(inst2, link2, false)], () => gob2.dead);
   check(gob2.dead && inst2.counters.lootSpawned - spawned0 >= 10, `goblin killed → loot shower (${inst2.counters.lootSpawned - spawned0} drops)`);
@@ -778,6 +809,40 @@ function perfScenario() {
   inst.destroy();
 }
 
+/** Realistic load: a 4-player party clears a Torment VIII rift together (killable monsters, all builds). */
+function partyRiftPerf() {
+  console.log('\n== Performance: 4-player party in a Torment VIII rift ==');
+  let done = 0;
+  const inst = newRift(70, 11, 'ashen', () => done++);
+  const bots: Bot[] = [];
+  const links: FakeLink[] = [];
+  for (const cls of ['warrior', 'ranger', 'mage', 'ranger'] as ClassId[]) {
+    const link = new FakeLink(makeChar(cls, 70, { endgame: true }));
+    link.myId = inst.addPlayer(link);
+    links.push(link);
+    bots.push(new Bot(inst, link, cls === 'warrior'));
+  }
+  const sim: number[] = [];
+  let maxActive = 0, doneAt = -1;
+  for (let t = 0; t < 20 * 60 * 8 && doneAt < 0; t++) {
+    for (const b of bots) b.step();
+    const l0 = linkMs, t0 = performance.now();
+    inst.tick();
+    sim.push(performance.now() - t0 - (linkMs - l0));
+    if (t % 20 === 0) maxActive = Math.max(maxActive, inst.mobs.filter((m) => !m.dormant && !m.dead).length);
+    if (inst.riftState()!.phase === 'done') doneAt = t;
+  }
+  sim.sort((a, b) => a - b);
+  const avg = sim.reduce((a, b) => a + b, 0) / sim.length;
+  const dur = doneAt >= 0 ? `${Math.floor(doneAt / 1200)}:${String(Math.floor((doneAt / 20) % 60)).padStart(2, '0')}` : 'DNF';
+  console.log(`  ${inst.mobs.length + inst.counters.kills} monsters, up to ${maxActive} awake at once, rift done at ${dur}, deaths ${links.map((l) => l.save.stats.deaths).join('/')}`);
+  console.log(`  sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, max ${fmt(sim[sim.length - 1], 3)} ms`);
+  summary.push(`perf: 4-player T8 rift: sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, rift ${dur}`);
+  check(done === 1, 'party rift completed');
+  check(avg < 3, `party rift tick avg < 3 ms (${fmt(avg, 3)})`);
+  inst.destroy();
+}
+
 function multiplayerScenario() {
   console.log('\n== Multiplayer: shared XP, personal loot, AOI ==');
   const inst = newField('whispering_glade');
@@ -885,6 +950,196 @@ function equipItemSafe(save: CharacterSave, id: string, slot: Slot): boolean {
   return true;
 }
 
+/** Set power spike: damage on a pack of dummies with level-70 rares vs. the full set + legendaries kit. */
+function setSpikeScenario() {
+  console.log('\n== Set bonus power spike (20 s against 8 sturdy targets, L70) ==');
+  for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
+    const dps: number[] = [];
+    for (const endgame of [false, true]) {
+      const inst = newField('whispering_glade');
+      const save = makeChar(cls, 70, { endgame });
+      const link = new FakeLink(save);
+      link.myId = inst.addPlayer(link);
+      const p = inst.players[0];
+      for (let i = 0; i < 8; i++) {
+        const m = createMob(inst, MONSTERS.gloomshroom, 70, p.x + 90 + (i % 4) * 34, p.y - 40 + Math.floor(i / 4) * 70, {});
+        m.mhp = m.hp = 1e20;
+        m.state = 'chase'; m.target = p.id;
+      }
+      inst.dmgBySkill = new Map();
+      run(inst, 400, [], () => { p.hp = p.mhp; });
+      dps.push(p.dealt / 20);
+      const total = [...inst.dmgBySkill.values()].reduce((a, b) => a + b, 0);
+      console.log(`    ${endgame ? 'set  ' : 'rares'} breakdown: ` + [...inst.dmgBySkill].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${fmt((v / total) * 100, 0)}%`).join(', '));
+      inst.destroy();
+    }
+    const spike = dps[1] / dps[0];
+    console.log(`  ${cls}: rares ${fmtC(dps[0])}/s → set ${fmtC(dps[1])}/s  (×${fmt(spike, 0)})`);
+    summary.push(`set spike ${cls}: ×${fmt(spike, 0)} (${fmtC(dps[0])}/s → ${fmtC(dps[1])}/s vs 8 targets)`);
+    check(spike > 8, `${cls}: set bonuses are a huge power spike (×${fmt(spike, 1)})`);
+  }
+}
+const fmtC = (n: number) => n >= 1e9 ? `${fmt(n / 1e9, 2)}B` : n >= 1e6 ? `${fmt(n / 1e6, 2)}M` : n >= 1e3 ? `${fmt(n / 1e3, 1)}K` : fmt(n, 0);
+
+/** Windups are readable: a player who steps away from winding-up monsters takes far less damage. */
+function dodgeScenario() {
+  console.log('\n== Dodging windups (L10 mage, golems + slimes, 20 s, no skills) ==');
+  const taken: number[] = [];
+  for (const dodge of [false, true]) {
+    const inst = newField('whispering_glade');
+    const save = makeChar('mage', 10);
+    save.skills.slots = [null, null, null, null];
+    const link = new FakeLink(save);
+    link.myId = inst.addPlayer(link);
+    const p = inst.players[0];
+    for (const m of [...inst.mobs]) inst.removeEntity(m.id); // controlled arena
+    inst.tick();
+    // the most open spawn point (no walls within ~450 units)
+    const open = (x: number, y: number) => { for (let a = 0; a < 16; a++) for (const r of [150, 300, 450]) if (!inst.cw.isFree(x + Math.cos(a / 16 * Math.PI * 2) * r, y + Math.sin(a / 16 * Math.PI * 2) * r, 16)) return false; return true; };
+    const spot = inst.map.spawns.find((sp) => open(sp.x, sp.y)) ?? inst.map.spawns[0];
+    teleport(inst, link, spot.x, spot.y);
+    const mobs: Mob[] = [];
+    for (let i = 0; i < 4; i++) {
+      const def = i < 2 ? MONSTERS.mossback : MONSTERS.bog_slime;
+      const m = createMob(inst, def, 10, p.x + 90 * Math.cos(i * 1.6), p.y + 90 * Math.sin(i * 1.6), {});
+      m.mhp = m.hp = 1e12; m.state = 'chase'; m.target = p.id;
+      mobs.push(m);
+    }
+    let seq = 0, fleeMs = 0, fx = 0, fy = 0;
+    for (let t = 0; t < 400; t++) {
+      p.atkCdMs = 1e9; // no attacking: pure movement test
+      p.hp = p.mhp;
+      let mx = 0, my = 0;
+      if (dodge) {
+        // react to windups: step out of the threatened area
+        let ax = 0, ay = 0;
+        for (const e of link.ents.values()) {
+          if (e.desc.k !== 'mob' || !(e.flags & 0x8000)) continue;
+          const d = Math.hypot(p.x - e.x, p.y - e.y) || 1;
+          if (d < 170) { ax += (p.x - e.x) / d; ay += (p.y - e.y) / d; }
+        }
+        const l = Math.hypot(ax, ay);
+        if (l > 0.01) { fx = ax / l; fy = ay / l; fleeMs = 400; }
+        if (fleeMs > 0) { fleeMs -= 50; mx = fx; my = fy; }
+      }
+      inst.queueInput(link, { t: 'in', seq: ++seq, mx, my });
+      inst.tick();
+    }
+    taken.push(p.taken);
+    inst.destroy();
+  }
+  console.log(`  damage taken standing still ${Math.round(taken[0])}, stepping away from windups ${Math.round(taken[1])} (${fmt((taken[1] / taken[0]) * 100, 0)}%)`);
+  summary.push(`dodging windups: ${fmt((taken[1] / Math.max(1, taken[0])) * 100, 0)}% of the damage taken when standing still`);
+  check(taken[0] > 0 && taken[1] < taken[0] * 0.5, 'windups are dodgeable by moving');
+}
+
+function withPowers(save: CharacterSave, powers: string[]) {
+  for (const id of powers) {
+    const def = LEGENDARIES[id];
+    const it = generateItem(gearRng, { ilvl: 70, classId: save.classId, rarity: 'legendary', legendary: id });
+    const kind = BASES[def.base].kind;
+    const slot: Slot = kind === 'ring' ? (save.equipment.ring1?.legendary ? 'ring2' : 'ring1') : slotsForKind(kind)[0];
+    equip(save, it, slot);
+  }
+}
+
+function powersScenario() {
+  console.log('\n== Legendary powers & on-hit effects ==');
+  const setup = (cls: ClassId, powers: string[], slots: (string | null)[] = [null, null, null, null], runes: Record<string, string> = {}) => {
+    const inst = newField('whispering_glade');
+    const save = makeChar(cls, 70, { endgame: false });
+    save.cube.equipped = [null, null, null];
+    withPowers(save, powers);
+    save.skills.slots = slots;
+    save.skills.runes = runes;
+    const link = new FakeLink(save);
+    link.myId = inst.addPlayer(link);
+    return { inst, save, link, p: inst.players[0] };
+  };
+  // Stridewind: halved dash cooldown + damage buff after dashing
+  {
+    const { inst, link, p } = setup('warrior', ['stridewind']);
+    inst.queueInput(link, { t: 'in', seq: 1, mx: 1, my: 0, dash: 1 });
+    inst.tick();
+    check(p.buffs.some((b) => b.id === 'stridewind' && (b.dmg ?? 0) >= 40) && p.mv.dashCdMs <= 1400 && p.mv.dashCdMs > 1300, `Stridewind: buff + 1.4 s dash cooldown (${p.mv.dashCdMs})`);
+    inst.destroy();
+  }
+  // Hellforge: elite kill grants the damage buff; life per kill / per hit heal
+  {
+    const { inst, p } = setup('warrior', ['hellforge_talisman']);
+    p.ctx.d.lifePerHit = 25;
+    p.ctx.d.lifePerKill = 40;
+    const m = createMob(inst, MONSTERS.gloomshroom, 70, p.x + 50, p.y, { tier: 1, affixes: ['fast', 'extra_health'] });
+    m.hp = 1e9; m.mhp = 1e9;
+    p.hp = p.mhp * 0.5;
+    run(inst, 20, []);
+    check(p.hp > p.mhp * 0.5, `life per hit heals (${Math.round(p.hp)} > ${Math.round(p.mhp * 0.5)})`);
+    m.hp = 1;
+    const before = p.hp;
+    run(inst, 20, []);
+    check(m.dead && p.buffs.some((b) => b.id === 'hellforge'), 'Hellforge: elite kill → damage buff');
+    check(p.hp >= before, 'life per kill');
+    inst.destroy();
+  }
+  // Ouroboros: the element rotates every 4 s
+  {
+    const { inst, p } = setup('mage', ['ouroboros_loop']);
+    const seen = new Set<string>();
+    run(inst, 20 * 13, [], () => { for (const b of p.buffs) if (b.id.startsWith('ouroboros_')) seen.add(b.id); });
+    check(seen.size >= 4, `Ouroboros rotates elements (${[...seen].join(',')})`);
+    inst.destroy();
+  }
+  // Patient Thief: spenders shorten active cooldowns
+  {
+    const { inst, p } = setup('mage', ['patient_thief'], ['meteor', 'black_hole', null, null]);
+    const m = createMob(inst, MONSTERS.mossback, 70, p.x + 300, p.y, {});
+    m.hp = m.mhp = 1e15;
+    p.readyAt.set('black_hole', inst.t + 20000);
+    p.res = p.mres;
+    const before = p.readyAt.get('black_hole')!;
+    run(inst, 3, []);
+    const v = p.ctx.power('patient_thief');
+    check(before - p.readyAt.get('black_hole')! >= v * 1000 - 1, `Patient Thief: cooldowns reduced by ${v}s per spender`);
+    inst.destroy();
+  }
+  // Anvil / Jarring Slam / Bone Chill vulnerability, thorns
+  {
+    const { inst, p } = setup('warrior', ['anvil_vambraces'], ['ground_stomp', null, null, null], { ground_stomp: 'jarring_slam' });
+    check(Math.abs(p.ctx.stunMult - 1.3 * (1 + p.ctx.power('anvil_vambraces') / 100)) < 1e-9, `Anvil × Jarring Slam stun vulnerability (${p.ctx.stunMult.toFixed(3)})`);
+    p.ctx.d.thorns = 500;
+    p.atkCdMs = 1e9;
+    p.ctx.slots = [null, null, null, null];
+    const m = createMob(inst, MONSTERS.bonewalker, 10, p.x + 40, p.y, {});
+    m.state = 'chase'; m.target = p.id;
+    run(inst, 60, [], () => { p.atkCdMs = 1e9; });
+    check(m.hp < m.mhp && m.lastHitBy === p.id, 'thorns reflect melee hits');
+    inst.destroy();
+    const b = setup('mage', [], ['frost_nova', null, null, null], { frost_nova: 'bone_chill' });
+    check(b.p.ctx.frozenMult === 1.33, 'Bone Chill frozen vulnerability');
+    b.inst.destroy();
+  }
+  // Health globe heals 20% (and allies near it)
+  {
+    const { inst, link, p } = setup('ranger', []);
+    p.atkCdMs = 1e9;
+    p.hp = p.mhp * 0.5;
+    p.sinceHurtMs = 0;
+    const l = { kind: 'loot' as const, id: 9e9, x: p.x + 20, y: p.y, owner: p, payload: { type: 'globe' as const }, view: { lk: 'globe' as const, name: 'Health Globe' }, ttlMs: 9000, armMs: 0, dead: false };
+    p.loot.add(l);
+    inst.tick();
+    check(p.hp >= p.mhp * 0.69 && link.n('pickup') >= 1, `health globe heals 20% (${Math.round((p.hp / p.mhp) * 100)}%)`);
+    inst.destroy();
+  }
+  // Witching Cord / Fists of the Mountain feed derived stats
+  {
+    const s1 = makeChar('mage', 70);
+    const base = computeStats(s1);
+    withPowers(s1, ['witching_cord']);
+    const d1 = computeStats(s1);
+    check(d1.ias >= base.ias + 7 - 0.01 || d1.chd > base.chd, 'Witching Cord stats applied');
+  }
+}
+
 // ─────────────────────────── Main ───────────────────────────
 
 const only = process.argv[2];
@@ -904,16 +1159,19 @@ if (!only || only === 'elite') eliteScenario();
 if (!only || only === 'goblin') goblinScenario();
 if (!only || only === 'death') deathScenario();
 if (!only || only === 'mp') multiplayerScenario();
+if (!only || only === 'powers') powersScenario();
+if (!only || only === 'spike') setSpikeScenario();
+if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
   console.log('\n== Rifts: every class at L1 / L20 / L70 until completion ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     riftScenario(cls, 1, 0, false, 'glade');
-    riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
-    riftScenario(cls, 70, 9, true, 'ashen');
+    riftScenario(cls, 20, 3, false, cls === 'ranger' ? 'ashen' : 'glade'); // Master: level-appropriate for a full ilvl-20 rare kit
+    riftScenario(cls, 70, 11, true, 'ashen');                                 // Torment VIII for the set + legendaries kit
   }
 }
 if (!only || only === 'skills') skillCoverage();
-if (!only || only === 'perf') perfScenario();
+if (!only || only === 'perf') { perfScenario(); partyRiftPerf(); }
 if (only === 'sweep') {
   const lv = Number(process.argv[3] ?? 20);
   const diffs = (process.argv[4] ?? '0,1,2,3').split(',').map(Number);

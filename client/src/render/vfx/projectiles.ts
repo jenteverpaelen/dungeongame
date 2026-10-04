@@ -193,6 +193,7 @@ export class Projectiles {
         continue;
       }
       let dist: number;
+      const ox = p.x, oy = p.y, oz = p.z;
       if (p.lob) {
         const t = clamp(p.age / p.life, 0, 1);
         const nx = p.x0 + (p.tx - p.x0) * t, ny = p.y0 + (p.ty - p.y0) * t;
@@ -218,7 +219,7 @@ export class Projectiles {
       }
       this.place(p, dt);
       p.acc += dist;
-      this.trail(p);
+      this.trail(p, ox, oy, oz, dist);
     }
   }
 
@@ -233,52 +234,52 @@ export class Projectiles {
       case 'arrow': case 'shard': {
         const [tr, body] = parts;
         tr.place(p.x - Math.cos(ang) * 14 * sz, p.y + 1, p.z);
-        tr.rotation = ang; tr.anchorX = 0.85; tr.setScale(Math.min(60, 20 + t * 300) * sz, 0.6); tr.setAlpha(0.5);
+        tr.rotation = ang; tr.anchorX = 0.85; tr.setScale(Math.min(90, 24 + t * 420) * sz, 0.75); tr.setAlpha(0.7);
         body.place(p.x, p.y + 1, p.z);
         body.rotation = ang;
-        body.setScale((p.v === 'arrow' ? 36 : 18) * sz, p.v === 'arrow' ? 1 : 0.7);
+        body.setScale((p.v === 'arrow' ? 44 : 24) * sz, p.v === 'arrow' ? 1 : 0.7);
         body.setAlpha(1);
         if (p.v === 'shard') body.rotation = ang + Math.PI / 2;
         break;
       }
       case 'bolt': {
         const [g, b] = parts;
-        g.place(p.x, p.y, p.z); g.setScale(34 * sz, 0.7); g.rotation = ang; g.setAlpha(0.75);
-        b.place(p.x, p.y, p.z); b.setScale(30 * sz, 1); b.rotation = ang; b.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(64 * sz, 0.55); g.rotation = ang; g.setAlpha(0.85);
+        b.place(p.x, p.y, p.z); b.setScale(46 * sz, 1.15); b.rotation = ang; b.setAlpha(1);
         break;
       }
       case 'rocket': {
         const [g, b] = parts;
         const wob = Math.sin(t * 22 + p.phase) * 0.06;
         const fl = 0.8 + Math.random() * 0.4;
-        g.place(p.x - Math.cos(ang) * 16 * sz, p.y, p.z); g.setScale(26 * sz * fl); g.setAlpha(0.9);
-        b.place(p.x, p.y, p.z); b.rotation = ang + wob; b.setScale(28 * sz); b.setAlpha(1);
+        g.place(p.x - Math.cos(ang) * 20 * sz, p.y, p.z); g.setScale(38 * sz * fl); g.setAlpha(0.95);
+        b.place(p.x, p.y, p.z); b.rotation = ang + wob; b.setScale(36 * sz); b.setAlpha(1);
         break;
       }
       case 'missile': {
         const [g, c] = parts;
         const pul = 1 + Math.sin(t * 30 + p.phase) * 0.12;
-        g.place(p.x, p.y, p.z); g.setScale(42 * sz * pul); g.setAlpha(0.8);
-        c.place(p.x, p.y, p.z); c.setScale(14 * sz); c.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(66 * sz * pul); g.setAlpha(0.9);
+        c.place(p.x, p.y, p.z); c.setScale(20 * sz); c.setAlpha(1);
         break;
       }
       case 'fireball': {
         const [g, c] = parts;
         const pul = 1 + Math.sin(t * 26 + p.phase) * 0.1;
-        g.place(p.x, p.y, p.z); g.setScale(56 * sz * pul); g.setAlpha(0.85);
-        c.place(p.x, p.y, p.z); c.setScale(20 * sz); c.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(78 * sz * pul); g.setAlpha(0.9);
+        c.place(p.x, p.y, p.z); c.setScale(22 * sz); c.setAlpha(0.9);
         break;
       }
       case 'firebolt': {
         const [g, c] = parts;
-        g.place(p.x, p.y, p.z); g.setScale(40 * sz, 0.75); g.rotation = ang; g.setAlpha(0.85);
-        c.place(p.x, p.y, p.z); c.setScale(30 * sz, 0.7); c.rotation = ang; c.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(60 * sz, 0.6); g.rotation = ang; g.setAlpha(0.9);
+        c.place(p.x, p.y, p.z); c.setScale(40 * sz, 0.75); c.rotation = ang; c.setAlpha(1);
         break;
       }
       case 'seed': {
         const [g, b] = parts;
-        g.place(p.x, p.y, p.z); g.setScale(22 * sz); g.setAlpha(0.45);
-        b.place(p.x, p.y, p.z); b.rotation = p.spin * 14; b.setScale(15 * sz); b.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(44 * sz); g.setAlpha(0.6);
+        b.place(p.x, p.y, p.z); b.rotation = p.spin * 14; b.setScale(26 * sz); b.setAlpha(1);
         break;
       }
       case 'cluster': {
@@ -286,34 +287,37 @@ export class Projectiles {
         const k = 1 - p.z / (p.H + 40);
         sh.place(p.x, p.y, 0); sh.setScale(26 * sz * (0.5 + k * 0.5), 0.5); sh.setAlpha(0.35 * k + 0.1);
         g.place(p.x, p.y, p.z); g.setScale(30 * sz * (0.8 + Math.random() * 0.3)); g.setAlpha(0.6);
-        b.place(p.x, p.y, p.z); b.rotation = p.spin * 9; b.setScale(20 * sz); b.setAlpha(1);
+        b.place(p.x, p.y, p.z); b.rotation = p.spin * 9; b.setScale(24 * sz); b.setAlpha(1);
         break;
       }
       case 'spark': {
         const [g, c] = parts;
         const j = 4;
-        g.place(p.x + rand(-j, j), p.y, p.z + rand(-j, j)); g.setScale(30 * sz * (0.8 + Math.random() * 0.5)); g.setAlpha(0.8);
-        c.place(g.gx, p.y, g.z); c.setScale(10 * sz); c.setAlpha(1);
+        g.place(p.x + rand(-j, j), p.y, p.z + rand(-j, j)); g.setScale(44 * sz * (0.8 + Math.random() * 0.5)); g.setAlpha(0.9);
+        c.place(g.gx, p.y, g.z); c.setScale(13 * sz); c.setAlpha(1);
         break;
       }
       default: {
         const [g, sw, c] = parts;
         const pul = 1 + Math.sin(t * 18 + p.phase) * 0.1;
-        g.place(p.x, p.y, p.z); g.setScale(48 * sz * pul); g.setAlpha(0.75);
-        sw.place(p.x, p.y, p.z); sw.setScale(36 * sz); sw.rotation = -p.spin * 8; sw.setAlpha(0.7);
-        c.place(p.x, p.y, p.z); c.setScale(14 * sz); c.setAlpha(1);
+        g.place(p.x, p.y, p.z); g.setScale(68 * sz * pul); g.setAlpha(0.85);
+        sw.place(p.x, p.y, p.z); sw.setScale(48 * sz); sw.rotation = -p.spin * 8; sw.setAlpha(0.8);
+        c.place(p.x, p.y, p.z); c.setScale(18 * sz); c.setAlpha(1);
       }
     }
   }
 
   /** Emit trail particles every few units travelled. */
-  private trail(p: Proj): void {
+  private trail(p: Proj, ox: number, oy: number, oz: number, dist: number): void {
     const s = this.V.sys, T = s.T;
-    const step = (p.v === 'rocket' ? 9 : p.v === 'fireball' ? 8 : 12) / Math.max(0.3, s.budget);
-    if (this.list.length > 220 && p.v !== 'rocket' && p.v !== 'fireball' && p.v !== 'cluster') return;
+    const step = (p.v === 'rocket' ? 8 : p.v === 'fireball' ? 7 : p.v === 'firebolt' ? 8 : 12) / Math.max(0.3, s.budget);
+    if (this.list.length > 220 && p.v !== 'rocket' && p.v !== 'fireball' && p.v !== 'cluster') { p.acc = 0; return; }
+    const inv = dist > 0.001 ? 1 / dist : 0;
     while (p.acc >= step) {
       p.acc -= step;
-      const x = p.x + rand(-2, 2), y = p.y, z = p.z + rand(-2, 2);
+      // Spread emissions along this frame's path segment (no clumping at low frame rates).
+      const f = clamp(1 - p.acc * inv, 0, 1);
+      const x = ox + (p.x - ox) * f + rand(-2, 2), y = oy + (p.y - oy) * f, z = oz + (p.z - oz) * f + rand(-2, 2);
       switch (p.v) {
         case 'arrow':
           if (p.el !== EL_PHYS && Math.random() < 0.5) s.glint(x, y, z, 8, pal(p.el).main, 0.25, 0.8);
@@ -322,24 +326,24 @@ export class Projectiles {
           if (Math.random() < 0.5) s.glint(x, y, z, 9, 0xcff2ff, 0.28);
           break;
         case 'bolt': {
-          const f = s.aAdd.add(T.dot, x, y, 0.22);
-          f.z = z; f.w0 = 7 * p.sz; f.w1 = 1; f.fo = 0; f.tintTo(p.color);
+          const f = s.aAdd.add(T.dot, x, y, 0.24);
+          f.z = z; f.w0 = 9 * p.sz; f.w1 = 1; f.fo = 0; f.tintTo(p.color);
           break;
         }
         case 'rocket': {
-          s.smoke(x - p.vx * 0.02, y, z, 8, 26, 0x9a948e, rand(0.6, 0.9), 0.45, 10);
+          s.smoke(x - p.vx * 0.02, y, z, 8, 24, 0xa8a29c, rand(0.4, 0.6), 0.38, 10);
           const f = s.aAdd.add(T.glow, x, y, 0.12);
           f.z = z; f.w0 = 16; f.w1 = 6; f.fo = 0; f.tintTo(0xff8a3d);
           break;
         }
         case 'missile': {
           const f = s.aAdd.add(Math.random() < 0.4 ? T.star4 : T.dot, x + rand(-4, 4), y, rand(0.25, 0.4));
-          f.z = z + rand(-4, 4); f.w0 = rand(6, 10) * p.sz; f.w1 = 1; f.fo = 0.2; f.vr = 3; f.tintFade(p.hot, p.color);
+          f.z = z + rand(-4, 4); f.w0 = rand(8, 13) * p.sz; f.w1 = 1; f.fo = 0.2; f.vr = 3; f.tintFade(p.hot, p.color);
           break;
         }
         case 'fireball': case 'firebolt': {
           const f = s.aAdd.add(T.flame, x, y, rand(0.18, 0.3));
-          f.z = z; f.anchorY = 0.7; f.w0 = (p.v === 'fireball' ? 22 : 15) * p.sz; f.w1 = 4; f.k = 1.3; f.fo = 0.2;
+          f.z = z; f.anchorY = 0.7; f.w0 = (p.v === 'fireball' ? 30 : 20) * p.sz; f.w1 = 5; f.k = 1.3; f.fo = 0.2;
           f.rotation = Math.atan2(p.vy, p.vx) + Math.PI / 2;
           f.tintFade(p.hot, p.color);
           if (Math.random() < 0.35) s.ember(x, y, z, p.color, 0.5, 4, 30);
@@ -347,7 +351,7 @@ export class Projectiles {
         }
         case 'seed': {
           const f = s.aAdd.add(T.dot, x, y, 0.3);
-          f.z = z; f.w0 = 5; f.w1 = 1; f.a0 = 0.7; f.tintTo(0x9be86a);
+          f.z = z; f.w0 = 7; f.w1 = 1; f.a0 = 0.8; f.tintTo(0x9be86a);
           break;
         }
         case 'cluster': {
@@ -361,7 +365,7 @@ export class Projectiles {
         }
         default: {
           const f = s.aAdd.add(T.dot, x + rand(-3, 3), y, 0.3);
-          f.z = z + rand(-3, 3); f.w0 = 8 * p.sz; f.w1 = 1; f.fo = 0.1; f.tintTo(p.color);
+          f.z = z + rand(-3, 3); f.w0 = 11 * p.sz; f.w1 = 1; f.fo = 0.1; f.tintTo(p.color);
         }
       }
     }

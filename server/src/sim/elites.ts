@@ -126,7 +126,6 @@ export function onEliteDamaged(inst: Instance, m: Mob, attacker: Player | null, 
       r: 10, el: 'lightning', dmg: m.dmg * 0.45, mobLevel: m.level,
     });
   }
-  void attacker;
 }
 
 /** Molten elites explode 1.2 s after death. */

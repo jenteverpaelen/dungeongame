@@ -37,6 +37,8 @@ export class VfxCore {
   /** Real clock (never frozen). */
   real = 0;
   readonly ents = new Map<number, EntInfo>();
+  /** Player nameplates listening for level / paragon changes. */
+  readonly levelHooks = new Map<number, (lv: number, paragon: boolean) => void>();
   readonly players = new Set<number>();
   private timers: Timer[] = [];
   private effects: Effect[] = [];
@@ -233,6 +235,7 @@ export class VfxCore {
     this.mineCache.clear();
     this.ents.clear();
     this.players.clear();
+    this.levelHooks.clear();
     this.sys.clear();
     for (const c of this.teleLayer.removeChildren()) c.destroy({ children: true });
     this.zoneAge = 0;

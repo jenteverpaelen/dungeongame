@@ -9,7 +9,7 @@ import '@fontsource/cinzel/700.css';
 import { Application, Container, Graphics, Text } from 'pixi.js';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EntDesc, GameEvent, LootView } from '@shared/protocol';
-import type { ItemKind, ItemLook } from '@shared/types';
+import type { ItemLook } from '@shared/types';
 import { sfx } from '../audio/sfx';
 import { initArt } from '../render/art';
 import type { EntityView, Nameplate, ViewState } from '../render/types';
@@ -17,6 +17,8 @@ import { Vfx, type VfxContext } from '../render/vfx';
 
 const qs = new URLSearchParams(location.search);
 const SCENE = qs.get('scene') ?? 'combat';
+/** ?manual=1: time only advances through __gallery.advance(sec) (deterministic captures). */
+const MANUAL = qs.get('manual') === '1';
 const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'beam', 'cast', 'death', 'loot', 'mix', 'stress'];
 
 await Promise.all([
@@ -66,6 +68,8 @@ let camX = 0, camY = 0;
 let shakeMag = 0, shakeEnd = 0, shakeDur = 1;
 let hitStopUntil = 0;
 let time = 0;
+/** Gallery clock in ms (simulated time, so manual stepping stays consistent). */
+const simNow = () => time * 1000;
 
 // ─────────────────────────── placeholder entities ───────────────────────────
 
@@ -188,14 +192,17 @@ const ctx: VfxContext = {
   entityView: (id) => ents.get(id)?.view ?? null,
   entityRadius: (id) => ents.get(id)?.r ?? 16,
   shake: (m, ms) => {
-    const now = performance.now();
+    const now = simNow();
     if (m >= shakeMag * Math.max(0, (shakeEnd - now) / shakeDur)) { shakeMag = m; shakeDur = ms; shakeEnd = now + ms; }
   },
-  hitStop: (ms) => { hitStopUntil = Math.max(hitStopUntil, performance.now() + Math.min(ms, 90)); },
+  hitStop: (ms) => { hitStopUntil = Math.max(hitStopUntil, simNow() + Math.min(ms, 90)); },
   zoom: () => zoom,
 };
+const bakeT0 = performance.now();
 const vfx = new Vfx({ groundFx, aboveFx, text: textLayer }, ctx);
-const fire = (ev: GameEvent) => vfx.handle(ev);
+const bakeMs = performance.now() - bakeT0;
+let handleAcc = 0;
+const fire = (ev: GameEvent) => { const t0 = performance.now(); vfx.handle(ev); handleAcc += performance.now() - t0; };
 
 // ─────────────────────────── scheduling helpers ───────────────────────────
 
@@ -256,7 +263,7 @@ const scenes: Record<string, () => void> = {
   },
 
   proj() {
-    camX = 0; camY = 40;
+    camX = 0; camY = 60;
     player(ME, 'ranger', 'Sylwen', -560, 380);
     const target = mob('bonewalker', 420, 400);
     const types: [string, number, number][] = [
@@ -264,8 +271,8 @@ const scenes: Record<string, () => void> = {
       ['fireball', 1, 600], ['fireball', 5, 600], ['seed', 4, 330], ['firebolt', 1, 360], ['shard', 2, 800], ['spark', 3, 260], ['orb', 5, 500],
     ];
     types.forEach(([v, el, sp], i) => {
-      const y = -380 + i * 58;
-      label(`${v}${el ? ' · ' + ['phys', 'fire', 'cold', 'light', 'poison', 'arcane'][el] : ''}`, -620, y - 10, 13);
+      const y = -300 + i * 52;
+      label(`${v}${el ? ' · ' + ['phys', 'fire', 'cold', 'light', 'poison', 'arcane'][el] : ''}`, -620, y - 36, 13);
       every(1.3, () => proj(v, -520, y, 520, y, sp, el, v === 'seed' || v === 'firebolt' || v === 'spark' ? 999 : ME), i * 0.07);
     });
     label('homing missiles / rockets', 200, 300, 13);
@@ -305,7 +312,7 @@ const scenes: Record<string, () => void> = {
       ['rain of vengeance', (x, y) => fire({ e: 'aoe', v: 'rain', x, y, r: 120, d: 2000, el: 0, s: ME })],
       ['dark cloud (lightning rain)', (x, y) => fire({ e: 'aoe', v: 'rain', x, y, r: 120, d: 2000, el: 3, s: ME })],
     ];
-    grid(items, 5, 330, 420, 2.9);
+    grid(items, 5, 290, 420, 2.9);
   },
 
   aoe2() {
@@ -328,7 +335,7 @@ const scenes: Record<string, () => void> = {
       ['chain zap + explode (electric)', (x, y) => { fire({ e: 'aoe', v: 'chain', x: x - 50, y, r: 30, d: 0, el: 3 }); fire({ e: 'aoe', v: 'explode', x: x + 50, y, r: 60, d: 0, el: 3 }); }],
       ['monster slam / boss slam', (x, y) => { fire({ e: 'aoe', v: 'slam', x: x - 60, y, r: 70, d: 0, el: 1 }); later(0.6, () => fire({ e: 'aoe', v: 'slam', x: x + 30, y, r: 140, d: 0, el: 4 })); }],
     ];
-    grid(items, 5, 330, 420, 2.9);
+    grid(items, 5, 290, 420, 2.9);
   },
 
   tele() {
@@ -423,12 +430,12 @@ const scenes: Record<string, () => void> = {
       { lk: 'item', name: 'Rusty Shortsword', rarity: 'normal', look: look('sword', 0xa8a8a8), kind: 'weapon1h' },
       { lk: 'item', name: 'Blessed Hood', rarity: 'magic', look: look('hood', 0x6a5acd), kind: 'head' },
       { lk: 'item', name: 'Dread Grasp', rarity: 'rare', look: look('gauntlets', 0xb08a50), kind: 'hands' },
-      { lk: 'item', name: 'The Furnace', rarity: 'legendary', ancient: 0, look: look('mace', 0xd2691e), kind: 'weapon2h' },
-      { lk: 'item', name: "Tal Rasha's Allegiance", rarity: 'set', look: look('amulet', 0x2ecc71), kind: 'neck' },
-      { lk: 'item', name: 'Mantle of Channeling', rarity: 'legendary', ancient: 1, look: look('mantle', 0x8e44ad), kind: 'shoulders' },
-      { lk: 'item', name: 'Unity', rarity: 'legendary', ancient: 2, look: look('ring', 0xf1c40f), kind: 'ring' },
-      { lk: 'item', name: "Marauder's Spines", rarity: 'set', ancient: 1, look: look('greaves', 0x2ecc71), kind: 'legs' },
-      { lk: 'item', name: 'Windforce', rarity: 'rare', look: look('bow', 0x8b5a2b), kind: 'weapon2h' },
+      { lk: 'item', name: 'Bloodwake', rarity: 'legendary', ancient: 0, look: look('mace', 0xd2691e), kind: 'weapon2h' },
+      { lk: 'item', name: "Crown of the Fallen Star", rarity: 'set', look: look('amulet', 0x2ecc71), kind: 'neck' },
+      { lk: 'item', name: 'Starfall Mantle', rarity: 'legendary', ancient: 1, look: look('mantle', 0x8e44ad), kind: 'shoulders' },
+      { lk: 'item', name: 'Ouroboros Loop', rarity: 'legendary', ancient: 2, look: look('ring', 0xf1c40f), kind: 'ring' },
+      { lk: 'item', name: "Siegebreaker's Treads", rarity: 'set', ancient: 1, look: look('greaves', 0x2ecc71), kind: 'legs' },
+      { lk: 'item', name: 'Thunderhead', rarity: 'rare', look: look('bow', 0x8b5a2b), kind: 'weapon2h' },
       { lk: 'item', name: 'Studded Belt', rarity: 'magic', look: look('belt', 0x7a5230), kind: 'waist' },
       { lk: 'gold', name: 'Gold', amount: 37 },
       { lk: 'gold', name: 'Gold', amount: 1450 },
@@ -567,8 +574,9 @@ for (const s of SCENES) {
 }
 const hud = document.getElementById('hud')!;
 const samples: number[] = [];
+const totals: number[] = [];
 const frames: number[] = [];
-const perf = { avgVfx: 0, p95Vfx: 0, maxVfx: 0, avgFrame: 0, particles: 0, numbers: 0, projectiles: 0, effects: 0, budget: 1, samples: 0 };
+const perf = { bakeMs, avgVfx: 0, p95Vfx: 0, maxVfx: 0, avgTotal: 0, p95Total: 0, maxTotal: 0, avgFrame: 0, particles: 0, numbers: 0, projectiles: 0, effects: 0, budget: 1, samples: 0 };
 Object.assign(window as object, { __gallery: { vfx, fire, scene: SCENE, sfx }, __perf: perf });
 
 (scenes[SCENE] ?? scenes.combat)();
@@ -576,8 +584,8 @@ window.addEventListener('pointerdown', () => sfx.unlock());
 
 // ─────────────────────────── frame ───────────────────────────
 
-app.ticker.add((tk) => {
-  const dtMs = Math.min(tk.deltaMS, 100);
+function step(rawMs: number): void {
+  const dtMs = Math.min(rawMs, 100);
   const dt = dtMs / 1000;
   time += dt;
   const due = timers.filter((t) => t.at <= time);
@@ -586,7 +594,7 @@ app.ticker.add((tk) => {
   for (const l of loops) while (time >= l.next) { l.next += l.period; l.fn(); }
   stressTick?.(dt);
 
-  const now = performance.now();
+  const now = simNow();
   const scr = app.screen;
   zoom = scr.height / VIEW_HEIGHT;
   let sx = 0, sy = 0;
@@ -610,9 +618,17 @@ app.ticker.add((tk) => {
   const t0 = performance.now();
   vfx.update(dtMs);
   const ms = performance.now() - t0;
+  const total = ms + handleAcc;
+  handleAcc = 0;
   if (time > 1.5) {
     samples.push(ms);
-    frames.push(tk.deltaMS);
+    totals.push(total);
+    if (totals.length > 600) totals.shift();
+    const st2 = [...totals].sort((a, b) => a - b);
+    perf.avgTotal = totals.reduce((a, b) => a + b, 0) / totals.length;
+    perf.p95Total = st2[Math.floor(st2.length * 0.95)] ?? 0;
+    perf.maxTotal = st2[st2.length - 1] ?? 0;
+    frames.push(rawMs);
     if (samples.length > 600) { samples.shift(); frames.shift(); }
     const sorted = [...samples].sort((a, b) => a - b);
     perf.avgVfx = samples.reduce((a, b) => a + b, 0) / samples.length;
@@ -624,8 +640,22 @@ app.ticker.add((tk) => {
   const st = vfx.stats;
   perf.particles = st.particles; perf.numbers = st.numbers; perf.projectiles = st.projectiles; perf.effects = st.effects; perf.budget = st.budget;
   hud.textContent = `scene: ${SCENE}   (click anywhere to enable sound)\n` +
-    `vfx update: ${ms.toFixed(2)} ms  avg ${perf.avgVfx.toFixed(2)}  p95 ${perf.p95Vfx.toFixed(2)}  max ${perf.maxVfx.toFixed(2)}\n` +
+    `vfx update: ${ms.toFixed(2)} ms  avg ${perf.avgVfx.toFixed(2)}  p95 ${perf.p95Vfx.toFixed(2)}  max ${perf.maxVfx.toFixed(2)}   update+handle avg ${perf.avgTotal.toFixed(2)}  p95 ${perf.p95Total.toFixed(2)}\n` +
     `frame: ${perf.avgFrame.toFixed(1)} ms   particles ${st.particles}   numbers ${st.numbers}   projectiles ${st.projectiles}   effects ${st.effects}   budget ${st.budget.toFixed(2)}`;
-});
+}
+
+if (MANUAL) {
+  app.ticker.stop();
+  const g = (window as unknown as { __gallery: Record<string, unknown> }).__gallery;
+  g.advance = (sec: number) => {
+    const n = Math.round(sec * 60);
+    for (let i = 0; i < n; i++) step(1000 / 60);
+    app.render();
+    return time;
+  };
+  app.render();
+} else {
+  app.ticker.add((tk) => step(tk.deltaMS));
+}
 
 (window as unknown as { __ready: boolean }).__ready = true;

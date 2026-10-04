@@ -776,12 +776,14 @@ export class RigArt implements EntityView {
   private glowNode: PNode | null = null;
   private ring: Sprite | null = null;
   private aura: Sprite | null = null;
-  private sparkles: Sprite[] = [];
+  readonly sparkles: Sprite[] = [];
   private stars: Sprite[] = [];
   private rimBase = 0;
   private flying: number;
   glowColor = 0;
   glowSize = 0;
+  /** Family-owned extra display objects (created in setup). */
+  readonly extra: Record<string, Container> = {};
   /** Seconds since the last attack started (families may read it). */
   get attackAge(): number { return this.atkT; }
 

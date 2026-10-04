@@ -1,6 +1,6 @@
 // Geometry helpers, crowd control on monsters/players, DoT bookkeeping and player buffs.
 
-import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, angleDiff, type Element } from '../shared';
+import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TILE, angleDiff, type Element } from '../shared';
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
 
@@ -31,6 +31,23 @@ export function distToSegment(px: number, py: number, ax: number, ay: number, bx
   t = t < 0 ? 0 : t > 1 ? 1 : t;
   const cx = ax + abx * t, cy = ay + aby * t;
   return Math.hypot(px - cx, py - cy);
+}
+
+/** Projectiles and sight pass over water / lava pools; only walls (and the void) stop them. */
+export function shotBlockedAt(inst: Instance, x: number, y: number): boolean {
+  const t = inst.cw.tileAt(x, y);
+  return t === T_WALL || t === T_VOID;
+}
+
+/** Line of fire between two points (samples every half tile). */
+export function shotBlocked(inst: Instance, x0: number, y0: number, x1: number, y1: number): boolean {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  const steps = Math.ceil(len / (TILE / 2));
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    if (shotBlockedAt(inst, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)) return true;
+  }
+  return false;
 }
 
 // ─────────────────────────── Monster crowd control ───────────────────────────

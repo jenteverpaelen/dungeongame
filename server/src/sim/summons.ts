@@ -3,7 +3,7 @@
 import { F_ATTACK, F_LEFT, F_MOVING } from '../shared';
 import { pickTarget } from './brain';
 import { strikeMob } from './damage';
-import { addBuff, distToSegment, elIdx, getBuff, removeBuff } from './effects';
+import { addBuff, distToSegment, elIdx, getBuff, removeBuff, shotBlockedAt } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
 import { skillElement, skillMult, skillPct } from './playerctx';
@@ -40,7 +40,7 @@ function moveSummon(inst: Instance, s: Summon, tx: number, ty: number, speed: nu
   const st = Math.min(d - stopAt, speed * dtS);
   const fly = s.type === 'bat' || s.type === 'raven' || s.type === 'dust_devil';
   const q = fly ? { x: s.x + (dx / d) * st, y: s.y + (dy / d) * st } : inst.cw.moveCircle(s.x, s.y, 10, (dx / d) * st, (dy / d) * st, true);
-  if (fly && inst.cw.blockedAt(q.x, q.y)) { s.moving = false; return; }
+  if (fly && shotBlockedAt(inst, q.x, q.y)) { s.moving = false; return; }
   s.x = q.x; s.y = q.y;
   s.moving = true;
   faceTo(s, tx);
@@ -108,9 +108,12 @@ function ownerUpdate(inst: Instance, p: Player, dtMs: number) {
     if (len > 700) continue;
     inst.emit({ e: 'beam', v: 'chain', x: Math.round(a.x), y: Math.round(a.y), tx: Math.round(b.x), ty: Math.round(b.y), el: elIdx('lightning'), d: 520 }, (a.x + b.x) / 2, (a.y + b.y) / 2, p.id);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    let zaps = 0;
     for (const m of inst.queryMobs(mx, my, len / 2 + 30)) {
       if (m.dead) continue;
-      if (distToSegment(m.x, m.y, a.x, a.y, b.x, b.y) <= 30 + m.r) strikeMob(inst, p, m, { ...st, src: a.id });
+      if (distToSegment(m.x, m.y, a.x, a.y, b.x, b.y) > 30 + m.r) continue;
+      if (zaps++ < 4) inst.emit({ e: 'aoe', v: 'chain', x: Math.round(m.x), y: Math.round(m.y), r: 24, d: 250, el: elIdx('lightning'), s: a.id }, m.x, m.y, p.id);
+      strikeMob(inst, p, m, { ...st, src: a.id });
     }
   }
 }

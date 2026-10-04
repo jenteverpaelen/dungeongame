@@ -372,7 +372,7 @@ function ExtractView({ item, char }: { item: Item | null; char: CharacterSave })
           <span class="teach"><b class="r-legendary">{LEGENDARIES[item.legendary.power].name}</b>{learned ? <em class="have"><IconCheck size={10} /> Already learned</em> : <em class="new">New power</em>}</span>
         </div>
       )}
-      <div class="cv-label">Kanai slots <span>({char.cube.learned.length} powers learned, always at their best roll)</span></div>
+      <div class="cv-label">Ancient power slots <span>({char.cube.learned.length} powers learned, always at their best roll)</span></div>
       <KanaiSlots char={char} />
     </div>
   );

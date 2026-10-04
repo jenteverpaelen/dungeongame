@@ -8,7 +8,7 @@ import { dropFor } from './loot';
 import { createMob } from './monsters';
 import { touchChar } from './players';
 import { spawnProj } from './projectiles';
-import { nearPlayer, playerZoneLevel, spawnPack, themeMonsters, zoneDifficulty } from './spawner';
+import { nearPlayer, playerZoneLevel, themeMonsters, zoneDifficulty } from './spawner';
 import { BOSS_ADDS_MS, BOSS_RING_COUNT, BOSS_RING_MS, RIFT_KILL_FRACTION } from './tuning';
 import type { Mob, Pack, Player } from './types';
 
@@ -138,7 +138,9 @@ export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   if (b.addsMs <= 0) {
     b.addsMs = BOSS_ADDS_MS;
     const roster = themeMonsters(inst.zone.theme).filter((d) => d.attack.kind !== 'explode');
-    inst.emit({ e: 'cast', s: m.id, sk: 'summon', x: Math.round(m.x), y: Math.round(m.y), tx: Math.round(p.x), ty: Math.round(p.y), rad: 200 }, m.x, m.y);
+    m.attackSeq++;
+    m.attackFlagMs = 400;
+    inst.emit({ e: 'aoe', v: 'nova', x: Math.round(m.x), y: Math.round(m.y), r: Math.round(m.r + 90), d: 500, el: elIdx('arcane'), s: m.id }, m.x, m.y);
     for (let i = 0; i < 6; i++) {
       const a = (i / 6) * Math.PI * 2;
       const x = m.x + Math.cos(a) * (m.r + 70), y = m.y + Math.sin(a) * (m.r + 70);
@@ -166,6 +168,5 @@ export function debugBoss(inst: Instance, p: Player): string | null {
   m.state = 'chase';
   m.target = p.id;
   inst.notice(`${def.name} has appeared!`, 'boss');
-  void spawnPack;
   return null;
 }

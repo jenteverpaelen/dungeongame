@@ -7,7 +7,7 @@ import {
 } from '../shared';
 import { damagePlayer, tickDot } from './damage';
 import { eliteTick } from './elites';
-import { elIdx, mobStatusFlags } from './effects';
+import { elIdx, mobStatusFlags, shotBlocked } from './effects';
 import { flowDir } from './flowfield';
 import { nextId } from './ids';
 import type { Instance } from './instance';
@@ -16,7 +16,7 @@ import { dropGoldPile } from './loot';
 import { spawnProj } from './projectiles';
 import { bossTick } from './rift';
 import {
-  AGGRO_RANGE, DORMANT_RANGE, ELITE_TOUGHNESS, GOBLIN_ESCAPE_MS, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
+  AGGRO_RANGE, DORMANT_RANGE, GOBLIN_ESCAPE_MS, eliteToughness, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
   PACK_ALERT_RANGE, WINDUP_MULT,
 } from './tuning';
 import type { Mob, Pack, Player } from './types';
@@ -43,7 +43,7 @@ export interface MobOpts {
 function lifeFor(def: MonsterDef, tier: EliteTier, level: number, diff: number, affixes: string[], players: number): number {
   const typeMult = tier === 5 ? GOBLIN_HP_MULT : def.hp;
   let hp = monsterHp(level) * typeMult * ELITE_HP_MULT[tier] * DIFFICULTIES[diff].hp;
-  if (tier === 1 || tier === 2) hp *= ELITE_TOUGHNESS;
+  if (tier === 1 || tier === 2) hp *= eliteToughness(level);
   hp *= 1 + HP_PER_EXTRA_PLAYER * Math.max(0, Math.min(3, players - 1));
   if (affixes.includes('extra_health')) hp *= 1.5;
   return Math.max(1, Math.round(hp));
@@ -75,7 +75,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     },
     noticedMs: -1, goldPileMs: 0, fleeX: x, fleeY: y, fleeMs: 0,
     boss: tier === 4 ? { ringMs: 3500, addsMs: 7000, enraged: false, slamCount: 0 } : null,
-    losMs: 0, los: true, shatterBy: 0, shatterDepth: 0,
+    losMs: 0, los: true, shotLos: true, shatterBy: 0, shatterDepth: 0,
     progress: o.progress ?? 0, noReward: false,
     faceLeft: inst.rng.next() < 0.5, moving: false, descVer: 1, sepX: 0, sepY: 0, trailX: x, trailY: y,
   };
@@ -112,6 +112,7 @@ function aggro(inst: Instance, m: Mob, p: Player) {
   m.state = 'chase';
   m.target = p.id;
   m.los = true;
+  m.shotLos = true;
   m.losMs = 0;
 }
 
@@ -242,13 +243,13 @@ function think(inst: Instance, m: Mob, dtMs: number) {
     case 'idle': {
       if ((inst.tickNo + m.id) % 4 !== 0) return;
       const p = inst.nearestPlayer(m.x, m.y, AGGRO_RANGE + m.r);
-      if (p && !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y)) wakeMob(inst, m, p);
+      if (p && !shotBlocked(inst, m.x, m.y, p.x, p.y)) wakeMob(inst, m, p);
       else if (inst.kind !== 'town' && !inst.nearestPlayer(m.x, m.y, DORMANT_RANGE)) m.dormant = true;
       return;
     }
     case 'return': {
       const d = Math.hypot(m.homeX - m.x, m.homeY - m.y);
-      if (d < 24) { m.state = 'idle'; return; }
+      if (d < 24) { m.state = 'idle'; m.hp = m.mhp; m.dots.length = 0; return; } // leashed: reset like D3
       step(inst, m, m.homeX, m.homeY, m.speed * 1.4, dtS, null);
       return;
     }
@@ -283,10 +284,14 @@ function think(inst: Instance, m: Mob, dtMs: number) {
       const atk = m.def.attack;
       const reach = atk.range + m.r + PLAYER_RADIUS;
       m.losMs -= dtMs;
-      if (m.losMs <= 0) { m.losMs = 300 + (m.id % 7) * 30; m.los = !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y); }
+      if (m.losMs <= 0) {
+        m.losMs = 300 + (m.id % 7) * 30;
+        m.los = !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y);
+        m.shotLos = m.los || !shotBlocked(inst, m.x, m.y, p.x, p.y);
+      }
       const ranged = atk.kind === 'ranged';
-      if (d <= reach && m.atkCdMs <= 0 && (!ranged || m.los)) { beginAttack(inst, m, p); return; }
-      if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !m.los)) {
+      if (d <= reach && m.atkCdMs <= 0 && (!ranged || m.shotLos)) { beginAttack(inst, m, p); return; }
+      if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !m.shotLos)) {
         step(inst, m, p.x, p.y, m.speed * slow, dtS, p);
       } else {
         m.faceLeft = dx < 0;
@@ -303,7 +308,7 @@ function step(inst: Instance, m: Mob, tx: number, ty: number, speed: number, dtS
   const d = Math.hypot(dx, dy);
   if (d < 1) return;
   dx /= d; dy /= d;
-  if (p && !m.los && !m.def.flying) {
+  if (p && !m.los) {
     const f = flowDir(inst, p, m.x, m.y);
     if (f) { dx = f.x; dy = f.y; }
   }

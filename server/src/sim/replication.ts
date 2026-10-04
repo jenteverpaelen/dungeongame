@@ -68,45 +68,64 @@ export function replicate(inst: Instance) {
   }
 }
 
+type Visible = Player | Mob | Summon | Loot | PortalEnt;
+
+function describe(e: Visible): EntDesc {
+  switch (e.kind) {
+    case 'player': return descPlayer(e);
+    case 'mob': return descMob(e);
+    case 'summon': return descSummon(e);
+    case 'loot': return descLoot(e);
+    case 'portal': return descPortal(e);
+  }
+}
+
+// Per-snapshot scratch state (snapshots are built one at a time).
+let curKnown: Map<number, { ver: number; seen: number }> = new Map();
+let curStamp = 0;
+let curAdd: EntDesc[] = [];
+let curUpd: number[] = [];
+
+function visit(e: Visible, ver: number, hp: number, flags: number, aseq: number) {
+  const k = curKnown.get(e.id);
+  if (!k) { curKnown.set(e.id, { ver, seen: curStamp }); curAdd.push(describe(e)); }
+  else {
+    if (k.ver !== ver) { k.ver = ver; curAdd.push(describe(e)); }
+    k.seen = curStamp;
+  }
+  curUpd.push(e.id, e.x | 0, e.y | 0, hp, flags, aseq);
+}
+
 function buildSnapshot(inst: Instance, p: Player, now: number, rift: Snapshot['rift']): Snapshot {
   const x0 = p.x - AOI_HALF_W, x1 = p.x + AOI_HALF_W, y0 = p.y - AOI_HALF_H, y1 = p.y + AOI_HALF_H;
   const stamp = inst.tickNo;
   const add: EntDesc[] = [];
   const upd: number[] = [];
   const known = p.known;
-  const visit = (id: number, ver: number, desc: () => EntDesc, x: number, y: number, hp: number, flags: number, aseq: number) => {
-    const k = known.get(id);
-    if (!k) { known.set(id, { ver, seen: stamp }); add.push(desc()); }
-    else {
-      if (k.ver !== ver) { k.ver = ver; add.push(desc()); }
-      k.seen = stamp;
-    }
-    upd.push(id, x | 0, y | 0, hp, flags, aseq);
-  };
-  const inRect = (x: number, y: number) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
+  curKnown = known; curStamp = stamp; curAdd = add; curUpd = upd;
 
   for (const q of inst.players) {
-    if (!inRect(q.x, q.y) || q.respawnTick === stamp) continue;
-    visit(q.id, q.descVer, () => descPlayer(q), q.x, q.y, q.mhp > 0 ? Math.max(0, Math.min(1000, (q.hp / q.mhp) * 1000)) | 0 : 0, playerFlags(q), q.attackSeq);
+    if (q.x < x0 || q.x > x1 || q.y < y0 || q.y > y1 || q.respawnTick === stamp) continue;
+    visit(q, q.descVer, q.mhp > 0 ? Math.max(0, Math.min(1000, (q.hp / q.mhp) * 1000)) | 0 : 0, playerFlags(q), q.attackSeq);
   }
   mobBuf.length = 0;
   inst.mobHash.queryRect(x0, y0, x1, y1, mobBuf);
   for (let i = 0; i < mobBuf.length; i++) {
     const m = mobBuf[i];
     if (m.dead) continue;
-    visit(m.id, m.descVer, () => descMob(m), m.x, m.y, Math.max(1, Math.min(1000, (m.hp / m.mhp) * 1000)) | 0, m.flags, m.attackSeq);
+    visit(m, m.descVer, Math.max(1, Math.min(1000, (m.hp / m.mhp) * 1000)) | 0, m.flags, m.attackSeq);
   }
   for (const s of inst.summons) {
-    if (s.dead || !inRect(s.x, s.y)) continue;
-    visit(s.id, s.descVer, () => descSummon(s), s.x, s.y, 1000, s.flags, s.attackSeq);
+    if (s.dead || s.x < x0 || s.x > x1 || s.y < y0 || s.y > y1) continue;
+    visit(s, s.descVer, 1000, s.flags, s.attackSeq);
   }
   for (const l of p.loot) {
-    if (!inRect(l.x, l.y)) continue;
-    visit(l.id, 1, () => descLoot(l), l.x, l.y, 1000, 0, 0);
+    if (l.x < x0 || l.x > x1 || l.y < y0 || l.y > y1) continue;
+    visit(l, 1, 1000, 0, 0);
   }
   for (const pt of inst.portals) {
-    if (!inRect(pt.x, pt.y)) continue;
-    visit(pt.id, 1, () => descPortal(pt), pt.x, pt.y, 1000, 0, 0);
+    if (pt.x < x0 || pt.x > x1 || pt.y < y0 || pt.y > y1) continue;
+    visit(pt, 1, 1000, 0, 0);
   }
   let rem: number[] | undefined;
   for (const [id, k] of known) {

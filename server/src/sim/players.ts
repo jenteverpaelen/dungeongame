@@ -3,7 +3,7 @@
 
 import type { PlayerLink } from '../contracts';
 import {
-  CLASSES, DASH, PLAYER_RADIUS, SKILLS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
+  CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { OURO_CYCLE, healPlayer, talStacks } from './damage';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
@@ -264,5 +264,4 @@ function autoSlotSkills(save: SaveX, oldLevel: number) {
     if (empty < 0) break;
     setSkillSlot(save, empty, s.id);
   }
-  void SKILLS;
 }

@@ -29,10 +29,15 @@ export const GOBLIN_RIFT_CHANCE = 0.25;
 /** Treasure goblins: escape this long after first noticing a player. */
 export const GOBLIN_ESCAPE_MS = 25000;
 /** Goblins use only ELITE_HP_MULT[5] (×9) × this, not def.hp, which would double count. */
-export const GOBLIN_HP_MULT = 1.2;
+export const GOBLIN_HP_MULT = 2;
 
-/** Champions and rares get this on top of ELITE_HP_MULT so elites take a few seconds even for AoE builds. */
+/** Champions and rares get this on top of ELITE_HP_MULT so elites take a few seconds even for AoE builds.
+ *  Ramped in over the first levels (fresh characters only have their primary attack). */
 export const ELITE_TOUGHNESS = 2.5;
+export const ELITE_TOUGHNESS_FULL_LEVEL = 15;
+export function eliteToughness(level: number): number {
+  return 1 + (ELITE_TOUGHNESS - 1) * Math.min(1, Math.max(0, level - 1) / (ELITE_TOUGHNESS_FULL_LEVEL - 1));
+}
 
 /** Rifts: number of packs placed (spread over the map) and the fraction of monsters needed for 100%. */
 export const RIFT_PACKS = 60;

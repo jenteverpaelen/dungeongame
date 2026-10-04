@@ -1,9 +1,7 @@
 // Population: training dummies in town, field packs that keep coming (respawned out of view near the action),
 // pre-populated rifts, champion / rare packs, treasure goblins and debug spawns.
 
-import {
-  ELITE_HP_MULT, MONSTERS, RIFT_PROGRESS, type EliteTier, type MonsterDef, type Theme,
-} from '../shared';
+import { MONSTERS, RIFT_PROGRESS, type EliteTier, type MonsterDef, type Theme } from '../shared';
 import { eliteName, rollEliteAffixes } from './elites';
 import type { Instance } from './instance';
 import { DUMMY_DEF, createMob, playerDifficulty } from './monsters';
@@ -210,7 +208,6 @@ export function spawnGoblin(inst: Instance, x: number, y: number, level: number,
   const m = createMob(inst, MONSTERS.treasure_goblin, level, pos.x, pos.y, { tier: 5, pack, dormant, players: playersFor(inst, x, y), difficulty });
   inst.counters.goblins++;
   for (const p of inst.playersNear(x, y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'A Treasure Goblin appears!', kind: 'info' });
-  void ELITE_HP_MULT;
   return m;
 }
 

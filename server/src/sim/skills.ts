@@ -1,7 +1,7 @@
 // Every class skill (ARCHITECTURE 1.5): primaries, spenders, channel, cooldowns, buffs and summons, with all
 // runes, upgrade-tier flags, legendary powers and set bonuses.
 
-import { PLAYER_RADIUS, type Element } from '../shared';
+import type { Element } from '../shared';
 import { anyEnemyWithin, bestConeAngle, bestPoint, pickTarget, summonCount } from './brain';
 import { expectedDamage, gainResource, makeDot, strikeMob } from './damage';
 import {
@@ -10,7 +10,7 @@ import {
 import { addGround, newGround } from './grounds';
 import type { Instance } from './instance';
 import {
-  activeSentries, maxSummonsOf, skillCost, skillDurationMs, skillElement, skillMult, skillPct, skillRadius,
+  maxSummonsOf, skillCost, skillDurationMs, skillElement, skillMult, skillPct, skillRadius,
 } from './playerctx';
 import { spawnProj } from './projectiles';
 import { spawnSummon } from './summons';
@@ -156,7 +156,8 @@ export function channelTick(inst: Instance, p: Player, dtMs: number) {
     for (const m of inst.queryMobs(p.x, p.y, radius)) {
       if (m.dead) continue;
       const r = strikeMob(inst, p, m, st);
-      if (rend && !r.killed && !m.dead) applyRend(inst, p, rend, m);
+      // 4pc: the bleed Whirlwind applies is Whirlwind damage, so the 6pc multiplier applies to it too
+      if (rend && !r.killed && !m.dead) applyRend(inst, p, rend, m, skillMult(p, 'whirlwind'));
     }
     inst.emit({ e: 'aoe', v: 'whirl', x: Math.round(p.x), y: Math.round(p.y), r: Math.round(radius), d: 260, el: elIdx(st.el), s: p.id }, p.x, p.y, p.id);
   }
@@ -170,9 +171,11 @@ export function channelTick(inst: Instance, p: Player, dtMs: number) {
   }
 }
 
-function applyRend(inst: Instance, p: Player, rt: SkillRuntime, m: Mob) {
+function applyRend(inst: Instance, p: Player, rt: SkillRuntime, m: Mob, mult = 1) {
   const dur = skillDurationMs(rt);
-  addDot(m, makeDot(inst, p, strikeOf(p, rt), 'bleed', dur, 500, { heal: rt.flags.has('bleedHeal'), spread: rt.flags.has('bleedSpread') }));
+  const st = strikeOf(p, rt);
+  st.mult = (st.mult ?? 1) * mult;
+  addDot(m, makeDot(inst, p, st, 'bleed', dur, 500, { heal: rt.flags.has('bleedHeal'), spread: rt.flags.has('bleedSpread') }));
 }
 
 // ─────────────────────────── Slot skills ───────────────────────────
@@ -340,7 +343,7 @@ function multishot(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   fireMultishot(inst, p, rt, p.x, p.y, t.ang, p.id);
   if (p.ctx.modsOf('sentry').flags.has('sentryCasts')) {
     for (const s of p.summons) {
-      if (s.type !== 'sentry' || s.dead) continue;
+      if (s.type !== 'sentry' || s.dead || Math.hypot(t.x - s.x, t.y - s.y) > rt.def.range + 120) continue;
       s.attackSeq++; s.attackFlagMs = 200;
       fireMultishot(inst, p, rt, s.x, s.y, Math.atan2(t.y - s.y, t.x - s.x), s.id);
     }
@@ -400,7 +403,7 @@ function clusterArrow(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   lobCluster(inst, p, rt, p.x, p.y, bp.x, bp.y, p.id);
   if (p.ctx.modsOf('sentry').flags.has('sentryCasts')) {
     for (const s of p.summons) {
-      if (s.type !== 'sentry' || s.dead) continue;
+      if (s.type !== 'sentry' || s.dead || Math.hypot(bp.x - s.x, bp.y - s.y) > rt.def.range + 120) continue;
       s.attackSeq++; s.attackFlagMs = 200;
       lobCluster(inst, p, rt, s.x, s.y, bp.x + (inst.rng.next() - 0.5) * 40, bp.y + (inst.rng.next() - 0.5) * 40, s.id);
     }

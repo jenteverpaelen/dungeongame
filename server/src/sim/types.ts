@@ -133,7 +133,9 @@ export interface Mob extends Hashed {
   boss: BossState | null;
   /** Cached line-of-sight to the target (re-evaluated periodically). */
   losMs: number;
+  /** Straight walkable line to the target / clear line of fire (water does not block shots). */
   los: boolean;
+  shotLos: boolean;
   /** Frost Nova Shatter: player id that froze it with the shatter rune, and nova depth. */
   shatterBy: number;
   shatterDepth: number;

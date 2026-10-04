@@ -3,7 +3,7 @@
 
 import { PLAYER_RADIUS, type Element } from '../shared';
 import { damagePlayer, gainResource, strikeMob } from './damage';
-import { chillMob, elIdx, freezeMob } from './effects';
+import { chillMob, elIdx, freezeMob, shotBlockedAt } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
 import { clusterExplode } from './skills';
@@ -113,7 +113,7 @@ export function updateProjectiles(inst: Instance, dtMs: number) {
     for (let k = 0; k < n && !pr.dead; k++) {
       pr.x += sx; pr.y += sy;
       if (isLob(pr.kind)) continue;
-      if (inst.cw.blockedAt(pr.x, pr.y)) { endProj(inst, pr, false); break; }
+      if (shotBlockedAt(inst, pr.x, pr.y)) { endProj(inst, pr, false); break; }
       if (isHostile(pr.kind)) hostileCollide(inst, pr);
       else friendlyCollide(inst, pr);
     }

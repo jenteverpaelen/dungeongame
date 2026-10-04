@@ -113,8 +113,8 @@ export class Vfx {
       case 'beam': this.beams.handle(ev); break;
       case 'cast': this.casts.cast(ev); break;
       case 'dash': this.casts.dash(ev); break;
-      case 'level': this.casts.pillar(ev.t, false); break;
-      case 'paragon': this.casts.pillar(ev.t, true); break;
+      case 'level': this.casts.pillar(ev.t, false); V.levelHooks.get(ev.t)?.(ev.lv, false); break;
+      case 'paragon': this.casts.pillar(ev.t, true); V.levelHooks.get(ev.t)?.(ev.lv, true); break;
       case 'pickup': {
         this.loot.pickups.set(ev.l, ev.t);
         if (ev.t !== this.ctx.myId()) break;

@@ -69,7 +69,7 @@ function twang(freq: number, at = 0, gain = 1): Layer[] {
 export const SOUNDS: Record<string, SoundDef> = {
   // ── combat impacts ──
   hit: {
-    gain: 0.3, max: 3, vary: 0.12,
+    gain: 0.3, max: 2, vary: 0.12,
     layers: [
       { p: { freq: 150, release: 0.1, shape: 0, slide: -6, noise: 0.4, filter: -1200 } },
       { p: { freq: 600, release: 0.035, shape: 4, filter: -1900 }, gain: 0.3 },
