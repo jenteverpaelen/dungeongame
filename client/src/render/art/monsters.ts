@@ -6,7 +6,8 @@ import { Container, Sprite } from 'pixi.js';
 import { MONSTERS, ELITE_AFFIXES, RIFT_GUARDIANS, type MonsterDef } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import { F_ATTACK, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, F_WINDUP } from '@shared/protocol';
-import type { EntityView, ViewState } from '../types';
+import type { ActionSpec } from '../actions';
+import type { ActingView, ViewState } from '../types';
 import { SheetSlice, bakeSheet, type PartSpec, type Sheet, type SheetLike } from './bake';
 import {
   OUT, ball, blob, blobPath, crease, eye, fill, flat, gem, gloss, line, outline, paint, poly, rbox, seg, spark, star, wash, type Ctx,
@@ -14,6 +15,7 @@ import {
 import { fx, glowSprite, ringSprite, sparkleSprite } from './fx';
 import { BONE, ELEMENT_COLORS, GOLD, RIM_BOSS, RIM_CHAMPION, RIM_RARE, WOOD_DARK } from './palette';
 import { PNode, Puppet } from './puppet';
+import { bakeRes } from './scale';
 import { TAU, clamp, damp, easeIn, easeInOut, easeOut, easeOut3, lerp, light, mix, shade } from './util';
 
 type Fam = MonsterDef['family'];
@@ -442,6 +444,8 @@ export interface Family {
   setup?(p: Puppet, n: Nodes, view: RigArt): void;
   /** Hit reaction override (dummies wobble instead of squashing). */
   wobble?: boolean;
+  /** Where the eyes are ([node, x, y]) — they glow during a wind-up. */
+  eyes?: [string, number, number];
 }
 
 export const P = (name: string, draw: (c: Ctx) => void): PartSpec => ({ name, draw, flash: true, rim: true });
@@ -463,7 +467,7 @@ export function atkCurve(u: number, a = 0.4, b = 0.6): { wind: number; strike: n
 
 const FAMILIES: Record<Fam, Family> = {
   slime: {
-    base: 1, height: 36, shadow: 44, atkDur: 0.6,
+    base: 1, height: 36, shadow: 44, atkDur: 0.6, eyes: ['face', 9.7, -16],
     parts: (col) => [P('body', (c) => slimeBody(c, col, false)), P('face', (c) => slimeFace(c, col, false))],
     rig: (p) => { const body = p.add('body'); const face = p.add('face', body); return { body, face }; },
     pose: (n, s) => {
@@ -480,7 +484,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   boss_slime: {
-    base: 2.8, height: 46, shadow: 46, atkDur: 1.0,
+    base: 2.8, height: 46, shadow: 46, atkDur: 1.0, eyes: ['face', 8.5, -18],
     parts: (col) => [P('body', (c) => slimeBody(c, col, true)), P('face', (c) => slimeFace(c, col, true)), P('crown', crown)],
     rig: (p) => { const body = p.add('body'); const face = p.add('face', body); const cr = p.add('crown', body, 1, -29.6); cr.rot = 0.14; return { body, face, crown: cr }; },
     pose: (n, s) => {
@@ -497,7 +501,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   mushroom: {
-    base: 1, height: 40, shadow: 34, atkDur: 0.6,
+    base: 1, height: 40, shadow: 34, atkDur: 0.6, eyes: ['stem', 5.5, -12.4],
     parts: (col) => [P('stem', (c) => shroomStem(c, col)), P('cap', (c) => shroomCap(c, col)), P('footB', (c) => stubFoot(c, shade(col.body, 0.3))), P('footF', (c) => stubFoot(c, shade(col.body, 0.12)))],
     rig: (p) => {
       const footB = p.add('footB', null, -3, 0); const footF = p.add('footF', null, 3.4, 0);
@@ -517,7 +521,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   bat: {
-    base: 1, height: 52, shadow: 26, fly: 30, atkDur: 0.5,
+    base: 1, height: 52, shadow: 26, fly: 30, atkDur: 0.5, eyes: ['body', 5.6, -4.6],
     parts: (col) => [P('body', (c) => batBody(c, col)), P('wingB', (c) => batWing(c, col, true)), P('wingF', (c) => batWing(c, col, false))],
     rig: (p) => {
       const root = p.add(null, null, 0, -30);
@@ -536,7 +540,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   sprout: {
-    base: 1, height: 40, shadow: 30, atkDur: 0.7,
+    base: 1, height: 40, shadow: 30, atkDur: 0.7, eyes: ['head', 3.5, -1.6],
     parts: (col) => [P('roots', (c) => sproutRoots(c, col)), P('stem', (c) => sproutStem(c, col)), P('leafB', (c) => sproutLeaf(c, col, true)), P('leafF', (c) => sproutLeaf(c, col, false)), P('head', (c) => sproutHead(c, col)), P('mouth', sproutMouth)],
     rig: (p) => {
       const roots = p.add('roots');
@@ -560,7 +564,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   golem: {
-    base: 1, height: 50, shadow: 44, atkDur: 0.9,
+    base: 1, height: 50, shadow: 44, atkDur: 0.9, eyes: ['b', 11, -21.6],
     parts: (col) => [P('legB', (c) => golemLeg(c, col, true)), P('legF', (c) => golemLeg(c, col, false)), P('armB', (c) => golemArm(c, col, true)), P('body', (c) => golemBody(c, col)), P('armF', (c) => golemArm(c, col, false))],
     rig: (p) => {
       const legB = p.add('legB', null, -6, -9); const legF = p.add('legF', null, 6, -9);
@@ -578,7 +582,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   imp: {
-    base: 1, height: 42, shadow: 26, atkDur: 0.45,
+    base: 1, height: 42, shadow: 26, atkDur: 0.45, eyes: ['head', 7, -2],
     parts: (col) => [P('tail', (c) => impTail(c, col)), P('wing', (c) => impWing(c, col)), P('legB', (c) => impLimb(c, col, true, false)), P('legF', (c) => impLimb(c, col, false, false)), P('armB', (c) => impLimb(c, col, true, true)), P('body', (c) => impBody(c, col)), P('head', (c) => impHead(c, col, false)), P('armF', (c) => impLimb(c, col, false, true))],
     rig: (p) => {
       const legB = p.add('legB', null, -2.4, -8.6); const legF = p.add('legF', null, 2.4, -8.6);
@@ -602,7 +606,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   boss_imp: {
-    base: 3.0, height: 42, shadow: 30, atkDur: 0.9,
+    base: 3.0, height: 42, shadow: 30, atkDur: 0.9, eyes: ['head', 7, -2],
     parts: (col) => [P('cape', (c) => impCape(c, col)), P('tail', (c) => impTail(c, col)), P('wing', (c) => impWing(c, col)), P('legB', (c) => impLimb(c, col, true, false)), P('legF', (c) => impLimb(c, col, false, false)), P('armB', (c) => impLimb(c, col, true, true)), P('body', (c) => impBody(c, col)), P('head', (c) => impHead(c, col, true)), P('crown', flameCrown), P('armF', (c) => impLimb(c, col, false, true))],
     rig: (p) => {
       const body0 = p.add(null, null, 0, -8);
@@ -632,7 +636,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   skeleton: {
-    base: 1, height: 44, shadow: 28, atkDur: 0.6,
+    base: 1, height: 44, shadow: 28, atkDur: 0.6, eyes: ['skull', 7.3, -1.4],
     parts: (col) => [P('legB', (c) => boneLimb(c, col, true, false)), P('legF', (c) => boneLimb(c, col, false, false)), P('armB', (c) => boneLimb(c, col, true, true)), P('ribs', (c) => ribs(c, col)), P('skull', (c) => skull(c, col)), P('sword', (c) => rustySword(c, col)), P('armF', (c) => boneLimb(c, col, false, true))],
     rig: (p) => {
       const legB = p.add('legB', null, -2.4, -10.6); const legF = p.add('legF', null, 2.4, -10.6);
@@ -655,7 +659,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   cultist: {
-    base: 1, height: 44, shadow: 30, atkDur: 0.8,
+    base: 1, height: 44, shadow: 30, atkDur: 0.8, eyes: ['hood', 7.2, -1.6],
     parts: (col) => [P('armB', (c) => cultArm(c, col, true)), P('robe', (c) => cultRobe(c, col)), P('hood', (c) => cultHood(c, col)), P('staff', (c) => cultStaff(c, col)), P('armF', (c) => cultArm(c, col, false))],
     rig: (p) => {
       const body = p.add(null);
@@ -678,7 +682,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   brute: {
-    base: 1, height: 52, shadow: 48, atkDur: 1.0,
+    base: 1, height: 52, shadow: 48, atkDur: 1.0, eyes: ['b', 15.7, -23.4],
     parts: (col) => [P('legB', (c) => bruteLeg(c, col, true)), P('legF', (c) => bruteLeg(c, col, false)), P('armB', (c) => bruteArm(c, col, true)), P('body', (c) => bruteBody(c, col)), P('armF', (c) => bruteArm(c, col, false)), { name: 'cracks', draw: (c) => bruteCracks(c, col) }],
     rig: (p) => {
       const legB = p.add('legB', null, -7, -9.6); const legF = p.add('legF', null, 7, -9.6);
@@ -698,7 +702,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   wisp: {
-    base: 1, height: 50, shadow: 22, fly: 24, atkDur: 0.6,
+    base: 1, height: 50, shadow: 22, fly: 24, atkDur: 0.6, eyes: ['body', 2.4, -9],
     parts: (col) => [P('body', (c) => wispBody(c, col))],
     rig: (p) => { const root = p.add(null, null, 0, -24); const body = p.add('body', root); return { root, body }; },
     pose: (n, s, v) => {
@@ -711,7 +715,7 @@ const FAMILIES: Record<Fam, Family> = {
     },
   },
   goblin: {
-    base: 1, height: 46, shadow: 34, atkDur: 0.4,
+    base: 1, height: 46, shadow: 34, atkDur: 0.4, eyes: ['head', 6.1, -3],
     parts: (col) => [P('legB', (c) => gobLimb(c, col, true, false)), P('legF', (c) => gobLimb(c, col, false, false)), P('armB', (c) => gobLimb(c, col, true, true)), P('sack', (c) => gobSack(c, col)), P('body', (c) => gobBody(c, col)), P('head', (c) => gobHead(c, col)), P('armF', (c) => gobLimb(c, col, false, true))],
     rig: (p) => {
       const legB = p.add('legB', null, -2.4, -8); const legF = p.add('legF', null, 2.4, -8);
@@ -740,7 +744,8 @@ const sheets = new Map<string, SheetLike>();
 /** Texel density of a rig: ordinary rigs share one density (so they can share an atlas); big bosses get more. */
 function rigRes(fam: Family, scale: number): number {
   const S = fam.base * scale;
-  return S > 2.2 ? Math.max(3, Math.min(9, Math.round(3 * S))) : 3;
+  const r = bakeRes(3, 5); // follows the view scale (camera zoom × resolution) so monsters stay crisp
+  return S > 2.2 ? Math.max(r, Math.min(9, Math.round(r * S))) : r;
 }
 
 function rigSpecs(colors: C, fam: Family, scale: number, prefix = ''): PartSpec[] {
@@ -766,12 +771,13 @@ export function rigSheet(key: string, colors: C, fam: Family, scale: number): Sh
 
 /** Bake many rigs into one shared atlas (one texture → monsters batch together). */
 export function bakeRigAtlas(rigs: { key: string; colors: C; fam: Family; scale: number }[], label: string): void {
-  const todo = rigs.filter((r) => rigRes(r.fam, r.scale) === 3 && !sheets.get(`${r.key}@3`));
+  const res = bakeRes(3, 5);
+  const todo = rigs.filter((r) => rigRes(r.fam, r.scale) === res && !sheets.get(`${r.key}@${res}`));
   if (!todo.length) return;
   const specs: PartSpec[] = [];
   for (const r of todo) specs.push(...rigSpecs(r.colors, r.fam, r.scale, `${r.key}/`));
-  const atlas: Sheet = bakeSheet(specs, 3, 2048, label);
-  for (const r of todo) sheets.set(`${r.key}@3`, new SheetSlice(atlas, `${r.key}/`));
+  const atlas: Sheet = bakeSheet(specs, res, 2048, label);
+  for (const r of todo) sheets.set(`${r.key}@${res}`, new SheetSlice(atlas, `${r.key}/`));
 }
 
 // ═══════════════════════════════ view ═══════════════════════════════
@@ -781,7 +787,7 @@ const ELITE_SCALE: Record<number, number> = { 0: 1, 1: 1.08, 2: 1.16, 3: 0.96, 4
 export interface RigOptions { key: string; fam: Family; colors: C; scale: number; elite?: EliteTier; affixes?: string[]; shadowAlpha?: number }
 
 /** Generic baked-rig entity view (monsters, summons, NPC objects). */
-export class RigArt implements EntityView {
+export class RigArt implements ActingView {
   readonly root = new Container();
   readonly height: number;
   readonly p: Puppet;
@@ -792,6 +798,9 @@ export class RigArt implements EntityView {
   t = Math.random() * 10;
   lastSeqSeen = 0;
   private face = 1;
+  private faceFrom = 1;
+  private faceTo = 1;
+  private turnT = 1;
   private walk = 0;
   private move = 0;
   private wind = 0;
@@ -819,6 +828,14 @@ export class RigArt implements EntityView {
   readonly extra: Record<string, Container> = {};
   /** Seconds since the last attack started (families may read it). */
   get attackAge(): number { return this.atkT; }
+  /** Aim of the last shot relative to the facing (rad, + = down) — sentries / hydras point at it. */
+  aim = 0;
+  private recoil = 9;
+  private knock = 0;
+  private lastX = 0;
+  private lastY = 0;
+  private eyeGlow: Sprite[] = [];
+  private firstFrame = true;
 
   constructor(o: RigOptions) {
     this.fam = o.fam;
@@ -862,6 +879,32 @@ export class RigArt implements EntityView {
       this.p.under.addChild(this.aura);
     }
     this.fam.setup?.(this.p, this.n, this);
+    const ey = this.fam.eyes;
+    if (ey && this.n[ey[0]]) {
+      for (let i = 0; i < 2; i++) {
+        const g = glowSprite(i ? 0xffe2a0 : 0xff4a2a, i ? 7 : 16, 0, false);
+        g.position.set(ey[1], ey[2]);
+        this.n[ey[0]].c.addChild(g);
+        this.eyeGlow.push(g);
+      }
+    }
+  }
+
+  /** Own attacks and shots (the scene calls this on `proj` events): face the target, lunge or recoil. */
+  playAction(a: ActionSpec): void {
+    if (this.destroyed || this.dying) return;
+    const dx = a.tx - this.lastX, dy = a.ty - this.lastY;
+    if (Math.abs(dx) > 2) this.turnTo(dx < 0 ? -1 : 1);
+    this.aim = Math.atan2(dy, Math.abs(dx) || 1);
+    this.recoil = 0;
+    if (this.atkT > 0.12) { this.atkT = this.wind > 0.2 ? this.fam.atkDur * 0.4 : 0; this.lastSeqSeen++; }
+  }
+
+  private turnTo(f: number): void {
+    if (f === this.faceTo) return;
+    this.faceFrom = this.turnT < 1 ? Math.sign(this.face) || this.faceTo : this.faceTo;
+    this.faceTo = f;
+    this.turnT = 0;
   }
 
   /** Extra sparkle sprites (goblin coins, shrines). */
@@ -901,12 +944,19 @@ export class RigArt implements EntityView {
     const adt = dt * k;
     this.t += adt;
 
-    const tf = s.facingLeft ? -1 : 1;
-    this.face += (tf - this.face) * damp(24, dt);
-    if (Math.abs(tf - this.face) < 0.02) this.face = tf;
+    // squash-turn: the cut-out narrows to 35 %, flips at the middle and widens again, with a little hop
+    this.lastX = s.x; this.lastY = s.y;
+    if (this.firstFrame) { this.firstFrame = false; this.faceFrom = this.faceTo = s.facingLeft ? -1 : 1; this.turnT = 1; }
+    if (this.recoil > 0.25 || this.recoil === 9) this.turnTo(s.facingLeft ? -1 : 1);
+    this.turnT = Math.min(1, this.turnT + dt / 0.15);
+    const tp = easeInOut(this.turnT);
+    this.face = tp < 0.5 ? this.faceFrom * Math.max(0.35, Math.cos(tp * Math.PI)) : this.faceTo * Math.max(0.35, -Math.cos(tp * Math.PI));
+    const turnBump = this.turnT < 1 ? Math.sin(tp * Math.PI) : 0;
+    this.recoil = Math.min(9, this.recoil + dt);
 
     if (s.attackSeq !== this.lastSeq) {
-      if (this.lastSeq >= 0 || (flags & F_ATTACK)) { this.atkT = 0; this.lastSeqSeen++; }
+      // the server already played the wind-up (F_WINDUP) when it resolves the hit: go straight into the strike
+      if (this.lastSeq >= 0 || (flags & F_ATTACK)) { if (this.atkT > 0.12) { this.atkT = this.wind > 0.2 ? this.fam.atkDur * 0.4 : 0; this.lastSeqSeen++; } }
       this.lastSeq = s.attackSeq;
     }
     this.atkT += adt;
@@ -916,6 +966,7 @@ export class RigArt implements EntityView {
     if (moving) this.walk += adt * Math.PI * clamp(speed / 90, 0.7, 2.4) * 2.2;
     this.wind += (((flags & F_WINDUP) ? 1 : 0) - this.wind) * damp(14, dt);
     this.hitK = Math.max(0, this.hitK - dt * 6);
+    this.knock = Math.max(0, this.knock - dt * 5);
 
     const atk = this.atkT < this.fam.atkDur ? this.atkT / this.fam.atkDur : -1;
     const st: MState = { t: this.t, dt: adt, move: this.move, walk: this.walk, atk, wind: this.wind, face: this.face };
@@ -923,7 +974,7 @@ export class RigArt implements EntityView {
 
     const p = this.p;
     const hk = this.fam.wobble ? 0 : this.hitK;
-    let sx = (1 + 0.1 * hk), sy = (1 - 0.1 * hk);
+    let sx = (1 + 0.16 * hk), sy = (1 - 0.14 * hk) * (1 - 0.06 * turnBump);
     if (this.fam.wobble) {
       this.wobV += (-this.wob * 160 - this.wobV * 7) * dt;
       this.wob += this.wobV * dt;
@@ -943,10 +994,25 @@ export class RigArt implements EntityView {
       else if (flags & F_BURN) tint = (Math.sin(this.t * 20) > 0 ? 0xffd2b0 : 0xffffff);
       if (this.wind > 0.05) tint = mix(tint, 0xffb4a0, this.wind * (0.5 + 0.5 * Math.sin(this.t * 22)) * 0.6);
     }
-    const flip = Math.abs(this.face) < 0.15 ? Math.sign(this.face || 1) * 0.15 : this.face;
-    p.body.scale.set(flip * this.S * sx, this.S * sy);
-    p.body.position.set(0, y);
-    p.body.rotation = this.fam.wobble ? this.wob : 0;
+    const flip = this.face;
+    const dir = Math.sign(this.face) || 1;
+    // wind-up: rear back, tremble; strike: lunge forward; shot: recoil; hit: knocked back
+    const w = this.dying ? 0 : this.wind;
+    const atkU = this.atkT < this.fam.atkDur ? this.atkT / this.fam.atkDur : -1;
+    const strike = atkU >= 0 ? atkCurve(atkU).strike : 0;
+    const rec = this.recoil < 0.35 ? Math.exp(-this.recoil / 0.08) * Math.min(1, this.recoil / 0.03) : 0;
+    const k2 = Math.min(1.6, Math.sqrt(this.S));
+    const shakeX = w > 0.02 ? Math.sin(this.t * 70) * 0.9 * w * k2 : 0;
+    const dx = (strike * 4.5 - rec * 4 - this.knock * 4) * dir * k2 + shakeX;
+    p.body.scale.set(flip * this.S * sx * (1 - 0.04 * w), this.S * sy * (1 + 0.06 * w));
+    p.body.position.set(dx, y - 1.5 * turnBump * k2);
+    p.body.rotation = this.fam.wobble ? this.wob : (-0.13 * w + 0.08 * strike - 0.1 * this.knock) * dir;
+    p.shadow.x = dx * 0.6;
+    for (let i = 0; i < this.eyeGlow.length; i++) {
+      const g = this.eyeGlow[i];
+      g.alpha = w * (i ? 0.9 : 0.75) * (0.75 + 0.25 * Math.sin(this.t * 30 + i));
+      g.visible = g.alpha > 0.01; // invisible additive sprites would still split the sprite batch
+    }
     p.body.alpha = alpha;
     p.body.tint = tint;
     p.shadow.alpha = 0.75 * alpha * (this.flying ? 0.7 : 1);
@@ -1004,6 +1070,7 @@ export class RigArt implements EntityView {
     if (this.destroyed || this.dying) return;
     this.p.flash(performance.now(), crit ? 90 : 70);
     this.hitK = Math.max(this.hitK, 0.55 + 0.45 * clamp(intensity));
+    if (!this.fam.wobble) this.knock = Math.max(this.knock, (crit ? 1 : 0.75) * (0.6 + 0.4 * clamp(intensity)));
     if (this.fam.wobble) this.wobV += (crit ? 2.6 : 1.6) * (0.6 + 0.4 * clamp(intensity)) * (Math.random() < 0.5 ? -1 : 1);
   }
 

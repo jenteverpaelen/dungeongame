@@ -18,11 +18,15 @@ import {
 } from '../render/art';
 import type { EntityView, ViewState } from '../render/types';
 import { bakedPages } from '../render/art/bake';
+import { PlayerArt, artDebug, bakePlayerLook } from '../render/art/player';
+import { ACTIONS, type ActionSpec } from '../render/actions';
+import { F_WINDUP } from '@shared/protocol';
 
 const qs = new URLSearchParams(location.search);
 (globalThis as { __artDebug?: boolean }).__artDebug = true;
 const VIEW = qs.get('view') ?? 'chars';
-const ZOOM = Number(qs.get('zoom') ?? (VIEW === 'map' ? 1.17 : VIEW === 'chars' ? 2 : 1.6));
+const SHEETS = ['turntable', 'turn', 'whirl', 'skills', 'rapid', 'mon2', 'walk8'];
+const ZOOM = Number(qs.get('zoom') ?? (VIEW === 'map' ? 1.17 : VIEW === 'chars' ? 2 : SHEETS.includes(VIEW) ? 1.74 : 1.6));
 
 const app = new Application();
 await app.init({ resizeTo: window, antialias: true, background: 0x2b2722, preference: 'webgl', resolution: 1 });
@@ -329,6 +333,232 @@ function bakeTest() {
   if (qs.get('hit')) for (const a of actors) { a.hitEvery = 0.5; a.nextHit = 0.4; }
 }
 
+
+// ─────────────────────────── contact sheets (manual advance) ───────────────────────────
+// Every cell is its own view simulated offline with a fixed time step to an exact instant, so a whole
+// animation is laid out in one frame (no ticker timing involved). ?view=turntable|turn|whirl|skills|rapid|mon2
+
+type Ev = { at: number; fn: (v: EntityView) => void };
+const DT = 1 / 240;
+
+function simulate(view: EntityView, x: number, y: number, until: number, state: (t: number) => Partial<ViewState>, events: Ev[] = []): void {
+  view.root.position.set(x, y);
+  world.addChild(view.root);
+  const evs = [...events].sort((a, b) => a.at - b.at);
+  let t = 0, seq = 0, ei = 0;
+  while (t < until - 1e-9) {
+    const step = Math.min(DT, until - t);
+    t += step;
+    while (ei < evs.length && evs[ei].at <= t + 1e-9) { evs[ei].fn(view); ei++; }
+    const o = state(t);
+    if (o.attackSeq !== undefined) seq = o.attackSeq;
+    view.update(step, { x, y, vx: o.vx ?? 0, vy: o.vy ?? 0, moving: o.moving ?? false, facingLeft: o.facingLeft ?? false, flags: o.flags ?? 0, attackSeq: seq, hpFrac: 1, time: t, aps: o.aps ?? 1.2 });
+  }
+}
+
+function sheetLooks(cls: ClassId): { name: string; look: PlayerLook }[] {
+  return [
+    { name: 'starter', look: playerLook(createCharacter('g', cls, 7)) },
+    { name: 'rare', look: randomLook(cls, 'rare', 2) },
+    { name: 'legendary', look: legendLook(cls) },
+    { name: 'full set', look: setLook(cls) },
+  ];
+}
+
+function prebake(looks: PlayerLook[]) { for (const l of looks) bakePlayerLook(l); }
+
+function grid(cols: number, cw: number, rh: number, x0 = 120, y0 = 90) {
+  return (c: number, r: number) => ({ x: x0 + c * cw, y: y0 + r * rh });
+}
+
+function turntableView() {
+  artDebug.deterministic = true;
+  const cls = (qs.get('cls') ?? 'warrior') as ClassId;
+  const rows = sheetLooks(cls);
+  prebake(rows.map((r) => r.look));
+  const yaws = [0, 45, 90, 135, 180, 225, 270, 315];
+  const at = grid(yaws.length, 110, 118);
+  yaws.forEach((yw, c) => label(`${yw}°`, at(c, 0).x, 6, 13));
+  rows.forEach((r, i) => {
+    label(r.name, 46, at(0, i).y - 40, 12, 0xc9b98f);
+    yaws.forEach((yw, c) => {
+      const v = new PlayerArt(r.look);
+      const p = at(c, i);
+      ground(p.x - 50, p.y - 7, 100, 14, 0x7ea456);
+      v.setYaw(yw);
+      simulate(v, p.x, p.y, 0.6, () => ({}));
+    });
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+function turnView() {
+  artDebug.deterministic = true;
+  const looks = [playerLook(createCharacter('g', 'warrior', 7)), playerLook(createCharacter('g', 'ranger', 7)), playerLook(createCharacter('g', 'mage', 7)), legendLook('warrior')];
+  prebake(looks);
+  const frames = 12, step = 0.03;
+  const at = grid(frames, 96, 118);
+  for (let c = 0; c < frames; c++) label(`${Math.round(c * step * 1000)} ms`, at(c, 0).x, 6, 12);
+  const kinds = (qs.get('dir') ?? 'rl').split(',');
+  let row = 0;
+  for (const look of looks) for (const k of kinds) {
+    label(`${look.classId} ${k === 'rl' ? 'right→left' : k === 'lr' ? 'left→right' : k === 'up' ? 'right→up' : 'up→down'}`, 56, at(0, row).y - 44, 11, 0xc9b98f);
+    for (let c = 0; c < frames; c++) {
+      const v = new PlayerArt(look);
+      const p = at(c, row);
+      ground(p.x - 44, p.y - 7, 88, 14, 0x7ea456);
+      const T0 = 0.8;
+      const from = k === 'lr' ? { vx: -220, vy: 0 } : k === 'ud' ? { vx: 0, vy: -220 } : { vx: 220, vy: 0 };
+      const to = k === 'rl' ? { vx: -220, vy: 0 } : k === 'lr' ? { vx: 220, vy: 0 } : k === 'up' ? { vx: 0, vy: -220 } : { vx: 0, vy: 220 };
+      simulate(v, p.x, p.y, T0 + c * step, (t) => {
+        const m = t < T0 ? from : to;
+        return { moving: true, vx: m.vx, vy: m.vy, flags: F_MOVING, facingLeft: m.vx < 0 };
+      });
+    }
+    row++;
+  }
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+function walk8View() {
+  artDebug.deterministic = true;
+  const cls = (qs.get('cls') ?? 'warrior') as ClassId;
+  const looks = [playerLook(createCharacter('g', cls, 7)), setLook(cls)];
+  prebake(looks);
+  const dirs: [string, number, number][] = [['→', 1, 0], ['↘', 0.7, 0.7], ['↓', 0, 1], ['↙', -0.7, 0.7], ['←', -1, 0], ['↖', -0.7, -0.7], ['↑', 0, -1], ['↗', 0.7, -0.7]];
+  const at = grid(dirs.length, 110, 118);
+  dirs.forEach(([n], c) => label(`walk ${n}`, at(c, 0).x, 6, 13));
+  looks.forEach((look, r) => dirs.forEach(([, dx, dy], c) => {
+    const v = new PlayerArt(look);
+    const p = at(c, r);
+    ground(p.x - 50, p.y - 7, 100, 14, 0x7ea456);
+    simulate(v, p.x, p.y, 1.0 + c * 0.037, () => ({ moving: true, vx: dx * 220, vy: dy * 220, flags: F_MOVING, facingLeft: dx < 0 }));
+  }));
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+function whirlView() {
+  artDebug.deterministic = true;
+  const looks = [playerLook(createCharacter('g', 'warrior', 7)), legendLook('warrior'), setLook('warrior'), randomLook('warrior', 'rare', 3)];
+  // make sure one row shows a two-hander
+  const big = randomLook('warrior', 'rare', 1);
+  big.slots.mainhand = item('warrior', 'rare', 'axe2h').look; delete big.slots.offhand;
+  looks[3] = big;
+  prebake(looks);
+  const frames = 13, step = 0.035;
+  const at = grid(frames, 118, 130, 130, 100);
+  for (let c = 0; c < frames; c++) label(`${Math.round(c * step * 1000)} ms`, at(c, 0).x, 6, 12);
+  looks.forEach((look, r) => {
+    label(['starter', 'legendary', 'set', '2h rare'][r], 56, at(0, r).y - 50, 11, 0xc9b98f);
+    for (let c = 0; c < frames; c++) {
+      const v = new PlayerArt(look);
+      const p = at(c, r);
+      ground(p.x - 54, p.y - 7, 108, 14, 0x7ea456);
+      const T0 = 0.6;
+      simulate(v, p.x, p.y, T0 + 0.5 + c * step, (t) => ({ flags: t > T0 ? F_CHANNEL : 0, moving: false }));
+    }
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+const SKILLS: Record<ClassId, string[]> = {
+  warrior: ['cleave', 'rend', 'ground_stomp', 'seismic_slam', 'battle_rage'],
+  ranger: ['hungering_arrow', 'multishot', 'cluster_arrow', 'rain_of_vengeance', 'sentry', 'companion'],
+  mage: ['magic_missile', 'meteor', 'black_hole', 'frost_nova', 'hydra', 'magic_weapon'],
+};
+
+function skillsView() {
+  artDebug.deterministic = true;
+  const cls = (qs.get('cls') ?? 'warrior') as ClassId;
+  const which = qs.get('look') ?? 'starter';
+  const look = which === 'legendary' ? legendLook(cls) : which === 'set' ? setLook(cls) : which === 'rare' ? randomLook(cls, 'rare', Number(qs.get('pick') ?? 2)) : playerLook(createCharacter('g', cls, 7));
+  if (qs.get('weapon')) { look.slots.mainhand = item(cls, 'rare', qs.get('weapon')!).look; if (cls === 'warrior' && /2h/.test(qs.get('weapon')!)) delete look.slots.offhand; }
+  prebake([look]);
+  const skills = (qs.get('skills') ?? SKILLS[cls].join(',')).split(',');
+  const frames = Number(qs.get('frames') ?? 14), step = Number(qs.get('step') ?? 0.04);
+  const start = Number(qs.get('from') ?? -0.04);
+  const at = grid(frames, 112, 132, 130, 104);
+  for (let c = 0; c < frames; c++) label(`${Math.round((start + c * step) * 1000)}`, at(c, 0).x, 6, 12);
+  const facing = qs.get('face') === 'left' ? -1 : 1;
+  skills.forEach((name, r) => {
+    const single = name.endsWith('!');
+    const sk = name.replace('!', '');
+    label(single ? `${sk} (1st)` : sk, 60, at(0, r).y - 56, 11, 0xc9b98f);
+    const def = ACTIONS[sk];
+    const prim = def && (def.pose === 'swing' || def.pose === 'shoot' || def.pose === 'flick') && !single;
+    const aps = Number(qs.get('aps') ?? 1.6);
+    const cyc = 1 / aps;
+    for (let c = 0; c < frames; c++) {
+      const v = new PlayerArt(look);
+      const p = at(c, r);
+      ground(p.x - 54, p.y - 7, 108, 14, 0x7ea456);
+      const T0 = 0.6 + (prim ? cyc : 0);
+      const tx = p.x + facing * 140, ty = p.y + 10;
+      const evs: Ev[] = [];
+      const fire = (at2: number) => evs.push({ at: at2, fn: (vv) => (vv as PlayerArt).playAction({ skill: sk, tx, ty, cycleMs: cyc * 1000 } as ActionSpec) });
+      if (prim) { fire(0.6); fire(T0); } else fire(T0);
+      v.setYaw(facing * 65);
+      simulate(v, p.x, p.y, Math.max(0.01, T0 + start + c * step), () => ({ aps, facingLeft: facing < 0 }), evs);
+      if (qs.get('dbg')) { const a = v as unknown as Record<string, number>; console.log('DBG', sk, c, a.yawB.toFixed(1), a.yawH.toFixed(1), a.yawTarget); }
+    }
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+function rapidView() {
+  // ranger primaries at very high attack speed: every frame of two consecutive cycles
+  artDebug.deterministic = true;
+  const aps = Number(qs.get('aps') ?? 3.5);
+  const cyc = 1 / aps;
+  const looks = [playerLook(createCharacter('g', 'ranger', 7)), setLook('ranger'), playerLook(createCharacter('g', 'mage', 7)), setLook('mage')];
+  const xb = randomLook('ranger', 'rare', 1); xb.slots.mainhand = item('ranger', 'rare', 'crossbow').look;
+  looks.splice(2, 0, xb);
+  prebake(looks);
+  const frames = 14, step = Number(qs.get('step') ?? 0.025);
+  const at = grid(frames, 108, 128, 130, 100);
+  for (let c = 0; c < frames; c++) label(`${Math.round(c * step * 1000)}`, at(c, 0).x, 6, 12);
+  looks.forEach((look, r) => {
+    const sk = look.classId === 'mage' ? 'magic_missile' : 'hungering_arrow';
+    label(`${look.classId} ${look.slots.mainhand?.shape} @${aps}/s`, 64, at(0, r).y - 54, 11, 0xc9b98f);
+    for (let c = 0; c < frames; c++) {
+      const v = new PlayerArt(look);
+      const p = at(c, r);
+      ground(p.x - 50, p.y - 7, 100, 14, 0x7ea456);
+      const evs: Ev[] = [];
+      for (let k = 0; k < 8; k++) evs.push({ at: 0.5 + k * cyc, fn: (vv) => (vv as PlayerArt).playAction({ skill: sk, tx: p.x + 200, ty: p.y - 10, cycleMs: cyc * 1000 }) });
+      v.setYaw(65);
+      simulate(v, p.x, p.y, 0.5 + 3 * cyc + c * step, () => ({ aps }), evs);
+      if (qs.get('dbg') && c === 0) { const a = v as unknown as Record<string, number>; console.log('DBG', r, a.yawB, a.yawH, a.yawTarget, a.bodyTarget, a.side); }
+    }
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
+function mon2View() {
+  // monsters: windup (F_WINDUP) → attack (attackSeq + playAction) → hit flinch, sampled at fixed instants
+  const ids = (qs.get('ids') ?? 'bog_slime,gloomshroom,grave_bat,thornling,mossback,ember_imp,bonewalker,cinder_cultist,magma_brute,ash_wisp').split(',').filter((id) => MONSTERS[id]);
+  const times = [0, 0.15, 0.3, 0.5, 0.62, 0.66, 0.72, 0.8, 0.95, 1.0, 1.05, 1.12, 1.25];
+  const names = ['idle', 'windup', 'windup', 'windup', 'strike', '+40', '+100', '+180', 'hit', '+50', '+100', '+170', '+300'];
+  const at = grid(times.length, 92, 104, 130, 96);
+  names.forEach((n, c) => label(n, at(c, 0).x, 6, 11));
+  ids.forEach((id, r) => {
+    const def = MONSTERS[id];
+    label(def.name, 60, at(0, r).y - 40, 10, 0xc9b98f);
+    times.forEach((tt, c) => {
+      const v = createMonsterView(id, 0, [], def.scale);
+      const p = at(c, r);
+      ground(p.x - 42, p.y - 6, 84, 12, 0x7ea456);
+      const tx = p.x + 120, ty = p.y;
+      const evs: Ev[] = [
+        { at: 0.62, fn: (vv) => (vv as unknown as { playAction?: (a: ActionSpec) => void }).playAction?.({ skill: 'shot', tx, ty, cycleMs: 1000 }) },
+        { at: 0.95, fn: (vv) => vv.hit(0.8, false) },
+      ];
+      simulate(v, p.x, p.y, 0.4 + tt, (t) => ({ flags: (t > 0.4 && t < 1.0 ? F_WINDUP : 0) | (t > 1.0 && t < 1.25 ? F_ATTACK : 0), attackSeq: t > 1.02 ? 1 : 0 }), evs.map((e) => ({ ...e, at: e.at + 0.4 })));
+    });
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
+}
+
 let drawCalls = 0, drawCallsShown = 0;
 function perfView() {
   mapView();
@@ -349,7 +579,8 @@ function perfView() {
     const c = CLASS_IDS[i % 3];
     const v = createPlayerView(i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
     const x = cx + (Math.random() - 0.5) * 900, y = cy + (Math.random() - 0.5) * 500;
-    addActor(v, x, y, st({ moving: true, vx: 200, flags: F_MOVING | (i % 4 === 0 ? F_CHANNEL : 0) }), 1.2, ents);
+    const mode = i % 4;
+    addActor(v, x, y, st(mode === 1 ? { flags: F_ATTACK } : { moving: true, vx: 200, flags: F_MOVING | (mode === 0 ? F_CHANNEL : 0) }), mode === 1 ? 2.5 : 1.2, ents);
     v.root.zIndex = y;
   }
   void map;
@@ -414,17 +645,30 @@ switch (VIEW) {
   case 'objects': objectsView(); break;
   case 'icons': iconsView(); break;
   case 'map': mapView(); break;
+  case 'turntable': turntableView(); break;
+  case 'turn': turnView(); break;
+  case 'walk8': walk8View(); break;
+  case 'whirl': whirlView(); break;
+  case 'skills': skillsView(); break;
+  case 'rapid': rapidView(); break;
+  case 'mon2': mon2View(); break;
 }
 
 let time = 0;
 let frames = 0, acc = 0, fps = 0;
+let updMs = 0, heroUpdMs = 0;
+const updWin: number[] = [], heroWin: number[] = [];
 app.ticker.add(() => { drawCallsShown = drawCalls; drawCalls = 0; }, undefined, -100);
 app.ticker.add((tk) => {
   const dt = Math.min(0.05, tk.deltaMS / 1000) * Number(qs.get('slow') ?? 1);
   time += dt;
   frames++; acc += tk.deltaMS;
   if (acc > 500) { fps = Math.round(frames * 1000 / acc); frames = 0; acc = 0; }
+  const tu0 = performance.now();
+  let heroMs = 0;
   for (const a of actors) {
+    const isHero = a.view instanceof PlayerArt;
+    const th0 = isHero ? performance.now() : 0;
     const o = a.state(time);
     if (time > a.next) { a.seq++; a.next = time + 1 / a.aps; }
     if (a.hitEvery && time > (a.nextHit ?? 0)) { a.view.hit(0.6, false); a.nextHit = time + a.hitEvery; }
@@ -432,9 +676,14 @@ app.ticker.add((tk) => {
       x: a.x, y: a.y, vx: o.vx ?? 0, vy: o.vy ?? 0, moving: o.moving ?? false, facingLeft: o.facingLeft ?? false,
       flags: o.flags ?? 0, attackSeq: (o.flags ?? 0) & (F_ATTACK | F_FROZEN) ? a.seq : (o.attackSeq ?? 0), hpFrac: 1, time, aps: a.aps,
     });
+    if (isHero) heroMs += performance.now() - th0;
   }
-  hud.textContent = `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  ${mapInfo}`;
-  (window as unknown as { __info: string }).__info = `${fps} fps, draws/frame ${drawCallsShown}, actors ${actors.length} ${mapInfo}`;
+  updWin.push(performance.now() - tu0); heroWin.push(heroMs);
+  if (updWin.length > 60) { updWin.shift(); heroWin.shift(); }
+  const med = (a: number[]) => [...a].sort((x, y) => x - y)[a.length >> 1] ?? 0;
+  updMs = med(updWin); heroUpdMs = med(heroWin);
+  hud.textContent = `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms)  ${mapInfo}`;
+  (window as unknown as { __info: string }).__info = `${fps} fps, draws/frame ${drawCallsShown}, actors ${actors.length}, update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms) ${mapInfo}`;
 });
 (window as unknown as { __pages: unknown }).__pages = bakedPages;
 (window as unknown as { __ready: boolean; __info: string }).__ready = true;

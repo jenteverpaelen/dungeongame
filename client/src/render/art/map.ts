@@ -11,6 +11,7 @@ import { GROUND, type ThemeKey } from './palette';
 import { SORTED_KINDS, VARIANTS, decalGlow, drawDecal, drawProp, propFx } from './props';
 import { hash2, light } from './util';
 import { prewarmMonsters } from './monsters';
+import { bakeRes } from './scale';
 import { summonRigs } from './summons';
 
 export function themeKey(map: MapData): ThemeKey {
@@ -25,7 +26,8 @@ const atlasOrder: string[] = [];
 
 function atlas(kind: 'prop' | 'decal', theme: ThemeKey, kinds: Set<string>): Sheet {
   const names = [...kinds].sort();
-  const key = `${kind}:${theme}:${names.join(',')}`;
+  const res = bakeRes(2, 4);
+  const key = `${kind}:${theme}:${names.join(',')}@${res}`;
   let sh = atlases.get(key);
   if (sh && !sh.destroyed) return sh;
   const specs = [];
@@ -36,7 +38,7 @@ function atlas(kind: 'prop' | 'decal', theme: ThemeKey, kinds: Set<string>): She
     }
     if (k === 'banner' && kind === 'prop') specs.push({ name: 'banner_cloth:0', draw: (c: Parameters<typeof drawProp>[0]) => drawProp(c, 'banner_cloth', 0, theme) });
   }
-  sh = bakeSheet(specs, 2, 2048, `${kind}:${theme}`);
+  sh = bakeSheet(specs, res, 2048, `${kind}:${theme}`);
   atlases.set(key, sh);
   atlasOrder.push(key);
   // keep the atlases of the last few maps only

@@ -539,7 +539,7 @@ export function drawEyes(c: Ctx, b: Body, hooded: boolean): void {
 // ═══════════════════════════════ WEAPONS ═══════════════════════════════
 // Hand-local: grip at the origin, the business end points to -y.
 
-export function drawWeapon(c: Ctx, l: ItemLook): void {
+export function drawWeapon(c: Ctx, l: ItemLook, rig = false): void {
   const p = l.primary, s = trim(l), v = l.variant;
   const edge = light(p, 0.55);
   switch (l.shape) {
@@ -616,8 +616,10 @@ export function drawWeapon(c: Ctx, l: ItemLook): void {
     }
     case 'bow': {
       // limbs (the string is drawn live by the view so it can be drawn back)
-      line(c, (k) => k.moveTo(-2.4, -21).quadraticCurveTo(-1.4, -23, 0.6, -19.6).quadraticCurveTo(7, -10, 2.8, -1.6), 2.8, p, OW);
-      line(c, (k) => k.moveTo(-2.4, 21).quadraticCurveTo(-1.4, 23, 0.6, 19.6).quadraticCurveTo(7, 10, 2.8, 1.6), 2.8, p, OW);
+      // the hero rig draws thicker limbs (with a highlight) so the bow reads against leather at game zoom
+      const lw = rig ? 4 : 2.8;
+      line(c, (k) => k.moveTo(-2.4, -21).quadraticCurveTo(-1.4, -23, 0.6, -19.6).quadraticCurveTo(7, -10, 2.8, -1.6), lw, rig ? light(p, 0.12) : p, OW);
+      line(c, (k) => k.moveTo(-2.4, 21).quadraticCurveTo(-1.4, 23, 0.6, 19.6).quadraticCurveTo(7, 10, 2.8, 1.6), lw, rig ? light(p, 0.12) : p, OW);
       rbox(c, 0.2, -4.4, 4.4, 8.8, 1.8, s, { ow: 1.8, hl: 0.3 });
       if (v >= 2) { c.circle(-2.4, -21, 1.6); fill(c, s); c.circle(-2.4, 21, 1.6); fill(c, s); }
       if (l.glow) { gem(c, 2.4, 0, 1.6, light(l.glow, 0.2), 1); }

@@ -63,7 +63,14 @@ export class Sheet implements SheetLike {
   setVersion(obj: Sprite | Graphics, name: string, v: Version): void {
     const p = this.parts.get(name)?.[v];
     if (!p) return;
-    if (obj instanceof Sprite) { if (p.tex) obj.texture = p.tex; }
+    if (obj instanceof Sprite) {
+      if (p.tex && obj.texture !== p.tex) {
+        obj.texture = p.tex;
+        // parts of different sizes (view-baked heads / legs) carry their own origin
+        const da = p.tex.defaultAnchor;
+        if (da) obj.anchor.set(da.x, da.y);
+      }
+    }
     else if (p.ctx) obj.context = p.ctx;
   }
 

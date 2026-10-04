@@ -8,11 +8,15 @@ import { T_FLOOR, T_PATH, T_PLAZA, T_VOID, T_WALL, T_WATER, type MapData } from 
 import type { Sheet } from './bake';
 import { GROUND, type GroundPalette, type ThemeKey } from './palette';
 import { clamp, hash2, mix, rgb, rgba, vnoise } from './util';
+import { viewScaleValue } from './scale';
 
 export const CHUNK = 512;
 const FS = 4;                    // world units per terrain-field texel
 const HALF = CHUNK / FS;         // terrain field resolution
 const MAX_CHUNKS = 44;
+/** Texels per world unit for ground chunks: follows the view scale (camera zoom × resolution), 1..2. The chunk
+ *  cache shrinks with the square of it so memory stays flat. */
+function groundScale(): number { return clamp(Math.round(viewScaleValue() * 2) / 2, 1, 2); }
 
 export interface GroundShadow { x: number; y: number; rx: number; ry: number; a: number }
 export interface GroundDecal { tex: Texture; x: number; y: number; s: number; flip: boolean }
@@ -57,6 +61,8 @@ export class GroundLayer extends Container {
   private plazaR = 0;
   private shadows: GroundShadow[][] = [];
   private decals: GroundDecal[][] = [];
+  /** Chunk texel density (fixed per map, read from the view scale when the map is built). */
+  private readonly gs = groundScale();
   private canvasCache: HTMLCanvasElement[] = [];
   private tmp = new Matrix();
 
@@ -133,9 +139,10 @@ export class GroundLayer extends Container {
       ch.sprite.visible = vis;
       if (vis) ch.used = this.frame;
     }
-    if (this.chunks.size > MAX_CHUNKS) {
+    const cap = Math.max(16, Math.round(MAX_CHUNKS / (this.gs * this.gs)));
+    if (this.chunks.size > cap) {
       const sorted = [...this.chunks.entries()].sort((a, b) => a[1].used - b[1].used);
-      for (let i = 0; i < sorted.length - MAX_CHUNKS; i++) {
+      for (let i = 0; i < sorted.length - cap; i++) {
         const [k, ch] = sorted[i];
         if (ch.used === this.frame) break;
         const res = ch.sprite.texture.source.resource as HTMLCanvasElement;
@@ -158,7 +165,7 @@ export class GroundLayer extends Container {
     const key = r * this.cols + c;
     if (this.chunks.has(key)) return;
     const canvas = this.paint(c, r);
-    const source = new CanvasSource({ resource: canvas, resolution: 1, scaleMode: 'linear', autoGenerateMipmaps: true });
+    const source = new CanvasSource({ resource: canvas, resolution: this.gs, scaleMode: 'linear', autoGenerateMipmaps: true });
     const sprite = new Sprite(new Texture({ source }));
     sprite.position.set(c * CHUNK, r * CHUNK);
     this.addChild(sprite);
@@ -181,8 +188,9 @@ export class GroundLayer extends Container {
 
   private paint(c: number, r: number): HTMLCanvasElement {
     const canvas = this.canvasCache.pop() ?? document.createElement('canvas');
-    canvas.width = CHUNK; canvas.height = CHUNK;
+    canvas.width = Math.round(CHUNK * this.gs); canvas.height = Math.round(CHUNK * this.gs);
     const ctx = canvas.getContext('2d')!;
+    ctx.setTransform(this.gs, 0, 0, this.gs, 0, 0);
     const P = this.pal;
     const ox = c * CHUNK, oy = r * CHUNK;
     const seed = this.seed;

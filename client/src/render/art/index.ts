@@ -17,12 +17,14 @@ import { buildLayers } from './map';
 import { MonsterArt } from './monsters';
 import { NpcArt, PortalArt } from './npcs';
 import { PlayerArt } from './player';
+import { setScaleValue } from './scale';
 import { SummonArt } from './summons';
 
 /** Camera zoom × renderer resolution. Art bakes textures at this scale so sprites stay crisp when zoomed in.
  *  Called by the scene whenever the window size changes. */
 export function setViewScale(scale: number): void {
   viewScale = scale;
+  setScaleValue(scale);
 }
 export let viewScale = 2;
 

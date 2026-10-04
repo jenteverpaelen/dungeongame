@@ -38,9 +38,13 @@ const SENTRY: Family = {
   base: 1, height: 38, shadow: 34, atkDur: 0.35,
   parts: () => [P('tripod', tripod), P('head', ballista)],
   rig: (p) => { const tri = p.add('tripod'); const head = p.add('head', tri, 0, -24); return { tri, head }; },
-  pose: (n, s) => {
+  pose: (n, s, v) => {
+    // kick back on every bolt, aimed at the target; idles with a slow scan
     const k = s.atk >= 0 ? Math.exp(-s.atk * 5) * Math.sin(Math.min(1, s.atk * 2.2) * Math.PI) : 0;
-    n.head.set(-3 * k, -24, -0.1 + Math.sin(s.t * 0.9) * 0.08 - k * 0.15);
+    const engaged = v.attackAge < 2 ? 1 : 0;
+    const aim = clamp(v.aim, -0.7, 0.7) * engaged;
+    n.head.set(-5 * k, -24 + 1.5 * k, aim - 0.1 * (1 - engaged) + Math.sin(s.t * 0.9) * 0.08 * (1 - engaged) - k * 0.3);
+    n.tri.c.scale.y = 1 - 0.05 * k;
   },
 };
 
