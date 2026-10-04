@@ -15,13 +15,13 @@ import {
 import type { ItemLook } from '@shared/types';
 import { ACTIONS, type ActionDef, type ActionSpec } from '../actions';
 import type { PlayerView, ViewState } from '../types';
-import { bakeSheet, type PartSpec, type Sheet } from './bake';
+import { Sheet, bakeSheet, type PartSpec } from './bake';
 import {
   ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, levelUpPose, newPose, reachOf, spinPose,
   type ActCtx, type Kit, type Pose, type V3, type WeaponKind,
 } from './choreo';
 import { OUT } from './draw';
-import { fx, glowSprite, ringSprite, shadowSprite, sparkleSprite } from './fx';
+import { fx, getRenderer, glowSprite, ringSprite, shadowSprite, sparkleSprite } from './fx';
 import {
   classBody, drawArm, drawHand, drawOrb, drawQuiver, drawShield, drawShoulder, drawWeapon, isTwoHandedMelee, type Body,
 } from './gear';
@@ -120,20 +120,38 @@ export const artDebug = { deterministic: false };
 
 const pendingBakes = new Map<string, PlayerLook>();
 let lastPump = 0;
+/** The look being baked, a chunk of parts per frame (heads are the expensive part: 32 views). */
+let baking: { key: string; look: PlayerLook; sheet: Sheet; specs: PartSpec[]; next: number } | null = null;
+const CHUNK_WEIGHT = 10;
+const weightOf = (s: PartSpec) => (s.name.startsWith('head@') ? (s.flash ? 2 : 1) : 0.25);
 
-/** Bake at most one queued look per ~frame; views swap from live vector parts to the baked sheet. */
+/** Bake queued looks incrementally (≤ ~10 head views per frame); views swap from the live vector parts to
+ *  the baked sheet once a look is complete, so a hero walking into view never stalls a frame. */
 function pumpBakes(): void {
   const now = performance.now();
-  if (now - lastPump < 14 || !pendingBakes.size) return;
+  if (now - lastPump < 14 || !getRenderer()) return;
+  if (!baking) {
+    if (!pendingBakes.size) return;
+    const [key, look] = pendingBakes.entries().next().value as [string, PlayerLook];
+    pendingBakes.delete(key);
+    const cur = sheets.get(key);
+    // looks nobody wears any more (a hero walked out of view, gear swapped) are not worth a bake
+    if (!cur || cur.destroyed || !cur.live || cur.refs <= 0) return;
+    baking = { key, look, sheet: new Sheet(), specs: playerParts(look), next: 0 };
+  }
   lastPump = now;
-  const [key, look] = pendingBakes.entries().next().value as [string, PlayerLook];
-  pendingBakes.delete(key);
-  const cur = sheets.get(key);
-  if (!cur || cur.destroyed || !cur.live) return;
-  const res = Number(key.slice(key.lastIndexOf('@') + 1)) || 3;
-  const baked = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`);
-  baked.refs = cur.refs;
-  sheets.set(key, baked);
+  const b = baking;
+  const cur = sheets.get(b.key);
+  if (!cur || cur.destroyed || !cur.live) { b.sheet.destroy(); baking = null; return; }
+  const res = Number(b.key.slice(b.key.lastIndexOf('@') + 1)) || 3;
+  const chunk: PartSpec[] = [];
+  let w = 0;
+  while (b.next < b.specs.length && (w < CHUNK_WEIGHT || !chunk.length)) { const sp = b.specs[b.next++]; chunk.push(sp); w += weightOf(sp); }
+  b.sheet.absorb(bakeSheet(chunk, res, 2048, `player:${b.look.classId}`));
+  if (b.next < b.specs.length) return;
+  baking = null;
+  b.sheet.refs = cur.refs;
+  sheets.set(b.key, b.sheet);
   setTimeout(() => cur.destroy(), 4000);
 }
 
@@ -146,6 +164,7 @@ function acquireSheet(look: PlayerLook): { key: string; sheet: Sheet; res: numbe
     sheets.set(key, sheet);
     pendingBakes.set(key, look);
   }
+  else if (sheet.live) pendingBakes.set(key, look); // its bake may have been skipped while nobody wore it
   const i = idle.indexOf(key);
   if (i >= 0) idle.splice(i, 1);
   sheet.refs++;
@@ -475,7 +494,7 @@ export class PlayerArt implements PlayerView {
   private show(obj: Sprite | Graphics, name: string, flashName?: string): void {
     if (this.flashing) {
       const fn = flashName ?? name;
-      if (this.sheet.parts.get(fn)?.f) { this.sheet.setVersion(obj, fn, 'f'); return; }
+      if (this.sheet.hasVersion(fn, 'f')) { this.sheet.setVersion(obj, fn, 'f'); return; }
     }
     this.sheet.setVersion(obj, name, 'n');
   }

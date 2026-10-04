@@ -386,7 +386,8 @@ function rendAt(S: Pose, c: ActCtx, t: number): void {
 function stompAt(S: Pose, c: ActCtx, t: number): void {
   const big = c.kit.wk === '2h';
   const crouch = smooth(seg(t, 0, 90)), air = seg(t, 90, 260), slam = easeIn(seg(t, 215, 260)), land = seg(t, 260, 520);
-  const up = V(-3, -47, 13), back = V(-6, -40, 12);
+  // raised beside / behind the head so the blade never hides the face
+  const up = V(-8, -47, 13.5), back = V(-9, -40, 12);
   if (t < 90) {
     S.crouch = 0.7 * crouch; S.sy = 1 - 0.18 * crouch; S.sx = 1 + 0.12 * crouch;
     lerpV(S.hR, S.hR, back, crouch); S.w = norm(-0.6, -0.8, 0.1);

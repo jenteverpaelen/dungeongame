@@ -145,9 +145,12 @@ export class Game {
         if (!ev.p && (ev.s === myId || this.isMine(ev.s))) this.dmgLog.push({ t: performance.now(), a: ev.a });
         break;
       }
-      case 'level':
+      case 'level': {
         if (ev.t === myId) pushNotice(`Level ${ev.lv}`, 'level');
+        const lv = this.world.entities.get(ev.t);
+        (lv?.view as ActingView | null | undefined)?.playAction?.({ skill: 'level_up', tx: lv!.x, ty: lv!.y + 1, cycleMs: 1000 });
         break;
+      }
       case 'paragon':
         if (ev.t === myId) pushNotice(`Paragon ${ev.lv}`, 'level');
         break;

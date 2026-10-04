@@ -23,7 +23,8 @@ import { ACTIONS, type ActionSpec } from '../render/actions';
 import { F_WINDUP } from '@shared/protocol';
 
 const qs = new URLSearchParams(location.search);
-(globalThis as { __artDebug?: boolean }).__artDebug = true;
+// baked pages are only retained for the sheet viewer (keeping every page alive would leak in ?view=stress)
+(globalThis as { __artDebug?: boolean }).__artDebug = (qs.get('view') ?? 'chars') === 'sheets';
 const VIEW = qs.get('view') ?? 'chars';
 const SHEETS = ['turntable', 'turn', 'whirl', 'skills', 'rapid', 'mon2', 'walk8'];
 const ZOOM = Number(qs.get('zoom') ?? (VIEW === 'map' ? 1.17 : VIEW === 'chars' ? 2 : SHEETS.includes(VIEW) ? 1.74 : 1.6));
@@ -282,7 +283,28 @@ function mapView() {
   if (fxq) fx = Number(fxq) * 64; if (fyq) fy = Number(fyq) * 64;
   // cast: heroes + a pack of monsters around the focus
   const looks = [playerLook(createCharacter('a', 'warrior', 3)), setLook('ranger'), legendLook('mage')];
-  looks.forEach((l, i) => { const v = createPlayerView(l); addActor(v, fx - 120 + i * 90, fy + 40 + (i % 2) * 30, i === 1 ? st({ moving: true, vx: 200, flags: F_MOVING }) : st({}), 1.3, ents); v.root.zIndex = fy + 40 + (i % 2) * 30; });
+  const act = !!qs.get('act');
+  if (act) looks[0] = legendLook('warrior');
+  const heroes: PlayerArt[] = [];
+  looks.forEach((l, i) => {
+    const v = createPlayerView(l);
+    const hy = fy + 40 + (i % 2) * 30;
+    // ?act=1: the cast performs at the game camera — warrior whirlwinds, ranger rapid-fires, mage casts
+    const state = act ? (i === 0 ? st({ flags: F_CHANNEL }) : st({})) : i === 1 ? st({ moving: true, vx: 200, flags: F_MOVING }) : st({});
+    addActor(v, fx - 120 + i * 90, hy, state, 1.3, ents);
+    v.root.zIndex = hy;
+    heroes.push(v as PlayerArt);
+  });
+  if (act) {
+    let tr = 0, tm = 0, k = 0;
+    app.ticker.add((tk) => {
+      const dt = Math.min(0.05, tk.deltaMS / 1000);
+      tr += dt; tm += dt;
+      const r = heroes[1], m = heroes[2];
+      if (tr > 1 / 3.5) { tr = 0; r.playAction({ skill: 'hungering_arrow', tx: r.root.x + 260, ty: r.root.y - 70, cycleMs: 1000 / 3.5 }); }
+      if (tm > 0.75) { tm = 0; k++; m.playAction({ skill: k % 4 === 0 ? 'meteor' : k % 4 === 2 ? 'black_hole' : 'magic_missile', tx: m.root.x + 230, ty: m.root.y - 40, cycleMs: 700 }); }
+    });
+  }
   const theme = map.theme;
   const fam = Object.values(MONSTERS).filter((m) => m.themes.includes(theme === 'town' ? 'glade' : theme) && m.weight > 0);
   if (which !== 'town') {
@@ -358,7 +380,8 @@ function simulate(view: EntityView, x: number, y: number, until: number, state: 
 
 function sheetLooks(cls: ClassId): { name: string; look: PlayerLook }[] {
   return [
-    { name: 'starter', look: playerLook(createCharacter('g', cls, 7)) },
+    { name: 'starter', look: playerLook(createCharacter('g', cls, Number(qs.get('seed') ?? 7))) },
+    { name: 'starter #2', look: playerLook(createCharacter('g', cls, Number(qs.get('seed') ?? 7) + 1)) },
     { name: 'rare', look: randomLook(cls, 'rare', 2) },
     { name: 'legendary', look: legendLook(cls) },
     { name: 'full set', look: setLook(cls) },

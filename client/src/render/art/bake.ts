@@ -78,6 +78,18 @@ export class Sheet implements SheetLike {
     return this.parts.get(name)?.[v]?.tex ?? null;
   }
 
+  /** Has this part a baked / live version v? */
+  hasVersion(name: string, v: Version): boolean { return !!this.parts.get(name)?.[v]; }
+
+  /** Move another sheet's parts and pages into this one (incremental bakes, one chunk per frame). */
+  absorb(other: Sheet): void {
+    for (const [k, v] of other.parts) this.parts.set(k, v);
+    this.sources.push(...other.sources);
+    other.parts.clear();
+    other.sources.length = 0;
+    other.destroyed = true;
+  }
+
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
