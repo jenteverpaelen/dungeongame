@@ -2,7 +2,7 @@
 
 import { useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
-import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
+import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Element } from '@shared/types';
@@ -242,7 +242,7 @@ export function SkillsPanel() {
   const sel = SKILLS[selected ?? ''] && SKILLS[selected ?? ''].classId === char.classId ? SKILLS[selected!] : (list.find((s) => s.kind !== 'primary' && s.unlock <= char.level) ?? list[0]);
   const spent = skillPointsSpent(char);
   return (
-    <PanelFrame id="skills" title="Skills" width={900} sub={<span class="pn-lv">{CLASSES[char.classId].name}</span>}>
+    <PanelFrame id="skills" title="Skills" width={940} sub={<span class="pn-lv">{CLASSES[char.classId].name}</span>}>
       <div class="sk-top">
         <SlotStrip char={char} />
         <div class="sk-points">
@@ -263,6 +263,12 @@ export function SkillsPanel() {
       <div class="sk-main">
         <div class="slist scroll">
           {list.map((s) => <SkillRow key={s.id} skill={s} char={char} />)}
+          <div class="sk-legend">
+            <h4>How skills grow</h4>
+            <p><b>Runes</b> unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill itself.</p>
+            <p><b>Upgrade tiers</b> cost {TIER_COSTS.join(', ')} skill points and stack.</p>
+            <p>Skills fire automatically; slot order decides which is tried first.</p>
+          </div>
         </div>
         <div class="sdet-wrap scroll">
           <Detail skill={sel} char={char} />

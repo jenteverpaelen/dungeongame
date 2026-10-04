@@ -178,17 +178,20 @@ export function makeDot(inst: Instance, p: Player, st: Strike, kind: DotKind, du
   return { kind, owner: p.id, skill: st.skill, perTick: total / ticks, el: st.el, tickMs, nextMs: tickMs, leftMs: durationMs, durMs: durationMs, ...extra };
 }
 
-/** Process one DoT tick on a monster. Vulnerability of the owner is applied live. */
+/** Apply pre-computed DoT / ground damage from player `p` (vulnerability and elite bonus applied live). */
+export function dotStrike(inst: Instance, p: Player, m: Mob, amount: number, el: Element, skill: string): boolean {
+  let a = amount * vulnerability(p, m);
+  if (isEliteTier(m.tier)) a *= 1 + p.ctx.d.elite / 100;
+  talStacks(inst, p, el);
+  return hurtMob(inst, m, a, el, p, false, true, p.id, skill);
+}
+
+/** Process one DoT tick on a monster. */
 export function tickDot(inst: Instance, m: Mob, d: Dot): boolean {
   const owner = inst.playerById(d.owner);
-  let amount = d.perTick;
-  if (owner) {
-    amount *= vulnerability(owner, m);
-    if (m.tier === 1 || m.tier === 2 || m.tier === 4) amount *= 1 + owner.ctx.d.elite / 100;
-    if (d.heal) healPlayer(inst, owner, owner.mhp * 0.0025, true); // 0.5%/s per bleeding enemy at 2 ticks/s
-    talStacks(inst, owner, d.el);
-  }
-  return hurtMob(inst, m, amount, d.el, owner, false, true, d.owner, d.skill);
+  if (!owner) return hurtMob(inst, m, d.perTick, d.el, null, false, true, d.owner, d.skill);
+  if (d.heal) healPlayer(inst, owner, owner.mhp * 0.0025, true); // Bloodlust: 0.5%/s per bleeding enemy at 2 ticks/s
+  return dotStrike(inst, owner, m, d.perTick, d.el, d.skill);
 }
 
 // ─────────────────────────── Players: healing / resource / incoming damage ───────────────────────────

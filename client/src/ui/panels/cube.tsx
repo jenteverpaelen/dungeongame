@@ -74,6 +74,7 @@ function Chamber({ item, gems }: { item: Item | null; gems?: { gem: string; rank
       <div class="ch-ring r1" />
       <div class="ch-ring r2" />
       <CubeEmblem size={150} glow={false} class="ch-cube" />
+      <div class="ch-motes">{[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <i key={i} style={{ '--i': i }} />)}</div>
       {!gems && (
         <div class={cls('ch-slot', item ? rarityClass(item) : 'empty', canDropOn(drag, 'cube') && 'drop-ok')} data-drop="cube" {...(hover ?? {})}>
           {item ? <ItemVisual item={item} size={62} /> : <span class="ch-hint">Drop an<br />item here</span>}
@@ -100,7 +101,7 @@ function Chamber({ item, gems }: { item: Item | null; gems?: { gem: string; rank
             <span>3 × {gemName(gems.gem, gems.rank)}</span>
           </>
         ) : (
-          <span class="dim">Click an item in your bag, or drag one in</span>
+          <span class="pn-dim">Click an item in your bag, or drag one in</span>
         )}
       </div>
     </div>
@@ -141,7 +142,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
       {list.map((g) => {
         const can = g.n >= 3 && g.rank < 6;
         return (
-          <button key={g.k} class={cls('fuse-row', sel === g.k && 'on', !can && 'dim')} onClick={() => onSel(g.k)}>
+          <button key={g.k} class={cls('fuse-row', sel === g.k && 'on', !can && 'pn-dim')} onClick={() => onSel(g.k)}>
             <GemIcon gem={g.gem} size={28} />
             <span class="fr-n"><b style={{ color: lighten(gemColor(g.gem), 0.3) }}>{gemName(g.gem, g.rank)}</b><em>{g.rank >= 6 ? 'Highest rank' : g.n >= 3 ? `Fuse into ${GEM_RANKS[g.rank]}` : `Need ${3 - g.n} more`}</em></span>
             <span class="fr-c">×{g.n}</span>
@@ -184,7 +185,7 @@ function EnchantView({ item, char }: { item: Item | null; char: CharacterSave })
 function EnchantChoice({ item, pending }: { item: Item; pending: { itemId: string; affix: number; options: AffixRoll[] } }) {
   const original = item.affixes[pending.affix];
   const cards: { label: string; roll: AffixRoll; idx: number }[] = [
-    { label: 'Keep original', roll: original, idx: 0 },
+    { label: 'Original', roll: original, idx: 0 },
     ...pending.options.map((r, i) => ({ label: `Option ${i + 1}`, roll: r, idx: i + 1 })),
   ];
   const [busy, setBusy] = useState(false);
@@ -233,7 +234,7 @@ function Gauge({ pct, fortune }: { pct: number; fortune: number }) {
         <circle cx="52" cy="52" r="29" fill="none" stroke="rgba(201,164,92,.25)" stroke-width="1" />
       </svg>
       <div class="gauge-in">
-        <b style={{ color: tone }}>{pct}<small>%</small></b>
+        <b class={pct >= 100 ? 'tri' : ''} style={{ color: tone }}>{pct}<small>%</small></b>
         <span>success</span>
       </div>
     </div>
@@ -257,21 +258,25 @@ function UpgradeView({ item }: { item: Item | null }) {
       <div class="upg-top">
         {!maxed ? <Gauge pct={pct} fortune={item.upgradeFortune} /> : <div class="gauge maxed"><b>MAX</b></div>}
         <div class="upg-side">
-          <div class="ladder10">
-            {Array.from({ length: 10 }, (_, i) => (
-              <div key={i} class={cls('lad', i < t && 'done', i === t && 'next')} {...{ title: `+${i + 1}: ${UPGRADE_CHANCE[i]}%` }}>
-                <i />
-                <span>+{i + 1}</span>
-                <small>{UPGRADE_CHANCE[i]}%</small>
-              </div>
-            ))}
+          <div class="upg-tier">
+            <span>Tier</span><b>+{t}</b>
+            {!maxed && <><IconArrowRight size={14} /><b class="nx">+{t + 1}</b></>}
           </div>
           <div class="fortune">
             <span class="f-l">Fortune</span>
             <b class={item.upgradeFortune > 0 ? 'on' : ''}>+{item.upgradeFortune}%</b>
-            <span class="f-s">Each failure adds {FORTUNE_PER_FAIL}% to your next attempt; it resets on success.</span>
+            <span class="f-s">Each failure adds {FORTUNE_PER_FAIL}% to your next attempt. It resets on success.</span>
           </div>
         </div>
+      </div>
+      <div class="ladder10">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div key={i} class={cls('lad', i < t && 'done', i === t && 'next')}>
+            <i />
+            <span>+{i + 1}</span>
+            <small>{UPGRADE_CHANCE[i]}%</small>
+          </div>
+        ))}
       </div>
       {!maxed && (
         <div class="preview">
@@ -302,7 +307,7 @@ function TransmuteView({ item }: { item: Item | null }) {
       <div class="trans">
         <div class="tr-box in"><label>Input</label><b>{item ? itemTypeLine(item) : 'A Rare item'}</b></div>
         <IconArrowRight size={20} />
-        <div class="tr-box out"><label>Output</label><b class="r-legendary">{item ? `Legendary ${KIND_LABEL[item.kind].replace(/^(One|Two)-Handed /, '')}` : 'A random Legendary'}</b></div>
+        <div class="tr-box out"><label>Output</label><b class="r-legendary">{item ? `Legendary ${KIND_LABEL[item.kind]}` : 'A random Legendary'}</b></div>
       </div>
       <Note>The Rare item is consumed and replaced by a random Legendary of the same type. It may roll as Ancient.</Note>
       {item && item.upgrade > 0 && <Note tone="warn">The +{item.upgrade} upgrade tier will be lost.</Note>}
@@ -386,10 +391,10 @@ function SocketView({ item, char }: { item: Item | null; char: CharacterSave }) 
         {item.sockets.map((s, i) => (
           <div class={cls('sock-row', s && 'full')} key={i}>
             <span class="sr-ic">{s ? <GemIcon gem={s.gem} size={26} /> : <i class="sr-hole" />}</span>
-            <span class="sr-t">{s ? <b style={{ color: lighten(gemColor(s.gem), 0.3) }}>{gemName(s.gem, s.rank)}</b> : <b class="dim">Empty socket</b>}</span>
+            <span class="sr-t">{s ? <b style={{ color: lighten(gemColor(s.gem), 0.3) }}>{gemName(s.gem, s.rank)}</b> : <b class="pn-dim">Empty socket</b>}</span>
             {s ? (
               <button class={cls('btn sm', char.gold < gemRemoveCost(s.rank) && 'short')} disabled={char.gold < gemRemoveCost(s.rank)} onClick={() => void run('removeGem', { itemId: item.id, idx: i })}>
-                Remove <span class={cls('inl', char.gold < gemRemoveCost(s.rank) && 'short')}>{fmtInt(gemRemoveCost(s.rank))}</span>
+                Remove <span class={cls('pn-inl', char.gold < gemRemoveCost(s.rank) && 'short')}>{fmtInt(gemRemoveCost(s.rank))}</span>
               </button>
             ) : (
               <button class="btn sm" disabled={!gems.length} onClick={() => setPick(pick === i ? null : i)}>Insert gem</button>
@@ -407,7 +412,7 @@ function SocketView({ item, char }: { item: Item | null; char: CharacterSave }) 
             )}
           </div>
         ))}
-        {item.sockets.length < max && <div class="sock-row add"><span class="sr-ic"><i class="sr-hole plus" /></span><span class="sr-t"><b class="dim">New socket available</b></span></div>}
+        {item.sockets.length < max && <div class="sock-row add"><span class="sr-ic"><i class="sr-hole plus" /></span><span class="sr-t"><b class="pn-dim">New socket available</b></span></div>}
       </div>
     </div>
   );
@@ -622,4 +627,3 @@ export function CubePanel() {
   );
 }
 
-export { IconStar4, GEMS };

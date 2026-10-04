@@ -20,7 +20,7 @@ const LEFT_DOCK: PanelId[] = ['cube', 'skills', 'paragon', 'waypoint', 'obelisk'
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
-  const calc = () => Math.max(0.74, Math.min(1.15, window.innerHeight / 1000));
+  const calc = () => Math.max(0.76, Math.min(1.1, window.innerHeight / 1080));
   const [s, set] = useState(calc);
   useEffect(() => {
     const on = () => set(calc());
@@ -43,6 +43,8 @@ export function PanelsRoot() {
     if (newly.length) {
       const keep = newly[newly.length - 1];
       for (const id of LEFT_DOCK) if (id !== keep && panels[id]) togglePanel(id, false);
+      // The Cube works on items: bring the bag along so they can be clicked in.
+      if (keep === 'cube' && !panels.inventory) togglePanel('inventory', true);
     }
     prev.current = panels;
   }, [panels]);

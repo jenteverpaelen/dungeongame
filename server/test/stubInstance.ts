@@ -47,7 +47,8 @@ class StubInstance implements InstanceApi {
   private ents = new Map<number, Ent>();
   private nextId = 1;
   private tickNo = 0;
-  private events: GameEvent[] = [];
+  /** Events with the position they happened at (null = global), filtered per player like the real AOI. */
+  private events: { ev: GameEvent; x: number | null; y: number | null }[] = [];
   private durations: number[] = [];
   private kills = 0;
   private startedAt = Date.now();
@@ -152,7 +153,7 @@ class StubInstance implements InstanceApi {
   }
 
   notice(text: string, kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn'): void {
-    this.events.push({ e: 'notice', text, kind });
+    this.events.push({ ev: { e: 'notice', text, kind }, x: null, y: null });
   }
 
   tickStats(): { avg: number; max: number } {
@@ -175,6 +176,21 @@ class StubInstance implements InstanceApi {
       else if (e.deadAt && now - e.deadAt > 4000 && e.desc.k === 'mob') { e.deadAt = 0; e.hp = 1; e.flags &= ~F_DEAD; }
     }
 
+    // Monsters notice nearby players and shuffle towards them.
+    for (const e of this.ents.values()) {
+      if (e.desc.k !== 'mob' || e.deadAt) continue;
+      let best: Pl | null = null, bd = 650;
+      for (const pl of this.players.values()) {
+        const d = Math.hypot(pl.ent.x - e.x, pl.ent.y - e.y);
+        if (d < bd) { bd = d; best = pl; }
+      }
+      if (!best || bd < 60) continue;
+      const step = (110 * TICK_MS) / 1000;
+      const p = this.col.moveCircle(e.x, e.y, 20, ((best.ent.x - e.x) / bd) * step, ((best.ent.y - e.y) / bd) * step);
+      e.x = p.x;
+      e.y = p.y;
+    }
+
     for (const pl of this.players.values()) {
       for (let i = 0; i < 2; i++) {
         const inp = pl.q.shift();
@@ -189,18 +205,20 @@ class StubInstance implements InstanceApi {
         if (e.desc.k !== 'mob' || e.deadAt) continue;
         if (Math.hypot(e.x - pl.mv.x, e.y - pl.mv.y) > 110) continue;
         e.hp -= 0.35;
-        this.events.push({ e: 'dmg', t: e.id, a: 123, el: 0, s: pl.ent.id });
+        this.events.push({ ev: { e: 'dmg', t: e.id, a: 123, el: 0, s: pl.ent.id }, x: e.x, y: e.y });
         if (e.hp <= 0) {
           e.deadAt = now;
           e.flags |= F_DEAD;
-          this.events.push({ e: 'die', t: e.id, el: 0, x: e.x, y: e.y });
+          this.events.push({ ev: { e: 'die', t: e.id, el: 0, x: e.x, y: e.y }, x: e.x, y: e.y });
           this.kills++;
-          const res = addXp(pl.link.save, monsterXp(e.desc.lv ?? 1, e.desc.el ?? 0, 0));
-          if (res.levels) {
-            this.events.push({ e: 'level', t: pl.ent.id, lv: pl.link.save.level });
+          // Shared XP, like the real simulation: everybody within 1400 units.
+          for (const o of this.players.values()) {
+            if (Math.hypot(o.ent.x - e.x, o.ent.y - e.y) > 1400) continue;
+            const res = addXp(o.link.save, monsterXp(e.desc.lv ?? 1, e.desc.el ?? 0, 0));
+            if (res.levels) this.events.push({ ev: { e: 'level', t: o.ent.id, lv: o.link.save.level }, x: o.ent.x, y: o.ent.y });
+            o.link.save.stats.kills++;
+            o.link.markDirty();
           }
-          pl.link.save.stats.kills++;
-          pl.link.markDirty();
         }
       }
     }
@@ -245,7 +263,8 @@ class StubInstance implements InstanceApi {
     const snap: Snapshot = { t: 's', tick: this.tickNo, time: Date.now(), ack: pl.ack, me, upd };
     if (add.length) snap.add = add;
     if (rem.length) snap.rem = rem;
-    if (this.events.length) snap.ev = this.events;
+    const evs = this.events.filter((r) => r.x === null || (Math.abs(r.x - px) <= AOI_HALF_W && Math.abs((r.y as number) - py) <= AOI_HALF_H)).map((r) => r.ev);
+    if (evs.length) snap.ev = evs;
     const rs = this.riftState();
     if (rs) snap.rift = rs;
     pl.link.send(snap as S2C);

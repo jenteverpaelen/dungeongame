@@ -1,21 +1,20 @@
 // Inventory (I / B): Diablo 3 style paperdoll over a 10x6 bag grid, character sheet strip, wealth row, gems tab.
 
-import { useMemo, useRef } from 'preact/hooks';
+import { useMemo, useRef, useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
-import { GEMS } from '@shared/data/items';
-import { gemName, salvageYield, type Cost } from '@shared/cube';
+import { AFFIX_BY_STAT, GEMS } from '@shared/data/items';
+import { gemName, salvageYield } from '@shared/cube';
 import { fmtCompact, fmtInt } from '@shared/format';
 import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
-import { canClassUse, slotsForKind } from '@shared/items';
-import { compareItem, computeStats, gemSlotRole } from '@shared/stats';
-import { AFFIX_BY_STAT } from '@shared/data/items';
+import { canClassUse } from '@shared/items';
+import { compareItem, computeStats } from '@shared/stats';
 import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types';
 import { ui, useUI } from '../store';
 import { Check, PanelFrame, Wealth } from './common';
 import { cubeUI, invUI, setCubeItem } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { SlotGlyph } from './glyphs';
-import { GemIcon, IconDelta, IconLock, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
+import { GemIcon, IconDelta, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
 import { useLocal } from './state';
 import { hideTip, ItemVisual, itemHover, textTipHandlers } from './tooltip';
 import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util';
@@ -23,23 +22,26 @@ import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util'
 // ───────────────────────────── paperdoll ─────────────────────────────
 
 interface Rect { x: number; y: number; w: number; h: number }
-const DOLL_W = 380, DOLL_H = 288;
+const DOLL_W = 380, DOLL_H = 276;
 const RECTS: Record<Slot, Rect> = {
-  head: { x: 162, y: 0, w: 56, h: 56 },
-  chest: { x: 154, y: 62, w: 72, h: 70 },
-  waist: { x: 154, y: 138, w: 72, h: 34 },
-  legs: { x: 158, y: 178, w: 64, h: 62 },
-  feet: { x: 158, y: 246, w: 64, h: 42 },
-  shoulders: { x: 0, y: 6, w: 56, h: 56 },
-  hands: { x: 0, y: 72, w: 56, h: 56 },
-  ring1: { x: 0, y: 138, w: 56, h: 56 },
-  mainhand: { x: 0, y: 204, w: 56, h: 84 },
-  neck: { x: 324, y: 6, w: 56, h: 56 },
-  wrists: { x: 324, y: 72, w: 56, h: 56 },
-  ring2: { x: 324, y: 138, w: 56, h: 56 },
-  offhand: { x: 324, y: 204, w: 56, h: 84 },
+  head: { x: 162, y: 0, w: 56, h: 54 },
+  chest: { x: 154, y: 59, w: 72, h: 66 },
+  waist: { x: 154, y: 130, w: 72, h: 38 },
+  legs: { x: 158, y: 173, w: 64, h: 56 },
+  feet: { x: 158, y: 234, w: 64, h: 42 },
+  shoulders: { x: 0, y: 2, w: 56, h: 56 },
+  hands: { x: 0, y: 64, w: 56, h: 56 },
+  ring1: { x: 0, y: 126, w: 56, h: 56 },
+  mainhand: { x: 0, y: 188, w: 56, h: 88 },
+  neck: { x: 324, y: 2, w: 56, h: 56 },
+  wrists: { x: 324, y: 64, w: 56, h: 56 },
+  ring2: { x: 324, y: 126, w: 56, h: 56 },
+  offhand: { x: 324, y: 188, w: 56, h: 88 },
 };
 const SLOT_ORDER = Object.keys(RECTS) as Slot[];
+/** Icon size per slot (square icons inside non-square slots). */
+const ICON_SIZE: Partial<Record<Slot, number>> = { waist: 44, chest: 56, legs: 48, feet: 38, mainhand: 66, offhand: 66 };
+const iconSize = (slot: Slot) => ICON_SIZE[slot] ?? 42;
 
 function Mannequin({ tint }: { tint: string }) {
   const half = 'M190 54 L178 54 L178 63 C164 65 150 70 141 82 L127 132 L121 152 L135 154 L147 114 L153 102 L157 144 L155 158 L151 252 L145 270 L149 280 L181 280 L183 174 L190 162 Z';
@@ -50,19 +52,19 @@ function Mannequin({ tint }: { tint: string }) {
           <stop offset="0" stop-color={tint} stop-opacity=".30" /><stop offset=".6" stop-color={tint} stop-opacity=".08" /><stop offset="1" stop-color={tint} stop-opacity="0" />
         </radialGradient>
         <linearGradient id="dl-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#2c2216" /><stop offset="1" stop-color="#14100b" />
+          <stop offset="0" stop-color="#3c2e1c" /><stop offset="1" stop-color="#1a130d" />
         </linearGradient>
       </defs>
-      <ellipse cx="190" cy="148" rx="150" ry="150" fill="url(#dl-glow)" />
-      <circle cx="190" cy="146" r="124" fill="none" stroke="#c9a45c" stroke-opacity=".16" stroke-width="1" />
-      <circle cx="190" cy="146" r="116" fill="none" stroke="#c9a45c" stroke-opacity=".22" stroke-width="1" stroke-dasharray="1.5 7" stroke-linecap="round" />
+      <ellipse cx="190" cy="140" rx="150" ry="146" fill="url(#dl-glow)" />
+      <circle cx="190" cy="138" r="122" fill="none" stroke="#c9a45c" stroke-opacity=".16" stroke-width="1" />
+      <circle cx="190" cy="138" r="114" fill="none" stroke="#c9a45c" stroke-opacity=".22" stroke-width="1" stroke-dasharray="1.5 7" stroke-linecap="round" />
       <g stroke="#c9a45c" stroke-opacity=".28" stroke-width="1.4" stroke-linecap="round">
         {Array.from({ length: 12 }, (_, i) => {
           const a = (i * Math.PI) / 6;
-          return <line x1={190 + Math.cos(a) * 124} y1={146 + Math.sin(a) * 124} x2={190 + Math.cos(a) * 132} y2={146 + Math.sin(a) * 132} />;
+          return <line x1={190 + Math.cos(a) * 122} y1={138 + Math.sin(a) * 122} x2={190 + Math.cos(a) * 130} y2={138 + Math.sin(a) * 130} />;
         })}
       </g>
-      <g fill="url(#dl-body)" stroke="#8c6a38" stroke-opacity=".5" stroke-width="1.2" stroke-linejoin="round">
+      <g fill="url(#dl-body)" stroke="#c9a45c" stroke-opacity=".55" stroke-width="1.3" stroke-linejoin="round">
         <path d={half} />
         <path d={half} transform="translate(380 0) scale(-1 1)" />
         <circle cx="190" cy="31" r="22" />
@@ -121,7 +123,7 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
       {...hover}
     >
       <div class="eq-in">
-        {item ? <ItemVisual item={item} size={Math.min(r.w, r.h) - 14} /> : <SlotGlyph slot={slot} size={Math.min(r.w, r.h) - 16} />}
+        {item ? <ItemVisual item={item} size={iconSize(slot)} /> : <SlotGlyph slot={slot} size={iconSize(slot) - 2} />}
       </div>
       {item && badgeOf(item)}
       {item && <SocketDots item={item} />}
@@ -177,7 +179,7 @@ function StatsStrip({ char }: { char: CharacterSave }) {
       </div>
       <div class="sheet-mini">
         {mini.map(([k, v]) => (
-          <div class="sm" key={k}><label>{k}</label><b>{v}</b></div>
+          <div class="sh-mini" key={k}><label>{k}</label><b>{v}</b></div>
         ))}
       </div>
     </div>
@@ -284,7 +286,7 @@ function GemGrid({ char }: { char: CharacterSave }) {
           >
             <GemIcon gem={g.gem} size={34} />
             <span class="gem-rank">{Array.from({ length: g.rank }, () => <i />)}</span>
-            <b class="gem-n">{g.n}</b>
+            <b class="gem-cnt">{g.n}</b>
           </div>
         ))}
         {list.length === 0 && <div class="empty-note">No gems yet. Gems drop from elites and rift guardians.</div>}
@@ -344,7 +346,6 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
   );
 }
 
-import { useState } from 'preact/hooks';
 function useForce(): [number, () => void] {
   const [n, set] = useState(0);
   return [n, () => set((x) => x + 1)];
@@ -419,4 +420,3 @@ export function InventoryPanel() {
   );
 }
 
-export { IconLock, gemSlotRole };

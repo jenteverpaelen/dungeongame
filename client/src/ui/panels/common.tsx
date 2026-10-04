@@ -20,7 +20,7 @@ export function PanelFrame(p: {
   onClose?: () => void;
 }) {
   return (
-    <section class={cls('pn frame interactive', `pn-${p.id}`, p.class)} style={p.width ? { width: p.width } : undefined} data-panel={p.id} onPointerDown={hideTip}>
+    <section class={cls('pn frame interactive', `pn-${p.id}`, p.class)} style={p.width ? { width: p.width } : undefined} data-panel={p.id} onPointerDown={hideTip} onContextMenu={(e) => e.preventDefault()}>
       <header class="pn-head">
         <span class="pn-orn" />
         {p.icon && <span class="pn-icon">{p.icon}</span>}
@@ -112,7 +112,7 @@ export function CostList({ cost, char, size = 20 }: { cost: Cost; char: Characte
           <span class={cls('cost', have < v && 'short')} key={k} {...textTipHandlers(() => ({ title: MATERIAL_INFO[k].name, color: MATERIAL_INFO[k].color, icon: <MatIcon id={k} size={34} />, sub: `You have ${fmtInt(have)}` }), `cost-${k}`)}>
             <MatIcon id={k} size={size} />
             <b>{fmtInt(v)}</b>
-            <small>/ {fmtInt(have)}</small>
+            {have < v && <small>you have {fmtInt(have)}</small>}
           </span>
         );
       })}

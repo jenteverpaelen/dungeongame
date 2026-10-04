@@ -31,8 +31,11 @@ export const GOBLIN_ESCAPE_MS = 25000;
 /** Goblins use only ELITE_HP_MULT[5] (×9) × this, not def.hp, which would double count. */
 export const GOBLIN_HP_MULT = 1.2;
 
+/** Champions and rares get this on top of ELITE_HP_MULT so elites take a few seconds even for AoE builds. */
+export const ELITE_TOUGHNESS = 2.5;
+
 /** Rifts: number of packs placed (spread over the map) and the fraction of monsters needed for 100%. */
-export const RIFT_PACKS = 34;
+export const RIFT_PACKS = 60;
 export const RIFT_KILL_FRACTION = 0.85;
 
 /** Field respawns are placed out of every player's view but preferably close to the action. */

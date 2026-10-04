@@ -10,7 +10,7 @@ import { gemName, upgradeChance } from '@shared/cube';
 import { compareItem, gemSlotRole } from '@shared/stats';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Item, Slot } from '@shared/types';
-import { ui, useUI } from '../store';
+import { useUI } from '../store';
 import { GemIcon, EmptySocketIcon, IconDelta, IconDiamond, IconStar4, gemColor, lighten, hex } from './icons';
 import { ItemGlyph } from './glyphs';
 import { itemIconUrl } from '../../render/art';
@@ -91,7 +91,7 @@ function AffixList({ item, alt, primary }: { item: Item; alt: boolean; primary: 
                 <i class="af-meter"><u style={{ width: `${Math.round(frac * 100)}%` }} /></i>
               </span>
             )}
-            {ench && <span class="af-etag">Enchanted</span>}
+            {ench && !alt && <span class="af-etag">Enchanted</span>}
           </li>
         );
       })}
@@ -122,8 +122,8 @@ function SocketRows({ item }: { item: Item }) {
           <li class="af sock" key={`s${i}`}>
             <span class="sk"><GemIcon gem={s.gem} size={20} /></span>
             <span class="af-t">
-              <span class="gem-n" style={{ color: lighten(gemColor(s.gem), 0.35) }}>{gemName(s.gem, s.rank)}</span>
-              <span class="gem-e">{emphasize(label)}</span>
+              <span class="tt-gem-n" style={{ color: lighten(gemColor(s.gem), 0.35) }}>{gemName(s.gem, s.rank)}</span>
+              <span class="tt-gem-e">{emphasize(label)}</span>
             </span>
           </li>
         );
@@ -356,6 +356,9 @@ export interface TipContent {
 }
 
 let ptr = { x: 0, y: 0 };
+let tipBlocked = false;
+/** Tooltips are suppressed while dragging (set by the drag layer). */
+export function setTipBlocked(b: boolean) { tipBlocked = b; if (b) hideTip(); }
 let layerEl: HTMLDivElement | null = null;
 
 function place() {
@@ -436,7 +439,7 @@ export interface HoverHandlers {
 export function tipHandlers(build: () => TipContent | null, isBlocked?: () => boolean): HoverHandlers {
   return {
     onPointerEnter: (e) => {
-      if (isBlocked?.()) return;
+      if (tipBlocked || isBlocked?.()) return;
       ptr = { x: e.clientX, y: e.clientY };
       const c = build();
       if (c) showTip(c); else hideTip();

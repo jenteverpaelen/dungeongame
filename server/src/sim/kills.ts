@@ -1,37 +1,49 @@
-// Monster death consequences: XP, loot, rift progress, affix and skill death hooks.
+// Monster death consequences: XP (shared within range), personal loot, rift progress, Hellforge, life per kill,
+// elite / skill death hooks, goblin and guardian specials.
 
 import { monsterXp, type Element } from '../shared';
-import type { Instance } from '../instance';
 import { XP_MULT, XP_SHARE_RANGE } from '../config';
-import { addBuff } from './effects';
-import { elIdx } from './effects';
+import { healPlayer, isEliteTier } from './damage';
+import { addBuff, elIdx } from './effects';
 import { eliteOnDeath } from './elites';
-import { dropFor } from './loot';
-import { healPlayer } from './damage';
+import type { Instance } from './instance';
+import { dropForMob } from './loot';
 import { grantXp, touchChar } from './players';
-import { riftOnKill } from './rift';
-import { skillDeathHooks } from './skills/hooks';
+import { skillDeathHooks } from './skills';
 import type { Mob, Player } from './types';
 
+/** A pack member left the world (killed, escaped, despawned). */
+export function packMemberGone(inst: Instance, m: Mob) {
+  if (!m.pack) return;
+  m.pack.alive--;
+  if (m.pack.alive <= 0) inst.spawner.onPackCleared(m.pack);
+  m.pack = null;
+}
+
 export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Element, skill: string) {
-  if (m.dead) return;
-  m.dead = true;
-  m.hp = 0;
-  m.flags = 0;
+  if (m.dead || m.dummy) return;
   inst.removeMob(m);
-  inst.emit({ e: 'die', t: m.id, el: elIdx(el), x: Math.round(m.x), y: Math.round(m.y), ...(m.tier !== 0 && m.tier !== 3 ? { big: 1 as const } : {}) }, m.x, m.y, killer?.id ?? 0);
-  if (m.suicide) return;
+  m.hp = 0;
+  const big = m.tier === 1 || m.tier === 2 || m.tier === 4 || m.tier === 5;
+  inst.emit({ e: 'die', t: m.id, el: elIdx(el), x: Math.round(m.x), y: Math.round(m.y), ...(big ? { big: 1 as const } : {}) }, m.x, m.y, killer?.id ?? 0);
+  inst.counters.kills++;
+  if (isEliteTier(m.tier)) inst.counters.eliteKills++;
+  packMemberGone(inst, m);
 
-  const witnesses = inst.playersNear(m.x, m.y, XP_SHARE_RANGE).filter((p) => p.deadMs <= 0);
-  if (killer && !witnesses.includes(killer) && killer.inst === inst && killer.deadMs <= 0) witnesses.push(killer);
-  const eliteKill = m.tier === 1 || m.tier === 2 || m.tier === 4;
+  skillDeathHooks(inst, m, killer, skill);
+  eliteOnDeath(inst, m);
 
+  const witnesses = inst.playersNear(m.x, m.y, XP_SHARE_RANGE);
+  if (killer && killer.deadMs <= 0 && inst.playerById(killer.id) && !witnesses.includes(killer)) witnesses.push(killer);
+  const eliteKill = isEliteTier(m.tier);
+  const riftGuardian = m.tier === 4 && inst.rift && inst.rift.guardian === m.id;
   for (const p of witnesses) {
-    const xp = monsterXp(m.level, m.tier, inst.difficulty) * (1 + p.ctx.d.xpPct / 100) * XP_MULT;
+    const xp = monsterXp(m.level, m.tier, m.diff) * (1 + p.ctx.d.xpPct / 100) * XP_MULT;
     p.save.stats.kills++;
+    p.kills++;
     if (eliteKill) p.save.stats.elites++;
     grantXp(inst, p, xp);
-    if (m.tier !== 4) dropFor(inst, p, m);
+    if (!m.noReward && !riftGuardian) dropForMob(inst, p, m);
     if (p === killer) {
       if (p.ctx.d.lifePerKill > 0) healPlayer(inst, p, p.ctx.d.lifePerKill, true);
       const hf = p.ctx.power('hellforge_talisman');
@@ -39,8 +51,6 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
     }
     touchChar(p);
   }
-
-  eliteOnDeath(inst, m);
-  skillDeathHooks(inst, m, killer, skill);
-  riftOnKill(inst, m, killer, witnesses);
+  if (m.tier === 5) for (const p of inst.playersNear(m.x, m.y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'Treasure Goblin slain!', kind: 'info' });
+  if (inst.rift) inst.rift.onKill(m, killer);
 }

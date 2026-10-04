@@ -8,6 +8,7 @@ import {
 } from '../shared';
 import { updateGrounds } from './grounds';
 import { nextId } from './ids';
+import { packMemberGone } from './kills';
 import { clearPlayerLoot } from './loot';
 import { updateMonsters } from './monsters';
 import { addPlayerEntity, debugHeal, playerTick, processInputs, refreshPlayerStats, removePlayerEntity } from './players';
@@ -248,7 +249,7 @@ export class Instance implements InstanceApi {
     const pi = this.portals.findIndex((p) => p.id === id);
     if (pi >= 0) { this.portals.splice(pi, 1); return; }
     const m = this.mobById.get(id);
-    if (m) { this.removeMob(m); if (m.pack) m.pack.alive--; return; }
+    if (m) { this.removeMob(m); packMemberGone(this, m); return; }
     const si = this.summons.findIndex((s) => s.id === id);
     if (si >= 0) { this.summons[si].dead = true; return; }
     for (const p of this.players) for (const l of p.loot) if (l.id === id) { p.loot.delete(l); return; }

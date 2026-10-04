@@ -9,7 +9,7 @@ import { invUI, setCubeItem } from './cubestate';
 import { GemIcon } from './icons';
 import { SkillGlyph } from './skillicons';
 import { Local, useLocal } from './state';
-import { hideTip, ItemVisual } from './tooltip';
+import { ItemVisual, setTipBlocked } from './tooltip';
 import { run } from './util';
 import { SKILLS } from '@shared/data/skills';
 
@@ -42,7 +42,7 @@ export function beginDrag(e: PointerEvent, payload: DragPayload) {
     if (!started) {
       if (Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
       started = true;
-      hideTip();
+      setTipBlocked(true);
       dragStore.set({ drag: payload });
       requestAnimationFrame(() => moveGhost(ev.clientX, ev.clientY));
     }
@@ -56,13 +56,14 @@ export function beginDrag(e: PointerEvent, payload: DragPayload) {
   const up = (ev: PointerEvent) => {
     cleanup();
     if (!started) return;
+    setTipBlocked(false);
     suppress = true;
     setTimeout(() => { suppress = false; }, 0);
     const target = dropTargetAt(ev.clientX, ev.clientY);
     dragStore.set({ drag: null });
     if (target) void handleDrop(payload, target);
   };
-  const cancel = () => { cleanup(); dragStore.set({ drag: null }); };
+  const cancel = () => { cleanup(); setTipBlocked(false); dragStore.set({ drag: null }); };
   window.addEventListener('pointermove', move);
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', cancel);

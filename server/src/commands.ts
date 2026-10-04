@@ -6,7 +6,7 @@ import type { Session } from './net/session';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
-import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS, affixScale, type AffixDef } from '../../shared/src/data/items';
+import { BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS, affixScale, type AffixDef } from '../../shared/src/data/items';
 import { skillsForClass } from '../../shared/src/data/skills';
 import { Rng } from '../../shared/src/math';
 import {
@@ -546,7 +546,10 @@ const paragonReset: Handler = (s) => {
 
 // ─────────────────────────── Travel & rifts ───────────────────────────
 
-const travel: Handler = (s, a, world) => world.travel(s, str(a, 'zone'));
+const travel: Handler = (s, a, world) => {
+  const channel = a.channel === undefined || a.channel === null ? undefined : int(a, 'channel', 1, 999);
+  return world.travel(s, str(a, 'zone'), channel);
+};
 const channel: Handler = (s, a, world) => world.channel(s, int(a, 'n', 1, 999));
 const riftOpen: Handler = (s, a, world) => world.riftOpen(s, int(a, 'difficulty', 0, DIFFICULTIES.length - 1, s.save.difficulty));
 const riftEnter: Handler = (s, _a, world) => world.riftEnter(s);

@@ -68,20 +68,21 @@ const capOf = (kind: ZoneKind) => (kind === 'town' ? TOWN_CHANNEL_CAP : kind ===
 
 /** Loads the gameplay simulation: server/src/sim/instance.ts, or the local test stub with SIM_STUB=1. */
 async function loadCreateInstance(): Promise<CreateInstance> {
-  const useStub = process.env.SIM_STUB === '1';
-  const spec = useStub ? '../test/stubInstance' : './sim/instance';
-  let mod: { createInstance?: CreateInstance };
+  if (process.env.SIM_STUB === '1') {
+    const spec = '../test/stubInstance';
+    const stub = (await import(spec)) as { createInstance?: CreateInstance };
+    if (typeof stub.createInstance !== 'function') throw new Error('server/test/stubInstance.ts does not export createInstance');
+    return stub.createInstance;
+  }
+  let sim: typeof import('./sim/instance');
   try {
-    mod = (await import(spec)) as { createInstance?: CreateInstance };
+    sim = await import('./sim/instance');
   } catch (err) {
-    const code = (err as NodeJS.ErrnoException).code;
-    if (!useStub && (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND')) {
-      throw new Error('The gameplay simulation (server/src/sim/instance.ts) could not be loaded. Run with SIM_STUB=1 to use the test stub. ' + (err as Error).message);
-    }
+    console.error('[world] the gameplay simulation (server/src/sim/instance.ts) failed to load. SIM_STUB=1 runs the infrastructure test stub instead.');
     throw err;
   }
-  if (typeof mod.createInstance !== 'function') throw new Error(`${spec} does not export createInstance`);
-  return mod.createInstance;
+  if (typeof sim.createInstance !== 'function') throw new Error('server/src/sim/instance.ts does not export createInstance');
+  return sim.createInstance;
 }
 
 export class World {
@@ -301,11 +302,33 @@ export class World {
 
   // ─────────────────────────── Commands: travel ───────────────────────────
 
-  /** Back to a town channel: the one the player came from if it has room. */
-  private goHome(s: Session): CmdResult {
+  /** Explicit channel `n` of a zone: an existing one, or the next free number (opens a new channel). */
+  private resolveChannel(zoneId: string, n: number): InstRec | string {
+    if (!Number.isInteger(n) || n < 1) return 'Invalid channel';
+    const m = this.zoneChannels(zoneId);
+    let target = m.get(n);
+    if (!target) {
+      // Players may open exactly the next channel; arbitrary numbers are refused.
+      if (n !== this.nextChannelNumber(zoneId)) return 'That channel does not exist';
+      if (m.size >= MAX_CHANNELS_PER_ZONE) return 'Too many channels are open';
+      target = this.channelRec(zoneId, n);
+    }
+    if (target.members.size >= capOf(target.kind)) return 'That channel is full';
+    return target;
+  }
+
+  /** Back to a town channel: `channel` if given, else the one the player came from if it has room. */
+  private goHome(s: Session, channel?: number): CmdResult {
     const cur = s.rec!;
-    const home = s.homeTown ? this.recs.get(s.homeTown) : undefined;
-    const target = home && home.kind === 'town' && home.members.size < TOWN_CHANNEL_CAP ? home : this.pickChannel(TOWN_ID);
+    let target: InstRec;
+    if (channel !== undefined) {
+      const r = this.resolveChannel(TOWN_ID, channel);
+      if (typeof r === 'string') return fail(r);
+      target = r;
+    } else {
+      const home = s.homeTown ? this.recs.get(s.homeTown) : undefined;
+      target = home && home.kind === 'town' && home.members.size < TOWN_CHANNEL_CAP ? home : this.pickChannel(TOWN_ID);
+    }
     // Returning from a rift: arrive next to where the rift portal was.
     const at = cur.rift && cur.rift.townKey === target.key ? cur.rift.portalAt : undefined;
     this.enter(s, target, at, this.zoneAnnounce);
@@ -313,17 +336,25 @@ export class World {
     return ok({ zone: target.zoneId, channel: target.channel });
   }
 
-  travel(s: Session, zoneId: string): CmdResult {
+  /** Waypoint travel. `channel` is optional; without it fields pick the least-full channel. */
+  travel(s: Session, zoneId: string, channel?: number): CmdResult {
     const cur = s.rec;
     if (!cur) return fail('Not in a zone');
     const def = ZONES[zoneId];
     if (!def || def.kind === 'rift') return fail('Unknown destination');
     if (def.kind === 'town') {
       if (cur.kind === 'town') return fail(`You are already in ${def.name}`);
-      return this.goHome(s);
+      return this.goHome(s, channel);
     }
     if (cur.kind !== 'town') return fail('Return to Hearthmere to use the waypoint');
-    const target = this.pickChannel(zoneId);
+    let target: InstRec;
+    if (channel !== undefined) {
+      const r = this.resolveChannel(zoneId, channel);
+      if (typeof r === 'string') return fail(r);
+      target = r;
+    } else {
+      target = this.pickChannel(zoneId);
+    }
     s.homeTown = cur.key;
     this.enter(s, target, undefined, this.zoneAnnounce);
     s.saveNow();
@@ -343,15 +374,8 @@ export class World {
     if (cur.kind === 'rift') return fail('Rifts have no channels');
     if (!Number.isInteger(n) || n < 1) return fail('Invalid channel');
     if (n === cur.channel) return fail(`You are already in channel ${n}`);
-    const m = this.zoneChannels(cur.zoneId);
-    let target = m.get(n);
-    if (!target) {
-      // Players may open exactly the next channel; arbitrary numbers are refused.
-      if (n !== this.nextChannelNumber(cur.zoneId)) return fail('That channel does not exist');
-      if (m.size >= MAX_CHANNELS_PER_ZONE) return fail('Too many channels are open');
-      target = this.channelRec(cur.zoneId, n);
-    }
-    if (target.members.size >= capOf(target.kind)) return fail('That channel is full');
+    const target = this.resolveChannel(cur.zoneId, n);
+    if (typeof target === 'string') return fail(target);
     this.enter(s, target, undefined, this.zoneAnnounce);
     s.saveNow();
     return ok({ zone: target.zoneId, channel: target.channel });

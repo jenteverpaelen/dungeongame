@@ -77,6 +77,8 @@ export interface Mob extends Hashed {
   type: string;
   tier: EliteTier;
   level: number;
+  /** Difficulty index (rifts: the rift's; fields: adopted from the player who found the pack). */
+  diff: number;
   name: string;
   affixes: string[];
   hp: number;

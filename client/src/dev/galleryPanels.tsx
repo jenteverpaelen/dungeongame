@@ -31,6 +31,7 @@ import { installApi, type CmdResult } from '../net/api';
 import { togglePanel, ui, type PanelId } from '../ui/store';
 import { ItemTooltip, PanelsRoot, showItemTooltip } from '../ui/panels';
 import { cubeUI } from '../ui/panels/cubestate';
+import { HudRoot } from '../ui/hud';
 import { MatIcon, GemIcon, GoldIcon, CubeEmblem, EmptySocketIcon, MATERIAL_ORDER } from '../ui/panels/icons';
 import { ItemGlyph, SlotGlyph } from '../ui/panels/glyphs';
 import { SkillGlyph, CubeFnIcon } from '../ui/panels/skillicons';
@@ -39,6 +40,12 @@ import { CUBE_FUNCTIONS } from '@shared/cube';
 import { BASES } from '@shared/data/items';
 
 const qs = new URLSearchParams(location.search);
+if (qs.has('still')) {
+  // Software-rendered screenshots run at ~2 fps; skip entrance animations so captures show the final state.
+  const st = document.createElement('style');
+  st.textContent = '.tt, .pn, .menu, .confirm-veil, .ks-menu { animation: none !important; }';
+  document.head.appendChild(st);
+}
 const classId = (qs.get('class') as ClassId) || 'warrior';
 const rng = new Rng(20260);
 
@@ -60,6 +67,8 @@ function makeCharacter(): CharacterSave {
   let guard = 0;
   while (c.paragon.level < 38 && guard++ < 200) addXp(c, paragonXpToNext(c.paragon.level) - c.paragon.xp);
   addXp(c, 3_100_000);
+  c.paragon.level = 300;
+  c.paragon.xp = 4_200_000;
   c.gold = 18_452_310;
   c.materials = { scrap: 1240, dust: 856, crystal: 312, soul: 47, deathsBreath: 23 };
   c.gems = { 'ruby:3': 4, 'ruby:6': 1, 'emerald:2': 7, 'emerald:5': 1, 'topaz:4': 3, 'topaz:1': 5, 'amethyst:1': 9, 'amethyst:6': 1, 'diamond:3': 3, 'diamond:5': 2 };
@@ -133,8 +142,14 @@ function makeCharacter(): CharacterSave {
   c.skills.slots = ['whirlwind', 'rend', 'ground_stomp', 'battle_rage'];
   c.skills.runes = { cleave: 'broad_sweep', whirlwind: 'dust_devils', rend: 'lacerate', ground_stomp: 'jarring_slam' };
   c.skills.tiers = { cleave: 2, whirlwind: 3, rend: 1 };
-  c.skillPoints = Math.max(0, c.level - 1 - skillPointsSpent(c) - 6);
-  c.paragon.spent = { p_main: 22, p_vit: 14, p_ms: 8, p_res: 3, p_ias: 20, p_cdr: 11, p_chc: 9, p_chd: 31, p_life: 16, p_armor: 6, p_allres: 4 };
+  const lvl = Number(qs.get('level') ?? 70);
+  if (lvl < 70) {
+    c.level = lvl; c.xp = 0; c.paragon = { level: 0, xp: 0, spent: {} };
+    for (const k of Object.keys(c.skills.tiers)) delete c.skills.tiers[k];
+    c.skills.runes = {};
+  }
+  c.skillPoints = Math.max(0, c.level - 1 - skillPointsSpent(c) - (lvl < 70 ? 0 : 6));
+  if (lvl >= 70) c.paragon.spent = { p_main: 22, p_vit: 14, p_ms: 8, p_res: 3, p_ias: 20, p_cdr: 11, p_chc: 9, p_chd: 31, p_life: 16, p_armor: 6, p_allres: 4 };
   return c;
 }
 
@@ -288,7 +303,9 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
 installApi(mock as never, () => {});
 
 function setupUI() {
+  const d = computeStats(char);
   ui.set({
+    me: { x: 0, y: 0, dashMs: 0, dashCd: 0, hp: d.life * 0.72, mhp: d.life, res: 64, mres: 100, cds: [0, 3200, 0, 0], ch: [0, 0, 0, 0], buffs: [], xp: 0, lv: char.level, pxp: 4_200_000, pl: char.paragon.level, gold: char.gold, dead: 0 },
     screen: 'game', connected: true, char, derived: computeStats(char), myId: 1,
     zone: { zone: 'hearthmere', name: 'Hearthmere', kind: 'town', theme: 'town', seed: 1, channel: 1, instance: 'town:1', difficulty: 0 },
     world: {
@@ -366,6 +383,7 @@ function Gallery() {
     <>
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
+      {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
   );

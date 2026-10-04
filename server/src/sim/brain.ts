@@ -174,12 +174,11 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
     if (!ruleHolds(inst, p, rt)) continue;
     if (!castSkill(inst, p, rt)) continue;
     p.res -= cost;
+    // Seal of the Patient Thief: every resource-spending cast shortens all active cooldowns.
+    const thief = cost > 0 ? c.power('patient_thief') : 0;
+    if (thief) for (const [k, v] of p.readyAt) p.readyAt.set(k, v - thief * 1000);
     const cd = skillCooldownMs(p, rt);
     if (cd > 0) p.readyAt.set(id, inst.t + cd);
-    if (cost > 0 || rt.def.cost > 0) {
-      const thief = c.power('patient_thief');
-      if (thief) for (const [k, v] of p.readyAt) p.readyAt.set(k, v - thief * 1000);
-    }
     p.castFlagMs = 300;
     p.attackSeq++;
     break;

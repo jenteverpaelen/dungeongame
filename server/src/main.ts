@@ -14,6 +14,7 @@ import { TICK_MS } from '../../shared/src/constants';
 const HEARTBEAT_MS = 15_000;
 const MAX_CATCHUP_TICKS = 4;
 const SLOW_TICK_MS = 45;
+const MAX_CONNECTIONS = Number(process.env.MAX_CONNECTIONS ?? 1000);
 
 async function main(): Promise<void> {
   ensureDataDir();
@@ -53,6 +54,11 @@ async function main(): Promise<void> {
     const path = (req.url ?? '/').split('?')[0];
     if (path !== '/ws') {
       socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
+      socket.destroy();
+      return;
+    }
+    if (wss.clients.size >= MAX_CONNECTIONS) {
+      socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
       socket.destroy();
       return;
     }

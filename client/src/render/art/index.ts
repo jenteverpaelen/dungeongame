@@ -1,58 +1,48 @@
 // PUBLIC API of the art module (code-drawn, Legends of Idleon-inspired paper-doll art).
-// The scene and UI depend ONLY on the exports declared here. Implementation lives in sibling files.
-// NOTE: this file currently contains placeholder implementations; the art build replaces them.
+// The scene and UI depend ONLY on the exports declared here. Implementation lives in sibling files:
+//   draw.ts / util.ts / palette.ts / fx.ts / bake.ts / puppet.ts — shared drawing + baking + rig
+//   gear.ts + player.ts — paper doll       monsters.ts — monster families      summons.ts — summons
+//   npcs.ts — NPC objects + portals        props.ts + ground.ts + map.ts — world   icons.ts — item icons
+// Art direction: docs/ART_DIRECTION.md.
 
-import { Container, Graphics, type Renderer, type Texture } from 'pixi.js';
+import { Container, type Renderer, type Texture } from 'pixi.js';
 import type { EliteTier } from '@shared/items';
-import type { MapData, NpcRole, Prop } from '@shared/mapgen';
+import type { MapData, NpcRole } from '@shared/mapgen';
 import type { PlayerLook } from '@shared/protocol';
 import type { ItemKind, ItemLook } from '@shared/types';
-import type { EntityView, PlayerView, ViewState } from '../types';
-
-let rendererRef: Renderer | null = null;
+import type { EntityView, PlayerView } from '../types';
+import { setRenderer } from './fx';
+import { iconTexture, iconUrl } from './icons';
+import { buildLayers } from './map';
+import { MonsterArt } from './monsters';
+import { NpcArt, PortalArt } from './npcs';
+import { PlayerArt } from './player';
+import { SummonArt } from './summons';
 
 /** Must be called once after the Pixi renderer exists (art may bake textures). */
 export function initArt(renderer: Renderer): void {
-  rendererRef = renderer;
-}
-
-function placeholder(color: number, h: number): EntityView {
-  const root = new Container();
-  const g = new Graphics().circle(0, -h / 2, h / 2).fill(color).stroke({ color: 0x000000, width: 2 });
-  root.addChild(g);
-  return {
-    root, height: h,
-    update(_dt: number, s: ViewState) { g.scale.x = s.facingLeft ? -1 : 1; },
-    hit() {}, die(_e, done) { done(); }, destroy() { root.destroy({ children: true }); },
-  };
+  setRenderer(renderer);
 }
 
 export function createPlayerView(look: PlayerLook): PlayerView {
-  const v = placeholder(0xf2c9a0, 64) as PlayerView;
-  v.setLook = () => {};
-  void look;
-  return v;
+  return new PlayerArt(look);
 }
 
 export function createMonsterView(defId: string, elite: EliteTier, affixes: string[], scale: number): EntityView {
-  void defId; void elite; void affixes;
-  return placeholder(0x6fbf4a, 40 * scale);
+  return new MonsterArt(defId, elite, affixes, scale);
 }
 
 /** Summons: 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'molten_pool' etc. */
 export function createSummonView(type: string): EntityView {
-  void type;
-  return placeholder(0xc9a227, 36);
+  return new SummonArt(type);
 }
 
 export function createNpcView(role: NpcRole, name: string): EntityView {
-  void role; void name;
-  return placeholder(0x8c6a38, 70);
+  return new NpcArt(role, name);
 }
 
 export function createPortalView(label: string, kind: 'town' | 'rift'): EntityView {
-  void label; void kind;
-  return placeholder(0x3d6dff, 80);
+  return new PortalArt(label, kind);
 }
 
 export interface MapLayers {
@@ -65,19 +55,15 @@ export interface MapLayers {
 }
 
 export function buildMapLayers(map: MapData): MapLayers {
-  void rendererRef;
-  const ground = new Container();
-  return { ground, sorted: map.props.filter((p: Prop) => p.r > 0).map((p) => ({ view: new Graphics().circle(0, 0, p.r).fill(0x444444), y: p.y })), decals: new Container() };
+  return buildLayers(map);
 }
 
 /** Square item icon as a data URL (cached) for the DOM UI (inventory, tooltips, paperdoll). */
 export function itemIconUrl(look: ItemLook, kind: ItemKind, size = 64): string {
-  void look; void kind; void size;
-  return '';
+  return iconUrl(look, kind, size);
 }
 
 /** Same icon as a Pixi texture (ground loot). */
 export function itemIconTexture(look: ItemLook, kind: ItemKind): Texture | null {
-  void look; void kind;
-  return null;
+  return iconTexture(look, kind);
 }
