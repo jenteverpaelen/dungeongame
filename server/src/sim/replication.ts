@@ -11,6 +11,8 @@ import type { Instance } from './instance';
 import type { Loot, Mob, Player, PortalEnt, Summon } from './types';
 
 const EV_MARGIN = 260;
+/** Per viewer and tick: other players' plain (non-crit, non-kill) damage numbers beyond this are dropped. */
+const OTHERS_DMG_BUDGET = 40;
 
 function playerFlags(p: Player): number {
   let f = 0;
@@ -84,7 +86,7 @@ function buildSnapshot(inst: Instance, p: Player, now: number, rift: Snapshot['r
   const inRect = (x: number, y: number) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
 
   for (const q of inst.players) {
-    if (!inRect(q.x, q.y)) continue;
+    if (!inRect(q.x, q.y) || q.respawnTick === stamp) continue;
     visit(q.id, q.descVer, () => descPlayer(q), q.x, q.y, q.mhp > 0 ? Math.max(0, Math.min(1000, (q.hp / q.mhp) * 1000)) | 0 : 0, playerFlags(q), q.attackSeq);
   }
   mobBuf.length = 0;
@@ -115,9 +117,12 @@ function buildSnapshot(inst: Instance, p: Player, now: number, rift: Snapshot['r
 
   let ev: GameEvent[] | undefined;
   const ex0 = x0 - EV_MARGIN, ex1 = x1 + EV_MARGIN, ey0 = y0 - EV_MARGIN, ey1 = y1 + EV_MARGIN;
+  let othersDmg = 0;
   for (const r of inst.events) {
     if (r.only) { if (r.only !== p.id) continue; }
-    else if (!(r.a === -1 || r.a === p.id || r.b === p.id || (r.x >= ex0 && r.x <= ex1 && r.y >= ey0 && r.y <= ey1))) continue;
+    else if (r.a === -1 || r.a === p.id || r.b === p.id) { /* always relevant */ }
+    else if (r.x < ex0 || r.x > ex1 || r.y < ey0 || r.y > ey1) continue;
+    else if (r.ev.e === 'dmg' && !r.ev.p && !r.ev.c && !r.ev.k && ++othersDmg > OTHERS_DMG_BUDGET) continue;
     (ev ??= []).push(r.ev);
   }
 

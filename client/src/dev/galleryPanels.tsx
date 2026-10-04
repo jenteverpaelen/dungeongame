@@ -1,10 +1,12 @@
-// Dev gallery for the panels: mock level-70 character, a stubbed command API and a few static sheets.
-//   /gallery-panels.html?s=inventory            panels to open (comma separated): inventory,skills,paragon,cube,waypoint,obelisk,debug
-//   /gallery-panels.html?s=tips                 tooltip variants sheet
-//   /gallery-panels.html?s=icons                glyph / material / gem sheet
-//   &cube=upgrade&cubelevel=4&item=<n>          cube function, cube level, bag index placed in the cube
-//   &pin=<bag index>                            pin a floating tooltip (with comparison) at the cursor spot
-//   &class=mage|ranger                          other class (default warrior)
+// Dev gallery for the panels: mock level-70 character, a stubbed command API (mutates the mock save like
+// the server would) and a few static sheets. Open /gallery-panels.html with:
+//   ?s=inventory,cube          panels to open (comma separated): inventory skills paragon cube waypoint obelisk debug
+//   ?s=tips                    sheet of tooltip variants        ?s=icons   sheet of glyphs / materials / gems
+//   &cube=upgrade&item=1       Cube function (salvage fuse enchant upgrade transmute extract reforge socket) and the bag index placed in it
+//   &cubelevel=4  &level=45    lower the Cube / character level to see locked states
+//   &pin=<bag index>           pin a floating tooltip with comparison (&px=&py= for the cursor position)
+//   &class=mage|ranger         other class (default warrior)      &hud=1   render the real HUD underneath
+//   &still=1                   skip entrance animations (useful for software-rendered screenshots)
 
 import '@fontsource/cinzel/400.css';
 import '@fontsource/cinzel/700.css';
@@ -17,8 +19,8 @@ import '@fontsource/lilita-one/400.css';
 import '../ui/styles/tokens.css';
 
 import { render } from 'preact';
-import { AFFIXES, AFFIX_BY_STAT, GEMS, GEM_IDS, LEGENDARIES, SETS, affixScale } from '@shared/data/items';
-import { addToInventory, buySkillTier, createCharacter, equipItem, resetSkillTiers, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
+import { BASES, GEM_IDS, affixScale } from '@shared/data/items';
+import { buySkillTier, createCharacter, equipItem, resetSkillTiers, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
 import { addCubeXp, canAfford, enchantCost, enchantPool, extractCost, fuseCost, gemRemoveCost, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost, FORTUNE_PER_FAIL } from '@shared/cube';
 import { generateItem, type GenOptions } from '@shared/items';
 import { Rng } from '@shared/math';
@@ -37,7 +39,6 @@ import { ItemGlyph, SlotGlyph } from '../ui/panels/glyphs';
 import { SkillGlyph, CubeFnIcon } from '../ui/panels/skillicons';
 import { SKILLS } from '@shared/data/skills';
 import { CUBE_FUNCTIONS } from '@shared/cube';
-import { BASES } from '@shared/data/items';
 
 const qs = new URLSearchParams(location.search);
 if (qs.has('still')) {
@@ -409,4 +410,3 @@ if (pin !== null) {
 }
 
 Object.assign(window as object, { __ui: ui, __cubeUI: cubeUI });
-void LEGENDARIES; void SETS; void AFFIX_BY_STAT; void AFFIXES; void GEMS; void addToInventory;

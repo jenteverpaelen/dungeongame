@@ -40,7 +40,8 @@ export function eliteTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
         a.molten -= dtMs;
         if (a.molten <= 0) {
           a.molten = 500;
-          if (!m.moving) break;
+          if (Math.hypot(m.x - m.trailX, m.y - m.trailY) < 24) break;
+          m.trailX = m.x; m.trailY = m.y;
           const g = newGround('trail', m.x, m.y, 34, inst.t, 1500, 250);
           g.dmg = m.dmg * 0.1;
           g.mobLevel = m.level;

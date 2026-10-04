@@ -99,12 +99,6 @@
   box-shadow: inset 0 0 0 2px var(--rc-line), inset 0 0 0 3px rgba(0, 0, 0, 0.75), inset 0 0 16px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .tt-icon.sm { width: 40px; height: 40px; }
-.up-badge {
-  position: absolute; right: -7px; bottom: -7px; z-index: 3; min-width: 20px; box-sizing: border-box; padding: 2px 5px 1px; text-align: center;
-  font: 400 12px/1.1 var(--font-num); letter-spacing: 0.02em; color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 180, 0.6);
-  background: linear-gradient(180deg, #ffe38c 0%, #e0aa38 55%, #a8741a 100%);
-  border: 1px solid #2a1806; border-radius: 9px; box-shadow: 0 1px 3px #000, inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
 .tt-titles { flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; gap: 3px; }
 .tt-anc {
   display: flex; align-items: center; justify-content: center; gap: 7px;
@@ -447,7 +441,6 @@
 .eq-in { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
 .eq .eq-in .ig-mono, .eq .eq-in svg.ig { max-width: 100%; max-height: 100%; }
 .eq .cell-up { right: 2px; bottom: 2px; }
-.eq.eq-mainhand, .eq.eq-offhand { }
 
 .sheet { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .sheet-big { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -995,9 +988,16 @@
 .ec-t { font-size: 16.5px; line-height: 1.25; }
 .ec-r { font-size: 12px; }
 .sb { padding: 6px 4px 5px; }
-.sm-x { }
 .bag-bar { margin: 8px 0 5px; }
 .wealth { margin-top: 6px; padding: 5px 10px; }
 .sheet { margin-top: 8px; }
 
 .nm-up { display: inline-block; margin-left: 8px; vertical-align: 2px; padding: 2px 6px 1px; font: 400 12px/1.1 var(--font-num); letter-spacing: 0.02em; color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 180, 0.6); background: linear-gradient(180deg, #ffe38c 0%, #e0aa38 55%, #a8741a 100%); border: 1px solid #2a1806; border-radius: 8px; box-shadow: 0 1px 3px #000, inset 0 1px 0 rgba(255, 255, 255, 0.7); }
+
+/* Short viewports (720p): trim the tall workspaces so left-docked panels stay clear of the bottom HUD. */
+@media (max-height: 820px) {
+  .sk-main { height: 540px; }
+  .cube-work { min-height: 500px; }
+  .cw-stage { padding: 10px 0 8px; }
+  .chamber { min-height: 270px; }
+}

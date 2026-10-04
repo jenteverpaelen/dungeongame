@@ -6,12 +6,11 @@ import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods,
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Element } from '@shared/types';
-import { useUI } from '../store';
 import { PanelFrame } from './common';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { IconCheck, IconLock, IconStar4, hex } from './icons';
 import { SkillGlyph } from './skillicons';
-import { Local, useLocal } from './state';
+import { Local, useLocal, useU } from './state';
 import { textTipHandlers } from './tooltip';
 import { cls, run } from './util';
 
@@ -234,7 +233,7 @@ function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
 }
 
 export function SkillsPanel() {
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
   const selected = useLocal(skillsUI, (s) => s.selected);
   const [confirm, setConfirm] = useState(false);
   if (!char) return null;

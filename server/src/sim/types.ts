@@ -146,6 +146,9 @@ export interface Mob extends Hashed {
   descVer: number;
   sepX: number;
   sepY: number;
+  /** Molten affix: where the last trail patch was dropped. */
+  trailX: number;
+  trailY: number;
 }
 
 // ─────────────────────────── Summons ───────────────────────────
@@ -406,6 +409,10 @@ export interface Player extends Hashed {
   ffY0: number;
   /** Hellforge / misc: last time an elite affix touched this player (spam limiters). */
   lastVortexT: number;
+  /** Tick of the last respawn: the entity is re-introduced to clients (rem, then a fresh add). */
+  respawnTick: number;
+  /** Damage taken (diagnostics). */
+  taken: number;
 }
 
 export type Ent = Player | Mob | Summon;

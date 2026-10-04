@@ -22,6 +22,8 @@ export interface FxFrames {
   flame: Texture;    // teardrop flame (white, tint per layer), base at the bottom centre
   swoosh: Texture;   // 120° crescent arc fading towards its tail (weapon trails / whirlwind)
   star5: Texture;    // small 5-point star (stun)
+  swirl: Texture;    // 3-arm spiral (white), rotate inside a squashed container for portals / vortices
+  rays: Texture;     // soft god-ray fan (white) for shrines
 }
 
 let frames: FxFrames | null = null;
@@ -130,12 +132,39 @@ export function fx(): FxFrames {
   ctx.restore();
   R.swoosh = new Rectangle(64, 256, 128, 128);
 
+  // swirl 128 at (192,256): three logarithmic spiral arms
+  ctx.save(); ctx.translate(192 + 64, 256 + 64);
+  for (let arm = 0; arm < 3; arm++) {
+    for (let i = 0; i < 60; i++) {
+      const t = i / 59;
+      const a = arm * (Math.PI * 2 / 3) + t * 4.2;
+      const r = 6 + t * 54;
+      ctx.fillStyle = `rgba(255,255,255,${(0.9 * (1 - t) * Math.min(1, t * 6)).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(Math.cos(a) * r, Math.sin(a) * r, 2 + t * 7, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  radial(ctx, 0, 0, 20, [[0, 'rgba(255,255,255,0.9)'], [1, 'rgba(255,255,255,0)']]);
+  ctx.restore();
+  R.swirl = new Rectangle(192, 256, 128, 128);
+
+  // rays 128x128 at (320,256): fan of soft rays from the bottom centre
+  ctx.save(); ctx.translate(320 + 64, 256 + 124);
+  for (let i = 0; i < 7; i++) {
+    const a = -Math.PI / 2 + (i - 3) * 0.2;
+    const g = ctx.createLinearGradient(0, 0, Math.cos(a) * 120, Math.sin(a) * 120);
+    g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a - 0.05) * 120, Math.sin(a - 0.05) * 120); ctx.lineTo(Math.cos(a + 0.05) * 120, Math.sin(a + 0.05) * 120); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+  R.rays = new Rectangle(320, 256, 128, 128);
+
   const source = new CanvasSource({ resource: cv, scaleMode: 'linear' });
   const f = (r: Rectangle) => new Texture({ source, frame: r });
   frames = {
     shadow: f(R.shadow), glow: f(R.glow), glowSoft: f(R.glowSoft), sparkle: f(R.sparkle), ring: f(R.ring),
     ringSoft: f(R.ringSoft), dot: f(R.dot), streak: f(R.streak), smoke: f(R.smoke), flame: f(R.flame),
-    swoosh: f(R.swoosh), star5: f(R.star5),
+    swoosh: f(R.swoosh), star5: f(R.star5), swirl: f(R.swirl), rays: f(R.rays),
   };
   return frames;
 }

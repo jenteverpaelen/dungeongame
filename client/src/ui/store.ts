@@ -74,10 +74,15 @@ export const ui = new Store<UIState>({
 /** Subscribe a component to a slice of UI state. Re-renders only when the selected value changes (shallow). */
 export function useUI<R>(select: (s: UIState) => R): R {
   const [val, setVal] = useState(() => select(ui.get()));
-  useEffect(() => ui.subscribe(() => {
-    const next = select(ui.get());
-    setVal((prev) => (shallowEqual(prev, next) ? prev : next));
-  }), []);
+  useEffect(() => {
+    const sync = () => {
+      const next = select(ui.get());
+      setVal((prev) => (shallowEqual(prev, next) ? prev : next));
+    };
+    const unsub = ui.subscribe(sync);
+    sync(); // catch changes that landed between the first render and subscribing
+    return unsub;
+  }, []);
   return val;
 }
 

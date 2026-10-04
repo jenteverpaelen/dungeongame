@@ -3,7 +3,7 @@
 
 import '@fontsource/alegreya-sans/700.css';
 import '@fontsource/lilita-one/400.css';
-import { Application, Container, Graphics, Text } from 'pixi.js';
+import { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import { createCharacter, playerLook } from '@shared/character';
 import { CLASSES, CLASS_IDS } from '@shared/data/classes';
 import { BASES, LEGENDARIES, SETS } from '@shared/data/items';
@@ -17,6 +17,7 @@ import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, initArt, itemIconUrl,
 } from '../render/art';
 import type { EntityView, ViewState } from '../render/types';
+import { bakedPages } from '../render/art/bake';
 
 const qs = new URLSearchParams(location.search);
 const VIEW = qs.get('view') ?? 'chars';
@@ -169,28 +170,27 @@ function closeupView() {
 }
 
 function monstersView() {
-  const ids = Object.keys(MONSTERS);
-  const tiers: [string, EliteTier][] = [['normal', 0], ['champion', 1], ['rare', 2], ['minion', 3]];
-  let y = 70;
+  const which = qs.get('which') ?? 'trash';
+  const ids = Object.keys(MONSTERS).filter((id) => (which === 'boss') === MONSTERS[id].family.startsWith('boss'));
+  const tiers: [string, EliteTier][] = which === 'boss' ? [['boss', 4]] : [['normal', 0], ['champion', 1], ['rare', 2], ['minion', 3]];
+  let y = which === 'boss' ? 200 : 60;
   ids.forEach((id) => {
     const def = MONSTERS[id];
-    const boss = def.family.startsWith('boss');
-    const ts = boss ? [['boss', 4] as [string, EliteTier]] : tiers;
-    const rowH = boss ? 180 : 74;
-    y += boss ? 120 : 0;
+    const big = def.scale > 1.2 || which === 'boss';
+    if (big && which !== 'boss') y += 22;
     label(def.name, 60, y - 30, 11, 0xc9b98f);
-    ts.forEach(([tn, el], i) => {
-      for (let k = 0; k < (boss ? 2 : 3); k++) {
-        const x = 150 + i * 250 + k * 70 + (boss ? k * 160 : 0);
+    tiers.forEach(([tn, el], i) => {
+      for (let k = 0; k < 3; k++) {
+        const x = 150 + i * 250 + k * (which === 'boss' ? 260 : 72);
         const v = createMonsterView(id, el, el === 1 || el === 2 ? ['molten', 'frozen'] : [], def.scale);
         const fl = k === 1 ? F_MOVING : 0;
         addActor(v, x, y, st({ moving: k === 1, vx: 120, flags: fl | (k === 2 ? F_ATTACK : 0) }), 0.8, world, k === 0 ? 1.4 : 0);
-        if (k === 0) label(tn, x + 60, y + 6, 9, 0x9a8a6a);
+        if (k === 0) label(tn, x + 72, y + 6, 9, 0x9a8a6a);
       }
     });
-    y += rowH;
+    y += which === 'boss' ? 260 : big ? 96 : 74;
   });
-  world.scale.set(ZOOM * 0.55);
+  world.scale.set(ZOOM * (which === 'boss' ? 0.45 : 0.52));
 }
 
 function objectsView() {
@@ -294,7 +294,34 @@ function mapView() {
   mapInfo = `map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
 }
 
+function sheetsView() {
+  monstersView();
+  for (const a of actors) a.view.root.visible = false;
+  let x = 0, y = 0, rowH = 0;
+  for (const pg of bakedPages) {
+    const sp = new Sprite(new Texture({ source: pg.source }));
+    const w = sp.width, h = sp.height;
+    if (x + w > 1500 / 0.5) { x = 0; y += rowH + 20; rowH = 0; }
+    sp.position.set(x, y + 14);
+    const bg = new Graphics().rect(x, y + 14, w, h).fill(0x3a3530);
+    world.addChild(bg, sp);
+    label(`${pg.label} ${pg.source.pixelWidth}x${pg.source.pixelHeight}`, x + w / 2, y, 10);
+    x += w + 16; rowH = Math.max(rowH, h + 14);
+  }
+  world.scale.set(0.5);
+}
+
+function bakeTest() {
+  const ids = (qs.get('ids') ?? 'ember_imp').split(',');
+  const tiers = (qs.get('tiers') ?? '1').split(',').map(Number);
+  let x = 60;
+  for (const id of ids) for (const t of tiers) { addActor(createMonsterView(id, t as EliteTier, [], MONSTERS[id].scale), x, 120); x += 90; }
+  world.scale.set(2);
+}
+
 switch (VIEW) {
+  case 'bake': bakeTest(); break;
+  case 'sheets': sheetsView(); break;
   case 'chars': charsView(); break;
   case 'closeup': closeupView(); break;
   case 'monsters': monstersView(); break;
@@ -321,5 +348,6 @@ app.ticker.add((tk) => {
   }
   hud.textContent = `${VIEW}  ${fps} fps  ${mapInfo}`;
 });
+(window as unknown as { __pages: unknown }).__pages = bakedPages;
 (window as unknown as { __ready: boolean; __info: string }).__ready = true;
 (window as unknown as { __info: string }).__info = mapInfo;

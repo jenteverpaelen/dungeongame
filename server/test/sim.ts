@@ -12,7 +12,7 @@ import {
   F_CHANNEL, F_DEAD, STATE_STRIDE, type CharacterSave, type ClassId, type DerivedStats, type EntDesc, type GameEvent,
   type Item, type ItemKind, type S2C, type Slot, type Snapshot,
 } from '../src/shared';
-import { createInstance, type Instance } from '../src/sim/instance';
+import { Instance, createInstance } from '../src/sim/instance';
 import { createMob } from '../src/sim/monsters';
 import type { Mob } from '../src/sim/types';
 
@@ -30,6 +30,7 @@ const fmt = (n: number, d = 1) => n.toFixed(d);
 
 interface CEnt { desc: EntDesc; x: number; y: number; hp: number; flags: number; aseq: number }
 
+let linkMs = 0;
 class FakeLink implements PlayerLink {
   readonly sessionId: string;
   derived: DerivedStats;
@@ -62,6 +63,11 @@ class FakeLink implements PlayerLink {
   markDirty() { this.dirty++; }
 
   send(msg: S2C) {
+    const t0 = performance.now();
+    try { this.recv(msg); } finally { linkMs += performance.now() - t0; }
+  }
+
+  private recv(msg: S2C) {
     if (msg.t !== 's') return;
     this.snaps++;
     this.tickNo = msg.tick;
@@ -352,13 +358,14 @@ function fieldScenario(cls: ClassId, level: number, endgame: boolean) {
   const gold0 = save.gold;
   const ticks = 1200; // 60 s
   const t0 = performance.now();
-  run(inst, ticks, [bot]);
+  let minHp = 1;
+  run(inst, ticks, [bot], () => { const q = inst.players[0]; if (q.deadMs <= 0) minHp = Math.min(minHp, q.hp / q.mhp); });
   const ms = performance.now() - t0;
   const p = inst.players[0];
   const xp1 = save.xp + save.level * 1e9 + save.paragon.level * 1e12 + save.paragon.xp;
   const kpm = p.kills / (ticks / 20 / 60);
   const label = `${cls} L${level}${endgame ? ' (set)' : ''} field ${zone}`;
-  console.log(`${label}: kills ${p.kills} (${fmt(kpm)}/min), level ${level}→${save.level}, gold +${save.gold - gold0}, items +${save.inventory.filter(Boolean).length - inv0}, deaths ${save.stats.deaths}, dealt ${Math.round(p.dealt).toLocaleString()}, tick avg ${fmt(ms / ticks, 3)}ms`);
+  console.log(`${label}: kills ${p.kills} (${fmt(kpm)}/min), level ${level}→${save.level}, gold +${save.gold - gold0}, items +${save.inventory.filter(Boolean).length - inv0}, deaths ${save.stats.deaths}, damage taken ${fmt((p.taken / p.mhp) * 100 / (ticks / 1200), 0)}% life/min (low ${fmt(minHp * 100, 0)}%), tick avg ${fmt(ms / ticks, 3)}ms`);
   console.log(`   ${ttkLine(link)}`);
   check(link.snapsWithMobs > 100, `${label}: snapshots contain monsters`);
   check(link.n('dmg') > 50 && link.n('die') > 5, `${label}: dmg/die events (${link.n('dmg')}/${link.n('die')})`);
@@ -636,6 +643,8 @@ function deathScenario() {
   check(link.n('die') > 0 && save.stats.deaths === 1, 'die event + stats.deaths');
   check(respawned && Math.hypot(respawnPos.x - entry.x, respawnPos.y - entry.y) < 120, 'respawned at map entry');
   check(p.hp === p.mhp, 'respawned with full life');
+  run(inst, 2, []);
+  check(link.descs.get(link.myId) !== undefined && link.ents.has(link.myId) && !(link.ents.get(link.myId)!.flags & F_DEAD), 'player re-introduced after respawn');
   inst.destroy();
 }
 
@@ -735,13 +744,23 @@ function perfScenario() {
   };
   top();
   const times: number[] = [];
+  const simTimes: number[] = [];
   for (let t = 0; t < 20 * 30; t++) {
     for (const b of bots) b.step();
-    for (const p of inst.players) { p.hp = p.mhp; if (p.res < p.mres * 0.4) p.res = p.mres; }
+    for (const p of inst.players) p.hp = p.mhp;
+    const l0 = linkMs;
     const t0 = performance.now();
+    inst.phaseMs = process.env.SIM_DEBUG ? [] : null;
     inst.tick();
-    times.push(performance.now() - t0);
+    const dt = performance.now() - t0;
+    times.push(dt);
+    simTimes.push(dt - (linkMs - l0));
+    if (inst.phaseMs && dt > 6) console.log(`    slow tick ${t}: ${fmt(dt, 2)} ms (clients ${fmt(linkMs - l0, 2)}) ` + inst.phaseMs.map((v, i) => `${Instance.PHASES[i]} ${fmt(v, 2)}`).join(', ') + ` events ${inst.events.length}`);
   }
+  simTimes.sort((a, b) => a - b);
+  const simAvg = simTimes.reduce((s, v) => s + v, 0) / simTimes.length;
+  console.log(`  simulation only (excluding the fake clients' snapshot processing): avg ${fmt(simAvg, 3)} ms, p99 ${fmt(simTimes[Math.floor(simTimes.length * 0.99)], 3)} ms, max ${fmt(simTimes[simTimes.length - 1], 3)} ms`);
+  summary.push(`perf: simulation only: avg ${fmt(simAvg, 3)} ms, p99 ${fmt(simTimes[Math.floor(simTimes.length * 0.99)], 3)} ms`);
   times.sort((a, b) => a - b);
   const warm = times.slice(0, Math.floor(times.length));
   const avg = warm.reduce((s, v) => s + v, 0) / warm.length;
@@ -749,10 +768,12 @@ function perfScenario() {
   const max = times[times.length - 1];
   const alive = inst.mobs.length;
   const evs = links.reduce((s, l) => s + Object.values(l.ev).reduce((a, b) => a + b, 0), 0);
+  if (process.env.SIM_DEBUG) for (const l of links) console.log('   ', l.save.classId, JSON.stringify(Object.entries({ ...l.ev, ...l.evV }).sort((a, b) => b[1] - a[1]).slice(0, 14)));
   console.log(`  ${alive} monsters, ${inst.summons.length} summons, ${inst.projs.length} projectiles in flight, ${evs} events delivered in 30 s`);
   console.log(`  tick avg ${fmt(avg, 3)} ms, p99 ${fmt(p99, 3)} ms, max ${fmt(max, 3)} ms; tickStats() ${JSON.stringify(Object.fromEntries(Object.entries(inst.tickStats()).map(([k, v]) => [k, +v.toFixed(3)])))}`);
   summary.push(`perf: 4 players + 150 monsters: tick avg ${fmt(avg, 3)} ms, p99 ${fmt(p99, 3)} ms, max ${fmt(max, 3)} ms`);
-  check(avg < 3, `tick avg < 3 ms (${fmt(avg, 3)})`);
+  check(simAvg < 3, `sim tick avg < 3 ms (${fmt(simAvg, 3)})`);
+  check(avg < 3, `tick avg incl. snapshot consumers < 3 ms (${fmt(avg, 3)})`);
   check(alive >= 150, 'monsters alive throughout');
   inst.destroy();
 }
@@ -835,7 +856,7 @@ function levelingScenario(cls: ClassId, minutes: number) {
     if (t % 1200 === 0 && t) { lastKills = inst.players[0].kills; lastT = t; }
   }
   const p = inst.players[0];
-  console.log(`  end: L${save.level}, deaths ${save.stats.deaths}, ${ttkLine(link)}`);
+  console.log(`  end: L${save.level}, deaths ${save.stats.deaths}, damage taken ${fmt(inst.players[0].taken / inst.players[0].mhp * 100 / minutes, 0)}% of current life/min, ${ttkLine(link)}`);
   summary.push(`leveling ${cls}: L1→L${save.level} in ${minutes} min, deaths ${save.stats.deaths}`);
   check(save.level >= 10, `${cls} levels up steadily (L${save.level})`);
   void p;

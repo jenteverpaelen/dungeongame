@@ -54,7 +54,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     lastEle: {}, ouroIdx: 0, ouroMs: 4000, noticeFullAt: -1e9,
     critHealMs: 0, critHealCount: 0, dealt: 0, kills: 0,
     ffTile: -1, ffT: -1e9, ff: null, ffX0: 0, ffY0: 0,
-    lastVortexT: -1e9,
+    lastVortexT: -1e9, respawnTick: -1, taken: 0,
   };
   return p;
 }
@@ -219,19 +219,21 @@ function respawn(inst: Instance, p: Player) {
   if (CLASSES[p.save.classId].resource.id !== 'fury') p.res = p.mres;
   p.invulnMs = 2000;
   p.sinceHurtMs = 1e9;
+  p.respawnTick = inst.tickNo; // clients drop the corpse view and get a fresh entity next tick
 }
 
 export function debugHeal(inst: Instance, p: Player) {
-  if (p.deadMs > 0) respawnInPlace(p);
+  if (p.deadMs > 0) respawnInPlace(inst, p);
   p.hp = p.mhp;
   p.res = p.mres;
   p.readyAt.clear();
   healPlayer(inst, p, 0, true);
 }
 
-function respawnInPlace(p: Player) {
+function respawnInPlace(inst: Instance, p: Player) {
   p.deadMs = 0;
   p.hp = p.mhp;
+  p.respawnTick = inst.tickNo;
 }
 
 // ─────────────────────────── Experience ───────────────────────────

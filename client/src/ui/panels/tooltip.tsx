@@ -10,11 +10,10 @@ import { gemName, upgradeChance } from '@shared/cube';
 import { compareItem, gemSlotRole } from '@shared/stats';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Item, Slot } from '@shared/types';
-import { useUI } from '../store';
 import { GemIcon, EmptySocketIcon, IconDelta, IconDiamond, IconStar4, gemColor, lighten, hex } from './icons';
 import { ItemGlyph } from './glyphs';
 import { itemIconUrl } from '../../render/art';
-import { Local, useLocal } from './state';
+import { Local, useLocal, useU } from './state';
 import {
   affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemTypeLine, rarityClass, rollFraction,
   scaledAffix, slotName, targetSlot, weaponStats,
@@ -115,6 +114,7 @@ function SocketRows({ item }: { item: Item }) {
           );
         }
         const def = GEMS[s.gem];
+        if (!def) return null;
         const eff = def[role];
         const v = eff.values[Math.min(eff.values.length - 1, s.rank - 1)];
         const label = AFFIX_BY_STAT[eff.stat]?.label(v) ?? `${eff.stat} ${v}`;
@@ -158,7 +158,6 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
       <header class="tt-head">
         <div class="tt-icon">
           <ItemVisual item={item} size={56} />
-          {item.upgrade > 0 && <span class="up-badge">+{item.upgrade}</span>}
         </div>
         <div class="tt-titles">
           {item.ancient > 0 && (
@@ -294,7 +293,7 @@ export interface ItemTooltipProps {
 
 /** Diablo 3 item tooltip. Renders in normal flow; use showItemTooltip()/itemHover() to attach it to the cursor. */
 export function ItemTooltip({ item, compare = false, equipped = false }: ItemTooltipProps) {
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
   const alt = useAlt();
   const eq: Item[] = [];
   let slot: Slot | null = null;
@@ -400,7 +399,7 @@ export function moveTip(x: number, y: number) {
 export function TipLayer() {
   const ref = useRef<HTMLDivElement>(null);
   const content = useLocal(tipStore, (s) => s.content);
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
 
   useLayoutEffect(() => {
     layerEl = ref.current;

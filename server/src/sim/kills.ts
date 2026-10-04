@@ -23,6 +23,7 @@ export function packMemberGone(inst: Instance, m: Mob) {
 export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Element, skill: string) {
   if (m.dead || m.dummy) return;
   inst.removeMob(m);
+  inst.flushDmg(m.id);
   m.hp = 0;
   const big = m.tier === 1 || m.tier === 2 || m.tier === 4 || m.tier === 5;
   inst.emit({ e: 'die', t: m.id, el: elIdx(el), x: Math.round(m.x), y: Math.round(m.y), ...(big ? { big: 1 as const } : {}) }, m.x, m.y, killer?.id ?? 0);

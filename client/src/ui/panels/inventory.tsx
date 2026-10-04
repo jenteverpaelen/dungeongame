@@ -9,13 +9,13 @@ import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
 import { canClassUse } from '@shared/items';
 import { compareItem, computeStats } from '@shared/stats';
 import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types';
-import { pushNotice, ui, useUI } from '../store';
+import { pushNotice, ui } from '../store';
 import { Check, PanelFrame, Wealth } from './common';
 import { cubeUI, invUI, setCubeItem } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { SlotGlyph } from './glyphs';
 import { GemIcon, IconDelta, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
-import { useLocal } from './state';
+import { useLocal, useU } from './state';
 import { hideTip, ItemVisual, itemHover, textTipHandlers } from './tooltip';
 import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util';
 
@@ -106,7 +106,7 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
   const item = char.equipment[slot] ?? null;
   const drag = useDrag();
   const r = RECTS[slot];
-  const cubeOpen = useUI((s) => !!s.panels.cube);
+  const cubeOpen = useU((s) => !!s.panels.cube);
   const hover = item
     ? itemHover(() => ui.get().char?.equipment[slot] ?? null)
     : textTipHandlers(() => ({ title: SLOT_LABEL[slot], sub: 'Nothing equipped', note: 'Drag a matching item here, or right-click it in your bag.' }), `slot-${slot}`);
@@ -155,7 +155,7 @@ function big(n: number): string {
 }
 
 function StatsStrip({ char }: { char: CharacterSave }) {
-  const given = useUI((s) => s.derived);
+  const given = useU((s) => s.derived);
   const d = useMemo(() => given ?? computeStats(char), [given, char]);
   const mini: [string, string][] = [
     [MAIN_LABEL[d.mainStatId], fmtInt(d.mainStat)],
@@ -208,7 +208,7 @@ function useUpgradeFlags(char: CharacterSave): boolean[] {
 
 function BagCell({ index, item, char, flag }: { index: number; item: Item | null; char: CharacterSave; flag: boolean }) {
   const drag = useDrag();
-  const cubeOpen = useUI((s) => !!s.panels.cube);
+  const cubeOpen = useU((s) => !!s.panels.cube);
   const inCube = useLocal(cubeUI, (s) => !!item && s.itemId === item.id);
   const hover = itemHover(() => ui.get().char?.inventory[index] ?? null, { compare: true });
   const ok = canDropOn(drag, `bag:${index}`) && (!item || drag?.kind === 'bag' || drag?.kind === 'eq' || drag?.kind === 'gem');
@@ -388,7 +388,7 @@ function ConfirmDialog({ char }: { char: CharacterSave }) {
 // ───────────────────────────── panel ─────────────────────────────
 
 export function InventoryPanel() {
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
   const tab = useLocal(invUI, (s) => s.tab);
   const menuOpen = useLocal(invUI, (s) => s.salvageMenu);
   const drag = useDrag();

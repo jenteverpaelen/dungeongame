@@ -5,10 +5,10 @@ import { fmtInt } from '@shared/format';
 import { MAX_LEVEL } from '@shared/constants';
 import { PARAGON_CATEGORIES, PARAGON_STATS, paragonPoints, paragonSpent, paragonXpToNext, type ParagonStatDef } from '@shared/progression';
 import type { CharacterSave, ParagonCategory } from '@shared/types';
-import { useUI } from '../store';
 import { Bar, PanelFrame, Tabs } from './common';
 import { IconMinus, IconPlus, IconStar4, Medallion } from './icons';
 import { textTipHandlers } from './tooltip';
+import { useU } from './state';
 import { cls, run } from './util';
 
 function StatRow({ def, char, avail, color }: { def: ParagonStatDef; char: CharacterSave; avail: number; color: string }) {
@@ -48,7 +48,7 @@ function StatRow({ def, char, avail, color }: { def: ParagonStatDef; char: Chara
 }
 
 export function ParagonPanel() {
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
   const [tab, setTab] = useState<ParagonCategory>('core');
   const [confirm, setConfirm] = useState(false);
   if (!char) return null;

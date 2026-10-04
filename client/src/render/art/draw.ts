@@ -17,7 +17,7 @@ export const OW = 2.5;
 export const OW_THIN = 1.6;
 
 /** 0 = normal colours, 1 = white silhouette (flash), 2 = white silhouette dilated by `rim` (rim glow). */
-export const paint = { mode: 0 as 0 | 1 | 2, rim: 2.4 };
+export const paint = { mode: 0 as 0 | 1 | 2, rim: 2.4, ow: 1 };
 export const pc = (c: number): number => (paint.mode ? 0xffffff : c);
 export const inSilhouette = (): boolean => paint.mode !== 0;
 
@@ -28,7 +28,8 @@ export function fill(c: Ctx, col: number, alpha = 1): Ctx {
 }
 
 export function outline(c: Ctx, w = OW, col = OUT, alpha = 1): Ctx {
-  return c.stroke({ width: paint.mode === 2 ? w + paint.rim * 2 : w, color: pc(col), alpha: paint.mode ? 1 : alpha, join: 'round', cap: 'round' });
+  const ww = w * paint.ow;
+  return c.stroke({ width: paint.mode === 2 ? ww + paint.rim * 2 : ww, color: pc(col), alpha: paint.mode ? 1 : alpha, join: 'round', cap: 'round' });
 }
 
 /** Detail stroke that only exists in colour mode (fold lines, stitches, cracks). */
@@ -39,7 +40,7 @@ export function detail(c: Ctx, w: number, col: number, alpha = 1): Ctx {
 
 /** Stroke a path twice: ink outline, then the coloured line on top (ropes, strings, shafts, tails). */
 export function line(c: Ctx, build: (c: Ctx) => void, w: number, col: number, ow = OW, hl = true): void {
-  build(c); c.stroke({ width: w + ow * 2 + (paint.mode === 2 ? paint.rim * 2 : 0), color: pc(OUT), join: 'round', cap: 'round' });
+  if (ow > 0) { build(c); c.stroke({ width: w + ow * paint.ow * 2 + (paint.mode === 2 ? paint.rim * 2 : 0), color: pc(OUT), join: 'round', cap: 'round' }); }
   build(c); c.stroke({ width: w, color: pc(col), join: 'round', cap: 'round' });
   if (hl && w >= 3.5 && !paint.mode) { build(c); c.stroke({ width: Math.max(1, w * 0.3), color: light(col, 0.55), alpha: 0.45, join: 'round', cap: 'round' }); }
 }

@@ -108,9 +108,14 @@ export function bestConeAngle(inst: Instance, x: number, y: number, len: number,
   return bestA;
 }
 
-export function summonCount(p: Player, skillId: string): number {
+export function summonCount(p: Player, skillId: string, within = Infinity): number {
   let n = 0;
-  for (const s of p.summons) if (!s.dead && s.skill === skillId && s.type !== 'dust_devil') n++;
+  const w2 = within * within;
+  for (const s of p.summons) {
+    if (s.dead || s.skill !== skillId || s.type === 'dust_devil') continue;
+    if (within !== Infinity && (s.x - p.x) ** 2 + (s.y - p.y) ** 2 > w2) continue;
+    n++;
+  }
   return n;
 }
 
@@ -137,7 +142,9 @@ function ruleHolds(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       return anyEnemyWithin(inst, p.x, p.y, 700);
     }
     case 'maintainSummon': {
-      if (summonCount(p, rt.def.id) >= maxSummonsOf(rt)) return false;
+      // Stationary summons left far behind don't count: new ones are placed and the farthest retire.
+      const near = rt.def.id === 'companion' ? Infinity : rt.def.range;
+      if (summonCount(p, rt.def.id, near) >= maxSummonsOf(rt)) return false;
       if (rt.def.id === 'companion') return true;
       return anyEnemyWithin(inst, p.x, p.y, rt.def.range);
     }

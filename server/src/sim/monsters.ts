@@ -77,7 +77,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     boss: tier === 4 ? { ringMs: 3500, addsMs: 7000, enraged: false, slamCount: 0 } : null,
     losMs: 0, los: true, shatterBy: 0, shatterDepth: 0,
     progress: o.progress ?? 0, noReward: false,
-    faceLeft: inst.rng.next() < 0.5, moving: false, descVer: 1, sepX: 0, sepY: 0,
+    faceLeft: inst.rng.next() < 0.5, moving: false, descVer: 1, sepX: 0, sepY: 0, trailX: x, trailY: y,
   };
   inst.addMob(m);
   return m;

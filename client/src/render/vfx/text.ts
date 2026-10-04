@@ -21,6 +21,8 @@ export interface NumOpts {
   big?: number;
   /** Merge key (target id + category); 0 = never merge. */
   key: number;
+  /** Lane key (target id): consecutive numbers on one target alternate positions. */
+  lane?: number;
 }
 
 interface Num {
@@ -45,27 +47,27 @@ const SPACING = 0.93;
 const FAMILY = '"Lilita One", "Arial Black", Impact, sans-serif';
 
 const STYLE = {
-  [NumKind.Normal]: { px: 19, fill: 0xffffff, outline: 0x140b06, life: 0.9, thick: false, pop: 1.25, popDur: 0.08, rise: [42, 62] },
-  [NumKind.Crit]: { px: 27.5, fill: 0xffd23f, outline: 0x3a1402, life: 1.1, thick: true, pop: 1.6, popDur: 0.12, rise: [52, 72] },
-  [NumKind.Dot]: { px: 15, fill: 0xffffff, outline: 0x140b06, life: 0.85, thick: false, pop: 1.0, popDur: 0.01, rise: [30, 44] },
+  [NumKind.Normal]: { px: 20, fill: 0xffffff, outline: 0x140b06, life: 0.9, thick: false, pop: 1.25, popDur: 0.08, rise: [42, 62] },
+  [NumKind.Crit]: { px: 29, fill: 0xffd23f, outline: 0x3a1402, life: 1.1, thick: true, pop: 1.6, popDur: 0.12, rise: [52, 72] },
+  [NumKind.Dot]: { px: 15.5, fill: 0xffffff, outline: 0x140b06, life: 0.85, thick: false, pop: 1.0, popDur: 0.01, rise: [30, 44] },
   [NumKind.Taken]: { px: 21, fill: 0xff4a3a, outline: 0x2a0000, life: 1.0, thick: true, pop: 1.35, popDur: 0.1, rise: [40, 56] },
   [NumKind.Heal]: { px: 16, fill: 0x7dff8a, outline: 0x062008, life: 1.0, thick: false, pop: 1.2, popDur: 0.1, rise: [34, 46] },
 } as const;
 
 export class CombatText {
-  readonly container: ParticleContainer;
+  readonly container: ParticleContainer<Particle>;
   private atlas: GlyphAtlas;
   private nums: Num[] = [];
   private pool: Particle[] = [];
   private recs = new Map<number, Rec>();
-  private lanes = new Map<number, number>();
+  private lanes = new Map<number, { l: number; t: number }>();
   private burst = 0;
   private time = 0;
   private sweepAt = 0;
 
   constructor(parent: Container, private zoom: () => number) {
     this.atlas = getGlyphAtlas(FAMILY);
-    this.container = new ParticleContainer({
+    this.container = new ParticleContainer<Particle>({
       texture: this.atlas.fill['0'],
       dynamicProperties: { vertex: true, position: true, rotation: false, uvs: true, color: true },
       roundPixels: false,
@@ -120,9 +122,9 @@ export class CombatText {
   private make(amount: number, x: number, y: number, o: NumOpts, merged: boolean): Num {
     if (this.nums.length >= MAX_NUMS) this.evict();
     const st = STYLE[o.kind];
-    const lane = o.key ? this.nextLane(o.key) : 0;
-    const laneX = [0, -16, 16, -8, 8][lane];
-    const laneY = [0, -8, -4, -14, -10][lane];
+    const lane = o.lane ? this.nextLane(o.lane) : o.key ? this.nextLane(o.key) : 0;
+    const laneX = [0, -20, 20, -10, 12][lane];
+    const laneY = [0, -10, -5, -18, -13][lane];
     const n: Num = {
       x: x + laneX + (Math.random() - 0.5) * 8,
       y: y + laneY,
@@ -171,9 +173,11 @@ export class CombatText {
   }
 
   private nextLane(key: number): number {
-    const l = ((this.lanes.get(key) ?? -1) + 1) % 5;
-    this.lanes.set(key, l);
-    return l;
+    const e = this.lanes.get(key);
+    if (!e || this.time - e.t > 0.6) { this.lanes.set(key, { l: 0, t: this.time }); return 0; }
+    e.l = (e.l + 1) % 5;
+    e.t = this.time;
+    return e.l;
   }
 
   private evict(): void {
@@ -247,7 +251,8 @@ export class CombatText {
     this.container.update();
     if (this.time > this.sweepAt) {
       this.sweepAt = this.time + 0.5;
-      for (const [k, r] of this.recs) if (this.time - r.seen > 1.2) { this.recs.delete(k); this.lanes.delete(k); }
+      for (const [k, r] of this.recs) if (this.time - r.seen > 1.2) this.recs.delete(k);
+      for (const [k, e] of this.lanes) if (this.time - e.t > 1.2) this.lanes.delete(k);
     }
   }
 

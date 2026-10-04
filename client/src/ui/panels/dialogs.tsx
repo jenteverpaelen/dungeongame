@@ -6,9 +6,10 @@ import { FIELD_CHANNEL_CAP, TOWN_CHANNEL_CAP } from '@shared/constants';
 import { ZONES, type ZoneDef } from '@shared/data/zones';
 import { fmtInt } from '@shared/format';
 import { DIFFICULTIES } from '@shared/progression';
-import { togglePanel, useUI } from '../store';
+import { togglePanel } from '../store';
 import { Bar, PanelFrame } from './common';
 import { IconLock, IconStar4, IconSkull, Svg } from './icons';
+import { useU } from './state';
 import { cls, run } from './util';
 
 // ───────────────────────────── zone glyphs ─────────────────────────────
@@ -64,9 +65,9 @@ function ZoneGlyph({ zone }: { zone: ZoneDef }) {
 // ───────────────────────────── waypoint ─────────────────────────────
 
 export function WaypointPanel() {
-  const zone = useUI((s) => s.zone);
-  const world = useUI((s) => s.world);
-  const char = useUI((s) => s.char);
+  const zone = useU((s) => s.zone);
+  const world = useU((s) => s.world);
+  const char = useU((s) => s.char);
   const [busy, setBusy] = useState<string | null>(null);
   const zones = Object.values(ZONES).filter((z) => z.kind !== 'rift');
   const travel = async (id: string) => {
@@ -138,8 +139,8 @@ export function WaypointPanel() {
 // ───────────────────────────── rift obelisk ─────────────────────────────
 
 export function ObeliskPanel() {
-  const char = useUI((s) => s.char);
-  const world = useUI((s) => s.world);
+  const char = useU((s) => s.char);
+  const world = useU((s) => s.world);
   const [sel, setSel] = useState<number>(() => Math.min(char?.difficulty ?? 0, DIFFICULTIES.length - 1));
   const [busy, setBusy] = useState(false);
   if (!char) return null;

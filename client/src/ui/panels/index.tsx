@@ -3,7 +3,8 @@
 
 import '../styles/panels.css';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { togglePanel, useUI, type PanelId } from '../store';
+import { togglePanel, type PanelId } from '../store';
+import { useU } from './state';
 import { CubePanel } from './cube';
 import { DebugPanel, ObeliskPanel, WaypointPanel } from './dialogs';
 import { DragLayer } from './dnd';
@@ -31,8 +32,8 @@ function useScale(): number {
 }
 
 export function PanelsRoot() {
-  const panels = useUI((s) => s.panels);
-  const ready = useUI((s) => s.screen === 'game' && !!s.char);
+  const panels = useU((s) => s.panels);
+  const ready = useU((s) => s.screen === 'game' && !!s.char);
   const scale = useScale();
   const prev = useRef<Partial<Record<PanelId, boolean>>>({});
 

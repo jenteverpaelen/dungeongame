@@ -293,8 +293,11 @@ function sentry(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   return true;
 }
 
+/** Keep at most `max` summons of a skill, retiring the ones farthest from the player first. */
 function trimSummons(p: Player, skill: string, max: number) {
   const mine = p.summons.filter((s) => !s.dead && s.skill === skill && s.type !== 'dust_devil');
+  if (mine.length <= max) return;
+  mine.sort((a, b) => (b.x - p.x) ** 2 + (b.y - p.y) ** 2 - ((a.x - p.x) ** 2 + (a.y - p.y) ** 2));
   for (let i = 0; i < mine.length - max; i++) mine[i].dead = true;
 }
 

@@ -43,11 +43,11 @@ export class Combat {
     // ── numbers ──
     const headY = b.y - b.h - 6;
     if (taken) {
-      this.text.spawn(ev.a, b.x, headY, { kind: dot ? NumKind.Dot : NumKind.Taken, color: 0xff6a5a, key: ev.t * 8 + CAT_TAKEN });
+      this.text.spawn(ev.a, b.x, headY, { kind: dot ? NumKind.Dot : NumKind.Taken, color: 0xff6a5a, key: ev.t * 8 + CAT_TAKEN, lane: ev.t });
     } else if (!targetIsPlayer && V.ents.has(ev.t) || !targetIsPlayer && mine) {
       if (dot) {
         const color = ev.el === 0 ? BLEED : pal(ev.el).text;
-        this.text.spawn(ev.a, b.x, headY, { kind: NumKind.Dot, color, faint: !mine, key: ev.t * 8 + 5 + (mine ? 0 : 1) });
+        this.text.spawn(ev.a, b.x, headY, { kind: NumKind.Dot, color, faint: !mine, key: ev.t * 8 + 5 + (mine ? 0 : 1), lane: ev.t });
       } else {
         let big = 1;
         if (mine) {
@@ -55,7 +55,7 @@ export class Combat {
           else if (V.hitEma > 0 && ev.a > V.hitEma * 3.2) big = 1.22;
         }
         this.text.spawn(ev.a, b.x, headY, {
-          kind: crit ? NumKind.Crit : NumKind.Normal, faint: !mine, big, key: ev.t * 8 + (mine ? CAT_MINE : CAT_OTHER),
+          kind: crit ? NumKind.Crit : NumKind.Normal, faint: !mine, big, key: ev.t * 8 + (mine ? CAT_MINE : CAT_OTHER), lane: ev.t,
         });
         // ── screen feedback for my hits ──
         if (mine && crit) {
@@ -97,7 +97,7 @@ export class Combat {
     if (ev.t !== V.ctx.myId() || ev.a < 1) return;
     const b = V.body(ev.t);
     if (!b) return;
-    this.text.spawn(ev.a, b.x + 12, b.y - b.h - 2, { kind: NumKind.Heal, key: ev.t * 8 + CAT_HEAL });
+    this.text.spawn(ev.a, b.x + 12, b.y - b.h - 2, { kind: NumKind.Heal, key: ev.t * 8 + CAT_HEAL, lane: ev.t });
     const s = V.sys;
     for (let i = 0, n = s.n(3); i < n; i++) {
       const p = s.aAdd.add(s.T.plus, b.x + rand(-14, 14), b.y + 1, rand(0.6, 0.9));

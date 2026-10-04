@@ -61,9 +61,11 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
   return pr;
 }
 
-function endProj(inst: Instance, pr: Proj, hit: boolean) {
+/** End a projectile. `quiet`: it simply ran out of life, which clients already know from `life`. */
+function endProj(inst: Instance, pr: Proj, hit: boolean, quiet = false) {
   if (pr.dead) return;
   pr.dead = true;
+  if (quiet) return;
   const ev: { e: 'pend'; id: number; x: number; y: number; hit?: 1 } = { e: 'pend', id: pr.id, x: Math.round(pr.x), y: Math.round(pr.y) };
   if (hit) ev.hit = 1;
   inst.emit(ev, pr.x, pr.y, pr.owner?.id ?? 0);
@@ -120,7 +122,7 @@ export function updateProjectiles(inst: Instance, dtMs: number) {
         pr.x = pr.tx; pr.y = pr.ty;
         endProj(inst, pr, true);
         clusterExplode(inst, pr);
-      } else endProj(inst, pr, false);
+      } else endProj(inst, pr, false, pr.homing === 0 && pr.turn === 0);
     }
   }
   let w = 0;
@@ -140,14 +142,18 @@ function hostileCollide(inst: Instance, pr: Proj) {
   }
 }
 
+const near: Mob[] = [];
 function friendlyCollide(inst: Instance, pr: Proj) {
   const owner = pr.owner;
   if (!owner || !pr.strike) { endProj(inst, pr, false); return; }
-  const near = inst.queryMobs(pr.x, pr.y, pr.r);
+  near.length = 0;
+  inst.mobHash.query(pr.x, pr.y, pr.r, near);
   if (!near.length) return;
   // closest first so piercing order is stable
   if (near.length > 1) near.sort((a, b) => (a.x - pr.x) ** 2 + (a.y - pr.y) ** 2 - ((b.x - pr.x) ** 2 + (b.y - pr.y) ** 2));
-  for (const m of near) {
+  // onHit can re-enter collision code only through new projectiles, never this loop: copy to be safe anyway.
+  const list = near.length === 1 ? [near[0]] : near.slice();
+  for (const m of list) {
     if (pr.dead) return;
     if (m.dead || (pr.hits && pr.hits.has(m.id))) continue;
     onHit(inst, pr, owner, m);

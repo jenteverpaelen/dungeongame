@@ -89,7 +89,7 @@ function elitePlate(V: VfxCore, desc: EntDesc, tier: number): Nameplate {
   const name = text(desc.n ?? 'Elite', 14, col);
   name.position.set(-name.width / 2, -40);
   const aff = (desc.af ?? []).map((a) => (ELITE_AFFIXES[a]?.name ?? a).toUpperCase()).join('  ·  ');
-  const affT = text(aff, 9, 0xb9b0a0);
+  const affT = text(aff, 10, 0xc4bba8);
   affT.position.set(-affT.width / 2, -24);
   // Life bar: dark frame, lagging damage chip, red fill with a highlight.
   const frame = new Graphics()

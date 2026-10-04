@@ -24,6 +24,8 @@ import type { EvRec, Ground, Mob, Player, PortalEnt, Proj, Summon } from './type
 
 const TICK_HISTORY = 100; // ~5 s at 20 Hz
 
+interface DmgAgg { owner: number; src: number; a: number; best: number; crit: boolean; dot: boolean; el: number; k: boolean; x: number; y: number }
+
 export class Instance implements InstanceApi {
   readonly key: string;
   readonly zone: ZoneInfo;
@@ -140,6 +142,51 @@ export class Instance implements InstanceApi {
 
   // ─────────────────────────── Events ───────────────────────────
 
+  /**
+   * Damage numbers are merged per (target, owning player, dot) within a tick: area damage, Sentry copies and
+   * pierce-all volleys can land dozens of hits on one monster in 50 ms. Sums (and so DPS meters) are exact;
+   * the event carries the source of the largest hit, crit if any hit crit, and the killing-blow flag.
+   */
+  private dmgAgg = new Map<number, DmgAgg[]>();
+
+  addDmg(m: Mob, owner: number, src: number, a: number, crit: boolean, dot: boolean, el: number, killed: boolean) {
+    let list = this.dmgAgg.get(m.id);
+    if (!list) this.dmgAgg.set(m.id, (list = []));
+    for (let i = 0; i < list.length; i++) {
+      const g = list[i];
+      if (g.owner !== owner || g.dot !== dot) continue;
+      g.a += a;
+      if (a > g.best) { g.best = a; g.src = src; g.el = el; }
+      if (crit) g.crit = true;
+      if (killed) g.k = true;
+      g.x = m.x; g.y = m.y;
+      return;
+    }
+    list.push({ owner, src, a, best: a, crit, dot, el, k: killed, x: m.x, y: m.y });
+    if (killed) this.flushDmg(m.id);
+  }
+
+  /** Emit the merged damage numbers of one target (before its death event) or of everything (end of tick). */
+  flushDmg(targetId?: number) {
+    const emitList = (id: number, list: DmgAgg[]) => {
+      for (const g of list) {
+        const ev: { e: 'dmg'; t: number; a: number; c?: 1; el: number; s?: number; k?: 1; dot?: 1 } = { e: 'dmg', t: id, a: Math.round(g.a), el: g.el };
+        if (g.crit) ev.c = 1;
+        if (g.src) ev.s = g.src;
+        if (g.k) ev.k = 1;
+        if (g.dot) ev.dot = 1;
+        this.events.push({ ev, x: g.x, y: g.y, a: g.owner, b: 0, only: 0 });
+      }
+    };
+    if (targetId !== undefined) {
+      const l = this.dmgAgg.get(targetId);
+      if (l) { this.dmgAgg.delete(targetId); emitList(targetId, l); }
+      return;
+    }
+    for (const [id, l] of this.dmgAgg) emitList(id, l);
+    this.dmgAgg.clear();
+  }
+
   /** Queue an event at a world position; `a`/`b` are players that always receive it. */
   emit(ev: GameEvent, x: number, y: number, a = 0, b = 0) {
     this.events.push({ ev, x, y, a, b, only: 0 });
@@ -191,25 +238,42 @@ export class Instance implements InstanceApi {
     if (p) refreshPlayerStats(this, p, true);
   }
 
+  /** Optional per-phase timing (diagnostics): set to an array to accumulate ms per phase of the last tick. */
+  phaseMs: number[] | null = null;
+  static readonly PHASES = ['players', 'brain', 'summons', 'monsters', 'projectiles', 'grounds', 'scheduled', 'spawner', 'replicate'];
+
   tick(): void {
     if (this.destroyed) return;
     const t0 = performance.now();
     this.t += TICK_MS;
     this.tickNo++;
     const players = this.players;
+    const ph = this.phaseMs;
+    let pt = t0;
+    const mark = ph ? (i: number) => { const n = performance.now(); ph[i] = n - pt; pt = n; } : null;
     for (let i = 0; i < players.length; i++) processInputs(this, players[i]);
     for (let i = 0; i < players.length; i++) playerTick(this, players[i], TICK_MS);
+    mark?.(0);
     for (let i = 0; i < players.length; i++) playerBrain(this, players[i], TICK_MS);
+    mark?.(1);
     updateSummons(this, TICK_MS);
+    mark?.(2);
     updateMonsters(this, TICK_MS);
+    mark?.(3);
     updateProjectiles(this, TICK_MS);
+    mark?.(4);
     updateGrounds(this, TICK_MS);
+    mark?.(5);
     this.sched.run(this.t);
     this.compactMobs();
+    mark?.(6);
     this.spawner.tick(TICK_MS);
     if (this.rift) riftTick(this.rift, TICK_MS);
     this.updatePortals(TICK_MS);
+    mark?.(7);
+    this.flushDmg();
     replicate(this);
+    mark?.(8);
     this.events = [];
     const dt = performance.now() - t0;
     this.tickTimes[this.tickCount % TICK_HISTORY] = dt;

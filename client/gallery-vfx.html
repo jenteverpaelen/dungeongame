@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hearthfall — VFX Gallery</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0d0b09; overflow: hidden; }
+      #stage { position: fixed; inset: 0; }
+      #stage canvas { display: block; }
+      #hud { position: fixed; left: 10px; top: 8px; color: #e8d9b5; font: 12px/1.35 monospace; pointer-events: none; text-shadow: 0 1px 2px #000; white-space: pre; }
+      #nav { position: fixed; right: 10px; top: 8px; display: flex; gap: 4px; flex-wrap: wrap; max-width: 60vw; justify-content: flex-end; }
+      #nav a { color: #e8d9b5; font: 12px monospace; background: #1c1712cc; border: 1px solid #5a4a30; padding: 2px 6px; text-decoration: none; border-radius: 3px; }
+      #nav a.on { background: #5a4a30; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="hud"></div>
+    <div id="nav"></div>
+    <script type="module" src="/src/dev/galleryVfx.ts"></script>
+  </body>
+</html>

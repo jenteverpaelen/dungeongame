@@ -111,11 +111,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
       inst.counters.lootPicked++;
       continue;
     }
-    if (pl.type === 'globe') {
-      // globes need a closer touch than gold, like D3 (pickup radius applies)
-      const gr = 40 + p.ctx.d.pickup + p.r;
-      if (d2 > gr * gr) continue;
-    } else if (d2 > magnet * magnet) continue;
+    if (d2 > magnet * magnet) continue;
     switch (pl.type) {
       case 'gold':
         p.save.gold += pl.amount;

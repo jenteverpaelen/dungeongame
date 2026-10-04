@@ -63,6 +63,9 @@ interface Item { spec: PartSpec; v: Version; g: Graphics; x: number; y: number; 
 
 const PAD = 3;
 
+/** Every baked page (dev gallery inspection). */
+export const bakedPages: { label: string; source: CanvasSource }[] = [];
+
 function build(spec: PartSpec, v: Version): Graphics {
   const ctx = new GraphicsContext();
   const prev = paint.mode;
@@ -77,6 +80,8 @@ function build(spec: PartSpec, v: Version): Graphics {
  * @param maxPage maximum page edge in texels
  */
 export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 'sheet'): Sheet {
+  // Integer texel density: fractional resolutions make Pixi's extract read back an empty frame on some sizes.
+  res = Math.max(1, Math.round(res));
   const sheet = new Sheet();
   const renderer = getRenderer();
   const items: Item[] = [];
@@ -128,6 +133,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
     const canvas = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, W, H), resolution: res, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
     const source = new CanvasSource({ resource: canvas, resolution: res, autoGenerateMipmaps: true, scaleMode: 'linear', label: `${label}#${p}` });
     sheet.sources.push(source);
+    bakedPages.push({ label: `${label}#${p}`, source });
     for (const it of onPage) {
       const frame = new Rectangle(it.x, it.y, it.w, it.h);
       const ax = (PAD - it.bx) / it.w, ay = (PAD - it.by) / it.h;

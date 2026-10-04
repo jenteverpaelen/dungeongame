@@ -12,13 +12,13 @@ import { AFFIX_BY_STAT, GEMS, GEM_RANKS, LEGENDARIES } from '@shared/data/items'
 import { fmtInt } from '@shared/format';
 import { KIND_LABEL } from '@shared/items';
 import type { AffixRoll, CharacterSave, Item, Materials } from '@shared/types';
-import { ui, useUI } from '../store';
+import { ui } from '../store';
 import { Bar, CostList, PanelFrame } from './common';
 import { cubeUI, setCubeItem } from './cubestate';
 import { canDropOn, useDrag } from './dnd';
 import { CubeEmblem, GemIcon, IconArrowRight, IconCheck, IconChevron, IconDelta, IconLock, IconStar4, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
 import { CubeFnIcon } from './skillicons';
-import { useLocal } from './state';
+import { useLocal, useU } from './state';
 import { ItemVisual, itemHover } from './tooltip';
 import {
   affixText, armorValue, cls, emphasize, fmtPowerValue, fmtRange, itemById, itemTypeLine, rarityClass, rollFraction, run, scaledAffix, weaponStats,
@@ -155,7 +155,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
 
 function EnchantView({ item, char }: { item: Item | null; char: CharacterSave }) {
   const affix = useLocal(cubeUI, (s) => s.affix);
-  const pending = useUI((s) => s.enchant);
+  const pending = useU((s) => s.enchant);
   if (!item) return <Hint>Place a Magic, Rare, Legendary or Set item to reroll one of its properties.</Hint>;
   if (item.rarity === 'normal') return <Hint>Normal items have no properties to enchant.</Hint>;
   if (pending && pending.itemId === item.id) return <EnchantChoice item={item} pending={pending} />;
@@ -320,7 +320,7 @@ const CUBE_SLOTS = ['weapon', 'armor', 'jewelry'] as const;
 
 function powerText(id: string): string {
   const d = LEGENDARIES[id];
-  return d.power.replace('{v}', fmtPowerValue(d.range[1]));
+  return d ? d.power.replace('{v}', fmtPowerValue(d.range[1])) : '';
 }
 
 function KanaiSlots({ char }: { char: CharacterSave }) {
@@ -447,9 +447,9 @@ function costFor(fn: CubeOp, item: Item | null, fuseRank: number | null): Cost |
 }
 
 export function CubePanel() {
-  const char = useUI((s) => s.char);
+  const char = useU((s) => s.char);
   const { fn, itemId, busy, affix, result } = useLocal(cubeUI, (s) => s);
-  const pending = useUI((s) => s.enchant);
+  const pending = useU((s) => s.enchant);
   const [fuseSel, setFuseSel] = useState<string | null>(null);
   const [armed, arm] = useConfirmBtn();
   const lastLevel = useRef<number | null>(null);

@@ -109,12 +109,7 @@ export function hurtMob(inst: Instance, m: Mob, amount: number, el: Element, att
 }
 
 function emitDmg(inst: Instance, m: Mob, a: number, el: Element, crit: boolean, dot: boolean, src: number, killed: boolean, attacker: Player | null) {
-  const ev: { e: 'dmg'; t: number; a: number; c?: 1; el: number; s?: number; k?: 1; dot?: 1 } = { e: 'dmg', t: m.id, a, el: elIdx(el) };
-  if (crit) ev.c = 1;
-  if (src) ev.s = src;
-  if (killed) ev.k = 1;
-  if (dot) ev.dot = 1;
-  inst.emit(ev, m.x, m.y, attacker?.id ?? 0);
+  inst.addDmg(m, attacker?.id ?? 0, src, a, crit, dot, elIdx(el), killed);
 }
 
 // ─────────────────────────── On-hit procs ───────────────────────────
@@ -230,6 +225,7 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
   const lvl = Math.max(1, src?.level ?? level);
   const amount = Math.max(1, Math.round(raw * defenseMult(p, lvl, !!src && isEliteTier(src.tier))));
   p.hp -= amount;
+  p.taken += amount;
   p.sinceHurtMs = 0;
   const ev: { e: 'dmg'; t: number; a: number; el: number; s?: number; p: 1 } = { e: 'dmg', t: p.id, a: amount, el: ELEMENT_INDEX.indexOf(el), p: 1 };
   if (src) ev.s = src.id;
