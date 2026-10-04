@@ -2,7 +2,7 @@
 // light / flame / smoke fx, decal stamps into the ground chunks, and a culled layer of glowing decals.
 
 import { Container, Matrix, Sprite, type Renderer, type Texture } from 'pixi.js';
-import { T_WATER, type MapData, type Prop } from '@shared/mapgen';
+import { T_PATH, T_PLAZA, T_WATER, type MapData, type Prop } from '@shared/mapgen';
 import type { MapLayers } from './index';
 import { bakeSheet, type Sheet } from './bake';
 import { flameSprite, fx, glowSprite } from './fx';
@@ -196,8 +196,12 @@ export function buildLayers(map: MapData): MapLayers {
   const tC = performance.now();
 
   const sorted: { view: Container; y: number }[] = [];
+  const NATURAL = new Set(['grass', 'flowers', 'fern', 'mushrooms', 'bush']);
+  const tileAt = (x: number, y: number) => map.tiles[Math.max(0, Math.min(map.h - 1, Math.floor(y / 64))) * map.w + Math.max(0, Math.min(map.w - 1, Math.floor(x / 64)))];
   for (const p of map.props) {
     const s = p.s || 1;
+    // paved ground stays clear of wild plants
+    if (NATURAL.has(p.k) && (tileAt(p.x, p.y) === T_PLAZA || tileAt(p.x, p.y) === T_PATH)) continue;
     if (SORTED_KINDS.has(p.k)) {
       sorted.push({ view: propView(p, propSheet, theme), y: p.y });
       const sh = SHADOW[p.k];

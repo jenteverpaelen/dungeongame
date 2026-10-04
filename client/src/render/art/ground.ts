@@ -234,7 +234,7 @@ export class GroundLayer extends Container {
         let e = (n1 - 0.5) * 0.34 + (n2 - 0.5) * 0.2 + (h - 0.5) * 0.04;
         if (e > 0.45) e = 0.45; else if (e < -0.45) e = -0.45;
         // base floor tone: broad patches + fine mottling
-        const tone = clamp(0.5 + (n1 - 0.5) * 1.1 + (n2 - 0.5) * 0.5 + (h - 0.5) * 0.08);
+        const tone = clamp(0.5 + (n1 - 0.5) * 0.8 + (n2 - 0.5) * 0.36 + (h - 0.5) * 0.06);
         if (tone < 0.5) mixc(fd, fl, tone * 2, col); else mixc(fl, fli, (tone - 0.5) * 2, col);
         if (h > 0.986) mixc(col, sp, 0.55, col);
         else if (h < 0.012) mixc(col, fd, 0.5, col);
@@ -264,7 +264,7 @@ export class GroundLayer extends Container {
           mixc(col, st, t, col);
           k = 2;
         } else if (mPath > 0.5) {
-          const pt = clamp(0.5 + (n2 - 0.5) * 1.2 + (h - 0.5) * 0.2);
+          const pt = clamp(0.5 + (n1 - 0.5) * 0.5 + (n2 - 0.5) * 0.6 + (h - 0.5) * 0.12);
           if (pt < 0.5) mixc(pd, pa, pt * 2, tmp); else mixc(pa, pl, (pt - 0.5) * 2, tmp);
           const edge = 1 - ss(0.5, 0.6, mPath);
           mixc(tmp, pe, edge * 0.55, tmp);
@@ -374,7 +374,7 @@ export class GroundLayer extends Container {
     const H = (x: number, y: number, s = 0) => hash2(Math.floor(x), Math.floor(y), seed + s);
 
     // ── plaza cobbles
-    const stoneCol = (h: number) => mix(P.stone, h < 0.5 ? P.stoneLight : mix(P.stone, P.grout, 0.25), Math.abs(h - 0.5) * 1.4);
+    const stoneCol = (h: number) => mix(P.stone, h < 0.5 ? P.stoneLight : mix(P.stone, P.grout, 0.25), Math.abs(h - 0.5) * 0.9);
     ctx.lineJoin = 'round';
     if (this.plazaC) {
       const pc = this.plazaC;
@@ -390,9 +390,9 @@ export class GroundLayer extends Container {
           const h = H(ring * 131 + i, 7);
           ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI / 2);
           ctx.fillStyle = rgba(stoneCol(h));
-          ctx.strokeStyle = rgba(P.grout, 0.85); ctx.lineWidth = 1.6;
+          ctx.strokeStyle = rgba(P.grout, 0.5); ctx.lineWidth = 1.4;
           ctx.beginPath(); ctx.roundRect(-6.4, -5.2, 12.8, 10.4, 3.4); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.beginPath(); ctx.roundRect(-5, -4, 7, 2.4, 1.2); ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(-5, -4, 7, 2.4, 1.2); ctx.fill();
           ctx.restore();
         }
       }
@@ -414,20 +414,28 @@ export class GroundLayer extends Container {
             const h = H(tx * 31 + i, ty * 17 + row, 9);
             if (h < 0.08) continue;
             ctx.fillStyle = rgba(mix(mix(P.stone, P.path, 0.35), h > 0.5 ? P.stoneLight : P.grout, 0.15 + (h - 0.5) * 0.3));
-            ctx.strokeStyle = rgba(P.pathEdge, 0.7); ctx.lineWidth = 1.4;
+            ctx.strokeStyle = rgba(P.pathEdge, 0.45); ctx.lineWidth = 1.3;
             ctx.beginPath(); ctx.roundRect(x - 5.4, y - 4.6, 10.8, 9.2, 3.6); ctx.fill(); ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.beginPath(); ctx.roundRect(x - 4, y - 3.6, 5.6, 2, 1); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(x - 4, y - 3.6, 5.6, 2, 1); ctx.fill();
           }
         } else if (th === 'ashen' || th === 'riftAshen') {
-          // scorched flagstones
-          for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
-            const x = bx + 11 + i * 21 + (H(tx + i, ty + j, 2) - 0.5) * 5, y = by + 11 + j * 21 + (H(tx - i, ty + j, 4) - 0.5) * 5;
+          // broken, soot-stained flagstones of the buried city: irregular slabs, many missing
+          for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
+            const hx = H(tx * 5 + i, ty * 3 + j, 2), hy = H(tx * 3 + i, ty * 5 + j, 4), h = H(tx * 13 + i, ty * 7 + j, 6);
+            if (h < 0.3) continue;
+            const x = bx + 16 + i * 32 + (hx - 0.5) * 8, y = by + 16 + j * 32 + (hy - 0.5) * 8;
             if (at(x, y) !== 1) continue;
-            const h = H(tx * 13 + i, ty * 7 + j, 6);
-            ctx.fillStyle = rgba(mix(P.path, h > 0.5 ? P.pathLight : P.pathDark, Math.abs(h - 0.5) * 1.4));
-            ctx.strokeStyle = rgba(P.pathEdge, 0.85); ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.roundRect(x - 9, y - 8, 18 - h * 3, 16 - h * 2, 2.4); ctx.fill(); ctx.stroke();
-            if (h > 0.7) { ctx.strokeStyle = 'rgba(255,110,30,0.55)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x - 6, y - 2); ctx.lineTo(x, y + 1); ctx.lineTo(x + 5, y - 3); ctx.stroke(); }
+            const w = 22 + h * 8, hh = 18 + hx * 8;
+            ctx.save(); ctx.translate(x, y); ctx.rotate((hy - 0.5) * 0.25);
+            ctx.fillStyle = rgba(mix(P.path, h > 0.65 ? P.pathLight : P.pathDark, 0.35), 0.9);
+            ctx.strokeStyle = rgba(P.pathEdge, 0.55); ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(-w / 2, -hh / 2 + 2); ctx.lineTo(-w / 2 + 3, -hh / 2); ctx.lineTo(w / 2 - 1, -hh / 2 + hx * 3); ctx.lineTo(w / 2, hh / 2 - 2);
+            ctx.lineTo(w / 2 - 4, hh / 2); ctx.lineTo(-w / 2 + 1, hh / 2 - hy * 3); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,240,220,0.07)'; ctx.fillRect(-w / 2 + 3, -hh / 2 + 2, w * 0.5, 2.4);
+            if (h > 0.82) { ctx.strokeStyle = 'rgba(255,110,30,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-w * 0.3, -2); ctx.lineTo(0, 2); ctx.lineTo(w * 0.25, -3); ctx.stroke(); }
+            ctx.restore();
           }
         } else {
           // dirt road: pebbles + faint ruts
@@ -455,8 +463,8 @@ export class GroundLayer extends Container {
             else { ctx.fillStyle = rgba(P.speck, 0.6); ctx.beginPath(); ctx.arc(x, y, 1 + h * 1.4, 0, Math.PI * 2); ctx.fill(); }
           } else {
             // cave floor: slab seams
-            if (h > 0.55) { ctx.strokeStyle = rgba(P.floorDark, 0.9); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x - 9, y - 2); ctx.lineTo(x - 1, y); ctx.lineTo(x + 2, y + 6); ctx.stroke(); }
-            else { ctx.fillStyle = rgba(P.speck, 0.5); ctx.beginPath(); ctx.ellipse(x, y, 2.4, 1.6, 0, 0, Math.PI * 2); ctx.fill(); }
+            if (h > 0.7) { ctx.strokeStyle = rgba(P.floorDark, 0.55); ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x - 10, y - 1); ctx.quadraticCurveTo(x - 2, y + 2, x + 9, y); ctx.stroke(); }
+            else { ctx.fillStyle = rgba(P.speck, 0.35); ctx.beginPath(); ctx.ellipse(x, y, 3 + h * 3, 1.8 + h, 0, 0, Math.PI * 2); ctx.fill(); }
           }
         }
       } else if (t === T_WATER) {
@@ -484,11 +492,13 @@ export class GroundLayer extends Container {
           const x = bx + H(tx, ty, 110 + i) * 64, y = by + H(ty, tx, 120 + i) * 64;
           const k = at(x, y);
           if (forest && k === 3) {
-            // undergrowth clumps
-            const r = 6 + H(tx + i, ty, 130) * 7;
-            ctx.fillStyle = rgba(mix(P.wallTop, P.wallTopLight, 0.6)); ctx.strokeStyle = rgba(mix(P.wallTop, 0x000000, 0.4), 0.9); ctx.lineWidth = 1.6;
-            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.35, r * 0.45, 0, Math.PI * 2); ctx.fill();
+            // undergrowth: soft leafy clusters (no hard outline, they sit under the trees)
+            const r = 7 + H(tx + i, ty, 130) * 8;
+            ctx.fillStyle = rgba(mix(P.wallTop, 0x000000, 0.25), 0.6);
+            for (const [dx, dy, k2] of [[-r * 0.6, r * 0.25, 0.7], [r * 0.55, r * 0.3, 0.65], [0, 0, 1]] as const) { ctx.beginPath(); ctx.arc(x + dx + 2, y + dy + 3, r * k2, 0, Math.PI * 2); ctx.fill(); }
+            ctx.fillStyle = rgba(mix(P.wallTop, P.wallTopLight, 0.75), 0.9);
+            for (const [dx, dy, k2] of [[-r * 0.6, r * 0.25, 0.7], [r * 0.55, r * 0.3, 0.65], [0, 0, 1]] as const) { ctx.beginPath(); ctx.arc(x + dx, y + dy, r * k2, 0, Math.PI * 2); ctx.fill(); }
+            ctx.fillStyle = 'rgba(200,240,160,0.12)'; ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.35, r * 0.45, 0, Math.PI * 2); ctx.fill();
           } else if (!forest && k === 3) {
             ctx.strokeStyle = rgba(P.faceDark, 0.8); ctx.lineWidth = 1.4;
             ctx.beginPath(); ctx.moveTo(x - 8, y); ctx.lineTo(x - 2, y - 3); ctx.lineTo(x + 6, y + 1); ctx.stroke();
