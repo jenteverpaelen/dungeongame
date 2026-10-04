@@ -12,7 +12,7 @@ import '@fontsource/lilita-one/400.css';
 import '../ui/styles/tokens.css';
 import { HudRoot } from '../ui/hud';
 import { GLYPH_IDS, SkillGlyph, ClassEmblem, DashGlyph, BuffGlyph } from '../ui/hud/Glyphs';
-import { ui, worldReader, type MinimapEntity } from '../ui/store';
+import { ui, worldReader, type MinimapEntity, type Notice } from '../ui/store';
 import { createCharacter } from '@shared/character';
 import { computeStats } from '@shared/stats';
 import { generateMap, zoneSeed, T_WALL, T_WATER, T_PATH, T_PLAZA, type MapData } from '@shared/mapgen';
@@ -166,11 +166,11 @@ function mockState() {
       { id: 6, ch: 'system', text: 'Aldric has reached level 37.', at: t0 },
       { id: 7, ch: 'zone', from: 'Aldric', cls: cls, text: 'lets go!', at: t0 },
     ],
-    notices: state === 'select' ? [] : [
-      { id: 21, text: 'The Rift Guardian has appeared!', kind: 'boss', at: now - 1400 + 0 },
+    notices: (state === 'select' ? [] : ([
+      { id: 21, text: 'The Rift Guardian has appeared!', kind: 'boss', at: now - 1400 },
       { id: 22, text: 'Bloodwake', kind: 'legendary', at: now - 900 },
       { id: 23, text: state === 'paragon' ? 'PARAGON 113' : `LEVEL ${lv}`, kind: 'level', at: now - 300 },
-    ].filter((n) => state === 'boss' ? true : n.kind !== 'boss'),
+    ] as Notice[]).filter((n) => state === 'boss' ? true : n.kind !== 'boss')),
     pickups: [
       { id: 31, lk: 'gold', name: 'Gold', amount: 1234, at: now - 5000 },
       { id: 32, lk: 'item', name: 'Bloodwake', rarity: 'legendary', at: now - 4200 },

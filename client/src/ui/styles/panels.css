@@ -182,8 +182,8 @@
 .af-meter u { display: block; height: 100%; background: linear-gradient(90deg, #4444dd, #a8a8ff); }
 .af-max .af-meter u { background: linear-gradient(90deg, #e8902f, #ffe08a); }
 .af-max .af-rng { color: #e8b46a; }
-.af-ench, .af-ench b { color: var(--enchanted); }
-.af-ench b { color: #ecd0ff; }
+.af-ench, .af-ench b { color: #cf9bff; }
+.af-ench b { color: #ead2ff; }
 .af-star { flex: none; color: var(--enchanted); filter: drop-shadow(0 0 4px rgba(212, 168, 255, 0.85)); transform: translateY(1px); }
 .af-etag { flex: none; font: 700 8.5px/1 var(--font-display); letter-spacing: 0.18em; text-transform: uppercase; color: #b890e8; border: 1px solid rgba(184, 144, 232, 0.4); padding: 2px 4px 1px; border-radius: 2px; align-self: center; }
 
