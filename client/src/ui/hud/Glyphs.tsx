@@ -21,8 +21,6 @@ const dark = '#150c07';
 
 type G = () => JSX.Element;
 
-const arrowHead = (len: number, w: number) => `M0 ${-len}L${w} 0L0 ${len * 0.35}L${-w} 0Z`;
-
 const GLYPHS: Record<string, G> = {
   // Cleave: two nested crescents of steel and speed marks
   arc: () => (
@@ -36,17 +34,23 @@ const GLYPHS: Record<string, G> = {
       <path d="M44 48l9-3M40 55l8-2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".8" />
     </>
   ),
-  // Whirlwind: three blades chasing each other round a hub
+  // Whirlwind: three blades chasing each other round a hub, with the wind trailing behind
   spiral: () => (
     <>
+      {[0, 120, 240].map((a) => (
+        <g transform={`rotate(${a} 32 32)`}>
+          <path d="M31 4.5A27.5 27.5 0 0 1 55 18" fill="none" stroke={dark} stroke-width="6" stroke-linecap="round" />
+          <path d="M31 4.5A27.5 27.5 0 0 1 55 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".75" />
+        </g>
+      ))}
       <g {...main}>
         {[0, 120, 240].map((a) => (
-          <path d="M32 33C29 20 35 9 53 7C45 13 42 22 42 33Z" transform={`rotate(${a} 32 32)`} />
+          <path d="M32 34C27 23 31 11 47 9C41 15 40 24 42 34Z" transform={`rotate(${a} 32 32)`} />
         ))}
         <circle cx="32" cy="32" r="7" />
       </g>
       {[0, 120, 240].map((a) => (
-        <path d="M33 26C33 19 37 13 45 10" {...hiLine} transform={`rotate(${a} 32 32)`} />
+        <path d="M33 27C32 21 35 16 41 13" {...hiLine} transform={`rotate(${a} 32 32)`} />
       ))}
       <circle cx="32" cy="32" r="3.2" fill={dark} />
     </>
@@ -85,15 +89,19 @@ const GLYPHS: Record<string, G> = {
       <path d="M27 46l-9 10M36 47l1 11M45 46l10 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
     </>
   ),
-  // Seismic Slam: a fault line tearing open towards the viewer
+  // Seismic Slam: a slab of earth split open by a fault line
   fissure: () => (
     <>
       <g {...main}>
-        <path d="M31 4L36 17L30.5 24L38 35L33 42L47 60H17L28.5 44L24.5 36L30 27L26.5 18Z" />
-        <path d="M8 40l9-6 3 8-8 4Z M47 31l9-7 2 9-9 3Z" />
+        <path d="M6 59L21 12H43L58 59Z" />
+        <path d="M4 36l9-7 4 8-9 5Z M51 24l9-6 3 9-9 4Z" />
       </g>
-      <path d="M31 18L33 27L30 33L34.5 41L31 46L33 58L22 58L30 46L27 38L31.5 29Z" fill={dark} fill-opacity=".85" />
-      <path d="M12 38l5-3" {...hiLine} />
+      <g fill="none" stroke="#000" stroke-opacity=".28" stroke-width="2.2" stroke-linecap="round">
+        <path d="M13 47H51M17 35H47M20 24H44" />
+      </g>
+      <path d="M31.5 12L35 22L29.5 30L36.5 40L30.5 48L35.5 59H26L25 48L31 40L24.5 30L30 22Z" fill={dark} />
+      <path d="M31.4 15L33.4 22.6L28.4 30L34.6 40.2L29 48.4L31.2 57" fill="none" stroke="#ff9a3c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity=".9" />
+      <path d="M24 16L12 56" {...hiLine} stroke-width="1.8" />
     </>
   ),
   // Battle Rage: horned war-mask
@@ -129,21 +137,30 @@ const GLYPHS: Record<string, G> = {
   // Sentry: ballista turret on a tripod
   turret: () => (
     <>
-      <g fill="none" stroke={dark} stroke-width="8" stroke-linecap="round">
-        <path d="M30 40L14 58M34 40L50 58M32 42V59" />
+      <g fill="none" stroke={dark} stroke-width="8.6" stroke-linecap="round">
+        <path d="M24 33L10 59M24 33L38 59M24 34V59" />
       </g>
-      <g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" opacity=".9">
-        <path d="M30 40L14 58M34 40L50 58M32 42V59" />
+      <g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" opacity=".92">
+        <path d="M24 33L10 59M24 33L38 59M24 34V59" />
       </g>
+      <g fill="none" stroke={dark} stroke-width="9.4" stroke-linecap="round">
+        <path d="M44 27C44 15 49 9 60 6M44 27C44 39 49 45 60 48" />
+      </g>
+      <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round">
+        <path d="M44 27C44 15 49 9 60 6M44 27C44 39 49 45 60 48" />
+      </g>
+      <path d="M60 6L12 27L60 48" fill="none" stroke={dark} stroke-width="3.2" stroke-linejoin="round" />
+      <path d="M60 6L12 27L60 48" fill="none" stroke="#efe2c0" stroke-width="1.3" stroke-linejoin="round" />
       <g {...main}>
-        <rect x="16" y="21" width="28" height="19" rx="7" />
-        <rect x="40" y="26" width="19" height="9" rx="2.4" />
-        <rect x="55" y="23.5" width="6" height="14" rx="2" />
-        <circle cx="27" cy="17" r="6" />
+        <rect x="6" y="22" width="42" height="10" rx="4" />
+        <circle cx="24" cy="27" r="6.4" />
       </g>
-      <path d="M20 26H38" {...hiLine} />
-      <circle cx="27" cy="17" r="2.2" fill={dark} />
-      <path d="M44 28V33" stroke={dark} stroke-opacity=".7" stroke-width="2" />
+      <path d="M10 25H44" {...hiLine} />
+      <circle cx="24" cy="27" r="2.4" fill={dark} />
+      <g fill="#efe2c0" stroke={dark} stroke-width="1.8" stroke-linejoin="round" paint-order="stroke">
+        <path d="M64 27L52 21.5V32.5Z" />
+        <rect x="14" y="26" width="38" height="2.6" rx="1.3" />
+      </g>
     </>
   ),
   // Multishot: five arrows fanning out

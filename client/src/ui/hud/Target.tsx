@@ -16,10 +16,12 @@ function Flourish(p: { side: 'l' | 'r' }) {
           <stop offset="1" stop-color="#7a5a2a" stop-opacity="0" />
         </linearGradient>
       </defs>
-      <path d="M120 20H44C34 20 30 12 20 12M120 20H64C56 20 52 28 42 28" fill="none" stroke={`url(#tf-g-${p.side})`} stroke-width="1.6" stroke-linecap="round" />
-      <path d="M120 14L108 20L120 26Z" fill="#c9a45c" stroke="#150c07" stroke-width="1" />
-      <circle cx="18" cy="12" r="2.2" fill="#e8c680" />
-      <circle cx="40" cy="28" r="1.6" fill="#c9a45c" />
+      <path d="M120 20H44C34 20 30 10 18 10M120 20H70C60 20 56 30 44 30M96 20C90 14 80 14 74 8" fill="none" stroke={`url(#tf-g-${p.side})`} stroke-width="2.2" stroke-linecap="round" />
+      <path d="M120 12L106 20L120 28Z" fill="#c9a45c" stroke="#150c07" stroke-width="1.2" />
+      <path d="M116 16.5L110 20L116 23.5Z" fill="#f2d58c" />
+      <circle cx="16" cy="10" r="2.6" fill="#e8c680" stroke="#150c07" stroke-width=".8" />
+      <circle cx="42" cy="30" r="2" fill="#c9a45c" stroke="#150c07" stroke-width=".8" />
+      <circle cx="72" cy="7" r="1.8" fill="#c9a45c" />
     </svg>
   );
 }

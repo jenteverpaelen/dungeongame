@@ -1,22 +1,24 @@
-// Geometry helpers, crowd-control on monsters/players, DoT application, buffs.
+// Geometry helpers, crowd control on monsters/players, DoT bookkeeping and player buffs.
 
-import { F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, ELEMENT_INDEX, angleDiff, type Element } from '../shared';
-import type { Instance } from '../instance';
-import type { Buff, Dot, LiveMods, Mob, Player } from './types';
+import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, angleDiff, type Element } from '../shared';
+import type { Instance } from './instance';
+import type { Buff, Dot, DotKind, Mob, Player } from './types';
 
-export const elIdx = (el: Element): number => ELEMENT_INDEX.indexOf(el);
+export const elIdx = (el: Element): number => {
+  const i = ELEMENT_INDEX.indexOf(el);
+  return i < 0 ? 0 : i;
+};
 
 // ─────────────────────────── Geometry ───────────────────────────
 
-/** Is (mx, my) (with body radius mr) inside a cone from (ox, oy) facing `ang` with half-angle `half` and length `len`? */
+/** Is a body at (mx, my) with radius mr inside a cone from (ox, oy) facing `ang` (half-angle `half`, length `len`)? */
 export function inCone(mx: number, my: number, mr: number, ox: number, oy: number, ang: number, half: number, len: number): boolean {
   const dx = mx - ox, dy = my - oy;
   const d2 = dx * dx + dy * dy;
   const reach = len + mr;
   if (d2 > reach * reach) return false;
-  if (d2 < (mr + 24) * (mr + 24)) return true; // standing on top of us
+  if (d2 < (mr + 20) * (mr + 20)) return true; // standing on top of the origin
   const d = Math.sqrt(d2);
-  // widen the half angle for body size so large monsters at the edge still count
   const slack = Math.asin(Math.min(1, mr / d));
   return Math.abs(angleDiff(ang, Math.atan2(dy, dx))) <= half + slack;
 }
@@ -33,10 +35,9 @@ export function distToSegment(px: number, py: number, ax: number, ay: number, bx
 
 // ─────────────────────────── Monster crowd control ───────────────────────────
 
-/** Bosses and goblins ignore crowd control; elites suffer half durations. */
-function ccFactor(m: Mob): number {
-  if (m.dummy) return 0;
-  if (m.tier === 4 || m.tier === 5) return 0;
+/** Bosses, goblins and dummies ignore crowd control; elites suffer half durations (D3-ish CC resistance). */
+export function ccFactor(m: Mob): number {
+  if (m.dummy || m.tier === 4 || m.tier === 5) return 0;
   if (m.tier === 1 || m.tier === 2) return 0.5;
   return 1;
 }
@@ -48,11 +49,11 @@ export function stunMob(m: Mob, ms: number) {
   cancelWindup(m);
 }
 
-export function freezeMob(m: Mob, ms: number, by = 0) {
+export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0) {
   const f = ccFactor(m);
   if (f <= 0) return;
   m.freezeMs = Math.max(m.freezeMs, ms * f);
-  m.frozenBy = by;
+  if (shatterBy) { m.shatterBy = shatterBy; m.shatterDepth = depth; }
   cancelWindup(m);
 }
 
@@ -62,21 +63,23 @@ export function chillMob(m: Mob, ms: number) {
 }
 
 export function cancelWindup(m: Mob) {
-  if (m.state === 'windup') { m.state = 'chase'; m.windupMs = 0; m.atkCdMs = Math.max(m.atkCdMs, 300); }
+  if (m.state === 'windup') { m.state = 'chase'; m.stateMs = 0; m.atkCdMs = Math.max(m.atkCdMs, 400); }
 }
 
-/** Shove a monster `dist` units along (dx, dy) over ~0.25 s. */
+/** Shove a monster `dist` units along (dx, dy) over 0.25 s. */
 export function knockbackMob(m: Mob, dx: number, dy: number, dist: number) {
-  if (ccFactor(m) <= 0) return;
+  const f = ccFactor(m);
+  if (f <= 0) return;
   const l = Math.hypot(dx, dy) || 1;
-  m.kbX = (dx / l) * (dist / 0.25);
-  m.kbY = (dy / l) * (dist / 0.25);
+  const d = dist * f;
+  m.kbX = (dx / l) * (d / 0.25);
+  m.kbY = (dy / l) * (d / 0.25);
   m.kbMs = 250;
 }
 
-/** Move a monster towards (tx, ty) by `step` units with wall sliding (pull effects). */
+/** Move a monster towards (tx, ty) by up to `step` units with wall sliding (pull effects). */
 export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: number) {
-  if (ccFactor(m) <= 0) return;
+  if (m.dummy || m.tier === 4) return;
   const dx = tx - m.x, dy = ty - m.y;
   const d = Math.hypot(dx, dy);
   if (d < 1) return;
@@ -87,29 +90,35 @@ export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: nu
 }
 
 export function addDot(m: Mob, dot: Dot) {
-  // one dot per (kind, owner, skill): refresh in place
+  // one dot per (kind, owner, skill): refresh in place (keeps the stronger tick)
   for (let i = 0; i < m.dots.length; i++) {
     const d = m.dots[i];
-    if (d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill) { m.dots[i] = dot; return; }
+    if (d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill) {
+      if (dot.perTick < d.perTick && d.leftMs > dot.leftMs * 0.5) { d.leftMs = Math.max(d.leftMs, dot.leftMs); return; }
+      dot.nextMs = Math.min(dot.nextMs, d.nextMs);
+      m.dots[i] = dot;
+      return;
+    }
   }
-  if (m.dots.length < 6) m.dots.push(dot);
+  if (m.dots.length < 8) m.dots.push(dot);
 }
 
-export function hasDot(m: Mob, kind: Dot['kind'], owner = 0): boolean {
+export function hasDot(m: Mob, kind: DotKind, owner = 0): boolean {
   for (const d of m.dots) if (d.kind === kind && (owner === 0 || d.owner === owner)) return true;
   return false;
 }
 
-/** Recompute the status flag bits that are visible to clients. */
+/** Status flag bits visible to clients. */
 export function mobStatusFlags(m: Mob): number {
   let f = 0;
   if (m.stunMs > 0) f |= F_STUN;
   if (m.freezeMs > 0) f |= F_FROZEN;
   if (m.chillMs > 0) f |= F_CHILL;
-  for (const d of m.dots) {
-    if (d.kind === 'bleed') f |= F_BLEED;
-    else if (d.kind === 'burn' || d.kind === 'molten') f |= F_BURN;
-    else if (d.kind === 'poison') f |= F_POISON;
+  for (let i = 0; i < m.dots.length; i++) {
+    const k = m.dots[i].kind;
+    if (k === 'bleed') f |= F_BLEED;
+    else if (k === 'burn') f |= F_BURN;
+    else f |= F_POISON;
   }
   return f;
 }
@@ -117,14 +126,15 @@ export function mobStatusFlags(m: Mob): number {
 // ─────────────────────────── Buffs ───────────────────────────
 
 export function addBuff(p: Player, buff: Buff) {
-  const cur = p.buffs.find((b) => b.id === buff.id);
+  const cur = getBuff(p, buff.id);
   if (cur) Object.assign(cur, buff);
   else p.buffs.push(buff);
   refreshLive(p);
 }
 
 export function getBuff(p: Player, id: string): Buff | undefined {
-  for (const b of p.buffs) if (b.id === id) return b;
+  const b = p.buffs;
+  for (let i = 0; i < b.length; i++) if (b[i].id === id) return b[i];
   return undefined;
 }
 
@@ -134,18 +144,26 @@ export function removeBuff(p: Player, id: string) {
 }
 
 export function refreshLive(p: Player) {
-  const l: LiveMods = p.live;
-  l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0; l.move = 0; l.dr = 0;
-  let drMul = 1;
+  const l = p.live;
+  l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
     l.chd += b.chd ?? 0;
-    l.ias += b.ias ?? 0;
-    l.move += b.move ?? 0;
-    if (b.dr) drMul *= 1 - b.dr;
+    l.ias += (b.ias ?? 0) * (b.st ?? 1);
   }
-  l.dr = 1 - drMul;
+}
+
+/** Advance buff timers; returns true if any expired. */
+export function tickBuffs(p: Player, dtMs: number) {
+  let changed = false;
+  for (let i = p.buffs.length - 1; i >= 0; i--) {
+    const b = p.buffs[i];
+    if (b.ms === Infinity) continue;
+    b.ms -= dtMs;
+    if (b.ms <= 0) { p.buffs.splice(i, 1); changed = true; }
+  }
+  if (changed) refreshLive(p);
 }
 
 // ─────────────────────────── Hostile effects on players ───────────────────────────
@@ -153,14 +171,16 @@ export function refreshLive(p: Player) {
 export function freezePlayer(p: Player, ms: number) {
   if (p.invulnMs > 0 || p.deadMs > 0) return;
   p.frozenMs = Math.max(p.frozenMs, ms);
+  if (p.channel) p.channel = null;
 }
 
 export function stunPlayer(p: Player, ms: number) {
   if (p.invulnMs > 0 || p.deadMs > 0) return;
   p.stunMs = Math.max(p.stunMs, ms);
+  if (p.channel) p.channel = null;
 }
 
-/** Yank a player towards a point (Vortex). */
+/** Yank a player to within `stopDist` of a point (Vortex). */
 export function pullPlayer(inst: Instance, p: Player, tx: number, ty: number, stopDist: number) {
   const dx = tx - p.mv.x, dy = ty - p.mv.y;
   const d = Math.hypot(dx, dy);

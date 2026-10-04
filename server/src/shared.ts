@@ -16,3 +16,4 @@ export * from '../../shared/src/cube';
 export * from '../../shared/src/character';
 export * from '../../shared/src/mapgen';
 export * from '../../shared/src/movement';
+export * from '../../shared/src/format';

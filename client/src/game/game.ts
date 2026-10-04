@@ -46,7 +46,6 @@ export class Game {
   async start(name: string, classId: ClassId) {
     sfx.unlock();
     ui.set({ screen: 'connecting', error: null });
-    try { localStorage.setItem('hf.name', name); localStorage.setItem('hf.class', classId); } catch { /* storage unavailable */ }
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       ui.set({ connected: false, error: reason, screen: 'select' });
       this.scene.clearEntities();
@@ -278,7 +277,8 @@ export class Game {
     for (const e of this.world.entities.values()) {
       if (e.kind === 'loot' && !(e.desc.loot?.rarity === 'legendary' || e.desc.loot?.rarity === 'set')) continue;
       if (e.kind === 'summon') continue;
-      yield { id: e.id, k: e.kind, x: e.id === myId ? this.predictor.x : e.x, y: e.id === myId ? this.predictor.y : e.y, el: e.desc.el, me: e.id === myId };
+      const el = e.kind === 'loot' ? (e.desc.loot?.rarity === 'set' ? 4 : 3) : e.desc.el;
+      yield { id: e.id, k: e.kind, x: e.id === myId ? this.predictor.x : e.x, y: e.id === myId ? this.predictor.y : e.y, el, me: e.id === myId };
     }
   }
 

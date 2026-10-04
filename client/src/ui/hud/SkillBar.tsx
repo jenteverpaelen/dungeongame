@@ -65,7 +65,7 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
           <div class="st-rune-desc">{rune.desc}</div>
         </div>
       )}
-      <div class="st-auto">{autoText(skill.auto, res)}</div>
+      {skill.auto.when !== 'channel' && <div class="st-auto">{autoText(skill.auto, res)}</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
   );
@@ -258,6 +258,7 @@ export function BottomBar() {
           <i class="bar-sep" />
           <Slot kind="dash" keyLabel="SPACE" skill={null} cd={m?.dashCd ?? 0} nominalMs={DASH.cooldownMs} tip={<DashTip />} />
         </div>
+        <i class="bar-crest" />
       </div>
       <ResourceGlobe />
     </div>

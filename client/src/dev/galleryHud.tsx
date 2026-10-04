@@ -12,6 +12,7 @@ import '@fontsource/lilita-one/400.css';
 import '../ui/styles/tokens.css';
 import { HudRoot } from '../ui/hud';
 import { GLYPH_IDS, SkillGlyph, ClassEmblem, DashGlyph, BuffGlyph } from '../ui/hud/Glyphs';
+import { session, installApi } from '../net/api';
 import { ui, worldReader, type MinimapEntity, type Notice } from '../ui/store';
 import { createCharacter } from '@shared/character';
 import { computeStats } from '@shared/stats';
@@ -23,6 +24,7 @@ import type { ClassId } from '@shared/types';
 import type { MeState, RiftState, ZoneInfo } from '@shared/protocol';
 
 const q = new URLSearchParams(location.search);
+try { if (q.get('state') === 'select' && !q.has('empty')) localStorage.setItem('hearthfall.name', 'Aldric'); } catch { /* ignore */ }
 const state = q.get('state') ?? 'default';
 const cls = (q.get('cls') ?? 'warrior') as ClassId;
 const live = q.has('live');
@@ -69,7 +71,7 @@ function buildEntities(map: MapData, me: { x: number; y: number }): MinimapEntit
   let id = 100;
   for (const sp of map.spawns) {
     if (Math.hypot(sp.x - me.x, sp.y - me.y) > 1700) continue;
-    const n = 6 + Math.floor(r() * 6);
+    const n = 3 + Math.floor(r() * 4);
     for (let i = 0; i < n; i++) out.push({ id: id++, k: 'mob', x: sp.x + (r() - 0.5) * 260, y: sp.y + (r() - 0.5) * 260, el: i === 0 && r() < 0.35 ? (r() < 0.5 ? 1 : 2) : 0 });
   }
   out.push({ id: id++, k: 'mob', x: me.x + 420, y: me.y - 260, el: 4 });
@@ -262,6 +264,10 @@ function paintBackdrop() {
     g.beginPath(); g.ellipse(sx, sy - 6 * big, 15 * big * zoom, 13 * big * zoom, 0, 0, 6.3); g.fill();
     g.fillStyle = '#10100c'; g.beginPath(); g.arc(sx - 5 * big * zoom, sy - 8 * big, 2 * big, 0, 6.3); g.arc(sx + 5 * big * zoom, sy - 8 * big, 2 * big, 0, 6.3); g.fill();
   }
+  // light grade so the HUD is judged against a realistic mid-dark scene
+  const grad = g.createRadialGradient(cx, cy, cv.height * 0.25, cx, cy, cv.height * 0.95);
+  grad.addColorStop(0, 'rgba(10,14,8,.12)'); grad.addColorStop(1, 'rgba(4,6,4,.72)');
+  g.fillStyle = grad; g.fillRect(0, 0, cv.width, cv.height);
   // the player
   g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(cx, cy + 10, 22 * zoom, 8 * zoom, 0, 0, 6.3); g.fill();
   g.fillStyle = hex(CLASSES[cls].themeColor); g.fillRect(cx - 9 * zoom, cy - 14 * zoom, 18 * zoom, 22 * zoom);
@@ -325,14 +331,20 @@ function IconSheet() {
 // ───────────────────────── boot ─────────────────────────
 
 const root = document.getElementById('ui')!;
+const w = window as unknown as Record<string, unknown>;
+w.__ui = ui;
+w.__log = [] as unknown[];
+session.start = (name, id) => { (w.__log as unknown[]).push({ start: [name, id] }); };
+installApi(async (op, args) => { (w.__log as unknown[]).push({ cmd: [op, args] }); return { ok: true }; }, (text) => { (w.__log as unknown[]).push({ chat: text }); });
 if (state === 'icons') {
   render(<IconSheet />, root);
+  document.fonts.ready.then(() => { (window as unknown as { __ready: boolean }).__ready = true; });
 } else {
   mockState();
   render(<HudRoot />, root);
   if (q.has('static')) {
     const st = document.createElement('style');
-    st.textContent = '.notice, .notice * { animation-delay: -0.9s !important; animation-play-state: paused !important; }';
+    st.textContent = '.notice, .notice *, .pickup, .death, .death *, .afk-backdrop, .afk-modal, .help-wrap, .help-panel, .hud-target, .hud-interact { animation-delay: -0.9s !important; animation-play-state: paused !important; }';
     document.head.appendChild(st);
   }
   document.fonts.ready.then(() => {

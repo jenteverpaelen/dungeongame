@@ -19,9 +19,9 @@ const WAVE_F = waveTop(100, 9, 8);
 const WAVE_B = waveTop(140, 11, 6);
 
 const BUBBLES: { x: number; y: number; r: number; dur: number; delay: number; rise: number }[] = [
-  { x: 62, y: 150, r: 2.4, dur: 6.5, delay: -1, rise: 46 },
+  { x: 62, y: 150, r: 3, dur: 6.5, delay: -1, rise: 46 },
   { x: 88, y: 120, r: 1.6, dur: 5.2, delay: -3.2, rise: 38 },
-  { x: 118, y: 160, r: 2.9, dur: 7.8, delay: -5, rise: 58 },
+  { x: 118, y: 160, r: 3.6, dur: 7.8, delay: -5, rise: 58 },
   { x: 140, y: 110, r: 1.5, dur: 4.6, delay: -2, rise: 30 },
   { x: 100, y: 170, r: 2, dur: 8.4, delay: -6.4, rise: 64 },
   { x: 74, y: 96, r: 1.3, dur: 5.8, delay: -0.4, rise: 28 },
@@ -38,8 +38,8 @@ export interface GlobeProps {
 
 export function Globe(p: GlobeProps) {
   const frac = p.max > 0 ? clamp01(p.cur / p.max) : 0;
-  // 0 -> well below the sphere, 1 -> surface above the top (waves never reveal a gap at full)
-  const y = 206 - frac * 202;
+  // surface height follows the sphere's visual height; at (nearly) full the surface rides above the top so waves never reveal a gap
+  const y = frac <= 0 ? 214 : frac >= 0.985 ? -2 : 188 - Math.pow(frac, 0.85) * 176;
   const id = `g-${p.kind}`;
   const low = p.kind === 'life' && frac > 0 && frac < 0.25;
   const s = p.style;
@@ -49,30 +49,47 @@ export function Globe(p: GlobeProps) {
       <svg class="globe-liquid" viewBox="0 0 200 200" aria-hidden="true">
         <defs>
           <clipPath id={`${id}-clip`}><circle cx="100" cy="100" r={R} /></clipPath>
-          <linearGradient id={`${id}-body`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`${id}-body`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="196">
             <stop offset="0" stop-color={s.hi} />
-            <stop offset="0.07" stop-color={s.mid} />
-            <stop offset="0.5" stop-color={s.mid} />
-            <stop offset="0.82" stop-color={s.lo} />
-            <stop offset="1" stop-color={s.lo} />
+            <stop offset="0.05" stop-color={s.mid} />
+            <stop offset="0.38" stop-color={s.mid} />
+            <stop offset="0.78" stop-color={s.lo} />
+            <stop offset="1" stop-color="#000" stop-opacity=".92" />
           </linearGradient>
-          <linearGradient id={`${id}-back`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color={s.hi} stop-opacity=".9" />
-            <stop offset="1" stop-color={s.mid} stop-opacity=".6" />
+          <linearGradient id={`${id}-back`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
+            <stop offset="0" stop-color={s.hi} stop-opacity=".95" />
+            <stop offset="1" stop-color={s.mid} stop-opacity=".45" />
           </linearGradient>
-          <radialGradient id={`${id}-glass`} cx="50%" cy="42%" r="62%">
-            <stop offset="0" stop-color="#1a0c0c" />
-            <stop offset="1" stop-color="#040203" />
+          <radialGradient id={`${id}-glass`} cx="50%" cy="38%" r="66%">
+            <stop offset="0" stop-color="#241619" />
+            <stop offset="0.6" stop-color="#0d0709" />
+            <stop offset="1" stop-color="#030203" />
           </radialGradient>
           <radialGradient id={`${id}-depth`} cx="50%" cy="46%" r="52%">
-            <stop offset="0.52" stop-color="#000" stop-opacity="0" />
-            <stop offset="0.86" stop-color="#000" stop-opacity=".34" />
-            <stop offset="1" stop-color="#000" stop-opacity=".82" />
+            <stop offset="0.42" stop-color="#000" stop-opacity="0" />
+            <stop offset="0.78" stop-color="#000" stop-opacity=".22" />
+            <stop offset="0.93" stop-color="#000" stop-opacity=".55" />
+            <stop offset="1" stop-color="#000" stop-opacity=".88" />
           </radialGradient>
-          <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0.5" stop-color="#000" stop-opacity="0" />
-            <stop offset="1" stop-color="#000" stop-opacity=".55" />
+          <linearGradient id={`${id}-light`} x1="0" y1="0" x2="1" y2="0.35">
+            <stop offset="0" stop-color="#fff" stop-opacity=".2" />
+            <stop offset="0.38" stop-color="#fff" stop-opacity="0" />
+            <stop offset="0.72" stop-color="#000" stop-opacity=".18" />
+            <stop offset="1" stop-color="#000" stop-opacity=".5" />
           </linearGradient>
+          <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0.45" stop-color="#000" stop-opacity="0" />
+            <stop offset="1" stop-color="#000" stop-opacity=".16" />
+          </linearGradient>
+          <radialGradient id={`${id}-core`} cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color={s.hi} stop-opacity=".5" />
+            <stop offset="0.6" stop-color={s.hi} stop-opacity=".12" />
+            <stop offset="1" stop-color={s.hi} stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id={`${id}-tint`} cx="50%" cy="92%" r="70%">
+            <stop offset="0" stop-color={s.mid} stop-opacity=".34" />
+            <stop offset="1" stop-color={s.mid} stop-opacity="0" />
+          </radialGradient>
           <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
             <stop offset="0" stop-color={s.hi} stop-opacity=".45" />
             <stop offset="1" stop-color={s.hi} stop-opacity="0" />
@@ -80,21 +97,24 @@ export function Globe(p: GlobeProps) {
         </defs>
         <g clip-path={`url(#${id}-clip)`}>
           <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-glass)`} />
+          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-tint)`} />
           <g class="liquid" style={{ transform: `translateY(${y.toFixed(2)}px)` }}>
             <g class="liquid-bob">
               <g class="wave wave-b"><path d={`${WAVE_B}V300H0Z`} fill={`url(#${id}-back)`} /></g>
               <g class="wave wave-f">
                 <path d={`${WAVE_F}V300H0Z`} fill={`url(#${id}-body)`} />
-                <path d={WAVE_F} fill="none" stroke={s.hi} stroke-width="2.4" stroke-linecap="round" stroke-opacity=".9" />
+                <path d={WAVE_F} fill="none" stroke={s.hi} stroke-width="3" stroke-linecap="round" stroke-opacity=".95" />
                 <path d={WAVE_F} fill="none" stroke="#fff" stroke-width=".9" stroke-opacity=".55" transform="translate(0 -1)" />
               </g>
               <ellipse cx="100" cy="14" rx="86" ry="22" fill={`url(#${id}-glow)`} />
+              <ellipse cx="96" cy="78" rx="74" ry="64" fill={`url(#${id}-core)`} />
               {BUBBLES.map((b) => (
                 <circle class="bubble" cx={b.x} cy={b.y} r={b.r} fill="#fff" style={{ animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s`, '--rise': `${-b.rise}px` }} />
               ))}
             </g>
           </g>
           <rect x="0" y="0" width="200" height="200" fill={`url(#${id}-floor)`} />
+          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-light)`} />
           <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-depth)`} />
         </g>
       </svg>

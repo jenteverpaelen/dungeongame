@@ -12,16 +12,17 @@ type RGB = [number, number, number];
 interface Palette { floor: RGB; path: RGB; plaza: RGB; wall: RGB; water: RGB; void: RGB; rim: RGB }
 
 const PALETTES: Record<string, Palette> = {
-  glade: { floor: [56, 84, 44], path: [112, 94, 60], plaza: [120, 116, 104], wall: [14, 22, 13], water: [30, 68, 98], void: [5, 7, 5], rim: [92, 128, 66] },
-  ashen: { floor: [64, 50, 48], path: [98, 74, 56], plaza: [90, 80, 74], wall: [14, 10, 10], water: [196, 72, 22], void: [5, 4, 4], rim: [150, 76, 40] },
-  town: { floor: [76, 98, 54], path: [136, 112, 72], plaza: [150, 142, 126], wall: [20, 28, 15], water: [38, 78, 106], void: [5, 6, 5], rim: [112, 142, 82] },
+  glade: { floor: [78, 112, 58], path: [150, 124, 80], plaza: [150, 146, 130], wall: [18, 30, 17], water: [40, 92, 134], void: [5, 7, 5], rim: [128, 176, 92] },
+  ashen: { floor: [92, 72, 68], path: [136, 104, 78], plaza: [122, 110, 102], wall: [18, 12, 12], water: [220, 88, 26], void: [5, 4, 4], rim: [196, 100, 52] },
+  town: { floor: [92, 120, 64], path: [160, 132, 86], plaza: [146, 138, 120], wall: [26, 38, 20], water: [50, 104, 142], void: [5, 6, 5], rim: [150, 186, 104] },
 };
 
-const BAKE_PX = 8;   // pixels per tile in the baked canvas
+const BAKE_PX = 16;  // pixels per tile in the baked canvas
 const SIZE = 440;    // minimap canvas resolution (CSS size is set by hud.css)
 const ZOOMS = [520, 800, 1250]; // world-unit radius shown
 
-interface Baked { map: MapData; canvas: HTMLCanvasElement }
+interface Baked { map: MapData; key: string; canvas: HTMLCanvasElement }
+const mapKey = (m: MapData) => `${m.zone}:${m.seed}:${m.w}x${m.h}`;
 
 function bake(map: MapData): Baked {
   const pal = PALETTES[map.theme] ?? PALETTES.glade;
@@ -36,7 +37,7 @@ function bake(map: MapData): Baked {
       if (t === T_VOID) continue;
       const [r, gg, b] = colorOf(t);
       const n = (((x * 73856093) ^ (y * 19349663)) & 15) - 8; // stable per-tile grain
-      const k = t === T_WALL || t === T_WATER ? 0.6 : 1.4;
+      const k = t === T_WALL || t === T_WATER ? 0.7 : 1.5;
       g.fillStyle = `rgb(${r + n * k | 0},${gg + n * k | 0},${b + n * k | 0})`;
       g.fillRect(x * BAKE_PX, y * BAKE_PX, BAKE_PX, BAKE_PX);
     }
@@ -48,13 +49,13 @@ function bake(map: MapData): Baked {
     for (let x = 0; x < map.w; x++) {
       if (!isBlockedTile(map.tiles[y * map.w + x]) || map.tiles[y * map.w + x] === T_VOID) continue;
       const px = x * BAKE_PX, py = y * BAKE_PX;
-      if (open(x, y - 1)) g.fillRect(px, py, BAKE_PX, 1.6);
-      if (open(x, y + 1)) g.fillRect(px, py + BAKE_PX - 1.6, BAKE_PX, 1.6);
-      if (open(x - 1, y)) g.fillRect(px, py, 1.6, BAKE_PX);
-      if (open(x + 1, y)) g.fillRect(px + BAKE_PX - 1.6, py, 1.6, BAKE_PX);
+      if (open(x, y - 1)) g.fillRect(px, py, BAKE_PX, 2.4);
+      if (open(x, y + 1)) g.fillRect(px, py + BAKE_PX - 2.4, BAKE_PX, 2.4);
+      if (open(x - 1, y)) g.fillRect(px, py, 2.4, BAKE_PX);
+      if (open(x + 1, y)) g.fillRect(px + BAKE_PX - 2.4, py, 2.4, BAKE_PX);
     }
   }
-  return { map, canvas: c };
+  return { map, key: mapKey(map), canvas: c };
 }
 
 // ───────────────────────── icon painters (canvas px, origin at the marker centre) ─────────────────────────
@@ -113,7 +114,8 @@ function portalIcon(g: CanvasRenderingContext2D, x: number, y: number, t: number
 
 function meArrow(g: CanvasRenderingContext2D, x: number, y: number, heading: number) {
   g.save(); g.translate(x, y); g.rotate(heading + 1.5708);
-  g.fillStyle = 'rgba(242,213,140,.2)'; g.beginPath(); g.arc(0, 0, 14, 0, 6.2832); g.fill();
+  g.scale(1.35, 1.35);
+  g.fillStyle = 'rgba(242,213,140,.22)'; g.beginPath(); g.arc(0, 0, 14, 0, 6.2832); g.fill();
   g.beginPath(); g.moveTo(0, -11); g.lineTo(7.6, 8); g.lineTo(0, 3.6); g.lineTo(-7.6, 8); g.closePath();
   g.fillStyle = '#f6d98a'; g.strokeStyle = '#1b1008'; g.lineWidth = 2.4; g.lineJoin = 'round';
   g.stroke(); g.fill();
@@ -218,7 +220,7 @@ export function Minimap() {
       raf = requestAnimationFrame(frame);
       const wr = worldReader.current;
       const map = wr?.map() ?? null;
-      if (map && baked?.map !== map) baked = bake(map);
+      if (map && baked?.key !== mapKey(map)) baked = bake(map);
       else if (!map) baked = null;
       const me = wr?.myPos() ?? null;
       if (me) {

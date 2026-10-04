@@ -177,7 +177,7 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
     case 'salvage': {
       if (!item) return fail('Item not found');
       const y = salvageYield(item);
-      for (const [k, v] of Object.entries(y)) (char.materials as Record<string, number>)[k] += v ?? 0;
+      for (const [k, v] of Object.entries(y)) (char.materials as unknown as Record<string, number>)[k] += v ?? 0;
       addCubeXp(char, salvageXp(item));
       const i = char.inventory.findIndex((x) => x?.id === id); if (i >= 0) char.inventory[i] = null;
       sync(); return { ok: true, data: { yield: y } };
@@ -186,7 +186,7 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
       const rs = a.rarities as Rarity[];
       char.inventory = char.inventory.map((it) => {
         if (!it || !rs.includes(it.rarity)) return it;
-        for (const [k, v] of Object.entries(salvageYield(it))) (char.materials as Record<string, number>)[k] += v ?? 0;
+        for (const [k, v] of Object.entries(salvageYield(it))) (char.materials as unknown as Record<string, number>)[k] += v ?? 0;
         return null;
       });
       sync(); return { ok: true };
@@ -372,7 +372,6 @@ function Gallery() {
 }
 
 setupUI();
-render(<Gallery />, document.getElementById('ui')!);
 
 const scene = (qs.get('s') ?? 'inventory').split(',');
 const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug'];
@@ -382,10 +381,13 @@ const cubeFn = qs.get('cube');
 if (cubeFn) cubeUI.set({ fn: cubeFn as never });
 const itemIdx = qs.get('item');
 if (itemIdx !== null) cubeUI.set({ itemId: ui.get().char!.inventory[Number(itemIdx)]?.id ?? null });
+
+render(<Gallery />, document.getElementById('ui')!);
+
 const pin = qs.get('pin');
 if (pin !== null) {
   const it = ui.get().char!.inventory[Number(pin)];
-  if (it) showItemTooltip(it, Number(qs.get('px') ?? 1300), Number(qs.get('py') ?? 240), { compare: true });
+  if (it) setTimeout(() => showItemTooltip(it, Number(qs.get('px') ?? 1300), Number(qs.get('py') ?? 240), { compare: true }), 400);
 }
 
 Object.assign(window as object, { __ui: ui, __cubeUI: cubeUI });

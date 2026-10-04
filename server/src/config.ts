@@ -6,7 +6,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 export const PORT = Number(process.env.PORT ?? 2567);
 /** Dev multiplier on monster XP (prototype default 3). */
-export const XP_MULT = Number(process.env.XP_MULT ?? 3);
+export const XP_MULT = Number(process.env.XP_MULT ?? 3) || 3;
 export const ROOT_DIR = path.resolve(here, '..', '..');
 export const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT_DIR, 'server', 'data', 'characters');
 export const CLIENT_DIR = path.join(ROOT_DIR, 'dist', 'client');
