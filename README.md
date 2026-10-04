@@ -15,6 +15,18 @@ Open http://localhost:5173 in two browser tabs to see two players in the same wo
 
 Production-style single port: `npm run build && npm start` → http://localhost:2567
 
+## Tests
+
+```bash
+npm test                         # shared rules (items, stats, maps)
+npx tsx server/test/sim.ts       # gameplay simulation: every skill/rune/set, elites, rifts, balance numbers
+npm run test:server              # headless bot clients: every command, multiplayer, persistence, a full rift
+node scripts/e2e.mjs warrior 40 /tmp/e2e fresh     # real browser play-test with screenshots (fresh | endgame)
+```
+
+Dev galleries (with `npm run dev:client`): `/gallery-art.html`, `/gallery-vfx.html`, `/gallery-hud.html`, `/gallery-panels.html`.
+Dev URL shortcut: `http://localhost:5173/?autostart=Name&class=mage` skips the class screen. F2 in game opens prototype tools.
+
 ## Controls
 
 | Key | Action |
@@ -36,3 +48,4 @@ Production-style single port: `npm run build && npm start` → http://localhost:
 * `client/` — PixiJS renderer, code-drawn art, effects, Preact UI
 * `docs/research/` — research dossiers (Idleon, Diablo 3, Task Bar Hero, MMO netcode, engines, UI)
 * `docs/ARCHITECTURE.md` — design decisions and build spec
+* `docs/ART_DIRECTION.md` — art direction (palette, proportions, rarity language)
