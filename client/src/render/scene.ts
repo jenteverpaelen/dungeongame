@@ -232,6 +232,8 @@ export class Scene {
     for (const e of this.active) {
       const v = e.view;
       if (!v) continue;
+      // Death animation finished but the server hasn't removed the entity yet: keep it hidden, never update it.
+      if ((e as ClientEntity & { deathDone?: boolean }).deathDone) { v.root.visible = false; continue; }
       const isMe = e.id === this.world.myId;
       let x = e.x, y = e.y, flags = e.flags, vx = e.vx, vy = e.vy;
       let moving = (flags & F_MOVING) !== 0;

@@ -46,6 +46,12 @@ export const RIFT_KILL_FRACTION = 0.85;
 /** Field respawns are placed out of every player's view but preferably close to the action. */
 export const RESPAWN_MIN_DIST = 1250;
 export const RESPAWN_PREF_DIST = 2600;
+/** Fields keep at least this many live packs within FIELD_NEAR_DIST of every player. */
+export const FIELD_NEAR_PACKS = 7;
+export const FIELD_NEAR_DIST = 2200;
+/** ...of which at least this many inside the player's view. */
+export const FIELD_VISIBLE_PACKS = 2;
+export const FIELD_VISIBLE_DIST = 1150;
 
 /** Extra monster life per extra nearby player (D3: +50% per player, max party of 4). */
 export const HP_PER_EXTRA_PLAYER = 0.5;

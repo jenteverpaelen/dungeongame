@@ -1,3 +1,4 @@
+import { autoSlotSkills } from '../../shared/src/progression';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -96,6 +97,7 @@ const num = (v: unknown, d: number, lo = 0, hi = Number.MAX_SAFE_INTEGER): numbe
 /** Repair saves written by older builds (missing fields, wrong array lengths). Mutates and returns the save. */
 export function normalizeSave(save: CharacterSave): CharacterSave {
   save.level = Math.floor(num(save.level, 1, 1, MAX_LEVEL));
+  if (save.skills?.slots) autoSlotSkills(save);
   save.xp = num(save.xp, 0);
   save.gold = Math.floor(num(save.gold, 0));
   save.skillPoints = Math.floor(num(save.skillPoints, 0));

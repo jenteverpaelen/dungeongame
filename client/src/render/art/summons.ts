@@ -5,7 +5,7 @@ import { Container, Sprite } from 'pixi.js';
 import type { EntityView, ViewState } from '../types';
 import { OUT, ball, blob, blobPath, crease, eye, fill, gloss, line, outline, poly, rbox, rivet, seg, wash, type Ctx } from './draw';
 import { fx, glowSprite } from './fx';
-import { P, RigArt, atkCurve, type C, type Family, type Nodes } from './monsters';
+import { P, RigArt, atkCurve, rigSheet, type C, type Family, type Nodes } from './monsters';
 import { PNode } from './puppet';
 import { TAU, clamp, lerp, light, shade } from './util';
 
@@ -352,4 +352,7 @@ export class SummonArt implements EntityView {
   destroy(): void { this.inner.destroy(); }
 }
 
-
+/** Summon rigs, for baking into the map's shared rig atlas. */
+export function summonRigs(): { key: string; colors: C; fam: Family; scale: number }[] {
+  return Object.entries(RIGS).map(([type, r]) => ({ key: `summon:${type}`, colors: r.col, fam: r.fam, scale: r.scale ?? 1 }));
+}

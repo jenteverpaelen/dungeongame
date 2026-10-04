@@ -43,13 +43,14 @@ const back = (c: number, isBack: boolean) => (isBack ? shade(c, 0.2) : c);
 // ═══════════════════════════════ LEGS & FEET ═══════════════════════════════
 // Leg pivot at the hip joint; the sole is at y = 12, toes point +x.
 
-export function drawLeg(c: Ctx, b: Body, legs: ItemLook | undefined, feet: ItemLook | undefined, isBack: boolean): void {
+export function drawLeg(c: Ctx, b: Body, legs: ItemLook | undefined, feet: ItemLook | undefined, isBack: boolean, part: 'all' | 'leg' | 'foot' = 'all'): void {
   const o = OUTFIT[b.cls];
   const shape = legs?.shape ?? 'base';
   const pc = back(legs?.primary ?? o.pants, isBack);
   const sc = back(legs ? trim(legs) : shade(o.pants, 0.3), isBack);
 
   // thigh / shin
+  if (part !== 'foot') {
   if (shape === 'plate') {
     rbox(c, -4, -2, 8.2, 10.5, 3.2, pc, { hl: 0.4 });
     ball(c, 0.6, 4.4, 3.3, 2.8, light(pc, 0.12), { ow: 1.8, hl: 0.5 });
@@ -68,6 +69,8 @@ export function drawLeg(c: Ctx, b: Body, legs: ItemLook | undefined, feet: ItemL
     crease(c, [0.4, 0, 1, 4], 0.9, OUT, 0.28);
   }
 
+  }
+  if (part === 'leg') return;
   // foot
   const fshape = feet?.shape ?? 'base';
   const fp = back(feet?.primary ?? o.shoes, isBack);
@@ -351,6 +354,7 @@ function hairOutline(c: Ctx, pts: number[], smooth: boolean): void {
 }
 
 function hairFront(c: Ctx, b: Body, coverTop: boolean): void {
+  if (b.hairStyle === 'none') return;
   const h = b.hair;
   const dk = shade(h, 0.32);
   const { x: hx, y: hy } = HEAD;
@@ -419,7 +423,7 @@ export function drawHairBack(c: Ctx, b: Body, head: ItemLook | undefined): boole
   return false;
 }
 
-export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined): void {
+export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined, icon = false): void {
   const { x: hx, y: hy, rx, ry } = HEAD;
   const shape = head?.shape;
   const p = head?.primary ?? 0, s = head ? trim(head) : 0;
@@ -431,11 +435,14 @@ export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined): void {
     blob(c, [hx - 8, hy - 12, hx - 15, hy - 22, hx - 20, hy - 34, hx - 15, hy - 33, hx - 9, hy - 25, hx - 2, hy - 17], shade(hc, 0.2), { ow: OW });
   }
 
-  // face
-  ball(c, hx, hy, rx, ry, b.skin, { hl: 0.22, inset: 0.9, sh: 0.22 });
-  // blush
-  if (!shape || (shape !== 'helm' && shape !== 'helm_horned')) wash(c, (k) => k.ellipse(hx + 11.4, hy + 6.4, 2.8, 1.5), BLUSH, 0.5);
-  else wash(c, (k) => k.ellipse(hx + 11.6, hy + 6.6, 2.6, 1.4), BLUSH, 0.45);
+  // face (icons: a dark hollow for helms / hoods, nothing for hats)
+  if (!icon) {
+    ball(c, hx, hy, rx, ry, b.skin, { hl: 0.22, inset: 0.9, sh: 0.22 });
+    if (!shape || (shape !== 'helm' && shape !== 'helm_horned')) wash(c, (k) => k.ellipse(hx + 11.4, hy + 6.4, 2.8, 1.5), BLUSH, 0.5);
+    else wash(c, (k) => k.ellipse(hx + 11.6, hy + 6.6, 2.6, 1.4), BLUSH, 0.45);
+  } else if (shape === 'helm' || shape === 'helm_horned' || shape === 'hood') {
+    c.ellipse(hx + 1, hy, rx - 1, ry - 1); fill(c, 0x231a18);
+  }
 
   switch (shape) {
     case 'hood': {
@@ -479,7 +486,7 @@ export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined): void {
     case 'wizard_hat': {
       hairFront(c, b, false);
       // hair peeking out the back
-      blob(c, [hx - 16.6, hy + 6, hx - 17, hy - 8, hx - 8, hy - 11, hx - 6, hy - 2, hx - 10, hy + 6], b.hair, { ow: OW, hl: 0 });
+      if (b.hairStyle !== 'none') blob(c, [hx - 16.6, hy + 6, hx - 17, hy - 8, hx - 8, hy - 11, hx - 6, hy - 2, hx - 10, hy + 6], b.hair, { ow: OW, hl: 0 });
       // cone with the tip flopping back
       const cone = [hx - 11, hy - 13.4, hx - 6, hy - 25, hx - 6, hy - 34, hx - 12, hy - 41, hx - 21, hy - 41.6, hx - 16, hy - 38, hx - 1, hy - 34,
         hx + 4, hy - 25, hx + 10.6, hy - 13.4];

@@ -10,6 +10,8 @@ import { CHUNK, GroundLayer } from './ground';
 import { GROUND, type ThemeKey } from './palette';
 import { SORTED_KINDS, VARIANTS, decalGlow, drawDecal, drawProp, propFx } from './props';
 import { hash2, light } from './util';
+import { prewarmMonsters } from './monsters';
+import { summonRigs } from './summons';
 
 export function themeKey(map: MapData): ThemeKey {
   if (map.zone === 'rift') return map.theme === 'ashen' ? 'riftAshen' : 'riftGlade';
@@ -223,6 +225,7 @@ export function buildLayers(map: MapData): MapLayers {
       glows.add(tx * 64 + 32, ty * 64 + 32, light(pal.liquid, 0.2), 150, 0.5);
     }
   }
+  if (map.theme !== 'town') prewarmMonsters(map.theme, map.zone === 'rift', summonRigs());
   const tD = performance.now();
   ground.prebake(map.entry.x - 1100, map.entry.y - 700, map.entry.x + 1100, map.entry.y + 700, 24);
   const tE = performance.now();

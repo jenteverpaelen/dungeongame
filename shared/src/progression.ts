@@ -1,6 +1,7 @@
 // Leveling (1-70), Paragon (infinite), difficulty tiers and monster scaling.
 
 import { MAX_LEVEL } from './constants';
+import { SKILL_SLOTS, skillsForClass } from './data/skills';
 import type { CharacterSave, ParagonCategory, StatId } from './types';
 
 /** XP to go from `level` to `level + 1`. */
@@ -142,6 +143,7 @@ export function addXp(save: CharacterSave, amount: number): XpResult {
       xp = 0;
     }
   }
+  if (res.levels) autoSlotSkills(save);
   if (save.level >= MAX_LEVEL && xp > 0) {
     save.xp = 0;
     let px = save.paragon.xp + xp;
@@ -153,4 +155,19 @@ export function addXp(save: CharacterSave, amount: number): XpResult {
     save.paragon.xp = px;
   }
   return res;
+}
+
+/** Diablo 3-style: newly unlocked skills drop into empty auto-cast slots (players can rearrange later). */
+export function autoSlotSkills(save: CharacterSave): boolean {
+  let changed = false;
+  const slots = save.skills.slots;
+  while (slots.length < SKILL_SLOTS) slots.push(null);
+  for (const s of skillsForClass(save.classId)) {
+    if (s.kind === 'primary' || s.unlock > save.level || slots.includes(s.id)) continue;
+    const free = slots.indexOf(null);
+    if (free < 0) break;
+    slots[free] = s.id;
+    changed = true;
+  }
+  return changed;
 }

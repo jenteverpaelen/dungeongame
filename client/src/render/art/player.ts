@@ -65,12 +65,33 @@ export function playerParts(look: PlayerLook, body: Body = classBody(look.classI
   return specs;
 }
 
+const pendingBakes = new Map<string, PlayerLook>();
+let lastPump = 0;
+
+/** Bake at most one queued look per ~frame; views swap from live vector parts to the baked sheet. */
+function pumpBakes(): void {
+  const now = performance.now();
+  if (now - lastPump < 14 || !pendingBakes.size) return;
+  lastPump = now;
+  const [key, look] = pendingBakes.entries().next().value as [string, PlayerLook];
+  pendingBakes.delete(key);
+  const cur = sheets.get(key);
+  if (!cur || cur.destroyed || !cur.live) return;
+  const baked = bakeSheet(playerParts(look), 3, 1024, `player:${look.classId}`);
+  baked.refs = cur.refs;
+  sheets.set(key, baked);
+  // views swap on their next update; free the live geometry once they surely have
+  setTimeout(() => cur.destroy(), 4000);
+}
+
 function acquireSheet(look: PlayerLook): { key: string; sheet: Sheet } {
   const key = lookKey(look);
   let sheet = sheets.get(key);
   if (!sheet || sheet.destroyed) {
-    sheet = bakeSheet(playerParts(look), 3, 1024, `player:${look.classId}`);
+    // instant live parts now, baked texture sheet on a later frame
+    sheet = bakeSheet(playerParts(look), 3, 1024, `player:${look.classId}`, true);
     sheets.set(key, sheet);
+    pendingBakes.set(key, look);
   }
   const i = idle.indexOf(key);
   if (i >= 0) idle.splice(i, 1);
@@ -87,7 +108,7 @@ function releaseSheet(key: string): void {
   while (idle.length > 12) {
     const k = idle.shift()!;
     const s = sheets.get(k);
-    if (s && s.refs <= 0) { s.destroy(); sheets.delete(k); }
+    if (s && s.refs <= 0) { s.destroy(); sheets.delete(k); pendingBakes.delete(k); }
   }
 }
 
@@ -121,7 +142,7 @@ const REST: Record<WeaponKind, [number, number, number]> = {
   xbow: [-0.5, 2.05, 0.18],
   hxbow: [-0.55, 1.95, 0.2],
   staff: [-0.78, 1.08, 0.2],
-  wand: [-0.3, 0.9, 0.2],
+  wand: [-0.5, 1.75, 0.2],
 };
 
 interface GlowFx { sprite: Sprite; base: number; phase: number }
@@ -182,9 +203,15 @@ export class PlayerArt implements PlayerView {
     this.look = look;
     const acq = acquireSheet(look);
     this.key = acq.key;
-    if (this.p) { this.root.removeChild(this.p.root); this.p.destroy(); }
     if (prevKey) releaseSheet(prevKey);
-    this.build(acq.sheet);
+    this.rebuild(acq.sheet);
+  }
+
+  private sheet!: Sheet;
+  private rebuild(sheet: Sheet): void {
+    if (this.p) { this.root.removeChild(this.p.root); this.p.destroy(); }
+    this.sheet = sheet;
+    this.build(sheet);
   }
 
   private build(sheet: Sheet): void {
@@ -250,23 +277,25 @@ export class PlayerArt implements PlayerView {
       const l = sl[slot];
       if (!l?.glow) continue;
       glowCount++;
-      const g = glowSprite(l.glow, Math.max(a[2], a[3]) * 1.5, 0.3, true);
+      const g = glowSprite(l.glow, Math.max(a[2], a[3]) * 1.7, 0.3, true);
       g.position.set(a[0], a[1]);
       g.scale.y *= a[3] / a[2];
       glowLayer.addChild(g);
-      this.glows.push({ sprite: g, base: 0.34, phase: Math.random() * TAU });
+      this.glows.push({ sprite: g, base: 0.5, phase: Math.random() * TAU });
       if (slot === 'head' || slot === 'chest' || slot === 'shoulders' || slot === 'offhand') this.addTwinkles(l, a[0], a[1], a[2] * 0.45, 1);
     }
     const w = sl.mainhand;
     if (w?.glow && n.weapon) {
       glowCount++;
       const len = this.wk === '2h' ? 46 : this.wk === 'staff' ? 50 : this.wk === 'bow' ? 48 : this.wk === 'wand' ? 18 : this.wk === 'xbow' ? 30 : 26;
-      const ws = glowSprite(w.glow, len * 0.9, 0.5, true);
+      const ws = glowSprite(w.glow, len * 1.05, 0.5, true);
+      ws.blendMode = 'normal';
       ws.scale.x = ws.scale.y * 0.42;
       ws.position.set(0, this.wk === 'bow' ? 0 : -len * 0.55);
       n.weapon.c.addChildAt(ws, 0);
-      this.glows.push({ sprite: ws, base: 0.5, phase: 0 });
+      this.glows.push({ sprite: ws, base: 0.62, phase: 0 });
       const tip = sparkleSprite(light(w.glow, 0.4), 8, 0.8);
+      tip.blendMode = 'normal';
       tip.position.set(0, this.wk === 'bow' ? -22 : -len * 0.95);
       n.weapon.c.addChild(tip);
       this.twinkles.push({ s: tip, x: tip.x, y: tip.y, r: 0, phase: 0, speed: 3.1, rise: false, color: w.glow });
@@ -274,21 +303,32 @@ export class PlayerArt implements PlayerView {
     if (glowCount >= 3) {
       // a full legendary / set kit: the hero shimmers
       const main = Object.values(sl).find((l) => l?.glow)?.glow ?? GLOW_SET;
-      const aura = glowSprite(main, 70, 0.16, true);
-      aura.position.set(0, -30);
-      aura.scale.y *= 1.15;
+      const aura = glowSprite(main, 84, 0.2, true);
+      aura.position.set(0, -32);
+      aura.scale.y *= 1.2;
       glowLayer.addChildAt(aura, 0);
-      this.glows.push({ sprite: aura, base: 0.16 + glowCount * 0.02, phase: 1 });
+      this.glows.push({ sprite: aura, base: 0.22 + glowCount * 0.03, phase: 1 });
+    }
+    // set pieces: a gentle stream of motes rising around the hero
+    const setPieces = Object.values(sl).filter((l) => l?.glow === GLOW_SET).length;
+    for (let i = 0; i < Math.min(4, setPieces); i++) {
+      const m = sparkleSprite(light(GLOW_SET, 0.35), 7, 0);
+      this.fxFront.addChild(m);
+      this.twinkles.push({ s: m, x: 0, y: -26, r: 20, phase: (i / 4) * TAU, speed: 1.1, rise: true, color: GLOW_SET });
     }
 
     // weapon trail
     this.trail = swooshSprite(w?.glow ? light(w.glow, 0.2) : 0xfff2d8, this.wk === '2h' ? 50 : 36, 0);
     this.trail.position.set(SH_F.x, HIP_Y + SH_F.y);
     this.fxFront.addChild(this.trail);
-    // whirlwind arcs
+    // whirlwind arcs: live outside the body flip, projected onto the ground plane (behind + in front)
     for (let i = 0; i < 2; i++) {
-      const s = swooshSprite(w?.glow ? light(w.glow, 0.3) : 0xf4ecd8, this.wk === '2h' ? 40 : 34, 0);
-      (i === 0 ? this.fxBack : this.fxFront).addChild(s);
+      const plane = new Container();
+      plane.position.set(0, -22);
+      plane.scale.y = 0.38;
+      const s = swooshSprite(w?.glow ? light(w.glow, 0.3) : 0xf4ecd8, this.wk === '2h' ? 44 : 36, 0);
+      plane.addChild(s);
+      (i === 0 ? p.under : p.over).addChild(plane);
       this.whirl.push(s);
     }
   }
@@ -306,6 +346,8 @@ export class PlayerArt implements PlayerView {
 
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
+    pumpBakes();
+    if (this.sheet.destroyed || this.sheet !== sheets.get(this.key)) { const cur = sheets.get(this.key); if (cur && !cur.destroyed) this.rebuild(cur); }
     const flags = s.flags;
     const frozen = (flags & F_FROZEN) !== 0;
     const chill = (flags & F_CHILL) !== 0;
@@ -369,9 +411,12 @@ export class PlayerArt implements PlayerView {
         const wind = big ? -3.95 : -3.55;
         const strike = big ? -0.25 : -0.55;
         let a: number, wr: number;
-        if (u < 0.35) { const e = easeOut(u / 0.35); a = lerp(rest[0], wind, e); wr = lerp(rest[1], big ? 0.2 : 0.35, e); chestRot = lerp(chestRot, -0.12, e); }
-        else if (u < 0.55) { const e = easeIn((u - 0.35) / 0.2); a = lerp(wind, strike, e); wr = lerp(big ? 0.2 : 0.35, big ? 0.9 : 1.2, e); chestRot = lerp(-0.12, 0.2, e); trailA = 1; }
-        else { const e = easeInOut((u - 0.55) / 0.45); a = lerp(strike, rest[0], e); wr = lerp(big ? 0.9 : 1.2, rest[1], e); chestRot = lerp(0.2, chestRot, e); trailA = 1 - e * 1.6; }
+        // blade world angle = arm + weapon: rest ≈ up-forward, wind-up ≈ back-down behind the head,
+        // strike end ≈ forward-down, so the blade sweeps up and over in one arc
+        const wW = big ? 1.75 : 1.65, wS = big ? 2.65 : 2.75;
+        if (u < 0.35) { const e = easeOut(u / 0.35); a = lerp(rest[0], wind, e); wr = lerp(rest[1], wW, e); chestRot = lerp(chestRot, -0.12, e); }
+        else if (u < 0.55) { const e = easeIn((u - 0.35) / 0.2); a = lerp(wind, strike, e); wr = lerp(wW, wS, e); chestRot = lerp(-0.12, 0.2, e); trailA = 1; }
+        else { const e = easeInOut((u - 0.55) / 0.45); a = lerp(strike, rest[0], e); wr = lerp(wS, rest[1], e); chestRot = lerp(0.2, chestRot, e); trailA = 1 - e * 1.6; }
         armF = a; wpn = wr;
         armB = lerp(armB, 0.5, Math.sin(u * Math.PI));
         legF = lerp(legF, -0.25, Math.sin(u * Math.PI) * (1 - m));
@@ -399,7 +444,7 @@ export class PlayerArt implements PlayerView {
     if (this.castB > 0.01) {
       const c = this.castB;
       armF = lerp(armF, -2.75, c); armB = lerp(armB, -2.55, c);
-      wpn = lerp(wpn, this.wk === 'staff' || this.wk === 'wand' ? 2.6 : wpn, c);
+      wpn = lerp(wpn, 2.7, c);
       sy += 0.04 * c; chestY -= 1.2 * c;
     }
 
@@ -509,15 +554,16 @@ export class PlayerArt implements PlayerView {
     // trail / whirl / fx
     if (this.trail) {
       this.trail.alpha = clamp(trailA) * 0.8;
-      if (trailA > 0) this.trail.rotation = Math.atan2(Math.cos(armF), -Math.sin(armF)) - Math.PI / 3 + chestRot;
+      if (trailA > 0) { const b = armF + wpn; this.trail.rotation = Math.atan2(-Math.cos(b), Math.sin(b)) - Math.PI / 3 + chestRot; }
       this.trail.y = chestY + SH_F.y;
     }
     for (let i = 0; i < this.whirl.length; i++) {
       const s = this.whirl[i];
-      s.alpha = this.chan * (i === 0 ? 0.55 : 0.7);
-      s.position.set(0, -24);
-      s.rotation = this.spin * (this.face) + i * Math.PI;
-      s.scale.y = Math.abs(s.scale.x) * 0.36;
+      // back arc sweeps the far half (top of the ellipse), front arc the near half
+      const a = this.spin * 1.0 * Math.sign(this.face || 1);
+      s.rotation = i === 0 ? a : a + Math.PI;
+      const near = Math.sin(s.rotation + Math.PI / 6) > 0;
+      s.alpha = this.chan * (i === 0 ? (near ? 0.25 : 0.6) : (near ? 0.8 : 0.3));
     }
     this.updateGlows(t, s);
     this.updateStatus(t, flags, stunned);
@@ -542,9 +588,9 @@ export class PlayerArt implements PlayerView {
         w.s.position.set(w.x + Math.cos(a) * rr, w.y + Math.sin(a) * rr * 0.8);
       }
       const k = Math.sin(cyc * Math.PI);
-      w.s.alpha = k * 0.8;
-      w.s.scale.set((w.rise ? 0.075 : 0.1) * (0.5 + k));
-      if (w.rise) w.s.y -= 0.25;
+      w.s.alpha = k * 0.9;
+      w.s.scale.set((w.rise ? 0.1 : 0.13) * (0.5 + k));
+      if (w.rise) w.s.y -= 0.35;
     }
     void s;
   }

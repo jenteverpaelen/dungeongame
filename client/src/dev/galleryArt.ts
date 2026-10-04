@@ -313,13 +313,55 @@ function sheetsView() {
 
 function bakeTest() {
   const ids = (qs.get('ids') ?? 'ember_imp').split(',');
-  const tiers = (qs.get('tiers') ?? '1').split(',').map(Number);
+  const tiers = (qs.get('tiers') ?? '0').split(',').map(Number);
+  const anim = qs.get('anim') ?? 'idle';
+  const fl = anim === 'walk' ? F_MOVING : anim === 'attack' ? F_ATTACK : anim === 'windup' ? 1 << 15 : anim === 'stun' ? F_STUN : anim === 'frozen' ? F_FROZEN : 0;
   let x = 60;
-  for (const id of ids) for (const t of tiers) { addActor(createMonsterView(id, t as EliteTier, [], MONSTERS[id].scale), x, 120); x += 90; }
-  world.scale.set(2);
+  for (const id of ids) for (const t of tiers) {
+    addActor(createMonsterView(id, t as EliteTier, t === 1 || t === 2 ? ['molten'] : [], MONSTERS[id].scale), x, 120, st({ moving: anim === 'walk', vx: 100, flags: fl }), 1.1);
+    x += MONSTERS[id].scale > 1.2 ? 110 : 80;
+  }
+  world.scale.set(ZOOM);
+  // ?death=element → every view dies once after 1 s, ?hit=1 → flash every 0.5 s
+  const death = qs.get('death');
+  if (death !== null) setTimeout(() => { for (const a of actors) a.view.die(Number(death), () => { a.view.root.visible = false; }); }, 1000);
+  if (qs.get('hit')) for (const a of actors) { a.hitEvery = 0.5; a.nextHit = 0.4; }
+}
+
+let drawCalls = 0, drawCallsShown = 0;
+function perfView() {
+  mapView();
+  const map = generateMap('whispering_glade', 99);
+  const fam = Object.values(MONSTERS).filter((m) => m.themes.includes('glade'));
+  const scr = app.screen;
+  const cx = (scr.width / 2 - world.x) / ZOOM, cy = (scr.height / 2 - world.y) / ZOOM;
+  const ents = world.children[2] as Container;
+  for (let i = 0; i < (qs.get('nomon') ? 0 : 150); i++) {
+    const m = fam[i % fam.length];
+    const x = cx + (Math.random() - 0.5) * scr.width / ZOOM * 0.95, y = cy + (Math.random() - 0.5) * scr.height / ZOOM * 0.9;
+    const el = (i % 17 === 0 ? 1 : i % 29 === 0 ? 2 : 0) as EliteTier;
+    const v = createMonsterView(m.id, el, el ? ['frozen'] : [], m.scale);
+    const a = addActor(v, x, y, st({ moving: i % 2 === 0, vx: 90, facingLeft: i % 3 === 0, flags: i % 2 === 0 ? F_MOVING : F_ATTACK }), 0.9, ents, i % 5 === 0 ? 0.6 : 0);
+    v.root.zIndex = y; void a;
+  }
+  for (let i = 0; i < (qs.get('noplayers') ? 0 : 20); i++) {
+    const c = CLASS_IDS[i % 3];
+    const v = createPlayerView(i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
+    const x = cx + (Math.random() - 0.5) * 900, y = cy + (Math.random() - 0.5) * 500;
+    addActor(v, x, y, st({ moving: true, vx: 200, flags: F_MOVING | (i % 4 === 0 ? F_CHANNEL : 0) }), 1.2, ents);
+    v.root.zIndex = y;
+  }
+  void map;
+  const gl = (app.renderer as unknown as { gl?: WebGL2RenderingContext }).gl;
+  if (gl) {
+    const de = gl.drawElements.bind(gl), da = gl.drawArrays.bind(gl);
+    gl.drawElements = (...a: Parameters<typeof de>) => { drawCalls++; de(...a); };
+    gl.drawArrays = (...a: Parameters<typeof da>) => { drawCalls++; da(...a); };
+  }
 }
 
 switch (VIEW) {
+  case 'perf': perfView(); break;
   case 'bake': bakeTest(); break;
   case 'sheets': sheetsView(); break;
   case 'chars': charsView(); break;
@@ -332,8 +374,9 @@ switch (VIEW) {
 
 let time = 0;
 let frames = 0, acc = 0, fps = 0;
+app.ticker.add(() => { drawCallsShown = drawCalls; drawCalls = 0; }, undefined, -100);
 app.ticker.add((tk) => {
-  const dt = Math.min(0.05, tk.deltaMS / 1000);
+  const dt = Math.min(0.05, tk.deltaMS / 1000) * Number(qs.get('slow') ?? 1);
   time += dt;
   frames++; acc += tk.deltaMS;
   if (acc > 500) { fps = Math.round(frames * 1000 / acc); frames = 0; acc = 0; }
@@ -346,7 +389,8 @@ app.ticker.add((tk) => {
       flags: o.flags ?? 0, attackSeq: (o.flags ?? 0) & (F_ATTACK | F_FROZEN) ? a.seq : (o.attackSeq ?? 0), hpFrac: 1, time, aps: a.aps,
     });
   }
-  hud.textContent = `${VIEW}  ${fps} fps  ${mapInfo}`;
+  hud.textContent = `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  ${mapInfo}`;
+  (window as unknown as { __info: string }).__info = `${fps} fps, draws/frame ${drawCallsShown}, actors ${actors.length} ${mapInfo}`;
 });
 (window as unknown as { __pages: unknown }).__pages = bakedPages;
 (window as unknown as { __ready: boolean; __info: string }).__ready = true;

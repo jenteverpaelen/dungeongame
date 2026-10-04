@@ -147,6 +147,13 @@ export class GroundLayer extends Container {
     }
   }
 
+  override destroy(options?: Parameters<Container['destroy']>[0]): void {
+    for (const ch of this.chunks.values()) ch.sprite.texture.destroy(true);
+    this.chunks.clear();
+    this.canvasCache = [];
+    super.destroy(options);
+  }
+
   private ensure(c: number, r: number): void {
     const key = r * this.cols + c;
     if (this.chunks.has(key)) return;

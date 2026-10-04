@@ -3,11 +3,11 @@
 // glows, bosses are big and crowned. See docs/ART_DIRECTION.md §Monsters.
 
 import { Container, Sprite } from 'pixi.js';
-import { MONSTERS, ELITE_AFFIXES, type MonsterDef } from '@shared/data/monsters';
+import { MONSTERS, ELITE_AFFIXES, RIFT_GUARDIANS, type MonsterDef } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import { F_ATTACK, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, F_WINDUP } from '@shared/protocol';
 import type { EntityView, ViewState } from '../types';
-import { bakeSheet, type PartSpec, type Sheet } from './bake';
+import { SheetSlice, bakeSheet, type PartSpec, type Sheet, type SheetLike } from './bake';
 import {
   OUT, ball, blob, blobPath, crease, eye, fill, flat, gem, gloss, line, outline, paint, poly, rbox, seg, spark, star, wash, type Ctx,
 } from './draw';
@@ -721,24 +721,43 @@ const FAMILIES: Record<Fam, Family> = {
 
 // ═══════════════════════════════ sheets ═══════════════════════════════
 
-const sheets = new Map<string, Sheet>();
+const sheets = new Map<string, SheetLike>();
 
-export function rigSheet(key: string, colors: C, fam: Family, scale: number): Sheet {
+/** Texel density of a rig: ordinary rigs share one density (so they can share an atlas); big bosses get more. */
+function rigRes(fam: Family, scale: number): number {
   const S = fam.base * scale;
-  const res = Math.max(2, Math.min(9, Math.round(3 * S)));
+  return S > 2.2 ? Math.max(3, Math.min(9, Math.round(3 * S))) : 3;
+}
+
+function rigSpecs(colors: C, fam: Family, scale: number, prefix = ''): PartSpec[] {
+  // outlines thicken sub-linearly with size so big monsters keep a crisp, not heavy, line
+  const owk = 1 / Math.sqrt(Math.max(1, fam.base * scale));
+  return fam.parts(colors).map((p) => ({
+    ...p,
+    name: prefix + p.name,
+    draw: (c: Ctx) => { const prev = paint.ow; paint.ow = owk; try { p.draw(c); } finally { paint.ow = prev; } },
+  }));
+}
+
+export function rigSheet(key: string, colors: C, fam: Family, scale: number): SheetLike {
+  const res = rigRes(fam, scale);
   const k = `${key}@${res}`;
   let sh = sheets.get(k);
-  if (!sh) {
-    // outlines thicken sub-linearly with size so big monsters keep a crisp, not heavy, line
-    const owk = 1 / Math.sqrt(Math.max(1, res / 3));
-    const specs = fam.parts(colors).map((p) => ({
-      ...p,
-      draw: (c: Ctx) => { const prev = paint.ow; paint.ow = owk; try { p.draw(c); } finally { paint.ow = prev; } },
-    }));
-    sh = bakeSheet(specs, res, 2048, key);
+  if (!sh || sh.destroyed) {
+    sh = bakeSheet(rigSpecs(colors, fam, scale), res, 2048, key);
     sheets.set(k, sh);
   }
   return sh;
+}
+
+/** Bake many rigs into one shared atlas (one texture → monsters batch together). */
+export function bakeRigAtlas(rigs: { key: string; colors: C; fam: Family; scale: number }[], label: string): void {
+  const todo = rigs.filter((r) => rigRes(r.fam, r.scale) === 3 && !sheets.get(`${r.key}@3`));
+  if (!todo.length) return;
+  const specs: PartSpec[] = [];
+  for (const r of todo) specs.push(...rigSpecs(r.colors, r.fam, r.scale, `${r.key}/`));
+  const atlas: Sheet = bakeSheet(specs, 3, 2048, label);
+  for (const r of todo) sheets.set(`${r.key}@3`, new SheetSlice(atlas, `${r.key}/`));
 }
 
 // ═══════════════════════════════ view ═══════════════════════════════
@@ -811,9 +830,11 @@ export class RigArt implements EntityView {
       this.p.setRim(rim, this.rimBase);
       if (elite !== 3) {
         this.ring = ringSprite(rim, this.fam.shadow * this.S * 1.25, 0.45, true);
+        this.ring.blendMode = 'normal';
         this.p.under.addChild(this.ring);
         if (affixCol) {
           this.aura = glowSprite(affixCol, this.fam.shadow * this.S * 1.4, 0.25, true);
+          this.aura.blendMode = 'normal';
           this.aura.scale.y *= 0.45;
           this.p.under.addChild(this.aura);
         }
@@ -822,6 +843,7 @@ export class RigArt implements EntityView {
       this.p.setRim(RIM_BOSS, 0.55);
       this.rimBase = 0.55;
       this.aura = glowSprite(0xff3018, this.fam.shadow * this.S * 1.6, 0.28, true);
+      this.aura.blendMode = 'normal';
       this.aura.scale.y *= 0.42;
       this.p.under.addChild(this.aura);
     }
@@ -993,4 +1015,17 @@ export class MonsterArt extends RigArt {
     super({ key: `monster:${def.id}`, fam: FAMILIES[def.family], colors: def.colors, scale: scale || def.scale, elite, affixes });
     if (def.family === 'goblin') this.addSparkles(3, 0xffe08a, 9);
   }
+}
+
+/** Bake every monster that can appear on a map theme (+ extra rigs such as summons) into one atlas. */
+export function prewarmMonsters(theme: string, rift: boolean, extra: { key: string; colors: C; fam: Family; scale: number }[] = []): void {
+  const rigs: { key: string; colors: C; fam: Family; scale: number }[] = [...extra];
+  for (const def of Object.values(MONSTERS)) {
+    const wanted = def.themes.includes(theme) || def.family === 'goblin' || (rift && RIFT_GUARDIANS[theme] === def.id);
+    if (!wanted) continue;
+    const fam = FAMILIES[def.family];
+    if (fam.base > 2) rigSheet(`monster:${def.id}`, def.colors, fam, def.scale);
+    else rigs.push({ key: `monster:${def.id}`, colors: def.colors, fam, scale: def.scale });
+  }
+  bakeRigAtlas(rigs, `rigs:${theme}`);
 }

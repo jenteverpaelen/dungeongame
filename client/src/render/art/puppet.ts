@@ -3,7 +3,7 @@
 // glow (parallel tree of dilated silhouettes behind the body), tints, and the shadow.
 
 import { Container, Graphics, Sprite } from 'pixi.js';
-import type { Sheet, Version } from './bake';
+import type { SheetLike, Version } from './bake';
 import { shadowSprite } from './fx';
 
 export class PNode {
@@ -34,7 +34,7 @@ export class Puppet {
   private flashUntil = 0;
   facing = 1;
 
-  constructor(readonly sheet: Sheet, shadowW: number, shadowAlpha = 0.85) {
+  constructor(readonly sheet: SheetLike, shadowW: number, shadowAlpha = 0.85) {
     this.shadow = shadowSprite(shadowW, shadowAlpha);
     this.root.addChild(this.shadow, this.under, this.body, this.over);
   }

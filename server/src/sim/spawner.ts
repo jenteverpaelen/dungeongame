@@ -6,7 +6,7 @@ import { eliteName, rollEliteAffixes } from './elites';
 import type { Instance } from './instance';
 import { DUMMY_DEF, createMob, playerDifficulty } from './monsters';
 import {
-  CHAMPION_CHANCE, GOBLIN_FIELD_CHANCE, GOBLIN_RIFT_CHANCE, RARE_CHANCE, RESPAWN_MIN_DIST, RESPAWN_PREF_DIST, RIFT_PACKS,
+  CHAMPION_CHANCE, FIELD_NEAR_DIST, FIELD_NEAR_PACKS, FIELD_VISIBLE_DIST, FIELD_VISIBLE_PACKS, GOBLIN_FIELD_CHANCE, GOBLIN_RIFT_CHANCE, RARE_CHANCE, RESPAWN_MIN_DIST, RESPAWN_PREF_DIST, RIFT_PACKS,
 } from './tuning';
 import type { Mob, Pack, Player } from './types';
 
@@ -113,6 +113,7 @@ export class Spawner {
     const inst = this.inst;
     if (inst.kind !== 'field' || inst.t < this.nextCheck) return;
     this.nextCheck = inst.t + 1000;
+    this.ensureNearPlayers();
     if (!this.pending.length) return;
     this.pending.sort((a, b) => a - b);
     while (this.pending.length && this.pending[0] <= inst.t) {
@@ -136,6 +137,55 @@ export class Spawner {
       if (minD <= RESPAWN_PREF_DIST) pref.push(i); else ok.push(i);
     }
     const from = pref.length ? pref : ok;
+    return from.length ? from[Math.floor(inst.rng.next() * from.length)] : -1;
+  }
+
+  /** Diablo-style density: keep FIELD_NEAR_PACKS live packs within FIELD_NEAR_DIST of every player,
+   *  spawned out of view when possible, so a player is never more than a few seconds from a fight. */
+  private ensureNearPlayers() {
+    const inst = this.inst;
+    let live = this.livePacks();
+    const cap = inst.def.packTarget + inst.players.length * FIELD_NEAR_PACKS;
+    for (const p of inst.players) {
+      if (p.deadMs > 0) continue;
+      let near = 0, visible = 0;
+      for (const sl of this.slots) {
+        if (!sl.pack || sl.pack.alive <= 0) continue;
+        const d = Math.hypot(sl.x - p.x, sl.y - p.y);
+        if (d < FIELD_NEAR_DIST) near++;
+        if (d < FIELD_VISIBLE_DIST) visible++;
+      }
+      // Always something on screen to run at (fresh arrivals, cleared areas)...
+      while (visible < FIELD_VISIBLE_PACKS && live < cap) {
+        const i = this.pickSlotNear(p, FIELD_VISIBLE_DIST);
+        if (i < 0) break;
+        this.populate(i, true);
+        visible++; near++; live++;
+      }
+      // ...and a ring of packs just beyond the screen edge.
+      while (near < FIELD_NEAR_PACKS && live < cap) {
+        const i = this.pickSlotNear(p, FIELD_NEAR_DIST);
+        if (i < 0) break;
+        this.populate(i, true);
+        near++;
+        live++;
+      }
+    }
+  }
+
+  private pickSlotNear(p: Player, maxDist: number): number {
+    const inst = this.inst;
+    const outOfView: number[] = [], inRange: number[] = [];
+    for (let i = 0; i < this.slots.length; i++) {
+      const sl = this.slots[i];
+      if (sl.pack) continue;
+      const d = Math.hypot(sl.x - p.x, sl.y - p.y);
+      if (d < 650 || d > maxDist) continue;
+      let minD = Infinity;
+      for (const q of inst.players) minD = Math.min(minD, Math.hypot(q.x - sl.x, q.y - sl.y));
+      (minD >= RESPAWN_MIN_DIST ? outOfView : inRange).push(i);
+    }
+    const from = outOfView.length ? outOfView : inRange;
     return from.length ? from[Math.floor(inst.rng.next() * from.length)] : -1;
   }
 

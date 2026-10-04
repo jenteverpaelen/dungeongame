@@ -7,7 +7,7 @@ import type { ClassId } from '@shared/types';
 import { createPlayerView } from '../render/art';
 import type { PlayerView } from '../render/types';
 
-interface Preview { app: Application; view: PlayerView; canvas: HTMLCanvasElement; classId: ClassId }
+interface Preview { app: Application; view: PlayerView; canvas: HTMLCanvasElement; classId: ClassId; ready: Promise<void>; dead: boolean }
 
 const previews = new Map<HTMLCanvasElement, Preview>();
 let observer: MutationObserver | null = null;
@@ -17,17 +17,18 @@ async function mount(canvas: HTMLCanvasElement) {
   const classId = canvas.dataset.preview as ClassId;
   if (!classId || previews.has(canvas)) return;
   const app = new Application();
-  previews.set(canvas, { app, view: null as unknown as PlayerView, canvas, classId });
-  await app.init({ canvas, width: canvas.width, height: canvas.height, backgroundAlpha: 0, antialias: true, resolution: Math.min(2, devicePixelRatio), autoDensity: false });
+  const ready = app.init({ canvas, width: canvas.width, height: canvas.height, backgroundAlpha: 0, antialias: true, resolution: Math.min(2, devicePixelRatio), autoDensity: false });
+  const entry: Preview = { app, view: null as unknown as PlayerView, canvas, classId, ready, dead: false };
+  previews.set(canvas, entry);
+  await ready;
+  if (entry.dead) { app.destroy(); return; }
   const look = playerLook(createCharacter('preview', classId, 7));
   const view = createPlayerView(look);
   const scale = canvas.height / 92;
   view.root.scale.set(scale);
   view.root.position.set(canvas.width / 2, canvas.height * 0.86);
   app.stage.addChild(view.root);
-  const p = previews.get(canvas);
-  if (!p) { app.destroy(); return; }
-  p.view = view;
+  entry.view = view;
   let seq = 0, lastSwing = 0;
   app.ticker.add((t) => {
     time += t.deltaMS / 1000;
@@ -43,15 +44,23 @@ async function mount(canvas: HTMLCanvasElement) {
 export function startPreviews() {
   const scan = () => {
     document.querySelectorAll<HTMLCanvasElement>('canvas[data-preview]').forEach((c) => void mount(c));
-    for (const [c, p] of previews) if (!c.isConnected) { previews.delete(c); p.app.destroy(); }
+    for (const [c, p] of previews) if (!c.isConnected) { previews.delete(c); destroyPreview(p); }
   };
   observer = new MutationObserver(scan);
   observer.observe(document.getElementById('ui')!, { childList: true, subtree: true });
   scan();
 }
 
+/** Destroy once the Pixi app finished initialising (destroying mid-init throws inside Pixi). */
+function destroyPreview(p: Preview) {
+  if (p.dead) return;
+  p.dead = true;
+  void p.ready.then(() => { try { p.app.destroy(); } catch { /* already gone */ } });
+}
+
 export function stopPreviews() {
   observer?.disconnect();
-  for (const p of previews.values()) p.app.destroy();
+  observer = null;
+  for (const p of previews.values()) destroyPreview(p);
   previews.clear();
 }

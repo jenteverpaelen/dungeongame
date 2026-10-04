@@ -22,11 +22,32 @@ export interface PartSpec {
 
 interface Baked { tex?: Texture; ctx?: GraphicsContext }
 
-export class Sheet {
+/** What a Puppet needs from a sheet (a whole sheet, or a named slice of a shared atlas). */
+export interface SheetLike {
+  readonly destroyed: boolean;
+  has(name: string): boolean;
+  make(name: string, v?: Version): Sprite | Graphics;
+  setVersion(obj: Sprite | Graphics, name: string, v: Version): void;
+  texture(name: string, v?: Version): Texture | null;
+}
+
+/** A prefix view into a shared atlas sheet. */
+export class SheetSlice implements SheetLike {
+  constructor(readonly base: Sheet, readonly prefix: string) {}
+  get destroyed(): boolean { return this.base.destroyed; }
+  has(name: string): boolean { return this.base.has(this.prefix + name); }
+  make(name: string, v: Version = 'n'): Sprite | Graphics { return this.base.make(this.prefix + name, v); }
+  setVersion(obj: Sprite | Graphics, name: string, v: Version): void { this.base.setVersion(obj, this.prefix + name, v); }
+  texture(name: string, v: Version = 'n'): Texture | null { return this.base.texture(this.prefix + name, v); }
+}
+
+export class Sheet implements SheetLike {
   readonly parts = new Map<string, Partial<Record<Version, Baked>>>();
   readonly sources: CanvasSource[] = [];
   refs = 0;
   destroyed = false;
+  /** True when parts are live Graphics (no renderer yet, or a bake still pending). */
+  get live(): boolean { return this.sources.length === 0; }
 
   has(name: string): boolean { return this.parts.has(name); }
 
@@ -79,11 +100,11 @@ function build(spec: PartSpec, v: Version): Graphics {
  * @param res texels per world unit
  * @param maxPage maximum page edge in texels
  */
-export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 'sheet'): Sheet {
+export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 'sheet', live = false): Sheet {
   // Integer texel density: fractional resolutions make Pixi's extract read back an empty frame on some sizes.
   res = Math.max(1, Math.round(res));
   const sheet = new Sheet();
-  const renderer = getRenderer();
+  const renderer = live ? null : getRenderer();
   const items: Item[] = [];
   for (const spec of specs) {
     const versions: Version[] = ['n'];
