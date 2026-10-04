@@ -9,7 +9,7 @@
     "dev:server": "tsx watch server/src/main.ts",
     "dev:client": "vite --config client/vite.config.ts",
     "build": "vite build --config client/vite.config.ts",
-    "start": "NODE_ENV=production tsx server/src/main.ts",
+    "start": "tsx server/src/main.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test shared/test/*.test.ts",
     "test:server": "tsx server/test/bot.ts"
