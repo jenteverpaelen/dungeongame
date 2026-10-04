@@ -20,6 +20,7 @@ import type { EntityView, ViewState } from '../render/types';
 import { bakedPages } from '../render/art/bake';
 
 const qs = new URLSearchParams(location.search);
+(globalThis as { __artDebug?: boolean }).__artDebug = true;
 const VIEW = qs.get('view') ?? 'chars';
 const ZOOM = Number(qs.get('zoom') ?? (VIEW === 'map' ? 1.17 : VIEW === 'chars' ? 2 : 1.6));
 
@@ -291,7 +292,7 @@ function mapView() {
   const scr = app.screen;
   world.scale.set(ZOOM);
   world.position.set(Math.round(scr.width / 2 - fx * ZOOM), Math.round(scr.height / 2 - fy * ZOOM));
-  mapInfo = `${(globalThis as { __mapTiming?: string }).__mapTiming} [${((globalThis as { __chunkT?: number[] }).__chunkT ?? []).map((v) => v.toFixed(0)).join(" ")}] map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
+  mapInfo = `map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
 }
 
 function sheetsView() {
@@ -360,7 +361,50 @@ function perfView() {
   }
 }
 
+/** Mimics Scene's lifecycle: die() → update()+hit() every frame → done() destroys synchronously. */
+function lifecycleStress() {
+  const ids = Object.keys(MONSTERS);
+  let spawned = 0, finished = 0, doubleDone = 0;
+  const live: { v: EntityView; x: number; y: number; dying: boolean; doneCalls: number; dead: boolean; t: number; el: number }[] = [];
+  const spawn = () => {
+    const id = ids[spawned % ids.length];
+    const el = spawned % 7;
+    let v: EntityView;
+    const kind = spawned % 5;
+    if (kind === 0) v = createPlayerView(randomLook(CLASS_IDS[spawned % 3], 'legendary', spawned));
+    else if (kind === 1) v = createSummonView(['sentry', 'hydra', 'wolf', 'bat', 'raven', 'dust_devil', 'molten_pool'][spawned % 7]);
+    else if (kind === 2) v = createNpcView('dummy', spawned % 2 ? 'Training Dummy' : 'Elite Training Dummy');
+    else v = createMonsterView(id, (spawned % 6) as EliteTier, ['molten'], MONSTERS[id].scale);
+    const e = { v, x: 60 + (spawned % 12) * 70, y: 100 + Math.floor((spawned % 60) / 12) * 80, dying: false, doneCalls: 0, dead: false, t: 0, el };
+    v.root.position.set(e.x, e.y);
+    world.addChild(v.root);
+    // half of them die before their first update
+    if (spawned % 2 === 0) { e.dying = true; v.die(el, () => { e.doneCalls++; if (e.doneCalls > 1) doubleDone++; if (!e.dead) { e.dead = true; v.root.parent?.removeChild(v.root); v.destroy(); finished++; } }); }
+    live.push(e);
+    spawned++;
+  };
+  let time = 0;
+  app.ticker.add((tk) => {
+    const dt = Math.min(0.05, tk.deltaMS / 1000);
+    time += dt;
+    for (let i = 0; i < 6; i++) spawn();
+    for (const e of live) {
+      if (e.dead) continue;
+      e.t += dt;
+      if (!e.dying && e.t > 0.1) { e.dying = true; e.v.die(e.el, () => { e.doneCalls++; if (e.doneCalls > 1) doubleDone++; if (!e.dead) { e.dead = true; e.v.root.parent?.removeChild(e.v.root); e.v.destroy(); finished++; } }); }
+      e.v.update(dt, { x: e.x, y: e.y, vx: 0, vy: 0, moving: true, facingLeft: false, flags: F_ATTACK | F_MOVING, attackSeq: Math.floor(e.t * 3), hpFrac: 0, time, aps: 1 });
+      if (!e.dead) { e.v.hit(1, true); e.v.update(0, { x: e.x, y: e.y, vx: 0, vy: 0, moving: false, facingLeft: true, flags: 0, attackSeq: 0, hpFrac: 0, time, aps: 1 }); }
+      // the scene may still hold a reference and poke a destroyed view
+      if (e.dead && Math.random() < 0.1) { e.v.hit(1, false); e.v.update(dt, { x: 0, y: 0, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 0, time, aps: 1 }); }
+    }
+    for (let i = live.length - 1; i >= 0; i--) if (live[i].dead && Math.random() < 0.05) live.splice(i, 1);
+    (window as unknown as { __stress: string }).__stress = `spawned ${spawned} finished ${finished} doubleDone ${doubleDone} alive ${live.filter((e) => !e.dead).length}`;
+  });
+  world.scale.set(1);
+}
+
 switch (VIEW) {
+  case 'stress': lifecycleStress(); break;
   case 'perf': perfView(); break;
   case 'bake': bakeTest(); break;
   case 'sheets': sheetsView(); break;

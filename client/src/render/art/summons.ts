@@ -275,11 +275,14 @@ class DustDevil implements EntityView {
     }
   }
 
+  private destroyed = false;
   update(dt: number, s: ViewState): void {
+    if (this.destroyed) return;
     this.t += dt;
     this.alpha = Math.min(1, this.alpha + dt * 4);
     let a = this.alpha;
-    if (this.dying) { this.dT += dt; a *= 1 - clamp(this.dT / 0.35); if (this.dT > 0.36 && this.done) { const d = this.done; this.done = null; d(); } }
+    let finish: (() => void) | null = null;
+    if (this.dying) { this.dT += dt; a *= 1 - clamp(this.dT / 0.35); if (this.dT > 0.36 && this.done) { finish = this.done; this.done = null; } }
     this.root.alpha = a;
     const lean = clamp(s.vx / 400, -0.3, 0.3);
     for (let i = 0; i < this.rings.length; i++) {
@@ -295,10 +298,11 @@ class DustDevil implements EntityView {
       d.position.set(Math.cos(ang) * rad + lean * h * 40, -4 - h * 56 + Math.sin(ang) * rad * 0.3);
       d.alpha = Math.sin(h * Math.PI) * 0.9;
     }
+    if (finish) finish();
   }
   hit(): void { /* dust does not flinch */ }
-  die(_e: number, done: () => void): void { this.dying = true; this.done = done; }
-  destroy(): void { this.root.destroy({ children: true }); }
+  die(_e: number, done: () => void): void { if (this.dying || this.destroyed) return; this.dying = true; this.done = done; }
+  destroy(): void { if (this.destroyed) return; this.destroyed = true; this.done = null; this.root.destroy({ children: true }); }
 }
 
 // ─────────────────────────── fallback orb ───────────────────────────
@@ -315,15 +319,26 @@ class OrbSummon implements EntityView {
     this.core = glowSprite(light(color, 0.5), 18, 0.95);
     this.root.addChild(sh, this.glow, this.core);
   }
+  private destroyed = false;
+  private done: (() => void) | null = null;
+  private fade = -1;
   update(dt: number): void {
+    if (this.destroyed) return;
     this.t += dt;
     const y = -26 + Math.sin(this.t * 3) * 3;
     this.glow.y = y; this.core.y = y;
     this.glow.alpha = 0.5 + 0.15 * Math.sin(this.t * 5);
+    let finish: (() => void) | null = null;
+    if (this.fade >= 0) {
+      this.fade += dt;
+      this.root.alpha = 1 - clamp(this.fade / 0.25);
+      if (this.fade > 0.26 && this.done) { finish = this.done; this.done = null; }
+    }
+    if (finish) finish();
   }
   hit(): void { /* immaterial */ }
-  die(_e: number, done: () => void): void { done(); }
-  destroy(): void { this.root.destroy({ children: true }); }
+  die(_e: number, done: () => void): void { if (this.fade >= 0 || this.destroyed) return; this.fade = 0; this.done = done; }
+  destroy(): void { if (this.destroyed) return; this.destroyed = true; this.done = null; this.root.destroy({ children: true }); }
 }
 
 // ─────────────────────────── factory ───────────────────────────

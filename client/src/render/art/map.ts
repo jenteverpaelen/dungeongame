@@ -191,11 +191,8 @@ export function buildLayers(map: MapData): MapLayers {
 
   const propKinds = new Set<string>(), decalKinds = new Set<string>();
   for (const p of map.props) (SORTED_KINDS.has(p.k) ? propKinds : decalKinds).add(p.k);
-  const tA = performance.now();
   const propSheet = atlas('prop', theme, propKinds);
-  const tB = performance.now();
   const decalSheet = atlas('decal', theme, decalKinds);
-  const tC = performance.now();
 
   const sorted: { view: Container; y: number }[] = [];
   const NATURAL = new Set(['grass', 'flowers', 'fern', 'mushrooms', 'bush']);
@@ -226,9 +223,6 @@ export function buildLayers(map: MapData): MapLayers {
     }
   }
   if (map.theme !== 'town') prewarmMonsters(map.theme, map.zone === 'rift', summonRigs());
-  const tD = performance.now();
   ground.prebake(map.entry.x - 1100, map.entry.y - 700, map.entry.x + 1100, map.entry.y + 700, 24);
-  const tE = performance.now();
-  (globalThis as { __mapTiming?: string }).__mapTiming = `props ${(tB - tA).toFixed(0)} decals ${(tC - tB).toFixed(0)} views ${(tD - tC).toFixed(0)} chunks ${(tE - tD).toFixed(0)}`;
   return { ground, sorted, decals: glows };
 }

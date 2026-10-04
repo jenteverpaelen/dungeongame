@@ -31,7 +31,7 @@ export function propFx(kind: string, theme: ThemeKey, v: number): PropFx[] {
     case 'forge': return [{ kind: 'glow', x: -36, y: -40, size: 150, color: 0xff7a2a }, { kind: 'flame', x: -36, y: -34, size: 18, color: 0xff6a1a }, { kind: 'smoke', x: -56, y: -176, size: 34, color: 0x6a645c }];
     case 'house': return [{ kind: 'window', x: -60, y: -66, size: 46, color: 0xffc46a }, { kind: 'window', x: 52, y: -66, size: 46, color: 0xffc46a }, { kind: 'smoke', x: 50, y: -200, size: 30, color: 0x9a948a }];
     case 'tavern': return [{ kind: 'window', x: -82, y: -60, size: 50, color: 0xffc46a }, { kind: 'window', x: 82, y: -60, size: 50, color: 0xffc46a }, { kind: 'window', x: -50, y: -122, size: 44, color: 0xffb45a }, { kind: 'window', x: 50, y: -122, size: 44, color: 0xffb45a }, { kind: 'glow', x: 0, y: -40, size: 90, color: 0xffb45a }, { kind: 'smoke', x: -78, y: -250, size: 32, color: 0x9a948a }];
-    case 'cavecrystal': return [{ kind: 'glow', x: 0, y: -26, size: 90 + v * 10, color: FOLIAGE[theme].glow }];
+    case 'cavecrystal': return [{ kind: 'glow', x: 0, y: -26, size: 80 + v * 10, color: mix(FOLIAGE[theme].glow, 0x2a8aa0, 0.35) }];
     case 'stalagmite': return theme === 'riftGlade' ? [{ kind: 'glow', x: 0, y: -40, size: 40, color: 0x6ff2ff }] : [];
     case 'rockspire': return theme === 'ashen' || theme === 'riftAshen' ? [{ kind: 'glow', x: 0, y: -30, size: 60, color: 0xff6a1a }] : [];
     default: return [];
@@ -250,9 +250,9 @@ export function drawProp(c: Ctx, kind: string, v: number, theme: ThemeKey): void
         const cs = Math.cos(a), sn = Math.sin(a);
         const P = (px: number, py: number) => [x + px * cs - py * sn, -4 + px * sn + py * cs];
         const pts = [...P(-w, 0), ...P(-w, -h * 0.75), ...P(0, -h), ...P(w, -h * 0.75), ...P(w, 0)];
-        c.poly(pts, true); fill(c, mix(g, 0x1f4a66, 0.55));
-        wash(c, (k) => k.poly([...P(-w, 0), ...P(-w, -h * 0.75), ...P(0, -h), ...P(0, 0)], true), mix(g, 0x2a6a8a, 0.15), 0.85);
-        wash(c, (k) => k.poly([...P(-w * 0.55, -h * 0.2), ...P(-w * 0.55, -h * 0.7), ...P(-w * 0.2, -h * 0.8), ...P(-w * 0.2, -h * 0.25)], true), 0xe8ffff, 0.45);
+        c.poly(pts, true); fill(c, mix(g, 0x17344a, 0.68));
+        wash(c, (k) => k.poly([...P(-w, 0), ...P(-w, -h * 0.75), ...P(0, -h), ...P(0, 0)], true), mix(g, 0x2a5a78, 0.5), 0.75);
+        wash(c, (k) => k.poly([...P(-w * 0.55, -h * 0.2), ...P(-w * 0.55, -h * 0.7), ...P(-w * 0.2, -h * 0.8), ...P(-w * 0.2, -h * 0.25)], true), 0xd8ffff, 0.35);
         c.poly(pts, true); outline(c, 2.6);
       }
       break;

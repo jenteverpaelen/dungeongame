@@ -340,10 +340,11 @@ export class NpcArt implements EntityView {
     }
   }
 
-  update(dt: number, s: ViewState): void { this.inner.update(dt, s); }
-  hit(i: number, c: boolean): void { this.inner.hit(i, c); }
-  die(e: number, done: () => void): void { this.inner.die(e, done); }
-  destroy(): void { this.inner.destroy(); this.root.destroy({ children: true }); }
+  private destroyed = false;
+  update(dt: number, s: ViewState): void { if (!this.destroyed) this.inner.update(dt, s); }
+  hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
+  die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }
+  destroy(): void { if (this.destroyed) return; this.destroyed = true; this.inner.destroy(); this.root.destroy({ children: true }); }
 }
 
 export class PortalArt implements EntityView {
@@ -399,11 +400,14 @@ export class PortalArt implements EntityView {
     this.root.addChild(t);
   }
 
+  private destroyed = false;
   update(dt: number): void {
+    if (this.destroyed) return;
     this.t += dt;
     this.open = Math.min(1, this.open + dt * 2.5);
     let k = this.open < 1 ? 1 - Math.pow(1 - this.open, 3) : 1;
-    if (this.dying) { this.dT += dt; k *= 1 - clamp(this.dT / 0.4); if (this.dT > 0.42 && this.done) { const d = this.done; this.done = null; d(); } }
+    let finish: (() => void) | null = null;
+    if (this.dying) { this.dT += dt; k *= 1 - clamp(this.dT / 0.4); if (this.dT > 0.42 && this.done) { finish = this.done; this.done = null; } }
     this.root.scale.set(1, 1);
     this.swirl.scale.set(0.6 * k, k);
     this.layers.forEach((s, i) => { s.rotation = this.t * (1.6 + i * 0.9) * (i % 2 ? -1 : 1); });
@@ -417,9 +421,10 @@ export class PortalArt implements EntityView {
       m.alpha = Math.sin(h * Math.PI) * 0.85 * k;
       m.scale.set(0.3 * (1 - h * 0.6));
     });
+    if (finish) finish();
   }
   hit(): void { /* portals are not hittable */ }
-  die(_e: number, done: () => void): void { this.dying = true; this.done = done; }
-  destroy(): void { this.root.destroy({ children: true }); }
+  die(_e: number, done: () => void): void { if (this.dying || this.destroyed) return; this.dying = true; this.done = done; }
+  destroy(): void { if (this.destroyed) return; this.destroyed = true; this.done = null; this.root.destroy({ children: true }); }
 }
 

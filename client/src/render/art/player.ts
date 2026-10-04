@@ -282,7 +282,8 @@ export class PlayerArt implements PlayerView {
       g.scale.y *= a[3] / a[2];
       glowLayer.addChild(g);
       this.glows.push({ sprite: g, base: 0.5, phase: Math.random() * TAU });
-      if (slot === 'head' || slot === 'chest' || slot === 'shoulders' || slot === 'offhand') this.addTwinkles(l, a[0], a[1], a[2] * 0.45, 1);
+      if (slot === 'head') this.addTwinkles(l, a[0] - 6, a[1] - 12, 12, 1);
+      else if (slot === 'chest' || slot === 'shoulders' || slot === 'offhand') this.addTwinkles(l, a[0] - 4, a[1], a[2] * 0.45, 1);
     }
     const w = sl.mainhand;
     if (w?.glow && n.weapon) {
@@ -479,12 +480,14 @@ export class PlayerArt implements PlayerView {
 
     // ── dead / dying
     const deadFlag = (flags & F_DEAD) !== 0;
+    // done() may destroy this view synchronously, so it is only ever called as the very last statement
+    let finish: (() => void) | null = null;
     if (this.dying) {
       this.deathT += dt;
       const e = easeOut3(clamp(this.deathT / 0.45));
       this.deadPose = e;
       p.body.alpha = 1 - clamp((this.deathT - 0.25) / 0.35);
-      if (this.deathT >= 0.6 && this.deathDone) { const d = this.deathDone; this.deathDone = null; d(); }
+      if (this.deathT >= 0.6 && this.deathDone) { finish = this.deathDone; this.deathDone = null; }
     } else if (deadFlag) {
       this.deadPose += (1 - this.deadPose) * damp(10, dt);
       p.body.alpha = 0.55;
@@ -575,6 +578,7 @@ export class PlayerArt implements PlayerView {
     else if (flags & F_POISON) tint = 0xd2f0b8;
     p.body.tint = tint;
     p.sync(performance.now());
+    if (finish) finish();
   }
 
   private updateGlows(t: number, s: ViewState): void {
@@ -583,9 +587,10 @@ export class PlayerArt implements PlayerView {
       if (w.r === 0) { const k = 0.5 + 0.5 * Math.sin(t * w.speed * 2); w.s.alpha = 0.3 + 0.6 * k; w.s.rotation = t * 0.8; w.s.scale.set(0.09 + 0.09 * k); continue; }
       const cyc = (t * w.speed * 0.35 + w.phase / TAU) % 1;
       if (cyc < 0.02 || w.s.alpha <= 0.001) {
-        // respawn at a new spot
-        const a = Math.random() * TAU, rr = w.r * Math.sqrt(Math.random());
-        w.s.position.set(w.x + Math.cos(a) * rr, w.y + Math.sin(a) * rr * 0.8);
+        // respawn at a new spot (rising motes start on the silhouette edge, never over the face)
+        const a = w.rise ? (Math.random() < 0.5 ? Math.PI : 0) + (Math.random() - 0.5) * 0.9 : Math.random() * TAU;
+        const rr = w.rise ? w.r * (0.8 + Math.random() * 0.3) : w.r * Math.sqrt(Math.random());
+        w.s.position.set(w.x + Math.cos(a) * rr, w.y + Math.sin(a) * rr * 0.8 + (w.rise ? 10 : 0));
       }
       const k = Math.sin(cyc * Math.PI);
       w.s.alpha = k * 0.9;
@@ -620,7 +625,7 @@ export class PlayerArt implements PlayerView {
   }
 
   die(_element: number, done: () => void): void {
-    if (this.dying) return;
+    if (this.dying || this.destroyed) return;
     this.dying = true;
     this.deathT = 0;
     this.deathDone = done;
@@ -629,6 +634,7 @@ export class PlayerArt implements PlayerView {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.deathDone = null;
     this.p.destroy();
     this.root.destroy({ children: true });
     releaseSheet(this.key);

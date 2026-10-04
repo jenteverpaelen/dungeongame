@@ -84,8 +84,9 @@ interface Item { spec: PartSpec; v: Version; g: Graphics; x: number; y: number; 
 
 const PAD = 3;
 
-/** Every baked page (dev gallery inspection). */
+/** Baked pages, recorded only when the dev gallery sets `globalThis.__artDebug` (keeps them alive otherwise). */
 export const bakedPages: { label: string; source: CanvasSource }[] = [];
+const debugPages = () => !!(globalThis as { __artDebug?: boolean }).__artDebug;
 
 function build(spec: PartSpec, v: Version): Graphics {
   const ctx = new GraphicsContext();
@@ -154,7 +155,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
     const canvas = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, W, H), resolution: res, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
     const source = new CanvasSource({ resource: canvas, resolution: res, autoGenerateMipmaps: true, scaleMode: 'linear', label: `${label}#${p}` });
     sheet.sources.push(source);
-    bakedPages.push({ label: `${label}#${p}`, source });
+    if (debugPages()) bakedPages.push({ label: `${label}#${p}`, source });
     for (const it of onPage) {
       const frame = new Rectangle(it.x, it.y, it.w, it.h);
       const ax = (PAD - it.bx) / it.w, ay = (PAD - it.by) / it.h;

@@ -238,6 +238,16 @@ function impWing(c: Ctx, col: C): void {
   crease(c, [0, 0, -14, -12], 1, shade(m, 0.4), 0.9);
   c.poly(pts, true); outline(c, 2);
 }
+function impCape(c: Ctx, col: C): void {
+  const cl = 0x2a0f12;
+  const pts = [2, -14, -4, -15, -9, -6, -13, 4, -15, 12, -11, 10, -9, 14, -5, 10, -2, 13, 1, 8, 4, 2];
+  c.poly(pts, true); fill(c, cl);
+  wash(c, (k) => k.poly([-4, -15, -9, -6, -13, 4, -15, 12, -11, 10, -7, -2], true), shade(cl, 0.3), 0.8);
+  crease(c, [-6, -8, -9, 8], 1, col.accent, 0.6);
+  c.poly([-4, -15, 4, -15, 3, -12, -4, -12], true); fill(c, GOLD);
+  c.poly(pts, true); outline(c);
+}
+
 function flameCrown(c: Ctx): void {
   const pts = [-10, 0, -11, -9, -6, -4, -3, -14, 1, -5, 5, -15, 7, -4, 11.6, -10, 10.4, 0];
   c.poly(pts, true); fill(c, 0xff7a1a);
@@ -593,21 +603,25 @@ const FAMILIES: Record<Fam, Family> = {
   },
   boss_imp: {
     base: 3.0, height: 42, shadow: 30, atkDur: 0.9,
-    parts: (col) => [P('tail', (c) => impTail(c, col)), P('wing', (c) => impWing(c, col)), P('legB', (c) => impLimb(c, col, true, false)), P('legF', (c) => impLimb(c, col, false, false)), P('armB', (c) => impLimb(c, col, true, true)), P('body', (c) => impBody(c, col)), P('head', (c) => impHead(c, col, true)), P('crown', flameCrown), P('armF', (c) => impLimb(c, col, false, true))],
+    parts: (col) => [P('cape', (c) => impCape(c, col)), P('tail', (c) => impTail(c, col)), P('wing', (c) => impWing(c, col)), P('legB', (c) => impLimb(c, col, true, false)), P('legF', (c) => impLimb(c, col, false, false)), P('armB', (c) => impLimb(c, col, true, true)), P('body', (c) => impBody(c, col)), P('head', (c) => impHead(c, col, true)), P('crown', flameCrown), P('armF', (c) => impLimb(c, col, false, true))],
     rig: (p) => {
+      const body0 = p.add(null, null, 0, -8);
+      const cape = p.add('cape', body0, 0, 0);
       const legB = p.add('legB', null, -2.4, -8.6); const legF = p.add('legF', null, 2.4, -8.6);
       const body = p.add(null, null, 0, -8);
       const tail = p.add('tail', body, -5, -4); const wing = p.add('wing', body, -3, -12);
       const armB = p.add('armB', body, -2, -11); const b = p.add('body', body);
       const head = p.add('head', body, 1, -21); const cr = p.add('crown', head, 0, -9.6); const armF = p.add('armF', body, 3, -11);
       wing.scale(1.6);
-      return { legB, legF, body, tail, wing, armB, b, head, crown: cr, armF };
+      return { body0, cape, legB, legF, body, tail, wing, armB, b, head, crown: cr, armF };
     },
     pose: (n, s) => {
       const sw = walkLegs(n, s, 0.45);
       const { wind, strike } = atkCurve(s.atk, 0.5, 0.65);
       const w = Math.max(wind, s.wind);
       n.body.set(strike * 3, -8 - Math.abs(sw) * 2 * s.move + Math.sin(s.t * 2) * 0.6 - w * 1.5, -w * 0.2 + strike * 0.25);
+      n.body0.set(strike * 3, n.body.y, 0);
+      n.cape.rot = Math.sin(s.t * 1.6) * 0.06 + s.move * 0.18 + sw * 0.05 * s.move;
       n.head.rot = Math.sin(s.t * 1.8) * 0.04;
       n.crown.rot = Math.sin(s.t * 6) * 0.04;
       n.crown.c.scale.y = 1 + Math.sin(s.t * 11) * 0.06;
@@ -915,11 +929,13 @@ export class RigArt implements EntityView {
       this.wob += this.wobV * dt;
     }
     let alpha = 1, y = 0, tint = 0xffffff;
+    // done() may destroy this view synchronously, so it is only ever called as the very last statement
+    let finish: (() => void) | null = null;
     if (this.dying) {
       this.deathT += dt;
       const r = this.deathAnim(this.deathT);
       sx *= r.sx; sy *= r.sy; alpha = r.a; y = r.y; tint = r.tint;
-      if (r.done && this.done) { const d = this.done; this.done = null; d(); }
+      if (r.done && this.done) { finish = this.done; this.done = null; }
     } else {
       if (frozen) tint = 0x8fd0ff;
       else if (chill) tint = 0xc4e4ff;
@@ -950,6 +966,7 @@ export class RigArt implements EntityView {
       sp.position.set(Math.cos(a) * 10 * Math.max(1, this.S * 0.7), -this.height - 2 + Math.sin(a) * 3);
     }
     p.sync(performance.now());
+    if (finish) finish();
   }
 
   private deathAnim(t: number): { sx: number; sy: number; a: number; y: number; tint: number; done: boolean } {
@@ -991,7 +1008,7 @@ export class RigArt implements EntityView {
   }
 
   die(element: number, done: () => void): void {
-    if (this.dying) { return; }
+    if (this.dying || this.destroyed) return;
     this.dying = true;
     this.deathT = 0;
     this.deathEl = element;
@@ -1003,6 +1020,7 @@ export class RigArt implements EntityView {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.done = null;
     this.p.destroy();
     this.root.destroy({ children: true });
   }

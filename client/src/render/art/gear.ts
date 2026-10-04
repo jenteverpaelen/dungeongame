@@ -776,4 +776,3 @@ export function isTwoHandedMelee(shape: string | undefined): boolean { return sh
 export function isRangedShape(shape: string | undefined): boolean { return shape === 'bow' || shape === 'crossbow' || shape === 'handxbow'; }
 export function isCasterShape(shape: string | undefined): boolean { return shape === 'staff' || shape === 'wand'; }
 
-export { OW_THIN, flat, fill, outline, eye };

@@ -187,7 +187,6 @@ export class GroundLayer extends Container {
     const ox = c * CHUNK, oy = r * CHUNK;
     const seed = this.seed;
 
-    const T0 = performance.now();
     // ── 1. terrain field (half resolution)
     const small = document.createElement('canvas');
     small.width = HALF; small.height = HALF;
@@ -325,7 +324,6 @@ export class GroundLayer extends Container {
         d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
       }
     }
-    const T1 = performance.now();
     sctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -342,11 +340,9 @@ export class GroundLayer extends Container {
       return cls[py * HALF + px];
     };
 
-    const T2 = performance.now();
     ctx.save();
     ctx.translate(-ox, -oy);
     this.paintDetails(ctx, ox, oy, at);
-    const T3 = performance.now();
     // prop shadows
     for (const s of this.shadows[r * this.cols + c]) {
       ctx.save();
@@ -373,9 +369,6 @@ export class GroundLayer extends Container {
       ctx.restore();
     }
     ctx.restore();
-    const T4 = performance.now();
-    const g = globalThis as { __chunkT?: number[] };
-    g.__chunkT = (g.__chunkT ?? [0, 0, 0, 0]).map((v, i) => v + [T1 - T0, T2 - T1, T3 - T2, T4 - T3][i]);
     return canvas;
   }
 
@@ -455,22 +448,23 @@ export class GroundLayer extends Container {
             ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.beginPath(); ctx.roundRect(x - 4, y - 3.6, 5.6, 2, 1); ctx.fill();
           }
         } else if (th === 'ashen' || th === 'riftAshen') {
-          // broken, soot-stained flagstones of the buried city: irregular slabs, many missing
-          for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
-            const hx = H(tx * 5 + i, ty * 3 + j, 2), hy = H(tx * 3 + i, ty * 5 + j, 4), h = H(tx * 13 + i, ty * 7 + j, 6);
-            if (h < 0.3) continue;
-            const x = bx + 16 + i * 32 + (hx - 0.5) * 8, y = by + 16 + j * 32 + (hy - 0.5) * 8;
+          // broken, soot-stained flagstones of the buried city: a few big irregular slabs per tile, many missing
+          const nSlab = 1 + Math.floor(H(tx, ty, 1) * 2.4);
+          for (let i = 0; i < nSlab; i++) {
+            const hx = H(tx * 5 + i, ty * 3, 2), hy = H(tx * 3, ty * 5 + i, 4), h = H(tx * 13 + i, ty * 7, 6);
+            if (h < 0.22) continue;
+            const x = bx + 10 + hx * 44, y = by + 10 + hy * 44;
             if (at(x, y) !== 1) continue;
-            const w = 22 + h * 8, hh = 18 + hx * 8;
-            ctx.save(); ctx.translate(x, y); ctx.rotate((hy - 0.5) * 0.25);
-            ctx.fillStyle = rgba(mix(P.path, h > 0.65 ? P.pathLight : P.pathDark, 0.35), 0.9);
-            ctx.strokeStyle = rgba(P.pathEdge, 0.55); ctx.lineWidth = 1.4;
+            const w = 20 + h * 14, hh = 14 + hx * 10, rot = (hy - 0.5) * 0.7;
+            ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+            ctx.fillStyle = rgba(mix(P.path, h > 0.6 ? P.pathLight : P.pathDark, 0.45), 0.85);
+            ctx.strokeStyle = rgba(P.pathEdge, 0.5); ctx.lineWidth = 1.3;
             ctx.beginPath();
-            ctx.moveTo(-w / 2, -hh / 2 + 2); ctx.lineTo(-w / 2 + 3, -hh / 2); ctx.lineTo(w / 2 - 1, -hh / 2 + hx * 3); ctx.lineTo(w / 2, hh / 2 - 2);
-            ctx.lineTo(w / 2 - 4, hh / 2); ctx.lineTo(-w / 2 + 1, hh / 2 - hy * 3); ctx.closePath();
+            ctx.moveTo(-w / 2, -hh / 2 + 3 * hx); ctx.lineTo(-w * 0.15, -hh / 2); ctx.lineTo(w / 2 - 2, -hh / 2 + 2 * hy); ctx.lineTo(w / 2, hh * 0.2);
+            ctx.lineTo(w / 2 - 3 * h, hh / 2); ctx.lineTo(-w * 0.2, hh / 2 - 2); ctx.lineTo(-w / 2 + 1, hh / 2 - 3 * hy); ctx.closePath();
             ctx.fill(); ctx.stroke();
-            ctx.fillStyle = 'rgba(255,240,220,0.07)'; ctx.fillRect(-w / 2 + 3, -hh / 2 + 2, w * 0.5, 2.4);
-            if (h > 0.82) { ctx.strokeStyle = 'rgba(255,110,30,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-w * 0.3, -2); ctx.lineTo(0, 2); ctx.lineTo(w * 0.25, -3); ctx.stroke(); }
+            ctx.fillStyle = 'rgba(255,236,214,0.06)'; ctx.fillRect(-w / 2 + 3, -hh / 2 + 2, w * 0.45, 2);
+            if (h > 0.86) { ctx.strokeStyle = rgba(P.pathEdge, 0.6); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-w * 0.3, -hh * 0.3); ctx.lineTo(-w * 0.05, hh * 0.1); ctx.lineTo(w * 0.15, hh * 0.4); ctx.stroke(); }
             ctx.restore();
           }
         } else {

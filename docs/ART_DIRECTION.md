@@ -129,3 +129,18 @@ The world shares the UI's warm darks: the ink `#1B1410` sits next to `--panel #1
 `--frame #4A3720`; gold accents (`#E8B64A`) echo `--gold`. World labels (NPCs, portals) use Alegreya Sans
 700, cream `#F2E6C8` with a dark stroke; rift labels are lilac, waypoint/town labels ice blue. Rarity
 colours on items match `RARITY_COLORS` so tooltips, beams and gear glows agree.
+
+## 10. Production notes (how the art stays cheap)
+
+* Parts are drawn once with Pixi `Graphics`, rendered with MSAA through the main renderer, read back and
+  kept as mip-mapped canvas textures (`bake.ts`) — sprites batch, look smooth at any zoom, and work in any
+  renderer (the class-select previews run their own). Each part is also baked as a white silhouette (hit
+  flash) and a dilated silhouette (elite rim), so flashes and rims cost no filters.
+* All trash monsters + summons of a map theme share **one atlas** (baked at map load); bosses get their own
+  high-density sheet. Players get one sheet per look (cached, ref-counted) that appears instantly as live
+  vector parts and swaps to the baked sheet on a later frame (no hitch when a crowd walks into view).
+* Ground: 512-unit chunks baked lazily around the camera (≤ 3 visible + 1 prefetch per frame, LRU cap 44),
+  decals stamped into the chunks, prop shadows painted under props. Props are atlas sprites; only light
+  sources animate (in `onRender`, skipped when culled). Additive blending is limited to a few layers per
+  character so batches stay long.
+* Dev gallery: `client/gallery-art.html?view=chars|closeup|monsters|objects|icons|map&theme=…|perf|stress`.
