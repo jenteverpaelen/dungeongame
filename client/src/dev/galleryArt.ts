@@ -590,7 +590,8 @@ function perfView() {
   const scr = app.screen;
   const cx = (scr.width / 2 - world.x) / ZOOM, cy = (scr.height / 2 - world.y) / ZOOM;
   const ents = world.children[2] as Container;
-  for (let i = 0; i < (qs.get('nomon') ? 0 : 150); i++) {
+  const NMON = Number(qs.get('monsters') ?? (qs.get('nomon') ? 0 : 150)), NPLAY = Number(qs.get('players') ?? (qs.get('noplayers') ? 0 : 20));
+  for (let i = 0; i < NMON; i++) {
     const m = fam[i % fam.length];
     const x = cx + (Math.random() - 0.5) * scr.width / ZOOM * 0.95, y = cy + (Math.random() - 0.5) * scr.height / ZOOM * 0.9;
     const el = (i % 17 === 0 ? 1 : i % 29 === 0 ? 2 : 0) as EliteTier;
@@ -598,10 +599,11 @@ function perfView() {
     const a = addActor(v, x, y, st({ moving: i % 2 === 0, vx: 90, facingLeft: i % 3 === 0, flags: i % 2 === 0 ? F_MOVING : F_ATTACK }), 0.9, ents, i % 5 === 0 ? 0.6 : 0);
     v.root.zIndex = y; void a;
   }
-  for (let i = 0; i < (qs.get('noplayers') ? 0 : 20); i++) {
+  for (let i = 0; i < NPLAY; i++) {
     const c = CLASS_IDS[i % 3];
     const v = createPlayerView(i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
-    const x = cx + (Math.random() - 0.5) * 900, y = cy + (Math.random() - 0.5) * 500;
+    const spread = NPLAY > 40 ? 1.9 : 1;
+    const x = cx + (Math.random() - 0.5) * 900 * spread, y = cy + (Math.random() - 0.5) * 500 * spread;
     const mode = i % 4;
     addActor(v, x, y, st(mode === 1 ? { flags: F_ATTACK } : { moving: true, vx: 200, flags: F_MOVING | (mode === 0 ? F_CHANNEL : 0) }), mode === 1 ? 2.5 : 1.2, ents);
     v.root.zIndex = y;
