@@ -335,6 +335,14 @@ export class Instance implements InstanceApi {
       case 'heal':
         debugHeal(this, p);
         return null;
+      case 'infres': {
+        // Prototype toggle stored on the save so it survives zone changes: resource stays full every tick.
+        const s = p.save as { debugInfRes?: boolean };
+        s.debugInfRes = !s.debugInfRes;
+        link.markDirty();
+        link.send({ t: 'chat', ch: 'system', text: `Unlimited resource ${s.debugInfRes ? 'ON' : 'OFF'}` });
+        return null;
+      }
       case 'goblin':
         if (this.kind === 'town') return 'Monsters cannot be summoned in town';
         debugSpawnGoblin(this, p);

@@ -187,6 +187,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   for (const s of p.summons) if (s.type === 'bat' && !s.dead) rr += 1;
   if (rr > 0) p.res = Math.min(p.mres, p.res + rr * dt);
   if (cls.decayPerSec > 0 && p.sinceHitMs > FURY_DECAY_DELAY_MS && !p.channel) p.res = Math.max(0, p.res - cls.decayPerSec * dt);
+  if ((p.save as { debugInfRes?: boolean }).debugInfRes) p.res = p.mres; // F2 prototype toggle
 
   updateLoot(inst, p, dtMs);
   if (p.lohSeen.size > 64) for (const [k, t] of p.lohSeen) if (inst.t - t > 1000) p.lohSeen.delete(k);

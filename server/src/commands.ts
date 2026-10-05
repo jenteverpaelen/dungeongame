@@ -557,7 +557,7 @@ const leave: Handler = (s, _a, world) => world.leave(s);
 
 // ─────────────────────────── Debug (prototype tools) ───────────────────────────
 
-const SIM_DEBUG_OPS = new Set(['goblin', 'elite', 'heal', 'boss']);
+const SIM_DEBUG_OPS = new Set(['goblin', 'elite', 'heal', 'boss', 'infres']);
 
 /** Add items to free inventory slots; returns how many fit. */
 function giveItems(save: CharacterSave, items: Item[]): number {
