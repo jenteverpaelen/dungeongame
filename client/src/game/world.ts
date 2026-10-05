@@ -65,6 +65,16 @@ export class ClientEntity {
     this.aseq = s.aseq;
   }
 
+  /** Local player: position comes from prediction, but state (flags, life, attack sequence) must still
+   *  follow the newest server sample, or channels like Whirlwind never show. */
+  applyLatest() {
+    const s = this.samples[this.samples.length - 1];
+    if (!s) return;
+    this.hp = s.hp;
+    this.flags = s.flags;
+    this.aseq = s.aseq;
+  }
+
   get facingLeft() { return (this.flags & F_LEFT) !== 0; }
   get moving() { return (this.flags & F_MOVING) !== 0; }
   get dead() { return (this.flags & F_DEAD) !== 0; }
@@ -135,7 +145,10 @@ export class ClientWorld {
 
   interpolate() {
     const t = this.renderTime();
-    for (const e of this.entities.values()) if (e.id !== this.myId) e.interpolate(t);
+    for (const e of this.entities.values()) {
+      if (e.id === this.myId) e.applyLatest();
+      else e.interpolate(t);
+    }
   }
 
   get me() { return this.entities.get(this.myId) ?? null; }
