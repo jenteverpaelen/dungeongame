@@ -3,6 +3,8 @@
 import type { Application } from 'pixi.js';
 import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
+import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
+import { cubeUI } from '../ui/panels/cubestate';
 import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
 import type { ClassId, DerivedStats } from '@shared/types';
 import { sfx } from '../audio/sfx';
@@ -199,7 +201,13 @@ export class Game {
     if (typing || st.screen !== 'game') return;
     if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
     if (k === 'Enter') { ui.set({ chatOpen: true }); this.input.clear(); return; }
-    const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', u: 'cube', F1: 'help', F2: 'debug' };
+    if (k === 'u') {
+      const n = this.world.map?.town?.npcs.find(n => n.role === 'cube');
+      if (n && Math.hypot(n.x - this.predictor.x, n.y - this.predictor.y) <= n.interactionRadius && !this.world.collision?.segmentBlocked(this.predictor.x, this.predictor.y, n.x, n.y)) this.openArtisan('cube');
+      else pushNotice("Stand beside the Ancients' Cube to use it", 'info');
+      return;
+    }
+    const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', F1: 'help', F2: 'debug' };
     if (panels[k]) { togglePanel(panels[k]); return; }
     if (k === 'e') this.interact();
     void e;
@@ -211,7 +219,8 @@ export class Game {
     const s = this.scene.nearestInteractable(x, y);
     const zone = this.world.zone;
     if (s?.role) {
-      const map: Partial<Record<string, PanelId>> = { cube: 'cube', waypoint: 'waypoint', obelisk: 'obelisk', paragon: 'paragon', stash: 'inventory' };
+      if (Object.hasOwn(ARTISAN_FUNCTIONS, s.role)) { this.openArtisan(s.role as Artisan); return; }
+      const map: Partial<Record<string, PanelId>> = { waypoint: 'waypoint', obelisk: 'obelisk', paragon: 'paragon', stash: 'stash' };
       const p = map[s.role];
       if (p) togglePanel(p, true);
       return;
@@ -219,6 +228,12 @@ export class Game {
     if (s?.portalTo) { void this.conn?.cmd(zone?.kind === 'rift' ? 'leave' : 'travel', { zone: s.portalTo }); return; }
     const portal = this.nearestPortalEntity(x, y);
     if (portal) void this.conn?.cmd(zone?.kind === 'town' ? 'riftEnter' : 'leave');
+  }
+
+  private openArtisan(role: Artisan) {
+    ui.set({ artisan: role, enchant: role === 'mystic' ? ui.get().enchant : null });
+    if (!ARTISAN_FUNCTIONS[role].includes(cubeUI.get().fn)) cubeUI.set({ fn: ARTISAN_FUNCTIONS[role][0], affix: null, result: null });
+    togglePanel('cube', true);
   }
 
   private nearestPortalEntity(x: number, y: number) {

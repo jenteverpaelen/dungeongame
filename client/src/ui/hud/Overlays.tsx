@@ -98,10 +98,11 @@ const BINDS: [string, string][] = [
   ['I', 'Inventory'],
   ['K', 'Skills'],
   ['P', 'Paragon'],
-  ['U', 'The Ancients’ Cube'],
+  ['U', 'The Ancients’ Cube (when nearby)'],
   ['Enter', 'Chat'],
   ['F1', 'This help'],
   ['F2', 'Prototype tools'],
+  ['F3', 'Town collision overlay'],
   ['Esc', 'Close windows'],
 ];
 

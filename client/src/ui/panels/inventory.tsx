@@ -226,7 +226,11 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
         if ((e as MouseEvent).shiftKey) quickSalvage(item);
         else void run('equip', { itemId: item.id });
       }}
-      onClick={() => { if (item && cubeOpen && !justDragged()) setCubeItem(item.id); }}
+      onClick={() => {
+        if (!item || justDragged()) return;
+        if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id });
+        else if (cubeOpen) setCubeItem(item.id);
+      }}
       {...(item ? hover : {})}
     >
       {item && <ItemVisual item={item} size={32} />}

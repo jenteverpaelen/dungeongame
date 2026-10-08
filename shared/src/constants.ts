@@ -33,6 +33,8 @@ export const ITEM_PICKUP_RADIUS = 46;
 export const INVENTORY_COLS = 10;
 export const INVENTORY_ROWS = 6;
 export const INVENTORY_SIZE = INVENTORY_COLS * INVENTORY_ROWS;
+/** Owner-approved first stash: 60 slots per character. */
+export const STASH_SIZE = 60;
 
 /** Combat engagement: auto-attack acquires targets inside weapon range + this buffer. */
 export const ACQUIRE_BUFFER = 40;

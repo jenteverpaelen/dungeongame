@@ -1,0 +1,5 @@
+
+> dungeongame@0.1.0 town:check
+> tsx scripts/check-town.ts
+
+Town valid: 9 buildings, 11 NPCs, 19 swept walking routes; all services reachable.

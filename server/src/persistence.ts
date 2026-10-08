@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { DATA_DIR } from './config';
-import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
+import { INVENTORY_SIZE, MAX_LEVEL, STASH_SIZE } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
@@ -113,6 +113,10 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   if (!Array.isArray(save.inventory)) save.inventory = [];
   save.inventory = save.inventory.map((i) => (i && typeof i === 'object' ? i : null));
   while (save.inventory.length < INVENTORY_SIZE) save.inventory.push(null);
+  if (!Array.isArray(save.stash)) save.stash = [];
+  save.stash = save.stash.map(i => i && typeof i === 'object' ? i : null);
+  while (save.stash.length < STASH_SIZE) save.stash.push(null);
+  // Preserve any future/oversized save entries; never truncate player-owned items.
 
   const sk = (save.skills ??= { slots: [null, null, null, null], runes: {}, tiers: {}, primary: CLASSES[save.classId].primary });
   if (!Array.isArray(sk.slots)) sk.slots = [];

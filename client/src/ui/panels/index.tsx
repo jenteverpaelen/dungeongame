@@ -9,6 +9,7 @@ import { CubePanel } from './cube';
 import { DebugPanel, ObeliskPanel, WaypointPanel } from './dialogs';
 import { DragLayer } from './dnd';
 import { InventoryPanel } from './inventory';
+import { StashPanel } from './stash';
 import { ParagonPanel } from './paragon';
 import { SkillsPanel } from './skills';
 import { TipLayer, hideTip, installAltTracking } from './tooltip';
@@ -17,7 +18,7 @@ export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHov
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'skills', 'paragon', 'waypoint', 'obelisk'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk'];
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
@@ -46,7 +47,7 @@ export function PanelsRoot() {
       const keep = newly[newly.length - 1];
       for (const id of LEFT_DOCK) if (id !== keep && panels[id]) togglePanel(id, false);
       // The Cube works on items: bring the bag along so they can be clicked in.
-      if (keep === 'cube' && !panels.inventory) togglePanel('inventory', true);
+      if ((keep === 'cube' || keep === 'stash') && !panels.inventory) togglePanel('inventory', true);
     }
     prev.current = panels;
   }, [panels]);
@@ -60,6 +61,7 @@ export function PanelsRoot() {
           {panels.inventory && <div class="pn-dock right"><InventoryPanel /></div>}
           <div class="pn-dock left">
             {panels.cube && <CubePanel />}
+            {panels.stash && <StashPanel />}
             {panels.skills && <SkillsPanel />}
             {panels.paragon && <ParagonPanel />}
             {panels.waypoint && <WaypointPanel />}

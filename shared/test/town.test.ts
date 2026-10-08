@@ -30,6 +30,9 @@ test('authored town is seed-independent; schema, doorway, routes and service rea
   assert.deepEqual(validateTown(m.town!), []);
   const bad = structuredClone(m.town!); bad.npcs[0].approach = [0, 0];
   assert.ok(validateTown(bad).some(s => s.includes('approach blocked')));
+  const narrow = structuredClone(m.town!), cellar = narrow.buildings.find(b => b.id === 'cellar')!;
+  for (const p of cellar.footprint) p[1] -= 42;
+  assert.ok(validateTown(narrow).some(s => s.includes('narrower than two player diameters')), 'reject the measured 27 u slit');
 });
 
 test('continuous dash hits a thin fence; full doorway passes; road union has no internal seams', () => {

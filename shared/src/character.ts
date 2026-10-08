@@ -1,6 +1,6 @@
 // Character creation, equipment rules, inventory and skill loadout helpers (shared validation).
 
-import { INVENTORY_SIZE } from './constants';
+import { INVENTORY_SIZE, STASH_SIZE } from './constants';
 import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
@@ -24,6 +24,7 @@ export function createCharacter(name: string, classId: ClassId, seed: number): C
     gems: {},
     equipment: starterItems(rng, classId),
     inventory: Array.from({ length: INVENTORY_SIZE }, () => null),
+    stash: Array.from({ length: STASH_SIZE }, () => null),
     skills: { slots: [firstSkill?.id ?? null, null, null, null], runes: {}, tiers: {}, primary: cls.primary },
     skillPoints: 0,
     paragon: { level: 0, xp: 0, spent: {} },

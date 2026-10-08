@@ -7,9 +7,10 @@ interface Shape extends Edge { dynamic: boolean; stamp: number }
 /** Town-only continuous circle collision. The legacy field/rift solver stays unchanged. */
 export class TownCollision {
   readonly edges: readonly Edge[];
-  private cells = new Map<string, Shape[]>();
+  private cells = new Map<number, Shape[]>();
   private scratch: Shape[] = [];
   private stamp = 0;
+  private contact = { time: 1, nx: 0, ny: 0, found: false };
   constructor(readonly data: TownData) {
     this.edges = groundBoundary(data);
     for (const e of this.edges) this.add({ ...e, dynamic: false, stamp: 0 });
@@ -23,14 +24,14 @@ export class TownCollision {
   private add(s: Shape) {
     for (let y = Math.floor((Math.min(s.ay, s.by) - s.radius) / CELL); y <= Math.floor((Math.max(s.ay, s.by) + s.radius) / CELL); y++) {
       for (let x = Math.floor((Math.min(s.ax, s.bx) - s.radius) / CELL); x <= Math.floor((Math.max(s.ax, s.bx) + s.radius) / CELL); x++) {
-        const key = `${x},${y}`, a = this.cells.get(key); if (a) a.push(s); else this.cells.set(key, [s]);
+        const key = y * 65536 + x, a = this.cells.get(key); if (a) a.push(s); else this.cells.set(key, [s]);
       }
     }
   }
   private query(x0: number, y0: number, x1: number, y1: number): Shape[] {
     this.scratch.length = 0; const stamp = ++this.stamp;
     for (let y = Math.floor(y0 / CELL); y <= Math.floor(y1 / CELL); y++) for (let x = Math.floor(x0 / CELL); x <= Math.floor(x1 / CELL); x++) {
-      const cell = this.cells.get(`${x},${y}`); if (!cell) continue;
+      const cell = this.cells.get(y * 65536 + x); if (!cell) continue;
       for (const s of cell) if (s.stamp !== stamp) { s.stamp = stamp; this.scratch.push(s); }
     }
     return this.scratch;
@@ -39,7 +40,9 @@ export class TownCollision {
     if (!inGround(this.data, x, y)) return false;
     for (const e of this.query(x - r, y - r, x + r, y + r)) {
       if (ignoreNpcs && e.dynamic) continue;
-      const [qx, qy] = closest(x, y, e);
+      const dx = e.bx - e.ax, dy = e.by - e.ay;
+      const t = Math.max(0, Math.min(1, ((x - e.ax) * dx + (y - e.ay) * dy) / (dx * dx + dy * dy || 1)));
+      const qx = e.ax + t * dx, qy = e.ay + t * dy;
       if ((x - qx) ** 2 + (y - qy) ** 2 < (r + e.radius - 1e-7) ** 2) return false;
     }
     return true;
@@ -64,39 +67,40 @@ export class TownCollision {
     }
     return { x: bestX, y: bestY };
   }
+  private accept(t: number, ax: number, ay: number, dx: number, dy: number) {
+    if (t < -1e-8 || t > this.contact.time || dx * ax + dy * ay >= -1e-9) return;
+    this.contact.time = Math.max(0, t); this.contact.nx = ax; this.contact.ny = ay; this.contact.found = true;
+  }
   private hit(x: number, y: number, dx: number, dy: number, r: number, ignoreNpcs: boolean) {
-    let time = 1, nx = 0, ny = 0, found = false;
-    const accept = (t: number, ax: number, ay: number) => {
-      if (t < -1e-8 || t > time || dx * ax + dy * ay >= -1e-9) return;
-      time = Math.max(0, t); nx = ax; ny = ay; found = true;
-    };
+    this.contact.time = 1; this.contact.nx = this.contact.ny = 0; this.contact.found = false;
     for (const e of this.query(Math.min(x, x + dx) - r, Math.min(y, y + dy) - r, Math.max(x, x + dx) + r, Math.max(y, y + dy) + r)) {
       if (ignoreNpcs && e.dynamic) continue;
       const radius = r + e.radius, ex = e.bx - e.ax, ey = e.by - e.ay, len = Math.hypot(ex, ey);
       if (len > 1e-8) {
-        for (const side of [1, -1]) {
+        for (let side = 1; side >= -1; side -= 2) {
           const ax = -ey / len * side, ay = ex / len * side;
           if ((e.nx || e.ny) && ax * e.nx + ay * e.ny < .5) continue;
           const speed = dx * ax + dy * ay; if (speed >= -1e-9) continue;
           const t = (radius - ((x - e.ax) * ax + (y - e.ay) * ay)) / speed;
           const u = ((x + dx * t - e.ax) * ex + (y + dy * t - e.ay) * ey) / (len * len);
-          if (u >= 0 && u <= 1) accept(t, ax, ay);
+          if (u >= 0 && u <= 1) this.accept(t, ax, ay, dx, dy);
         }
       }
       const aa = dx * dx + dy * dy;
       if (aa < 1e-12) continue;
-      for (const [cx, cy] of [[e.ax, e.ay], [e.bx, e.by]]) {
+      for (let endpoint = 0; endpoint < (len > 1e-8 ? 2 : 1); endpoint++) {
+        const cx = endpoint ? e.bx : e.ax, cy = endpoint ? e.by : e.ay;
         const ox = x - cx, oy = y - cy, b = ox * dx + oy * dy, c = ox * ox + oy * oy - radius * radius;
         const disc = b * b - aa * c; if (disc < 0) continue;
         const t = (-b - Math.sqrt(disc)) / aa;
         const hx = x + t * dx - cx, hy = y + t * dy - cy, hl = Math.hypot(hx, hy);
-        if (hl > 1e-9) accept(t, hx / hl, hy / hl);
+        if (hl > 1e-9) this.accept(t, hx / hl, hy / hl, dx, dy);
       }
     }
-    return { time, nx, ny, found };
+    return this.contact;
   }
   moveCircle(x: number, y: number, r: number, dx: number, dy: number, ignoreNpcs = false): { x: number; y: number } {
-    ({ x, y } = this.resolve(x, y, r, ignoreNpcs));
+    if (!this.isFree(x, y, r, ignoreNpcs)) ({ x, y } = this.resolve(x, y, r, ignoreNpcs));
     for (let i = 0; i < 5 && Math.hypot(dx, dy) > 1e-8; i++) {
       const hit = this.hit(x, y, dx, dy, r, ignoreNpcs);
       if (!hit.found) { x += dx; y += dy; break; }

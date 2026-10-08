@@ -60,6 +60,8 @@ export interface InstanceApi {
   /** Advance one 50 ms tick and send snapshots. Called by the infrastructure's world loop at 20 Hz. */
   tick(): void;
   playerCount(): number;
+  /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
+  canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
   spawnPortal(spec: PortalSpec): number;
   removeEntity(id: number): void;
   /** World-side debug helpers: 'goblin' | 'elite' | 'heal' | 'boss'. Returns an error string or null. */

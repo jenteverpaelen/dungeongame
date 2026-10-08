@@ -200,6 +200,11 @@ export class Instance implements InstanceApi {
 
   // ─────────────────────────── InstanceApi ───────────────────────────
 
+  canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean {
+    const p = this.byLink.get(link);
+    return !!p && p.deadMs <= 0 && p.hp > 0 && Math.hypot(p.x - x, p.y - y) <= radius && !this.cw.segmentBlocked(p.x, p.y, x, y);
+  }
+
   addPlayer(link: PlayerLink, at?: { x: number; y: number }): number {
     const existing = this.byLink.get(link);
     if (existing) return existing.id;

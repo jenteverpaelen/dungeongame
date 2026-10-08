@@ -128,6 +128,7 @@ export interface CharacterSave {
   gems: Record<string, number>; // "ruby:3" -> count
   equipment: Partial<Record<Slot, Item>>;
   inventory: (Item | null)[];
+  stash: (Item | null)[];
   skills: SkillLoadout;
   skillPoints: number;
   paragon: ParagonState;

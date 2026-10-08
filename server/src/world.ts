@@ -13,6 +13,7 @@ import { zoneSeed, type MapData } from '../../shared/src/mapgen';
 import { CollisionWorld } from '../../shared/src/movement';
 import { DIFFICULTIES } from '../../shared/src/progression';
 import type { S2C, WorldInfo } from '../../shared/src/protocol';
+import { requireNear } from './townServices';
 
 // ─────────────────────────── Command result helpers ───────────────────────────
 
@@ -347,6 +348,10 @@ export class World {
       return this.goHome(s, channel);
     }
     if (cur.kind !== 'town') return fail('Return to Hearthmere to use the waypoint');
+    const waypoint = cur.inst.map.town?.npcs.find(n => n.role === 'waypoint');
+    const nearWaypoint = waypoint && cur.inst.canInteract(s, waypoint.x, waypoint.y, waypoint.interactionRadius);
+    const nearExit = cur.inst.map.portals.some(p => p.to === zoneId && cur.inst.canInteract(s, p.x, p.y, 110));
+    if (!nearWaypoint && !nearExit) return fail('Stand beside the Waypoint or the exit to that destination');
     let target: InstRec;
     if (channel !== undefined) {
       const r = this.resolveChannel(zoneId, channel);
@@ -434,6 +439,8 @@ export class World {
   riftOpen(s: Session, difficulty: number): CmdResult {
     const town = s.rec;
     if (!town || town.kind !== 'town') return fail('Rifts are opened at the Obelisk in Hearthmere');
+    const nearError = requireNear(s, 'obelisk');
+    if (nearError) return fail(nearError);
     const diff = DIFFICULTIES[difficulty];
     if (!Number.isInteger(difficulty) || !diff) return fail('Unknown difficulty');
     if (s.save.level < diff.minLevel) return fail(`${diff.name} requires level ${diff.minLevel}`);
@@ -496,7 +503,11 @@ export class World {
     if (!open.length) return fail('There is no open rift in this channel');
     // Own rift first, otherwise the most recently opened one with room.
     open.sort((a, b) => (b.ownerId === s.save.id ? 1 : 0) - (a.ownerId === s.save.id ? 1 : 0) || b.createdAt - a.createdAt);
-    const meta = open.find((r) => r.rec.members.size < PARTY_MAX);
+    const obelisk = town.inst.map.town?.npcs.find(n => n.role === 'obelisk');
+    const nearObelisk = obelisk && town.inst.canInteract(s, obelisk.x, obelisk.y, obelisk.interactionRadius);
+    const accessible = open.filter(r => nearObelisk || town.inst.canInteract(s, r.portalAt.x, r.portalAt.y, 110));
+    if (!accessible.length) return fail('Stand beside the Rift Obelisk or an open rift portal');
+    const meta = accessible.find((r) => r.rec.members.size < PARTY_MAX);
     if (!meta) return fail('The rift is full');
     s.homeTown = town.key;
     this.enter(s, meta.rec, undefined, this.zoneAnnounce);

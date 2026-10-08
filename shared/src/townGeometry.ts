@@ -9,9 +9,11 @@ export function inPolygon(x: number, y: number, p: readonly Point[]): boolean {
   }
   return inside;
 }
-export function onFloor(t: TownData, x: number, y: number): boolean { return t.floors.some(f => inPolygon(x, y, f.polygon)); }
+export function onFloor(t: TownData, x: number, y: number): boolean { for (const f of t.floors) if (inPolygon(x, y, f.polygon)) return true; return false; }
 export function inGround(t: TownData, x: number, y: number): boolean {
-  return onFloor(t, x, y) && !t.buildings.some(b => inPolygon(x, y, b.footprint));
+  if (!onFloor(t, x, y)) return false;
+  for (const b of t.buildings) if (inPolygon(x, y, b.footprint)) return false;
+  return true;
 }
 export function closest(x: number, y: number, e: Edge): Point {
   const dx = e.bx - e.ax, dy = e.by - e.ay;

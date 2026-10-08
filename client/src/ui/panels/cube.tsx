@@ -12,6 +12,7 @@ import { AFFIX_BY_STAT, GEMS, GEM_RANKS, LEGENDARIES } from '@shared/data/items'
 import { fmtInt } from '@shared/format';
 import { KIND_LABEL } from '@shared/items';
 import type { AffixRoll, CharacterSave, Item, Materials } from '@shared/types';
+import { ARTISAN_FUNCTIONS, ARTISAN_NAMES } from '@shared/townServices';
 import { ui } from '../store';
 import { Bar, CostList, PanelFrame } from './common';
 import { cubeUI, setCubeItem } from './cubestate';
@@ -125,7 +126,7 @@ function SalvageView({ item }: { item: Item | null }) {
       <div class="cv-row"><label>You will receive</label><YieldChips y={salvageYield(item)} /></div>
       <div class="cv-row"><label>Cube experience</label><b class="xpv">+{salvageXp(item)} XP</b></div>
       {(item.rarity === 'legendary' || item.rarity === 'set') && <Note tone="warn">Legendary and Set items are destroyed. Extract their power first if you want to keep it.</Note>}
-      <Note>Shift + right-click an item in your bag to salvage it without opening the Cube.</Note>
+      <Note>Shift + right-click an item in your bag to salvage it while beside the Blacksmith.</Note>
     </div>
   );
 }
@@ -448,7 +449,10 @@ function costFor(fn: CubeOp, item: Item | null, fuseRank: number | null): Cost |
 
 export function CubePanel() {
   const char = useU((s) => s.char);
+  const artisan = useU((s) => s.artisan);
+  const available = ARTISAN_FUNCTIONS[artisan];
   const { fn, itemId, busy, affix, result } = useLocal(cubeUI, (s) => s);
+  useEffect(() => { if (!available.includes(fn)) cubeUI.set({ fn: available[0], affix: null }); }, [artisan, fn]);
   const pending = useU((s) => s.enchant);
   const [fuseSel, setFuseSel] = useState<string | null>(null);
   const [armed, arm] = useConfirmBtn();
@@ -547,7 +551,7 @@ export function CubePanel() {
   const choosing = fn === 'enchant' && !!pending && !!item && pending.itemId === item.id;
 
   return (
-    <PanelFrame id="cube" title="The Ancients' Cube" width={840} icon={<CubeEmblem size={22} glow={false} />}>
+    <PanelFrame id="cube" title={ARTISAN_NAMES[artisan]} width={840} icon={<CubeEmblem size={22} glow={false} />}>
       <div class="cube-top">
         <div class="cube-lv">
           <CubeEmblem size={54} class="cube-em" />
@@ -555,15 +559,15 @@ export function CubePanel() {
         </div>
         <div class="cube-xp">
           <Bar frac={char.cube.xp / need} text={`${fmtInt(char.cube.xp)} / ${fmtInt(need)} XP`} height={18} />
-          <small>Every Cube operation grants experience. New functions unlock as the Cube levels up.</small>
+          <small>Artisan and Cube operations share Cube experience and unlock levels.</small>
         </div>
       </div>
       <div class="cube-main">
         <nav class="cube-nav">
-          {CUBE_FUNCTIONS.map((f) => {
+          {CUBE_FUNCTIONS.filter(f => available.includes(f.op)).map((f) => {
             const lk = level < f.unlock;
             return (
-              <button key={f.op} class={cls('cn', fn === f.op && 'on', lk && 'locked')} onClick={() => !lk && cubeUI.set({ fn: f.op, affix: null })} aria-disabled={lk}>
+              <button key={f.op} class={cls('cn', fn === f.op && 'on', lk && 'locked')} onClick={() => cubeUI.set({ fn: f.op, affix: null })}>
                 <span class="cn-ic"><CubeFnIcon op={f.op} size={20} /></span>
                 <span class="cn-n">{f.name}</span>
                 {lk ? <span class="cn-lock"><IconLock size={10} />Lv {f.unlock}</span> : <span class="cn-xp">+{CUBE_XP[f.op]}</span>}
@@ -582,7 +586,8 @@ export function CubePanel() {
           <div class="cw-stage">
             <Chamber item={fn === 'fuse' ? null : item} gems={fn === 'fuse' ? fuseGem : null} />
             <div class="cw-content">
-              {locked ? <Hint><IconLock size={14} /> Reach Cube level <b>{def.unlock}</b> to unlock {def.name}.</Hint> : (
+              {locked && <Hint><IconLock size={14} /> Reach Cube level <b>{def.unlock}</b> to unlock {def.name}.</Hint>}
+              {(!locked || fn === 'socket') && (
                 <>
                   {fn === 'salvage' && <SalvageView item={item} />}
                   {fn === 'fuse' && <FuseView char={char} sel={fuseKey} onSel={setFuseSel} />}

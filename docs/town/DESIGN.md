@@ -125,3 +125,7 @@ Coordinates come directly from generateMap. Distance is straight center-to-cente
 | Dummy 1 | 2368,1600 | 37,25 | 1350.08 | 5.400 |
 | Dummy 2 | 2528,1536 | 39.5,24 | 1505.36 | 6.021 |
 | Dummy 3 | 2464,1715.2 | 38.5,26.8 | 1460.39 | 5.842 |
+
+## M2 implementation measurements (2026-10-08)
+
+Gate 1 is approved. The original M0 diagram and measurements above remain the review record. Actual runtime source is shared/src/data/town/hearthmere.json. See [M2 report](M2.md) for all 19 measured browser walking routes alongside revised nominal lengths. Service centres and street topology are unchanged; D016 corrects route clearance around solid service bodies, D019 corrects one provisional upper-court gap. These are measured implementation corrections, not a new D3 survey.

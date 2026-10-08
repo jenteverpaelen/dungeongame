@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-08",
+  "mode": "installed Chrome headless=new; 1920x1080; real server; normal predicted input vectors; no teleports or dash",
+  "version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "actual": {
+    "hidden": false,
+    "width": 1920,
+    "height": 1080,
+    "dpr": 1,
+    "zone": "hearthmere",
+    "seed": 1926644214,
+    "position": {
+      "x": 2891.5,
+      "y": 2418.6
+    },
+    "fps": 165,
+    "moveSpeedPercent": 0
+  },
+  "services": [
+    {
+      "role": "stash",
+      "panel": "stash",
+      "position": [
+        2748.8107013294807,
+        2159.6834581549588
+      ],
+      "title": "Stash"
+    },
+    {
+      "role": "blacksmith",
+      "panel": "cube",
+      "position": [
+        3118.2293840010407,
+        2255.8405059018933
+      ],
+      "title": "Blacksmith"
+    },
+    {
+      "role": "jeweler",
+      "panel": "cube",
+      "position": [
+        2947.3362504504667,
+        1895.334166026695
+      ],
+      "title": "Jeweler"
+    },
+    {
+      "role": "mystic",
+      "panel": "cube",
+      "position": [
+        3285.8362504504667,
+        1754.834166026695
+      ],
+      "title": "Mystic"
+    },
+    {
+      "role": "cube",
+      "panel": "cube",
+      "position": [
+        2933.7112504504667,
+        2538.459166026695
+      ],
+      "title": "The Ancients' Cube"
+    },
+    {
+      "role": "waypoint",
+      "panel": "waypoint",
+      "position": [
+        2891.4612504504667,
+        2418.334166026695
+      ],
+      "title": "Waypoint"
+    },
+    {
+      "role": "obelisk",
+      "panel": "obelisk",
+      "position": [
+        3202.7112504504667,
+        2451.334166026695
+      ],
+      "title": "Rift Obelisk"
+    },
+    {
+      "role": "paragon",
+      "panel": "paragon",
+      "position": [
+        2427.9940171938356,
+        1656.1519010403404
+      ],
+      "title": "Paragon"
+    }
+  ],
+  "routes": [],
+  "isolatedDataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m2-walk-NeeNLb\\saves"
+}

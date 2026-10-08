@@ -283,7 +283,9 @@ export class Scene {
     let best: StaticView | null = null, bd = 1e9;
     for (const s of this.statics) {
       const d = Math.hypot(s.x - x, s.y - y) - s.r;
-      if (d < 70 && d < bd) { bd = d; best = s; }
+      const n = this.map?.town?.npcs.find(n => n.role === s.role);
+      const margin = n ? n.interactionRadius - s.r : 70;
+      if (d <= margin && d < bd && (!this.map?.town || !this.world.collision?.segmentBlocked(x, y, s.x, s.y))) { bd = d; best = s; }
     }
     return best;
   }

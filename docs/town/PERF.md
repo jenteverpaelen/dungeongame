@@ -101,3 +101,7 @@ During startup, managed textures grew from 57 at page time 3.732 s to 278 at 11.
 **Proposed budget (D013):** comparable new-town mean >=max(60, 0.85*64.7767)=60 fps, with p1/min reported rather than hidden. Renderer-managed BGRA8+declared-mips estimate <=640 MiB for this fixture; rationale in D013. Keep the <5 s load target but measure a precise readiness/bake boundary before judging it. No new-town, visible foreground, networked 100-client, positional audio or final acceptance claim is made. M0 records the available baseline honestly; later gates must close these limits.
 
 Documentation sanity check: all nine service approach points lie outside the nine proposed building masses. Sampled route points were checked against those masses; a back-lane route that clipped the inn corner was corrected before review. The final sample finds no point inside a mass. This is not a swept-circle check, clearance validation or a runtime collision test; those remain M1 requirements.
+
+## M1/M2 checkpoint limits
+
+M1/M2 use flat polygons; the new town has not yet undergone the required 60-second 100-player performance test. Instantaneous 165 FPS HUD readings in the Chrome walkthrough are not that benchmark. checks/m2-sim.txt records 4-player/150-monster simulation timing, not town render performance. The full M0 measured budget and its unverified load/VRAM limitations remain in force. The collision sweep reuses its query/contact buffers; the legacy field/rift solver and generation match pre-edit hashes.

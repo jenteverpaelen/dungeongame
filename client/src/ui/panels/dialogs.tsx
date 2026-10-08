@@ -153,7 +153,7 @@ export function ObeliskPanel() {
     if (r.ok) togglePanel('obelisk', false);
   };
   return (
-    <PanelFrame id="obelisk" title="Nephalem Obelisk" width={600} sub={<span class="pn-lv">Level {char.level}</span>}>
+    <PanelFrame id="obelisk" title="Rift Obelisk" width={600} sub={<span class="pn-lv">Level {char.level}</span>}>
       <div class="ob-intro">
         <div class="ob-sigil"><IconSkull size={26} /></div>
         <p>Open a rift to hunt through an endless wilderness. Slay enough monsters to draw out the Rift Guardian, then claim his spoils. Higher difficulties bring more experience, gold and legendaries.</p>

@@ -1,6 +1,6 @@
 import { PLAYER_RADIUS } from './constants';
 import { TownCollision } from './townCollision';
-import { inPolygon } from './townGeometry';
+import { closest, inGround, inPolygon } from './townGeometry';
 import type { Point, TownData } from './townTypes';
 
 function crosses(a: Point, b: Point, c: Point, d: Point): boolean {
@@ -31,6 +31,14 @@ export function validateTown(t: TownData): string[] {
   for (let i = 0; i < t.buildings.length; i++) for (let j = i + 1; j < t.buildings.length; j++) {
     const a = t.buildings[i], b = t.buildings[j];
     if (a.footprint.some(p => inPolygon(...p, b.footprint)) || b.footprint.some(p => inPolygon(...p, a.footprint)) || a.footprint.some((p, k) => b.footprint.some((q, n) => crosses(p, a.footprint[(k + 1) % a.footprint.length], q, b.footprint[(n + 1) % b.footprint.length])))) errors.push(`${a.id}/${b.id}: overlapping footprints`);
+    let gap = Infinity, mid: Point = [0, 0];
+    for (const [one, two] of [[a.footprint, b.footprint], [b.footprint, a.footprint]]) for (const p of one) for (let k = 0; k < two.length; k++) {
+      const q = two[k], r = two[(k + 1) % two.length];
+      const c = closest(...p, { ax: q[0], ay: q[1], bx: r[0], by: r[1], nx: 0, ny: 0, radius: 0 });
+      const d = Math.hypot(p[0] - c[0], p[1] - c[1]);
+      if (d < gap) { gap = d; mid = [(p[0] + c[0]) / 2, (p[1] + c[1]) / 2]; }
+    }
+    if (gap > .001 && gap < PLAYER_RADIUS * 4 && inGround(t, ...mid)) errors.push(`${a.id}/${b.id}: gap ${gap.toFixed(2)} u narrower than two player diameters`);
   }
   for (const b of t.barriers) { id(b.id); point(b.a, b.id); point(b.b, b.id); if (!(b.radius > 0)) errors.push(`${b.id}: invalid radius`); }
   for (const p of t.props) { id(p.id); point([p.x, p.y], p.id); if (!(p.radius > 0)) errors.push(`${p.id}: invalid radius`); }

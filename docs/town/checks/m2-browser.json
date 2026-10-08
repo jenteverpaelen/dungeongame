@@ -1,0 +1,405 @@
+{
+  "date": "2026-10-08",
+  "mode": "installed Chrome headless=new; 1920x1080; real server; normal predicted input vectors; no teleports or dash",
+  "version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "actual": {
+    "hidden": false,
+    "width": 1920,
+    "height": 1080,
+    "dpr": 1,
+    "zone": "hearthmere",
+    "seed": 1926644214,
+    "position": {
+      "x": 2891.5,
+      "y": 2418.6
+    },
+    "fps": 165
+  },
+  "services": [
+    {
+      "role": "stash",
+      "panel": "stash",
+      "position": [
+        2750.5,
+        2167.225
+      ],
+      "title": "Stash"
+    },
+    {
+      "role": "blacksmith",
+      "panel": "cube",
+      "position": [
+        3117.5,
+        2255.6
+      ],
+      "title": "Blacksmith"
+    },
+    {
+      "role": "jeweler",
+      "panel": "cube",
+      "position": [
+        2947.588015061824,
+        1895.9590214995853
+      ],
+      "title": "Jeweler"
+    },
+    {
+      "role": "mystic",
+      "panel": "cube",
+      "position": [
+        3286.213015061824,
+        1754.7090214995853
+      ],
+      "title": "Mystic"
+    },
+    {
+      "role": "cube",
+      "panel": "cube",
+      "position": [
+        2933.838015061824,
+        2538.209021499585
+      ],
+      "title": "The Ancients' Cube"
+    },
+    {
+      "role": "waypoint",
+      "panel": "waypoint",
+      "position": [
+        2891.463015061824,
+        2418.584021499585
+      ],
+      "title": "Waypoint"
+    },
+    {
+      "role": "obelisk",
+      "panel": "obelisk",
+      "position": [
+        3201.713015061824,
+        2451.209021499585
+      ],
+      "title": "Rift Obelisk"
+    },
+    {
+      "role": "paragon",
+      "panel": "paragon",
+      "position": [
+        2428.182715084569,
+        1656.1711061367546
+      ],
+      "title": "Paragon"
+    }
+  ],
+  "routes": [
+    {
+      "label": "WP → Stash",
+      "lengthU": 361.02980575906054,
+      "nominalSeconds": 1.444119223036242,
+      "observedSeconds": 1.8147999999998137,
+      "ms": 1814.7999999998137,
+      "predicted": [
+        2750.534576888599,
+        2168.015013791738
+      ],
+      "authoritative": [
+        2750.5322960773547,
+        2168.0118284712057
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Blacksmith",
+      "lengthU": 281.48500828535794,
+      "nominalSeconds": 1.1259400331414318,
+      "observedSeconds": 0.9971000000005588,
+      "ms": 997.1000000005588,
+      "predicted": [
+        3120.798546317998,
+        2251.3505089081514
+      ],
+      "authoritative": [
+        3120.8263006177585,
+        2251.3223602463404
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Jeweler",
+      "lengthU": 624.6896704080818,
+      "nominalSeconds": 2.4987586816323275,
+      "observedSeconds": 2.2575999999996275,
+      "ms": 2257.5999999996275,
+      "predicted": [
+        2949.7001953923877,
+        1883.2864493434643
+      ],
+      "authoritative": [
+        2949.7285207206382,
+        1883.0861489115473
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Mystic",
+      "lengthU": 835.4891511090404,
+      "nominalSeconds": 3.3419566044361617,
+      "observedSeconds": 3.209200000000186,
+      "ms": 3209.2000000001863,
+      "predicted": [
+        3286.245007746881,
+        1754.4851066343933
+      ],
+      "authoritative": [
+        3286.248931499167,
+        1754.480813699442
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Cube",
+      "lengthU": 126.85996216300867,
+      "nominalSeconds": 0.5074398486520347,
+      "observedSeconds": 0.4640999999996275,
+      "ms": 464.09999999962747,
+      "predicted": [
+        2935.2633875180127,
+        2541.9378703900607
+      ],
+      "authoritative": [
+        2935.265631256843,
+        2541.9434629902626
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Rift",
+      "lengthU": 311.5105134662394,
+      "nominalSeconds": 1.2460420538649575,
+      "observedSeconds": 1.215300000000745,
+      "ms": 1215.300000000745,
+      "predicted": [
+        3201.5837951486133,
+        2451.1631412386373
+      ],
+      "authoritative": [
+        3201.589753197464,
+        2451.163375184329
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Paragon",
+      "lengthU": 1419.3828715090324,
+      "nominalSeconds": 5.67753148603613,
+      "observedSeconds": 5.116799999999814,
+      "ms": 5116.799999999814,
+      "predicted": [
+        2429.557852619272,
+        1655.1532083612433
+      ],
+      "authoritative": [
+        2429.5743243856336,
+        1655.141552588697
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Training",
+      "lengthU": 2588.3512894450905,
+      "nominalSeconds": 10.353405157780362,
+      "observedSeconds": 8.978900000000372,
+      "ms": 8978.900000000373,
+      "predicted": [
+        2344.7008756724167,
+        861.7073449604428
+      ],
+      "authoritative": [
+        2344.7039127216394,
+        861.7061040155991
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Inn",
+      "lengthU": 355.546080100193,
+      "nominalSeconds": 1.422184320400772,
+      "observedSeconds": 1.487,
+      "ms": 1487,
+      "predicted": [
+        2574.3511936031978,
+        2239.9806122794816
+      ],
+      "authoritative": [
+        2574.34577415256,
+        2239.9773326287045
+      ],
+      "hidden": false
+    },
+    {
+      "label": "Stash → Jeweler",
+      "lengthU": 337.8544560243738,
+      "nominalSeconds": 1.3514178240974952,
+      "observedSeconds": 1.143,
+      "ms": 1143,
+      "predicted": [
+        2950.5780281053803,
+        1891.8058675282653
+      ],
+      "authoritative": [
+        2950.5872126552576,
+        1891.790677725529
+      ],
+      "hidden": false
+    },
+    {
+      "label": "Jeweler → Mystic",
+      "lengthU": 368.6702077650218,
+      "nominalSeconds": 1.4746808310600872,
+      "observedSeconds": 1.4065999999996275,
+      "ms": 1406.5999999996275,
+      "predicted": [
+        3287.027109924871,
+        1754.269619731096
+      ],
+      "authoritative": [
+        3287.027451066848,
+        1754.269427618595
+      ],
+      "hidden": false
+    },
+    {
+      "label": "Mystic → Blacksmith",
+      "lengthU": 586.3121421992204,
+      "nominalSeconds": 2.3452485687968814,
+      "observedSeconds": 2.299,
+      "ms": 2299,
+      "predicted": [
+        3120.4338280990573,
+        2268.3356642121835
+      ],
+      "authoritative": [
+        3120.440300725331,
+        2268.3584490379176
+      ],
+      "hidden": false
+    },
+    {
+      "label": "Blacksmith → Stash",
+      "lengthU": 389.4193154171794,
+      "nominalSeconds": 1.5576772616687176,
+      "observedSeconds": 1.5057999999988825,
+      "ms": 1505.7999999988824,
+      "predicted": [
+        2745.0603105289615,
+        2165.4788703349277
+      ],
+      "authoritative": [
+        2745.0543410219298,
+        2165.475949637364
+      ],
+      "hidden": false
+    },
+    {
+      "label": "Cube → Rift",
+      "lengthU": 281.29210795896853,
+      "nominalSeconds": 1.1251684318358741,
+      "observedSeconds": 1.140199999999255,
+      "ms": 1140.199999999255,
+      "predicted": [
+        3201.7458231876985,
+        2451.092367880269
+      ],
+      "authoritative": [
+        3201.746814764722,
+        2451.091998676063
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Pier",
+      "lengthU": 3171.34474374183,
+      "nominalSeconds": 12.68537897496732,
+      "observedSeconds": 11.2385,
+      "ms": 11238.5,
+      "predicted": [
+        706.5062036015971,
+        2039.5727052562352
+      ],
+      "authoritative": [
+        706.5002401759996,
+        2039.5766093788618
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Upper gate",
+      "lengthU": 2676.373333490925,
+      "nominalSeconds": 10.7054933339637,
+      "observedSeconds": 9.784400000000373,
+      "ms": 9784.400000000373,
+      "predicted": [
+        1901.5978908182697,
+        523.9036915563619
+      ],
+      "authoritative": [
+        1901.5920262383293,
+        523.8868115731391
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Eastern gate",
+      "lengthU": 1688.8534803396633,
+      "nominalSeconds": 6.755413921358653,
+      "observedSeconds": 6.1055,
+      "ms": 6105.5,
+      "predicted": [
+        4175.527248481189,
+        2203.0802541980297
+      ],
+      "authoritative": [
+        4175.534334937269,
+        2203.0858157204784
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Southern approach",
+      "lengthU": 4457.29003328365,
+      "nominalSeconds": 17.8291601331346,
+      "observedSeconds": 16.09360000000149,
+      "ms": 16093.60000000149,
+      "predicted": [
+        1958.848007477085,
+        2907.676990176312
+      ],
+      "authoritative": [
+        1958.8317233098546,
+        2907.674358391719
+      ],
+      "hidden": false
+    },
+    {
+      "label": "WP → Ruins-road exit",
+      "lengthU": 3627.516971484759,
+      "nominalSeconds": 14.510067885939035,
+      "observedSeconds": 13.348199999999254,
+      "ms": 13348.199999999255,
+      "predicted": [
+        5348.0967393064775,
+        883.8693896439212
+      ],
+      "authoritative": [
+        5348.105510932002,
+        883.8685124747974
+      ],
+      "hidden": false
+    }
+  ],
+  "isolatedDataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m2-walk-GAY4lM\\saves"
+}

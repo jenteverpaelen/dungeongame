@@ -166,6 +166,7 @@ export type S2C =
 
 export type CmdOp =
   | 'equip' | 'unequip' | 'swapInv' | 'destroy'
+  | 'stashDeposit' | 'stashWithdraw'
   | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset'

@@ -105,3 +105,9 @@ The approved waypoint approach is 54.4 u from its marker; the legacy 44 u body p
 
 ### L08 — M1 regression evidence
 Twelve SHA256 map + 2,000-step movement fixtures for fields/rifts captured before runtime edits remain identical. The simulation dodge test compared different map seeds and freshly rolled equipment between standing/dodging arms (`server/test/sim.ts`). With the town change it measured 51%, failing the existing <50% criterion. Holding arena seed and equipment equal measures 39%; the criterion is unchanged. The exact dependency through preceding scenarios has not been isolated. This is a harness control correction, not a gameplay balance change.
+
+### L09 — M2 operations and interaction measurements
+HANDOFF §5.5 and the existing command handlers define the artisan mapping; no economy/cost/unlock changes. The approved Rift approach is 88.99 u from its centre; a 90 u approach margin plus each authored body radius covers all approved approach points. Client and server read each NPC interactionRadius. All service mutations use current authoritative position, alive state and the shared static-geometry line-of-sight. Waypoint exits use their matching authored destination; rift entry uses the actual open portal or obelisk. Field/rift return-home stays as before. The 60-slot per-character stash is the owner's explicit new-system exception, using existing inventory item objects and atomic character persistence.
+
+### L10 — Narrow-gap audit
+M1 runtime audit measured a 27.05 u slit between provisional upper-court house B and cellar mass (smaller than the 64 u minimum passage). The M0 footprint positions were explicitly provisional ±3–6 reference pixels, about 33–65 u vertically. Shift the cellar mass 42 u south, within that uncertainty, to make the passage at least 64 u; keep all service centres, roads and route points fixed. This is a measured clearance correction, not a claim about D3 architecture.

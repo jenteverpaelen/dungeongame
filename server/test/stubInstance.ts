@@ -39,6 +39,10 @@ interface Pl {
 export const createInstance: CreateInstance = (opts: InstanceOptions): InstanceApi => new StubInstance(opts);
 
 class StubInstance implements InstanceApi {
+  canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean {
+    const p = this.players.get(link);
+    return !!p && p.ent.hp > 0 && Math.hypot(p.mv.x - x, p.mv.y - y) <= radius && !this.col.segmentBlocked(p.mv.x, p.mv.y, x, y);
+  }
   readonly key: string;
   readonly zone: ZoneInfo;
   readonly map: MapData;

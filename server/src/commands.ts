@@ -3,6 +3,9 @@
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
 import type { Session } from './net/session';
+import { SERVICE_ROLE } from '../../shared/src/townServices';
+import { transferStash } from '../../shared/src/stash';
+import { requireNear } from './townServices';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
@@ -167,6 +170,15 @@ const destroy: Handler = (s, a) => {
   returnGems(s.save, loc.item);
   s.save.inventory[loc.index] = null;
   return done(s, false);
+};
+
+const stashDeposit: Handler = (s, a) => {
+  const err = transferStash(s.save, str(a, 'itemId'), true);
+  return err ? fail(err) : done(s, false);
+};
+const stashWithdraw: Handler = (s, a) => {
+  const err = transferStash(s.save, str(a, 'itemId'), false);
+  return err ? fail(err) : done(s, false);
 };
 
 // ─────────────────────────── Cube: salvage ───────────────────────────
@@ -656,7 +668,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
-  equip, unequip, swapInv, destroy,
+  equip, unequip, swapInv, destroy, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
   skillSlot, skillRune, skillTier, skillReset,
@@ -669,6 +681,8 @@ const HANDLERS: Record<CmdOp, Handler> = {
 export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdResult {
   if (!Object.hasOwn(HANDLERS, op)) return fail('Unknown command');
   try {
+    const role = SERVICE_ROLE[op];
+    if (role) { const err = requireNear(s, role); if (err) return fail(err); }
     return HANDLERS[op](s, a, world);
   } catch (err) {
     if (err instanceof ArgError) return fail(err.message);

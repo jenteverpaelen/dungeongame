@@ -33,6 +33,8 @@ import {
 } from '../../shared/src/protocol';
 import { computeStats } from '../../shared/src/stats';
 import type { CharacterSave, ClassId, DerivedStats, Item } from '../../shared/src/types';
+import { SERVICE_ROLE } from '../../shared/src/townServices';
+import { townPath } from './townNavigation';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, '..', '..');
@@ -183,9 +185,34 @@ class Bot {
   }
 
   private lastCmdAt = 0;
+  /** Existing success-path assertions now physically walk to the required artisan first.
+   * Authority rejection tests use rawCmd and intentionally never call this helper. */
+  async approachService(role: string) {
+    if (this.zone?.kind !== 'town') return;
+    await this.waitFor(() => this.me);
+    const map = generateMap(this.zone.zone, this.zone.seed), n = map.town?.npcs.find(n => n.role === role);
+    if (!n || !this.me) return;
+    if (Math.hypot(this.me.x - n.x, this.me.y - n.y) <= n.interactionRadius - 4) return;
+    const points = townPath(map, [this.me.x, this.me.y], n.approach);
+    const end = Date.now() + 45_000;
+    for (const [x, y] of points) {
+      while (this.me && Math.hypot(this.me.x - x, this.me.y - y) > 5) {
+        if (Date.now() > end) throw Error(`${this.tag}: timed out walking to ${role}`);
+        const dx = x - this.me.x, dy = y - this.me.y, l = Math.max(24, Math.hypot(dx, dy));
+        this.input(dx / l, dy / l); await sleep(50);
+      }
+    }
+    this.input(0, 0); await sleep(100);
+  }
 
   /** Commands are paced to <= ~40/s so the bot stays under the server's 60 msgs/s limit (like a human-driven client). */
   async cmd(op: CmdOp | string, a?: Record<string, unknown>, timeoutMs = 6000): Promise<Res> {
+    const role = SERVICE_ROLE[op as CmdOp] ?? (op === 'travel' && ['whispering_glade', 'ashen_hollow'].includes(String(a?.zone)) ? 'waypoint' : op === 'riftEnter' ? 'obelisk' : undefined);
+    if (role) await this.approachService(role);
+    return this.rawCmd(op, a, timeoutMs);
+  }
+
+  async rawCmd(op: CmdOp | string, a?: Record<string, unknown>, timeoutMs = 6000): Promise<Res> {
     const wait = this.lastCmdAt + 25 - Date.now();
     if (wait > 0) await sleep(wait);
     this.lastCmdAt = Date.now();
@@ -367,6 +394,13 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('system welcome line', !!sysWelcome);
 
   // Movement works: send inputs, position changes, ack follows.
+  for (const [op, role] of Object.entries(SERVICE_ROLE)) {
+    const n = generateMap(b.zone.zone, b.zone.seed).town!.npcs.find(n => n.role === role)!;
+    const before = JSON.stringify(b.char);
+    const rejected = await b.rawCmd(op, { x: n.x, y: n.y, npcId: n.id, itemId: 'spoof' });
+    c(`${op} rejects remote/spoofed service access over WebSocket`, !rejected.ok && /Stand beside/.test(rejected.err ?? ''), rejected);
+    c(`${op} rejection preserves save`, JSON.stringify(b.char) === before);
+  }
   const x0 = b.me!.x, y0 = b.me!.y;
   for (let i = 0; i < 20; i++) { b.input(1, 0); await sleep(TICK_MS); }
   await sleep(150);
@@ -461,6 +495,16 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('debug set grants six class set pieces', r.ok && b.inv().filter((i) => i.rarity === 'set').length === 6, { r, n: b.inv().filter((i) => i.rarity === 'set').length });
   r = await b.cmd('debug', { op: 'rares', n: 8 });
   c('debug rares', r.ok && b.inv().filter((i) => i.rarity === 'rare').length >= 1, r);
+
+  // Real persistent stash: use the same id through transfer/retry/relogin, with actual NPC approach.
+  const stored = b.findInv(i => i.rarity === 'rare')!;
+  r = await b.cmd('stashDeposit', { itemId: stored.id });
+  c('stash deposit moves one item out of the bag', r.ok && !b.inv().some(i => i.id === stored.id) && b.char.stash.some(i => i?.id === stored.id), r);
+  r = await b.rawCmd('stashDeposit', { itemId: stored.id });
+  c('repeated deposit is rejected without duplication', !r.ok && b.char.stash.filter(i => i?.id === stored.id).length === 1, r);
+  r = await b.cmd('stashWithdraw', { itemId: stored.id });
+  c('stash withdrawal preserves the complete item', r.ok && JSON.stringify(b.findInv(i => i.id === stored.id)) === JSON.stringify(stored), r);
+  await b.cmd('stashDeposit', { itemId: stored.id });
 
   // ── equip / unequip / swap / destroy
   section2(tag, 'inventory & equipment');
@@ -838,6 +882,7 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('relogin keeps inventory, equipment, cube, paragon, gems',
     JSON.stringify(b2.char.inventory) === JSON.stringify(snapshot.inventory)
     && JSON.stringify(b2.char.equipment) === JSON.stringify(snapshot.equipment)
+    && JSON.stringify(b2.char.stash) === JSON.stringify(snapshot.stash)
     && JSON.stringify(b2.char.cube) === JSON.stringify(snapshot.cube)
     && b2.char.gold === snapshot.gold && JSON.stringify(b2.char.gems) === JSON.stringify(snapshot.gems));
   c('relogin places the character in town', b2.zone.kind === 'town');
@@ -1224,6 +1269,12 @@ async function testWorld() {
   await world.init();
   const login = (s: ReturnType<typeof fakeSession>) => world.login(s as never, (you, zone) => ({ t: 'welcome', you, char: s.save, derived: s.derived, zone, time: Date.now(), world: world.infoFor(s as never) }));
   const channelsOf = (zone: string) => world.infoFor(fakeSession('probe') as never).channels.filter((x) => x.zone === zone);
+  const placeAtService = (s: ReturnType<typeof fakeSession>, role: string) => {
+    // In-process world-manager fixtures: placement only; socket tests above walk via real inputs.
+    const rec = s.rec as import('../src/world').InstRec;
+    const n = rec.inst.map.town!.npcs.find(n => n.role === role)!;
+    rec.inst.removePlayer(s); s.entityId = rec.inst.addPlayer(s, { x: n.approach[0], y: n.approach[1] });
+  };
 
   const townPlayers = Array.from({ length: 101 }, (_, i) => fakeSession(`T${i}`));
   townPlayers.forEach(login);
@@ -1260,6 +1311,7 @@ async function testWorld() {
 
   // Rifts: destroyed 60 s after becoming empty; portal removed with it.
   const opener = townPlayers[60];
+  placeAtService(opener, 'obelisk');
   const rin = world.riftOpen(opener as never, 0);
   check('riftOpen creates a rift instance', rin.ok, rin);
   check('open rift shows in world info for the town channel', world.infoFor(opener as never).riftOpen === true);
@@ -1288,10 +1340,12 @@ async function testWorld() {
 
   // Rift capacity (party of 4) and one rift per opener.
   const party = townPlayers.slice(70, 76);
+  party.forEach(p => placeAtService(p, 'obelisk'));
   world.riftOpen(party[0] as never, 0);
   const entered = party.map((p) => world.riftEnter(p as never));
   check('a rift holds at most 4 players', entered.filter((r) => r.ok).length === 4 && !entered[4].ok && /full/.test(entered[4].err ?? ''), entered);
   world.leave(party[0] as never);
+  placeAtService(party[0], 'obelisk');
   const replaced = world.riftOpen(party[0] as never, 0);
   check('opening a new rift closes the old one to newcomers; occupants stay', replaced.ok && world.stats().instances.filter((i) => i.kind === 'rift').length === 2);
   const late = world.riftEnter(party[5] as never);
