@@ -1469,6 +1469,263 @@ For every screen verify, in a real browser, with screenshots looked at: default 
 P3: auth, character select, settings, admin → P4: skills/passives/character sheet → P5: dialogue, tracker, journal, world map → P6: hints, loading tips, help v2 → P7/P8: vendor, dungeon tracker, summaries → P10: party, friends, whispers, report, then guild/inspect/finder/moderation → P11: transmog, filter, codex, tooltip v2 → P12: bounties, leaderboards → P14/P15: achievements, bestiary, season journey, trade/mail/market.
 
 
+---
 
-> **[Part 07 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 10. Combat depth and alternative ways to fight
+
+**Fixed point `[O]`:** WASD + Space dash, auto-attack, four auto-cast skills (ARCHITECTURE decision table). Everything below either *adds agency without removing the automation fantasy* or is a separate *content mode*. "Ref" marks are `[K]`, to be confirmed by the Feature Matrix.
+
+### 10.1 Part A — Depth inside the current model
+
+| # | Option | What it is | Ref `[K]` | Fit with auto-cast | Cost here | Risk | Recommendation `[P]` |
+|---|---|---|---|---|---|---|---|
+| A1 | **Per-slot rule editor** | players edit when a skill fires (enemies ≥ N, only elites/bosses, hold for buff, resource threshold). The `AutoRule` data (`always`, `enemiesNear`, `maintainBuff`, `maintainSummon`, `channel`) already exists; expose its parameters, validated on the server | rule-based "gambit" systems exist in some RPGs | **Excellent** — deepens the automation fantasy | M | UI complexity; exploit through absurd rules (validate ranges) | **Evaluate first** in P4 |
+| A2 | **Manual force-cast keys** | pressing 1–4 casts that slot now if affordable | D3, PoE, LA (manual casting) | Medium — can undermine the premise if manual > auto | S–M | balance split between players who do and don't | Optional "assist"; decide with harness numbers |
+| A3 | **Defensive / utility actives** | 1–2 per class (shield, blink, taunt, heal) with cooldowns, auto-cast or manual | D3 (defensive skills) | Good — gives bosses counterplay beyond dash | M | tuning | **Yes**, one per class to start |
+| A4 | **Passives / mastery** | D-10 | D3, PoE, LE, GD, TBH | Good | M–L | complexity | per D-10 |
+| A5 | **Telegraph-driven boss mechanics** | bosses punish standing still; dash and positioning matter. Telegraph events already exist (`tele`) | D3, LA | **Excellent** — main source of agency | M | readability under heavy VFX | **Yes** (P4 framework, P7+ content) |
+| A6 | **Target-priority setting** | nearest / elites first / lowest life. The brain already prefers elites within 1.2× nearest distance | many | Excellent | S | none | **Yes** (expose existing rule) |
+| A7 | **Auto-kite / hold-position toggle** (ranged classes) | stay at range or hold ground | — | Good | S | edge cases with walls | Evaluate |
+| A8 | **Weapon-type identity** | two-hander vs one-hand+shield changes the auto-attack pattern | D3 | Good | M | art/animation load | P11 |
+| A9 | **Status synergies** | burn/chill/bleed interactions beyond today's flags | D3, PoE | Medium | M–L | readability, balance explosion | Limit to a few readable ones |
+| A10 | **Companion stances** | pet behaviour toggles | TBH, Idl | Good | S–M | — | P14 |
+
+### 10.2 Part B — Content modes ("other combat ways")
+
+| # | Mode | What | Ref `[K]` | Needs | Risk | Recommendation `[P]` | Phase |
+|---|---|---|---|---|---|---|---|
+| B1 | Field farming | open fields with packs, elites, goblins | all | exists | flat content (§6.1) | keep, add structure | P7 |
+| B2 | Rifts → **timed rifts with ranks** | kill-bar then guardian, with a clock and rank | D3 | P4, P8, leaderboard | cheating, burnout | **Yes** | P12 |
+| B3 | **Objective dungeons** | instanced maps with goals (boss, collect, defend) | D3, D4, PoE | P5 (quests), P7 | content cost | **Yes** | P9 |
+| B4 | Bounties | repeatable objectives across zones | D3 | P5 | chore feeling | Yes after campaign (D-17) | P12 |
+| B5 | World boss / events | scheduled shared encounters | LA, MS | P10, P15 | server load spikes | Later | P12/P15 |
+| B6 | Boss rush / gauntlet | a chain of bosses with scoring | many | P4 boss framework | reuse of assets | cheap, good variety | P13 |
+| B7 | **Horde Trials** | 5–10 minute survival waves with an upgrade pick between waves; rewards feed meta-currency | VS (genre) | P4, P14 | could cannibalise the main loop | **Best candidate for a second way to play**; prototype first | P13 |
+| B8 | Endless descent / tower | floors with rising difficulty; idle-friendly | idle genre (verify) | P12 | grind | optional | P13 |
+| B9 | Co-op raids (4 players) | scripted multi-phase boss with roles-less synergy | LA | P10 | design heavy | after R3 | P13 |
+| B10 | PvP duels / arenas | player vs player | MS (some), LA | balance for auto-cast PvP is unsolved here | abuse, balance | **Not before R3** (D-13) | — |
+| B11 | Hardcore / ironman / seasonal variants | rule variants of normal play | D3, PoE | P15 | splits population | later | P15 |
+| B12 | AFK expeditions | alts or pets send out for gains | Idl | P14 | "chore" risk | optional | P14 |
+| B13 | **Practice range** | training dummies exist in town; add DPS display and build testing | — | exists in town | none | **Yes**, cheap, also validates the harness | P4 |
+
+### 10.3 Recommended path `[P]`
+
+1. P4: A1 (evaluate), A3, A5, A6, B13. 2. P9: B3. 3. P12: B2 timed, B4, B5. 4. P13: B7 prototype, then B6, B8/B9 if the owner wants. 5. After R3 only if D-13 says yes: B10.
+
+---
+
+## 11. Content budgets and production pipeline
+
+### 11.1 Budget method (no invented volumes)
+
+1. Define **content units**: zone, monster family, boss, quest chain, dungeon, legendary power, set, cutscene-lite.
+2. Author **one of each** during P7 and record the real cost: Codex sessions, owner review minutes, defects found at review.
+3. Multiply by the volumes the campaign needs (`TBD[D-15]`, derived from the pacing matrices) and compare with the owner's available review time. The binding constraint is *review capacity*, not generation speed (§1.6).
+4. Re-plan at every gate.
+
+### 11.2 Scaling code-drawn art `[P]`
+
+Monster families from templates (body plan × palette × attack kit × scale); gear families (shape × palette × glow); zone kits (ground materials, props, landmarks). A **style sheet** and **reference board** fix proportions, outline weight, palette, light direction. Gate: judge quality at gameplay size and at 1080p side by side with a reference (as Codex did for the town); the art gallery already supports crowd tests (`players=`, `monsters=`).
+
+### 11.3 Writing, audio, QA
+
+- **Writing:** style guide, tone pillars, banned reference vocabulary, name register; the owner edits; every string has a localization key.
+- **Audio:** procedural bank for now; mixing checked by ear by the owner; naming by event.
+- **QA:** bots (full-path playthroughs), golden saves, content check, perf budgets in `npm run verify`.
+
+---
+
+## 12. Cross-cutting checklists
+
+### 12.1 Quality — the Definition of Done in §3.4.
+
+### 12.2 Performance budget (start from what is already measured)
+
+- Client: stay **within 15 % of baseline fps and ≥ 60 fps with 100 players** `[O]` (HANDOFF §6). The town report records the method and its limits (headless Chrome; headed-window benchmark unverified) `[S-docs]`.
+- Server: **4 instances × 150 monsters tick in < 10 ms total** `[O]` (ARCHITECTURE §1.2); Codex's town check recorded a 4-player / 150-monster tick mean of 2.008 ms, p99 10.883 ms `[S-docs]`.
+- Memory/texture lifetime: textures created for a zone are destroyed on leaving; verify per new zone.
+- Method: visible tab only; record command, machine, browser, DPR; hidden-tab numbers are rejected.
+
+### 12.3 Security checklist (gate for R1 and R3)
+
+Authentication and sessions · rate limits on login, chat, commands · input validation and size limits on every message · server authority for every state change · idempotent commands · no debug commands in production · admin actions audit-logged · secrets outside the repo · `npm audit` and pinned versions · WebSocket origin and message-size limits · no HTML injection from chat/names (verify any raw-HTML rendering) · save-file path safety (ID checks exist) · backups with restore drills · log hygiene (no credentials, minimal personal data) · DoS basics (connection caps exist) · replay/race tests for trade and crafting · independent review.
+
+### 12.4 Legal and IP checklist (not legal advice; human review required)
+
+All names, text, art and audio original · licence ledger for every third-party component (fonts via `@fontsource` — read each licence) · reference images never committed or shipped · no trademarked names or lore from reference games · EU consumer-law and loot-box review before any paid feature · GDPR essentials (minimisation, export, deletion, retention, consent, minors) · terms and privacy documents reviewed by a human · age-rating questionnaires.
+
+### 12.5 Accessibility baseline (D-39)
+
+Colour-blind-safe cues · reduced motion / shake / flash options · adjustable text and UI scale · rebindable keys · visual equivalents for audio cues · no reliance on precise timing for essential actions · readable contrast · keyboard-operable panels.
+
+### 12.6 Localization
+
+Keys for every string · plural/gender-neutral phrasing · +30–40 % text expansion `[K]` · font coverage for chosen languages · number/date formats.
+
+---
+
+## 13. Risk register
+
+| ID | Risk | L / I | Early signal | Mitigation | Where |
+|---|---|---|---|---|---|
+| K1 | Scope blow-out (the old plan assumes a studio) | H / H | phases slipping; features added mid-phase | release ladder, anti-scope list, gates | §2 |
+| K2 | Research slop returns | M / H | numbers without sources; contradictions with code | evidence standard, claim register, spot-checks | §4 |
+| K3 | Agent drift on long runs | M / H | unreviewed large diffs; docs lagging | slices ≤ one capability, `STATE.md`, gates | §3 |
+| K4 | Unauthenticated access / debug backdoor exposed | H if skipped / H | any public URL before P3 | P3 is a blocker for R1 | P3 |
+| K5 | Save loss or corruption | M / H | migration without fixtures | versioning, golden saves, backups, restore drills | P3 |
+| K6 | Economy inflation, duplication | M / H | gold/hour drifting; item count anomalies | sim + soak, idempotency, independent review | P8 |
+| K7 | IP / naming challenge | M / M–H | names matching reference games | name register now, replacement before R3, legal review | P3, P17 |
+| K8 | Content treadmill | H / M | review queue growing | parametric generators, review budget | P7, §11 |
+| K9 | Combat not fun | M / H | owner bored in playtest | early owner playtests at P4; harness | P4 |
+| K10 | Onboarding failure | M / H | fresh players stall | tests with real newcomers | P6 |
+| K11 | Hosting cost vs "no paid services" | H / M | no place to run R1 | D-32 early; start tiny | P3 |
+| K12 | Performance regressions as content grows | M / M | verify budget failing | budgets in `npm run verify` | all |
+| K13 | Owner overload (decisions, reviews) | H / H | gates waiting | decision register, batched reviews, defaults | §5 |
+| K14 | Moderation burden | M / H | reports unanswered | tools first, strict defaults, small audience | P10 |
+| K15 | Legal/regulatory (loot boxes, GDPR, minors) | M / H | any payment idea | R-16; no money features before review | P15, P17 |
+| K16 | Tool/dependency drift (Node built-ins, Vite) | L / M | build breakage | pin versions, audit | P16 |
+| K17 | Windows quirks (two known SIGTERM failures, PowerShell 5.1 limits) | L / L | flaky shutdown tests | documented; `git commit -F` | — |
+| K18 | Cadence mismatch / burnout | M / M | long gaps | ladder gives stopping points | §2.3 |
+
+---
+
+## 14. Open questions for the owner (prioritised)
+
+**A — to start research (answer before pasting the research prompt)**
+1. Approve the research charters R-01…R-20 and their order (§4.5)? Add or drop any game?
+2. Download policy for research references: approve a **standing** rule (what types — images, PDF samples, video frames; per-item size cap; stored only in ignored `reference-local/` with a register) or keep per-item approvals?
+3. Which Diablo III platform/patch and mode is the reference (PC, current patch; campaign and Adventure Mode)?
+4. May Codex decode frames from public videos when text sources are missing (it did for the town)?
+
+**B — to finish the design bible (Gate G2)** — the twelve blockers in §5.2, especially: how long should 1→70 take (D-02)? three classes or more (D-03)? trading yes/no (D-21)? names policy (D-07)?
+
+**C — to start building (Gate G3)**
+5. Where will R1 run (owner PC, free tier, other) and what is the budget (D-32)?
+6. Account model (D-30) and storage (D-31) — accept the recommendations?
+7. Integration branch and merge of the town (D-33, G0).
+
+**D — to plan R1**
+8. How many friends can test, on which devices and browsers? Who will watch a fresh-player test?
+9. How many hours per week can you give to reviews and playtests? (This sets the real pace.)
+10. Languages at launch (D-38)?
+
+---
+
+## Appendix A — Paste-in prompts for Codex
+
+### A.1 Research kickoff (paste as is)
+
+> Read `AGENTS.md`, `docs/design/FULL_GAME_ROADMAP.md` §0, §3, §4 and Appendix E–F. Your task is **Phase 1: the research program**. Work only on a new branch `codex/p01-research` cut from the current branch. Produce the dossiers, matrices and UI atlas described in §4 under `docs/research/v2/`, one charter at a time in the order of §4.5, starting with R-01-EARLY, R-15, R-02 and R-03.
+>
+> Rules, all binding: use the evidence standard of `docs/town/REFERENCES.md` (observed/source-verified, measured, inferred, unverified); search snippets are leads, not evidence; record URL, retrieval date, content version, what you actually read, and limits for every claim; never copy text — summarise; never bypass CAPTCHAs, paywalls or terms; no accounts, no purchases; **no download without my explicit OK** — collect a list (name, source, size, purpose) and ask once; reference images stay in an ignored `reference-local/` folder with a download register; nothing from a reference game ships. Treat every file in the old `docs/research/*.md` as a lead only — its numbers are unverified and several contradict the shipped code (§1.5 of the roadmap).
+>
+> For each charter state the depth level reached (L1–L4) per topic; anything that will become a number in our game must be L3 or be listed as unresolved. Stop each charter at its stop condition and report; do not pad. After the first three charters, stop and send me the digest (what to copy, what to avoid, what is unknown, questions for me). Use they/them for me. Commit with `git commit -F file`. Do not touch game code. If the working tree still holds uncommitted town work, stop and ask me before creating the branch.
+
+### A.2 Phase kickoff template
+
+> Read `AGENTS.md`, roadmap §0, §3 and the section for **Phase PNN**. Create `codex/pNN-short-name` from `<integration branch>`. Copy the phase's scope and acceptance criteria into `docs/phase/PNN-name/README.md`. List every decision (D-xx) and research input (R-xx) the phase needs and tell me which are missing **before** you write code. Work in slices; after each slice run the Definition of Done (§3.4) and send the report format in §3.6. Update `STATE.md` at the end of every session. Stop at the gate.
+
+### A.3 Calibration sprint (§3.2)
+
+> Do three tasks and report accuracy honestly: (1) run `npx tsx docs/design/baseline-audit.ts` and compare every number in roadmap §1 with your output; (2) write one mini-dossier on the Diablo III inventory screen with ≥ 8 claims in the claim-register format; (3) on a scratch branch implement a guarded server command with negative tests for wrong state, spoofed arguments, replay and concurrent use. Do not merge anything.
+
+### A.4 Stop-and-report
+
+> Stop. Write `STATE.md`: what is done, what is in progress, what you were about to do, what you are unsure about, and the exact commands to resume. Then tell me what decision you need from me.
+
+---
+
+## Appendix B — Glossary and naming policy
+
+**Glossary.** *Hearthfall* = working title of the game. *Hearthmere* = the town. *Codex / astra 6* = the OpenAI coding agent the owner uses. *Gate* = owner approval point. *Phase* = unit of work in §7. *Release step* = R0–R5 (§2.3). *DDR* = design decision record. *Dossier* = a research document. *Claim register* = CSV of every sourced claim. *Movement* = a stage of the leveling journey (§6.3). *Unlock ladder* = §6.4.
+
+**Naming policy `[P]`, needs owner decision D-07.** Everything that ships is original. The current data contains names that *appear to be taken from Diablo III* `[K]` and must be re-checked by the name register in P3: the rift name "Nephalem Rift"; skill names such as Whirlwind, Rend, Ground Stomp, Seismic Slam, Battle Rage, Hungering Arrow, Sentry, Multishot, Cluster Arrow, Rain of Vengeance, Companion, Magic Missile, Meteor, Black Hole, Frost Nova, Hydra, Magic Weapon; most rune names; the difficulty names "Torment I–X"; "Paragon". Legendary and set names look like paraphrases of Diablo III concepts rather than copies `[K]`; the register must check them one by one. Generic English words may be fine; distinctive combinations and lore terms are the risk. A human legal opinion is required before any public release.
+
+---
+
+## Appendix C — Repo map (where to change what)
+
+| If you add… | Touch… |
+|---|---|
+| a rule, formula or data table | `shared/src/**` (both sides import it) — add a test in `shared/test/` |
+| a network message or command | `shared/src/protocol.ts` (+ `PROTOCOL_VERSION`), `server/src/commands.ts`, client handler in `client/src/net/` and `client/src/game/` |
+| a server system | `server/src/sim/*` (tick), `server/src/world.ts` (zones/instances), `server/src/net/session.ts` (login/messages), `server/src/persistence.ts` (saves) |
+| a skill, monster, item, zone | `shared/src/data/{skills,monsters,items,zones}.ts`, server behaviour in `server/src/sim/`, art in `client/src/render/art/` |
+| a panel or HUD element | `client/src/ui/panels/*` or `client/src/ui/hud/*`, state in `client/src/ui/store.ts`, styles in `client/src/ui/styles/*.css` |
+| a visual effect or sound | `client/src/render/vfx/*`, `client/src/audio/*` |
+| the town | `shared/src/data/town/hearthmere.json` + `shared/src/town*.ts`; checks: `npm run town:check`, `npm run test:town-services` |
+| a test | `shared/test/*.test.ts` (`npm test`), `server/test/*` (`npm run test:server`, `sim.ts`), `server/test/townServices.test.ts` |
+| a measurement script | `docs/design/` (audit), `scripts/` (browser capture and benchmarks) |
+
+---
+
+## Appendix D — Dossier audit (the 21 old research files)
+
+URL counts are a crude proxy for citedness: a URL in a document does not verify the claim beside it. Status is my classification `[P]`, based on file names, headings and the synthesis's own attributions — I have **not** read every dossier in full. **Unreliable** = no URL at all (seven files); **Lead** = has URLs, claims still need re-verification; "very thin" = fewer than four URLs.
+
+| File | Size (KB) | URLs | Status | Notes |
+|---|---:|---:|---|---|
+| 00-SYNTHESIS | 34.8 | 0 | **Unreliable** | 17 contradictions with code or owner decisions (§1.5) |
+| 01-idleon-visuals | 29.1 | 34 | Lead | contains its own `[UNVERIFIED]` markers |
+| 02-d3-combat-feel | 39.3 | 46 | Lead | feel parameters need verification |
+| 03-d3-itemization | 33.7 | 20 | Lead | drop-rate claims need L3 |
+| 04-d3-builds | 46.9 | 48 | Lead | |
+| 05-progression-paragon | 27.6 | 41 | Lead | has a sources list; the synthesis cites it for "~581.6M XP to L70", the code says 143,281,639 |
+| 06-taskbar-hero | 34.2 | 31 | Lead | game released 2026-05-27 per dossier; verify all |
+| 07-mmo-architecture | 39.7 | 15 | Lead | the synthesis cites it for 60 Hz; code is 20 Hz |
+| 08-engine-client | 34.1 | 32 | Lead | the synthesis cites it for Phaser; code uses PixiJS |
+| 09-server-steam-crossplay | 30.7 | 27 | Lead | the synthesis cites it for Colyseus; not used |
+| 10-ui-design | 41.2 | 8 | Lead (thin) | HUD specs unverified |
+| 11-juice-dopamine | 36.8 | 2 | Lead (very thin) | psychology claims mostly uncited |
+| 12-world-town-dungeons | 36.5 | 0 | **Unreliable** | 3-tier dungeon system, season length uncited |
+| 13-source-mining | 37.0 | 8 | Lead (thin) | |
+| 14-comparables | 40.8 | 0 | **Unreliable** | market and revenue figures uncited |
+| gap-01-auto-cast-skill-balance | 42.9 | 13 | Lead | |
+| gap-02-cross-platform-gameplay-parity | 39.9 | 3 | Lead (very thin) | |
+| gap-03-mmo-economy-crossplay | 24.7 | 0 | **Unreliable** | contradicts "no trading" decision |
+| gap-04-attribute-affix-system | 33.1 | 0 | **Unreliable** | |
+| gap-05-endgame-content-roadmap | 51.8 | 0 | **Unreliable** | plans team size and budget for a funded studio (its Part 11) |
+| gap-06-class-design-auto-cast | 44.5 | 0 | **Unreliable** | its headings use Fury / Hatred / Arcane Power like the code (the synthesis does not); numbers unverified |
+
+---
+
+## Appendix E — Source-hunting guide
+
+**Official:** the publisher's patch-note archive, official game guide pages, developer blog and conference talks, store pages, official wikis. **Secondary:** wikis that cite patches, press interviews, conference-talk transcripts. **Community data:** planners and spreadsheets (label as community; check the patch), forum threads (labelled, date-stamped). **Video:** only with timestamps and inspected frames; say what was inspected. **Never:** search snippets as evidence, undated pages as current, unlicensed text copied, anything behind a bypass.
+
+Search habits: query the patch number with the topic; look for the date of last edit; prefer pages that state their own source; record a "limits" sentence even when confident; when two sources disagree, record both and mark unresolved.
+
+---
+
+## Appendix F — Templates
+
+**Dossier header**
+```
+# <Game> — <charter id>
+Version/patch described: …   Retrieval dates: …   Depth reached per topic: L1/L2/L3/L4
+Evidence standard: observed/source-verified · measured · inferred · unverified
+## Findings  (Claim | Source ID | Class | Confidence | Limits)
+## Source register  (ID | URL | date read | type | what was read | limits)
+## Numbers extracted  (Value | Unit | Formula | Source ID | Class)
+## Early-game timeline · Loot progression · UI screens
+## Lessons for Hearthfall  [P]
+## Gaps · Questions for the owner
+```
+
+**Claim register header (CSV):** `id,game,topic,claim,value,unit,source_id,class,confidence,patch,retrieved,reviewer`
+
+**Timeline matrix cell:** `game | T | level | power sources | zone | unlocks | loot beats | UIs seen | social | session goal | source IDs`
+
+**UI atlas entry:** `game | screen | purpose | entry/hotkey | data shown | interactions | empty/error states | density | pattern worth copying (never pixels) | source IDs`
+
+**Option brief:** `decision id | options | what each reference does (sources) | cost here | risks | recommendation | what I would not do`
+
+**Design decision record:** `DDR-nn | date | decision | options considered | evidence | consequences | rollback | owner approval`
+
+**Download register:** `name | source URL | size | hash | purpose | stored at | owner OK date`
+
+**Phase report:** the seven headings in §3.6.
+
+**STATE.md:** `done · in progress · next three steps · open questions · commands to resume · decisions needed`
+
 
