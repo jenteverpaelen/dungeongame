@@ -1,3 +1,5 @@
+> Gate 1 approved in this chat on 2026-10-08 after review of dfcd009. M1/M2 are authorized; Gate 2 remains the next stop. Stash scope approved: 60 slots per character. The checkpoint notes below preserve the reviewed evidence and its limits.
+
 # Hearthmere M0 — Gate 1 review checkpoint
 
 **A concrete layout proposal is ready for review. No M1/game changes; Gate 1 still pending.** Blanket research/download approval has been applied, while the named layout/playable/look/services/final gates remain in place.

@@ -95,3 +95,7 @@ Source pixels are manual picks, not extracted game coordinates. R23 supplies cur
 ## Remaining evidence limits
 
 No verified D3 collision mesh, full 360-degree roof survey, normal-speed timed route, audio listening sample, exact patch build or camera parameters. These limits remain visible at Gate 1. Public evidence now supports a proportional layout proposal; owner-made captures are not required. Cathedral/graveyard/old ruins remain adjacent destination context, not buildings transplanted inside the town. Paragon and training are explicitly Hearthfall additions. Original implementation/art, movement timings and visual acceptance remain subject to later gates.
+
+## M1/M2 implementation evidence logged before code
+
+L06: existing INVENTORY_COLS=10, INVENTORY_ROWS=6 and per-character CharacterSave persistence support the approved 60-slot character stash. Existing CollisionWorld uses substeps/circle props; HANDOFF requires exact swept town geometry. Existing Pixi Graphics supports polygon drawing, and existing map/gallery hooks allow a flat-colour blockout without asset downloads. D014 preserves the old non-town path and uses authored boundary segments for swept-circle collision; this is an implementation method, not a new layout reference. Debug colours are labelled placeholders, not a final palette. New clearance refinements must retain the approved service/road topology and be documented with measured validator results.
