@@ -40,7 +40,7 @@
 
 1. **Where we are.** A playable vertical slice: 3 classes, 18 auto-cast skills with runes and tiers, Diablo-3-style loot (ancients, legendaries, a set per class), a Cube with 8 crafting functions, levels 1–70 plus Paragon, 14 difficulty tiers, instanced rifts, multiplayer channels, offline gains, and a newly authored town (Hearthmere) waiting for your review. `[M]`
 2. **What is not there yet** (and an MMO needs): accounts — today *anyone who types a character's name logs into that character*; a tutorial; quests; vendors; party/friends/guild/trade; settings and key bindings; a map screen; moderation tools; and most of the content — two flat fields, ten trash monsters for all 70 levels, two bosses. `[M]`
-3. **The old research cannot be used as facts.** `docs/research/` holds 21 dossiers written in roughly half a day. Seven contain *no source URL at all*, and the synthesis disagrees with the shipped code in at least 15 places (tick rate, engine, number of rarities, XP, skill unlocks, class resources…). See §1.5. Phase 1 therefore redoes research with the evidence standard Codex already used for the town.
+3. **The old research cannot be used as facts.** `docs/research/` holds 21 dossiers that were added in a single commit on 2026-10-04. Seven contain *no source URL at all*, and the synthesis disagrees with the shipped code or the owner's recorded decisions in 17 places, 11 of them direct contradictions of measured code (tick rate, engine, number of rarities, XP, skill unlocks, class resources…). See §1.5. Phase 1 therefore redoes research with the evidence standard Codex already used for the town.
 4. **The order** (§2): Evidence → Decisions → Foundations (accounts, saves, content pipeline, settings, tests) → Combat/build lock → Quest engine → Onboarding → Early game → Economy → Mid game → Social → Itemization depth → Endgame → optional modes / meta layer → live-ops → scale and security → platforms → launch operations. Reasons in §2.1.
 5. **Leveling direction** (§6). Today the curve is *vertical only*: numbers grow, novelty does not (all six skills by level 12, all runes by level 21, the same monsters at level 1 and level 70). §6 proposes a five-movement journey and an unlock ladder. Level thresholds are placeholders until research and your decisions fix them.
 6. **Codex** is strongest at specified, testable systems and at evidence-heavy research; weakest where taste, hearing, or real players are needed. §3 has the matrix and the working rules.
@@ -1138,8 +1138,336 @@ Feature IDs (`F-ACC-01` …) are defined in §8; screen IDs (`U-xx`) in §9; dec
 - **Gate.** G13 launch.
 
 
+---
 
-> **[Part 06 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 8. Feature catalogue
+
+How to read: **Status** is `[M]` from my audit of the code at `d630a76`: **EXISTS**, **PARTIAL** (something real exists; note says what), **MISSING**, or **DECISION** (depends on §5). **Ref** names games where the feature is *known to exist* `[K]` — written from memory, to be confirmed by the Feature Matrix (§4.4); `—` means no reference is claimed. Abbreviations: D3, D4, PoE, Idl = Legends of Idleon, TBH = Task Bar Hero, MS = MapleStory, LA = Lost Ark, VS = Vampire Survivors, LE = Last Epoch, GD = Grim Dawn.
+
+### 8.1 Accounts, saves, content pipeline, settings, tooling, admin (P3)
+
+| ID | Feature | Ref | Status | Phase |
+|---|---|---|---|---|
+| F-ACC-01 | Account registration and login | all online games | MISSING — name is identity | P3 |
+| F-ACC-02 | Sessions, logout, login rate limits, lockout | — | MISSING | P3 |
+| F-ACC-03 | Characters owned by accounts, stable IDs, character slots | D3, PoE, MS, Idl | MISSING | P3 |
+| F-ACC-04 | Character select / create / delete (grace period) / rename | D3, PoE, MS | PARTIAL — class select at login only | P3 |
+| F-ACC-05 | Account recovery without a paid mail service | — | MISSING | P3 |
+| F-ACC-06 | Data export and deletion (GDPR) | — | MISSING | P3 |
+| F-ACC-07 | Migration of existing name-keyed saves to accounts | — | MISSING | P3 |
+| F-SAV-01 | Save schema version + forward migrations | — | PARTIAL — load-time normalisation exists; explicit version not found | P3 |
+| F-SAV-02 | Golden-save fixtures per version | — | MISSING (map fixtures exist, not saves) | P3 |
+| F-SAV-03 | Backup rotation + tested restore | — | MISSING (atomic writes only) | P3 |
+| F-SAV-04 | Storage abstraction (JSON → DB per D-31) | — | MISSING (direct file calls) | P3 |
+| F-SAV-05 | Idempotent commands (client command IDs, replay safety) | — | PARTIAL — commands carry an `id` for replies; replay safety unaudited | P3/P8 |
+| F-SAV-06 | Transactional multi-entity operations (trade, mail, crafting) | — | MISSING | P15 |
+| F-CON-01 | Registries with stable IDs + schema validation + `content:check` | — | PARTIAL — typed TS data; town has `town:check` | P3 |
+| F-CON-02 | Localization keys for all player-facing text | — | MISSING — strings inline | P3 |
+| F-CON-03 | Name / IP register + originality check | — | MISSING | P3 |
+| F-CON-04 | Placeholder registry (label + removal condition) | — | MISSING | P3 |
+| F-CON-05 | Dev hot-reload and data-diff tooling | — | PARTIAL — Vite/tsx watch | P5 |
+| F-CON-06 | Content editors (zone, quest, dialogue) | — | MISSING — D-35 | later |
+| F-SET-01 | Settings panel: audio buses, graphics quality, UI scale | all | MISSING — mute/volume exist in the audio bus | P3 |
+| F-SET-02 | Key rebinding + input abstraction layer | all | MISSING | P3 |
+| F-SET-03 | Accessibility options (colour-safe rarity cues, reduced motion/shake/flash, text size, damage-number options) | modern games | MISSING | P3 |
+| F-SET-04 | Per-account settings sync | — | MISSING | P3 |
+| F-SET-05 | Language selection | — | MISSING | P3 |
+| F-TEL-01 | `npm run verify` (one-command gate) | — | MISSING — separate commands | P3 |
+| F-TEL-02 | Bot harness metrics (kills/min, TTK, deaths, XP/h) | — | PARTIAL — `server/test/bot.ts`, no metrics | P3/P4 |
+| F-TEL-03 | Drop / economy Monte-Carlo tools | — | PARTIAL — `docs/design/baseline-audit.ts` | P3 |
+| F-TEL-04 | Local event-log schema (privacy-respecting) | — | MISSING | P3 |
+| F-TEL-05 | Funnel and session analytics views | — | MISSING | P6 |
+| F-TEL-06 | Performance-budget checks (client fps, server tick) | — | PARTIAL — town PERF scripts | P3 |
+| F-TEL-07 | Replay / determinism tests for combat | — | PARTIAL — movement parity tests only | P4 |
+| F-ADM-01 | Debug commands off by default | — | **MISSING — on by default** | P3 |
+| F-ADM-02 | Admin console (ban, mute, kick, announce, restore, grant) | — | MISSING | P3 |
+| F-ADM-03 | Audit log of sensitive actions | — | MISSING | P3 |
+| F-ADM-04 | Chat filter | — | PARTIAL — rate limit only | P10b |
+| F-ADM-05 | Player report queue | — | MISSING | P10 |
+| F-ADM-06 | Feature flags / config | — | PARTIAL — environment variables | P3 |
+
+### 8.2 Combat, builds, monsters (P4, P7, P9)
+
+| ID | Feature | Ref | Status | Phase |
+|---|---|---|---|---|
+| F-CMB-01 | Locked combat spec (auto-cast rules, resources, dash, statuses) | — | PARTIAL — `docs/ARCHITECTURE.md` §1.3–1.5 is the working spec | P4 |
+| F-CMB-02 | Skill unlock cadence redesign | D3, MS, Idl | PARTIAL — cadence exists: L1, 2, 4, 6, 9, 12 | P4 |
+| F-CMB-03 | Passives / talent system | D3, PoE, LE, GD, TBH, Idl | MISSING | P4/P9 |
+| F-CMB-04 | Per-slot auto-cast rule customisation | — | MISSING — rules fixed in skill data | P4 |
+| F-CMB-05 | Optional manual force-cast keys | D3, PoE, LA | MISSING | P4 |
+| F-CMB-06 | Respec rules and costs | all ARPGs | PARTIAL — tier reset exists; costs unaudited | P4 |
+| F-CMB-07 | Combat feel pass with accessibility toggles | VS, D3 | PARTIAL — shake, flashes, floating numbers exist | P4 |
+| F-CMB-08 | TTK / survivability targets + class-parity harness | — | MISSING | P4 |
+| F-CMB-09 | Status-effect review (stun, freeze, chill, burn, bleed, poison, vulnerability) | — | PARTIAL — flags and effects exist | P4 |
+| F-SKL-01 | Skill kit expansion per class | D3 | PARTIAL — 6 per class | P4/P7 |
+| F-SKL-02 | Rune / tier expansion | D3, TBH | PARTIAL — 3 runes, 3 tiers | P11 |
+| F-SKL-03 | Passives content | D3, PoE | MISSING | P9 |
+| F-SKL-04 | Class identity pass (signature builds) | — | PARTIAL — Whirlwind, Sentries, Meteor `[O]` | P4 |
+| F-MON-01 | Monster family expansion per zone | all | THIN — 10 trash types | P7/P9 |
+| F-MON-02 | Behaviour toolkit (telegraphs, charge, summon, shield, enrage) | D3, LA | PARTIAL — melee, ranged, lob, explode; wind-up flag | P4 |
+| F-MON-03 | Boss framework (phases, adds, arenas, enrage) | D3, LA | PARTIAL — Rift Guardians (slam, ring, adds, enrage) | P4 |
+| F-MON-04 | Elite affix expansion and combos | D3 | PARTIAL — 8 affixes | P7/P9 |
+| F-MON-05 | Zone events (shrines, pylons, ambushes) | D3 | MISSING | P7 |
+| F-MON-06 | Bestiary data | MS, Idl | MISSING | P7/P14 |
+
+### 8.3 Quests, onboarding, world (P5–P7, P9)
+
+| ID | Feature | Ref | Status | Phase |
+|---|---|---|---|---|
+| F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | all | MISSING | P5 |
+| F-QST-02 | Server quest state, party sharing, anti-exploit | all | MISSING | P5 |
+| F-QST-03 | NPC dialogue system + UI | all | MISSING | P5 |
+| F-QST-04 | Quest tracker HUD + journal panel | all | MISSING | P5 |
+| F-QST-05 | World markers: NPC icons, minimap pins, map pins | all | PARTIAL — minimap exists, no quest pins | P5 |
+| F-QST-06 | Campaign structure (acts/chapters) + zone gating | D3, D4, PoE | MISSING | P5/P7 |
+| F-QST-07 | Repeatable quests / bounties | D3, D4 | MISSING | P7/P12 |
+| F-QST-08 | Lore codex + story presentation (text, camera pan) | D3, D4 | MISSING | P5/P7 |
+| F-ONB-01 | Character creation v2 (class explainer, appearance) | D3, MS | PARTIAL — `ClassSelect` | P6 |
+| F-ONB-02 | First-session script (minutes 0–15) | all | MISSING | P6 |
+| F-ONB-03 | Contextual hint system, progressive disclosure | all | MISSING | P6 |
+| F-ONB-04 | Tutorial quest chain with scripted first encounters | all | MISSING | P6 |
+| F-ONB-05 | Early loot beats (guaranteed first upgrade) | D3 `[K]` | MISSING | P6 |
+| F-ONB-06 | Funnel instrumentation + fresh-player test kit | — | MISSING | P6 |
+| F-ONB-07 | Help / FAQ panel v2 | — | PARTIAL — controls help panel | P6 |
+| F-WLD-01 | Zone chain with real level bands and gating | D3, PoE, MS | MISSING — fields use 1–70 and 8–70 | P7 |
+| F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | — | PARTIAL — procedural map from seed; town authored as JSON | P7 |
+| F-WLD-03 | Waypoint network + world map screen | D3, PoE | PARTIAL — waypoint panel, no map | P5 |
+| F-WLD-04 | Objective dungeons | D3, D4 | MISSING | P7/P9 |
+| F-WLD-05 | Ambient life and zone audio | D3 | PARTIAL — rich in town, minimal in fields | P7 |
+| F-WLD-06 | Town upgrades as systems land | D3 | PARTIAL — Hearthmere | ongoing |
+| F-WLD-07 | Weather / time of day | — | MISSING (optional) | — |
+| F-WLD-08 | Channel / instance management | MS | PARTIAL — caps 100/30, `channel` command | P16 |
+
+### 8.4 Economy, items, crafting (P8, P11)
+
+| ID | Feature | Ref | Status | Phase |
+|---|---|---|---|---|
+| F-ECO-01 | General vendor (buy / sell / buyback) | all | MISSING | P7 (minimal) / P8 |
+| F-ECO-02 | Gold source/sink audit and tuning | all | PARTIAL — sources exist; sinks are Cube ops and gem removal | P8 |
+| F-ECO-03 | Repair / durability | D3 | DECISION (D-22) | P8 |
+| F-ECO-04 | Consumables | D3 | DECISION (D-22) — health globes exist | P8 |
+| F-ECO-05 | Artisan identities / leveling (Blacksmith, Jeweler, Mystic) | D3 | PARTIAL — NPC-bound services, one Cube-level gate | P8/P11 |
+| F-ECO-06 | Gamble vendor | D3 | DECISION (D-22) | P8 |
+| F-ECO-07 | Binding rules and item flags | D3 | PARTIAL — items bind on equip/upgrade | P8 |
+| F-ECO-08 | Stash expansion / tabs | PoE | PARTIAL — 60 slots per character | P8/P14 |
+| F-ECO-09 | Currency set design | all | PARTIAL — gold + 5 materials + gems | P8 |
+| F-ECO-10 | Economy dashboards | — | MISSING | P8 |
+| F-ITM-01 | Affix pool expansion / per-slot rules | D3, PoE | PARTIAL — 32 affixes | P11 |
+| F-ITM-02 | Legendary powers per class and build | D3 | PARTIAL — 19 (13 class-specific) | P11 |
+| F-ITM-03 | Set catalogue (2/4/6) per class | D3 | PARTIAL — 3 six-piece sets | P9/P11 |
+| F-ITM-04 | Crafting recipes + materials | D3, PoE | PARTIAL — Cube ops, 5 materials | P11 |
+| F-ITM-05 | Transmog / appearance slots | D3, Idl | MISSING — look slots exist (9) | P11 |
+| F-ITM-06 | Gems / socketables expansion | D3 | PARTIAL — 5 gems × 6 ranks | P11 |
+| F-ITM-07 | Loot filter + auto-pickup / auto-salvage rules | PoE | PARTIAL — `salvageAll` by rarity exists | P11 |
+| F-ITM-08 | Item compare, tooltips v2, item links in chat | D3, PoE | PARTIAL — compare and tooltip exist | P11 |
+| F-ITM-09 | Collection codex (legendaries, sets) | D3, TBH | MISSING | P11 |
+| F-ITM-10 | Item-level and base-tier curve review | D3 | PARTIAL | P11 |
+
+### 8.5 Social, endgame, meta, live-ops, ops, platform (P10, P12–P18)
+
+| ID | Feature | Ref | Status | Phase |
+|---|---|---|---|---|
+| F-SOC-01 | Party (invite, leave, kick, leader) + party frames | all | MISSING | P10a |
+| F-SOC-02 | Friends list + presence | all | MISSING | P10a |
+| F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | all | PARTIAL — zone/world/system chat | P10a |
+| F-SOC-04 | Block / mute / report | all | MISSING | P10a |
+| F-SOC-05 | Emotes, titles, nameplates | MS, Idl | PARTIAL — nameplates for remote players exist in town | P10a |
+| F-SOC-06 | Inspect / armory | D3, PoE | MISSING | P10b |
+| F-SOC-07 | Guilds / clans | MS, D3, LA | MISSING | P10b |
+| F-SOC-08 | Group finder | D3, LA | MISSING | P10b |
+| F-SOC-09 | Party scaling and loot-rule review | D3 | PARTIAL — +50 % life per extra player, personal loot, shared XP | P10b |
+| F-SOC-10 | Mail | MS | MISSING | P15 (if trading) |
+| F-END-01 | Timed rifts with ranks and keystones | D3 | MISSING — rifts have no timer or rank | P12 |
+| F-END-02 | Bounties (adventure layer) | D3 | MISSING | P12 |
+| F-END-03 | Torment gating and rewards | D3 | PARTIAL — 14 tiers, Torment at L60 | P12 |
+| F-END-04 | Paragon pacing and UI review | D3 | PARTIAL | P12 |
+| F-END-05 | Server-authoritative leaderboards | D3, PoE | MISSING | P12 |
+| F-END-06 | World boss / event | LA, MS | MISSING | P12 |
+| F-END-07 | Set dungeons / challenges | D3 | MISSING | P12 |
+| F-END-08 | Primal / ancient chase tuning | D3 | PARTIAL | P12 |
+| F-END-09 | Final campaign boss + ending | D3, D4 | MISSING | P12 |
+| F-MET-01 | Account-wide stash and shared currencies | Idl | MISSING (stash is per character, approved exception) | P14 |
+| F-MET-02 | Offline / AFK evolution | Idl, TBH | PARTIAL — `afk.ts` | P14 |
+| F-MET-03 | Account achievements and titles | all | MISSING | P14 |
+| F-MET-04 | Collections / bestiary | MS, Idl | MISSING | P14 |
+| F-MET-05 | Pets / companions as a system | TBH, Idl | PARTIAL — Companion skill is a summon, not a pet system | P14 |
+| F-MET-06 | Character slots + alt bonuses | Idl | MISSING | P14 |
+| F-MET-07 | Expeditions / jobs for alts | Idl | MISSING (optional) | P14 |
+| F-LIV-01 | Season framework | D3, D4, PoE | MISSING | P15 |
+| F-LIV-02 | Event scheduler | all | MISSING | P15 |
+| F-LIV-03 | Season journey / objectives | D3 | MISSING | P15 |
+| F-LIV-04 | Secure P2P trade window | D3 (historic), PoE, MS | DECISION (D-21) | P15 |
+| F-LIV-05 | Market / auction | PoE, MS, TBH | DECISION (D-21) | P15 |
+| F-LIV-06 | Patch / hotfix pipeline + version gating | — | PARTIAL — `PROTOCOL_VERSION` check | P15 |
+| F-LIV-07 | Public roadmap and patch notes | — | MISSING | P18 |
+| F-OPS-01 | Load tests (bot swarm) | — | PARTIAL — crowd benchmarks exist | P16 |
+| F-OPS-02 | Multi-process zone workers / gateway | — | MISSING | P16 |
+| F-OPS-03 | Observability: metrics, logs, alerts | — | MISSING | P16 |
+| F-OPS-04 | Backup / restore drills | — | MISSING | P3/P16 |
+| F-OPS-05 | Security hardening + dependency audit | — | PARTIAL — validation and rate limits exist | P16 |
+| F-OPS-06 | DDoS / abuse basics | — | PARTIAL — connection cap (1000), chat bucket | P16 |
+| F-OPS-07 | Incident runbooks | — | MISSING | P16 |
+| F-PLT-01 | Browser matrix + low-spec mode | — | MISSING | P17 |
+| F-PLT-02 | Localization (languages per D-38) | — | MISSING | P17 |
+| F-PLT-03 | Privacy policy, terms, consent | — | MISSING | P17 |
+| F-PLT-04 | Age rating + consumer-law review | — | MISSING | P17 |
+| F-PLT-05 | Steam wrapper, cloud save, achievements | — | MISSING | P17 (R5) |
+| F-PLT-06 | Controller / Steam Deck input | — | MISSING | P17 (post R4) |
+| F-PLT-07 | Store assets (original) | — | MISSING | P17 |
+| F-PLT-08 | Project-wide licence + IP/naming audit | — | MISSING — start in P3 | P3 → P17 |
+
+**Count (computed from the tables above):** 147 work items — 55 PARTIAL (something real exists), 86 MISSING, 5 awaiting a decision, 1 THIN. Features that are already complete (the inventory, the skill bar, …) are not listed here; §9 lists screens.
+
+---
+
+## 9. UI atlas
+
+Status is `[M]` from the files in `client/src/ui/**` at `d630a76`. Every new or changed screen follows the checklist in §9.3. Reference patterns come from the UI Atlas deliverable (§4.4), not from memory.
+
+### 9.1 Screens
+
+**A. Out of game / meta**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-01 | Title / landing / news | MISSING | P3, P17 |
+| U-02 | Login / register / account | MISSING | P3 |
+| U-03 | Character select (list, slots) | MISSING | P3 |
+| U-04 | Character create (class explainer, appearance) | PARTIAL — `ClassSelect` | P6 |
+| U-05 | Delete / rename / restore dialogs | MISSING | P3 |
+| U-06 | Server / channel status and maintenance banner | PARTIAL — channel info exists | P16 |
+| U-07 | Loading screen with tips | PARTIAL — `Connecting` | P6 |
+| U-08 | Disconnect / reconnect / queue | PARTIAL — error state | P16 |
+| U-09 | Patch notes / news | MISSING | P18 |
+| U-10 | Settings: audio | PARTIAL — buses exist, no UI | P3 |
+| U-11 | Settings: graphics / performance | MISSING | P3 |
+| U-12 | Settings: controls and rebinding | MISSING | P3 |
+| U-13 | Settings: gameplay (auto-cast prefs, loot filter, damage numbers) | MISSING | P3/P4 |
+| U-14 | Settings: accessibility | MISSING | P3 |
+| U-15 | Settings: language, privacy, data export/delete | MISSING | P3/P17 |
+| U-16 | Credits, legal, licences | MISSING | P17 |
+| U-17 | Support / report a bug | MISSING | P18 |
+
+**B. HUD**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-20 | Health and resource globes | EXISTS | — |
+| U-21 | Skill bar (4 slots, cooldowns) | EXISTS | P4 may extend |
+| U-22 | Buff / debuff row | EXISTS | — |
+| U-23 | XP bar | EXISTS | — |
+| U-24 | Player plate | EXISTS | — |
+| U-25 | Minimap, zone plate, rift bar | EXISTS | P5 pins |
+| U-26 | Target frame | EXISTS | — |
+| U-27 | Chat | EXISTS (zone / world / system) | P10a channels, whispers |
+| U-28 | Notice banners | EXISTS | — |
+| U-29 | Pickup feed | EXISTS | — |
+| U-30 | Floating combat text | EXISTS (render layer) | P3 options |
+| U-31 | Interact prompt | EXISTS | — |
+| U-32 | Death screen | EXISTS | — |
+| U-33 | Level-up / unlock popups | PARTIAL — notices | P6 |
+| U-34 | Party frames | MISSING | P10a |
+| U-35 | Quest tracker | MISSING | P5 |
+| U-36 | Boss health bar | PARTIAL — target frame | P4 |
+| U-37 | Ground loot labels / beams | verify in P11 | P11 |
+| U-38 | Objective / compass markers | MISSING | P5 |
+| U-39 | Emote wheel / quick chat | MISSING | P10a |
+| U-40 | Performance overlay (fps, ping, dps) | PARTIAL — values exist in the store | P3 |
+| U-41 | Hint toasts | MISSING | P6 |
+| U-42 | Help panel | EXISTS (controls) | P6 v2 |
+| U-43 | Offline-gains report | EXISTS | P14 |
+
+**C. Character and items**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-50 | Inventory (bag grid) | EXISTS | — |
+| U-51 | Paper-doll / equipment | EXISTS | — |
+| U-52 | Character sheet (full stats, breakdown) | PARTIAL — stats strip | P4 |
+| U-53 | Item tooltip + comparison | EXISTS | P11 v2 |
+| U-54 | Gems (socket, fuse, remove) | EXISTS | P11 |
+| U-55 | Salvage menu | EXISTS | — |
+| U-56 | Stash | EXISTS (60 slots) | P14 |
+| U-57 | Skills, runes, tiers | EXISTS | P4 |
+| U-58 | Passives / talent panel | MISSING | P4/P9 |
+| U-59 | Paragon | EXISTS | P12 review |
+| U-60 | Cube (8 functions) | EXISTS | P11 |
+| U-61 | Transmog / appearance | MISSING | P11 |
+| U-62 | Loot filter editor | MISSING | P11 |
+| U-63 | Collection codex | MISSING | P11 |
+| U-64 | Item-link preview | MISSING | P11 |
+| U-65 | Confirm / destroy dialog | EXISTS | — |
+
+**D. World and navigation**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-70 | World map | MISSING | P5 |
+| U-71 | Waypoint travel | EXISTS | P5 |
+| U-72 | Rift obelisk (difficulty, open) | EXISTS | P12 |
+| U-73 | Rift / dungeon end summary | PARTIAL — notices | P7 |
+| U-74 | Dungeon objective tracker | MISSING | P7/P9 |
+| U-75 | Bounty board | MISSING | P12 |
+| U-76 | Leaderboards | MISSING | P12 |
+| U-77 | Season journey | MISSING | P15 |
+| U-78 | Achievements | MISSING | P14 |
+| U-79 | Bestiary / codex | MISSING | P14 |
+| U-80 | Journal (quests, lore) | MISSING | P5 |
+
+**E. NPC and services**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-85 | Dialogue box | MISSING | P5 |
+| U-86 | Vendor (buy / sell / buyback) | MISSING | P7/P8 |
+| U-87 | Artisan panels (Blacksmith / Jeweler / Mystic as separate identities) | PARTIAL — Cube panel with artisan state | P8/P11 |
+| U-88 | Gamble vendor | DECISION | P8 |
+| U-90 | Respec dialog | PARTIAL | P4 |
+
+**F. Social**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-95 | Party window and invites | MISSING | P10a |
+| U-96 | Friends list | MISSING | P10a |
+| U-97 | Whisper windows / chat tabs | MISSING | P10a |
+| U-98 | Block / report dialog | MISSING | P10a |
+| U-99 | Inspect / armory | MISSING | P10b |
+| U-100 | Guild window | MISSING | P10b |
+| U-101 | Group finder | MISSING | P10b |
+| U-102 | Mail | MISSING | P15 (if trading) |
+| U-103 | Trade window | MISSING | P15 (if trading) |
+| U-104 | Market / auction | MISSING | P15 (if trading) |
+
+**G. Admin**
+
+| ID | Screen | Status | Phase |
+|---|---|---|---|
+| U-110 | Admin console / dashboard | MISSING | P3 |
+| U-111 | Moderation queue | MISSING | P10b |
+| U-112 | Debug panel | EXISTS — gate behind the dev flag | P3 |
+
+**Count (computed from the tables above):** 86 screens — 28 exist (mostly HUD and the character/item panels), 12 are partial, 44 are missing, 1 awaits a decision, 1 needs verification (ground loot labels).
+
+### 9.2 HUD and layout rules `[P]`
+
+1. **Baseline 1920×1080**, tested also at the smallest supported size (set in D-04/P17). Keep gameplay-critical information inside the central safe area; panels never cover the character's feet.
+2. **One panel manager.** Today panels toggle individually (`togglePanel`); introduce stacking rules (which panels may coexist, which close others) before adding twenty more.
+3. **Hotkeys are data**, shown in tooltips and in the Help panel, rebindable (U-12).
+4. **Information density by progressive disclosure:** show the number the player needs now; reveal breakdowns on demand (hover / expand).
+5. **No information by colour alone** (rarity, status, party roles): pair colour with shape/icon/text.
+6. **Text expansion:** reserve ≥ 30–40 % extra width for translated strings `[K]`.
+7. **Feedback within one frame** for clicks; long operations show progress; errors state the cause and the fix.
+8. **Destructive actions confirm**; reversible actions offer undo where cheap.
+
+### 9.3 Per-screen Definition of Done
+
+For every screen verify, in a real browser, with screenshots looked at: default · hover · focus · active · disabled · empty · loading · error · long text · many items · smallest viewport · +40 % text length · keyboard-only operation · reduced-motion · colour-blind simulation · localization keys present · no overflow at UI scale 80–150 %.
+
+### 9.4 UI build order (follows the phases)
+
+P3: auth, character select, settings, admin → P4: skills/passives/character sheet → P5: dialogue, tracker, journal, world map → P6: hints, loading tips, help v2 → P7/P8: vendor, dungeon tracker, summaries → P10: party, friends, whispers, report, then guild/inspect/finder/moderation → P11: transmog, filter, codex, tooltip v2 → P12: bounties, leaderboards → P14/P15: achievements, bestiary, season journey, trade/mail/market.
+
 
 
 > **[Part 07 is still being written - see the latest commit on branch docs/mmo-roadmap]**
