@@ -458,8 +458,205 @@ Every report to the owner is short and uses the same headings:
 
 > **[Part 03 is still being written - see the latest commit on branch docs/mmo-roadmap]**
 
+---
 
-> **[Part 04 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 5. Phase 2 — Design bible and decision register
+
+### 5.1 How decisions get made
+
+1. Phase 1 delivers evidence. For each decision below Codex writes a **one-page option brief**: the options, what each reference game does (with sources), what it would cost in this codebase, risks, and a recommendation.
+2. The owner answers. Each answer becomes a **Design Decision Record (DDR)** in `docs/design/DECISIONS-DESIGN.md` (template in Appendix F).
+3. Anything the owner does not want to decide yet is recorded as **deferred**, with its *latest responsible moment* (the phase that breaks if it stays open).
+4. The answers are assembled into `docs/design/BIBLE.md`: pillars, the fantasy, the minute/hour/week loops, systems list, non-goals, glossary. After Gate G2 the bible changes only through a DDR.
+
+### 5.2 The register (40 decisions)
+
+`[P]` = my recommendation, with the reason. `[Q]` = I do not know and will not pretend to; the research phase must supply evidence. "Blocks" lists the first phase that cannot proceed honestly without the answer.
+
+**Vision and scope**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-01 | Audience and session shape | short bursts + idle returns · long focused sessions · both | Both: the core loop should work in 20–45 minute bursts, and offline gains (already built) cover the gaps `[P]` | R-01, R-02, R-03 session structure | P4, P6, P14 |
+| D-02 | Target journey length: hours to level 70 and to the first legendary | owner states hours · derived from reference matrices | **Do not choose before the timeline matrix exists** (§4.5); then set a band per movement `[P]` | R-01…R-10 timelines; bot-measured current rates | P4, P7, P8, P11 |
+| D-03 | Class count | 3 (today) · 4–5 at launch · 3 now + more after launch | 3 through R3; add after `[P]` — each class multiplies skills, items, legendaries, sets and balance work | harness cost per class (measured in P4) | P4 |
+| D-04 | Platform order | browser first (today) · Steam · mobile | Browser → Steam (R5) → mobile later `[O]` browser-first | R-17 | P17 |
+| D-05 | Accept the release ladder R1–R5 (§2.3) | yes · modify | Yes `[P]` | — | everything |
+| D-06 | Monetization stance | none · cosmetics only · other · undecided | **Undecided until R3.** Keep a cosmetic pipeline *possible* (paper-doll, appearance slots); no payment code without explicit approval `[P]` | R-16 (EU consumer law), R-04…R-10 (what players accept) | P15, P17 |
+| D-07 | Naming / IP policy | replace all game-derived names before any public build · replace only distinctive ones · replace before R3 | Start the **name register in P3**; replace before R3 `[P]`. Many current skill/rune names *appear to be Diablo III's* `[K]`; legal review needed | R-16, name register | P11, P17 |
+
+**Combat and builds**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-08 | Control model | auto-cast only (today) · + optional force-cast keys · + per-slot rule editor | Auto-cast stays the identity `[O]`; evaluate force-cast keys and a rule editor `[Q]` | R-01, R-03, R-08 | P4 |
+| D-09 | Skill slots and unlock cadence | 4 slots (today) or more; schedule | No number before the matrices `[Q]` | R-01, R-02, R-06 | P4, P6 |
+| D-10 | Build depth | runes+tiers only · + passive slots · + talent graph · + class masteries | `[Q]`. A mid-complexity option (passive slots + a mastery choice) probably suits auto-cast, but decide after evidence | R-03, R-04, R-14 (tree/mastery systems) | P4, P9, P11 |
+| D-11 | Defensive / utility actives | dash only (today) · 1–2 per class · a utility slot | `[Q]` | R-01, R-07 | P4 |
+| D-12 | Respec | free in town · gold-scaled · limited | Cheap early, scaled later `[P]`; confirm against references | R-01, R-04 | P4 |
+| D-13 | PvP | none · opt-in duels later · arenas | None until after R3 `[P]` | — | — |
+
+**Progression and world**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-14 | Level cap and Paragon | 70 + unlimited Paragon (today) · change | Keep; set any Paragon soft cap once endgame data exists `[P]` | R-01 | P12 |
+| D-15 | Campaign shape: acts, zones, length, tone | 2 acts for R2 then grow · full 5 acts · open world only | 2 acts for R2 `[P]`; tone stays "cute characters, dark-fantasy UI" `[O]` | content-unit cost from P7; R-06 | P7, P9 |
+| D-16 | Difficulty gating | Hard/Expert/Master open from L1 (today) · gate by story · gate by level | `[Q]` | R-01 | P9 |
+| D-17 | Adventure layer (bounties) | yes · no | Yes after the campaign; fields + rifts already resemble it (the zone code cites D3 Adventure Mode scaling) `[P]` | R-01 | P12 |
+| D-18 | Dungeon formats | rifts only · + objective dungeons · + timed keystone dungeons | Objective dungeons in P9, timed rifts in P12; no key economy before P8 `[P]` | R-01, R-05 | P9, P12 |
+| D-19 | Seasons | none · fresh-start seasons · modifiers without reset · ladder only | Defer to P15; design so no character is wiped `[P]`. The old "12-week" figure is `[D]` | R-01, R-05, R-04 | P15 |
+
+**Items and economy**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-20 | Binding model | bind on equip/upgrade (today, hybrid) · full bind · free trade | Keep the hybrid `[O]` until D-21 | R-11, R-03 | P8 |
+| D-21 | Trading | none · secure P2P window · market/auction | None through R2; P2P at R3 only after P8's anti-dupe tests; market only with data `[P]` | R-04, R-11, R-03 (marketplace precedent) | P15 |
+| D-22 | Durability/repair · consumables · gamble vendor | each yes/no | `[Q]` each; note health globes already replace potions `[M]` | R-01, R-04 | P8 |
+| D-23 | Item pool targets (affixes, legendaries, sets) | derived from build diversity | Set after D-10 `[P]` | R-01 itemization | P11 |
+| D-24 | Stash model | per character (today, approved exception) · account-wide · tabs | Revisit at P14; account-wide is the natural MMO/Idleon move but changes the approved exception | R-02, R-04 | P14 |
+| D-25 | Crafting philosophy | Cube only (today) · separate artisans · hybrid | Hybrid: physical artisan NPCs (already in town) plus the Cube as the long progression `[P]` | R-01, R-03 | P8, P11 |
+
+**Social and MMO**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-26 | Party size and scaling | 4 (today) · other | Keep 4; revisit with data `[P]` | R-01 | P5, P10 |
+| D-27 | Guild scope | roster+chat · + bank · + perks | Minimal first `[P]` | R-06, R-07 | P10b |
+| D-28 | Moderation policy and staffing | owner alone · volunteers · tools only | Tools first (report, mute, ban, audit log); strict defaults; written rules `[P]` | R-16 | P10, R2 |
+| D-29 | Capacity targets per release step | numbers | Set from hosting budget, not from the old 30k–50k `[D]` | R-12 | P16 |
+
+**Technology and operations**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-30 | Account credential model | username+password + recovery codes · email+password · passkeys · third-party sign-in | Username+password (Node built-in scrypt) + one-time recovery codes for R1; passkeys later `[P]` | R-12, R-16 | P3 |
+| D-31 | Storage | JSON files (today) · built-in SQLite module (verify it exists in Node 24) · `better-sqlite3` (native download) · PostgreSQL | Interface first; move at R2 `[P]`; any download needs OK | R-12 | P3 |
+| D-32 | Hosting and budget | owner PC · free tier · paid | Owner's call; "no paid services" is the standing rule `[O]` | R-12 | R1 |
+| D-33 | Integration branch and release process | trunk `main` + phase branches · long-lived `develop` | Trunk with phase branches and gate tags; keep the baseline branch protected `[P]` | — | P0 |
+| D-34 | Telemetry and privacy | local logs only · self-hosted · third-party | Local or self-hosted only; consent for anything beyond gameplay logs `[P]` | R-16 | P3 |
+| D-35 | Content tools | JSON + validators · in-repo editors · external editor (download/licence check) | JSON + validators first; editors when pain is proven `[P]` | R-12 | P5 |
+
+**Art, audio, UX**
+
+| ID | Decision | Options | Recommendation | Evidence needed | Blocks |
+|---|---|---|---|---|---|
+| D-36 | Art pipeline at scale | code-drawn only · hybrid · external CC0 sets (licence + OK) · commissioned | Keep code-drawn with parametric generators; judge quality at gameplay size at the P7 gate `[P]` | P7 sample, R-18 | P7 |
+| D-37 | Audio approach | procedural (today) · CC0 packs · commissioned | Procedural until a quality test fails `[P]` | — | P7 |
+| D-38 | Languages | English only · + Dutch · others | Build keys now; translate after R2; owner picks languages `[P]` | R-17 | P3 (keys), P17 |
+| D-39 | Accessibility baseline | adopt §12.5 · partial | Adopt `[P]` | R-13 | P3 |
+| D-40 | Controller and mobile | after R4 · never | After R4 `[P]` | R-17 | P17 |
+
+**The twelve that block the most:** D-01, D-02, D-03, D-07, D-08, D-09/D-10, D-15, D-20/D-21, D-30, D-31, D-32, D-33.
+
+---
+
+## 6. The leveling direction
+
+### 6.1 Diagnosis (from §1.3, all `[M]`)
+
+Leveling today is **vertical**: levels give stats and kills-per-level rises from 19 to 453, but nothing new appears. All 18 skills exist by L12, all runes by L21, the two fields serve L1–L70, the same ten trash types appear at every level, legendaries drop from day one, and ancient/primal items exist only at L70+. There is no story, no teaching, no reason to prefer one place to another. The direction below keeps the numbers system and adds the **horizontal** axis: new places, verbs, systems and reasons.
+
+### 6.2 Principles `[P]`
+
+1. **The player always knows the next goal** — at most one short goal (this session) and one long goal (this movement).
+2. **One new verb, one new place, one new reason** per band: a verb to learn, somewhere new to use it, and a reason (story, reward, challenge).
+3. **Numbers go up and options widen**: every band adds at least one of — skill, rune/talent choice, zone, monster behaviour, system, social feature.
+4. **Reward cadence is designed**, not accidental: a small reward every few minutes, a meaningful one every session, a memorable one every few sessions. The intervals are `TBD[R-matrix]` — taken from references and our own telemetry.
+5. **Just-in-time systems.** The Cube appears when the bag first fills; the stash when the Cube first produces surplus; party tools when the first group content appears.
+6. **Difficulty choices follow mastery** of the base difficulty.
+7. **No grind walls**: a stall index (§6.5) flags any band whose XP/hour or time-to-kill deviates from its neighbours by more than `X`.
+8. **Solo and party both work**; XP sharing and scaling stay fair (today: shared XP within 1,400 units, +50 % monster life per extra player — `[O]` from ARCHITECTURE §1.3).
+9. **Offline play accelerates but never replaces** (today: 25 % efficiency, 12 h cap, fields only).
+
+### 6.3 The journey in five movements `[P]`
+
+Working names are placeholders; a writer replaces them with original names. **Level bands are placeholders** until D-02, D-09 and the pacing matrices fix them. The bands deliberately line up with phases P6, P7, P9 and P12.
+
+| Movement | Level band (placeholder) | Player's goal | New verbs learned | New places | Systems introduced | Loot beat | Social | Exit |
+|---|---|---|---|---|---|---|---|---|
+| **1. Arrival** (tutorial, P6) | ≈ 1–5 | get strong enough to leave the village | steer while the hero fights, dash, read a tooltip, equip, spend the first skill point | Hearthmere → edge of the first field | inventory/equipment, skill bar (read-only at first), XP, waypoint | a guaranteed first upgrade, first magic/rare item | see others in town; chat visible, never required | first elite pack beaten, return to town |
+| **2. The Frontier** (early game, P7) | ≈ 6–20 | clear the frontier and open the road | choose runes, buy tiers, salvage, fuse gems, travel by waypoint, first party content | 3–5 zones with distinct monster behaviours, one small dungeon `TBD[D-15]` | Cube levels 1–3 (salvage, fuse, enchant) tied to quests, gems, vendor, stash, rift obelisk (introduced, not required) | first rare chase, first legendary (timing `TBD[R-01-LOOT]`) | party invite, friends, whispers (P10a) | Act I boss; the full skill kit exists under the new cadence |
+| **3. The Deep Roads** (mid game, P9) | ≈ 21–50 | find out what is under the world | commit to a build (passives/mastery per D-10), objective dungeons, bounties, extract/equip legendary powers | Acts II–III zones, objective dungeons | Cube levels 4–6 (empower, transmute, extract), first set items, difficulty options | first set piece, first extracted power | guilds, group finder (P10b) | Act III boss |
+| **4. The Reckoning** (late campaign, P12) | ≈ 51–70 | end the story, reach the cap | optimise a build, choose a difficulty tier | final-act zones, final boss | Cube levels 7–8 (reforge, socket), gem upgrading, Torment (today from L60) | ancient items appear (today only at item level ≥ 70 — placement `[Q]`) | raids/party goals | cap and ending |
+| **5. Beyond** (70+, P12–P15) | 70+ | push: higher tiers, faster clears, rarer items | timed rifts, bounties, leaderboards, season journeys | endgame activities | Paragon, Torment ladder, primal chase, seasons | primal items (today: index ≥ 6, 1 in 400 of legendary rolls) | ladders, guild goals | never — the long tail |
+
+### 6.4 The unlock ladder (when each system appears)
+
+"Today" is `[M]`. "Proposed trigger" is `[P]` and prefers *story/quest or experience triggers* over raw levels where sensible.
+
+| System | Today | Proposed trigger | Why / research |
+|---|---|---|---|
+| Auto-attack, dash | from first frame | first frame | teach in the first minute |
+| Active skill 2…6 | L2, 4, 6, 9, 12 | spread across Movements 1–3 by the new cadence | D-09; compare D3/MapleStory/Idleon unlock curves (R-01, R-02, R-06) |
+| Runes (3 per skill) | skill unlock + 2 / 5 / 9 (last at L21) | first rune at the first rune-quest; the rest across Movement 2–3 | pacing matrix |
+| Skill tiers | skill points from L2 (69 total) | after the first rune is chosen | avoid early decision overload |
+| Passives / mastery | none | Movement 2→3 (D-10) | R-03, R-04, R-14 |
+| Salvage (Cube L1) | immediately available | first time the bag is full | just-in-time |
+| Gem fusion (Cube L2) | Cube XP 60 | first gem drop | |
+| Enchant (Cube L3) | Cube XP 236 | first rare item with a poor affix | |
+| Empower (Cube L4) | Cube XP 565 | Movement 2 end | |
+| Transmute / extract (Cube L5–6) | Cube XP 1,079 / 1,806 | Movement 3 | build crafting |
+| Reforge / socket (Cube L7–8) | Cube XP 2,770 / 3,995 | Movement 4 | endgame crafting |
+| Stash | available in town | first full bag + surplus | |
+| Waypoint travel | town waypoint | after Arrival | |
+| Rift obelisk | open from L1 | introduced late in Movement 2 | rifts are a legendary source (§1.3) |
+| Hard / Expert / Master | open from L1 | after the first campaign boss `[Q]` | R-01 |
+| Party / channels | any time | with first group content | P10a |
+| AFK gains | on login after ≥ 2 min away | explained once, after the first return | |
+| Paragon | L70 | L70 | |
+| Torment I–X | L60 | L60 (placeholder) | |
+| Ancient / primal | ilvl ≥ 70 / + difficulty ≥ 6 | `[Q]` (see Movement 4) | R-01 |
+
+### 6.5 Pacing-target method (how to get numbers without inventing them)
+
+1. **Build the timeline matrix** (R-matrix, §4.5): for each reference game, at T = 10 min, 1 h, 5 h, 20 h, 50 h, 100 h, 200 h: level, power sources, zone, unlocks, loot beats, UIs seen, social features, session goals.
+2. **Owner chooses** the curve shape and bands (D-01, D-02).
+3. **Measure our current game** with bots: kills/min, time-to-kill, deaths/hour, XP/hour, drops/hour per class × level (task F-TEL-02). The 60 kills/min in `afk.ts` is an assumption, not data.
+4. **Tune** XP curve, monster XP, zone bands, drop cadence until the measured curve hits the chosen one; record every constant and its source in `docs/design/PACING.md`.
+5. **Validate** with fresh and veteran players; compare against the matrix; iterate.
+
+Metrics and where each target comes from:
+
+| Metric | Definition | Target source | Baseline today |
+|---|---|---|---|
+| Time to first kill / first loot / first level | tutorial funnel | R-15 + owner | unmeasured |
+| Kills per level | same-level trash kills to level | derived from target time and kill rate | `[M]` 19 → 453 (×1), 6 → 151 (×3) |
+| Kill rate | kills per active minute | bot harness | assumption: 60 (`afk.ts`) |
+| XP per hour by band | | derived | unmeasured |
+| Time to L10 / 20 / 30 / 50 / 70 | | D-02 | implied 1.6–4.7 h *if* 60/min (§1.3) |
+| Deaths per hour by band | | R-01 + owner | unmeasured |
+| Legendaries per hour by band | | R-01-LOOT | `[M]` 1 per 455 trash kills; 1 per 14–24 elite kills; Guardian ≥ 1 |
+| Reward interval | time between level-up / rare / legendary / unlock | R-matrix | unmeasured |
+| Stall index | band XP/hour (or TTK) ÷ neighbour mean | `X` set at P4 | unmeasured |
+| Sessions to cap | | D-01/D-02 | unmeasured |
+
+### 6.6 The power-budget table (template — to be filled by P4 from references)
+
+| Power source | Introduced at | Share of total power at the target (L70, Normal, no Paragon) | Notes |
+|---|---|---:|---|
+| Level (primary stat, vitality) | L1 | `TBD` | today +3 main / +2 vit per level (D3-style) `[M]` |
+| Skill coefficients | per skill | `TBD` | |
+| Runes | Movement 2–3 | `TBD` | |
+| Tiers | Movement 2–3 | `TBD` | |
+| Passives / mastery | Movement 3 | `TBD` | D-10 |
+| Gear base (weapon/armor by item level) | L1 | `TBD` | `weaponAvgDamage`, `baseArmor` |
+| Affixes | rare+ | `TBD` | |
+| Legendary powers | legendary | `TBD` | |
+| Sets (2/4/6) | Movement 3 | `TBD` | |
+| Gems | Movement 2 | `TBD` | |
+| Cube upgrades (+0…+10, +6 %/tier) | Cube L4 | `TBD` | `[M]` |
+| Paragon | L70 | `TBD` | 16 stats, per-stat caps `[M]` |
+| Difficulty tier | choice | `TBD` | |
+
+### 6.7 "Good" checklist per movement (heuristics; thresholds are `X`)
+
+- Within any window of `X` minutes the player sees something new (a monster behaviour, item, place, line of story, unlock, or social event).
+- No stall index above `X`; no band where the player must grind a single zone for more than `X` minutes to progress.
+- Every new system arrives with a reason, a hint, and a first reward.
+- The next movement's first screen is visible as a promise (a gate, a door, a rumour) before the previous one ends.
+
 
 ---
 
