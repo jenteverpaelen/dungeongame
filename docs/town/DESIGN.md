@@ -1,10 +1,97 @@
-# Hearthmere design workbook — M0, Gate 1 NOT ready
+# Hearthmere design — M0 / Gate 1 proposal
 
-Sources were logged first in [REFERENCES.md](REFERENCES.md). This document contains a measured **existing-town survey** and the approved scope. It does not contain an approved or measured New Tristram replacement layout. No town implementation has started.
+Sources and raw measurements were recorded first in [REFERENCES.md](REFERENCES.md), survey S01. This is a proportional reconstruction for review. No runtime town code, art or services have been changed.
 
-## Approved target
+## Confirmed scope
 
-PC Adventure Mode with every artisan unlocked; darker/drearier mood (look still needs Gate 3 approval); original Hearthmere names/art/text/audio; unchanged hero and UI style. Existing game operations only, with the owner's explicit exception for a real persistent stash. Inn and Forge interiors are optional M5. Expansion is allowed only when measurements and performance justify it. U stays usable only near the Cube. See D002–D005.
+PC Adventure Mode, all artisans unlocked; darker/drearier mood subject to Gate 3; original Hearthmere art/names/text/audio and unchanged heroes/UI. Existing operations only, with an explicit exception for a real persistent stash. Inn/Forge interiors optional at M5. Enlargement subject to layout/performance gates. U only near Cube. No subagents. See D002–D005/D009–D012.
+
+## Proposed target — Gate 1 draft
+
+![Hearthmere proposed layout](target-layout.png)
+
+[Editable SVG](target-layout.svg) · [All coordinates and polylines](target-layout.json). This is an original documentation diagram, **not a game screenshot**, final art or a D3 collision survey. S01 was logged before drawing. Solid service markers follow observed Adventure adjacency; hatched building masses and wall alignments are inferred. Cyan additions are Hearthfall-specific. No town code has changed.
+
+The source-image axes are mapped to Hearthfall screen-ground coordinates: `xH = 8 + (px - 450)*0.22`, `yH = 6 + (py - 230)*0.17`, then `u = H*64`. Conservative scale uncertainty is ±25%, not statistical confidence. Source landmarks carry ±2–6 px pick/anchor uncertainty as recorded in REFERENCES S01. Values below define a **reviewable proposal**; numeric precision makes the document reproducible, not exact to D3.
+
+The playable reference envelope is about 76H × 46H. Proposed backing map: **96H × 64H = 6144 × 4096 u**, rounded to 512 u chunks with room for the unchanged 17.22H × 9.69H camera. This is 3.23 times the old rectangular area, not 3.23 times the visible texture load. Keep lazy chunking/culling and prove the new budget later. Exterior silhouettes may occupy the margin; reachable edges require camera clamps and real blockers.
+
+Keep the core service cluster compact. The inn fronts the plaza, workshops line the upper/right edges, and the back lane turns around the inn toward the shrine/upper court. The pier branches off that lane. The southern approach reaches the plaza through the eastern gate; no invented direct southern opening. The right exit is an approach to distant ruins, not a cathedral transplanted into the hub. Decorative healer/house geometry adds no new service mechanics.
+
+### Proposed service coordinates
+
+Coordinates are NPC/object anchors; route endpoints are nearby approach points, not occupied collider centers. Final safe approach positions and interaction radii need M1/M2 validation.
+
+| # | Service | Anchor u | Approach u | Evidence / operation mapping |
+|---|---|---|---|---|
+| 1 | Waypoint | 2891.5, 2364.2 | 2891.5, 2418.6 | R23/R20; travel; preserve field/rift return behavior |
+| 2 | Stash | 2708.5, 2113.9 | 2750.7, 2168.3 | R23/R20/R25; persistent deposit / withdraw (approved exception) |
+| 3 | Blacksmith | 3159, 2201 | 3116.8, 2255.4 | R23/R20; salvage, salvageAll, upgrade |
+| 4 | Jeweler | 2919.7, 1852.8 | 2947.8, 1896.3 | R23/R20@30; fuseGem, insertGem, removeGem, socket |
+| 5 | Mystic | 3243.5, 1689.6 | 3285.8, 1754.9 | R23/R20@33; enchantRoll, enchantPick |
+| 6 | Cube | 2933.8, 2592.6 | 2933.8, 2538.2 | R23/R17; transmute, extract, reforge, cubeEquip; U only nearby |
+| 7 | Rift Obelisk | 3271.7, 2396.8 | 3201.3, 2451.2 | R23/R17; riftOpen, riftEnter; distinguish physical portal |
+| 8 | Paragon shrine (adaptation) | 2455, 1591.7 | 2426.9, 1657 | R23/R17 location + owner adaptation; paragon, paragonReset |
+| 9 | Training yard (adaptation) | 2455, 786.6 | 2342.4, 862.7 | R23/R24 upper court + owner requirement; three existing server dummies; unchanged combat/progression |
+
+### Provisional structure schedule
+
+Every polygon below is original proposed massing fitted to documented frontage/road evidence, **not a measured reference footprint**. `target-layout.json` contains full world-unit vertices, door candidates and baseline candidates. Heights are visual classes with broad ranges. Final collision pieces, door widths, exact baselines, lamp radii and emitter counts must be authored and verified in the blockout/look milestones. Gates/fences are separately noted below; no decorative solid may ship without a collider.
+
+| ID / structure | Proposed footprint polygon u | Height / access | Source / intended ambience |
+|---|---|---|---|
+| inn — Inn | (2187.5,1950.7) (2469.1,1700.5) (2722.6,1918.1) (2624,2059.5) (2441,2168.3) (2272,2103) | 3–5H; M5 optional | R13/R16/R20/R25; warm windows; door lamp; chimney smoke; sign sway |
+| forge — Forge | (3299.8,2026.9) (3581.4,1994.2) (3806.7,2201) (3623.7,2385.9) (3271.7,2266.2) | 2–4H; M5 optional | R13/R20; forge fire; smoke; sparks; hammer |
+| jewel-stall — Jeweler stall | (2722.6,1657) (2947.8,1548.2) (3074.6,1722.2) (2863.4,1809.3) | 1–2H; open apron | R20@30; lamp; cloth; gem action |
+| mystic-wagon — Mystic wagon | (3088.6,1559) (3257.6,1428.5) (3454.7,1569.9) (3299.8,1678.7) | 1–2H; open apron | R20@33; lamp; cloth; subtle original magic |
+| lane-house — Lane house | (3806.7,1559) (3975.7,1439.4) (4144.6,1591.7) (4060.2,1754.9) (3820.8,1776.6) | 2–3H; exterior | R15/R20@39; one porch lamp; no new healing mechanic |
+| back-house — Back-lane house | (1722.9,1787.5) (1905.9,1624.3) (2089,1765.8) (1976.3,1961.6) (1779.2,2016) | 2–3H; exterior | R13/R24-05; door lantern; window glow |
+| court-house-a — Upper court house A | (1624.3,743) (1807.4,623.4) (1962.2,753.9) (1835.5,949.8) (1652.5,928) | 2–3H; exterior | R24-07/08; window lamp; foliage |
+| court-house-b — Upper court house B | (2483.2,373.1) (2736.6,297) (2933.8,449.3) (2793,579.8) (2567.7,558.1) | 2–3H; exterior | R24-08; cellar ramp frontage; window lamp |
+| cellar — Closed cellar apron | (2624,590.7) (2750.7,612.5) (2666.2,688.6) (2539.5,656) | <1H; closed exterior | R24-08; solid ramp; no dungeon added |
+
+Additional layout elements: stone-and-timber eastern gate and upper gate (R24-01/07), wall separating plaza from southern approach (R13/R23), fenced healer lane (R15/R20), pier/deck (R24-09), waypoint platform (R20/R25), chest at inn (R20/R25), Cube and Rift pads (R17/R23), adapted Paragon clearing and three-dummy court. Their centerlines/anchors are in the JSON; exact solids and tall-part baselines remain M1 work. Do not interpret the cartographic road stroke as an exact navigable polygon. More exterior roof survey is needed before turning all surrounding negative space into houses. No hidden building count is asserted.
+
+### Calculated route schedule — not measured in-game walking times
+
+Polyline lengths use the proposed transform and nearby approach points. Seconds = length u / 250; walking ignores acceleration/collision detours, current proximity radii and interactions. Scale sensitivity alone is roughly ±25%; route endpoint and unmodeled obstacle errors are additional. Paths have not been collision-tested and are not acceptance results. Verify/revise every row by walking the M2 blockout. The reference video has unknown movement bonuses and pauses, so it cannot establish exact D3 travel times or prove the earlier “all vendors <30 s” claim.
+
+| Route | H | u | Nominal seconds |
+|---|---:|---:|---:|
+| WP → Stash | 4.51 | 288.7 | 1.16 |
+| WP → Blacksmith | 4.40 | 281.5 | 1.13 |
+| WP → Jeweler | 8.22 | 525.9 | 2.10 |
+| WP → Mystic | 12.17 | 779.2 | 3.12 |
+| WP → Cube | 1.98 | 126.9 | 0.51 |
+| WP → Rift | 4.87 | 311.5 | 1.25 |
+| WP → Paragon | 22.18 | 1419.4 | 5.68 |
+| WP → Training | 40.44 | 2588.3 | 10.35 |
+| WP → Inn | 5.56 | 355.6 | 1.42 |
+| Stash → Jeweler | 5.28 | 337.9 | 1.35 |
+| Jeweler → Mystic | 5.76 | 368.6 | 1.47 |
+| Mystic → Blacksmith | 8.58 | 548.9 | 2.19 |
+| Blacksmith → Stash | 6.08 | 389.4 | 1.56 |
+| Cube → Rift | 4.40 | 281.3 | 1.13 |
+| WP → Pier | 49.55 | 3171.3 | 12.69 |
+| WP → Upper gate | 41.82 | 2676.3 | 10.71 |
+| WP → Eastern gate | 25.51 | 1632.5 | 6.53 |
+| WP → Southern approach | 68.76 | 4400.9 | 17.60 |
+| WP → Ruins-road exit | 55.80 | 3571.1 | 14.28 |
+
+### Open questions / gate scope
+
+- **Gate 1:** approve or revise this proportional layout, including the ±25% scale range and the two marked Hearthfall adaptations. This approval is still required; blanket research approval did not approve an unseen diagram.
+- Persistent stash is approved in principle. Before M2: propose character-bound versus shared storage, capacity and migration/duplication rules; no account-sharing assumption is made now.
+- Exact building rear walls, doorways, heights, occlusion splits, art pipeline and light/sound tuning remain later proof points. Mood and existing-operation scope are already answered; do not ask again.
+- Final foreground/multiplayer performance, fully warmed texture residency and audio listening remain unverified where noted in PERF/REFERENCES. A gallery proxy is not a networked town test.
+
+**Stop after presenting Gate 1.** No M1 schema/collision/runtime implementation before the owner reviews the diagram.
+
+## Service authority requirements retained from the baseline audit
+
+All service commands must validate the player is in the correct town, at the matching physical service, for every operation. Preserve existing Cube levels/XP. Verify far-away rejection, wrong-NPC rejection, moving away while a panel remains open, and both enchanting phases. Gem insertion/removal and passive Cube equip must not evade checks. The current server lacks these location checks; the stash currently just aliases inventory.
+
+Do not blanket-lock inventory/equip/skills/channel changes or return-to-town actions. Preserve existing field/rift return semantics. Rift service opening and entry into its actual generated portal need distinct nearby-object policies. New stash migration/item-identity/logout tests belong to M2. Capacity and character/account scope are still open; no new vendor/repair/transmog/gambling/quest economy is approved.
 
 ## Current-town measured diagram
 
@@ -38,36 +125,3 @@ Coordinates come directly from generateMap. Distance is straight center-to-cente
 | Dummy 1 | 2368,1600 | 37,25 | 1350.08 | 5.400 |
 | Dummy 2 | 2528,1536 | 39.5,24 | 1505.36 | 6.021 |
 | Dummy 3 | 2464,1715.2 | 38.5,26.8 | 1460.39 | 5.842 |
-
-## Target service contract inventory — positions pending
-
-Function mappings below follow the owner's mission / approved scope and existing code L03/L04. R02–R04 establish D3 artisan roles; they do not establish Hearthfall economy or target coordinates. Keep existing Cube unlock levels/XP. Gate 2 must prove each operation near the right service, rejection far away/in the wrong zone, and rejection after moving away while a panel remains open.
-
-| Physical service | Operations / behavior to preserve | Target position and reference route time | Audit / acceptance note |
-|---|---|---|---|
-| Blacksmith | salvage, salvageAll, upgrade | Unmeasured | Reuse existing economy. No crafting, repair or durability. |
-| Jeweler | fuseGem, insertGem, removeGem, socket | Unmeasured | Include direct gem operations in authority checks, not only Cube-level functions. |
-| Mystic | enchantRoll, enchantPick | Unmeasured | Recheck location for both phases; no transmog. |
-| Cube | transmute, extract, reforge, cubeEquip | Unmeasured | U requires proximity. Personal name/text remain original. |
-| Stash | New persistent storage, deposit/withdraw | Unmeasured | Owner-approved exception. Current save has inventory but no stash. Scope/storage capacity and migration contract to be proposed before M2; do not assume account sharing. |
-| Waypoint | travel to field destinations | Unmeasured | Existing town-zone validation is insufficient for NPC proximity. Preserve field/rift return semantics. |
-| Rift Obelisk | riftOpen, riftEnter | Unmeasured | Existing town checks do not measure distance. Distinguish service opening from entering an actual nearby generated rift portal. |
-| Paragon shrine | paragon, paragonReset | Unmeasured | Hearthfall-required addition; no verified D3 physical shrine equivalence. |
-| Training yard | server-side training dummies | Unmeasured | Keep existing combat/XP behavior; placement follows approved walkable yard. |
-
-Do not blanket-lock inventory/equip/skills/channel changes or return-to-town actions as a shortcut for service authorization. Those are existing game behaviors outside artisan operations. Exact service/portal interaction policies will be made reviewable in M1/M2.
-
-## Target structure and route workbook — blocked on reference capture
-
-Every target structure needs: id, kind, reference id/frame, calibrated footprint polygon in u, height class, door gaps, collision pieces, baseline polyline, interior policy, lights, emitters and purpose. None of these polygons or counts is verified yet. Inn, houses, forge/workshops, waypoint and exits have reference leads (R01–R08); the exact arrangement is pending. Do not fill the sheet with guessed rectangles.
-
-Required target routes: waypoint to each service above; artisan-to-adjacent-artisan transitions; stash-to-artisans; waypoint-to-inn; approach to each exit; waypoint-to-training yard. Each needs measured reference distance in H, projected-world conversion with uncertainty, navigation path length, nominal time at 250 u/s, and later actual in-game traversal time. All are currently **unmeasured**. The handoff's under-30-second vendor assertion is not adopted as a fact.
-
-The Cathedral, graveyard and Old Tristram ruins must not be moved into the hub simply to fill the vocabulary in HANDOFF §5.4. R05/R06 describe separate adjacent areas; R10 describes a separate anniversary recreation. Their exact representation (exit/approach/background or expanded playable area) remains for the measured reference review. No new quests/lore/vendor economy is approved.
-
-## How Gate 1 becomes reviewable
-
-1. Obtain current Adventure Mode map and overlapping walkthrough frames, including the hero, doorways, edges and artisans. Record patch, seasonal state, zoom and move-speed bonuses; keep supplied reference images outside Git.
-2. Calibrate screen-ground axes using repeated known routes, not only sprite height (camera projection foreshortens the ground). Record observations, scale conversions and error bounds in REFERENCES before drawing.
-3. Produce an original, dimensioned target diagram with footprint/route/service tables. Mark Hearthfall-specific additions explicitly and justify their space without moving reference landmarks casually.
-4. Complete baseline gaps in PERF, then show the target image to the owner. **Stop for Gate 1. No M1 work is authorized by an incomplete survey.**

@@ -1,0 +1,391 @@
+{
+  "authorization": "Owner standing approval in current chat, D010",
+  "storage": "Ignored docs/town/reference-local/ only",
+  "note": "Byte sizes refer to saved files, not total browser traffic. Browser video-frame PNGs are captures, not downloaded video file sizes. No redistribution/asset licence granted.",
+  "items": [
+    {
+      "file": "R13-guide-sample.pdf",
+      "reference": "R13",
+      "source": "https://ptgmedia.pearsoncmg.com/images/9780744015133/samplepages/9780744015133.pdf",
+      "bytes": 5939069,
+      "sha256": "5a72bd484779a3a7ab2aba100b42e7b9df3ce296ac961557db9816f5234f5e8a",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R13-map-spread.png",
+      "reference": "R13",
+      "source": "https://ptgmedia.pearsoncmg.com/images/9780744015133/samplepages/9780744015133.pdf",
+      "bytes": 4330876,
+      "sha256": "685cf0270ea26a74dd4ddffcba25c6f0277acb73678d99dc61105baf4857df63",
+      "status": "local inspection derivative, not a separate download; never ship"
+    },
+    {
+      "file": "R15-heretic-door.jpg",
+      "reference": "R15",
+      "source": "https://images.jeugeek.com/uploads/images-content/Screenshot_7.jpg",
+      "bytes": 141714,
+      "sha256": "97750de3dc6b05d4026be2f4a27d1efed237ab629a59248b6cf9c4a1a7efd4b9",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R16-inn-campaign.webp",
+      "reference": "R16",
+      "source": "https://portforward.com/games/walkthroughs/Diablo-3/diablo-3-5-small.webp",
+      "bytes": 23228,
+      "sha256": "575b091f67171512644bc6a4c2a8d8f7241d0f598606c10121f2857bcbe6ac1c",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R17-altar-2024.png",
+      "reference": "R17",
+      "source": "https://i.imgur.com/Jc5bhLm.png",
+      "bytes": 1621867,
+      "sha256": "ead3562e5406537fb179e1375212016f4961d8c2cf1374a859f36d9f7bd9c922",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R17-minimap-2024.png",
+      "reference": "R17",
+      "source": "https://i.imgur.com/MJpGpLv.png",
+      "bytes": 305071,
+      "sha256": "451bcc4b58ed3596fa38362e61795f041efe22392df32268e819ae7f599fafab",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R18-layout-blizzcon.jpg",
+      "reference": "R18",
+      "source": "https://www.engadget.com/2014-11-10-blizzcon-2014-diablo-3-adds-ruins-of-sescheron-new-items.html",
+      "bytes": 78923,
+      "sha256": "7e7f37c577c5a015a2b814292f915a06eb7e6c3fb14740f09c91fd07f1fb26b4",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R20-HD-27s-inspection.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 292159,
+      "sha256": "e737ac0f9998fe260592ca1c2775071ed1627b7d452dc6308f1e872d597db2c1",
+      "status": "local inspection derivative, not a separate download; never ship"
+    },
+    {
+      "file": "R20-HD-27s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1510046,
+      "sha256": "0bd196d540f885e154565a3f1dfb592e37d5bc56623f757149c927f5b84609dc",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R20-HD-30s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1797438,
+      "sha256": "285f72ed6fa270ea4fc69ff2ab4cd5b36b26421dd439eec3e748466124578472",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R20-HD-33s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1746301,
+      "sha256": "df1cee4e2e231aa3995b4d444165c2d7cfdc5d86e235524d23992da16402eaf0",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R20-HD-36s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1040634,
+      "sha256": "0830299c8923c2b24cdd3283e5cfaef5f297a4a7b35f9a75c73aeeea8c9edfd1",
+      "status": "editorial zoom; excluded from scale; never ship"
+    },
+    {
+      "file": "R20-HD-39s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1725339,
+      "sha256": "15d5f8260a0c1319c70e75f4a25ce541a433c7cb4057fbcd60471c5acc12cb53",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R20-video-12s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1227847,
+      "sha256": "5f1d137b7691aaa64d806b35a0aa41e211e94d8658c9521349c1218244c1eb13",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R20-video-27s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1211826,
+      "sha256": "096c3333e5216d68b24282626da056dd426ba7810754ee5a2035846fc3895b26",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R20-video-30s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1313297,
+      "sha256": "b431cf40b37bf9bcf22f2ffe488c0de31e04d3e9f7a8847d64f40cc25d3bad73",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R20-video-33s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1379118,
+      "sha256": "f428a556c08361066f622debb98ac8c68fe862efabb864525647544d192b9263",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R20-video-36s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 862913,
+      "sha256": "06d6e66d3c195671348f17e31f69693f663069a7bddf6dc03855d6e50c2d95e2",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R20-video-39s.png",
+      "reference": "R20",
+      "source": "https://www.youtube.com/watch?v=y0hxU85qgVQ",
+      "bytes": 1402920,
+      "sha256": "be83ba28316460b83722acf25ff4c88e153e62a2e61e0ae25f6e4eab39bdeb10",
+      "status": "superseded by HD or invalid frame; never ship"
+    },
+    {
+      "file": "R21-confirmed-22s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 1769161,
+      "sha256": "819d9eb9a2ef7e90e15ac3490e87aac60345ccfda810512828a18cf1806d3193",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-outro.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 1145279,
+      "sha256": "6b1f34f6c588c0895fe482ea04d776a79738170cec929acd5829d03b6ed663a5",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-0s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 1426746,
+      "sha256": "b13942eaffd5fd8a44bc8470ca565bbcc4735f9ee9cd667c61faa42777f63304",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-15s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 987837,
+      "sha256": "7b8ca4360d5ed87149c2af5f70639457fd50a97b0ada67d3c1c6d0bb824bd936",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-20s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 1527347,
+      "sha256": "48a5b2bced0de6277b20909ac4c12e292be4a1f1e82947462977a2149a2bb4e7",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-240s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 987837,
+      "sha256": "7b8ca4360d5ed87149c2af5f70639457fd50a97b0ada67d3c1c6d0bb824bd936",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-270s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 987837,
+      "sha256": "7b8ca4360d5ed87149c2af5f70639457fd50a97b0ada67d3c1c6d0bb824bd936",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-300s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 8508,
+      "sha256": "82a2e41ba517809f5b58a7da95b52f22e165cd40afabe2fa4b082bc45388d894",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-overview-320s.png",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 8508,
+      "sha256": "82a2e41ba517809f5b58a7da95b52f22e165cd40afabe2fa4b082bc45388d894",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-preview-0.jpg",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 44360,
+      "sha256": "6bae674456f19ca07d03a1f2769871eba6e7f1f6cfb6769d601b043aa44fa089",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-preview-1.jpg",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 43885,
+      "sha256": "8ccd151ef3e750c5ebf7faeb7a91d3ce8f71123af40e4989194d8fb1262c98dd",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R21-preview-2.jpg",
+      "reference": "R21",
+      "source": "https://www.youtube.com/watch?v=Jkjuv2lL-k4",
+      "bytes": 34997,
+      "sha256": "6d014bba6d0e48c20ff9ff3298cff4a203c4aa6f7d440d203655bbf2784388fd",
+      "status": "rejected for scale; see REFERENCES R21; never ship"
+    },
+    {
+      "file": "R22-campaign-minimap.png",
+      "reference": "R22",
+      "source": "https://i.sstatic.net/ancdh.png",
+      "bytes": 162102,
+      "sha256": "d028c681d4207e4bcb4bcac44752ee7efd8241d8f0c949f4c0bea9547a74a1d8",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R23-adventure-overlay-inspection.png",
+      "reference": "R23",
+      "source": "https://tseret.com/wp-content/uploads/2023/02/Diablo-III-Altar-of-Rites-guide-map.jpg",
+      "bytes": 564486,
+      "sha256": "520ab0e453cd81081c5f17e4fffa05f441496d37e35d89b0dfbaf83bfaac48e7",
+      "status": "local inspection derivative, not a separate download; never ship"
+    },
+    {
+      "file": "R23-adventure-overlay.jpg",
+      "reference": "R23",
+      "source": "https://tseret.com/wp-content/uploads/2023/02/Diablo-III-Altar-of-Rites-guide-map.jpg",
+      "bytes": 344075,
+      "sha256": "0198574352f7afbfe838a042fa8cebc106390baa45d402c6623ac8ec3fc3bb8f",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-campaign-overlay.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_11.jpg",
+      "bytes": 69431,
+      "sha256": "9d45e59327cd6d8b45bae55d6a84e2bbae2d01f35da0634f91543b4f891e5709",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-inspection-sheet.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_11.jpg",
+      "bytes": 175865,
+      "sha256": "e8f233e88d05f74f8559aec3afedfb6766270ece5402b045554a715890b73bb3",
+      "status": "local inspection derivative, not a separate download; never ship"
+    },
+    {
+      "file": "R24-view-01.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_01.jpg",
+      "bytes": 278232,
+      "sha256": "3fc3e69d2ecc041a3c9581f73205adbf96405ac96e679495b8758fb18a21fd49",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-02.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_02.jpg",
+      "bytes": 212241,
+      "sha256": "e6e189293cc056c79a42a179d3fabc43d35bbd65c4fffd84b70b2c84f55e1f1a",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-03.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_03.jpg",
+      "bytes": 162965,
+      "sha256": "ef6608daf280d62532fcefd6187c6bacb53572b507ee21800ecd98b54dff4326",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-04.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_04.jpg",
+      "bytes": 172343,
+      "sha256": "5a6c9f4fdd0f5422b68dc50ac6ef1b406e563f09581751812259bfdde0643979",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-05.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_05.jpg",
+      "bytes": 170292,
+      "sha256": "2be79fbc46ca49c00b182a44d154a0ae7dddb1ce76a28de7468be36bd4eb827e",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-06.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_06.jpg",
+      "bytes": 212836,
+      "sha256": "b4263a49b92f7bc636cf96dac7dbadb96e8a017aa9b6182a3958ec239241e756",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-07.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_07.jpg",
+      "bytes": 174725,
+      "sha256": "861021e5e6cc953ca889e9cb2a6e3fdcefe89f0e089eea9a15e625e62c8d431a",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-08.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_08.jpg",
+      "bytes": 217925,
+      "sha256": "70a35020b01eb33f9741fe264df6655062530ac3a0338f24f6e2a320cd5ef85c",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-09.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_09.jpg",
+      "bytes": 161711,
+      "sha256": "52a5178e3ce9b98f97965a1ac0556a47d3e1e766dc092e06c1747cc5577b6c7a",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R24-view-10.jpg",
+      "reference": "R24",
+      "source": "https://diablo.4fansites.de/bilder/datenbank/zonen/akt_1/neu_tristram_10.jpg",
+      "bytes": 190700,
+      "sha256": "2be9596c866fdbdc8d58b484eb9a52a9ed1e4135d9d0c6a5b69f188b3cf3ef99",
+      "status": "approved public research; inspected; never ship"
+    },
+    {
+      "file": "R25-plaza-2020-inspection.png",
+      "reference": "R25",
+      "source": "https://i0.wp.com/aggronaut.com/wp-content/uploads/2020/07/Diablo-III64-2020-07-10-07-02-46-228.jpg?fit=1920%2C1080&ssl=1",
+      "bytes": 317987,
+      "sha256": "8b075e89b4933300ec5ac5eaeb98d47d0966a5bc1dac5a3fbcae8c868eaf4f9d",
+      "status": "local inspection derivative, not a separate download; never ship"
+    },
+    {
+      "file": "R25-plaza-2020.jpg",
+      "reference": "R25",
+      "source": "https://i0.wp.com/aggronaut.com/wp-content/uploads/2020/07/Diablo-III64-2020-07-10-07-02-46-228.jpg?fit=1920%2C1080&ssl=1",
+      "bytes": 208824,
+      "sha256": "3aa675f9b31585bf04b744c2987843c0f7c212ee5889d823e4695d7610437728",
+      "status": "approved public research; inspected; never ship"
+    }
+  ]
+}

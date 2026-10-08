@@ -66,12 +66,38 @@ Both running-renderer PNGs were opened and visually inspected after the final ca
 - [Gallery with 100 total hero actors, 1920x1080](tour/m0-gallery-100-heroes.png): existing hero art renders in a crowd; offscreen actors and clipped edge characters confirm the spread extends outside the view. Different gear colors are legible; the empty plaza's repetitive ground remains conspicuous. No networking/game HUD in this image.
 - [Current data diagram](baseline-layout.png): inspected separately; labels readable, source scale marked, collision circles distinguished from footprint geometry. This is a documentation diagram and explicitly not a running-game screenshot or target proposal.
 
-## Remaining baseline work / acceptance
+## Earlier gaps and final acceptance requirements
 
 1. Foreground Chrome measurement with a visible, non-occluded tab and controlled >=60 s workload. The browser automation runtime still fails after restart; installed headless Chrome worked through CDP. Do not claim the runtime issue was repaired.
 2. Actual 100-client town-channel behavior/performance, including movement/replication, measured separately from the accepted gallery proxy option in HANDOFF §6.9.
-3. Texture memory, peak memory, full load/lazy bake completion and repeated cold/warm measurements. The large variable JS heap snapshots justify inspection, not an invented GPU-memory budget.
-4. Fix crowd determinism in the measurement harness before using a 15% A/B threshold. Do not change gameplay just to make a benchmark greener.
+3. Actual GPU residency, peak memory, full load/lazy bake completion and repeated cold/warm measurements. A managed-texture estimate is now recorded below. The large variable JS heap snapshots justify inspection, not an invented GPU-memory budget.
+4. A fixed random stream is now available below; still verify identical actor placement before using a 15% A/B threshold. Do not change gameplay just to make a benchmark greener.
 5. Once a comparable foreground baseline F is accepted, enforce new-town average >= max(60, 0.85*F); record p1/min too. Full load/bake <5 s is still a requirement, not proven by the current partial timings. Texture budget remains unapproved until measured.
 
 M0 performance evidence is useful but incomplete. No final performance acceptance or new-town budget is claimed.
+## Follow-up: fixed-seed texture/load baseline — measured and inspected
+
+Raw evidence: [browser-fixed-seed.json](checks/browser-fixed-seed.json). Reproduction harness: [capture-baseline.mjs](checks/capture-baseline.mjs). Same unchanged game source, installed Chrome, 1920x1080, map seed 1234, 100 total heroes + eight NPCs. Harness-only Math.random LCG seed 0x484630; no runtime files changed. This improves repeatability but does not prove full frame-by-frame determinism (animation timing and call ordering still matter). No builds/tests or other agent CPU work ran during the sample. An initial counter attempt hit a null entry in Pixi's registry; it was discarded, fixed by filtering empty entries, and rerun.
+
+| Metric | Follow-up observation |
+|---|---:|
+| Recorded duration / intervals | 60.9942 s / 3,951 |
+| FPS average / p1 / minimum instantaneous | **64.7767 / 41.4938 / 20.6612** |
+| Frame mean / p99 / max | 15.4377 / 24.1 / 48.4 ms |
+| Hidden / visibility changes | false / 0 |
+| Heap used start / end | 996,463,004 / 1,544,421,576 bytes (not peak; GC-dependent) |
+| Page-ready observed / synchronous map build | 2,725.3 / 376.8 ms |
+| Unique managed texture sources before / after | 278 / 278 |
+| Sum of BGRA8 base-level dimensions | 378,093,872 bytes = **360.58 MiB** |
+| Including each source's declared mip levels | 503,287,588 bytes = **479.97 MiB** |
+| Final HUD observation | 54 fps, 224 draws; screenshot a later frame has 235 draws |
+
+Texture accounting reads the renderer's existing managed-source registry, deduplicates source objects, records pixelWidth/pixelHeight/format/mipLevelCount and sums 4 bytes per BGRA8 texel, halving dimensions per mip down to one. All 278 sources reported uploaded renderer data; all reported bgra8unorm. This is an allocation-size estimate from observed dimensions, **not measured VRAM residency**. It excludes renderbuffer/MSAA/depth overhead, driver alignment, browser compositing, CPU canvas copies and peak/transient allocations. Do not confuse it with the heap values.
+
+During startup, managed textures grew from 57 at page time 3.732 s to 278 at 11.218 s, then remained at the same count/byte total through 15.279 s and the later benchmark endpoints. This is a **texture-creation stabilization proxy**, not an exact bake-completion signal. It disproves any claim that the initial 2.7 s ready flag alone established fully warmed crowd textures. The requested <5 s full-load/bake target is **not established and the proxy exceeds it in the existing baseline**. Keep this as a visible performance risk; do not silently weaken the target or redesign the old heroes to conceal it.
+
+[Fixed-seed gallery screenshot](tour/m0-gallery-fixed-seed.png), 1920x1080, 2,591,831 bytes, was opened and inspected: unchanged heroes/UI-free gallery, readable characters but large repetitive pale plaza, edge-clipped/offscreen crowd, and a momentary HUD rate below 60. The mean meets 60 in this sample; p1 and max frame time do not justify a blanket “smooth 100-player multiplayer” claim.
+
+**Proposed budget (D013):** comparable new-town mean >=max(60, 0.85*64.7767)=60 fps, with p1/min reported rather than hidden. Renderer-managed BGRA8+declared-mips estimate <=640 MiB for this fixture; rationale in D013. Keep the <5 s load target but measure a precise readiness/bake boundary before judging it. No new-town, visible foreground, networked 100-client, positional audio or final acceptance claim is made. M0 records the available baseline honestly; later gates must close these limits.
+
+Documentation sanity check: all nine service approach points lie outside the nine proposed building masses. Sampled route points were checked against those masses; a back-lane route that clipped the inn corner was corrected before review. The final sample finds no point inside a mass. This is not a swept-circle check, clearance validation or a runtime collision test; those remain M1 requirements.
