@@ -461,8 +461,242 @@ Every report to the owner is short and uses the same headings:
 
 > **[Part 04 is still being written - see the latest commit on branch docs/mmo-roadmap]**
 
+---
 
-> **[Part 05 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 7. Implementation phases
+
+Feature IDs (`F-ACC-01` …) are defined in §8; screen IDs (`U-xx`) in §9; decision IDs (`D-xx`) in §5; research tasks (`R-xx`) in §4. Every phase also obeys the Definition of Done (§3.4) and the cross-cutting checklists (§12). Counts marked `N`, `M`, `X` are set by the owner or by research — they are not guessed here.
+
+### 7.0 Phases 0–2 in short
+
+| Phase | What | Output | Gate |
+|---|---|---|---|
+| **P0 Town** | Codex's Hearthmere work (blockout, collision, NPC-bound services, stash, look slice, completion checkpoint) is mostly **uncommitted** in the working tree. Owner reviews `docs/town/tour/*`, `FINAL.md`; Codex commits in logical slices; merge decision (D-33). | merged town, tag `gate-p00-*`, `npm run verify` baseline numbers | G0 |
+| **P1 Research** | §4 | 20 dossiers + matrices + UI atlas | G1 |
+| **P2 Design bible** | §5 | answered decision register + `docs/design/BIBLE.md` | G2 |
+
+---
+
+### P3 — Foundations (accounts, saves, content pipeline, settings, harness, secure defaults)
+
+- **Goal.** Make the game safe to show to other people and cheap to change.
+- **Why here.** Everything later keys on identity, IDs, save versions, settings and tests. Retrofitting these after content exists multiplies cost; leaving them out blocks every public step.
+- **Scope.**
+  - *Accounts and identity* (F-ACC-01…07): credential model per D-30; sessions and rate-limited login; characters owned by accounts with stable IDs (names stop being identity); character select/create/soft-delete/rename; recovery without a paid mail service; export/delete for GDPR; one-time migration of existing name-keyed saves (the owner claims theirs).
+  - *Secure defaults and admin* (F-ADM-01…03, 06): `debug` commands **off by default** (dev flag only); admin CLI (ban, mute, kick, announce, restore, grant) with an audit log.
+  - *Saves* (F-SAV-01…05): `save.version` + forward migrations; golden-save fixtures for every released version; backup rotation with a tested restore; storage abstraction (JSON behind an interface first; DB per D-31); client command IDs for idempotency.
+  - *Content pipeline* (F-CON-01…04): registries with stable IDs and schema validation (`npm run content:check`); localization keys for all player-facing text; name/IP register; placeholder registry.
+  - *Settings and accessibility* (F-SET-01…05): settings panel, key rebinding via an input-abstraction layer, reduced-motion / screen-shake / flash options, rarity cues that do not rely on colour alone, text size, language.
+  - *Harness* (F-TEL-01…04, 06, 07): `npm run verify`; bot harness for kills/min, TTK, deaths, XP/h per class × level; generalised Monte-Carlo tools (`baseline-audit.ts` is the seed); local event-log schema; perf-budget checks.
+- **Decision-independent subset (may start during research):** F-TEL-01, F-SAV-01/02, F-ADM-01, F-CON-04.
+- **Out of scope.** Payments; third-party sign-in; a paid email service; social features; real DB migration if D-31 says "JSON is enough for R1".
+- **Acceptance.**
+  1. A character cannot be opened without its account's credentials (tests: guessing, replay, enumeration, concurrent login, token theft after logout).
+  2. `debug` ops fail unless explicitly enabled by an environment flag; every admin action is logged.
+  3. All existing characters migrate with zero loss — checked by item-ID and count checksums before/after on **copies** of saves.
+  4. Every save-shape change has a migration test and a golden fixture; corrupt saves are quarantined, not overwritten.
+  5. A backup restore drill is documented and timed.
+  6. `npm run verify` runs typecheck, shared tests, server tests, sim, content check, build, perf budget; baseline numbers recorded.
+  7. Settings persist per account; every action is rebindable; reduced-motion and shake toggles work.
+  8. `content:check` fails on duplicate IDs, dangling references and missing localization keys.
+  9. Calibration-sprint results (§3.2) recorded.
+- **Verification.** Automated tests; a written attack script run by someone other than the author; screenshots of settings and character select in all states; restore-drill log.
+- **Gate / rollback.** G3. Tag before the migration; the pre-migration backup bundle restores everything; migration behind a flag until proven.
+- **Risks.** Storage rewrite scope creep (mitigate: interface first); lockout and recovery edge cases; collecting more personal data than needed (mitigate: minimal fields, documented in `docs/phase/P03/PRIVACY.md`).
+
+---
+
+### P4 — Combat and build-system lock
+
+- **Goal.** Freeze the rules that all content multiplies: time-to-kill, survivability, resources, skill cadence, build depth.
+- **Why here.** Encounters, items, quests and zones are all authored against these numbers. Changing them after P7 invalidates the work.
+- **Scope.** F-CMB-01…09, F-SKL-01…04 (as chosen by D-08…D-12), F-MON-02 (behaviour toolkit), F-MON-03 (boss framework), F-TEL-02/07.
+  - Combat spec v1.0: auto-cast rules, resource model, dash/defensive actions, status effects and their interactions, what is explicit vs hidden, accessibility toggles.
+  - Skill cadence redesign: today 6 skills by L12 (§1.3). The new cadence, slot count and unlock timing come from D-09 and the D3/MapleStory/Idleon pacing matrices (R-01, R-02, R-06).
+  - Build depth per D-10: runes + tiers (today) vs adding passives/mastery/talent graph (references: R-01, R-03, R-04, R-05).
+  - Respec rules and costs (D-12).
+  - Balance targets (TTK bands for trash/elite/boss by level, damage-taken bands, deaths per hour) — `TBD[R-01, R-14]` + owner.
+  - Parity harness: class × level × gear tier × difficulty reports; determinism/replay tests.
+  - Feel pass: hit feedback parameters, audio, shake, with toggles; frame-rate-independent timings.
+- **Out of scope.** New classes; PvP; bulk monster content.
+- **Acceptance.** Harness shows class parity within the owner's tolerance at checkpoints (L10 / 30 / 50 / 70 — or the new cadence's equivalents); no skill or build exceeds the dominance threshold; deaths/min and TTK inside approved bands; determinism tests pass; perf holds with the monster counts in §12.2; the owner has played each class and signed the feel; the spec is frozen — later change requires a DDR.
+- **Verification.** Harness reports checked into `docs/phase/P04/checks/`; recorded playtest notes; perf traces in a visible tab.
+- **Gate / rollback.** G4. All parameters stay data-driven, so rollback is a data revert plus tag.
+- **Risks.** Endless tuning (time-box it); "fun" cannot be measured by an agent (owner sessions are mandatory); drifting from references (every cadence choice cites a matrix row).
+
+---
+
+### P5 — Quest, dialogue and narrative engine
+
+- **Goal.** Let designers express goals, conversations and story beats as data, with the server as authority.
+- **Why here.** Zones need leading and gating; the tutorial is the engine's first customer.
+- **Scope.** F-QST-01…08 (engine and UI, not bulk content), F-WLD-03 (waypoint network and a world map screen).
+  - Objective types: kill N of a type/family in a zone, collect item, reach location, talk to NPC, use a service, clear a rift of rank ≥ X, deliver item, survive wave.
+  - Prerequisites, flags, rewards (XP, gold, items, unlocks), repeat rules, party-sharing rules (who gets credit — decided with D-26), anti-exploit (kill stealing, relog, leave/join, duplicate turn-in).
+  - UI: dialogue box, quest tracker, journal, NPC markers, minimap pins, quest-giver indicators (U-xx in §9).
+  - Authoring: declarative data + validator; no embedded scripting language unless D-35 approves one.
+  - Three sample quests and one branching dialogue as fixtures.
+- **Out of scope.** Real story content; voice acting; cinematics beyond text and camera pan.
+- **Acceptance.** Unit tests for every objective type including exploit cases; save/load in the middle of a quest; party sharing with 2–4 clients; `content:check` proves no quest is unreachable or unfinishable; screenshots of tracker/journal/dialogue in every state (empty, long text, many quests).
+- **Gate / rollback.** Demonstrated at G5 with P6. Feature-flagged; quests are additive data, so rollback = remove data.
+- **Risks.** Over-engineering a scripting system; quest state bloating saves (cap and prune); text volume (localization keys from day one).
+
+---
+
+### P6 — Onboarding: tutorial and first hour
+
+- **Goal.** A fresh player reaches "I understand and want more" without outside help — and a returning player is never forced through it.
+- **Why here.** First-session retention decides whether anyone sees the rest. It also proves the quest engine on a small, high-stakes slice.
+- **Scope.** F-ONB-01…07.
+  - Character creation v2: what each class *does* in plain words, preview of the auto-cast fantasy, appearance.
+  - First-session script, minute by minute, taken from the FTUE research (R-15) and the D3/Idleon/TBH/Vampire-Survivors/PoE comparisons; the exact beats are `TBD[R-15]`.
+  - Progressive disclosure: no panel, hotkey or number appears before it is introduced (schedule from §6.3).
+  - Contextual hints triggered by events (first loot, full bag, level-up, skill point, rune, elite, death, legendary, Cube) — dismissible, re-readable in Help, individually disable-able.
+  - Tutorial quest chain in Hearthmere and the first field with scripted, safely tuned first encounters.
+  - A guaranteed early upgrade beat (pattern from references, not invented).
+  - Funnel instrumentation and a fresh-player test kit (script, consent text, questions).
+- **Out of scope.** Voice-over; video tutorials; localization beyond the chosen launch languages.
+- **Acceptance.** ≥ `N` fresh players (I recommend ≥ 5 who have never seen the game) finish the tutorial with no help; time-to-first-kill / first loot / first level recorded; a post-test question set shows the core verbs were understood (threshold `M`, set by the owner); no hint appears before its system exists; a bot walks the tutorial and a random-walker cannot soft-lock it; hints pass the accessibility checks (§12.5).
+- **Gate / rollback.** G5 → unlocks **R1 Friends Alpha**. Hints are data; the whole tutorial is a skippable quest chain.
+- **Risks.** Text that reads as generic; over-teaching; hiding the fantasy ("the character fights for you; *you* choose where, when and with what"); judging by agent opinion instead of real testers.
+
+---
+
+### P7 — Early game (levels ≈ 1–20)
+
+- **Goal.** From the end of the tutorial to the first boss and the first real build decision, with novelty arriving continuously.
+- **Why here.** It is the first content that must obey the locked combat spec and the quest engine, and it sets the quality bar for every later zone.
+- **Scope.** F-WLD-01/02/04(first small dungeon)/05, F-MON-01/04/05/06, F-QST-06/07 (Act I story and first repeatable bounties), F-SKL-01 (new cadence in effect), minimal vendor (F-ECO-01: sell junk for gold — pulled forward so gold has a purpose).
+  - A zone chain with *real* level bands and gating (today: two fields share 1–70).
+  - New monster families per zone with at least one new behaviour each; 1–2 bosses with mechanics.
+  - Zone events, ambient life, zone audio.
+  - Act I story and quest chain; first bounties.
+  - Content volume: `TBD[D-15, R-matrix]` — measured as "content units" (zone, family, boss, quest chain, item set).
+- **Out of scope.** Mid-game zones; endgame.
+- **Acceptance.** A bot completes the campaign slice on each class; one human playthrough per class; XP/hour, drop cadence and death rate sit inside bands set at P4/P8; each zone introduces ≥ 1 new behaviour; no stall (XP/hour vs neighbours) — threshold `X`; perf inside budget; visual style-sheet compliance.
+- **Gate / rollback.** G6 (with P8). Content is data; revert by tag.
+- **Risks.** Content treadmill and repetitive assets (mitigate: parametric generators, §11); difficulty spikes (harness catches them); quality drift (gallery diffs).
+
+---
+
+### P8 — Economy v1: vendors, sinks, binding, artisans
+
+- **Goal.** Gold and materials have meaningful sources and sinks, with no way to print money.
+- **Why here.** Economy rules depend on real drop and XP data from P7; trading and the market (P15) depend on a stable economy.
+- **Scope.** F-ECO-01…10, F-SAV-05, F-TEL-03.
+  - General vendor (buy/sell/buyback), item values, buy/sell asymmetry.
+  - Source/sink audit using the Monte-Carlo tools; tuning of repair/durability (D-22), consumables, gamble vendor, stash expansion, respec costs, travel costs.
+  - Binding rules and item flags enforced server-side (D-20).
+  - Artisan roles (Blacksmith, Jeweler, Mystic) as separate service identities versus today's single Cube-level gate (D-25).
+  - Economy dashboards (sim and live).
+- **Out of scope.** Player trading and any market (P15).
+- **Acceptance.** Simulated and bot-soaked play shows gold/hour inflation inside the band set by the owner; no unbounded accumulation; stress tests show no duplication under concurrent operations; buy/sell arbitrage impossible; currency map documented; independent review passed.
+- **Gate / rollback.** G6. Economy constants are data; snapshot saves before enabling new sinks.
+- **Risks.** Death spirals or runaway inflation; complexity creep (durability) — decide minimal first; exploit loops.
+
+---
+
+### P9 — Mid game (levels ≈ 20–50)
+
+- **Goal.** Keep novelty and build decisions flowing through the long middle, where most ARPGs sag.
+- **Scope.** More zones and families (F-WLD-01/02, F-MON-01/04/05); objective dungeons (F-WLD-04); first set items (F-ITM-03 first tranche); live build decisions (passives, F-CMB-03); difficulty gating (D-16); co-op scaling checks (F-SOC-09); mid-game bosses with phases; Cube pacing adjustments; Act II–III story.
+- **Acceptance.** As P7 plus: a stall report for every 5-level band; dungeon completion by bot; party-play test at 2–4 clients; no band where TTK or XP/hour deviates from neighbours by more than `X`.
+- **Gate / rollback.** G7.
+- **Risks.** Sag (repetition), power spikes from sets arriving too early or late, difficulty gating that confuses newcomers.
+
+---
+
+### P10 — Social layer (10a pulled before R1; 10b before R2)
+
+- **Goal.** Make it an MMO: people find each other, group, talk, and can protect themselves from each other.
+- **10a (before R1).** F-SOC-01…04, 05 (minimal): party (invite, accept, decline, leave, kick, leader transfer, disconnect handling, party frames), friends and presence, whispers and party/trade/LFG chat channels, block/mute/report; extended rate limits.
+- **10b (before R2).** F-SOC-06…10, F-ADM-04/05: inspect/armory, guilds (create, join, ranks, MOTD, bank per D-27), group finder, shared-loot/party-scaling review, mail (only with trading), chat filters, report queue, moderation tools with audit.
+- **Acceptance.** 10a: party flows tested with 4 simulated + 2 real clients, including disconnects mid-action; whisper privacy; block persists across sessions; reports land in a queue; spam/injection tests. 10b: guild permissions under concurrent invites; every moderation action is audit-logged; inspect exposes only allowed data; privacy review.
+- **Gate / rollback.** G8. Server features flagged per channel.
+- **Risks.** Harassment and abuse surface (moderation policy D-28 is the owner's); GDPR for chat logs (retention limit); reconnect storms.
+
+---
+
+### P11 — Itemization, crafting and loot UX depth
+
+- **Goal.** Build identity comes from items; players can understand, compare, filter and collect them.
+- **Scope.** F-ITM-01…10, F-ECO-05, F-SKL-02/03 hooks.
+  - Affix pool and per-slot rules; legendary powers per class and build (today 13 class-specific + 6 shared); sets (today one per class); gems and socketables; recipes and materials; transmog / appearance slots; loot filter and auto-pickup/auto-salvage rules; item compare and tooltips v2; item links in chat; legendary/set codex; item-level and base-tier curve review.
+  - Drop-cadence calibration from R-01-LOOT and the approved cadence table (the today-numbers in §1.3 are the "before" picture).
+  - Naming pass for items under D-07.
+- **Acceptance.** Build-diversity report: ≥ `N` viable builds per class (viability = within tolerance of the class median in the harness, tolerance by the owner); the drop harness reproduces the approved cadence table; stat bounds proven (doubles are exact to 2^53 ≈ 9.0e15; check the intended maximum HP/damage before adopting any big-number library — the dossiers' `break_infinity.js` claim is `[D]`); migrations for new item fields.
+- **Gate / rollback.** Part of G9. New items are data; old saves keep working via migrations.
+- **Risks.** Stat inflation; analysis paralysis in affix design; UI overload (progressive disclosure).
+
+---
+
+### P12 — Late game and endgame v1
+
+- **Goal.** "What do I do at 70?" has several good answers, each measurable and fair.
+- **Scope.** F-END-01…09 and the final act.
+  - Timed rifts with ranks and keystones; bounties across zones; Torment gating and rewards; Paragon pacing and UI review (today 7.5M × (1 + 0.04p) XP per paragon level); server-authoritative leaderboards; world boss/event; set dungeons/challenges; primal/ancient chase tuning; final campaign boss and ending.
+- **Acceptance.** Leaderboard submissions verified server-side (inputs and result derived from the run, never trusted from the client); endgame difficulty curve vs gear tier shown by the harness (Torment I–X are ×16…×8192 HP today — are they all reachable?); reward cadence table; at least `N` distinct endgame activities exist (count set by D-17/D-18).
+- **Gate / rollback.** G9. Leaderboards have a reset tool; endgame constants are data.
+- **Risks.** Leaderboard cheating; power creep; players finishing too quickly (compare to the pacing matrices).
+
+---
+
+### P13 — Alternative combat and content modes (chosen from §10)
+
+- **Goal.** Add *ways to fight* only where they deepen the core loop. Each mode is its own mini-phase with its own go/no-go.
+- **Process per mode.** Charter (what, why, references) → paper design → prototype branch → harness impact → UI → telemetry plan → owner playtest → go / no-go.
+- **Acceptance (generic).** Opt-in; does not degrade the core loop's performance or balance; has its own balance harness; has a rollback flag; telemetry shows it is used (after release).
+- **Gate.** G10 per mode.
+
+---
+
+### P14 — Meta-progression and idle layer
+
+- **Goal.** Reward returning, alts, collecting and being away without making the game a chore.
+- **Scope.** F-MET-01…07: account-wide stash and shared currencies, offline/AFK evolution (today: ≤12 h at 25 % efficiency, fields only), account achievements and titles, collections/bestiary, pets/companions, character slots and alt bonuses, optional expeditions for alts.
+- **Acceptance.** No alt-funnelling exploit path (tests); offline gains deterministic and capped; fairness model written and approved (what an alt may and may not inherit); account-wide data included in export/delete flows.
+- **Gate.** G10.
+- **Risks.** Exponential account bonuses; "second job" feeling; design-heavy so owner involvement is high.
+
+---
+
+### P15 — Live-ops: seasons, events, ladders, and trading (if approved)
+
+- **Goal.** A reason to return every few weeks, delivered without breaking anyone's save.
+- **Scope.** F-LIV-01…07. Season framework and journey objectives, event scheduler, patch/hotfix pipeline with version gating, public roadmap and patch notes. **Trading only if D-21 says yes:** secure trade window (both-confirm, lock, atomic server-side swap, audit log, new-account cooldown) before any market or auction.
+- **Acceptance.** Season start/end rehearsed on a staging copy and rolled back once; event scheduler idempotent across restarts; trade tests cover duplication, races, disconnects, and rollback; economy monitor alerts fire in simulation.
+- **Gate.** G11.
+- **Risks.** RMT and bots; seasonal resets alienating long-term players (design question, not an engineering one); live patches corrupting saves.
+
+---
+
+### P16 — Scale, security and reliability
+
+- **Goal.** Survive many players and some bad actors.
+- **Scope.** F-OPS-01…07, F-ADM-*: load tests with a bot swarm to the target CCU (D-29); tick-time and bandwidth budgets under load; interest-area tuning; memory/GC analysis; multi-process zone workers or a gateway; protocol fuzzing; connection limits and DDoS basics; secrets; dependency audit; backup/restore drills at scale; observability (metrics, logs, alerts); incident runbooks.
+- **Acceptance.** Load report: p95/p99 tick time at `N` bots; bandwidth per player; reconnect-storm test; `kill -9` recovery loses nothing beyond the autosave interval (today 30 s); chaos tests (disk full, slow storage); security review findings closed.
+- **Gate.** G12 (part).
+- **Risks.** Hosting cost (no paid services — D-32); bot swarms are not real networks; premature scale-out complexity (do the simplest thing that meets D-29).
+
+---
+
+### P17 — Platform, localization, legal and release engineering
+
+- **Goal.** Be allowed to ship and be playable where players are.
+- **Scope.** F-PLT-01…08: browser matrix and low-spec mode; localization for the chosen languages; privacy policy, terms and EULA, cookie/consent; age-rating questionnaires; EU consumer-law review (no loot boxes sold for money without an explicit decision); Steam wrapper, cloud save, achievements and controller input if R5 is in scope; store assets (original); project-wide licence and IP/naming audit.
+- **Acceptance.** Matrix results; every shipped string localized; legal documents reviewed by a human; IP audit shows no third-party names, text, art or audio remain; Steam wrapper builds and passes a smoke test (R5 only).
+- **Gate.** G12.
+- **Risks.** Legal guesses (this roadmap is not legal advice); Steam requirements that change; late naming changes (start the register in P3).
+
+---
+
+### P18 — Alpha → Beta → Launch operations
+
+- **Goal.** Run the release like an operation, not a leap.
+- **Scope.** Playtest program, triage and severity policy, balance passes, feature freeze, release checklist, rollback plan, community comms, support process, post-launch cadence driven by telemetry.
+- **Acceptance.** Beta exit review (zero open severity-1/2, retention and funnel reviewed, support process live, public roadmap published).
+- **Gate.** G13 launch.
+
 
 
 > **[Part 06 is still being written - see the latest commit on branch docs/mmo-roadmap]**
