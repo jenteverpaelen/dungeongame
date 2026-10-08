@@ -229,8 +229,231 @@ Cube level 2 needs 60 Cube XP, level 4 needs 565, level 8 needs 3,995. Salvaging
 - **Reading:** typing speed is not the constraint. Decisions, verification, owner review and real playtests are. Wall-clock time here excludes owner review and is not a forecast — it only shows that a well-specified vertical slice can land in hours, while a wrong turn (the Godot/Tripo detour) cost far more. The gates in this roadmap exist to make a wrong turn cost one phase, not the project.
 
 
+---
 
-> **[Part 02 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 2. The plan in one page
+
+### 2.1 Why this order (the ordering principles)
+
+1. **Evidence before design, design before content volume.** Content is the most expensive thing to redo. We do not author hundreds of monsters, items or quests until the numbers they depend on (pacing, drop cadence, power curve) come from sources or from the owner.
+2. **Build the foundations that are painful to retrofit first:** accounts and stable IDs, save versioning, content IDs with localization keys, settings and key rebinding, a test and balance harness, secure defaults (debug off). Every later feature keys on these.
+3. **Lock the core loop before multiplying content.** The combat and build system (skill cadence, passives or not, resources, TTK targets) is the multiplier on all content cost. Change it late and every encounter and item is wrong.
+4. **Build systems that gate content before the content:** the quest/dialogue engine and zone gating come before zones, because zones exist to be gated and led through.
+5. **Onboarding right after the engine it needs, before bulk content.** The first fifteen minutes decide whether anyone sees the rest, and building them first dog-foods the quest engine on a small scale.
+6. **Economy before trading, trading before competitive endgame, endgame before seasons.** Each layer assumes the one below is stable and measured.
+7. **Exposure steps are gated.** A friends-only test needs accounts and debug-off; a public test needs moderation, backups, load tests and legal basics.
+8. **Every phase ends in a playable, verifiable build with a rollback tag.** No long-lived broken branches. A bad phase costs the phase, not the project.
+
+### 2.2 Phase map
+
+| # | Phase | Needs | Can start during research? | Release step |
+|---|---|---|---|---|
+| P0 | Town (Hearthmere) review, commit, merge | — (done by Codex, uncommitted) | yes | — |
+| P1 | **Research and evidence base** | owner approval of the research charter | — | — |
+| P2 | **Design bible and decision register** | P1 | no | — |
+| P3 | **Foundations** (accounts, saves, content pipeline, settings, harness, secure defaults) | P0; P2 for the account model | partly (§7 P3 lists the decision-independent parts) | → R1 |
+| P4 | **Combat and build-system lock** | P1, P2 | no | → R1 |
+| P5 | **Quest, dialogue and narrative engine** | P3, P4 | no | → R1 |
+| P6 | **Onboarding: tutorial and first hour** | P5 | no | **R1 Friends Alpha** |
+| P7 | **Early game, levels ≈1–20** | P5, P6 | no | → R2 |
+| P8 | **Economy v1:** vendors, sinks, binding, artisans | P3, P7 | no | → R2 |
+| P9 | **Mid game, levels ≈20–50** | P7, P8 | no | → R2 |
+| P10 | **Social layer** (10a party/friends/whisper/block, 10b guilds/inspect/moderation) | P3 (10a is pulled before R1) | 10a no | 10a → R1, 10b → R2 |
+| P11 | **Itemization, crafting and loot UX depth** | P8, P9 | no | → R3 |
+| P12 | **Late game and endgame v1** (levels ≈50–70, Torment, Paragon, timed rifts, bounties) | P9, P10, P11 | no | **R2 Closed Alpha → R3** |
+| P13 | **Alternative combat and content modes** (selected from §10) | P12 | no | → R3 |
+| P14 | **Meta-progression and idle layer** | P12 | no | → R3 |
+| P15 | **Live-ops:** seasons, events, ladders, trading (if approved) | P8, P10, P12 | no | → R3 |
+| P16 | **Scale, security and reliability** | P3, P10, P15 | load/security harness yes | **R3 Open Beta** |
+| P17 | **Platform, localization, legal, release engineering** | P16 | legal drafts yes | → R4 |
+| P18 | **Alpha → Beta → Launch operations; post-launch cadence** | P17 | — | **R4 Launch, R5 Steam** |
+
+```mermaid
+flowchart TD
+  P0[P0 Town review] --> P3
+  P1[P1 Research] --> P2[P2 Design bible]
+  P2 --> P3[P3 Foundations]
+  P2 --> P4[P4 Combat and build lock]
+  P3 --> P5[P5 Quest engine]
+  P4 --> P5
+  P5 --> P6[P6 Onboarding]
+  P6 --> R1{{R1 Friends Alpha}}
+  P6 --> P7[P7 Early game]
+  P3 --> P10a[P10a Party and friends]
+  P10a --> R1
+  P7 --> P8[P8 Economy v1]
+  P7 --> P9[P9 Mid game]
+  P8 --> P9
+  P9 --> P11[P11 Itemization depth]
+  P8 --> P11
+  P10a --> P10b[P10b Guilds and moderation]
+  P9 --> P12[P12 Endgame v1]
+  P10b --> P12
+  P11 --> P12
+  P12 --> P13[P13 Alternative modes]
+  P12 --> P14[P14 Meta and idle layer]
+  P8 --> P15[P15 Live-ops and trading]
+  P10b --> P15
+  P12 --> P15
+  P3 --> P16[P16 Scale and security]
+  P15 --> P16
+  P16 --> P17[P17 Platform, legal, release]
+  P17 --> P18[P18 Alpha, Beta, Launch]
+```
+
+**Decision-independent early work** (can run *while research is still going*, because no answer to any design question changes it): `npm run verify` (one command for typecheck + tests + sim + town check + build); the baseline audit (`docs/design/baseline-audit.ts`, done); save-file versioning and golden-save fixtures; turning the `debug` command off by default; a written auth design note (not code); the dossier template and claim register (§4.2). Anything else waits for Gate G1/G2.
+
+### 2.3 The release ladder (scope control)
+
+The 21 old dossiers imagine a studio with 8–10 people and 15k–25k concurrent players. This project is an owner plus AI agents. The ladder keeps the first public step small and the next steps conditional.
+
+| Step | Audience | Must be true (exit criteria; counts marked `N` are set by the owner) | Phases |
+|---|---|---|---|
+| **R0 Prototype** | owner only | today | — |
+| **R1 Friends Alpha** | N invited people, invite-only, owner-hosted | accounts and per-account characters; debug off; nightly backups and a tested restore; tutorial passes a fresh-player test; settings and key rebinding; party + whisper + block; no open severity-1/2 bug; crash/disconnect log reviewed | P0, P3, P4, P5, P6, P10a (+ part of P7) |
+| **R2 Closed Alpha** | wider invite list | levels 1–≈30 playable with story; vendors and economy v1; guilds and moderation tools; telemetry reviewed weekly; economy sources/sinks within the band set in P8 | P7, P8, P9 (part), P10b |
+| **R3 Open Beta (browser)** | public, free | levels 1–70 complete; endgame v1; load test at the target CCU passed; security review done; privacy policy, terms, data-export/delete flow; moderation staffed (owner + tools) | P9, P11–P16, P17 (legal part) |
+| **R4 Launch 1.0 (browser)** | public | beta exit review; rollback plan; support process; public roadmap | P17, P18 |
+| **R5 Steam** | Steam players | wrapper, cloud save, achievements, controller input, store page, age rating | P17, P18 |
+
+Dates are deliberately absent: nothing in the repo or the references supports a forecast yet. §1.6 shows throughput is high but unpredictable; the gates, not the calendar, decide.
+
+### 2.4 What we do *not* build before the gates
+
+| Not yet | Until | Why |
+|---|---|---|
+| PvP, arenas, duels | after R3 and an owner decision | balance and abuse surface; auto-cast PvP is an unsolved design problem here |
+| Auction house or global market | decision D-TRADE and P15 | duping, bots and inflation need telemetry first |
+| Real-money anything (shop, battle pass, stash tabs) | owner decision D-MON; EU consumer-law review | `[D]` the dossiers assume cosmetics-only monetization; the owner has not decided |
+| Mobile / touch client | after R4 | input, UI scale and performance are a second product |
+| Steam wrapper | R4 | needs a stable save/auth model and a store-ready build |
+| More than 3 classes | after R3 | each class multiplies skills, items, legendaries, sets and balance work |
+| Voice chat, user-generated content, housing | not planned | scope |
+| Any paid tool or service; any download without the owner's OK | never by default | `AGENTS.md` rules 3 |
+| Pay-to-win power, loot boxes sold for money | not without an explicit owner decision | EU law and community trust |
+
+---
+
+## 3. Working with Codex ("astra 6")
+
+### 3.1 Honest capability assessment
+
+I cannot inspect the model, so I do not claim to know "what astra 6 can do" from its name. This assessment rests on three things: (a) what Codex *actually produced in this repository*, (b) what is generally true of coding agents, and (c) a short calibration test (§3.2) that turns the guesses into measurements before the big phases begin.
+
+**(a) Observed in this repo** — taken from the commits and `docs/town/*`; I have read the documents but have **not** re-run its tests, so treat as `[S-docs]`:
+
+- It built an authored town with exact walkable polygons, **shared swept-polygon collision** used by both client prediction and server, and a **10,000-step prediction-parity test** (FINAL.md, commit `127b5d5`).
+- It bound every artisan service to physical NPCs with **server-side validation of position, correct NPC, living player and line of sight** on every operation, and wrote suites for near/far/wrong/dead/spoofed/occluded cases (commit `28feac0`).
+- It added a persistent **character stash** with migration, capacity, item-identity and retry protection.
+- It kept an **evidence register** (`REFERENCES.md`: source IDs, what was actually read, limits), a **decision log** (`DECISIONS.md`), a licence ledger, a performance report, and an explicit "known limits" list that says what was *not* verified (headed-window benchmark, subjective audio, hidden building interiors).
+- It stopped at owner gates and recorded approvals (e.g. D021).
+
+**(b) General strengths and weaknesses of coding agents, mapped to this project:**
+
+| Capability | Fit | Why | What we do about it |
+|---|---|---|---|
+| Spec → deterministic shared/server logic with tests | **High** | the pattern it demonstrated in the town | keep specs tight; demand negative tests |
+| Server-authoritative validation, anti-dupe, idempotent commands | **High** | same | independent review for money/auth/persistence phases |
+| Data-driven content against a schema (items, monsters, quests) | **High** for mechanics, **medium** for taste | mechanical but taste-sensitive | content lint + owner spot-review |
+| Preact panels following existing patterns | **High** | many examples in `ui/panels` | wireframes first for new screens |
+| Novel UX flows | **Medium** | no feel for real players | fresh-player tests; screenshot review |
+| Research with sources and honest limits | **High** when pages are readable | town dossier is a good example | forbid snippets as evidence; require "limits" column; alternate sources when blocked |
+| Research from video, image-only or paywalled sources | **Low–medium** | it hit a Cloudflare wall and recorded it rather than bypassing (good) | accept labelled gaps; owner may supply captures |
+| Balance | **Medium** | can build simulators and tune to targets | targets come from references and the owner; owner playtests decide "fun" |
+| Game feel, animation, audio | **Low–medium** | cannot see or hear; says so in FINAL.md | parameterise, add A/B toggles, owner review |
+| Art at scale (code-drawn vector) | **Medium** | consistency drifts across many assets | style sheet, reference board, gallery diffs |
+| Narrative and dialogue | **Medium** | tends to cliché; must avoid copying D3 lore | style guide, owner edit pass, originality check |
+| Network and performance under real conditions | **Medium** | bot swarms are not the internet | staged tests, then friends |
+| Security | **Medium** | standard fixes are fine; subtle flaws slip | independent review before R1 and R3 |
+| Legal, compliance, licensing | **Low** | can draft checklists, not give advice | human or lawyer review; mark every output "not legal advice" |
+| Long unattended runs | **Low** | drift and compounding errors; this project's own Godot detour | slices ≤ one capability; gates; fresh-context handoffs |
+| Self-reporting accuracy | **Good so far** | the town docs list their own gaps | still spot-check: re-run one claim per report |
+
+**(c) What I would tell you to bet on:** the highest-value, best-matched work for Codex is the *systems spine* — accounts and persistence, content pipeline and validators, quest engine, economy simulation, social backend and panels, load and security harnesses, and the research program with evidence discipline. Be more careful with anything that needs eyes, ears, taste, or real players: onboarding feel, combat feel, art polish, writing, audio. For those it should produce candidates and measurements, and you decide.
+
+### 3.2 Calibration sprint (do this before Phase 3; it takes a few sessions)
+
+Three small tasks with answers I can check, so we learn Codex's real error rate on *our* work:
+
+1. **Reproduce the baseline.** Run `npx tsx docs/design/baseline-audit.ts`; confirm every `[M]` number in §1 and report any difference. (Tests honesty and environment control.)
+2. **One mini-dossier.** Pick *one* D3 screen (the inventory/paper-doll) and write a dossier page with ≥ 8 claims, each with a URL, retrieval date, label and limits. I spot-check three. (Tests research quality.)
+3. **One small server command with negative tests.** Example: a `rename`-style command guarded by the new account model *in a scratch branch*. We review the tests for spoofing, replay and race cases. (Tests engineering care.)
+
+Pass criteria are set by the owner; I recommend "all `[M]` numbers match, zero unsupported claims in the three I check, negative tests cover the cases I list". If it fails, we tighten the protocol (shorter slices, mandatory reviewer) before the expensive phases.
+
+### 3.3 Capability fit by phase
+
+| Phase | Fit | Owner effort | Notes |
+|---|---|---|---|
+| P1 Research | High | review digests; decide gaps | biggest quality lever for everything downstream |
+| P2 Design bible | Medium | **high** (decisions) | Codex drafts options with evidence; the owner chooses |
+| P3 Foundations | **High** | review, hosting choice | independent security review before R1 |
+| P4 Combat/build lock | Medium–high | **high** (playtest "feel") | harness + owner playtests |
+| P5 Quest engine | **High** | light | pure systems |
+| P6 Onboarding | Medium | **high** (fresh-player tests) | cannot be judged by an agent |
+| P7 Early game | Medium | medium (style, taste) | volume work; needs an art/style pipeline |
+| P8 Economy v1 | High for simulation | medium (targets) | independent review |
+| P9 Mid game | Medium | medium | repeat P7 with more variety |
+| P10 Social | **High** | light–medium | moderation policy is the owner's |
+| P11 Itemization | High | medium (build identity) | drop calibration from research |
+| P12 Endgame | High | medium | leaderboard integrity needs review |
+| P13 Alternative modes | Medium | high (choice) | per-mode go/no-go |
+| P14 Meta layer | Medium | medium | design-heavy |
+| P15 Live-ops/trading | Medium | high (policy) | trading only with explicit approval |
+| P16 Scale/security | High (harness) | medium (hosting, spend) | no paid services; hosting is an owner decision |
+| P17 Platform/legal | Low–medium | **high** | humans for legal; Steam submission is manual |
+| P18 Launch ops | Medium | high | process, people, comms |
+
+### 3.4 Work protocol (applies to every phase)
+
+- **Branches.** Each phase gets `codex/pNN-short-name`, cut from the integration branch decided in D-BRANCH (until then: from the town branch after P0 merges). One phase per branch; tags at every gate (`gate-pNN-YYYYMMDD`). Never force-push, never touch the baseline branch or tags. Run `git branch --show-current` before every push.
+- **Per-phase folder.** `docs/phase/PNN-name/` with `README.md` (scope, acceptance — copied from §7), `DECISIONS.md`, `REFERENCES.md`, `LICENSES.md`, `PERF.md`, `checks/`, `STATE.md` (current status for fresh-context handoffs), `REPORT.md`. This is the structure `docs/town/` already uses.
+- **Slices.** A slice is one vertical capability that can be verified alone (server rule + data + UI + tests). Commit per slice with `git commit -F file`. Merge only through a gate.
+- **Definition of Done** for every slice:
+  1. `npm run typecheck`, `npm test`, `npm run test:server` (document the 2 known Windows SIGTERM failures), `npx tsx server/test/sim.ts`, content check, `npm run build` pass; no test weakened.
+  2. Every new or changed server command has negative tests: wrong state, wrong place, spoofed arguments, oversize input, replay/duplicate, concurrent use.
+  3. A golden save from the previous version loads; a migration test exists if the save shape changed.
+  4. New UI/world work verified in a real browser at 1920×1080 (and the smallest supported size); screenshots **looked at**; states checked: hover, focus, disabled, empty, error, long text.
+  5. Performance within budget (§12.2) measured in a visible tab; hidden-tab numbers rejected.
+  6. Every number carries a label (§0.2); placeholders are registered with a removal condition.
+  7. `DECISIONS.md` updated (what / why / evidence / rollback); `REFERENCES.md` updated for new claims.
+  8. New names, text, art, audio are original; `LICENSES.md` updated for anything third-party.
+  9. Tests ran against an isolated `DATA_DIR`; no real saves touched; `server/data/`, `.local/`, `.env` not committed.
+  10. The report states **measured / inferred / unverified** separately and lists what the owner must do next.
+- **Stop-and-ask triggers.** A new dependency or download; any paid service; a change to the save format, auth or the economy that was not in the approved phase plan; any monetization code; any doubt about IP; any number without a source; a test failing without explanation; a perf regression beyond budget; scope growing past the plan; any ambiguity in a design decision.
+- **Independent review.** P3 (auth/persistence), P8 (economy), P15 (trade/market) and P16 (security) get a second reader — another agent or a human — who sees the code and the tests but not the author's conclusions.
+- **Fresh-context handoffs.** At the end of a session Codex updates `STATE.md`: done, in progress, next three steps, open questions, commands to resume. That is how this roadmap survives context limits.
+
+### 3.5 Owner gates
+
+| Gate | After | Evidence the owner receives | Unlocks |
+|---|---|---|---|
+| **G0** | P0 | tour screenshots, FINAL.md, merged commit list, rollback tag | P3 |
+| **G1** | P1 | 20 dossiers, 4 cross-game matrices, UI atlas, a one-page digest per game, list of unverified gaps | P2 |
+| **G2** | P2 | design bible + answered decision register (§5); every unanswered item explicitly deferred | P3, P4 |
+| **G3** | P3 | security checklist (§12.3) passed, restore drill log, `npm run verify` green, calibration results | R1 prerequisites |
+| **G4** | P4 | class-parity report from the harness, owner playtest notes, locked combat spec | P5 |
+| **G5** | P6 | fresh-player test results (video or notes), funnel numbers, hints inventory | R1 |
+| **G6** | P7 + P8 | playthrough logs L1–20, economy band report, drop-cadence report | R2 candidate |
+| **G7** | P9 | playthrough L20–50, stall report, dungeon completion data | P11, P12 |
+| **G8** | P10 | moderation tool demo, abuse tests, multi-client logs | R2 |
+| **G9** | P11 + P12 | endgame loop report, leaderboard integrity tests, build-diversity report | R3 candidate |
+| **G10** | P13 / P14 | per-mode and per-system go/no-go with evidence | those phases |
+| **G11** | P15 | trading/seasons policy, anti-RMT design, economy forecast | live-ops |
+| **G12** | P16 + P17 | load test at target CCU, security review, legal documents, privacy flows | R3 / R4 |
+
+### 3.6 Reporting format
+
+Every report to the owner is short and uses the same headings:
+
+1. **What changed** (links to commits, files, screenshots).
+2. **Measured** (with the command that reproduces it).
+3. **Inferred** (and from what).
+4. **Unverified / not done** (honestly).
+5. **Decisions needed from you** (numbered, each with options and a recommendation).
+6. **Risks and rollback.**
+7. **Next slice.**
+
 
 
 > **[Part 03 is still being written - see the latest commit on branch docs/mmo-roadmap]**
