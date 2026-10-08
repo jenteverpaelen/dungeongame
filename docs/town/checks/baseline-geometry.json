@@ -1,0 +1,146 @@
+{
+  "seed": 1234,
+  "w": 50,
+  "h": 38,
+  "widthU": 3200,
+  "heightU": 2432,
+  "entry": {
+    "x": 1600,
+    "y": 1280
+  },
+  "props": 609,
+  "buildings": [
+    {
+      "k": "house",
+      "x": 768,
+      "y": 640,
+      "r": 120,
+      "s": 1.15,
+      "v": 0,
+      "id": "baseline-building-1",
+      "collisionRadius": 138
+    },
+    {
+      "k": "house",
+      "x": 2432,
+      "y": 640,
+      "r": 120,
+      "s": 1.1,
+      "v": 1,
+      "id": "baseline-building-2",
+      "collisionRadius": 132
+    },
+    {
+      "k": "forge",
+      "x": 704,
+      "y": 1792,
+      "r": 110,
+      "s": 1,
+      "v": 0,
+      "id": "baseline-building-3",
+      "collisionRadius": 110
+    },
+    {
+      "k": "house",
+      "x": 2560,
+      "y": 1856,
+      "r": 120,
+      "s": 1.05,
+      "v": 2,
+      "id": "baseline-building-4",
+      "collisionRadius": 126
+    },
+    {
+      "k": "tavern",
+      "x": 1344,
+      "y": 384,
+      "r": 140,
+      "s": 1.2,
+      "v": 0,
+      "id": "baseline-building-5",
+      "collisionRadius": 168
+    }
+  ],
+  "services": [
+    {
+      "id": "cube",
+      "name": "The Ancients' Cube",
+      "role": "cube",
+      "x": 1600,
+      "y": 960,
+      "r": 40,
+      "straightLineFromWaypointU": 770.6620530427069,
+      "straightLineEquivalentSeconds": 3.082648212170828
+    },
+    {
+      "id": "obelisk",
+      "name": "Rift Obelisk",
+      "role": "obelisk",
+      "x": 2176,
+      "y": 1472,
+      "r": 36,
+      "straightLineFromWaypointU": 1152,
+      "straightLineEquivalentSeconds": 4.608
+    },
+    {
+      "id": "waypoint",
+      "name": "Waypoint",
+      "role": "waypoint",
+      "x": 1024,
+      "y": 1472,
+      "r": 44,
+      "straightLineFromWaypointU": 0,
+      "straightLineEquivalentSeconds": 0
+    },
+    {
+      "id": "stash",
+      "name": "Stash",
+      "role": "stash",
+      "x": 1280,
+      "y": 1664,
+      "r": 26,
+      "straightLineFromWaypointU": 320,
+      "straightLineEquivalentSeconds": 1.28
+    },
+    {
+      "id": "paragon",
+      "name": "Paragon Shrine",
+      "role": "paragon",
+      "x": 1920,
+      "y": 832,
+      "r": 26,
+      "straightLineFromWaypointU": 1101.0976341814562,
+      "straightLineEquivalentSeconds": 4.404390536725825
+    },
+    {
+      "id": "dummy1",
+      "name": "Training Dummy",
+      "role": "dummy",
+      "x": 2368,
+      "y": 1600,
+      "r": 22,
+      "straightLineFromWaypointU": 1350.081479022655,
+      "straightLineEquivalentSeconds": 5.40032591609062
+    },
+    {
+      "id": "dummy2",
+      "name": "Training Dummy",
+      "role": "dummy",
+      "x": 2528,
+      "y": 1536,
+      "r": 22,
+      "straightLineFromWaypointU": 1505.3610862514015,
+      "straightLineEquivalentSeconds": 6.021444345005606
+    },
+    {
+      "id": "dummy3",
+      "name": "Elite Training Dummy",
+      "role": "dummy",
+      "x": 2464,
+      "y": 1715.2,
+      "r": 28,
+      "straightLineFromWaypointU": 1460.3924951875094,
+      "straightLineEquivalentSeconds": 5.841569980750037
+    }
+  ]
+}

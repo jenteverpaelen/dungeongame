@@ -1,0 +1,32 @@
+
+> dungeongame@0.1.0 test
+> tsx --test shared/test/*.test.ts
+
+hearthmere 50x38 floor 1324 props 569 spawns 0 10ms (x2)
+whispering_glade 120x90 floor 7953 props 2856 spawns 139 41ms (x2)
+ashen_hollow 120x90 floor 7670 props 2980 spawns 132 32ms (x2)
+rift 110x110 floor 7481 props 2286 spawns 130 24ms (x2)
+L1 warrior { life: 134, dps: '4.7', armor: 46, wmin: 2, wmax: 4 }
+magic Mighty Starforged Sash +691 Strength
+rare Bone Reaver +1,067 Strength | +8.4% Damage | +6,102 Life per Hit | +6,126 Life after each Kill
+legendary Ouroboros Loop +666 Strength | +695 Vitality | Chance to deal 17% area damage on hit | Monster kills grant 4.8% more experience | Increases Gold and Health pickup by 35 units ouroboros_loop
+set Gyrefists +712 Strength | +92 Resistance to All Elements | +3,647 Life per Hit | +406 Armor | Increases Gold and Health pickup by 20 units | Monster kills grant 5.9% more experience
+L70 warrior w/ rares {
+  life: 452914,
+  dps: '277K',
+  main: 5674,
+  armorDR: '0.84',
+  chc: '23.2',
+  chd: '98'
+}
+trash hp L70 normal 29.9K T X 245M xp 1->2 420 69->70 7.27M
+✔ maps generate deterministically with valid entries (113.426ms)
+✔ items and stats (31.3189ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 346.0635

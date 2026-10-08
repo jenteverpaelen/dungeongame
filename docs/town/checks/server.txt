@@ -1,0 +1,36 @@
+
+> dungeongame@0.1.0 test:server
+> tsx server/test/bot.ts
+
+Hearthfall bot test -> ws://127.0.0.1:39713/ws (spawned server, data C:\Users\LAPTOP~1\AppData\Local\Temp\hearthfall-bot-NktC1s)
+
+== protocol: validation, ping, flood
+
+== classes in parallel: warrior, ranger, mage (field play 20s)
+
+== [warrior] Botwark7v9
+
+== [ranger] Botrank7v9
+
+== [mage] Botmagk7v9
+  [mage] field summary: 405 snapshots, 208 dmg / 163 die / 118 cast / 180 proj events, own dmg events 94, moved 6160 u, kills +164
+  [ranger] field summary: 405 snapshots, 216 dmg / 170 die / 120 cast / 192 proj events, own dmg events 77, moved 6183 u, kills +165
+  [warrior] field summary: 405 snapshots, 51 dmg / 15 die / 23 cast / 28 proj events, own dmg events 15, moved 1844 u, kills +15
+  [autosave] flushed 30.2 s after the change
+
+== multiplayer: visibility, chat, rift sharing, ghost cleanup
+
+== AFK gains
+  server tick: summed avg 0.44 ms, worst single tick 0.90 ms across 9 instances
+
+== static file server (in-process)
+
+== world manager (in-process, stub simulation): caps, least-full, garbage collection
+  FAIL  server shuts down gracefully on SIGTERM (exit code 0)  -> null
+  FAIL  shutdown saved characters
+
+614 passed, 2 failed in 36.7 s
+
+Failures:
+  - server shuts down gracefully on SIGTERM (exit code 0)  -> null
+  - shutdown saved characters

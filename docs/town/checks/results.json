@@ -1,0 +1,32 @@
+[
+  {
+    "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m0-typecheck-16cd437e678240ef8f227f54aeab70b5",
+    "exitCode": 0,
+    "name": "typecheck",
+    "seconds": 6.636
+  },
+  {
+    "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m0-shared-11a67dd42aa84c169d2ffad44777e921",
+    "exitCode": 0,
+    "name": "shared",
+    "seconds": 0.926
+  },
+  {
+    "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m0-server-2b9b192e38f046a9a53cc24a8cfdbda3",
+    "exitCode": 1,
+    "name": "server",
+    "seconds": 37.529
+  },
+  {
+    "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m0-simulation-1c7515d699344447bb4536756cd97432",
+    "exitCode": 0,
+    "name": "simulation",
+    "seconds": 7.217
+  },
+  {
+    "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m0-build-dfa59c197ea64b7ea568c933bbbaa5c5",
+    "exitCode": 0,
+    "name": "build",
+    "seconds": 2.298
+  }
+]
