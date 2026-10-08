@@ -341,21 +341,34 @@ export class NpcArt implements EntityView {
   private inner: EntityView;
   private label: Text | null = null;
   private apron: Graphics | null = null;
+  private tool: Graphics | null = null;
 
-  constructor(role: NpcRole | string, name: string, look?: 'smith-slice') {
+  constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number) {
     const elite = /elite/i.test(name);
     if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic'].includes(role)) {
-      // Existing human rigs are explicit blockout stand-ins; role-specific craft animations follow the look gate.
-      const v = new PlayerArt(look === 'smith-slice' ? SMITH : role === 'healer' || role === 'mystic' ? HEALER : VENDOR);
+      // Original artisan outfits use the same rig as the player, with role tools below.
+      const jeweler:PlayerLook={classId:'ranger',slots:{chest:{shape:'cloth',primary:0x51685f,secondary:0xc0a46b,glow:0,variant:1},head:{shape:'hood',primary:0x52635a,secondary:0xb7a378,glow:0,variant:1}}};
+      const mystic:PlayerLook={classId:'mage',slots:{chest:{shape:'robe',primary:0x675970,secondary:0xa69877,glow:0,variant:1},head:{shape:'hood',primary:0x63556b,secondary:0xa89a77,glow:0,variant:1}}};
+      const v = new PlayerArt(look === 'smith-slice' ? SMITH : look==='jeweler'?jeweler:look==='mystic'?mystic:role === 'healer' || role === 'mystic' ? HEALER : VENDOR,Boolean(look));
       if (role === 'vendor') v.root.addChildAt(backpack(), 1);
       this.inner = v;
     } else {
       const fam = role === 'dummy' && elite ? DUMMY_ELITE : FAMS[role as NpcRole] ?? DUMMY;
       this.inner = new ObjectRig({ key: `npc:${role}${elite ? ':elite' : ''}`, fam, colors: NONE, scale: 1, shadowAlpha: role === 'waypoint' ? 0 : 0.7 });
     }
-    this.height = this.inner.height;
+    const object=radius&&['waypoint','cube','stash','obelisk','paragon'].includes(role);
+    if(object&&role==='waypoint')this.inner.root.scale.set(radius/46);
+    this.height = this.inner.height*(object&&role==='waypoint'?radius/46:1);
+    if(object)this.root.addChild(new Graphics().circle(0,0,radius).fill(0x494c43).stroke({color:0x777965,width:2}));
     this.root.addChild(this.inner.root);
     if (look === 'smith-slice') { this.apron = smithApron(); this.root.addChild(this.apron); }
+    if(look) {
+      this.tool=new Graphics();
+      if(look==='smith-slice')this.tool.moveTo(0,0).lineTo(17,-15).stroke({color:0xa98b5c,width:3}).roundRect(12,-23,17,8,2).fill(0x87918b).stroke({color:0x241f1b,width:2});
+      else if(look==='jeweler')this.tool.circle(10,-4,6).fill(0xa4d9c0).stroke({color:0xc1a46a,width:2}).moveTo(5,0).lineTo(0,6).stroke({color:0x8b744c,width:3});
+      else this.tool.circle(8,-3,7).fill({color:0xc9b4e1,alpha:.8}).circle(8,-3,10).stroke({color:0x857694,width:1});
+      this.tool.position.set(14,-28);this.root.addChild(this.tool);
+    }
     if (name && role !== 'dummy') {
       this.label = nameLabel(name, -this.height - 10, role === 'obelisk' ? 0xf0b8ff : role === 'waypoint' ? 0xbfe0ff : 0xf2e6c8);
       this.root.addChild(this.label);
@@ -367,6 +380,7 @@ export class NpcArt implements EntityView {
     if (this.destroyed) return;
     this.inner.update(dt, s);
     if (this.apron) this.apron.y = Math.sin(s.time * 2.2) * .35;
+    if(this.tool){this.tool.rotation=this.role==='blacksmith'?-.8+Math.pow((s.time%2.4)/2.4,3)*2.1:Math.sin(s.time*1.7)*.15;this.tool.y=-28+(this.role==='mystic'?Math.sin(s.time*1.8)*3:0);}
   }
   hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
   die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }

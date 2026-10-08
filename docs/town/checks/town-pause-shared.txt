@@ -1,0 +1,45 @@
+
+> dungeongame@0.1.0 test
+> tsx --test shared/test/*.test.ts
+
+✔ mage impact, expanded black hole and complete meteor fall stay framed in all directions (2.6397ms)
+✔ remote spells, expired effects, buffs and zone changes do not keep the camera pulled back (1.0102ms)
+hearthmere 96x64 floor 736 props 0 spawns 0 95ms (x2)
+whispering_glade 120x90 floor 7953 props 2856 spawns 139 85ms (x2)
+ashen_hollow 120x90 floor 7670 props 2980 spawns 132 49ms (x2)
+rift 110x110 floor 7481 props 2286 spawns 130 50ms (x2)
+L1 warrior { life: 134, dps: '4.7', armor: 46, wmin: 2, wmax: 4 }
+magic Mighty Starforged Sash +691 Strength
+rare Bone Reaver +1,067 Strength | +8.4% Damage | +6,102 Life per Hit | +6,126 Life after each Kill
+legendary Ouroboros Loop +666 Strength | +695 Vitality | Chance to deal 17% area damage on hit | Monster kills grant 4.8% more experience | Increases Gold and Health pickup by 35 units ouroboros_loop
+set Gyrefists +712 Strength | +92 Resistance to All Elements | +3,647 Life per Hit | +406 Armor | Increases Gold and Health pickup by 20 units | Monster kills grant 5.9% more experience
+L70 warrior w/ rares {
+  life: 452914,
+  dps: '277K',
+  main: 5674,
+  armorDR: '0.84',
+  chc: '23.2',
+  chd: '98'
+}
+trash hp L70 normal 29.9K T X 245M xp 1->2 420 69->70 7.27M
+✔ maps generate deterministically with valid entries (329.8774ms)
+✔ items and stats (57.4866ms)
+swept wall impacts 6224
+✔ field/rift maps AND legacy movement match pre-town SHA256 fixtures (399.6144ms)
+✔ authored town is seed-independent; schema, doorway, routes and service reachability pass (209.0213ms)
+✔ continuous dash hits a thin fence; full doorway passes; road union has no internal seams (1.901ms)
+✔ concave doorway recess admits a hero; back wall and diagonal impact stay solid (2.8213ms)
+✔ every exposed town edge resists randomized walking/dashes without leaks (164.8293ms)
+✔ client/server worlds agree for 10000 random fixed movement steps; no invalid final positions (175.2128ms)
+✔ sloping frontage gives independent front/back order at both corners, not centre-point order (1.8566ms)
+✔ inn recess rear wall sorts before a hero inside, while its front jamb sorts after (66.98ms)
+✔ town ambience paths stay on shared walkable ground and reproduce at the same clock (80.3385ms)
+✔ Inn and Forge interiors are open, furniture is solid, and their back walls stop dashes (75.7718ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1294.8073

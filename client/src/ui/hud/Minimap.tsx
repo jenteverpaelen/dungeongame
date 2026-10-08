@@ -1,5 +1,5 @@
 // Top-right cluster: zone plate, round bronze minimap (tiles baked once per map into an offscreen canvas,
-// entities drawn every frame) and the rift progress bar.
+// entities drawn at 20 Hz in town, every frame elsewhere) and the rift progress bar.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useUI, worldReader, type MinimapEntity } from '../store';
@@ -36,8 +36,11 @@ function bake(map: MapData): Baked {
       g.beginPath(); points.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
       g.fillStyle = fill; g.fill();
     };
-    for (const f of map.town.floors) poly(f.polygon, '#727b83');
+    g.fillStyle='#2a3933';g.fillRect(0,0,map.w*TILE,map.h*TILE);
+    for(const r of map.town.landscape??[])poly(r.polygon,r.kind==='water'?'#2e4a56':r.kind==='ash'?'#504b44':'#26382b');
+    for (const f of map.town.floors) poly(f.polygon, '#777b6b');
     for (const b of map.town.buildings) poly(b.footprint, '#323b44');
+    for(const b of map.town.buildings)for(const p of b.interior?.floors??[])poly(p,'#8c7a60');
     g.strokeStyle = '#b1bbc4';
     for (const b of map.town.barriers) { g.lineWidth = b.radius * 2; g.beginPath(); g.moveTo(...b.a); g.lineTo(...b.b); g.stroke(); }
     for (const p of map.town.props) { g.fillStyle = '#323b44'; g.beginPath(); g.arc(p.x, p.y, p.radius, 0, Math.PI * 2); g.fill(); }
@@ -231,12 +234,13 @@ export function Minimap() {
     let raf = 0;
     let baked: Baked | null = null;
     let heading = -Math.PI / 2;
+    let lastPaint = -Infinity;
     let last: { x: number; y: number } | null = null;
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
       const wr = worldReader.current;
       const map = wr?.map() ?? null;
-      if (map && baked?.key !== mapKey(map)) baked = bake(map);
+      if (map && baked?.key !== mapKey(map)) { baked = bake(map); lastPaint = -Infinity; }
       else if (!map) baked = null;
       const me = wr?.myPos() ?? null;
       if (me) {
@@ -252,6 +256,10 @@ export function Minimap() {
         }
         last = { x: me.x, y: me.y };
       }
+      // Town snapshots arrive at 20 Hz. Avoid repainting the full crowd between them;
+      // keep heading sampling above at display cadence and field/rift behavior unchanged.
+      if (map?.town && now - lastPaint < 50) return;
+      lastPaint = now;
       drawMinimap(g, baked, wr ? wr.entities() : [], me, heading, zoomRef.current, now / 1000);
     };
     raf = requestAnimationFrame(frame);

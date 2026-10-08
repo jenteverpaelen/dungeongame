@@ -5,7 +5,7 @@ import { Application, Container } from 'pixi.js';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
-import { F_LEFT, F_MOVING, type EntDesc } from '@shared/protocol';
+import { F_LEFT, F_MOVING, type EntDesc, type GameEvent } from '@shared/protocol';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, setViewScale,
 } from './art';
@@ -13,9 +13,11 @@ import type { EntityView, PlayerView, ViewState } from './types';
 import { Vfx } from './vfx';
 import type { ClientEntity, ClientWorld } from '../game/world';
 import { townCollisionOverlay } from './art/townBlockout';
+import { TownLife } from './art/townLife';
+import { inPolygon } from '@shared/townGeometry';
+import { REST_VIEW_HEIGHT, SpellFraming } from './cameraFraming';
 
-/** World units visible vertically; heroes (~64 u) end up ~110 px tall at 1080p, close to Diablo 3's on-screen size. */
-const VIEW_HEIGHT = 620;
+/** Moderate resting zoom; owned spells temporarily expand the camera to contain their visuals. */
 
 interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string }
 
@@ -37,7 +39,7 @@ export class Scene {
   private shakeDur = 1;
   private hitStopEnd = 0;
   private time = 0;
-  private props: { view: Container; x: number; y: number; bounds?: { x0: number; y0: number; x1: number; y1: number } }[] = [];
+  private props: { view: Container; x: number; y: number; building?: string; bounds?: { x0: number; y0: number; x1: number; y1: number } }[] = [];
   statics: StaticView[] = [];
   private active = new Set<ClientEntity>();
   private looks = new Map<number, string>();
@@ -46,6 +48,13 @@ export class Scene {
   hoverId = 0;
   private collisionOverlay: Container | null = null;
   private showCollision = false;
+  private townLife: TownLife | null = null;
+  private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
+  private roofAlpha=new Map<string,number>();
+  private spellFraming = new SpellFraming();
+  private viewHeight = REST_VIEW_HEIGHT;
+
+  frameSpell(ev: GameEvent, owned: boolean): void { this.spellFraming.record(ev, owned, performance.now()); }
 
   toggleCollision() {
     this.showCollision = !this.showCollision;
@@ -75,6 +84,12 @@ export class Scene {
   // ─────────────────────────── Map ───────────────────────────
 
   setMap(map: MapData) {
+    this.spellFraming.clear(); this.viewHeight = REST_VIEW_HEIGHT;
+    this.cam.zoom=this.app.screen.height/REST_VIEW_HEIGHT;
+    setViewScale(this.cam.zoom*this.app.renderer.resolution);
+    this.roofAlpha.clear();
+    this.townLife?.destroy();this.townLife=null;
+    this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
     for (const s of this.statics) s.view.destroy();
@@ -91,11 +106,11 @@ export class Scene {
     for (const p of layers.sorted) {
       p.view.zIndex = p.y;
       this.entities.addChild(p.view);
-      this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds });
+      this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds, building:p.building });
     }
     for (const n of map.npcs) {
       if (n.role === 'dummy') continue; // dummies are server-side monsters so they can be hit
-      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look);
+      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look, map.town?n.r:undefined);
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
@@ -107,6 +122,10 @@ export class Scene {
       view.root.zIndex = p.y;
       this.entities.addChild(view.root);
       this.statics.push({ view, x: p.x, y: p.y, name: p.label, r: 40, portalTo: p.to });
+    }
+    if(map.town?.stage==='complete') {
+      this.townLife=new TownLife(map.town,this.entities);
+      this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
     }
     this.cam.x = map.entry.x;
     this.cam.y = map.entry.y;
@@ -146,6 +165,7 @@ export class Scene {
       if (e.nameplate) this.text.addChild(e.nameplate.root);
     }
     this.active.add(e);
+    if(e.kind==='player')this.crowdPoses.set(e.id,{elapsed:0,slot:-1});
   }
 
   onRemove(e: ClientEntity) {
@@ -160,6 +180,7 @@ export class Scene {
     e.view = null;
     this.active.delete(e);
     this.looks.delete(e.id);
+    this.crowdPoses.delete(e.id);
   }
 
   startDeath(e: ClientEntity, element: number) {
@@ -201,20 +222,27 @@ export class Scene {
     this.time += dtMs / 1000;
     const viewDt = now < this.hitStopEnd ? 0 : dtMs / 1000;
     const scr = this.app.screen;
-    const zoom = scr.height / VIEW_HEIGHT;
-    if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
-
     // Camera follows the predicted player with a small movement lead.
+    let framing = false;
     if (me) {
       const lead = 0.14;
       const tx = me.x + Math.max(-70, Math.min(70, me.vx * lead));
       const ty = me.y + Math.max(-50, Math.min(50, me.vy * lead));
-      const k = 1 - Math.exp(-dtMs / 90);
-      this.cam.x += (tx - this.cam.x) * k;
-      this.cam.y += (ty - this.cam.y) * k;
+      const fit = this.spellFraming.target(now, tx, ty, scr.width / scr.height);
+      framing = fit.active;
+      // Pull back immediately so a new telegraph is visible; return gently after the effect ends.
+      this.viewHeight = fit.height > this.viewHeight ? fit.height
+        : this.viewHeight + (fit.height - this.viewHeight) * (1 - Math.exp(-dtMs / 700));
+      const k = framing ? 1 : 1 - Math.exp(-dtMs / 140);
+      this.cam.x += (fit.x - this.cam.x) * k;
+      this.cam.y += (fit.y - this.cam.y) * k;
     }
+    const zoom = scr.height / this.viewHeight;
+    if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     const halfW = scr.width / 2 / this.cam.zoom, halfH = scr.height / 2 / this.cam.zoom;
-    if (this.map) {
+    const townTime=this.world.serverNow()/1000;
+    this.townLife?.update(viewDt,townTime,this.cam.x,this.cam.y,halfW,halfH);
+    if (this.map && !framing) {
       const mw = this.map.w * 64, mh = this.map.h * 64;
       this.cam.x = mw > halfW * 2 ? Math.max(halfW, Math.min(mw - halfW, this.cam.x)) : mw / 2;
       this.cam.y = mh > halfH * 2 ? Math.max(halfH, Math.min(mh - halfH, this.cam.y)) : mh / 2;
@@ -232,13 +260,20 @@ export class Scene {
 
     const x0 = this.cam.x - halfW - 220, x1 = this.cam.x + halfW + 220;
     const y0 = this.cam.y - halfH - 160, y1 = this.cam.y + halfH + 320;
-    for (const p of this.props) p.view.visible = p.bounds
-      ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
-      : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+    for(const b of this.map?.town?.buildings??[])if(b.interior&&me){
+      const target=b.interior.floors.some(p=>inPolygon(me.x,me.y,p))?.08:1;
+      const a=this.roofAlpha.get(b.id)??1;this.roofAlpha.set(b.id,a+(target-a)*Math.min(1,dtMs/100));
+    }
+    for (const p of this.props) {
+      p.view.visible = p.bounds
+        ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
+        : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+      if(p.building)p.view.alpha=this.roofAlpha.get(p.building)??1;
+    }
     for (const s of this.statics) {
       const vis = s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
       s.view.root.visible = vis;
-      if (vis) s.view.update(viewDt, { x: s.x, y: s.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: this.time, aps: 1 });
+      if (vis) s.view.update(viewDt, { x: s.x, y: s.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: this.map?.town ? townTime : this.time, aps: 1 });
     }
 
     const mw = this.screenToWorld(mouse.x, mouse.y);
@@ -266,7 +301,18 @@ export class Scene {
       v.root.position.set(x, y);
       v.root.zIndex = y;
       const st: ViewState = { x, y, vx, vy, moving, facingLeft, flags, attackSeq: e.aseq, hpFrac: e.hp, time: this.time, aps: isMe ? this.myAps : 1.25 };
-      v.update(viewDt, st);
+      // Only crowded-town remote idle/walk poses are sampled. Position/depth interpolation above
+      // remains full-rate; local heroes, attacks, channels, dashes, deaths and every field are untouched.
+      const cachePose=!!this.map?.town&&this.active.size>40&&e.kind==='player'&&!isMe&&!e.dying&&(flags&(4|8|16|256))===0;
+      const pose=this.crowdPoses.get(e.id);
+      if(cachePose&&pose) {
+        if(!v.root.isCachedAsTexture)v.root.cacheAsTexture({resolution:2,antialias:true});
+        pose.elapsed+=viewDt;const slot=Math.floor((now+e.id*13)/(1000/24));
+        if(slot!==pose.slot){v.update(pose.elapsed,st);pose.elapsed=0;pose.slot=slot;v.root.updateCacheTexture();}
+      } else {
+        if(v.root.isCachedAsTexture)v.root.cacheAsTexture(false);
+        v.update(viewDt+(pose?.elapsed??0),st);if(pose)pose.elapsed=0;
+      }
       if (e.kind === 'mob' && !e.dying) {
         const d = Math.hypot(mw.x - x, mw.y - (y - v.height * 0.5));
         if (d < Math.max(34, e.desc.r + 14) && d < hoverD) { hoverD = d; hover = e.id; }

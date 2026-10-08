@@ -109,3 +109,33 @@ M1/M2 use flat polygons; the new town has not yet undergone the required 60-seco
 ## M3 slice allocation/lifecycle (not a performance benchmark)
 
 Chrome runtime source inspection: 33 owned town-art texture sources, 506 depth strips; 90.5 MiB base pixels / 117.2 MiB including requested ground mip chains. All sources were destroyed on leaving town; map reentry rebuilt the slice. See checks/m3-slice-lifecycle.json. CPU backing images, actual GPU residency and other game textures are additional; do not add this estimate to M0 as if both runs had identical allocation. Replace the eager region ground cache with a bounded lazy cache before expanding to the whole town. No 60-second or 100-player slice benchmark was run. Full M7 budget remains required.
+
+## Completion: 100 real network clients on the owner's PC
+
+Measured with installed `C:\Program Files\Google\Chrome\Application\chrome.exe` (Chrome 154.0.8037.99), Windows 11, NVIDIA GeForce RTX 4070 Laptop GPU through ANGLE D3D11, 1920×1080, DPR 1. Each run creates an isolated temporary server/save directory on localhost:2578 and one Chrome player plus 99 WebSocket clients in the same town channel. All 100 players are in the viewport, walking short orbits at 20 Hz. After a 15 s warmup, collect at least 61 s of requestAnimationFrame intervals; reject hidden tabs. No build, test or screenshot jobs ran alongside these samples. These are local headless Chrome runs, not cloud/remote machines or a proven unobscured headed-window result.
+
+The original baseline was exported from the protected tag into a temporary directory with existing dependencies, built and served without switching or changing the protected branch. This workload is stricter than M0's gallery proxy; compare network baseline to network final rather than mixing the two.
+
+| Recorded run | Mean FPS | p1 FPS | Min instantaneous FPS | Frame p99 / max (ms) | Sources + mip estimate (MiB) |
+|---|---:|---:|---:|---:|---:|
+| baseline | 42.19 | 23.58 | 18.35 | 42.4 / 54.5 | 438.66 |
+| new-initial | 53.49 | 40.65 | 32.68 | 24.6 / 30.6 | 435.29 |
+| cached (30 Hz) | 61.88 | 41.15 | 32.57 | 24.3 / 30.7 | 467.72 |
+| final (retained failed attempt) | 58.94 | 40.98 | 27.47 | 24.4 / 36.4 | 457.97 |
+| optimized (24 Hz + minimap) | **70.25** | **41.32** | **33.00** | **24.2 / 30.3** | **434.75** |
+
+`optimized` is a passing intermediate performance run, before the owner-requested camera and later NPC-density changes: 4,286 intervals over 61.0065 s, `hidden=false`, all 99 bots remained connected. Mean 70.25 FPS exceeds both 60 and 85% of the comparable original baseline. The 434.75 MiB estimate is below the proposed 640 MiB budget. Raw evidence: [optimized](checks/town-crowd-optimized.json), [baseline](checks/town-crowd-baseline.json), [crowd screenshot](tour/town-crowd-optimized.png). p1 41.32 FPS still shows frame-time variation; this is not a constant 60 FPS floor.
+
+Server town tick: mean 8.734 ms, max 12.592 ms, 100 players in one channel. Browser used heap: 942,038,284 → 960,020,696 bytes; these GC-dependent endpoint samples are not peak memory. Texture accounting deduplicates renderer-managed sources and estimates four bytes per texel plus requested mip chains. It excludes MSAA/renderbuffer/driver overhead and is not actual VRAM residency.
+
+The intermediate `final` label is a retained failed attempt, not the accepted result. D022/L17 documents the resulting 24 Hz remote idle/walk pose cache and 20 Hz town minimap paint cadence. Movement, local animation and combat stay at display rate. The profiler run is diagnostic only. The later forge correction changes paint inside existing static textures. The later camera and NPC-density changes require a new isolated benchmark; M7 is not complete.
+
+### Loading and lifetime
+
+The latest `town-complete-load.json` was produced with `--startup-profile` and is diagnostic, not an acceptance timing. Preserve failed trials rather than treating an early ready flag as full baking completion. The stricter visible-rig-atlas probe measured 6.453 s in [the density trial](checks/town-complete-load-density-first.json) and 5.351 s in [the mage trial](checks/town-camera-mage.json). The earlier 3.967 s entry-ground sample omitted visible atlas completion; the under-five-second target remains unmet. Town ground streams into a 36-chunk resting cache that expands to cover the actual visible area during automatic spell framing, up to 96 town chunks.
+
+Direct GPU NPC atlases omit their unused flash/rim variants and use the existing resolution rule with a 2 texels/u minimum; hero baking remains unchanged (D024/L20). The latest diagnostic CPU profile attributes approximately 1.44 s self time to WebGL context creation and 0.80 s to getPixels. `main.ts` still starts three class-select previews even on autostart URLs; removing that invisible work is an unimplemented hypothesis for tomorrow, not a claimed performance gain.
+
+The prior lifetime check destroyed all 113 captured owned building/ground sources on departure, rebuilt them on reentry, and reused all 20 captured shared NPC atlas sources (four additional looks were encountered). Audio town loops were empty after travel/disconnect. See [browser verification](checks/town-complete-verification.json). Repeat after the latest bake/camera changes before final acceptance.
+
+All browser timing was measured on this PC, using its installed Chrome and local temporary server/saves. Final camera-build crowd, load and lifecycle measurements are pending; see [PAUSED.md](PAUSED.md).

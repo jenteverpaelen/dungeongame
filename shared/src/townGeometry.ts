@@ -11,6 +11,7 @@ export function inPolygon(x: number, y: number, p: readonly Point[]): boolean {
 }
 export function onFloor(t: TownData, x: number, y: number): boolean { for (const f of t.floors) if (inPolygon(x, y, f.polygon)) return true; return false; }
 export function inGround(t: TownData, x: number, y: number): boolean {
+  for(const b of t.buildings)if(b.interior?.floors.some(p=>inPolygon(x,y,p)))return true;
   if (!onFloor(t, x, y)) return false;
   for (const b of t.buildings) if (inPolygon(x, y, b.footprint)) return false;
   return true;
@@ -26,7 +27,7 @@ const cross = (ax: number, ay: number, bx: number, by: number) => ax * by - ay *
  * classifying both sides: internal road seams are never collision walls. Normals point to free ground. */
 export function groundBoundary(t: TownData): Edge[] {
   const raw: Edge[] = [];
-  for (const p of [...t.floors.map(f => f.polygon), ...t.buildings.map(b => b.footprint)]) {
+  for (const p of [...t.floors.map(f => f.polygon), ...t.buildings.map(b => b.footprint), ...t.buildings.flatMap(b=>b.interior?.floors??[])]) {
     p.forEach((a, i) => { const b = p[(i + 1) % p.length]; raw.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], nx: 0, ny: 0, radius: 0 }); });
   }
   const result: Edge[] = [], seen = new Set<string>();

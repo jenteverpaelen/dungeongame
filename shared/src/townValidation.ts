@@ -23,6 +23,7 @@ export function validateTown(t: TownData): string[] {
   for (const f of t.floors) { id(f.id); polygon(f.polygon, f.id); }
   for (const b of t.buildings) {
     id(b.id); polygon(b.footprint, b.id); b.baseline.forEach(p => point(p, b.id));
+    if(b.interior){b.interior.floors.forEach(p=>polygon(p,b.id+' interior'));point(b.interior.target,b.id);}
     if (b.look) {
       if (!(b.look.eaveHeight > 0 && b.look.eaveHeight <= 320)) errors.push(`${b.id}: invalid eave height`);
       for (const v of b.look.roof.vertices) {
@@ -53,6 +54,12 @@ export function validateTown(t: TownData): string[] {
   for (const b of t.barriers) { id(b.id); point(b.a, b.id); point(b.b, b.id); if (!(b.radius > 0)) errors.push(`${b.id}: invalid radius`); }
   for (const p of t.props) { id(p.id); point([p.x, p.y], p.id); if (!(p.radius > 0)) errors.push(`${p.id}: invalid radius`); }
   for (const n of t.npcs) { id(n.id); point([n.x, n.y], n.id); point(n.approach, n.id); if (!(n.r > 0) || !(n.interactionRadius >= 0)) errors.push(`${n.id}: invalid radius`); }
+  for(const l of t.lights){id("lights:"+l.id);point(l.position,l.id);if(!(l.radius>0&&Number.isFinite(l.radius))||!Number.isInteger(l.color)||l.color<0||l.color>0xffffff||!(l.flicker>=0&&l.flicker<=1))errors.push(`${l.id}: invalid light`);}
+  for(const e of t.emitters){id("emitters:"+e.id);point(e.position,e.id);if(!Number.isInteger(e.rate)||e.rate<0||e.rate>64)errors.push(`${e.id}: invalid particle pool size`);}
+  for(const s of t.sounds){id("sounds:"+s.id);point(s.position,s.id);if(!(s.radius>0&&Number.isFinite(s.radius)))errors.push(`${s.id}: invalid sound radius`);}
+  for(const r of t.landscape??[]){id("landscape:"+r.id);polygon(r.polygon,r.id);}
+  for(const d of t.details??[]){id("details:"+d.id);point(d.position,d.id);if(!(d.width>0&&Number.isFinite(d.width)))errors.push(`${d.id}: invalid detail width`);}
+  for(const v of t.villagers??[]){id("villagers:"+v.id);v.path.forEach(p=>point(p,v.id));if(v.path.length<2||!(v.speed>0&&Number.isFinite(v.speed))||!(v.pause>=0&&Number.isFinite(v.pause)))errors.push(`${v.id}: invalid patrol`);}
   if (errors.length) return errors;
   const world = new TownCollision(t), r = PLAYER_RADIUS;
   if (!world.isFree(t.entry.x, t.entry.y, r)) errors.push('entry blocked');
@@ -84,7 +91,7 @@ export function validateTown(t: TownData): string[] {
       if (Math.hypot(end.x - nx * step, end.y - ny * step) < .01) { seen[k] = 1; queue.push(k); }
     }
   }
-  for (const target of [...t.npcs.map(n => ({ id: n.id, p: n.approach })), ...t.portals.map(p => ({ id: p.to, p: [p.x, p.y] as Point }))]) {
+  for (const target of [...t.npcs.map(n => ({ id: n.id, p: n.approach })), ...t.portals.map(p => ({ id: p.to, p: [p.x, p.y] as Point })), ...t.buildings.filter(b=>b.interior).map(b=>({id:b.id+' interior',p:b.interior!.target}))]) {
     const sx = Math.round(target.p[0] / step), sy = Math.round(target.p[1] / step);
     let reachable = false;
     for (let y = sy - 1; y <= sy + 1; y++) for (let x = sx - 1; x <= sx + 1; x++) if (seen[y * w + x]) {

@@ -1,0 +1,16 @@
+
+> dungeongame@0.1.0 test:town-services
+> tsx --test server/test/townServices.test.ts
+
+✔ every artisan/stash/shrine op rejects far, wrong NPC, spoofed position and dead players without mutation (434.7881ms)
+✔ near the right service: all existing mutations and unlock gating still work (241.5291ms)
+✔ solid walls block service access even inside interaction radius; travel checks destination and rift portal (266.3478ms)
+✔ stash migration, capacity, full inventory, retries, duplicates and save/reload preserve items (22.8299ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1531.529

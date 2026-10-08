@@ -46,8 +46,8 @@ export function createSummonView(type: string): EntityView {
   return new SummonArt(type);
 }
 
-export function createNpcView(role: NpcRole, name: string, look?: 'smith-slice'): EntityView {
-  return new NpcArt(role, name, look);
+export function createNpcView(role: NpcRole, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?: number): EntityView {
+  return new NpcArt(role, name, look, radius);
 }
 
 export function createPortalView(label: string, kind: 'town' | 'rift'): EntityView {
@@ -58,7 +58,7 @@ export interface MapLayers {
   /** Ground (tiles baked into chunk textures) — static, drawn below everything. */
   ground: Container;
   /** Props that must be y-sorted with entities (trees, rocks, buildings): place in the entity layer. */
-  sorted: { view: Container; y: number; bounds?: { x0: number; y0: number; x1: number; y1: number } }[];
+  sorted: { view: Container; y: number; building?: string; bounds?: { x0: number; y0: number; x1: number; y1: number } }[];
   /** Flat decoration drawn on the ground layer above tiles (grass, cracks, pebbles). */
   decals: Container;
 }

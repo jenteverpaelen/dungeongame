@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-08",
+  "version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "startup": {
+    "readyMs": 3580.5999999996275,
+    "entryGroundPrefetchedMs": 3966.9000000003725,
+    "breakdown": {
+      "measures": [
+        {
+          "name": "town-ground",
+          "start": 2249.9000000003725,
+          "duration": 129.69999999925494
+        },
+        {
+          "name": "town-architecture",
+          "start": 2379.5999999996275,
+          "duration": 145.80000000074506
+        },
+        {
+          "name": "town-props",
+          "start": 2525.4000000003725,
+          "duration": 8.5
+        }
+      ],
+      "ground": {
+        "baked": 20,
+        "bakeMs": 256.20000000856817
+      }
+    },
+    "chromeMetrics": [
+      {
+        "name": "LayoutCount",
+        "value": 6
+      },
+      {
+        "name": "RecalcStyleCount",
+        "value": 9
+      },
+      {
+        "name": "LayoutDuration",
+        "value": 0.034746
+      },
+      {
+        "name": "RecalcStyleDuration",
+        "value": 0.021779
+      },
+      {
+        "name": "DevToolsCommandDuration",
+        "value": 0.001811
+      },
+      {
+        "name": "ScriptDuration",
+        "value": 2.090078
+      },
+      {
+        "name": "V8CompileDuration",
+        "value": 0
+      },
+      {
+        "name": "TaskDuration",
+        "value": 3.633658
+      },
+      {
+        "name": "TaskOtherDuration",
+        "value": 1.485244
+      }
+    ]
+  },
+  "actual": {
+    "hidden": false,
+    "width": 1920,
+    "height": 1080,
+    "dpr": 1,
+    "zone": "hearthmere",
+    "seed": 1926644214,
+    "position": {
+      "x": 2891.5,
+      "y": 2418.6
+    },
+    "fps": 148,
+    "moveSpeedPercent": 0
+  },
+  "shots": [
+    {
+      "name": "inn-front",
+      "desired": [
+        2553,
+        2195
+      ],
+      "goal": [
+        2553,
+        2195
+      ],
+      "ms": 1582.300000000745,
+      "predicted": [
+        2552.8254727677154,
+        2194.832179609473
+      ],
+      "authoritative": [
+        2552.82410433512,
+        2194.8310915857314
+      ],
+      "hidden": false
+    }
+  ],
+  "services": [],
+  "isolatedDataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-town-complete-uC0ek2\\saves"
+}

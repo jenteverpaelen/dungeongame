@@ -1,0 +1,117 @@
+
+== Input queue / prediction ==
+
+== Town: training dummies ==
+
+== Fields: every class at L1 / L20 / L70 (60 s each) ==
+warrior L1 field whispering_glade: kills 76 (76.0/min), level 1→6, gold +772, items +22, deaths 0, damage taken 208% life/min (low 24%), tick avg 0.097ms
+   TTK trash 1.75s (n=57)  champion 5.39s (n=8)  rare 7.75s (n=2)  minion 0.98s (n=9)
+warrior L20 field ashen_hollow: kills 123 (123.0/min), level 20→24, gold +49370, items +9, deaths 0, damage taken 19% life/min (low 95%), tick avg 0.093ms
+   TTK trash 0.01s (n=77)  champion 0.62s (n=27)  rare 0.70s (n=2)  minion 0.03s (n=16)
+warrior L70 (set) field ashen_hollow: kills 220 (220.0/min), level 70→70, gold +2717599, items +41, deaths 0, damage taken 25% life/min (low 97%), tick avg 0.063ms
+   TTK trash 0.00s (n=186)  champion 0.00s (n=7)  rare 0.00s (n=4)  minion 0.00s (n=23)
+ranger L1 field whispering_glade: kills 103 (103.0/min), level 1→7, gold +593, items +18, deaths 0, damage taken 42% life/min (low 82%), tick avg 0.075ms
+   TTK trash 0.24s (n=84)  champion 4.65s (n=11)  rare 0.30s (n=1)  minion 0.17s (n=6)
+ranger L20 field ashen_hollow: kills 232 (232.0/min), level 20→26, gold +74956, items +24, deaths 0, damage taken 4% life/min (low 98%), tick avg 0.088ms
+   TTK trash 0.05s (n=187)  champion 0.14s (n=20)  rare 0.05s (n=2)  minion 0.04s (n=11)
+ranger L70 (set) field ashen_hollow: kills 320 (320.0/min), level 70→70, gold +1941660, items +39, deaths 0, damage taken 1% life/min (low 99%), tick avg 0.077ms
+   TTK trash 0.00s (n=252)  champion 0.00s (n=10)  rare 0.00s (n=1)  minion 0.00s (n=6)
+mage L1 field whispering_glade: kills 88 (88.0/min), level 1→6, gold +74, items +8, deaths 0, damage taken 119% life/min (low 8%), tick avg 0.040ms
+   TTK trash 0.21s (n=84)  champion 2.85s (n=1)  rare —  minion 0.55s (n=1)
+mage L20 field ashen_hollow: kills 163 (163.0/min), level 20→24, gold +30883, items +40, deaths 0, damage taken 17% life/min (low 94%), tick avg 0.050ms
+   TTK trash 0.02s (n=137)  champion 0.14s (n=8)  rare 0.28s (n=3)  minion 0.00s (n=14)
+mage L70 (set) field ashen_hollow: kills 317 (317.0/min), level 70→70, gold +2878098, items +44, deaths 0, damage taken 1% life/min (low 99%), tick avg 0.089ms
+   TTK trash 0.00s (n=287)  champion 0.00s (n=7)  rare 0.00s (n=4)  minion 0.00s (n=19)
+
+== Signature builds (L70 endgame kit, 30 s in Ashen Hollow) ==
+  warrior: kills 107, dealt 3.529.207.247, sheet DPS 558.083, casts {"cast:battle_rage":1,"cast:ground_stomp":4,"cast:cleave":9,"cast:whirlwind":6,"cast:rend":8}
+  ranger: kills 140, dealt 2.176.630.592, sheet DPS 593.247, casts {"cast:companion":2,"cast:sentry":19,"cast:hungering_arrow":32,"cast:cluster_arrow":1,"cast:multishot":7}
+  mage: kills 129, dealt 39.684.746.069, sheet DPS 695.276, casts {"cast:magic_weapon":1,"cast:meteor":13,"cast:magic_missile":17,"cast:black_hole":4}
+
+== Elite affixes ==
+
+== Treasure goblin ==
+  goblin: start dist 295, max dist 295, gone after 0.3 s, gold piles while hit 18, gold +16486, notices 3
+  L8 warrior vs goblin: first hit at 0.9 s, killed at 4.0 s, gold piles spilled 18
+
+== Death & respawn ==
+
+== Multiplayer: shared XP, personal loot, AOI ==
+
+== Legendary powers & on-hit effects ==
+
+== Set bonus power spike (20 s against 8 sturdy targets, L70) ==
+    rares breakdown: whirlwind 50%, dust_devil 34%, rend 9%, ground_stomp 3%, thorns 2%, cleave 2%
+    set   breakdown: rend 42%, dust_devil 35%, whirlwind 23%, ground_stomp 0%, cleave 0%, thorns 0%
+  warrior: rares 53.52M/s → set 8.44B/s  (×158)
+    rares breakdown: multishot 57%, hungering_arrow 14%, sentry 12%, companion 9%, thorns 8%
+    set   breakdown: multishot 92%, sentry 8%, hungering_arrow 0%, companion 0%, thorns 0%
+  ranger: rares 38.53M/s → set 9.60B/s  (×249)
+    rares breakdown: meteor 65%, black_hole 19%, magic_missile 11%, frost_nova 5%, thorns 1%
+    set   breakdown: meteor 98%, magic_missile 1%, black_hole 1%, frost_nova 0%, thorns 0%
+  mage: rares 58.04M/s → set 16.31B/s  (×281)
+
+== Dodging windups (L10 mage, golems + slimes, 20 s, no skills) ==
+  damage taken standing still 396, stepping away from windups 154 (39%)
+
+== Rifts: every class at L1 / L20 / L70 until completion ==
+warrior L1 rift Normal: 478 monsters placed, progress 100.0%, guardian at 4:47, done at 5:34, kills 450 (80.1/min), deaths 0, level 1→7, tick avg 0.034ms
+   TTK trash 0.57s (n=402)  champion 2.38s (n=18)  rare 3.65s (n=5)  minion 0.83s (n=23)  boss TTK 47.1s
+warrior L20 rift Master: 520 monsters placed, progress 100.0%, guardian at 3:33, done at 3:49, kills 462 (119.9/min), deaths 0, level 20→37, tick avg 0.035ms
+   TTK trash 0.26s (n=403)  champion 1.85s (n=16)  rare 2.44s (n=7)  minion 0.27s (n=35)  boss TTK 14.6s
+warrior L70 (set) rift Torment VIII: 522 monsters placed, progress 100.0%, guardian at 3:18, done at 3:23, kills 452 (131.8/min), deaths 2, level 70→70, tick avg 0.043ms
+   TTK trash 0.11s (n=392)  champion 0.88s (n=30)  rare 1.19s (n=5)  minion 0.12s (n=24)  boss TTK 4.3s
+ranger L1 rift Normal: 544 monsters placed, progress 100.0%, guardian at 4:28, done at 4:46, kills 487 (101.4/min), deaths 0, level 1→7, tick avg 0.033ms
+   TTK trash 0.12s (n=439)  champion 1.24s (n=17)  rare 3.42s (n=5)  minion 0.84s (n=25)  boss TTK 17.7s
+ranger L20 rift Master: 504 monsters placed, progress 100.0%, guardian at 3:44, done at 3:55, kills 443 (111.8/min), deaths 0, level 20→39, tick avg 0.046ms
+   TTK trash 0.20s (n=370)  champion 3.62s (n=38)  rare 1.83s (n=6)  minion 0.13s (n=28)  boss TTK 11.2s
+ranger L70 (set) rift Torment VIII: 541 monsters placed, progress 100.0%, guardian at 3:05, done at 3:25, kills 477 (137.8/min), deaths 2, level 70→70, tick avg 0.067ms
+   TTK trash 0.28s (n=438)  champion 1.79s (n=19)  rare 1.88s (n=4)  minion 0.55s (n=19)  boss TTK 19.5s
+mage L1 rift Normal: 526 monsters placed, progress 100.0%, guardian at 4:33, done at 5:04, kills 473 (92.5/min), deaths 0, level 1→7, tick avg 0.032ms
+   TTK trash 0.44s (n=422)  champion 1.08s (n=16)  rare 2.38s (n=6)  minion 0.39s (n=28)  boss TTK 30.4s
+mage L20 rift Master: 508 monsters placed, progress 100.0%, guardian at 3:35, done at 3:50, kills 447 (115.1/min), deaths 0, level 20→37, tick avg 0.035ms
+   TTK trash 0.10s (n=382)  champion 2.72s (n=24)  rare 2.10s (n=7)  minion 0.28s (n=33)  boss TTK 15.3s
+mage L70 (set) rift Torment VIII: 564 monsters placed, progress 100.0%, guardian at 3:50, done at 3:56, kills 526 (132.2/min), deaths 1, level 70→70, tick avg 0.036ms
+   TTK trash 0.32s (n=475)  champion 1.06s (n=26)  rare 2.23s (n=4)  minion 0.11s (n=20)  boss TTK 6.4s
+
+== Every skill × rune (L70 endgame kit, 8 s next to a pack) ==
+  72 skill/rune combinations exercised
+
+== Performance: 4 players + 150 active monsters ==
+  simulation only (excluding the fake clients' snapshot processing): avg 1.687 ms, p99 9.949 ms, max 14.237 ms
+  566 monsters, 18 summons, 194 projectiles in flight, 304107 events delivered in 30 s
+  tick avg 2.008 ms, p99 10.883 ms, max 15.309 ms; tickStats() {"avg":1.637,"max":8.362}
+
+== Performance: 4-player party in a Torment VIII rift ==
+  510 monsters, up to 178 awake at once, rift done at 1:28, deaths 0/0/0/1
+  sim tick avg 0.126 ms, p99 0.468 ms, max 1.646 ms
+
+== Summary ==
+  warrior L1 field whispering_glade              76.0 kills/min   TTK trash 1.75s (n=57)  champion 5.39s (n=8)  rare 7.75s (n=2)  minion 0.98s (n=9)
+  warrior L20 field ashen_hollow                123.0 kills/min   TTK trash 0.01s (n=77)  champion 0.62s (n=27)  rare 0.70s (n=2)  minion 0.03s (n=16)
+  warrior L70 (set) field ashen_hollow          220.0 kills/min   TTK trash 0.00s (n=186)  champion 0.00s (n=7)  rare 0.00s (n=4)  minion 0.00s (n=23)
+  ranger L1 field whispering_glade              103.0 kills/min   TTK trash 0.24s (n=84)  champion 4.65s (n=11)  rare 0.30s (n=1)  minion 0.17s (n=6)
+  ranger L20 field ashen_hollow                 232.0 kills/min   TTK trash 0.05s (n=187)  champion 0.14s (n=20)  rare 0.05s (n=2)  minion 0.04s (n=11)
+  ranger L70 (set) field ashen_hollow           320.0 kills/min   TTK trash 0.00s (n=252)  champion 0.00s (n=10)  rare 0.00s (n=1)  minion 0.00s (n=6)
+  mage L1 field whispering_glade                 88.0 kills/min   TTK trash 0.21s (n=84)  champion 2.85s (n=1)  rare —  minion 0.55s (n=1)
+  mage L20 field ashen_hollow                   163.0 kills/min   TTK trash 0.02s (n=137)  champion 0.14s (n=8)  rare 0.28s (n=3)  minion 0.00s (n=14)
+  mage L70 (set) field ashen_hollow             317.0 kills/min   TTK trash 0.00s (n=287)  champion 0.00s (n=7)  rare 0.00s (n=4)  minion 0.00s (n=19)
+  goblin vs L8 warrior: first hit 0.9 s, killed at 4.0 s
+  set spike warrior: ×158 (53.52M/s → 8.44B/s vs 8 targets)
+  set spike ranger: ×249 (38.53M/s → 9.60B/s vs 8 targets)
+  set spike mage: ×281 (58.04M/s → 16.31B/s vs 8 targets)
+  dodging windups: 39% of the damage taken when standing still
+  warrior L1 rift Normal                         80.1 kills/min   rift 5:34 (guardian 4:47), deaths 0
+  warrior L20 rift Master                       119.9 kills/min   rift 3:49 (guardian 3:33), deaths 0
+  warrior L70 (set) rift Torment VIII           131.8 kills/min   rift 3:23 (guardian 3:18), deaths 2
+  ranger L1 rift Normal                         101.4 kills/min   rift 4:46 (guardian 4:28), deaths 0
+  ranger L20 rift Master                        111.8 kills/min   rift 3:55 (guardian 3:44), deaths 0
+  ranger L70 (set) rift Torment VIII            137.8 kills/min   rift 3:25 (guardian 3:05), deaths 2
+  mage L1 rift Normal                            92.5 kills/min   rift 5:04 (guardian 4:33), deaths 0
+  mage L20 rift Master                          115.1 kills/min   rift 3:50 (guardian 3:35), deaths 0
+  mage L70 (set) rift Torment VIII              132.2 kills/min   rift 3:56 (guardian 3:50), deaths 1
+  perf: simulation only: avg 1.687 ms, p99 9.949 ms
+  perf: 4 players + 150 monsters: tick avg 2.008 ms, p99 10.883 ms, max 15.309 ms
+  perf: 4-player T8 rift: sim tick avg 0.126 ms, p99 0.468 ms, rift 1:28
+
+382/382 checks passed in 7.4s

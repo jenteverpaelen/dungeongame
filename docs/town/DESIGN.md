@@ -1,6 +1,6 @@
 # Hearthmere design — M0 / Gate 1 proposal
 
-Sources and raw measurements were recorded first in [REFERENCES.md](REFERENCES.md), survey S01. This is a proportional reconstruction for review. No runtime town code, art or services have been changed.
+Historical M0 proposal, subsequently approved and implemented. For current behavior and verification see [FINAL.md](FINAL.md); the earlier gate/open-question language below is retained as the original review record, not a current blocker. Sources and raw measurements were recorded first in [REFERENCES.md](REFERENCES.md), survey S01.
 
 ## Confirmed scope
 

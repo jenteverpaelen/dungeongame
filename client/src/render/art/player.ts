@@ -147,7 +147,7 @@ function pumpBakes(): void {
   const chunk: PartSpec[] = [];
   let w = 0;
   while (b.next < b.specs.length && (w < CHUNK_WEIGHT || !chunk.length)) { const sp = b.specs[b.next++]; chunk.push(sp); w += weightOf(sp); }
-  b.sheet.absorb(bakeSheet(chunk, res, 2048, `player:${b.look.classId}`));
+  b.sheet.absorb(bakeSheet(chunk, res, 2048, `player:${b.look.classId}`,false,b.key.startsWith('gpu:')));
   if (b.next < b.specs.length) return;
   baking = null;
   b.sheet.refs = cur.refs;
@@ -155,14 +155,16 @@ function pumpBakes(): void {
   setTimeout(() => cur.destroy(), 4000);
 }
 
-function acquireSheet(look: PlayerLook): { key: string; sheet: Sheet; res: number } {
-  const res = bakeRes(3, 6);
-  const key = `${lookKey(look)}@${res}`;
+function acquireSheet(look: PlayerLook,gpuOnly=false): { key: string; sheet: Sheet; res: number } {
+  const res = bakeRes(gpuOnly?2:3, 6);
+  const key = `${gpuOnly?'gpu:':''}${lookKey(look)}@${res}`;
   let sheet = sheets.get(key);
   if (!sheet || sheet.destroyed) {
-    sheet = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`, true);
+    const specs=playerParts(look);
+    if(gpuOnly)for(const spec of specs){spec.flash=false;spec.rim=false;}
+    sheet = bakeSheet(specs, res, 2048, `player:${look.classId}`, !gpuOnly,gpuOnly);
     sheets.set(key, sheet);
-    pendingBakes.set(key, look);
+    if(sheet.live)pendingBakes.set(key, look);
   }
   else if (sheet.live) pendingBakes.set(key, look); // its bake may have been skipped while nobody wore it
   const i = idle.indexOf(key);
@@ -330,7 +332,7 @@ export class PlayerArt implements PlayerView {
   private baseCache: Pose = newPose();
   private sn = 1; private cs = 0;
 
-  constructor(look: PlayerLook) {
+  constructor(look: PlayerLook,private gpuOnly=false) {
     this.root.addChild(this.rig);
     this.rig.addChild(this.glowBack, this.shadow, this.under, this.body, this.over);
     this.body.sortableChildren = true;
@@ -340,7 +342,7 @@ export class PlayerArt implements PlayerView {
   setLook(look: PlayerLook): void {
     const prevKey = this.key;
     this.look = look;
-    const acq = acquireSheet(look);
+    const acq = acquireSheet(look,this.gpuOnly);
     this.key = acq.key;
     this.res = acq.res;
     if (prevKey) releaseSheet(prevKey);
@@ -554,7 +556,7 @@ export class PlayerArt implements PlayerView {
     const cur = sheets.get(this.key);
     if (cur && !cur.destroyed && cur !== this.sheet) this.build(cur);
     else if (this.sheet.destroyed) { if (cur && !cur.destroyed) this.build(cur); else return; }
-    if (this.res < bakeRes(3, 6) && !this.dying) { this.setLook(this.look); }
+    if (this.res < bakeRes(this.gpuOnly?2:3, 6) && !this.dying) { this.setLook(this.look); }
     this.sx = s.x; this.sy = s.y;
 
     const flags = s.flags;

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "id": "hearthmere",
-  "stage": "look-slice",
+  "stage": "complete",
   "size": [
     96,
     64
@@ -3041,6 +3041,55 @@
           "emblem": "wren"
         },
         "doorFace": 5
+      },
+      "interior": {
+        "label": "The Wren and Wick",
+        "floors": [
+          [
+            [
+              2315,
+              1950
+            ],
+            [
+              2468,
+              1795
+            ],
+            [
+              2625,
+              1925
+            ],
+            [
+              2530,
+              2015
+            ],
+            [
+              2435,
+              2060
+            ]
+          ],
+          [
+            [
+              2456,
+              2100
+            ],
+            [
+              2549,
+              2054
+            ],
+            [
+              2480,
+              1950
+            ],
+            [
+              2390,
+              2010
+            ]
+          ]
+        ],
+        "target": [
+          2440,
+          1950
+        ]
       }
     },
     {
@@ -3070,6 +3119,14 @@
       ],
       "baseline": [
         [
+          3299.8,
+          2026.9
+        ],
+        [
+          3581.4,
+          1994.2
+        ],
+        [
           3806.7,
           2201
         ],
@@ -3080,10 +3137,136 @@
         [
           3271.7,
           2266.2
+        ],
+        [
+          3299.8,
+          2026.9
         ]
       ],
       "heightClass": "2–4H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "forge",
+        "eaveHeight": 132,
+        "roof": {
+          "vertices": [
+            [
+              3299.8,
+              2026.9,
+              132
+            ],
+            [
+              3581.4,
+              1994.2,
+              132
+            ],
+            [
+              3806.7,
+              2201,
+              132
+            ],
+            [
+              3623.7,
+              2385.9,
+              132
+            ],
+            [
+              3271.7,
+              2266.2,
+              132
+            ],
+            [
+              3510,
+              2160,
+              224
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              5
+            ],
+            [
+              1,
+              2,
+              5
+            ],
+            [
+              2,
+              3,
+              5
+            ],
+            [
+              3,
+              4,
+              5
+            ],
+            [
+              4,
+              0,
+              5
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            3575,
+            2155
+          ],
+          "height": 252
+        },
+        "roofColor": "#3e4040"
+      },
+      "interior": {
+        "label": "Cinder Workshop",
+        "floors": [
+          [
+            [
+              3370,
+              2080
+            ],
+            [
+              3540,
+              2050
+            ],
+            [
+              3700,
+              2190
+            ],
+            [
+              3590,
+              2310
+            ],
+            [
+              3360,
+              2230
+            ]
+          ],
+          [
+            [
+              3190,
+              2090
+            ],
+            [
+              3410,
+              2110
+            ],
+            [
+              3420,
+              2225
+            ],
+            [
+              3230,
+              2240
+            ]
+          ]
+        ],
+        "target": [
+          3500,
+          2160
+        ]
+      }
     },
     {
       "id": "jewel-stall",
@@ -3108,6 +3291,10 @@
       ],
       "baseline": [
         [
+          2722.6,
+          1657
+        ],
+        [
           2947.8,
           1548.2
         ],
@@ -3118,10 +3305,77 @@
         [
           2863.4,
           1809.3
+        ],
+        [
+          2722.6,
+          1657
         ]
       ],
       "heightClass": "1–2H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "jewel",
+        "eaveHeight": 78,
+        "roof": {
+          "vertices": [
+            [
+              2722.6,
+              1657,
+              78
+            ],
+            [
+              2947.8,
+              1548.2,
+              78
+            ],
+            [
+              3074.6,
+              1722.2,
+              78
+            ],
+            [
+              2863.4,
+              1809.3,
+              78
+            ],
+            [
+              2898,
+              1670,
+              132
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              4
+            ],
+            [
+              1,
+              2,
+              4
+            ],
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              3,
+              0,
+              4
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            2963,
+            1665
+          ],
+          "height": 160
+        },
+        "roofColor": "#47685e"
+      }
     },
     {
       "id": "mystic-wagon",
@@ -3146,6 +3400,10 @@
       ],
       "baseline": [
         [
+          3088.6,
+          1559
+        ],
+        [
           3257.6,
           1428.5
         ],
@@ -3156,10 +3414,77 @@
         [
           3299.8,
           1678.7
+        ],
+        [
+          3088.6,
+          1559
         ]
       ],
       "heightClass": "1–2H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "mystic",
+        "eaveHeight": 96,
+        "roof": {
+          "vertices": [
+            [
+              3088.6,
+              1559,
+              96
+            ],
+            [
+              3257.6,
+              1428.5,
+              96
+            ],
+            [
+              3454.7,
+              1569.9,
+              96
+            ],
+            [
+              3299.8,
+              1678.7,
+              96
+            ],
+            [
+              3270,
+              1515,
+              157
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              4
+            ],
+            [
+              1,
+              2,
+              4
+            ],
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              3,
+              0,
+              4
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            3335,
+            1510
+          ],
+          "height": 185
+        },
+        "roofColor": "#66586f"
+      }
     },
     {
       "id": "lane-house",
@@ -3188,6 +3513,14 @@
       ],
       "baseline": [
         [
+          3806.7,
+          1559
+        ],
+        [
+          3975.7,
+          1439.4
+        ],
+        [
           4144.6,
           1591.7
         ],
@@ -3198,10 +3531,95 @@
         [
           3820.8,
           1776.6
+        ],
+        [
+          3806.7,
+          1559
         ]
       ],
       "heightClass": "2–3H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "shack",
+        "eaveHeight": 117,
+        "roof": {
+          "vertices": [
+            [
+              3806.7,
+              1559,
+              117
+            ],
+            [
+              3975.7,
+              1439.4,
+              117
+            ],
+            [
+              4144.6,
+              1591.7,
+              117
+            ],
+            [
+              4060.2,
+              1754.9,
+              117
+            ],
+            [
+              3820.8,
+              1776.6,
+              117
+            ],
+            [
+              3960,
+              1550,
+              202
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              5
+            ],
+            [
+              1,
+              2,
+              5
+            ],
+            [
+              2,
+              3,
+              5
+            ],
+            [
+              3,
+              4,
+              5
+            ],
+            [
+              4,
+              0,
+              5
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            4025,
+            1545
+          ],
+          "height": 230
+        },
+        "roofColor": "#414b48",
+        "dormer": {
+          "position": [
+            3990,
+            1660
+          ],
+          "elevation": 172,
+          "width": 42
+        }
+      }
     },
     {
       "id": "back-house",
@@ -3348,6 +3766,14 @@
       ],
       "baseline": [
         [
+          1624.3,
+          743
+        ],
+        [
+          1807.4,
+          623.4
+        ],
+        [
           1962.2,
           753.9
         ],
@@ -3358,10 +3784,87 @@
         [
           1652.5,
           928
+        ],
+        [
+          1624.3,
+          743
         ]
       ],
       "heightClass": "2–3H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "shack",
+        "eaveHeight": 104,
+        "roof": {
+          "vertices": [
+            [
+              1624.3,
+              743,
+              104
+            ],
+            [
+              1807.4,
+              623.4,
+              104
+            ],
+            [
+              1962.2,
+              753.9,
+              104
+            ],
+            [
+              1835.5,
+              949.8,
+              104
+            ],
+            [
+              1652.5,
+              928,
+              104
+            ],
+            [
+              1784,
+              744,
+              185
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              5
+            ],
+            [
+              1,
+              2,
+              5
+            ],
+            [
+              2,
+              3,
+              5
+            ],
+            [
+              3,
+              4,
+              5
+            ],
+            [
+              4,
+              0,
+              5
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            1849,
+            739
+          ],
+          "height": 213
+        },
+        "roofColor": "#474b42"
+      }
     },
     {
       "id": "court-house-b",
@@ -3390,6 +3893,14 @@
       ],
       "baseline": [
         [
+          2483.2,
+          373.1
+        ],
+        [
+          2736.6,
+          297
+        ],
+        [
           2933.8,
           449.3
         ],
@@ -3400,10 +3911,95 @@
         [
           2567.7,
           558.1
+        ],
+        [
+          2483.2,
+          373.1
         ]
       ],
       "heightClass": "2–3H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "inn",
+        "eaveHeight": 126,
+        "roof": {
+          "vertices": [
+            [
+              2483.2,
+              373.1,
+              126
+            ],
+            [
+              2736.6,
+              297,
+              126
+            ],
+            [
+              2933.8,
+              449.3,
+              126
+            ],
+            [
+              2793,
+              579.8,
+              126
+            ],
+            [
+              2567.7,
+              558.1,
+              126
+            ],
+            [
+              2720,
+              427,
+              220
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              5
+            ],
+            [
+              1,
+              2,
+              5
+            ],
+            [
+              2,
+              3,
+              5
+            ],
+            [
+              3,
+              4,
+              5
+            ],
+            [
+              4,
+              0,
+              5
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            2785,
+            422
+          ],
+          "height": 248
+        },
+        "roofColor": "#37444b",
+        "dormer": {
+          "position": [
+            2710,
+            493
+          ],
+          "elevation": 180,
+          "width": 46
+        }
+      }
     },
     {
       "id": "cellar",
@@ -3428,6 +4024,10 @@
       ],
       "baseline": [
         [
+          2624,
+          632.7
+        ],
+        [
           2750.7,
           654.5
         ],
@@ -3438,14 +4038,415 @@
         [
           2539.5,
           698
+        ],
+        [
+          2624,
+          632.7
         ]
       ],
       "heightClass": "<1H",
-      "doors": []
+      "doors": [],
+      "look": {
+        "style": "cellar",
+        "eaveHeight": 22,
+        "roof": {
+          "vertices": [
+            [
+              2624,
+              632.7,
+              22
+            ],
+            [
+              2750.7,
+              654.5,
+              22
+            ],
+            [
+              2666.2,
+              730.6,
+              22
+            ],
+            [
+              2539.5,
+              698,
+              22
+            ],
+            [
+              2640,
+              675,
+              40
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              1,
+              4
+            ],
+            [
+              1,
+              2,
+              4
+            ],
+            [
+              2,
+              3,
+              4
+            ],
+            [
+              3,
+              0,
+              4
+            ]
+          ]
+        },
+        "chimney": {
+          "position": [
+            2705,
+            670
+          ],
+          "height": 68
+        },
+        "roofColor": "#544c40"
+      }
     }
   ],
-  "barriers": [],
-  "props": [],
+  "barriers": [
+    {
+      "id": "court-fence",
+      "a": [
+        2110,
+        657
+      ],
+      "b": [
+        2290,
+        685
+      ],
+      "radius": 4
+    },
+    {
+      "id": "shrine-fence",
+      "a": [
+        2330,
+        1496
+      ],
+      "b": [
+        2450,
+        1454
+      ],
+      "radius": 4
+    },
+    {
+      "id": "east-fence",
+      "a": [
+        3750,
+        1770
+      ],
+      "b": [
+        3860,
+        1810
+      ],
+      "radius": 4
+    }
+  ],
+  "props": [
+    {
+      "id": "forge-anvil",
+      "kind": "anvil",
+      "x": 3200,
+      "y": 2212,
+      "radius": 19,
+      "height": 33
+    },
+    {
+      "id": "forge-coals",
+      "kind": "brazier",
+      "x": 3450,
+      "y": 2220,
+      "radius": 20,
+      "height": 42
+    },
+    {
+      "id": "plaza-fire",
+      "kind": "brazier",
+      "x": 2780,
+      "y": 2510,
+      "radius": 19,
+      "height": 41
+    },
+    {
+      "id": "water-well",
+      "kind": "well",
+      "x": 3700,
+      "y": 1875,
+      "radius": 28,
+      "height": 52
+    },
+    {
+      "id": "inn-barrel",
+      "kind": "barrel",
+      "x": 2280,
+      "y": 2160,
+      "radius": 18,
+      "height": 34
+    },
+    {
+      "id": "jewel-box",
+      "kind": "barrel",
+      "x": 2808,
+      "y": 1850,
+      "radius": 16,
+      "height": 29
+    },
+    {
+      "id": "training-cart",
+      "kind": "cart",
+      "x": 2240,
+      "y": 997,
+      "radius": 30,
+      "height": 54
+    },
+    {
+      "id": "pier-cask",
+      "kind": "barrel",
+      "x": 865,
+      "y": 1870,
+      "radius": 20,
+      "height": 36
+    },
+    {
+      "id": "tree-0",
+      "kind": "tree",
+      "x": 1580,
+      "y": 1810,
+      "radius": 25,
+      "height": 125
+    },
+    {
+      "id": "tree-1",
+      "kind": "tree",
+      "x": 1600,
+      "y": 1540,
+      "radius": 25,
+      "height": 147
+    },
+    {
+      "id": "tree-2",
+      "kind": "tree",
+      "x": 1640,
+      "y": 1160,
+      "radius": 25,
+      "height": 169
+    },
+    {
+      "id": "tree-3",
+      "kind": "tree",
+      "x": 1460,
+      "y": 785,
+      "radius": 25,
+      "height": 191
+    },
+    {
+      "id": "tree-4",
+      "kind": "tree",
+      "x": 2130,
+      "y": 463,
+      "radius": 25,
+      "height": 125
+    },
+    {
+      "id": "tree-5",
+      "kind": "tree",
+      "x": 3030,
+      "y": 558,
+      "radius": 25,
+      "height": 147
+    },
+    {
+      "id": "tree-6",
+      "kind": "tree",
+      "x": 3470,
+      "y": 1330,
+      "radius": 25,
+      "height": 169
+    },
+    {
+      "id": "tree-7",
+      "kind": "tree",
+      "x": 4260,
+      "y": 1490,
+      "radius": 25,
+      "height": 191
+    },
+    {
+      "id": "tree-8",
+      "kind": "tree",
+      "x": 4010,
+      "y": 1880,
+      "radius": 25,
+      "height": 125
+    },
+    {
+      "id": "tree-9",
+      "kind": "tree",
+      "x": 3500,
+      "y": 2500,
+      "radius": 25,
+      "height": 147
+    },
+    {
+      "id": "tree-10",
+      "kind": "tree",
+      "x": 2660,
+      "y": 2760,
+      "radius": 25,
+      "height": 169
+    },
+    {
+      "id": "tree-11",
+      "kind": "tree",
+      "x": 1920,
+      "y": 2270,
+      "radius": 25,
+      "height": 191
+    },
+    {
+      "id": "tree-12",
+      "kind": "tree",
+      "x": 2060,
+      "y": 2470,
+      "radius": 25,
+      "height": 125
+    },
+    {
+      "id": "tree-13",
+      "kind": "tree",
+      "x": 2860,
+      "y": 1260,
+      "radius": 25,
+      "height": 147
+    },
+    {
+      "id": "tree-14",
+      "kind": "tree",
+      "x": 4880,
+      "y": 1350,
+      "radius": 25,
+      "height": 169
+    },
+    {
+      "id": "tree-15",
+      "kind": "tree",
+      "x": 5020,
+      "y": 650,
+      "radius": 25,
+      "height": 191
+    },
+    {
+      "id": "tree-16",
+      "kind": "tree",
+      "x": 1750,
+      "y": 2700,
+      "radius": 25,
+      "height": 125
+    },
+    {
+      "id": "tree-17",
+      "kind": "tree",
+      "x": 3450,
+      "y": 2890,
+      "radius": 25,
+      "height": 147
+    },
+    {
+      "id": "tree-18",
+      "kind": "tree",
+      "x": 3770,
+      "y": 2620,
+      "radius": 25,
+      "height": 169
+    },
+    {
+      "id": "boulder-0",
+      "kind": "rock",
+      "x": 1750,
+      "y": 2160,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-1",
+      "kind": "rock",
+      "x": 2710,
+      "y": 2850,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-2",
+      "kind": "rock",
+      "x": 3700,
+      "y": 2560,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-3",
+      "kind": "rock",
+      "x": 4220,
+      "y": 1750,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-4",
+      "kind": "rock",
+      "x": 4850,
+      "y": 1370,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-5",
+      "kind": "rock",
+      "x": 5410,
+      "y": 1090,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "boulder-6",
+      "kind": "rock",
+      "x": 2110,
+      "y": 1140,
+      "radius": 29,
+      "height": 37
+    },
+    {
+      "id": "inn-table",
+      "kind": "table",
+      "x": 2390,
+      "y": 1925,
+      "radius": 22,
+      "height": 30
+    },
+    {
+      "id": "inn-cask",
+      "kind": "barrel",
+      "x": 2490,
+      "y": 1855,
+      "radius": 20,
+      "height": 38
+    },
+    {
+      "id": "forge-rack",
+      "kind": "cart",
+      "x": 3570,
+      "y": 2230,
+      "radius": 26,
+      "height": 45
+    }
+  ],
   "npcs": [
     {
       "id": "waypoint",
@@ -3459,7 +4460,8 @@
         2418.6
       ],
       "interactionRadius": 120,
-      "idle": "blockout"
+      "idle": "breathe",
+      "bark": "The roads remember where you have been."
     },
     {
       "id": "stash",
@@ -3473,7 +4475,8 @@
         2168.3
       ],
       "interactionRadius": 112,
-      "idle": "blockout"
+      "idle": "breathe",
+      "bark": "Your belongings are kept here. Sixty spaces, yours alone."
     },
     {
       "id": "blacksmith",
@@ -3487,8 +4490,9 @@
         2255.4
       ],
       "interactionRadius": 106,
-      "idle": "blockout",
-      "look": "smith-slice"
+      "idle": "hammer",
+      "look": "smith-slice",
+      "bark": "Keep the edge keen. I can salvage or empower your gear."
     },
     {
       "id": "jeweler",
@@ -3502,7 +4506,9 @@
         1896.3
       ],
       "interactionRadius": 106,
-      "idle": "blockout"
+      "idle": "polish",
+      "look": "jeweler",
+      "bark": "Every stone has a fault. Let us find its strength."
     },
     {
       "id": "mystic",
@@ -3516,7 +4522,9 @@
         1754.9
       ],
       "interactionRadius": 106,
-      "idle": "blockout"
+      "idle": "weave",
+      "look": "mystic",
+      "bark": "One thread can change the whole weave."
     },
     {
       "id": "cube",
@@ -3530,7 +4538,8 @@
         2538.2
       ],
       "interactionRadius": 118,
-      "idle": "blockout"
+      "idle": "breathe",
+      "bark": "Old patterns wait within the brass."
     },
     {
       "id": "rift",
@@ -3544,7 +4553,8 @@
         2451.2
       ],
       "interactionRadius": 118,
-      "idle": "blockout"
+      "idle": "breathe",
+      "bark": "A fracture waits beyond this stone."
     },
     {
       "id": "paragon",
@@ -3558,7 +4568,8 @@
         1657
       ],
       "interactionRadius": 112,
-      "idle": "blockout"
+      "idle": "breathe",
+      "bark": "Experience leaves its mark."
     },
     {
       "id": "dummy-0",
@@ -3572,7 +4583,7 @@
         807
       ],
       "interactionRadius": 0,
-      "idle": "dummy"
+      "idle": "breathe"
     },
     {
       "id": "dummy-1",
@@ -3586,7 +4597,7 @@
         796.2
       ],
       "interactionRadius": 0,
-      "idle": "dummy"
+      "idle": "breathe"
     },
     {
       "id": "dummy3",
@@ -3600,7 +4611,7 @@
         883.2
       ],
       "interactionRadius": 0,
-      "idle": "dummy"
+      "idle": "breathe"
     }
   ],
   "portals": [
@@ -4336,6 +5347,44 @@
           884.5
         ]
       ]
+    },
+    {
+      "label": "Inn interior",
+      "points": [
+        [
+          2552.9,
+          2148.3
+        ],
+        [
+          2514.1,
+          2083
+        ],
+        [
+          2440,
+          1950
+        ]
+      ]
+    },
+    {
+      "label": "Forge interior",
+      "points": [
+        [
+          3170,
+          2070
+        ],
+        [
+          3240,
+          2135
+        ],
+        [
+          3390,
+          2135
+        ],
+        [
+          3500,
+          2160
+        ]
+      ]
     }
   ],
   "lights": [
@@ -4374,10 +5423,271 @@
       "radius": 106,
       "flicker": 0.025,
       "building": "back-house"
+    },
+    {
+      "id": "forge-fire",
+      "position": [
+        3450,
+        2220
+      ],
+      "height": 44,
+      "color": 16753500,
+      "radius": 220,
+      "flicker": 0.13
+    },
+    {
+      "id": "plaza-fire",
+      "position": [
+        2780,
+        2510
+      ],
+      "height": 44,
+      "color": 16759408,
+      "radius": 200,
+      "flicker": 0.1
+    },
+    {
+      "id": "jewel-lamp",
+      "position": [
+        2860,
+        1760
+      ],
+      "height": 79,
+      "color": 12245943,
+      "radius": 135,
+      "flicker": 0.035
+    },
+    {
+      "id": "mystic-lamp",
+      "position": [
+        3320,
+        1600
+      ],
+      "height": 84,
+      "color": 12693465,
+      "radius": 150,
+      "flicker": 0.04
+    },
+    {
+      "id": "well-lamp",
+      "position": [
+        3740,
+        1850
+      ],
+      "height": 105,
+      "color": 16759160,
+      "radius": 150,
+      "flicker": 0.07
+    },
+    {
+      "id": "court-lamp",
+      "position": [
+        2070,
+        826
+      ],
+      "height": 105,
+      "color": 16761733,
+      "radius": 180,
+      "flicker": 0.08
+    },
+    {
+      "id": "gate-lamp",
+      "position": [
+        4100,
+        2120
+      ],
+      "height": 110,
+      "color": 16759925,
+      "radius": 200,
+      "flicker": 0.07
+    },
+    {
+      "id": "pier-lamp",
+      "position": [
+        1430,
+        1560
+      ],
+      "height": 106,
+      "color": 16761733,
+      "radius": 145,
+      "flicker": 0.08
     }
   ],
-  "emitters": [],
-  "sounds": [],
+  "emitters": [
+    {
+      "id": "inn-smoke",
+      "kind": "smoke",
+      "position": [
+        2562,
+        1588
+      ],
+      "rate": 6
+    },
+    {
+      "id": "forge-smoke",
+      "kind": "smoke",
+      "position": [
+        3450,
+        2150
+      ],
+      "rate": 9
+    },
+    {
+      "id": "forge-embers",
+      "kind": "embers",
+      "position": [
+        3450,
+        2180
+      ],
+      "rate": 10
+    },
+    {
+      "id": "plaza-embers",
+      "kind": "embers",
+      "position": [
+        2780,
+        2470
+      ],
+      "rate": 8
+    },
+    {
+      "id": "plaza-drift",
+      "kind": "leaves",
+      "position": [
+        2910,
+        2340
+      ],
+      "rate": 9
+    },
+    {
+      "id": "plaza-haze",
+      "kind": "fog",
+      "position": [
+        2900,
+        2370
+      ],
+      "rate": 3
+    },
+    {
+      "id": "plaza-crows",
+      "kind": "birds",
+      "position": [
+        2950,
+        2170
+      ],
+      "rate": 2
+    },
+    {
+      "id": "pier-mist",
+      "kind": "fog",
+      "position": [
+        1030,
+        1900
+      ],
+      "rate": 4
+    },
+    {
+      "id": "court-leaves",
+      "kind": "leaves",
+      "position": [
+        2230,
+        925
+      ],
+      "rate": 7
+    },
+    {
+      "id": "mystic-motes",
+      "kind": "motes",
+      "position": [
+        3243,
+        1660
+      ],
+      "rate": 6
+    }
+  ],
+  "sounds": [
+    {
+      "id": "wind",
+      "kind": "town_wind",
+      "position": [
+        2890,
+        2360
+      ],
+      "radius": 10000
+    },
+    {
+      "id": "forge",
+      "kind": "town_anvil",
+      "position": [
+        3186,
+        2144
+      ],
+      "radius": 600
+    },
+    {
+      "id": "coals",
+      "kind": "town_fire",
+      "position": [
+        3450,
+        2220
+      ],
+      "radius": 430
+    },
+    {
+      "id": "brazier",
+      "kind": "town_fire",
+      "position": [
+        2780,
+        2510
+      ],
+      "radius": 360
+    },
+    {
+      "id": "inn",
+      "kind": "town_murmur",
+      "position": [
+        2515,
+        2090
+      ],
+      "radius": 420
+    },
+    {
+      "id": "jewels",
+      "kind": "town_gem",
+      "position": [
+        2920,
+        1853
+      ],
+      "radius": 300
+    },
+    {
+      "id": "mystic",
+      "kind": "town_hum",
+      "position": [
+        3243,
+        1689
+      ],
+      "radius": 300
+    },
+    {
+      "id": "bell",
+      "kind": "town_bell",
+      "position": [
+        2455,
+        1592
+      ],
+      "radius": 1000
+    },
+    {
+      "id": "pier",
+      "kind": "town_water",
+      "position": [
+        1010,
+        1850
+      ],
+      "radius": 720
+    }
+  ],
   "lookSlice": {
     "bounds": [
       1440,
@@ -4386,5 +5696,222 @@
       2816
     ],
     "seed": 319
-  }
+  },
+  "lighting": {
+    "ambient": 14015458,
+    "shadow": [
+      0.22,
+      0.176
+    ],
+    "strength": 0.27
+  },
+  "landscape": [
+    {
+      "id": "ferry-water",
+      "kind": "water",
+      "polygon": [
+        [
+          0,
+          850
+        ],
+        [
+          900,
+          1060
+        ],
+        [
+          1470,
+          1290
+        ],
+        [
+          1560,
+          2000
+        ],
+        [
+          1240,
+          2400
+        ],
+        [
+          0,
+          2650
+        ]
+      ]
+    },
+    {
+      "id": "north-wood",
+      "kind": "woods",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          5760,
+          0
+        ],
+        [
+          5760,
+          800
+        ],
+        [
+          4510,
+          820
+        ],
+        [
+          3380,
+          1330
+        ],
+        [
+          3010,
+          1400
+        ],
+        [
+          2200,
+          1240
+        ],
+        [
+          1330,
+          1090
+        ],
+        [
+          0,
+          890
+        ]
+      ]
+    },
+    {
+      "id": "eastern-ash",
+      "kind": "ash",
+      "polygon": [
+        [
+          4790,
+          900
+        ],
+        [
+          5760,
+          650
+        ],
+        [
+          5760,
+          1700
+        ],
+        [
+          4780,
+          1720
+        ]
+      ]
+    }
+  ],
+  "details": [
+    {
+      "id": "forge-standard",
+      "kind": "banner",
+      "position": [
+        3350,
+        2040
+      ],
+      "width": 30
+    },
+    {
+      "id": "plaza-puddle",
+      "kind": "puddle",
+      "position": [
+        2790,
+        2345
+      ],
+      "width": 49
+    },
+    {
+      "id": "back-laundry",
+      "kind": "laundry",
+      "position": [
+        2008,
+        1558
+      ],
+      "width": 100
+    },
+    {
+      "id": "east-puddle",
+      "kind": "puddle",
+      "position": [
+        3660,
+        1890
+      ],
+      "width": 44
+    },
+    {
+      "id": "court-puddle",
+      "kind": "puddle",
+      "position": [
+        2170,
+        908
+      ],
+      "width": 62
+    }
+  ],
+  "villagers": [
+    {
+      "id": "cinder-porter",
+      "look": "porter",
+      "path": [
+        [
+          2860,
+          2420
+        ],
+        [
+          3060,
+          2260
+        ],
+        [
+          3130,
+          2310
+        ],
+        [
+          3000,
+          2500
+        ]
+      ],
+      "speed": 36,
+      "pause": 3
+    },
+    {
+      "id": "wick-keeper",
+      "look": "worker",
+      "path": [
+        [
+          2590,
+          2240
+        ],
+        [
+          2680,
+          2320
+        ],
+        [
+          2630,
+          2390
+        ]
+      ],
+      "speed": 30,
+      "pause": 5
+    },
+    {
+      "id": "court-pilgrim",
+      "look": "pilgrim",
+      "path": [
+        [
+          2150,
+          850
+        ],
+        [
+          2200,
+          950
+        ],
+        [
+          2340,
+          900
+        ]
+      ],
+      "speed": 28,
+      "pause": 4
+    }
+  ]
 }

@@ -36,12 +36,48 @@ class Sfx {
   private loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>();
   private wantLoops = new Set<string>();
   private muted = false;
+  private ambient = new Map<string, {src:AudioBufferSourceNode; gain:GainNode; pan:StereoPannerNode}>();
+
+  /** Town emitter loops have independent positions and lifetime, through the same mute/volume bus. */
+  positionedLoop(id:string,name:string,x:number,y:number,radius:number):void {
+    const eng=this.eng;if(!eng||eng.ctx.state!=='running')return;
+    const def=SOUNDS[name];if(!def?.loop)return;
+    const dx=x-this.lx,dy=y-this.ly,d=Math.hypot(dx,dy),level=Math.max(0,1-d/radius)**2;
+    let voice=this.ambient.get(id);
+    if(level<.001){if(voice){voice.src.stop();this.ambient.delete(id);}return;}
+    if(!voice){
+      const buffer=this.buffer(name);if(!buffer)return;
+      const src=eng.ctx.createBufferSource(),gain=eng.ctx.createGain(),pan=eng.ctx.createStereoPanner();
+      src.buffer=buffer;src.loop=true;src.connect(gain).connect(pan).connect(eng.bus);gain.gain.value=0;
+      src.onended=()=>{src.disconnect();gain.disconnect();pan.disconnect();};src.start();voice={src,gain,pan};this.ambient.set(id,voice);
+    }
+    voice.gain.gain.setTargetAtTime(def.gain*level,eng.ctx.currentTime,.08);
+    voice.pan.pan.setTargetAtTime(Math.max(-.8,Math.min(.8,dx/550)),eng.ctx.currentTime,.08);
+  }
+  clearAmbient():void {for(const v of this.ambient.values())v.src.stop();this.ambient.clear();}
+
+  /** Read-only audio graph evidence for the existing game debug API; never sampled per frame. */
+  inspect() {
+    return {state:this.eng?.ctx.state??'locked',muted:this.muted,master:this.eng?.master.gain.value??0,
+      listener:[this.lx,this.ly],loops:[...this.ambient].map(([id,v])=>({id,gain:v.gain.gain.value,pan:v.pan.pan.value})),
+      buffers:[...this.buffers].filter(([name])=>name.startsWith('town_')).map(([name,b])=>{
+        const a=b.getChannelData(0);let sum=0,peak=0;for(const v of a){sum+=v*v;peak=Math.max(peak,Math.abs(v));}
+        return {name,seconds:b.duration,rms:Math.sqrt(sum/a.length),peak};
+      })};
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const go = () => this.unlock();
-      window.addEventListener('pointerdown', go, { once: true, capture: true });
-      window.addEventListener('keydown', go, { once: true, capture: true });
+      const go = () => {
+        this.unlock();
+        // Escape is not a browser activation gesture. Keep retrying until audio really runs.
+        if(this.eng?.ctx.state==='running') {
+          window.removeEventListener('pointerdown',go,true);
+          window.removeEventListener('keydown',go,true);
+        }
+      };
+      window.addEventListener('pointerdown', go, { capture: true });
+      window.addEventListener('keydown', go, { capture: true });
     }
   }
 

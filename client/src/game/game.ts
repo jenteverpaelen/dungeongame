@@ -8,6 +8,7 @@ import { cubeUI } from '../ui/panels/cubestate';
 import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
 import type { ClassId, DerivedStats } from '@shared/types';
 import { sfx } from '../audio/sfx';
+import { TownSound } from '../audio/town';
 import { installApi } from '../net/api';
 import { Connection } from '../net/connection';
 import { Scene } from '../render/scene';
@@ -18,6 +19,7 @@ import { Predictor } from './prediction';
 import { ClientWorld } from './world';
 
 export class Game {
+  readonly audio = sfx;
   readonly world: ClientWorld;
   readonly scene: Scene;
   readonly predictor = new Predictor();
@@ -51,6 +53,7 @@ export class Game {
     ui.set({ screen: 'connecting', error: null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       ui.set({ connected: false, error: reason, screen: 'select' });
+      this.townSound?.destroy();this.townSound=null;
       this.scene.clearEntities();
     });
     try {
@@ -104,9 +107,11 @@ export class Game {
   }
 
   private enterZone(zone: ZoneInfo, you: number) {
+    this.townSound?.destroy();this.townSound=null;
     this.scene.clearEntities();
     this.world.setZone(zone, you);
     this.scene.setMap(this.world.map!);
+    if(this.world.map?.town)this.townSound=new TownSound(this.world.map.town);
     this.predictor.reset();
     this.dmgLog = [];
     ui.set({ zone, myId: you, rift: null, target: null, interact: null, panels: {} });
@@ -178,6 +183,7 @@ export class Game {
         break;
       }
     }
+    this.scene.frameSpell(ev, 's' in ev && (ev.s === myId || this.isMine(ev.s)));
     this.scene.vfx.handle(ev);
   }
 
@@ -219,6 +225,8 @@ export class Game {
     const s = this.scene.nearestInteractable(x, y);
     const zone = this.world.zone;
     if (s?.role) {
+      const bark=this.world.map?.town?.npcs.find(n=>n.role===s.role)?.bark;
+      if(bark)pushNotice(bark,'info');
       if (Object.hasOwn(ARTISAN_FUNCTIONS, s.role)) { this.openArtisan(s.role as Artisan); return; }
       const map: Partial<Record<string, PanelId>> = { waypoint: 'waypoint', obelisk: 'obelisk', paragon: 'paragon', stash: 'stash' };
       const p = map[s.role];
@@ -242,6 +250,7 @@ export class Game {
   }
 
   // ─────────────────────────── Frame ───────────────────────────
+  private townSound:TownSound|null=null;
 
   private frame(dtMs: number) {
     const st = ui.get();
@@ -253,7 +262,7 @@ export class Game {
         ? { x: this.predictor.x, y: this.predictor.y, vx: this.predictor.vx, vy: this.predictor.vy, facingLeft: this.predictor.facingLeft, moving: Math.hypot(mv.x, mv.y) > 0, dashing: this.predictor.dashing }
         : null;
       this.scene.update(dtMs, me, { x: this.input.mouseX, y: this.input.mouseY });
-      if (me) sfx.setListener(me.x, me.y);
+      if (me) {sfx.setListener(me.x, me.y);this.townSound?.update(this.world.serverNow()/1000,me.x,me.y);}
       const myEnt = this.world.me;
       const whirl = !!myEnt && (myEnt.flags & F_CHANNEL) !== 0;
       if (whirl !== this.whirl) { this.whirl = whirl; sfx.loop('whirlwind', whirl); }

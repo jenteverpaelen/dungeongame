@@ -8,16 +8,17 @@ const DENSITY = 2, STRIP = 4;
 type Bounds = { x0: number; y0: number; x1: number; y1: number };
 
 /** A face has its own baseline; the recess rear wall must not share the front wall's depth. */
-function bakeFace(bounds: Bounds, baseline: Point[], draw: (c: Paint) => void): MapLayers['sorted'] {
+export function bakeFace(bounds: Bounds, baseline: Point[], draw: (c: Paint) => void): MapLayers['sorted'] {
   const x0 = Math.floor(bounds.x0 - 4), y0 = Math.floor(bounds.y0 - 4);
   const w = Math.ceil(bounds.x1 + 4 - x0), h = Math.ceil(bounds.y1 + 4 - y0);
   const canvas = document.createElement('canvas'); canvas.width = w * DENSITY; canvas.height = h * DENSITY;
   const c = canvas.getContext('2d')!; c.scale(DENSITY, DENSITY); c.translate(-x0, -y0); draw(c);
   const source = new CanvasSource({ resource: canvas, resolution: DENSITY, scaleMode: 'linear', autoGenerateMipmaps: false });
   const sorted: MapLayers['sorted'] = [];
-  let live = Math.ceil(w / STRIP);
-  for (let x = 0; x < w; x += STRIP) {
-    const width = Math.min(STRIP, w - x), depth = baselineY(baseline, x0 + x + width / 2);
+  const strip=baseline.every(p=>p[1]===baseline[0][1])?w:STRIP;
+  let live = Math.ceil(w / strip);
+  for (let x = 0; x < w; x += strip) {
+    const width = Math.min(strip, w - x), depth = baselineY(baseline, x0 + x + width / 2);
     const texture = new Texture({ source, frame: new Rectangle(x, 0, width, h) });
     const view = new Sprite(texture); view.position.set(x0 + x, y0);
     view.on('destroyed', () => { texture.destroy(false); if (--live === 0) source.destroy(); });
@@ -26,26 +27,45 @@ function bakeFace(bounds: Bounds, baseline: Point[], draw: (c: Paint) => void): 
   return sorted;
 }
 
-function wall(c: Paint, a: Point, b: Point, height: number, style: 'inn'|'shack', seed: number, door: boolean) {
+function wall(c: Paint, a: Point, b: Point, height: number, style: NonNullable<TownBuilding['look']>['style'], seed: number, door: boolean) {
   // Orient the wall's local horizontal axis toward screen right. Vertical always projects upwards.
   const l = a[0] < b[0] ? a : b, r = a[0] < b[0] ? b : a;
   const dx = r[0]-l[0], dy = r[1]-l[1], len = Math.hypot(dx,dy);
   if (dx < .01) return;
   c.save(); c.transform(dx/len,dy/len,0,1,l[0],l[1]-height);
   c.beginPath();c.rect(0,0,len,height);c.clip();
-  c.fillStyle = style==='inn' ? '#5c584b' : '#505346';c.fillRect(0,0,len,height);
+  c.fillStyle = style==='inn' ? '#5c584b' : style==='forge'?'#4a4540':style==='mystic'?'#49404f':'#505346';c.fillRect(0,0,len,height);
   // Broken plaster patches, then raised stone foundation. All detail is deterministic and baked.
   for(let i=0;i<len/7;i++) {
     const x=noise(i,3,seed)*len, y=noise(i,5,seed)*height;
     polygon(c,[[x,y],[x+12,y-6],[x+26,y+2],[x+20,y+18],[x-6,y+12]],i%2?'rgba(39,43,39,.18)':'rgba(153,139,109,.12)');
   }
-  const base = style==='inn'?52:42;
+  const base = Math.min(height,style==='inn'?52:style==='forge'?88:42);
   c.save();c.translate(0,height-base);stones(c,len,base,seed);c.restore();
   const bays=Math.max(1,Math.round(len/(style==='inn'?91:76))), bay=len/bays;
   for(let i=0;i<=bays;i++)beam(c,[i*bay,0],[i*bay,height],7,style==='shack');
   beam(c,[0,height-base],[len,height-base],6);
   beam(c,[0,5],[len,5],9); beam(c,[0,height],[len,height],4);
-  if (door) {
+  if(style==='jewel'||style==='mystic') {
+    // Wooden counter beneath the artisan canopy; the entire stall remains solid.
+    c.fillStyle='#292d2c';c.fillRect(9,13,len-18,Math.max(4,height-48));
+    beam(c,[0,height-35],[len,height-35],9);
+    for(let xx=22;xx<len-15;xx+=37)windowPane(c,xx,height-29,12,16,true);
+  } else if(style==='forge') {
+    // Raised, barred firebox reads as solid masonry rather than another walkable door.
+    const x=len*.18,w=len*.5,top=34,bottom=height-35;
+    c.fillStyle='#211e1c';c.fillRect(x,top,w,bottom-top);
+    for(let i=0;i<13;i++) {
+      const xx=x+8+noise(i,1,seed)*(w-16),yy=bottom-5-noise(i,2,seed)*14;
+      polygon(c,[[xx-5,yy],[xx-2,yy-5],[xx+5,yy-2],[xx+3,yy+3]],i%3?'#9e552a':'#d09547',TOWN_INK,1.5);
+    }
+    for(let xx=x+9;xx<x+w;xx+=13)line(c,[[xx,top+2],[xx,bottom-1]],'#444743',3.5);
+    beam(c,[x-4,top-4],[x+w+4,top-4],10);
+    beam(c,[x-4,bottom+3],[x+w+4,bottom+3],10);
+    line(c,[[x-3,top],[x-3,bottom]],'#75746a',7);
+    line(c,[[x+w+3,top],[x+w+3,bottom]],'#62665e',7);
+    for(let i=0;i<4;i++)line(c,[[len*.76+i*9,18],[len*.76+i*9,height-12]],'#2b2924',3);
+  } else if (door) {
     const dw=Math.min(len-16,84), x=(len-dw)/2, top=height-110;
     polygon(c,[[x,height],[x,top+14],[x+12,top],[x+dw-12,top],[x+dw,top+14],[x+dw,height]],'#3c2c22',TOWN_INK,4);
     c.fillStyle='#c58a4d';c.fillRect(x+7,top+17,dw-14,93);
@@ -78,16 +98,21 @@ function roof(c: Paint,b: TownBuilding) {
     const points=face.ids.map(i=>[spec.vertices[i][0],spec.vertices[i][1]-spec.vertices[i][2]] as Point);
     const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
     const left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
-    c.save();path(c,points);c.clip();c.fillStyle='#293337';c.fillRect(left,top,right-left,bottom-top);
+    c.save();path(c,points);c.clip();c.fillStyle=b.look!.roofColor??'#293337';c.fillRect(left,top,right-left,bottom-top);
+    const cloth=b.look!.style==='jewel'||b.look!.style==='mystic';
     // Shingle courses follow the dominant eave slope; no screen-axis checkerboard.
     const a=spec.vertices[face.ids[0]],z=spec.vertices[face.ids[1]],slope=(z[1]-z[2]-a[1]+a[2])/(z[0]-a[0]||1);
     const m=Math.max(-.65,Math.min(.65,slope));
     c.translate(left,top);c.transform(1,m,0,1,0,0);
     const span=right-left, range=bottom-top+Math.abs(m)*span;
-    for(let row=-Math.ceil(span/12);row<range/13+2;row++)for(let col=-1;col<span/23+1;col++) {
+    if(cloth) {
+      for(let xx=0;xx<span;xx+=25) {c.fillStyle=(xx/25)%2?'rgba(21,23,27,.20)':'rgba(189,178,141,.13)';c.fillRect(xx,-span,12,span+range);}
+    } else for(let row=-Math.ceil(span/12);row<range/13+2;row++)for(let col=-1;col<span/23+1;col++) {
       const n=noise(col,row,face.i+17), x=col*23+(row%2)*11.5,y=row*13;
       const v=Math.round((b.look!.style==='inn'?43:46)+n*15);
-      polygon(c,[[x+1,y],[x+21,y-1],[x+22,y+12+n*3],[x+13,y+14],[x,y+12]],`rgb(${v-8},${v+2},${v+6})`,'#20282c',1);
+      const tone=b.look!.roofColor?parseInt(b.look!.roofColor.slice(1),16):null;
+      const color=tone===null?`rgb(${v-8},${v+2},${v+6})`:`rgb(${(tone>>16&255)-12+n*14},${(tone>>8&255)-12+n*14},${(tone&255)-12+n*14})`;
+      polygon(c,[[x+1,y],[x+21,y-1],[x+22,y+12+n*3],[x+13,y+14],[x,y+12]],b.look!.style==='cellar'?'#655b47':color,'#20282c',1);
       line(c,[[x+2,y+11],[x+13,y+13],[x+21,y+11+n*3]],`rgba(151,164,153,${.14+n*.15})`,1);
       if(n>.78)line(c,[[x+7,y+3],[x+6,y+10]],'#1f292d',.8);
       if(n>.9)polygon(c,[[x+3,y+12],[x+6,y+8],[x+12,y+13]],'#4b5843');
@@ -108,6 +133,7 @@ function roof(c: Paint,b: TownBuilding) {
     polygon(c,[[x-w/2-8,y-53],[x,y-91],[x+28,y-112],[x-w/2+21,y-77]],'#394447',TOWN_INK,3);
     for(let i=0;i<4;i++)line(c,[[x-w/2-4+i*10,y-56-i*8],[x-w/2+23+i*10,y-80-i*8]],'#58645f',1.3);
   }
+  if(['jewel','mystic','cellar'].includes(b.look!.style))return;
   const ch=b.look!.chimney, [x,y]=ch.position, h=ch.height;
   polygon(c,[[x-18,y-h+24],[x+13,y-h+32],[x+13,y-h+92],[x-18,y-h+83]],'#69645a',TOWN_INK,2.5);
   polygon(c,[[x+13,y-h+32],[x+26,y-h+17],[x+26,y-h+77],[x+13,y-h+92]],'#454b49',TOWN_INK,2);
@@ -131,6 +157,7 @@ export function townBuildings(t: TownData): MapLayers['sorted'] {
   const out: MapLayers['sorted']=[];
   for(const b of t.buildings) {
     if(!b.look)continue;
+    const start=out.length;
     const p=b.footprint,h=b.look.eaveHeight;
     for(let i=0;i<p.length;i++) {
       const a=p[i],z=p[(i+1)%p.length]; if(z[0]>=a[0])continue;
@@ -142,6 +169,7 @@ export function townBuildings(t: TownData): MapLayers['sorted'] {
       const s=b.look.sign,[x,y]=s.position;
       out.push(...bakeFace({x0:x-7,x1:x+47,y0:y-s.height-4,y1:y+5},[[x-7,y+12],[x+47,y+12]],c=>{c.save();c.translate(x,y);innSign(c,s.height);c.restore();}));
     }
+    if(b.interior)for(let i=start;i<out.length;i++)out[i].building=b.id;
   }
   return out;
 }

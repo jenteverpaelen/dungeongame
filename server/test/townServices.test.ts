@@ -6,6 +6,7 @@ import { Rng } from '../../shared/src/math';
 import { computeStats } from '../../shared/src/stats';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
+import { CollisionWorld } from '../../shared/src/movement';
 import type { CmdOp } from '../../shared/src/protocol';
 import type { CharacterSave } from '../../shared/src/types';
 import { World } from '../src/world';
@@ -84,11 +85,18 @@ test('solid walls block service access even inside interaction radius; travel ch
   const f = await fixture();
   try {
     const inst = f.s.rec!.inst as Instance, n = inst.map.town!.npcs.find(n => n.role === 'stash')!;
-    const door = inst.map.town!.buildings.find(b => b.id === 'inn')!.doors[0];
-    // Move only this test NPC to the far side of the recess's closed back wall.
-    const dx = door.inside[0] - door.approach[0], dy = door.inside[1] - door.approach[1], l = Math.hypot(dx, dy);
-    n.x = door.inside[0] + dx / l * 60; n.y = door.inside[1] + dy / l * 60;
-    f.at(...door.inside); assert.match(f.cmd('stashDeposit', { itemId: 'fake' }).err!, /Stand beside/);
+    // The old recess back wall is now an open Inn doorway. Exercise a real remaining solid wall.
+    const collision=new CollisionWorld(inst.map),target=inst.map.town!.buildings.find(b=>b.id==='inn')!.interior!.target;
+    const wall=collision.town!.edges.find(e=>{
+      const x=(e.ax+e.bx)/2,y=(e.ay+e.by)/2;
+      return Math.hypot(x-target[0],y-target[1])<300&&collision.isFree(x+e.nx*32,y+e.ny*32,16)&&collision.segmentBlocked(x+e.nx*32,y+e.ny*32,x-e.nx*32,y-e.ny*32);
+    });
+    assert.ok(wall,'a reachable solid wall is required for this authority check');
+    const wx=(wall.ax+wall.bx)/2,wy=(wall.ay+wall.by)/2;
+    n.x=wx-wall.nx*32;n.y=wy-wall.ny*32;
+    f.at(wx+wall.nx*32,wy+wall.ny*32);
+    assert.ok(64<n.interactionRadius,'failure must come from the wall, not distance');
+    assert.match(f.cmd('stashDeposit', { itemId: 'fake' }).err!, /Stand beside/);
     f.near('paragon'); assert.match(f.cmd('travel', { zone: 'whispering_glade' }).err!, /Stand beside/);
     const p = inst.map.portals.find(p => p.to === 'whispering_glade')!; f.at(p.x, p.y);
     assert.equal(f.cmd('travel', { zone: 'ashen_hollow' }).ok, false, 'wrong exit rejected');

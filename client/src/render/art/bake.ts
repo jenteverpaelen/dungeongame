@@ -5,7 +5,7 @@
 // any zoom (trilinear), and (c) usable from any Pixi renderer (the class-select previews run their own).
 // Without a renderer (tests, early calls) parts fall back to live Graphics with the same API.
 
-import { CanvasSource, Container, Graphics, GraphicsContext, Rectangle, Sprite, Texture } from 'pixi.js';
+import { CanvasSource, Container, Graphics, GraphicsContext, Rectangle, Sprite, Texture, type TextureSource } from 'pixi.js';
 import { paint, type Ctx } from './draw';
 import { getRenderer } from './fx';
 
@@ -43,7 +43,7 @@ export class SheetSlice implements SheetLike {
 
 export class Sheet implements SheetLike {
   readonly parts = new Map<string, Partial<Record<Version, Baked>>>();
-  readonly sources: CanvasSource[] = [];
+  readonly sources: TextureSource[] = [];
   refs = 0;
   destroyed = false;
   /** True when parts are live Graphics (no renderer yet, or a bake still pending). */
@@ -120,7 +120,7 @@ function build(spec: PartSpec, v: Version): Graphics {
  * @param res texels per world unit
  * @param maxPage maximum page edge in texels
  */
-export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 'sheet', live = false): Sheet {
+export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 'sheet', live = false, gpuOnly = false): Sheet {
   // Integer texel density: fractional resolutions make Pixi's extract read back an empty frame on some sizes.
   res = Math.max(1, Math.round(res));
   const sheet = new Sheet();
@@ -171,10 +171,17 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
       holder.addChild(it.g);
     }
     const W = Math.max(1, Math.ceil(pg.w)), H = Math.max(1, Math.ceil(pg.h));
-    const canvas = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, W, H), resolution: res, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
-    const source = new CanvasSource({ resource: canvas, resolution: res, autoGenerateMipmaps: true, scaleMode: 'linear', label: `${label}#${p}` });
+    let source:TextureSource;
+    if(gpuOnly) {
+      // Town NPCs stay in this renderer. Preserve the exact MSAA render without a GPU→CPU→GPU trip.
+      const target=renderer.generateTexture({target:holder,frame:new Rectangle(0,0,W,H),resolution:res,antialias:true,clearColor:[0,0,0,0],textureSourceOptions:{autoGenerateMipmaps:true,scaleMode:'linear',label:`${label}#${p}`}});
+      source=target.source;target.destroy(false);
+    } else {
+      const canvas = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, W, H), resolution: res, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
+      source = new CanvasSource({ resource: canvas, resolution: res, autoGenerateMipmaps: true, scaleMode: 'linear', label: `${label}#${p}` });
+    }
     sheet.sources.push(source);
-    if (debugPages()) bakedPages.push({ label: `${label}#${p}`, source });
+    if (debugPages()&&source instanceof CanvasSource) bakedPages.push({ label: `${label}#${p}`, source });
     for (const it of onPage) {
       const frame = new Rectangle(it.x, it.y, it.w, it.h);
       const ax = (PAD - it.bx) / it.w, ay = (PAD - it.by) / it.h;

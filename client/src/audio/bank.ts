@@ -368,6 +368,14 @@ export const SOUNDS: Record<string, SoundDef> = {
   },
 
   // ── loops ──
+  town_wind: {gain:.085,loop:true,layers:[{p:{freq:80,sustain:3,shape:4,filter:-380,tremolo:.14,repeat:1.7}}]},
+  town_fire: {gain:.13,loop:true,layers:[{p:{freq:100,sustain:2.7,shape:4,filter:-1400,tremolo:.65,repeat:.07}},{p:{freq:46,sustain:2.7,shape:0},gain:.15}]},
+  town_water: {gain:.12,loop:true,layers:[{p:{freq:180,sustain:3,shape:4,filter:-720,tremolo:.25,repeat:.7}}]},
+  town_murmur: {gain:.065,loop:true,layers:[{p:{freq:120,sustain:3,shape:4,filter:-420,tremolo:.6,repeat:.4}},{p:{freq:180,sustain:3,shape:1,filter:-350,tremolo:.7,repeat:.33},gain:.16}]},
+  town_hum: {gain:.08,loop:true,layers:[{p:{freq:146.83,sustain:3,shape:0,tremolo:.2,repeat:1.4}},{p:{freq:220,sustain:3,shape:0},gain:.25}]},
+  town_anvil: {gain:.20,max:1,layers:[...bell(790,0,.7,.45),{p:{freq:240,release:.045,shape:4,filter:-2400},gain:.3}]},
+  town_gem: {gain:.11,max:1,layers:bell(1320,0,.6,.22)},
+  town_bell: {gain:.13,max:1,layers:bell(196,0,.8,2.8)},
   whirlwind: {
     gain: 0.3, loop: true,
     layers: [
