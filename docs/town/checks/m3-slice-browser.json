@@ -1,0 +1,216 @@
+{
+  "date": "2026-10-08",
+  "version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "actual": {
+    "hidden": false,
+    "width": 1920,
+    "height": 1080,
+    "dpr": 1,
+    "zone": "hearthmere",
+    "seed": 1926644214,
+    "position": {
+      "x": 2891.5,
+      "y": 2418.6
+    },
+    "fps": 162,
+    "moveSpeedPercent": 0
+  },
+  "shots": [
+    {
+      "name": "plaza",
+      "desired": [
+        2891.5,
+        2418.6
+      ],
+      "goal": [
+        2891.5,
+        2418.6
+      ],
+      "ms": 0.7000000011175871,
+      "predicted": [
+        2891.5,
+        2418.6
+      ],
+      "authoritative": [
+        2891.5,
+        2418.6
+      ],
+      "hidden": false
+    },
+    {
+      "name": "inn-front",
+      "desired": [
+        2553,
+        2195
+      ],
+      "goal": [
+        2553,
+        2195
+      ],
+      "ms": 1731.6000000014901,
+      "predicted": [
+        2551.7983690876663,
+        2194.0603054243265
+      ],
+      "authoritative": [
+        2551.7983690876663,
+        2194.0603054243265
+      ],
+      "hidden": false
+    },
+    {
+      "name": "inn-door",
+      "desired": [
+        2514.1,
+        2083
+      ],
+      "goal": [
+        2514.1,
+        2083
+      ],
+      "ms": 459.90000000037253,
+      "predicted": [
+        2513.4135896693433,
+        2081.148171887708
+      ],
+      "authoritative": [
+        2513.413344725844,
+        2081.147444711695
+      ],
+      "hidden": false
+    },
+    {
+      "name": "inn-east",
+      "desired": [
+        2760,
+        1920
+      ],
+      "goal": [
+        2760,
+        1920
+      ],
+      "ms": 2200.300000000745,
+      "predicted": [
+        2760.390725759768,
+        1919.3972461495
+      ],
+      "authoritative": [
+        2760.3907257624796,
+        1919.3972461445283
+      ],
+      "hidden": false
+    },
+    {
+      "name": "inn-north",
+      "desired": [
+        2469,
+        1658
+      ],
+      "goal": [
+        2469,
+        1658
+      ],
+      "ms": 5875.60000000149,
+      "predicted": [
+        2469.596385682211,
+        1657.7024467832507
+      ],
+      "authoritative": [
+        2469.596385682211,
+        1657.7024467832507
+      ],
+      "hidden": false
+    },
+    {
+      "name": "inn-west",
+      "desired": [
+        2150,
+        1950
+      ],
+      "goal": [
+        2150,
+        1950
+      ],
+      "ms": 1765.5999999996275,
+      "predicted": [
+        2149.5272234650324,
+        1950.4822174693034
+      ],
+      "authoritative": [
+        2149.5272234650324,
+        1950.4822174693034
+      ],
+      "hidden": false
+    },
+    {
+      "name": "shack-front",
+      "desired": [
+        2104.3,
+        1961.6
+      ],
+      "goal": [
+        2104.3,
+        1961.6
+      ],
+      "ms": 220.5,
+      "predicted": [
+        2104.0272234650324,
+        1961.7322174693034
+      ],
+      "authoritative": [
+        2104.0272234650324,
+        1961.7322174693034
+      ],
+      "hidden": false
+    },
+    {
+      "name": "shack-rear",
+      "desired": [
+        1905.9,
+        1496.3
+      ],
+      "goal": [
+        1905.9,
+        1496.3
+      ],
+      "ms": 2916.2000000011176,
+      "predicted": [
+        1904.5941135768578,
+        1495.804960497851
+      ],
+      "authoritative": [
+        1904.5941115231303,
+        1495.8049597331653
+      ],
+      "hidden": false
+    },
+    {
+      "name": "smith",
+      "desired": [
+        3116.8,
+        2255.4
+      ],
+      "goal": [
+        3116.8,
+        2255.4
+      ],
+      "ms": 7551.700000001118,
+      "predicted": [
+        3118.281301234473,
+        2255.555573314984
+      ],
+      "authoritative": [
+        3118.281301234473,
+        2255.555573314984
+      ],
+      "hidden": false
+    }
+  ],
+  "isolatedDataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-m3-slice-0EVDjf\\saves"
+}

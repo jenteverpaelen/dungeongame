@@ -23,6 +23,16 @@ export function validateTown(t: TownData): string[] {
   for (const f of t.floors) { id(f.id); polygon(f.polygon, f.id); }
   for (const b of t.buildings) {
     id(b.id); polygon(b.footprint, b.id); b.baseline.forEach(p => point(p, b.id));
+    if (b.look) {
+      if (!(b.look.eaveHeight > 0 && b.look.eaveHeight <= 320)) errors.push(`${b.id}: invalid eave height`);
+      for (const v of b.look.roof.vertices) {
+        point([v[0],v[1]], b.id);
+        if (!(v[2] >= b.look.eaveHeight && v[2] <= 384)) errors.push(`${b.id}: invalid roof elevation`);
+      }
+      for (const face of b.look.roof.faces) if (face.length < 3 || face.some(i => !Number.isInteger(i) || !b.look!.roof.vertices[i])) errors.push(`${b.id}: invalid roof face`);
+      const xs=b.footprint.map(p=>p[0]), bx=b.baseline.map(p=>p[0]);
+      if (Math.min(...bx)>Math.min(...xs) || Math.max(...bx)<Math.max(...xs)) errors.push(`${b.id}: baseline does not cover footprint width`);
+    }
     for (const d of b.doors) {
       id(d.id); [d.a, d.b, d.approach, d.inside].forEach(p => point(p, d.id));
       if (Math.hypot(d.a[0] - d.b[0], d.a[1] - d.b[1]) < PLAYER_RADIUS * 4) errors.push(`${d.id}: opening narrower than two player diameters`);

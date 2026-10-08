@@ -12,7 +12,8 @@ export function buildTownBlockout(t: TownData): MapLayers {
   for (const e of groundBoundary(t)) g.moveTo(e.ax, e.ay).lineTo(e.bx, e.by).stroke({ width: 2, color: 0x90979d });
   for (const b of t.buildings) {
     g.poly(b.footprint.flat()).fill(0x363c43).stroke({ color: 0x939ba4, width: 2 });
-    const label = new Text({ text: b.label, style: { fontFamily: 'Arial', fontSize: 14, fill: 0xcbd0d5 } });
+    if (b.look) continue;
+    const label = new Text({ text: `${b.label} · blockout`, style: { fontFamily: 'Arial', fontSize: 14, fill: 0xcbd0d5 } });
     label.anchor.set(.5); label.position.set(b.footprint.reduce((s, p) => s + p[0], 0) / b.footprint.length, b.footprint.reduce((s, p) => s + p[1], 0) / b.footprint.length);
     ground.addChild(label);
     for (const d of b.doors) g.moveTo(...d.a).lineTo(...d.b).stroke({ width: 3, color: 0x90ba9a });

@@ -37,3 +37,9 @@ Date: 2026-10-08. Gate 1 approved explicitly in this chat after presentation of 
 
 ## D019 — Close the narrow-gap validation omission (2026-10-08)
 **What:** validate nearest exposed building-to-building clearances; move the provisional cellar mass and baseline 42 u south. **Why/evidence:** L10, measured 27.05 u slit missed by M1 reachability checks. **Risk:** small silhouette adjustment in upper court; original M0 massing was not an exact survey. **Rollback:** revert the JSON translation only if replaced with a properly closed or >=64 u passage, retain the validator. This corrects an M1 acceptance omission before Gate 2.
+
+## Gate 2 approved / D020 — Original look slice
+
+The owner's “start the look slice!!” approves progression from Gate 2 to the first Gate 3 visual review. It does not approve scaling the look across town before that review.
+
+**What:** original Canvas2D exteriors for the inn and back-lane shack, region-limited cobble/mud ground, one hanging lamp, warm entrance light and one role-specific artisan look using PlayerArt. Geometry and art configuration stay in authored JSON. **Why/evidence:** S02/L11 and R20/R24/R25; follows the existing renderer and art rules with the already approved darker mood. No Blender/tool/asset download or AI image service is needed. **Depth:** sample baseline polylines per narrow texture strip, allowing multiple players to sort on both sides at once; retain exact ground-contact polygons. **Risk:** strip boundary artefacts, texture lifetime, door/roof overlaps and readability require running-game inspection. Palette/roof elevations are original interpretations. **Rollback:** town-only look renderer/config can return to M2 blockout without touching collision, saves or hero art. Stop at Gate 3 slice approval.

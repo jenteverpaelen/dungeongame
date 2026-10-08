@@ -303,6 +303,25 @@ const VENDOR: PlayerLook = {
   },
 };
 
+// Original smith clothing using the unchanged hero rig. Full craft choreography follows in M4.
+const SMITH: PlayerLook = {
+  classId: 'warrior', slots: {
+    chest: { shape: 'cloth', primary: 0x515956, secondary: 0x776751, glow: 0, variant: 0 },
+    legs: { shape: 'cloth', primary: 0x393e41, secondary: 0x4b4940, glow: 0, variant: 0 },
+    feet: { shape: 'boots', primary: 0x4b3729, secondary: 0x79705a, glow: 0, variant: 0 },
+    hands: { shape: 'gloves', primary: 0x947353, secondary: 0x4f3c2b, glow: 0, variant: 0 },
+  },
+};
+function smithApron(): Graphics {
+  return new Graphics(cachedCtx('town:smith-apron', c => {
+    poly(c, [-7,-33,7,-33,9,-18,12,-9,-12,-9,-9,-18], 0x795535, {hl:.12,ow:1.6});
+    stitch(c, [-7,-31,-8,-13,8,-13,7,-31], 0xb49969, 1.3, 1);
+    rbox(c,-7,-22,14,9,1,0x5b402b,{ow:1,hl:.08});
+    seg(c,5,-24,7,-13,1.6,0x9d7950,1);
+    rbox(c,1,-27,10,4,1,0x717979,{ow:1.2,hl:.2});
+  }));
+}
+
 function backpack(): Graphics {
   return new Graphics(cachedCtx('npc:backpack', (c) => {
     rbox(c, -22, -44, 16, 26, 4, 0x8a5a34, { hl: 0.25 });
@@ -321,12 +340,13 @@ export class NpcArt implements EntityView {
   readonly height: number;
   private inner: EntityView;
   private label: Text | null = null;
+  private apron: Graphics | null = null;
 
-  constructor(role: NpcRole | string, name: string) {
+  constructor(role: NpcRole | string, name: string, look?: 'smith-slice') {
     const elite = /elite/i.test(name);
     if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic'].includes(role)) {
       // Existing human rigs are explicit blockout stand-ins; role-specific craft animations follow the look gate.
-      const v = new PlayerArt(role === 'healer' || role === 'mystic' ? HEALER : VENDOR);
+      const v = new PlayerArt(look === 'smith-slice' ? SMITH : role === 'healer' || role === 'mystic' ? HEALER : VENDOR);
       if (role === 'vendor') v.root.addChildAt(backpack(), 1);
       this.inner = v;
     } else {
@@ -335,6 +355,7 @@ export class NpcArt implements EntityView {
     }
     this.height = this.inner.height;
     this.root.addChild(this.inner.root);
+    if (look === 'smith-slice') { this.apron = smithApron(); this.root.addChild(this.apron); }
     if (name && role !== 'dummy') {
       this.label = nameLabel(name, -this.height - 10, role === 'obelisk' ? 0xf0b8ff : role === 'waypoint' ? 0xbfe0ff : 0xf2e6c8);
       this.root.addChild(this.label);
@@ -342,7 +363,11 @@ export class NpcArt implements EntityView {
   }
 
   private destroyed = false;
-  update(dt: number, s: ViewState): void { if (!this.destroyed) this.inner.update(dt, s); }
+  update(dt: number, s: ViewState): void {
+    if (this.destroyed) return;
+    this.inner.update(dt, s);
+    if (this.apron) this.apron.y = Math.sin(s.time * 2.2) * .35;
+  }
   hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
   die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }
   destroy(): void { if (this.destroyed) return; this.destroyed = true; this.inner.destroy(); this.root.destroy({ children: true }); }

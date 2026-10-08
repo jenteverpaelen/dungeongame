@@ -105,3 +105,7 @@ Documentation sanity check: all nine service approach points lie outside the nin
 ## M1/M2 checkpoint limits
 
 M1/M2 use flat polygons; the new town has not yet undergone the required 60-second 100-player performance test. Instantaneous 165 FPS HUD readings in the Chrome walkthrough are not that benchmark. checks/m2-sim.txt records 4-player/150-monster simulation timing, not town render performance. The full M0 measured budget and its unverified load/VRAM limitations remain in force. The collision sweep reuses its query/contact buffers; the legacy field/rift solver and generation match pre-edit hashes.
+
+## M3 slice allocation/lifecycle (not a performance benchmark)
+
+Chrome runtime source inspection: 33 owned town-art texture sources, 506 depth strips; 90.5 MiB base pixels / 117.2 MiB including requested ground mip chains. All sources were destroyed on leaving town; map reentry rebuilt the slice. See checks/m3-slice-lifecycle.json. CPU backing images, actual GPU residency and other game textures are additional; do not add this estimate to M0 as if both runs had identical allocation. Replace the eager region ground cache with a bounded lazy cache before expanding to the whole town. No 60-second or 100-player slice benchmark was run. Full M7 budget remains required.

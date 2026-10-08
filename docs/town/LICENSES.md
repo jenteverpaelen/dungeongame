@@ -1,5 +1,7 @@
 # Town licences and downloads
 
+M3 slice update: original Canvas2D material/architecture code, authored elevations, existing project rig and procedural glow sheet only. No external asset/tool/package or AI image service used. Running-game captures are project output; research images remain excluded.
+
 2026-10-08. Public research stills and browser video-frame captures were downloaded after the owner gave standing approval in this chat (D010). They are stored only under ignored `reference-local/`, never shipped or staged. No new tool/package installed. Existing Node, dependencies and Chrome are used. Original documentation diagrams and Hearthfall game captures remain the only visual files intended for Git.
 
 ## References are not shipping assets

@@ -37,7 +37,7 @@ export class Scene {
   private shakeDur = 1;
   private hitStopEnd = 0;
   private time = 0;
-  private props: { view: Container; x: number; y: number }[] = [];
+  private props: { view: Container; x: number; y: number; bounds?: { x0: number; y0: number; x1: number; y1: number } }[] = [];
   statics: StaticView[] = [];
   private active = new Set<ClientEntity>();
   private looks = new Map<number, string>();
@@ -91,11 +91,11 @@ export class Scene {
     for (const p of layers.sorted) {
       p.view.zIndex = p.y;
       this.entities.addChild(p.view);
-      this.props.push({ view: p.view, x: p.view.x, y: p.y });
+      this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds });
     }
     for (const n of map.npcs) {
       if (n.role === 'dummy') continue; // dummies are server-side monsters so they can be hit
-      const view = createNpcView(n.role, n.name);
+      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look);
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
@@ -232,7 +232,9 @@ export class Scene {
 
     const x0 = this.cam.x - halfW - 220, x1 = this.cam.x + halfW + 220;
     const y0 = this.cam.y - halfH - 160, y1 = this.cam.y + halfH + 320;
-    for (const p of this.props) p.view.visible = p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+    for (const p of this.props) p.view.visible = p.bounds
+      ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
+      : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
     for (const s of this.statics) {
       const vis = s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
       s.view.root.visible = vis;
