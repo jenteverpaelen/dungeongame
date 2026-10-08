@@ -1,0 +1,91 @@
+
+## 1. CONSTANTS
+{"TICK_RATE":20,"MAX_LEVEL":70,"TILE":64,"PLAYER_RADIUS":16,"BASE_MOVE_SPEED":250,"DASH":{"distance":230,"durationMs":170,"cooldownMs":2800,"invulnMs":220},"INVENTORY_SIZE":60,"STASH_SIZE":60,"AFK_MAX_HOURS":12,"AFK_EFFICIENCY":0.25,"TOWN_CHANNEL_CAP":100,"FIELD_CHANNEL_CAP":30,"PARTY_MAX":4,"AOI_HALF_W":1150,"AOI_HALF_H":760}
+procedural sounds in client/src/audio/bank.ts: 52
+
+## 2. CLASSES
+{"id":"warrior","name":"Warrior","title":"Storm of Steel","mainStat":"str","resource":{"id":"fury","max":100,"regenPerSec":0,"decayPerSec":3},"attackRange":86,"primary":"cleave","signature":"Whirlwind"}
+{"id":"ranger","name":"Ranger","title":"Siege Engineer","mainStat":"dex","resource":{"id":"hatred","max":125,"regenPerSec":5,"decayPerSec":0},"attackRange":520,"primary":"hungering_arrow","signature":"Sentry Turrets"}
+{"id":"mage","name":"Mage","title":"Fallen Star","mainStat":"int","resource":{"id":"arcane","max":100,"regenPerSec":10,"decayPerSec":0},"attackRange":480,"primary":"magic_missile","signature":"Meteor"}
+
+## 3. SKILLS (name | kind | unlock level | runes)
+total=18 SKILL_SLOTS=4 RUNE_UNLOCK_OFFSETS=[2,5,9] TIER_COSTS=[2,4,6]
+-- warrior
+Cleave | primary | L1 | rune unlock levels 3/6/10 | 3 runes, 3 tiers
+Whirlwind | channel | L2 | rune unlock levels 4/7/11 | 3 runes, 3 tiers
+Rend | spender | L4 | rune unlock levels 6/9/13 | 3 runes, 3 tiers
+Ground Stomp | cooldown | L6 | rune unlock levels 8/11/15 | 3 runes, 3 tiers
+Seismic Slam | spender | L9 | rune unlock levels 11/14/18 | 3 runes, 3 tiers
+Battle Rage | buff | L12 | rune unlock levels 14/17/21 | 3 runes, 3 tiers
+-- ranger
+Hungering Arrow | primary | L1 | rune unlock levels 3/6/10 | 3 runes, 3 tiers
+Sentry | summon | L2 | rune unlock levels 4/7/11 | 3 runes, 3 tiers
+Multishot | spender | L4 | rune unlock levels 6/9/13 | 3 runes, 3 tiers
+Cluster Arrow | spender | L6 | rune unlock levels 8/11/15 | 3 runes, 3 tiers
+Rain of Vengeance | cooldown | L9 | rune unlock levels 11/14/18 | 3 runes, 3 tiers
+Companion | summon | L12 | rune unlock levels 14/17/21 | 3 runes, 3 tiers
+-- mage
+Magic Missile | primary | L1 | rune unlock levels 3/6/10 | 3 runes, 3 tiers
+Meteor | spender | L2 | rune unlock levels 4/7/11 | 3 runes, 3 tiers
+Black Hole | cooldown | L4 | rune unlock levels 6/9/13 | 3 runes, 3 tiers
+Frost Nova | cooldown | L6 | rune unlock levels 8/11/15 | 3 runes, 3 tiers
+Hydra | summon | L9 | rune unlock levels 11/14/18 | 3 runes, 3 tiers
+Magic Weapon | buff | L12 | rune unlock levels 14/17/21 | 3 runes, 3 tiers
+last active skill unlocks at L12; last rune unlocks at L21
+skill points at L70: 69; cost to buy every tier of one class's skills: 72
+
+## 4. WORLD
+{"id":"hearthmere","kind":"town","theme":"town","levelBand":[1,70],"sizeTiles":[96,64],"packTarget":0,"respawnSec":0}
+{"id":"whispering_glade","kind":"field","theme":"glade","levelBand":[1,70],"sizeTiles":[120,90],"packTarget":34,"respawnSec":18}
+{"id":"ashen_hollow","kind":"field","theme":"ashen","levelBand":[8,70],"sizeTiles":[120,90],"packTarget":38,"respawnSec":16}
+{"id":"rift","kind":"rift","theme":"glade","levelBand":[1,70],"sizeTiles":[110,110],"packTarget":0,"respawnSec":0}
+monsters=13 (trash with spawn weight=10; goblin/boss=3) elite affixes=8
+difficulty tiers=14: 0:Normal(hp x1,min L1), 1:Hard(hp x2,min L1), 2:Expert(hp x4,min L1), 3:Master(hp x8,min L1), 4:Torment I(hp x16,min L60), 5:Torment II(hp x32,min L60), 6:Torment III(hp x64,min L60), 7:Torment IV(hp x128,min L60), 8:Torment V(hp x256,min L60), 9:Torment VI(hp x512,min L60), 10:Torment VII(hp x1024,min L60), 11:Torment VIII(hp x2048,min L60), 12:Torment IX(hp x4096,min L60), 13:Torment X(hp x8192,min L60)
+items: bases=42 affixes=32 legendaries=19 (class-specific 13) sets=3 gems=5x6 ranks
+
+## 5. XP / PACING
+cumulative XP to reach level: L10=123353 L20=1524432 L30=6647435 L40=18877168 L50=42380947 L60=82018683 L70=143281639
+level | xpToNext | trashXP@level(diff0) | kills/level x1 | kills/level x3 | trash hp | trash dmg
+1 | 420 | 22 | 19.1 | 6.4 | 10 | 6.0
+2 | 1328 | 49 | 27.1 | 9.0 | 11 | 6.9
+3 | 2988 | 88 | 34.0 | 11.3 | 13 | 7.9
+5 | 9380 | 195 | 48.1 | 16.0 | 16 | 10.5
+8 | 29143 | 422 | 69.1 | 23.0 | 23 | 16.0
+10 | 50773 | 611 | 83.1 | 27.7 | 28 | 21.1
+15 | 141594 | 1208 | 117.2 | 39.1 | 51 | 42.5
+20 | 295640 | 1964 | 150.5 | 50.2 | 91 | 85.4
+30 | 840183 | 3903 | 215.3 | 71.8 | 289 | 345.5
+40 | 1768051 | 6359 | 278.0 | 92.7 | 922 | 1397.5
+50 | 3151919 | 9287 | 339.4 | 113.1 | 2942 | 5653.9
+60 | 5057350 | 12658 | 399.5 | 133.2 | 9384 | 22873.0
+69 | 7268211 | 16051 | 452.8 | 150.9 | 26658 | 80464.5
+same-level trash kills 1->70: x1=16789 x3=5596 (server XP_MULT default is 3; x1 is the un-boosted curve)
+ASSUMPTION (afk.ts): 60 kills/active minute => 1->70 on trash alone = 4.7 h at x1, 1.6 h at x3. Not measured in play.
+paragon: xpToNext(p0)=7500000 xpToNext(p100)=37500000 xpToNext(p800)=247500000; stats=16; points@P800={"core":200,"offense":200,"defense":200,"utility":200}; @P1000={"core":400,"offense":200,"defense":200,"utility":200}
+monsterXp @L30 diff0 by elite tier [normal,champion,rare,minion,boss,goblin] = 3903 / 15612 / 23418 / 5855 / 156121 / 31224
+Cube: level -> cumulative Cube XP to reach it | functions unlocked (CUBE_FUNCTIONS.unlock)
+L1: cumXP=0 | unlocks salvage
+L2: cumXP=60 | unlocks fuse
+L3: cumXP=236 | unlocks enchant
+L4: cumXP=565 | unlocks upgrade
+L5: cumXP=1079 | unlocks transmute
+L6: cumXP=1806 | unlocks extract
+L7: cumXP=2770 | unlocks reforge
+L8: cumXP=3995 | unlocks socket
+L9: cumXP=5501 | unlocks -
+salvage Cube XP by rarity (normal/magic/rare/legendary/set) = 2/4/9/30/30 per salvageXp(); cube level 8 needs 3995 Cube XP
+
+## 6. DROPS (Monte Carlo, warrior, no Magic Find, fixed seeds)
+PITY_THRESHOLD=45 non-legendary item rolls
+{"level":5,"diff":0,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.0756,"legendariesPerKill":0.0022,"killsPerLegendary":454.1,"gapP50":531,"gapP90":679,"gapMax":829,"rarityShare":{"normal":0.479,"magic":0.372,"rare":0.12},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":0.221,"gemsPerKill":0.0122,"deathsBreathPerKill":0}
+{"level":20,"diff":0,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.0748,"legendariesPerKill":0.00204,"killsPerLegendary":489.4,"gapP50":558,"gapP90":712,"gapMax":856,"rarityShare":{"normal":0.397,"magic":0.409,"rare":0.167},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":0.22,"gemsPerKill":0.012,"deathsBreathPerKill":0}
+{"level":40,"diff":0,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.075,"legendariesPerKill":0.00222,"killsPerLegendary":450,"gapP50":525,"gapP90":693,"gapMax":935,"rarityShare":{"normal":0.291,"magic":0.438,"rare":0.241},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":0.222,"gemsPerKill":0.0118,"deathsBreathPerKill":0}
+{"level":70,"diff":0,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.076,"legendariesPerKill":0.00217,"killsPerLegendary":459.5,"gapP50":529,"gapP90":687,"gapMax":883,"rarityShare":{"normal":0.11,"magic":0.491,"rare":0.37},"ancientPerLegendary":0.094,"primalPerLegendary":0,"goldPilesPerKill":0.22,"gemsPerKill":0.0121,"deathsBreathPerKill":0}
+{"level":70,"diff":4,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.0997,"legendariesPerKill":0.00377,"killsPerLegendary":265,"gapP50":265,"gapP90":488,"gapMax":751,"rarityShare":{"normal":0.095,"magic":0.408,"rare":0.459},"ancientPerLegendary":0.093,"primalPerLegendary":0,"goldPilesPerKill":0.22,"gemsPerKill":0.012,"deathsBreathPerKill":0}
+{"level":70,"diff":8,"tier":0,"inRift":false,"N":200000,"itemsPerKill":0.1226,"legendariesPerKill":0.00566,"killsPerLegendary":176.6,"gapP50":149,"gapP90":378,"gapMax":544,"rarityShare":{"normal":0.08,"magic":0.361,"rare":0.513},"ancientPerLegendary":0.119,"primalPerLegendary":0.0018,"goldPilesPerKill":0.219,"gemsPerKill":0.0121,"deathsBreathPerKill":0}
+{"level":70,"diff":8,"tier":0,"inRift":true,"N":200000,"itemsPerKill":0.1227,"legendariesPerKill":0.00732,"killsPerLegendary":136.4,"gapP50":105,"gapP90":324,"gapMax":487,"rarityShare":{"normal":0.079,"magic":0.354,"rare":0.507},"ancientPerLegendary":0.11,"primalPerLegendary":0.0027,"goldPilesPerKill":0.219,"gemsPerKill":0.0122,"deathsBreathPerKill":0}
+{"level":30,"diff":0,"tier":1,"inRift":false,"N":200000,"itemsPerKill":1.5013,"legendariesPerKill":0.04242,"killsPerLegendary":23.7,"gapP50":29,"gapP90":32,"gapMax":39,"rarityShare":{"normal":0.306,"magic":0.366,"rare":0.3},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":2,"gemsPerKill":0.2516,"deathsBreathPerKill":0.5988}
+{"level":30,"diff":0,"tier":2,"inRift":false,"N":200000,"itemsPerKill":2.5015,"legendariesPerKill":0.07041,"killsPerLegendary":14.4,"gapP50":18,"gapP90":19,"gapMax":22,"rarityShare":{"normal":0.305,"magic":0.366,"rare":0.3},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":3,"gemsPerKill":0.251,"deathsBreathPerKill":0.6002}
+{"level":30,"diff":0,"tier":4,"inRift":false,"N":200000,"itemsPerKill":6.0797,"legendariesPerKill":2.18357,"killsPerLegendary":1,"gapP50":1,"gapP90":1,"gapMax":1,"rarityShare":{"normal":0.202,"magic":0.242,"rare":0.197},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":8,"gemsPerKill":0.2505,"deathsBreathPerKill":3.0003}
+{"level":30,"diff":0,"tier":5,"inRift":false,"N":200000,"itemsPerKill":6.9984,"legendariesPerKill":1.75066,"killsPerLegendary":1.2,"gapP50":1,"gapP90":2,"gapMax":6,"rarityShare":{"normal":0.236,"magic":0.283,"rare":0.231},"ancientPerLegendary":0,"primalPerLegendary":0,"goldPilesPerKill":18,"gemsPerKill":0.2496,"deathsBreathPerKill":0}
+tier key: 0 trash, 1 champion, 2 rare, 4 boss(guardian), 5 treasure goblin
