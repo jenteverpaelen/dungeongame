@@ -455,8 +455,251 @@ Every report to the owner is short and uses the same headings:
 7. **Next slice.**
 
 
+---
 
-> **[Part 03 is still being written - see the latest commit on branch docs/mmo-roadmap]**
+## 4. Phase 1 — Research program
+
+### 4.1 Purpose and rules
+
+**Purpose.** Replace the 21 fast-draft dossiers with verified ones, covering — for every reference game — progression, early game, loot progression, every UI screen, and the systems the roadmap needs, so that the decision register (§5) and the phases (§7) rest on evidence.
+
+**Evidence standard** — reuse the vocabulary Codex already applied in `docs/town/REFERENCES.md`, so all documents agree:
+
+| Codex's word | Meaning | Roadmap tag |
+|---|---|---|
+| **Observed / source-verified** | the named page, video frame, or repository code was actually read | `[S]` |
+| **Measured** | a recorded experiment or exact source-data extraction | `[M]` |
+| **Inferred** | a reconstruction or estimate; must name its source and uncertainty | `[P]`-grade until reviewed |
+| **Unverified** | missing, inaccessible, version-mismatched, or only a search snippet | `[Q]` |
+
+**Hard rules for researchers (human or agent):**
+
+1. **Primary sources first**: official patch notes, official game guides, developer posts and talks, store pages. Then reputable secondary (cited wikis, press interviews, conference talks). Then community data (spreadsheets, forums). Then video. **Search snippets are leads, never evidence.**
+2. **Every claim** gets: source ID, URL, retrieval date, the patch/version/date of the *content* described, what was actually read, and limits.
+3. **State the version.** Games change. Name the patch (e.g. which Diablo III patch); mark version-mismatched facts.
+4. **Do not copy.** Summarise in your own words; short quotations (a few words) only, with attribution. No copied lore, no copied item or skill text in shipped data. Reference games are references only.
+5. **Images and footage** stay in an ignored `reference-local/` folder, never committed, never shipped, with a download register entry (name, source, size, hash, purpose, the owner's OK). **Every download needs the owner's explicit OK** — ask once with a list.
+6. **Do not bypass** CAPTCHAs, paywalls, anti-bot walls or terms of service; record the block as a gap (Codex did this for a Cloudflare wall — correct). No cheat or mod software. No account creation. No purchases.
+7. **Say what is not known.** A short, honest "Gaps" section is worth more than a confident guess.
+8. **Time-box** each charter with a stop condition; report partial results rather than padding.
+
+**Depth levels** (state the level reached per topic):
+
+| Level | Meaning |
+|---|---|
+| L1 | overview with sources |
+| L2 | system documented with numbers/formulas and sources |
+| L3 | corroborated by ≥ 2 independent sources or by inspected footage frames |
+| L4 | reproducible: formula + script + test vectors in the repo |
+
+Required depth: **L3 for everything that will become a number in our game** (XP, drops, costs, cadences, unlock levels); L2 for UI flows and feature lists; L1 for context.
+
+### 4.2 Templates (full text in Appendix F)
+
+- **Dossier** (`docs/research/v2/<id>-<game>.md`): scope and version · evidence standard · findings table (claim, source ID, class, confidence, limits) · source register · numbers extracted (value, unit, formula, source) · early-game timeline · loot progression · UI screen inventory · "lessons for Hearthfall" (tagged `[P]`) · gaps · questions for the owner.
+- **Claim register** (`docs/research/v2/CLAIMS.csv`): `id, game, topic, claim, value, unit, source_id, class, confidence, patch, retrieved, reviewer`.
+- **Timeline matrix cell**, **UI atlas entry**, **option brief**, **download register**: Appendix F.
+
+### 4.3 Charters
+
+Each charter lists the questions that **must** be answered. Anything not answered is reported as a gap. "Sources to try" are starting points, not a guarantee they will load.
+
+#### R-01 — Diablo III: Reaper of Souls (PC) — the primary reference
+
+State the patch you describe. Cover the campaign **and** Adventure Mode.
+
+*R-01-EARLY (first hours)*
+1. The first 30 minutes of a new character, step by step: events, pop-ups, tutorial tips, NPCs met, with the level at each step.
+2. For at least two classes: the level at which each skill slot, each skill, each rune and each passive slot unlocks.
+3. When does the first rare and first legendary typically appear in normal campaign play — official statements or community-measured rates?
+4. How is the UI progressively revealed (which panels and hotkeys appear when)?
+5. Quest structure (act → quest → step), typical step counts and durations.
+6. Time to level 70 for casual vs fast play, with sources and the patch.
+
+*R-01-SYS (systems and numbers)*
+7. XP table, monster level scaling, difficulty multipliers (Normal → Master, Torment), Paragon rules (account-wide?), kill-XP rules.
+8. Damage buckets, armor and resistance formulas, crit and attack-speed rules, area-damage rules.
+9. Monster Power / Torment rewards and gating.
+
+*R-01-LOOT (loot progression)*
+10. Drop rates by rarity and by source; legendary base rates; Ancient and Primal rates; Magic Find / Gold Find effects; smart-loot percentage; any bad-luck protection (where does our "pity after 45 rolls" come from, if anywhere?).
+11. Gambling vendor costs and odds; bounty and rift rewards; cache contents.
+12. Artisan and Cube rules and costs: salvage, combine gems, enchant (including the one-property limit), transmute, extract, upgrade rares, reforge, add socket.
+
+*R-01-END (endgame)*
+13. Rifts and Greater Rifts: progress, guardians, keystones, timers, rank formula, leaderboard rules.
+14. Adventure Mode bounties: structure, rewards, resets.
+15. Seasons and the Season Journey: structure, rewards, resets, what carries over.
+
+*R-01-UI (every screen)* — fill the UI atlas (§4.4) for: character select/create, HUD (all elements and their 1080p positions/sizes), inventory/paperdoll, tooltips (anatomy and comparison), skills & runes, passives, paragon, map & minimap, quest/bounty journal, artisans, vendors, stash, waypoint, party, friends, clan, chat, options, achievements, leaderboards, season journey, death/respawn, loot labels and beams, notifications.
+
+*R-01-SOCIAL/ECON/FEEL* — party mechanics and shared XP/loot; trading rules and history; gold sources and sinks; repair; hit feedback, loot-drop presentation, key sounds (describe; do not download audio).
+
+*Sources to try:* Blizzard patch notes and official game guide; D3 wiki pages with citations; conference talks by the developers; Maxroll/d3planner-style references for formulas (label as community); gameplay footage with timestamps for UI flows.
+
+#### R-02 — Legends of Idleon
+
+1. World structure and how new worlds/zones are introduced; what the first 1, 5, 20 hours look like.
+2. Character classes and class progression; the talent system; how skills (combat and non-combat) level.
+3. AFK/idle rules: gain rates, caps, active vs offline, what is account-wide vs per character.
+4. Account-wide systems (shared storage, shrines, collections, bonuses) and how alts feed the main.
+5. Economy and trading; social features and guilds.
+6. UI atlas (all panels, hotkeys, how information density is handled).
+7. Visual system: paper-doll rendering of gear, animation states, damage numbers.
+8. Monetization and the criticisms players make of it (as a caution).
+9. What keeps players coming back (measurable signals: events, update cadence, goals).
+
+#### R-03 — Task Bar Hero (TBH)
+
+Existing dossier 06 claims: released 27 May 2026, "Hero-dric Cube", a 197-node Rune Tree, ten item tiers, pets, Steam Marketplace trading, party of heroes, "live idle" vs offline. **Re-verify every one.**
+1. Release facts, concurrent-player history, review summary and the reasons players give for mixed reviews.
+2. Hero classes, party formation, auto-combat rules.
+3. The Cube: every function, unlock rule, XP source, cost.
+4. The Rune Tree: structure, node types, respec, account scope.
+5. Item tiers, affixes, drop and upgrade rules.
+6. Live-idle vs offline reward ratios (exact numbers and source).
+7. Marketplace/trading design and what happened to its economy.
+8. Stage/boss structure, pets, soulstones/keys and other gates.
+9. UI atlas (it must work as a tiny always-visible window — what survives that constraint?).
+
+#### R-04 — Path of Exile (1 and 2)
+
+1. Passive tree, ascendancy, skill-gem + support-gem model: how build identity is created and how complexity is taught.
+2. Currency-as-crafting, item filters, trade site: how the economy is structured and policed.
+3. Atlas/maps endgame, leagues and resets: what carries over, what players love and hate.
+4. Early game flow (first 10 levels, campaign length), hideout, town design.
+5. UI atlas, especially inventory, stash tabs, tooltips, loot filter feedback.
+6. Anti-cheat and RMT countermeasures (public statements).
+
+#### R-05 — Diablo IV
+
+1. World tiers, Helltide, Nightmare Dungeons: structure and progression gating.
+2. Paragon boards, glyphs, skill tree, mastery of builds.
+3. Seasons and battle pass: structure, rewards, reception; what changed after launch and why.
+4. Town design and social spaces; UI changes relative to D3 (tooltips, inventory, map).
+5. What the community criticised, and what was changed (a source of "what to avoid").
+
+#### R-06 — MapleStory (Global)
+
+1. Early-game flow (starting island/tutorial), job advancement milestones and what each unlocks — a ready-made model of "leveling direction".
+2. Maps and monster tiers per level range; how training spots are chosen; channels.
+3. Party quests, bosses with lockouts, guilds, the Free Market/trading, cosmetic economy.
+4. Social presence in towns; chat and emotes; what makes the world feel populated.
+5. UI atlas; monetization and cosmetic systems (as a caution/option).
+
+#### R-07 — Lost Ark
+
+1. Skill build system (tripods/engravings or equivalents), honing/upgrade systems, and how complexity is staged.
+2. Daily/weekly structure, rested bonuses, lockouts, and the "chores" criticism.
+3. Guilds, raids, parties; party UI; loot display; floating text.
+4. Early game and onboarding flow; UI atlas.
+
+#### R-08 — Vampire Survivors and survivors-likes
+
+1. Why auto-attack feels good: hit-stop, screen shake, sound, damage-number design, upgrade-pick cadence.
+2. Run structure, weapon evolution, meta-progression between runs.
+3. How the genre uses short feedback loops — lessons for an auto-cast MMO.
+4. Which patterns do **not** transfer (no inventory, no persistence) and why.
+
+#### R-09 — Last Epoch, Grim Dawn, Torchlight Infinite
+
+1. Mastery/passives (Last Epoch), devotion constellations (Grim Dawn), crafting depth, loot filters.
+2. Onboarding and early game; UI differences from D3.
+3. Endgame loops and monetization (Torchlight Infinite).
+
+#### R-10 — Case studies: Hero Siege, Realm of the Mad God, Diablo Immortal, Drakensang Online, Wolcen
+
+1. 2D ARPG/MMO precedents: scale, retention, monetization, technical shape (Hero Siege, Realm of the Mad God).
+2. Failure and backlash analyses (Diablo Immortal monetization; Wolcen scope; Drakensang decline): what exactly went wrong, with sources.
+
+#### R-11 — MMO economies and trading
+
+1. Sources and sinks in OSRS, WoW, Diablo II Resurrected trading culture, PoE trade, TBH Marketplace.
+2. Anti-dupe and anti-RMT measures that are public; inflation control methods.
+3. Binding models and their effects on engagement.
+
+#### R-12 — Browser-MMO technology and operations
+
+1. Authentication for a small game without paid services; password hashing with Node built-ins; session design; recovery.
+2. Storage: whether a built-in SQLite module exists in Node 24 and its stability; backup methods; migration patterns.
+3. WebSocket scaling limits, interest management, snapshot sizing; hosting options within "no paid services" (free tiers: what exists today, what the limits are).
+4. Anti-cheat for authoritative servers; rate limits; DDoS basics.
+5. Reality-check the old dossiers' claims (Colyseus, Phaser 4, 60 Hz, 500 CCU/zone) against our actual stack.
+
+#### R-13 — UI/UX and accessibility standards
+
+1. HUD readability at 1080p and smaller; tooltip anatomy; inventory ergonomics; loot UX.
+2. Accessibility guidelines for games (colour-blindness, reduced motion, text size, input alternatives) — cite published guidelines.
+3. Key-binding conventions; controller UI conventions.
+
+#### R-14 — Build systems and balance math
+
+1. Talent-tree/mastery designs and how they are paced.
+2. Power budgeting; time-to-kill targets; damage/defence formulas used by reference games.
+3. Idle/incremental curve design (e.g. conference talks on idle-game maths) and when exponential vs polynomial curves are used.
+
+#### R-15 — Onboarding / first-time-user-experience patterns
+
+1. The first 30 minutes of each reference game (what is taught, in which order, with what pacing).
+2. Published research or talks on tutorials, progressive disclosure, and early retention.
+3. Patterns for teaching an automated combat model.
+
+#### R-16 — Legal and compliance (not legal advice)
+
+1. EU consumer-law and loot-box regulation by member state (the owner is in the EU); rules on virtual currencies.
+2. GDPR essentials for a small online game: data minimisation, export/delete, retention, consent, children.
+3. Terms of service/EULA structure; age rating process (IARC/PEGI).
+4. What is protectable in games (names, art, text vs mechanics) and how other projects avoid conflicts; licence terms of every third-party component we use.
+
+#### R-17 — Platforms
+
+1. Steam requirements for an Electron-wrapped game (SDK wrapper options, cloud save, achievements, review process).
+2. Browser compatibility and performance baselines; low-spec modes.
+3. Controller/Steam Deck input expectations; localization tooling and cost.
+
+#### R-18 — 2D art and animation pipeline
+
+1. Scalable procedural art techniques; parametric monster/gear families; palette systems.
+2. Paper-doll animation approaches; VFX performance on PixiJS.
+3. Style sheet practices for consistency across many assets.
+
+#### R-19 — Audio
+
+1. Procedural audio techniques; mixing for dense combat; positional audio on the web.
+2. Licensing options for music/SFX (CC0 and similar) — licence texts read individually; downloads need OK.
+
+#### R-20 — Narrative and quest design
+
+1. Quest structures and dialogue UI in ARPGs/MMOs; length and tone conventions.
+2. How to write original lore and names that avoid reference-game language.
+3. Writing guidelines for short in-game text (tooltips, barks, journal).
+
+### 4.4 Cross-game matrices (the synthesis deliverables)
+
+1. **Progression Timeline Matrix** — rows: reference games; columns: T = 10 min, 1 h, 5 h, 20 h, 50 h, 100 h, 200 h; cells: level, power sources, zone, unlocks, loot beats, UIs seen, social features, session goal. This feeds D-01, D-02, D-09.
+2. **Unlock Cadence Matrix** — for each game: when each skill slot, skill, rune/passive, system, and difficulty option unlocks. Feeds §6.4 and P4.
+3. **Loot Cadence Matrix** — drop rates by source, rarity gates by level, pity, crafting costs. Feeds P8, P11.
+4. **UI Atlas** — one entry per screen per game, with a normalised name so entries can be compared. Entry fields: screen · purpose · entry point/hotkey · data shown · interactions · empty/error states · information density · what we would copy as a *pattern* (never pixels). Feeds §9 and P3/P5/P6/P10/P11.
+5. **Feature Matrix** — games × features (§8) with presence/absence and source; feeds the catalogue's "reference" column.
+6. **Cautions list** — each documented failure (monetization backlash, scope blowout, economy collapse) with source and the rule we adopt to avoid it.
+
+### 4.5 Order of research (suggested)
+
+1. R-01-EARLY, R-15, R-02 first-hours, R-03 — they unblock FTUE and pacing (D-01, D-02, D-09).
+2. R-01-LOOT, R-14, R-04 — they unblock P4/P8/P11.
+3. R-01-UI, R-13 and the UI atlas for the other games — they unblock P3 settings and every panel.
+4. R-12, R-16 — they unblock P3 decisions (auth, storage, hosting, privacy).
+5. R-05…R-11, R-17…R-20 — as each phase approaches.
+
+### 4.6 Exit criteria (Gate G1)
+
+- All 20 charters have a dossier with depth levels stated; every number we plan to encode is at L3 or marked unresolved.
+- The four matrices and the UI atlas exist; the claim register is populated and linked from each dossier.
+- A one-page digest per game for the owner: "what to copy, what to avoid, what is unknown".
+- The old dossiers are re-labelled (`docs/research/README.md` marks each as superseded/verified/unreliable).
+- A download register is complete and every item has the owner's OK.
+- The owner has read the digests and the "questions for the owner" list.
+
 
 ---
 
