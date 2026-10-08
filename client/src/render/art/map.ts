@@ -13,6 +13,7 @@ import { hash2, light } from './util';
 import { prewarmMonsters } from './monsters';
 import { bakeRes } from './scale';
 import { summonRigs } from './summons';
+import { buildTownBlockout } from './townBlockout';
 
 export function themeKey(map: MapData): ThemeKey {
   if (map.zone === 'rift') return map.theme === 'ashen' ? 'riftAshen' : 'riftGlade';
@@ -187,6 +188,7 @@ class GlowDecals extends Container {
 // ─────────────────────────── build ───────────────────────────
 
 export function buildLayers(map: MapData): MapLayers {
+  if (map.town) return buildTownBlockout(map.town);
   const theme = themeKey(map);
   const ground = new GroundLayer(map, theme);
   const glows = new GlowDecals(map.w * 64);

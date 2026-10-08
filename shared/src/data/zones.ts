@@ -20,7 +20,7 @@ export interface ZoneDef {
 
 export const ZONES: Record<string, ZoneDef> = {
   hearthmere: {
-    id: 'hearthmere', name: 'Hearthmere', kind: 'town', theme: 'town', levelBand: [1, 70], size: [50, 38],
+    id: 'hearthmere', name: 'Hearthmere', kind: 'town', theme: 'town', levelBand: [1, 70], size: [96, 64],
     packTarget: 0, respawnSec: 0,
     blurb: 'The last lit hearth on the frontier. Every hero passes through its square.',
   },

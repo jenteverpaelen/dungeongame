@@ -325,8 +325,8 @@ class Bot {
 // ─────────────────────────── Helpers ───────────────────────────
 
 let instSeq = 1;
-function newField(zoneId = 'whispering_glade'): Instance {
-  return createInstance({ zoneId, channel: instSeq, key: `${zoneId}#${instSeq++}`, seed: zoneSeed(zoneId, instSeq), theme: ZONES[zoneId].theme }) as Instance;
+function newField(zoneId = 'whispering_glade', fixedSeed?: number): Instance {
+  return createInstance({ zoneId, channel: instSeq, key: `${zoneId}#${instSeq++}`, seed: fixedSeed ?? zoneSeed(zoneId, instSeq), theme: ZONES[zoneId].theme }) as Instance;
 }
 function newRift(level: number, difficulty: number, theme: 'glade' | 'ashen', onDone?: () => void): Instance {
   return createInstance({ zoneId: 'rift', channel: 1, key: `rift#${instSeq++}`, seed: 77 + instSeq * 13, theme, level, difficulty, owner: 'Bot', onRiftComplete: onDone }) as Instance;
@@ -993,9 +993,15 @@ const fmtC = (n: number) => n >= 1e9 ? `${fmt(n / 1e9, 2)}B` : n >= 1e6 ? `${fmt
 function dodgeScenario() {
   console.log('\n== Dodging windups (L10 mage, golems + slimes, 20 s, no skills) ==');
   const taken: number[] = [];
+  // Compare the same arena and equipment. Previously each arm rolled a different map and gear,
+  // so unrelated earlier town scenarios could change the apparent benefit of dodging.
+  const arenaSeed = zoneSeed('whispering_glade', instSeq + 1);
+  let controlSave: CharacterSave | undefined;
   for (const dodge of [false, true]) {
-    const inst = newField('whispering_glade');
-    const save = makeChar('mage', 10);
+    const inst = newField('whispering_glade', arenaSeed);
+    const generated = makeChar('mage', 10);
+    controlSave ??= structuredClone(generated);
+    const save = structuredClone(controlSave);
     save.skills.slots = [null, null, null, null];
     const link = new FakeLink(save);
     link.myId = inst.addPlayer(link);

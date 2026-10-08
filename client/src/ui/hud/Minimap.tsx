@@ -30,6 +30,19 @@ function bake(map: MapData): Baked {
   c.width = map.w * BAKE_PX;
   c.height = map.h * BAKE_PX;
   const g = c.getContext('2d')!;
+  if (map.town) {
+    g.scale(BAKE_PX / TILE, BAKE_PX / TILE);
+    const poly = (points: number[][], fill: string) => {
+      g.beginPath(); points.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
+      g.fillStyle = fill; g.fill();
+    };
+    for (const f of map.town.floors) poly(f.polygon, '#727b83');
+    for (const b of map.town.buildings) poly(b.footprint, '#323b44');
+    g.strokeStyle = '#b1bbc4';
+    for (const b of map.town.barriers) { g.lineWidth = b.radius * 2; g.beginPath(); g.moveTo(...b.a); g.lineTo(...b.b); g.stroke(); }
+    for (const p of map.town.props) { g.fillStyle = '#323b44'; g.beginPath(); g.arc(p.x, p.y, p.radius, 0, Math.PI * 2); g.fill(); }
+    return { map, key: mapKey(map), canvas: c };
+  }
   const colorOf = (t: number): RGB => (t === T_FLOOR ? pal.floor : t === T_PATH ? pal.path : t === T_PLAZA ? pal.plaza : t === T_WALL ? pal.wall : t === T_WATER ? pal.water : pal.void);
   for (let y = 0; y < map.h; y++) {
     for (let x = 0; x < map.w; x++) {
@@ -87,6 +100,9 @@ function diamond(g: CanvasRenderingContext2D, x: number, y: number, r: number, f
 
 function npcIcon(g: CanvasRenderingContext2D, role: string, x: number, y: number) {
   switch (role) {
+    case 'blacksmith': case 'jeweler': case 'mystic':
+      dot(g, x, y, 6, role === 'blacksmith' ? '#dca877' : role === 'jeweler' ? '#77dfc1' : '#c6a2ee');
+      g.font = 'bold 8px Arial'; g.fillStyle = '#172029'; g.textAlign = 'center'; g.fillText(role[0].toUpperCase(), x, y + 3); break;
     case 'cube': diamond(g, x, y, 6, '#e0b45a'); diamond(g, x, y, 2.4, '#fff1c0'); break;
     case 'obelisk': diamond(g, x, y, 6.4, '#a56bff'); diamond(g, x, y, 2.4, '#e9d6ff'); break;
     case 'waypoint':

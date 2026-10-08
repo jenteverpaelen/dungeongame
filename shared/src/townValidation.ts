@@ -1,0 +1,79 @@
+import { PLAYER_RADIUS } from './constants';
+import { TownCollision } from './townCollision';
+import { inPolygon } from './townGeometry';
+import type { Point, TownData } from './townTypes';
+
+function crosses(a: Point, b: Point, c: Point, d: Point): boolean {
+  const side = (p: Point, q: Point, r: Point) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  return side(a, b, c) * side(a, b, d) < -1e-6 && side(c, d, a) * side(c, d, b) < -1e-6;
+}
+export function validateTown(t: TownData): string[] {
+  const errors: string[] = [], ids = new Set<string>();
+  if (t.version !== 1 || t.id !== 'hearthmere') errors.push('unsupported town/version');
+  const point = (p: Point, id: string) => { if (p.length !== 2 || !p.every(Number.isFinite) || p[0] < 0 || p[1] < 0 || p[0] > t.size[0] * 64 || p[1] > t.size[1] * 64) errors.push(`${id}: invalid/out-of-bounds point`); };
+  const id = (s: string) => { if (ids.has(s)) errors.push(`duplicate id ${s}`); ids.add(s); };
+  const polygon = (p: Point[], label: string) => {
+    if (p.length < 3) errors.push(`${label}: too few vertices`);
+    p.forEach(v => point(v, label));
+    for (let i = 0; i < p.length; i++) for (let j = i + 2; j < p.length; j++) {
+      if ((j + 1) % p.length === i) continue;
+      if (crosses(p[i], p[(i + 1) % p.length], p[j], p[(j + 1) % p.length])) errors.push(`${label}: self intersection`);
+    }
+  };
+  for (const f of t.floors) { id(f.id); polygon(f.polygon, f.id); }
+  for (const b of t.buildings) {
+    id(b.id); polygon(b.footprint, b.id); b.baseline.forEach(p => point(p, b.id));
+    for (const d of b.doors) {
+      id(d.id); [d.a, d.b, d.approach, d.inside].forEach(p => point(p, d.id));
+      if (Math.hypot(d.a[0] - d.b[0], d.a[1] - d.b[1]) < PLAYER_RADIUS * 4) errors.push(`${d.id}: opening narrower than two player diameters`);
+    }
+  }
+  for (let i = 0; i < t.buildings.length; i++) for (let j = i + 1; j < t.buildings.length; j++) {
+    const a = t.buildings[i], b = t.buildings[j];
+    if (a.footprint.some(p => inPolygon(...p, b.footprint)) || b.footprint.some(p => inPolygon(...p, a.footprint)) || a.footprint.some((p, k) => b.footprint.some((q, n) => crosses(p, a.footprint[(k + 1) % a.footprint.length], q, b.footprint[(n + 1) % b.footprint.length])))) errors.push(`${a.id}/${b.id}: overlapping footprints`);
+  }
+  for (const b of t.barriers) { id(b.id); point(b.a, b.id); point(b.b, b.id); if (!(b.radius > 0)) errors.push(`${b.id}: invalid radius`); }
+  for (const p of t.props) { id(p.id); point([p.x, p.y], p.id); if (!(p.radius > 0)) errors.push(`${p.id}: invalid radius`); }
+  for (const n of t.npcs) { id(n.id); point([n.x, n.y], n.id); point(n.approach, n.id); if (!(n.r > 0) || !(n.interactionRadius >= 0)) errors.push(`${n.id}: invalid radius`); }
+  if (errors.length) return errors;
+  const world = new TownCollision(t), r = PLAYER_RADIUS;
+  if (!world.isFree(t.entry.x, t.entry.y, r)) errors.push('entry blocked');
+  for (const n of t.npcs) {
+    if (!world.isFree(n.x, n.y, n.r, true)) errors.push(`${n.id}: body outside ground/inside solid`);
+    if (!world.isFree(...n.approach, r)) errors.push(`${n.id}: approach blocked`);
+  }
+  for (const b of t.buildings) for (const d of b.doors) {
+    const end = world.moveCircle(...d.approach, r, d.inside[0] - d.approach[0], d.inside[1] - d.approach[1]);
+    if (Math.hypot(end.x - d.inside[0], end.y - d.inside[1]) > .01 || !world.isFree(...d.inside, r)) errors.push(`${d.id}: doorway blocked`);
+  }
+  for (const route of t.routes) for (let i = 1; i < route.points.length; i++) {
+    const a = route.points[i - 1], b = route.points[i], end = world.moveCircle(...a, r, b[0] - a[0], b[1] - a[1]);
+    if (!world.isFree(...a, r) || Math.hypot(end.x - b[0], end.y - b[1]) > .01) errors.push(`${route.label}: blocked segment ${i}`);
+  }
+  // Reachability is independent of the hand-authored route list: flood actual circle-clear ground.
+  const step = 32, w = Math.ceil(t.size[0] * 64 / step), h = Math.ceil(t.size[1] * 64 / step);
+  const seen = new Uint8Array(w * h), queue: number[] = [];
+  const sx = Math.round(t.entry.x / step), sy = Math.round(t.entry.y / step);
+  const start = world.moveCircle(t.entry.x, t.entry.y, r, sx * step - t.entry.x, sy * step - t.entry.y);
+  if (Math.hypot(start.x - sx * step, start.y - sy * step) > .01) errors.push('entry cannot reach validation grid');
+  else { seen[sy * w + sx] = 1; queue.push(sy * w + sx); }
+  for (let head = 0; head < queue.length; head++) {
+    const n = queue[head], x = n % w, y = Math.floor(n / w);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy, k = ny * w + nx;
+      if (nx < 0 || ny < 0 || nx >= w || ny >= h || seen[k] || !world.isFree(nx * step, ny * step, r)) continue;
+      const end = world.moveCircle(x * step, y * step, r, dx * step, dy * step);
+      if (Math.hypot(end.x - nx * step, end.y - ny * step) < .01) { seen[k] = 1; queue.push(k); }
+    }
+  }
+  for (const target of [...t.npcs.map(n => ({ id: n.id, p: n.approach })), ...t.portals.map(p => ({ id: p.to, p: [p.x, p.y] as Point }))]) {
+    const sx = Math.round(target.p[0] / step), sy = Math.round(target.p[1] / step);
+    let reachable = false;
+    for (let y = sy - 1; y <= sy + 1; y++) for (let x = sx - 1; x <= sx + 1; x++) if (seen[y * w + x]) {
+      const end = world.moveCircle(x * step, y * step, r, target.p[0] - x * step, target.p[1] - y * step);
+      if (Math.hypot(end.x - target.p[0], end.y - target.p[1]) < .01) reachable = true;
+    }
+    if (!reachable) errors.push(`${target.id}: unreachable from entry`);
+  }
+  return errors;
+}

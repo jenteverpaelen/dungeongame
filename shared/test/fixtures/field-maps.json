@@ -1,0 +1,80 @@
+[
+  {
+    "zone": "whispering_glade",
+    "seed": 1,
+    "map": "2c0fee0235db59204ddcefbe710fe8e903b4852eac348a76143bdea632ecb4c1",
+    "movement": "a47aaa07c24ab5e1f28227b900483b099e4cb56c3feb412ac4bdb798249eff36"
+  },
+  {
+    "zone": "whispering_glade",
+    "seed": 42,
+    "map": "b0311f226d62ca89007ed5ebe8747fc663ea28592a951bf749f5be9c2ec6f5cd",
+    "movement": "2a4b46254162cdaf56af5c00f9269ed36d871dae48e58c17f2487fb05a866d9b"
+  },
+  {
+    "zone": "whispering_glade",
+    "seed": 79477,
+    "map": "41ce34d385147da771457bc4e68e08f23a2d4ac93b84b7ea91ffdab486178d15",
+    "movement": "be4a787806d7b42e4ade1c5d0b6d5c9c22097fb74376457b0e1e5df3a0bad1b3"
+  },
+  {
+    "zone": "ashen_hollow",
+    "seed": 1,
+    "map": "ad29f1440ef03c8e3f77eeea8322372fbc5f8adae423f817e16160c75656c883",
+    "movement": "84806f13ec3018a31006ef07737f70ae6ccd8cee6234d18154aa409dd8af0c76"
+  },
+  {
+    "zone": "ashen_hollow",
+    "seed": 42,
+    "map": "d89877963bee32115c6551f0db3df448e8ad40712e0906fd6a35d6082b4e6779",
+    "movement": "3d93c5057ce31768b1f0078ae15d8869fb712c4c0a36d2cf18d147869c6039c3"
+  },
+  {
+    "zone": "ashen_hollow",
+    "seed": 79477,
+    "map": "d70d5fddc8a353b51d8674c848f39c79505c23724e15d15341152d7758253fb2",
+    "movement": "d1fa68176fffed60af8f695823f3c165c5eaaa480e993902155af6f667f84cb8"
+  },
+  {
+    "zone": "rift",
+    "seed": 1,
+    "theme": "glade",
+    "map": "659324a6db421b0ed1b43f25217a71fd9a000c0b10ba018db5b2e1ec649a7d60",
+    "movement": "d7c93b7a6d6e2457c0b3984bc2170aa7ff60e8c2841e27b07266497db0ea05b6"
+  },
+  {
+    "zone": "rift",
+    "seed": 1,
+    "theme": "ashen",
+    "map": "4a153873276c193f614412f90ea900978f55ce4876a2c58e78dbc2722389167a",
+    "movement": "d7c93b7a6d6e2457c0b3984bc2170aa7ff60e8c2841e27b07266497db0ea05b6"
+  },
+  {
+    "zone": "rift",
+    "seed": 42,
+    "theme": "glade",
+    "map": "2e2612740663a9e3d60857817c1ce80a920c1221d2b36ce0617978636a183f30",
+    "movement": "a6da191f5511fa729d9b162232e4a997e2b38fd8d941efa97db3c0c81eaeb2fa"
+  },
+  {
+    "zone": "rift",
+    "seed": 42,
+    "theme": "ashen",
+    "map": "60a58e2aca1124342475d2d5cbd54bdb8eb4dd176a9fb6cd074baa4f055c7345",
+    "movement": "a6da191f5511fa729d9b162232e4a997e2b38fd8d941efa97db3c0c81eaeb2fa"
+  },
+  {
+    "zone": "rift",
+    "seed": 79477,
+    "theme": "glade",
+    "map": "24690db2e0aab0cf9dd8de9232f37e0114513efe79bd590f7bb98607981ded4f",
+    "movement": "2ffda5569c6584b66bc788b4fe018d5e7181518f616baccde41c75e3fc67f4f8"
+  },
+  {
+    "zone": "rift",
+    "seed": 79477,
+    "theme": "ashen",
+    "map": "54dea7f93c856d035f1cdf4e2cfab83ef841540d30df10524c18d807ec1bb32e",
+    "movement": "2ffda5569c6584b66bc788b4fe018d5e7181518f616baccde41c75e3fc67f4f8"
+  }
+]

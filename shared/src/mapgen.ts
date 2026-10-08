@@ -4,6 +4,8 @@
 import { TILE } from './constants';
 import { ZONES, type Theme } from './data/zones';
 import { Rng, hashString } from './math';
+import { loadAuthoredTown } from './town';
+import type { TownData } from './townTypes';
 
 export const T_VOID = 0;
 export const T_FLOOR = 1;
@@ -23,7 +25,7 @@ export interface Prop {
   v: number;   // variant
 }
 
-export type NpcRole = 'cube' | 'stash' | 'obelisk' | 'waypoint' | 'dummy' | 'paragon' | 'healer' | 'vendor';
+export type NpcRole = 'cube' | 'stash' | 'obelisk' | 'waypoint' | 'dummy' | 'paragon' | 'healer' | 'vendor' | 'blacksmith' | 'jeweler' | 'mystic';
 
 export interface NpcSpot { id: string; name: string; role: NpcRole; x: number; y: number; r: number }
 
@@ -41,6 +43,7 @@ export interface MapData {
   entry: { x: number; y: number };
   portals: Portal[];
   npcs: NpcSpot[];
+  town?: TownData;
 }
 
 // ─────────────────────────── Noise ───────────────────────────
@@ -346,7 +349,7 @@ function genRift(seed: number, theme: Theme): MapData {
 export function generateMap(zoneId: string, seed: number, theme?: Theme): MapData {
   const def = ZONES[zoneId];
   if (!def) throw new Error(`unknown zone ${zoneId}`);
-  if (def.kind === 'town') return genTown(seed);
+  if (def.kind === 'town') return loadAuthoredTown(seed);
   if (def.kind === 'field') return genField(zoneId, seed);
   return genRift(seed, theme ?? 'glade');
 }

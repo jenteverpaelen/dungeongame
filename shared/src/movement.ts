@@ -3,6 +3,7 @@
 
 import { BASE_MOVE_SPEED, DASH, TILE } from './constants';
 import { isBlockedTile, type MapData } from './mapgen';
+import { TownCollision } from './townCollision';
 
 interface Collider { x: number; y: number; r: number }
 
@@ -15,6 +16,7 @@ export class CollisionWorld {
   private cells = new Map<number, Collider[]>();
   readonly widthPx: number;
   readonly heightPx: number;
+  readonly town?: TownCollision;
 
   constructor(map: MapData) {
     this.w = map.w;
@@ -22,6 +24,7 @@ export class CollisionWorld {
     this.tiles = map.tiles;
     this.widthPx = map.w * TILE;
     this.heightPx = map.h * TILE;
+    if (map.town) { this.town = new TownCollision(map.town); return; }
     for (const p of map.props) if (p.r > 0) this.addCollider({ x: p.x, y: p.y, r: p.r * (p.s || 1) });
     for (const n of map.npcs) this.addCollider({ x: n.x, y: n.y, r: n.r });
   }
@@ -29,6 +32,7 @@ export class CollisionWorld {
   private key(cx: number, cy: number) { return cy * 4096 + cx; }
 
   addCollider(c: Collider) {
+    if (this.town) { this.town.addCircle(c.x, c.y, c.r); return; }
     const x0 = Math.floor((c.x - c.r) / CELL), x1 = Math.floor((c.x + c.r) / CELL);
     const y0 = Math.floor((c.y - c.r) / CELL), y1 = Math.floor((c.y + c.r) / CELL);
     for (let cy = y0; cy <= y1; cy++) for (let cx = x0; cx <= x1; cx++) {
@@ -46,11 +50,13 @@ export class CollisionWorld {
   }
 
   blockedAt(wx: number, wy: number): boolean {
+    if (this.town) return !this.town.isFree(wx, wy, .001, true);
     return isBlockedTile(this.tileAt(wx, wy));
   }
 
   /** True if a circle at (x, y) overlaps no blocked tile or collider. */
   isFree(x: number, y: number, r: number): boolean {
+    if (this.town) return this.town.isFree(x, y, r);
     const tx0 = Math.floor((x - r) / TILE), tx1 = Math.floor((x + r) / TILE);
     const ty0 = Math.floor((y - r) / TILE), ty1 = Math.floor((y + r) / TILE);
     for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
@@ -67,6 +73,7 @@ export class CollisionWorld {
 
   /** Move a circle by (dx, dy), sliding along walls and props. */
   moveCircle(x: number, y: number, r: number, dx: number, dy: number, ignoreProps = false): { x: number; y: number } {
+    if (this.town) return this.town.moveCircle(x, y, r, dx, dy, ignoreProps);
     const len = Math.hypot(dx, dy);
     const steps = Math.max(1, Math.ceil(len / (r * 0.5)));
     const sx = dx / steps, sy = dy / steps;
@@ -79,6 +86,7 @@ export class CollisionWorld {
   }
 
   resolve(x: number, y: number, r: number, ignoreProps = false): { x: number; y: number } {
+    if (this.town) return this.town.resolve(x, y, r, ignoreProps);
     for (let pass = 0; pass < 2; pass++) {
       const tx0 = Math.floor((x - r) / TILE), tx1 = Math.floor((x + r) / TILE);
       const ty0 = Math.floor((y - r) / TILE), ty1 = Math.floor((y + r) / TILE);
@@ -119,6 +127,7 @@ export class CollisionWorld {
 
   /** Coarse line-of-sight test for projectiles (samples tiles along the segment). */
   segmentBlocked(x0: number, y0: number, x1: number, y1: number): boolean {
+    if (this.town) return this.town.segmentBlocked(x0, y0, x1, y1);
     const len = Math.hypot(x1 - x0, y1 - y0);
     const steps = Math.ceil(len / (TILE / 2));
     for (let i = 1; i <= steps; i++) {

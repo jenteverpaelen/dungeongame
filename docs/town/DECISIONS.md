@@ -23,3 +23,11 @@ Date: 2026-10-08. Gate 1 approved explicitly in this chat after presentation of 
 ## Gate state
 
 **Gate 1 approved** by the owner's “i approve” after reviewing the diagram in dfcd009. This accepts the proportional layout, uncertainty and marked Paragon/training adaptations. M0 is accepted as the recorded reconnaissance baseline, with its documented limitations retained. Next work: M1 authored data/collision/blockout then M2 service greybox. **Stop at Gate 2 for their walkthrough; no look/art approval inferred.**
+
+## D016 — Blockout clearances and doorway recess (2026-10-08)
+**What:** keep all approved service centres and road/space coordinates, use explicit smaller collision bodies so the approved approaches fit; cut a 96 u wide, 64 u deep doorway recess into the inn front. Road joins use overlapping authored polygons. **Why/evidence:** L07, approved M0 geometry, player radius 16; this makes doorway and service clearance testable before art. **Risk:** silhouettes and exact massing remain provisional. **Rollback:** JSON-only geometry revision; do not change the accepted street topology. Full inn/forge interiors remain M5.
+
+**D016 measured follow-up:** the first circle-clearance check found the waypoint intersected several M0 centre-point route lines. Runtime walking routes now skirt its body by 79–82 u before heading north; centres and street topology stay fixed. The Rift marker is close to the plaza edge; its blockout body is 18 u, pending the look pass. Mystic-to-forge route bends west of the forge shoulder. This replaces M0 point-only route validation with player-radius sweeps.
+
+## D017 — Control the simulation dodge comparison (2026-10-08)
+**What/why:** both arms now use the same map seed and cloned equipment; preserve the existing <50% damage assertion and all production combat code. **Evidence:** L08; M1 field/movement golden tests unchanged, controlled full sim 382/382. **Risk:** historical simulation aggregate timings/outcomes are not directly comparable after this harness correction. **Rollback:** revert only the `dodgeScenario`/optional `newField` seed changes; retain the reported failing uncontrolled result rather than weaken its threshold.

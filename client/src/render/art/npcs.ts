@@ -324,8 +324,9 @@ export class NpcArt implements EntityView {
 
   constructor(role: NpcRole | string, name: string) {
     const elite = /elite/i.test(name);
-    if (role === 'healer' || role === 'vendor') {
-      const v = new PlayerArt(role === 'healer' ? HEALER : VENDOR);
+    if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic'].includes(role)) {
+      // Existing human rigs are explicit blockout stand-ins; role-specific craft animations follow the look gate.
+      const v = new PlayerArt(role === 'healer' || role === 'mystic' ? HEALER : VENDOR);
       if (role === 'vendor') v.root.addChildAt(backpack(), 1);
       this.inner = v;
     } else {

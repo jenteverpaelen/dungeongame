@@ -197,6 +197,7 @@ export class Game {
       return;
     }
     if (typing || st.screen !== 'game') return;
+    if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
     if (k === 'Enter') { ui.set({ chatOpen: true }); this.input.clear(); return; }
     const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', u: 'cube', F1: 'help', F2: 'debug' };
     if (panels[k]) { togglePanel(panels[k]); return; }

@@ -12,6 +12,7 @@ import {
 import type { EntityView, PlayerView, ViewState } from './types';
 import { Vfx } from './vfx';
 import type { ClientEntity, ClientWorld } from '../game/world';
+import { townCollisionOverlay } from './art/townBlockout';
 
 /** World units visible vertically; heroes (~64 u) end up ~110 px tall at 1080p, close to Diablo 3's on-screen size. */
 const VIEW_HEIGHT = 620;
@@ -43,6 +44,13 @@ export class Scene {
   map: MapData | null = null;
   myAps = 1.2;
   hoverId = 0;
+  private collisionOverlay: Container | null = null;
+  private showCollision = false;
+
+  toggleCollision() {
+    this.showCollision = !this.showCollision;
+    if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
+  }
 
   constructor(private app: Application, private world: ClientWorld) {
     this.entities.sortableChildren = true;
@@ -74,6 +82,9 @@ export class Scene {
     this.statics = [];
     this.vfx.clear();
     this.map = map;
+    this.collisionOverlay?.destroy({ children: true });
+    this.collisionOverlay = map.town ? townCollisionOverlay(map.town) : null;
+    if (this.collisionOverlay) { this.collisionOverlay.visible = this.showCollision; this.aboveFx.addChild(this.collisionOverlay); }
     const layers = buildMapLayers(map);
     this.ground.addChild(layers.ground);
     this.decals.addChild(layers.decals);

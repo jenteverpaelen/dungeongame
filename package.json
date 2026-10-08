@@ -12,7 +12,8 @@
     "start": "tsx server/src/main.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test shared/test/*.test.ts",
-    "test:server": "tsx server/test/bot.ts"
+    "test:server": "tsx server/test/bot.ts",
+    "town:check": "tsx scripts/check-town.ts"
   },
   "dependencies": {
     "@fontsource/alegreya-sans": "^5.3.0",
