@@ -952,6 +952,7 @@
   text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6);
   animation: keyPulse 1.4s ease-in-out infinite alternate;
 }
+.ip-key.wide { width: auto; min-width: calc(var(--u) * 32); padding: 0 calc(var(--u) * 8); border-radius: calc(var(--u) * 16); font-size: calc(var(--u) * 14); }
 .ip-text { font-family: var(--font-display); font-weight: 700; font-size: var(--f-l); letter-spacing: 0.05em; color: var(--text-bright); }
 .ip-text em { font-style: normal; color: var(--bronze-2); margin-right: calc(var(--u) * 4); }
 
@@ -996,12 +997,14 @@
 /* ═════════════════════════ Help ═════════════════════════ */
 
 .help-wrap { position: fixed; inset: 0; display: grid; place-items: center; z-index: 25; background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.62)); animation: fadeIn 0.2s ease-out; }
-.help-panel { width: calc(var(--u) * 470); padding: calc(var(--u) * 28) calc(var(--u) * 34) calc(var(--u) * 26); animation: modalIn 0.3s var(--ease-out); }
+.help-panel { width: calc(var(--u) * 470); max-height: calc(100vh - 40px); display: flex; flex-direction: column; padding: calc(var(--u) * 28) calc(var(--u) * 34) calc(var(--u) * 26); animation: modalIn 0.3s var(--ease-out); }
+.help-panel > :not(.help-binds) { flex-shrink: 0; }
+.help-panel > .btn { align-self: flex-start; }
 .help-panel h2 { margin: 0; text-align: center; font-size: calc(var(--u) * 26); }
 .help-div { width: 100%; height: calc(var(--u) * 16); margin: calc(var(--u) * 10) 0 calc(var(--u) * 12); }
 .help-close { position: absolute; top: calc(var(--u) * 10); right: calc(var(--u) * 12); width: calc(var(--u) * 26); height: calc(var(--u) * 26); display: grid; place-items: center; background: linear-gradient(180deg, #33261a, #120d08); color: var(--text-dim); border: 0; border-radius: 3px; box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--bronze-3); cursor: pointer; font-size: var(--f-s); transition: color 0.12s, filter 0.12s; }
 .help-close:hover { color: var(--bronze-1); filter: brightness(1.3); }
-.help-binds { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.help-binds { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; min-height: 0; overflow-y: auto; }
 .help-binds li { display: flex; align-items: center; justify-content: space-between; padding: calc(var(--u) * 7) calc(var(--u) * 8); background: linear-gradient(90deg, rgba(255, 255, 255, 0.035), transparent); }
 .help-binds .desc { font-size: var(--f-m); color: var(--text); }
 .help-binds .keys { display: flex; gap: calc(var(--u) * 5); order: 2; }

@@ -7,6 +7,8 @@ import { fmtDuration, fmtInt } from '@shared/format';
 import type { Materials } from '@shared/types';
 import type { NpcRole } from '@shared/mapgen';
 import { Divider } from './Glyphs';
+import { ACTIONS, bindings, keyLabel } from '../../game/bindings';
+import { useLocal } from '../panels/state';
 
 // ───────────────────────── Death ─────────────────────────
 
@@ -78,12 +80,13 @@ const VERBS: Partial<Record<NpcRole, string>> = {
 
 export function InteractPrompt() {
   const it = useUI((s) => s.interact);
+  const key = useLocal(bindings, () => bindings.label('interact'));
   if (!it) return null;
   const verb = VERBS[it.role];
   if (!verb) return null; // training dummies and the like have nothing to press E for
   return (
     <div class="hud-interact" key={it.name}>
-      <span class="ip-key">E</span>
+      <span class={`ip-key${key.length > 1 ? ' wide' : ''}`}>{key}</span>
       <span class="ip-text"><em>{verb}</em> {it.name}</span>
     </div>
   );
@@ -91,15 +94,7 @@ export function InteractPrompt() {
 
 // ───────────────────────── Help (F1) ─────────────────────────
 
-const BINDS: [string, string][] = [
-  ['W A S D', 'Move'],
-  ['Space', 'Dash'],
-  ['E', 'Interact'],
-  ['I', 'Inventory'],
-  ['K', 'Skills'],
-  ['P', 'Paragon'],
-  ['U', 'The Ancients’ Cube (when nearby)'],
-  ['O', 'Settings'],
+const FIXED_BINDS: [string, string][] = [
   ['Enter', 'Chat'],
   ['F1', 'This help'],
   ['F2', 'Prototype tools'],
@@ -109,6 +104,7 @@ const BINDS: [string, string][] = [
 
 export function HelpPanel() {
   const open = useUI((s) => !!s.panels.help);
+  const state = useLocal(bindings, s => s);
   if (!open) return null;
   return (
     <div class="help-wrap">
@@ -117,15 +113,19 @@ export function HelpPanel() {
         <h2 class="title-plate">Controls</h2>
         <Divider class="help-div" />
         <ul class="help-binds">
-          {BINDS.map(([k, d]) => (
+          {ACTIONS.map(([action, label]) => <li key={action}>
+            <span class="keys">{state.values[action].filter((k): k is string => k !== null).map(k => <kbd key={k}>{keyLabel(k, state.labels)}</kbd>)}</span>
+            <span class="desc">{label}</span>
+          </li>)}
+          {FIXED_BINDS.map(([k, d]) => (
             <li key={k}>
-              <span class="keys">{k.split(' ').map((c) => <kbd key={c}>{c}</kbd>)}</span>
+              <span class="keys"><kbd>{k}</kbd></span>
               <span class="desc">{d}</span>
             </li>
           ))}
         </ul>
         <p class="help-note">Your primary attack and your four skills fire on their own. Choose where to stand, when to dash, and what to carry.</p>
-        <button class="btn" onClick={() => { togglePanel('help', false); togglePanel('settings', true); }}>Sound & camera settings</button>
+        <button class="btn" onClick={() => { togglePanel('help', false); togglePanel('settings', true); }}>Settings & key bindings</button>
       </div>
     </div>
   );

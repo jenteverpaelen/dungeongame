@@ -1002,6 +1002,10 @@
 .settings-check { display: flex; align-items: center; gap: 10px; font-size: var(--fs-l); color: var(--text-bright); }
 .settings-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
 .settings-note { margin: 0; color: var(--text); font-size: var(--fs-m); line-height: 1.4; }
+.settings-bindings { display: grid; gap: 6px; }
+.settings-binding { display: grid; grid-template-columns: 1fr 88px 88px 30px; gap: 6px; align-items: center; color: var(--text-bright); }
+.settings-binding .btn { min-width: 0; padding: 6px 4px; }
+.settings-binding .btn[aria-pressed="true"] { color: var(--gold-hi); border-color: var(--gold); }
 .pn-settings :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 4px; }
 
 /* Short viewports (720p): trim the tall workspaces so left-docked panels stay clear of the bottom HUD. */

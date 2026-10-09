@@ -197,3 +197,7 @@ The P01 handler probe verifies that a pre-reforge option remains accepted agains
 ### L36 — Trace existing build decisions before expanding progression, 2026-10-09
 
 R01/R03/R04/R21 distinguish character unlocks, equipped slots and invested ranks. Current `character.ts`, skill definitions, `playerctx.ts`, brain/cast/damage/summon consumers are the measurement source for a complete local tier/rune inventory. PoE2's primary 0.4.0 notes (3883495, UI and bug-fix sections read) report compatibility hints and tooltip/runtime mismatches; they motivate checking our own behavior, not importing their values. Record definition, merged runtime and actual behavioral evidence separately. No new skill, unlock schedule, name, target duration or numeric balance follows from this audit.
+
+### L37 — Keyboard remapping and accurate prompts, 2026-10-09
+
+GAG-REMAP and MDN's KeyboardEvent.code / Keyboard.getLayoutMap pages were read before KEYBOARD-DESIGN.md. Physical positions and displayed characters differ; layout lookup is optional and fallible. Actual input/form handling, Settings, Help, HUD and onboarding text establish the change surface. Two binding slots preserve existing arrows and I/B alternatives; reserved navigation keys provide recovery. No game-balance values, visual restyle, account/save changes or disability-usability outcome inferred.

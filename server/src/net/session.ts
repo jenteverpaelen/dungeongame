@@ -332,7 +332,7 @@ export class Session implements PlayerLink {
     this.world.systemMessage(this, `Welcome to Hearthfall, ${save.name}.`);
     if (isNew) {
       this.world.systemMessage(this, 'Attacks and slotted skills are automatic.');
-      this.world.systemMessage(this, 'WASD move · Space dash · E interact · K skills · F1 controls.');
+      this.world.systemMessage(this, 'F1 shows your controls. Change key bindings in Settings.');
     }
     console.log(`[session] ${save.name} (${save.classId} L${save.level}) logged in${isNew ? ' (new)' : ''}${afk ? `, AFK ${Math.round(afk.ms / 60000)} min` : ''} from ${this.ip || '?'}`);
   }

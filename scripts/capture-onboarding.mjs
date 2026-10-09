@@ -97,7 +97,7 @@ try {
     assert.equal(await evaluate("document.querySelector('.slot-primary .slot-key').textContent"), 'AUTO');
     assert.equal(await evaluate("document.querySelector('.slot-dash .slot-key').textContent"), 'SPACE');
     assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.').length"), 1);
-    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text.includes('WASD move')).length"), 1);
+    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text.includes('F1 shows your controls')).length"), 1);
     for (const [selector, name, expected] of [
       ['.slot-primary', '12-primary-tooltip', 'Fires automatically'],
       ['.slot-skill', '13-slot-tooltip', 'slot number, not a cast key'],
@@ -125,7 +125,7 @@ try {
     await evaluate('document.querySelector(".cs-go").click();true');
     await until(() => evaluate('__ui.get().screen==="game" && __ui.get().chat.some(l=>l.text.startsWith("Welcome to"))'));
     await wait(2000);
-    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.' || l.text.includes('WASD move')).length"), 0);
+    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.' || l.text.includes('F1 shows your controls')).length"), 0);
     await record('14-returning', 'Reconnect the same saved character through class selection; no repeated new-character hints');
     passed = true;
   } else {

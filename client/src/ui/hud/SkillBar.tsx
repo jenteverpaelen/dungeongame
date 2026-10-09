@@ -14,6 +14,8 @@ import type { ClassId } from '@shared/types';
 import { BuffGlyph, DashGlyph, SkillGlyph } from './Glyphs';
 import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
+import { bindings } from '../../game/bindings';
+import { useLocal } from '../panels/state';
 
 const ELEMENT_COLOR: Record<string, string> = {
   physical: '#e2d8c4', fire: '#ff8a3d', cold: '#7fd3ff', lightning: '#d6c2ff', poison: '#8fd16a', arcane: '#c39bff', holy: '#ffe9a0',
@@ -36,6 +38,7 @@ function autoText(rule: AutoRule, resource: string): string {
 // ───────────────────────── Skill tooltip ─────────────────────────
 
 function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number }) {
+  const skillsKey = useLocal(bindings, () => bindings.label('skills'));
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
   const rune = skill.runes.find((r) => r.id === p.runeId);
@@ -66,7 +69,7 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
         </div>
       )}
       <div class="st-auto">{autoText(skill.auto, res)}</div>
-      {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority} · slot number, not a cast key. Change your loadout with K.</div>}
+      {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority} · slot number, not a cast key. Change your loadout with {skillsKey}.</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
   );
@@ -211,6 +214,7 @@ export function XpBar() {
 // ───────────────────────── Bottom bar assembly ─────────────────────────
 
 export function BottomBar() {
+  const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash') }));
   const char = useUI((s) => (s.char ? { cls: s.char.classId, skills: s.char.skills, level: s.char.level } : null));
   const rcr = useUI((s) => s.derived?.rcr ?? 0);
   const m = useUI((s) => (s.me ? { cds: s.me.cds, ch: s.me.ch, res: s.me.res, dashCd: s.me.dashCd, buffs: s.me.buffs } : null));
@@ -223,7 +227,7 @@ export function BottomBar() {
     if (!skill) return { skill: null, tip: priority === undefined ? null : (
       <div class="skill-tip tip-small" role="tooltip">
         <div class="st-name">Empty skill slot {priority}</div>
-        <div class="st-desc">Auto-cast priority {priority} · slot number, not a cast key. Choose skills with K.</div>
+        <div class="st-desc">Auto-cast priority {priority} · slot number, not a cast key. Choose skills with {keys.skills}.</div>
       </div>
     ), cost: 0 };
     const mods = collectSkillMods(skill, skills.runes[skill.id], skills.tiers[skill.id] ?? 0);
@@ -262,7 +266,7 @@ export function BottomBar() {
             />
           ))}
           <i class="bar-sep" />
-          <Slot kind="dash" keyLabel="SPACE" skill={null} cd={m?.dashCd ?? 0} nominalMs={DASH.cooldownMs} tip={<DashTip />} />
+          <Slot kind="dash" keyLabel={keys.dash.toUpperCase()} skill={null} cd={m?.dashCd ?? 0} nominalMs={DASH.cooldownMs} tip={<DashTip />} />
         </div>
         <i class="bar-crest" />
       </div>
