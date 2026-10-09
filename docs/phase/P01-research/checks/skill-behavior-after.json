@@ -1,0 +1,587 @@
+{
+  "node": "v24.19.0",
+  "scope": "Actual summon/projectile/cast handlers with stationary synthetic targets, unequipped L70 characters; one shot and 32 buff variants, not DPS or active AI.",
+  "hydras": [
+    {
+      "rune": null,
+      "origin": {
+        "x": 6048,
+        "y": 4384
+      },
+      "targets": [
+        {
+          "x": 6268,
+          "y": 4384,
+          "radius": 18,
+          "damage": 6,
+          "chillMs": 0
+        },
+        {
+          "x": 6268,
+          "y": 4452,
+          "radius": 18,
+          "damage": 0,
+          "chillMs": 0
+        }
+      ],
+      "projectile": {
+        "kind": "fireball",
+        "visual": "fireball",
+        "element": "fire",
+        "splash": 40,
+        "radius": 12,
+        "bits": 0,
+        "coef": 0.84
+      },
+      "elapsedMs": 350,
+      "attackSeq": 1,
+      "currentRuneText": null
+    },
+    {
+      "rune": "arcane_hydra",
+      "origin": {
+        "x": 6048,
+        "y": 4384
+      },
+      "targets": [
+        {
+          "x": 6268,
+          "y": 4384,
+          "radius": 18,
+          "damage": 6,
+          "chillMs": 0
+        },
+        {
+          "x": 6268,
+          "y": 4452,
+          "radius": 18,
+          "damage": 6,
+          "chillMs": 0
+        }
+      ],
+      "projectile": {
+        "kind": "fireball",
+        "visual": "orb",
+        "element": "arcane",
+        "splash": 60,
+        "radius": 12,
+        "bits": 0,
+        "coef": 0.84
+      },
+      "elapsedMs": 350,
+      "attackSeq": 1,
+      "currentRuneText": "Spits Arcane orbs that explode on impact."
+    },
+    {
+      "rune": "frost_hydra",
+      "origin": {
+        "x": 6048,
+        "y": 4384
+      },
+      "targets": [
+        {
+          "x": 6268,
+          "y": 4384,
+          "radius": 18,
+          "damage": 6,
+          "chillMs": 2000
+        },
+        {
+          "x": 6268,
+          "y": 4452,
+          "radius": 18,
+          "damage": 0,
+          "chillMs": 0
+        }
+      ],
+      "projectile": {
+        "kind": "fireball",
+        "visual": "shard",
+        "element": "cold",
+        "splash": 0,
+        "radius": 12,
+        "bits": 16,
+        "coef": 0.84
+      },
+      "elapsedMs": 350,
+      "attackSeq": 1,
+      "currentRuneText": "Fires shards of ice that chill enemies."
+    }
+  ],
+  "buffs": [
+    {
+      "skill": "battle_rage",
+      "rune": null,
+      "tiers": 0,
+      "flags": [],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 60000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": null,
+      "tiers": 1,
+      "flags": [],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": null,
+      "tiers": 2,
+      "flags": [],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": null,
+      "tiers": 3,
+      "flags": [
+        "rageExtra"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 15,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 15% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "into_the_fray",
+      "tiers": 0,
+      "flags": [
+        "critFury"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 60000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "into_the_fray",
+      "tiers": 1,
+      "flags": [
+        "critFury"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "into_the_fray",
+      "tiers": 2,
+      "flags": [
+        "critFury"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "into_the_fray",
+      "tiers": 3,
+      "flags": [
+        "critFury",
+        "rageExtra"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 15,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 15% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "marauders_rage",
+      "tiers": 0,
+      "flags": [
+        "rageDmg"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 60000,
+        "dmg": 25,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 25% and Critical Hit Chance by 3% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "marauders_rage",
+      "tiers": 1,
+      "flags": [
+        "rageDmg"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 25,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 25% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "marauders_rage",
+      "tiers": 2,
+      "flags": [
+        "rageDmg"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 25,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 25% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "marauders_rage",
+      "tiers": 3,
+      "flags": [
+        "rageDmg",
+        "rageExtra"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 30,
+        "chc": 3,
+        "chd": 0
+      },
+      "description": "Enter a rage that increases damage by 30% and Critical Hit Chance by 3% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "ferocity",
+      "tiers": 0,
+      "flags": [
+        "rageChd"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 60000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 25
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% and Critical Hit Damage by 25% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "ferocity",
+      "tiers": 1,
+      "flags": [
+        "rageChd"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 25
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% and Critical Hit Damage by 25% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "ferocity",
+      "tiers": 2,
+      "flags": [
+        "rageChd"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 10,
+        "chc": 3,
+        "chd": 25
+      },
+      "description": "Enter a rage that increases damage by 10% and Critical Hit Chance by 3% and Critical Hit Damage by 25% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "battle_rage",
+      "rune": "ferocity",
+      "tiers": 3,
+      "flags": [
+        "rageChd",
+        "rageExtra"
+      ],
+      "buff": {
+        "id": "battle_rage",
+        "ms": 90000,
+        "dmg": 15,
+        "chc": 3,
+        "chd": 25
+      },
+      "description": "Enter a rage that increases damage by 15% and Critical Hit Chance by 3% and Critical Hit Damage by 25% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": null,
+      "tiers": 0,
+      "flags": [],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 60000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": null,
+      "tiers": 1,
+      "flags": [],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": null,
+      "tiers": 2,
+      "flags": [],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": null,
+      "tiers": 3,
+      "flags": [
+        "weaponExtra"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 15
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 15% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "ignite",
+      "tiers": 0,
+      "flags": [
+        "igniteHits"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 60000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "ignite",
+      "tiers": 1,
+      "flags": [
+        "igniteHits"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "ignite",
+      "tiers": 2,
+      "flags": [
+        "igniteHits"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "ignite",
+      "tiers": 3,
+      "flags": [
+        "igniteHits",
+        "weaponExtra"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 15
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 15% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "electrify",
+      "tiers": 0,
+      "flags": [
+        "electrify"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 60000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "electrify",
+      "tiers": 1,
+      "flags": [
+        "electrify"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "electrify",
+      "tiers": 2,
+      "flags": [
+        "electrify"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 10
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 10% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "electrify",
+      "tiers": 3,
+      "flags": [
+        "electrify",
+        "weaponExtra"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 15
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 15% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "force_weapon",
+      "tiers": 0,
+      "flags": [
+        "forceWeapon"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 60000,
+        "dmg": 20
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 20% for 60 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "force_weapon",
+      "tiers": 1,
+      "flags": [
+        "forceWeapon"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 20
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 20% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "force_weapon",
+      "tiers": 2,
+      "flags": [
+        "forceWeapon"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 20
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 20% for 90 seconds. Recast automatically."
+    },
+    {
+      "skill": "magic_weapon",
+      "rune": "force_weapon",
+      "tiers": 3,
+      "flags": [
+        "forceWeapon",
+        "weaponExtra"
+      ],
+      "buff": {
+        "id": "magic_weapon",
+        "ms": 90000,
+        "dmg": 25
+      },
+      "description": "Imbue your weapon with arcane power, increasing damage by 25% for 90 seconds. Recast automatically."
+    }
+  ]
+}

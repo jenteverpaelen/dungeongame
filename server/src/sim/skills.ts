@@ -2,6 +2,7 @@
 // runes, upgrade-tier flags, legendary powers and set bonuses.
 
 import type { Element } from '../shared';
+import { skillBuffBonuses } from '../shared';
 import { anyEnemyWithin, bestConeAngle, bestPoint, pickTarget, summonCount } from './brain';
 import { expectedDamage, gainResource, makeDot, strikeMob } from './damage';
 import {
@@ -273,8 +274,7 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
 }
 
 function battleRage(inst: Instance, p: Player, rt: SkillRuntime): boolean {
-  const dmg = (rt.flags.has('rageDmg') ? 25 : 10) + (rt.flags.has('rageExtra') ? 5 : 0);
-  addBuff(p, { id: 'battle_rage', ms: skillDurationMs(rt), dmg, chc: 3, chd: rt.flags.has('rageChd') ? 25 : 0 });
+  addBuff(p, { id: 'battle_rage', ms: skillDurationMs(rt), ...skillBuffBonuses('battle_rage', rt.flags) });
   emitCast(inst, p, rt, p.x, p.y);
   return true;
 }
@@ -569,8 +569,7 @@ function hydra(inst: Instance, p: Player, rt: SkillRuntime): boolean {
 }
 
 function magicWeapon(inst: Instance, p: Player, rt: SkillRuntime): boolean {
-  const dmg = (rt.flags.has('forceWeapon') ? 20 : 10) + (rt.flags.has('weaponExtra') ? 5 : 0);
-  addBuff(p, { id: 'magic_weapon', ms: skillDurationMs(rt), dmg });
+  addBuff(p, { id: 'magic_weapon', ms: skillDurationMs(rt), ...skillBuffBonuses('magic_weapon', rt.flags) });
   emitCast(inst, p, rt, p.x, p.y);
   return true;
 }

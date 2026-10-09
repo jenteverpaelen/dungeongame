@@ -201,3 +201,7 @@ R01/R03/R04/R21 distinguish character unlocks, equipped slots and invested ranks
 ### L37 — Keyboard remapping and accurate prompts, 2026-10-09
 
 GAG-REMAP and MDN's KeyboardEvent.code / Keyboard.getLayoutMap pages were read before KEYBOARD-DESIGN.md. Physical positions and displayed characters differ; layout lookup is optional and fallible. Actual input/form handling, Settings, Help, HUD and onboarding text establish the change surface. Two binding slots preserve existing arrows and I/B alternatives; reserved navigation keys provide recovery. No game-balance values, visual restyle, account/save changes or disability-usability outcome inferred.
+
+### L38 — Probe declared skill behavior, 2026-10-09
+
+BUILD-REPORT.md records a Frost Hydra cone/shard mismatch and static buff percentages. Before editing either, inspect actual cast/summon/projectile/effect code and measure controlled server instances with real Player entities. Compare Frost with ordinary/Arcane Hydra on two separated targets, and cast both damage buffs across all rune/tier states. POE2-02 and the current TBH developer bug notes distinguish visual/description errors from actual damage errors; they supply failure questions, not replacement numbers. No combat redesign, damage tuning or geometry change is justified by a text mismatch alone.

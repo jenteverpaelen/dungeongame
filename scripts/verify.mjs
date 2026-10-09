@@ -26,6 +26,7 @@ const stages = [
   ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
+  ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],

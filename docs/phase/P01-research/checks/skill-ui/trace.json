@@ -1,0 +1,155 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-skill-ui-nXktcW",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-skill-ui-nXktcW\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "scope": "Own local game, installed Chrome, synthetic L70 saves/profile. Actual rune selection and tier purchase UI/server requests; no client state injection. Not a human usability or performance measurement.",
+  "observations": [
+    {
+      "name": "01-frost-hydra",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nSkillMage\nParagon 0\nMage\nDPS\n0\n12 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, SkillMage.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSKILLS\nMAGE\nAUTO\n1\n2\n3\n4\nClick a slot, then a skill. Drag works too.\nSKILL POINTS\n69\nRESET TIERS\nMagic Missile\nPrimary Attack\nP\nMeteor\nSpender\n1\nBlack Hole\nCooldown\n2\nFrost Nova\nCooldown\n3\nHydra\nSummon\n4\nMagic Weapon\nBuff\nHOW SKILLS GROW\n\nRunes unlock +2, +5, +9 levels after the skill itself.\n\nUpgrade tiers cost 2, 4, 6 skill points and stack.\n\nSkills fire automatically; slot order decides which is tried first.\n\nHydra\nSummon\nCold\nSlot 4\nASSIGN\n1\n2\n3\n4\n\nSummon a Hydra that attacks for 280% weapon damage per second as Cold. Lasts 9 seconds.\n\nDAMAGE\n280%\nARCANE POWER COST\n15\nDURATION\n9s\nRADIUS\n500\nMAX SUMMONS\n1\nRUNES\nChoose one · changes how the skill behaves\nA\nArcane Hydra\n\nSpits Arcane orbs that explode on impact.\n\nSELECT\nFrost Hydra\n\nFires shards of ice that chill enemies.\n\nACTIVE\nC\nMammoth Hydra\n\nA single massive Hydra breathes a river of fire, dealing 70% more damage.\n\nSELECT\nUPGRADE TIERS\n0 / 3 unlocked\nI\nMany Heads\n\n+30% Hydra damage.\n\nUNLOCK\n2\nII\nLongevity\n\nHydra lasts 60% longer.\n\n4\nIII\nBrood\n\n+1 maximum Hydra.\n\n6",
+      "skills": {
+        "slots": [
+          "meteor",
+          "black_hole",
+          "frost_nova",
+          "hydra"
+        ],
+        "runes": {
+          "hydra": "frost_hydra"
+        },
+        "tiers": {},
+        "primary": "magic_missile"
+      },
+      "points": 69,
+      "panels": [
+        {
+          "name": "skills",
+          "x": 18,
+          "y": 18,
+          "w": 940,
+          "h": 788,
+          "scrollHeight": 793,
+          "clientHeight": 786
+        }
+      ]
+    },
+    {
+      "name": "02-force-weapon-tier3",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nSkillMage\nParagon 0\nMage\nDPS\n0\n133 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, SkillMage.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSKILLS\nMAGE\nAUTO\n1\n2\n3\n4\nClick a slot, then a skill. Drag works too.\nSKILL POINTS\n57\nRESET TIERS\nMagic Missile\nPrimary Attack\nP\nMeteor\nSpender\n1\nBlack Hole\nCooldown\n2\nFrost Nova\nCooldown\n3\nHydra\nSummon\n4\nMagic Weapon\nBuff\nHOW SKILLS GROW\n\nRunes unlock +2, +5, +9 levels after the skill itself.\n\nUpgrade tiers cost 2, 4, 6 skill points and stack.\n\nSkills fire automatically; slot order decides which is tried first.\n\nMagic Weapon\nBuff\nArcane\nASSIGN\n1\n2\n3\n4\n\nImbue your weapon with arcane power, increasing damage by 25% for 90 seconds. Recast automatically.\n\nDURATION\n90s\nRUNES\nChoose one · changes how the skill behaves\nA\nIgnite\n\nYour attacks burn enemies for 100% weapon damage over 3 seconds.\n\nSELECT\nB\nElectrify\n\nYour attacks have a 25% chance to arc lightning to 3 enemies for 100% weapon damage.\n\nSELECT\nForce Weapon\n\nIncreases the damage bonus to 20%.\n\nACTIVE\nUPGRADE TIERS\n3 / 3 unlocked\nI\nLasting Glyph\nUNLOCKED\n\nLasts 50% longer.\n\nACTIVE\nII\nFree Glyph\nUNLOCKED\n\nCosts no Arcane Power.\n\nACTIVE\nIII\nOvercharge\nUNLOCKED\n\nGrants an additional 5% damage.\n\nACTIVE",
+      "skills": {
+        "slots": [
+          "meteor",
+          "black_hole",
+          "frost_nova",
+          "hydra"
+        ],
+        "runes": {
+          "hydra": "frost_hydra",
+          "magic_weapon": "force_weapon"
+        },
+        "tiers": {
+          "magic_weapon": 3
+        },
+        "primary": "magic_missile"
+      },
+      "points": 57,
+      "panels": [
+        {
+          "name": "skills",
+          "x": 18,
+          "y": 18,
+          "w": 940,
+          "h": 788,
+          "scrollHeight": 793,
+          "clientHeight": 786
+        }
+      ]
+    },
+    {
+      "name": "03-marauder-tier3",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nSkillWarrior\nParagon 0\nWarrior\nDPS\n0\n97 fps\n14 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, SkillWarrior.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nSKILLS\nWARRIOR\nAUTO\n1\n2\n3\n4\nClick a slot, then a skill. Drag works too.\nSKILL POINTS\n57\nRESET TIERS\nCleave\nPrimary Attack\nP\nWhirlwind\nChanneled Spender\n1\nRend\nSpender\n2\nGround Stomp\nCooldown\n3\nSeismic Slam\nSpender\n4\nBattle Rage\nBuff\nHOW SKILLS GROW\n\nRunes unlock +2, +5, +9 levels after the skill itself.\n\nUpgrade tiers cost 2, 4, 6 skill points and stack.\n\nSkills fire automatically; slot order decides which is tried first.\n\nBattle Rage\nBuff\nPhysical\nASSIGN\n1\n2\n3\n4\n\nEnter a rage that increases damage by 30% and Critical Hit Chance by 3% for 90 seconds. Recast automatically.\n\nDURATION\n90s\nRUNES\nChoose one · changes how the skill behaves\nA\nInto the Fray\n\nCritical hits generate 4 Fury.\n\nSELECT\nMarauder's Rage\n\nIncreases the damage bonus to 25%.\n\nACTIVE\nC\nFerocity\n\nAlso increases Critical Hit Damage by 25%.\n\nSELECT\nUPGRADE TIERS\n3 / 3 unlocked\nI\nSeething\nUNLOCKED\n\nLasts 50% longer.\n\nACTIVE\nII\nRed Mist\nUNLOCKED\n\nCosts no Fury.\n\nACTIVE\nIII\nUnbridled\nUNLOCKED\n\nGrants an additional 5% damage.\n\nACTIVE",
+      "skills": {
+        "slots": [
+          "whirlwind",
+          "rend",
+          "ground_stomp",
+          "seismic_slam"
+        ],
+        "runes": {
+          "battle_rage": "marauders_rage"
+        },
+        "tiers": {
+          "battle_rage": 3
+        },
+        "primary": "cleave"
+      },
+      "points": 57,
+      "panels": [
+        {
+          "name": "skills",
+          "x": 18,
+          "y": 18,
+          "w": 940,
+          "h": 788,
+          "scrollHeight": 793,
+          "clientHeight": 786
+        }
+      ]
+    },
+    {
+      "name": "04-ferocity-tier3",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nSkillWarrior\nParagon 0\nWarrior\nDPS\n0\n151 fps\n5 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, SkillWarrior.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nSKILLS\nWARRIOR\nAUTO\n1\n2\n3\n4\nClick a slot, then a skill. Drag works too.\nSKILL POINTS\n57\nRESET TIERS\nCleave\nPrimary Attack\nP\nWhirlwind\nChanneled Spender\n1\nRend\nSpender\n2\nGround Stomp\nCooldown\n3\nSeismic Slam\nSpender\n4\nBattle Rage\nBuff\nHOW SKILLS GROW\n\nRunes unlock +2, +5, +9 levels after the skill itself.\n\nUpgrade tiers cost 2, 4, 6 skill points and stack.\n\nSkills fire automatically; slot order decides which is tried first.\n\nBattle Rage\nBuff\nPhysical\nASSIGN\n1\n2\n3\n4\n\nEnter a rage that increases damage by 15% and Critical Hit Chance by 3% and Critical Hit Damage by 25% for 90 seconds. Recast automatically.\n\nDURATION\n90s\nRUNES\nChoose one · changes how the skill behaves\nA\nInto the Fray\n\nCritical hits generate 4 Fury.\n\nSELECT\nB\nMarauder's Rage\n\nIncreases the damage bonus to 25%.\n\nSELECT\nFerocity\n\nAlso increases Critical Hit Damage by 25%.\n\nACTIVE\nUPGRADE TIERS\n3 / 3 unlocked\nI\nSeething\nUNLOCKED\n\nLasts 50% longer.\n\nACTIVE\nII\nRed Mist\nUNLOCKED\n\nCosts no Fury.\n\nACTIVE\nIII\nUnbridled\nUNLOCKED\n\nGrants an additional 5% damage.\n\nACTIVE",
+      "skills": {
+        "slots": [
+          "whirlwind",
+          "rend",
+          "ground_stomp",
+          "seismic_slam"
+        ],
+        "runes": {
+          "battle_rage": "ferocity"
+        },
+        "tiers": {
+          "battle_rage": 3
+        },
+        "primary": "cleave"
+      },
+      "points": 57,
+      "panels": [
+        {
+          "name": "skills",
+          "x": 18,
+          "y": 18,
+          "w": 940,
+          "h": 788,
+          "scrollHeight": 793,
+          "clientHeight": 786
+        }
+      ]
+    }
+  ]
+}

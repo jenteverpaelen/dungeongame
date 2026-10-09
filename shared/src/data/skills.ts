@@ -164,7 +164,7 @@ export const SKILLS: Record<string, SkillDef> = {
     id: 'battle_rage', classId: 'warrior', name: 'Battle Rage', kind: 'buff', unlock: 12, element: 'physical',
     coef: 0, cost: 20, gen: 0, cooldown: 0, range: 0, radius: 0, duration: 60, maxSummons: 0,
     auto: { when: 'maintainBuff' },
-    desc: 'Enter a rage that increases damage by 10% and Critical Hit Chance by 3% for {duration} seconds. Recast automatically.',
+    desc: 'Enter a rage that increases damage by {buffDamage} and Critical Hit Chance by {buffCritChance}{buffCritDamage} for {duration} seconds. Recast automatically.',
     icon: { glyph: 'rage', color: 0xe74c3c },
     runes: [
       { id: 'into_the_fray', name: 'Into the Fray', desc: 'Critical hits generate 4 Fury.', mods: { flags: ['critFury'] } },
@@ -355,11 +355,11 @@ export const SKILLS: Record<string, SkillDef> = {
     id: 'hydra', classId: 'mage', name: 'Hydra', kind: 'summon', unlock: 9, element: 'fire',
     coef: 2.8, cost: 15, gen: 0, cooldown: 0, range: 520, radius: 500, duration: 9, maxSummons: 1,
     auto: { when: 'maintainSummon' },
-    desc: 'Summon a three-headed Hydra that spits fireballs for {coef} weapon damage per second as Fire. Lasts {duration} seconds.',
+    desc: 'Summon a Hydra that attacks for {coef} weapon damage per second as {element}. Lasts {duration} seconds.',
     icon: { glyph: 'hydra', color: 0xff5e3a },
     runes: [
       { id: 'arcane_hydra', name: 'Arcane Hydra', desc: 'Spits Arcane orbs that explode on impact.', mods: { element: 'arcane', flags: ['splash'] } },
-      { id: 'frost_hydra', name: 'Frost Hydra', desc: 'Breathes cones of frost that chill enemies.', mods: { element: 'cold', flags: ['chill'] } },
+      { id: 'frost_hydra', name: 'Frost Hydra', desc: 'Fires shards of ice that chill enemies.', mods: { element: 'cold', flags: ['chill'] } },
       { id: 'mammoth_hydra', name: 'Mammoth Hydra', desc: 'A single massive Hydra breathes a river of fire, dealing 70% more damage.', mods: { dmg: 70, flags: ['mammoth'] } },
     ],
     tiers: [
@@ -372,7 +372,7 @@ export const SKILLS: Record<string, SkillDef> = {
     id: 'magic_weapon', classId: 'mage', name: 'Magic Weapon', kind: 'buff', unlock: 12, element: 'arcane',
     coef: 0, cost: 25, gen: 0, cooldown: 0, range: 0, radius: 0, duration: 60, maxSummons: 0,
     auto: { when: 'maintainBuff' },
-    desc: 'Imbue your weapon with arcane power, increasing damage by 10% for {duration} seconds. Recast automatically.',
+    desc: 'Imbue your weapon with arcane power, increasing damage by {buffDamage} for {duration} seconds. Recast automatically.',
     icon: { glyph: 'rune', color: 0x9b59b6 },
     runes: [
       { id: 'ignite', name: 'Ignite', desc: 'Your attacks burn enemies for 100% weapon damage over 3 seconds.', mods: { flags: ['igniteHits'] } },
@@ -421,12 +421,28 @@ export function mergeMods(a: SkillMods, b: SkillMods): SkillMods {
   return out;
 }
 
-/** Render a skill description with numbers filled in. */
+/** The same bonuses are applied by the server and shown in skill summaries. */
+export function skillBuffBonuses(id: 'battle_rage' | 'magic_weapon', flags: ReadonlySet<string>): { dmg: number; chc?: number; chd?: number } {
+  if (id === 'battle_rage') return {
+    dmg: (flags.has('rageDmg') ? 25 : 10) + (flags.has('rageExtra') ? 5 : 0),
+    chc: 3, chd: flags.has('rageChd') ? 25 : 0,
+  };
+  return { dmg: (flags.has('forceWeapon') ? 20 : 10) + (flags.has('weaponExtra') ? 5 : 0) };
+}
+
+/** Render rune/tier numbers; equipment-specific modifiers require the caller to supply them. */
 export function describeSkill(skill: SkillDef, mods?: SkillMods): string {
   const m = mods ?? {};
   const coef = skill.coef * (1 + (m.dmg ?? 0) / 100);
+  const buff = skill.id === 'battle_rage' || skill.id === 'magic_weapon'
+    ? skillBuffBonuses(skill.id, new Set(m.flags ?? [])) : undefined;
+  const element = m.element ?? skill.element;
   return skill.desc
     .replace('{coef}', `${Math.round(coef * 100)}%`)
+    .replace('{element}', element[0].toUpperCase() + element.slice(1))
+    .replace('{buffDamage}', `${buff?.dmg ?? 0}%`)
+    .replace('{buffCritChance}', `${buff?.chc ?? 0}%`)
+    .replace('{buffCritDamage}', buff?.chd ? ` and Critical Hit Damage by ${buff.chd}%` : '')
     .replace('{gen}', String(skill.gen + (m.gen ?? 0)))
     .replace('{cost}', String(Math.round(skill.cost * (1 + (m.cost ?? 0) / 100))))
     .replace('{duration}', String(+(skill.duration * (1 + (m.duration ?? 0) / 100)).toFixed(1)))
