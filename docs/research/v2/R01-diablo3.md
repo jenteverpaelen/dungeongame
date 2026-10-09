@@ -1,6 +1,6 @@
 # Diablo III PC — R-01, first evidence pass
 
-Owner scope: first-time Campaign **and** Adventure Mode. Read 2026-10-09. Versions: undated Blizzard class guides and historical 2.7.4 announcement. Early unlock detail reaches L2; timed onboarding, loot rates and visual flows remain Q. Sources and precise read ranges are in [SOURCES.csv](SOURCES.csv).
+Owner scope: first-time Campaign **and** Adventure Mode. Read 2026-10-09. Versions: undated Blizzard class guides and historical 2.7.4 announcement. Early unlock detail reaches L2; C056/C062 add separate historical Campaign/Adventure pixels. Comparable timed onboarding,current flows and loot rates remain Q. Sources and precise read ranges are in [SOURCES.csv](SOURCES.csv).
 
 ## Findings
 
@@ -46,3 +46,9 @@ See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. 
 Eighteen inspected paused frames now establish a versioned interface sequence: creation/lobby, objective help/dialogue, Paragon previews, settings, waypoint return and reward notices. [V; D3-CAM-VIDEO; D3-28–30] The recording's2.7.7.93903 build and November21,2024 publication are separate provenance facts. Level1 already has Paragon100; at level2 allocation points/previews are visible, and difficulty changes from Normal to Hard between inspected05:00/06:00 frames. Do not use level4 at video10:00 as first-account balance evidence.
 
 [TIMELINES.md](TIMELINES.md) preserves offsets and unknowns. Actual item/skill-selection inputs, unavailable/failed states, committed allocations, uncut ordinary Campaign and separate Adventure first sessions remain open. This refines UI evidence without closing R-01 or adding content.
+
+## C062 — historical seasonal Adventure samples
+
+[Filthy Casual's Season37 playthrough](https://www.youtube.com/watch?v=rdpXAwMKmRY),published December5,2025,adds20 sparse frames,seven atlas entries and claims D3-31–34. Waypoint/bounty selection,independent target/count objectives,active/rune notices,skill overview and artisan/Cube panes are observed. Atlevel18 the fourth action lock reads19 and passive locks20/30/70;this supplies scoped displayed-gate evidence,not complete/current enforcement. Custom keys are not defaults.
+
+The opening70/Paragon1645 state differs from laterlevel1. Gold/shards jump fromzero to5.1million/475 atlevel1 without a sampled grant. Master later changes toNormal;SSF is source-declared. These facts exclude ordinary first-account timing. Jeweler rank,salvage results and Cube collection/input do not prove a complete transaction. Current input/error behavior and actual equipment/skill decisions remain unfinished. See TIMELINES.md. No seasonal acceleration,values or source assets are adopted.

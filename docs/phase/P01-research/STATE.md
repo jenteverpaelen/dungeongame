@@ -35,7 +35,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 
 | Charter | State | Next evidence needed |
 |---|---|---|
-| R-01 D3 | Partial L1/L2; Campaign and Adventure included | Current PC version; both first-session traces; full slots/runes tables for two classes; loot/system/UI detail |
+| R-01 D3 | L1/L2; C056/C062 separate historical Campaign/Adventure pixel L3 | Current build and clean-account traces; complete gates; input/error/durable flows; loot/endgame detail |
 | R-02 Idleon | Primary L1; secondary L2; C058 scoped video-pixel L3 | Pinned class-rule contradiction; AFK formula/cap; account scope; clean timing and actual error/durable flows |
 | R-03 TBH | L1/L2; C059 scoped early-flow pixel L3 | Current build/protection; full Cube/rune/refund rules; closed-client rewards; error/durable flows and clean timing |
 | R-04 PoE1/2 | L1/L2; C060/C061 separate historical pixel L3; indexed versions | Current builds; support recovery; first-ten-level traces; economy and endgame |
@@ -104,3 +104,5 @@ C059 adds26 Task Bar Hero samples, nine atlas entries and six visual claims. Set
 C060 adds21 PoE1 Act1 samples,seven atlas entries and five visual claims. Contextual help,pending passive allocation,quest/reward and sale previews are observed. Exact build/final class/account history,actual inputs,support recovery and durable outcomes remain unknown; historical colour rules predate3.29. Cumulative28 media/55 atlas entries/five recordings/110 samples. No game change; continue PoE2/D3 Adventure and cross-game synthesis.
 
 C061 adds22 historical PoE2 frames,nine atlas entries and five visual claims. Skill selection,modifier trade-offs and later support association are separated;old uniqueness text predates0.3. Cumulative29 media/64 entries/six recordings/132 samples. Source resolution changes,presenter obstruction and unknown account/input state limit conclusions. No game changes;continue D3 Adventure,then decision-focused cross-game synthesis.
+
+C062 adds20 seasonal D3 Adventure samples,seven atlas entries and four visual claims. Bounty/activity,slot locks and artisan/Cube states are observed;resource-assisted start,difficulty changes and unknown build limit conclusions. Cumulative30 media/71 entries/seven recordings/152 samples,five introductions/transitions excluded. Bounded priority-game footage pass complete;current/error/durable flows and comparable timelines remain open. Continue per-game digests and decision-focused synthesis.

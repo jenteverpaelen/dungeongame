@@ -1,0 +1,23 @@
+{
+  "checkpoint": "C062",
+  "checkedAtUtc": "2026-10-09T12:57:27.9358010Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 167,
+  "claims": 155,
+  "media": 30,
+  "atlasEntries": 71,
+  "recordings": 7,
+  "frames": 152,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-adventure-docs-5ff84d1711254cb09c3e64334960d4ba",
+  "gameCodeImported": false,
+  "saveDataRead": false
+}

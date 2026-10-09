@@ -148,3 +148,25 @@ Chrome viewport1920×1080;initial player metadata1920×1080 but final decoded fr
 The support's written one-copy restriction is historical and removed in0.3 (POE2-01). These pixels also predate0.4 compatibility-hover and0.5.5 before/after gem additions. Preserve those differences;neither game shares the other's socket architecture by inference. The transferable question is whether the current modifier screen makes applicability,benefit,penalty and equipped contribution understandable,within Hearthfall's existing style.
 
 Cumulative166 sources/151 claims/29 media/64 atlas entries/six recordings/132 samples,four earlier introductions excluded. No numerical target,gem/tree system,store or UI restyle adopted. D3 Adventure remains the missing requested mode for this scoped video pass;all comparable time and current-client/error/durable-state gaps remain explicit.
+
+## C062 — seasonal Adventure activities and town services [V]
+
+Filthy Casual's [Season37 recording](https://www.youtube.com/watch?v=rdpXAwMKmRY), published December5,2025, adds20 sparse frames through27:00,including one excluded source transition. The description declares Necromancer/SSF;exact build,account configuration and source speed/edits remain unknown. The opening established70/Paragon1645 character differs from the later level1 character. At01:00 currency is zero;by03:00 it is5.1million gold/475shards. The unsampled grant is not assigned a mechanism from memory. Master later changes to Normal. This cannot supply ordinary new-account pacing. [Exact frames](TIMELINE-FRAMES.json).
+
+Initial decoded1920×1080 later changes to1280×720;Chrome viewport1920×1080 with a scaled player. No native geometry,current-client behavior or continuous viewing is claimed.
+
+| Video offsets | Observed state | Boundary |
+|---|---|---|
+|00:00 /00:05|Established character,then excluded transition|Not a fresh-account origin|
+|00:15 /00:30 /02:00|Cross-act map with bounties;town Altar objective,then waypoint hint|No exact mode-selection/travel/Altar input|
+|01:00 /03:00|Empty starting bag/currency,then funded mystery-item vendor|Grant/entitlement and random acquisition untested|
+|04:00|Bounty target plus separate enemy count|Not completed reward or party-credit evidence|
+|10:00 /11:00 /12:00|Occupied/locked slots;distinct active/rune notices during combat|No clean time-to-level or notice/comprehension metric|
+|15:00 /15:15|Level18 skill overview with explicit action/passive locks;later changed action icon|Historical displayed gates,not tested input or current complete table|
+|25:00|Jeweler rank/training reward/cost beside inventory|Artisan rank is not character level;transaction untested|
+|25:20 /25:25 /25:30|Normal difficulty,physical Altar approach,then unlock banner|Sacrifice,selection and effect not sampled|
+|26:00 /26:30 /27:00|Salvage receipt,Cube collection/input,shard weapon categories|No complete consumption/protection/conservation proof|
+
+Campaign's directed return/quest sequence and Adventure's activity map/service loop are now separately observed. Seasonal resources and shortcuts cannot define an ordinary journey. Skill availability,equipped slots,artisan rank,power collection and consumption remain different comparison columns. No new prices,gates,seasonal system,town/camera or UI-style change follows.
+
+Cumulative167 sources/155 claims/30 media/71 atlas entries/seven recordings/152 samples,five source introductions/transitions excluded. All five priority games have scoped historical footage,with D3 modes and PoE games separate. This completes the bounded video pass,not current input/error/durable-state coverage or comparable time cells. Next: owner-readable digests and decision-focused synthesis;G1 remains incomplete.

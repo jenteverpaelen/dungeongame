@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checkpoint": "C061",
-  "research": "L67;L68;L69;L70;L71;L72",
+  "checkpoint": "C062",
+  "research": "L67;L68;L69;L70;L71;L72;L73",
   "recordings": [
     {
       "id": "D3-CAM-01",
@@ -737,6 +737,157 @@
         {
           "seconds": 4800,
           "observed": "Town Skills pane lists several active rows with distinct gem levels and DMG/DPS fields. Explosive Grenade has one green support icon;header Dex support usage1/4 versus earlier0/3. Other support circles empty. This is visible association,not verified bonus/attribute formula or persistence;other town avatars not a party claim."
+        }
+      ]
+    },
+    {
+      "id": "D3-ADV-01",
+      "source_id": "D3-ADV-VIDEO",
+      "media_id": "D3-V-ADVENTURE",
+      "url": "https://www.youtube.com/watch?v=rdpXAwMKmRY",
+      "title": "Diablo 3 Season 37 Full Playthrough - Level 1 to 70 and 6 piece",
+      "publisher": "Filthy Casual",
+      "published": "2025-12-05",
+      "publication_evidence": "Expanded YouTube description;not recording date",
+      "inspected": "2026-10-09",
+      "game": "Diablo III",
+      "platform_evidence": "PC-style mouse/keyboard UI,custom A/W/S/D bindings;no installed-client inspection",
+      "visible_build": null,
+      "mode": "Adventure evidenced by bounty/waypoint flow;Season37/SSF stated by source,configuration not independently checked",
+      "class": "Source declares Necromancer;class-specific skill names and resource visible",
+      "game_ui_language": "English",
+      "host_player_ui_language": "Dutch",
+      "account": "Opening level70/Paragon1645;thenlevel1 with0 currency,later5.1million gold/475shards without sampled grant",
+      "difficulty": "OpeningTormentXVI;newcharacterMaster;Normal by1520s. Inputs/configuration unknown",
+      "social": "Follower/summon portraits;source declaresSSF,party configuration unverified",
+      "duration_seconds_dom": 9309.581,
+      "decoded_video_dimensions": [
+        1280,
+        720
+      ],
+      "initial_decoded_dimensions": [
+        1920,
+        1080
+      ],
+      "dimension_limit": "Resolution changed during inspection;per-frame native geometry not established",
+      "inspection_viewport": [
+        1920,
+        1080
+      ],
+      "rendered_player_dimensions_observed": [
+        [
+          1337,
+          752
+        ],
+        [
+          1348,
+          758
+        ]
+      ],
+      "method": "20 sparse paused frames0-1620s;UI slider seeks,read-only currentTime/readyState and personally inspected screenshots. Intro transition5s excluded. No continuous viewing or live client.",
+      "timing_eligible": false,
+      "balance_ready": false,
+      "unverified": [
+        "exact build",
+        "recording date",
+        "source speed/edits",
+        "account and resource-grant conditions",
+        "SSF configuration",
+        "difficulty-change inputs",
+        "actual skill/rune assignment",
+        "Altar sacrifice/effect",
+        "artisan/Cube transactions",
+        "item conservation/protection",
+        "current-client rules",
+        "human comprehension"
+      ],
+      "inspection_corrections": [
+        "Opening established character is separate from later level1.",
+        "Five-second transition excluded from game conclusions.",
+        "Initial1920x1080/later1280x720 decode differs.",
+        "Source chapter initial lag is not a measured latency result.",
+        "Do not identify unsampled currency grant mechanism from familiarity."
+      ],
+      "frames": [
+        {
+          "seconds": 0,
+          "observed": "Opening shows established level70 character with Paragon1645,TormentXVI,town services/map and prompt M to open waypoint map. This is not a fresh start;initial inventory/account advantages unknown."
+        },
+        {
+          "seconds": 5,
+          "observed": "Bright source intro/transition with watermark;no legible game controls. Excluded from gameplay/UI conclusions."
+        },
+        {
+          "seconds": 15,
+          "observed": "Level1 Master character with ActI waypoint map open:town/field/dungeon nodes,bounty markers,map-level controls,ActI bounty progress icons and displayed gold/XP/cache reward. Character behind is in ActIII town. This evidences cross-act bounty/travel interface,not exact travel input or reward grant."
+        },
+        {
+          "seconds": 30,
+          "observed": "New Tristram,level1 Necromancer-like portrait/teal resource,Master(1),numbered skill slots locked. Objective asks inspect seasonal Altar;service markers and waypoint visible. Prior level70 opening is a different state;new-account conditions not proven."
+        },
+        {
+          "seconds": 60,
+          "observed": "Level1 inventory:gear silhouettes,scythe-like weapon equipped,empty bag,zero gold/shards,damage/toughness/recovery and Details/Paragon controls. Visible cosmetic wings do not establish stat bonuses;no failed purchase/full-bag state."
+        },
+        {
+          "seconds": 120,
+          "observed": "Still level1 Master in town;tracker now gives M waypoint-map hint rather than Altar inspection. No interaction or cause of objective change established;chapter describes lag but no latency measurement."
+        },
+        {
+          "seconds": 180,
+          "observed": "Level1 shard vendor and inventory:categorised mystery gear,per-item shard price,available475 shards and5.1million gold versus earlier zero. Resource grant/entitlement was not sampled,so this is not an ordinary resource-free start. Weapon appearance/stats changed;actual equip unknown."
+        },
+        {
+          "seconds": 240,
+          "observed": "Level1 Master field:explicit Bounty kill target plus separate0/50 enemy count,waypoint arrival text,direction arrow and labeled pool. No bounty completion/reward/party credit or pool effect measured."
+        },
+        {
+          "seconds": 600,
+          "observed": "Level11 Master combat,first two numbered action slots occupied,next two locked,companion portrait,kill-streak counter and buff stack. Exact unlock/equip inputs and progression pace unverified;not a ten-minute clean-account target."
+        },
+        {
+          "seconds": 660,
+          "observed": "Level14 active-skill unlock notice overlaps combat/kill-streak and stat-gain chat;third numbered slot now occupied,fourth locked. This establishes visible unlock/slot state in sample,not exact slot rule,selection input or notice duration."
+        },
+        {
+          "seconds": 720,
+          "observed": "Level15 combat with rune-unlock banner distinct from earlier active-skill notice;low-health-looking red vignette and kill streak coexist. Effect duration,trigger and player comprehension untested;no rune assignment shown."
+        },
+        {
+          "seconds": 900,
+          "observed": "Level18 Skills overview:two mouse actions,three occupied action-bar rows and fourth locked with19;one passive equipped,other passive locks labeled20/30/70. New labels,selected skill/rune names and custom A/W/S/D bindings visible. Availability differs from assignment;no input/reversal verified."
+        },
+        {
+          "seconds": 915,
+          "observed": "Skills pane closed;third action icon changed and an additional summoned-companion portrait appears. Exact selection/input/rune and saved loadout not sampled;objective unchanged."
+        },
+        {
+          "seconds": 1500,
+          "observed": "Level21 Jeweler Train pane:rank1,recipe-unlock reward,required-material area,Train gold cost and available balance beside inventory. Training rank differs from character level. Red-X bag items lack inspected requirement explanation;no training transaction verified."
+        },
+        {
+          "seconds": 1520,
+          "observed": "Level21 Normal town traversal toward Altar area;portal and service markers. No Altar panel yet. Decoded check1280x720 differs from initial1920x1080;no stable native-resolution claim."
+        },
+        {
+          "seconds": 1525,
+          "observed": "Physical Altar labeled under hover;no panel yet. Adjacent1520/1530 frames show approach and later Seal Broken banner,but sacrifice/input/effect remain unsampled."
+        },
+        {
+          "seconds": 1530,
+          "observed": "Level21 town with Seal Broken unlock banner near Altar;difficulty now Normal,previous earlier samples Master. Actual seal choice/effect and difficulty-change input not shown."
+        },
+        {
+          "seconds": 1560,
+          "observed": "Level21 town Blacksmith Salvage pane beside inventory;single-item/anvil and coloured batch buttons,instruction and Salvage Results list. Material14 appears in results and floating receipt;bag retains gems. Inputs/protection/conservation/persistence not reconciled."
+        },
+        {
+          "seconds": 1590,
+          "observed": "Cube empty input grid and dim Transmute;three power-slot frames;Collection page1/9 lists grey power entries beside bag/gear. Collection availability,assignment and crafting are separate visible areas;no extracted power,recipe execution or seasonal free-slot rule proven."
+        },
+        {
+          "seconds": 1620,
+          "observed": "Level21 shard vendor Weapons category;some class-specific entries have red X,prices and balance shown. Gear and stats differ greatly from prior sample;exact crafting/extraction/equip chain not verified. No forbidden-purchase or random-outcome inference."
         }
       ]
     }

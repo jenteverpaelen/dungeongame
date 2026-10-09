@@ -34,3 +34,5 @@ C059: TBH-EARLY-VIDEO publication is June30,2026; no client build inspected. It 
 C060: POE1-EARLY-VIDEO published2026-03-03; build unknown. Matching-colour tooltip/tutorial predates3.29 socket changes (POE-05). Standard appears in creation,not full-session configuration. Final class and source-declared first-ever/unedited conditions unverified. Source1280×720 scaled at1920×1080; no current client or comparable pacing claim.
 
 C061: POE2-EARLY-VIDEO live-stream publication2024-12-07,build unknown. Explicit one-copy support text predates0.3 removal;0.4 compatibility-hover and0.5.5 before/after previews cannot be claimed from this footage. Initial metadata1920×1080/final decoded1280×720;per-frame resolution unknown. Chapter09:00 still creation,not clean timing origin.
+
+C062:D3-ADV-VIDEO published2025-12-05,sourceSeason37/SSF,build unknown. Opening established70/Paragon1645 is separate from laterlevel1. Unsampled resource grant and Master→Normal change prevent clean pace. Initial1920×1080/later1280×720 decode differs. Displayed slot locks are historical evidence,not current binary confirmation.

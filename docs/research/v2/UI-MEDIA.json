@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C061",
-  "research": "L66;L67;L68;L69;L70;L71;L72",
-  "inspected_media_count": 29,
-  "scope": "23 publisher gallery assets plus six historical recordings with132 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C062",
+  "research": "L66;L67;L68;L69;L70;L71;L72;L73",
+  "inspected_media_count": 30,
+  "scope": "23 publisher gallery assets plus seven historical recordings with152 sparse frames,5 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -389,6 +389,22 @@
       "limits": "No current support rule,input/error/persistence or comparable-time guarantee",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "POE2-EARLY-01",
+      "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "D3-V-ADVENTURE",
+      "source_id": "D3-ADV-VIDEO",
+      "url": "https://www.youtube.com/watch?v=rdpXAwMKmRY",
+      "natural_width": 1280,
+      "natural_height": 720,
+      "dimension_limit": "Later decoded dimensions;initial1920x1080;per-frame resolution unknown",
+      "classification": "Published seasonal Adventure recording;20 sparse frames,one transition excluded",
+      "observed": "Waypoint/bounty map and tracker;inventory/shard vendor;active/rune notices and skill-slot locks;Jeweler training;Altar hover/unlock;salvage result;Cube collection/input",
+      "version": "Build unknown;Season37 source publication2025-12-05",
+      "inspection": "Chrome1920x1080,scaled player;decoded frames personally inspected;no source files retained",
+      "limits": "Resource-assisted seasonal run,changing difficulty;not ordinary pacing or verified transactions",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "D3-ADV-01",
       "retrieved": "2026-10-09"
     }
   ]
