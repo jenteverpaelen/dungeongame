@@ -283,13 +283,14 @@ async function startServer(): Promise<Srv> {
   const child = spawn(process.execPath, ['--import', 'tsx', path.join(ROOT, 'server/src/main.ts')], {
     cwd: ROOT,
     env: { ...process.env, ENABLE_DEBUG: '1', DISABLE_DEBUG: '0', PORT: String(port), DATA_DIR: dataDir, XP_MULT: process.env.XP_MULT ?? '3' },
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+    windowsHide: true,
   });
   let log = '';
   const stderr: string[] = [];
   child.stdout!.on('data', (d) => { log += d; if (VERBOSE) process.stdout.write(`[server] ${d}`); });
   child.stderr!.on('data', (d) => { log += d; stderr.push(String(d)); if (VERBOSE) process.stdout.write(`[server ERR] ${d}`); });
-  const exited = new Promise<number | null>((r) => child.once('exit', (code) => r(code)));
+  const exited = new Promise<number | null>((r) => child.once('close', (code) => r(code)));
   const ready = await Promise.race([
     new Promise<boolean>((resolve) => {
       const iv = setInterval(() => { if (log.includes('listening on')) { clearInterval(iv); resolve(true); } }, 50);
@@ -301,9 +302,16 @@ async function startServer(): Promise<Srv> {
   return {
     url: `ws://127.0.0.1:${port}/ws`, dataDir, child, stderr,
     stop: async () => {
-      child.kill('SIGTERM');
-      const code = await Promise.race([exited, sleep(10000).then(() => { child.kill('SIGKILL'); return -1; })]);
-      return { code, log };
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      try {
+        if (process.platform === 'win32') {
+          await new Promise<void>((resolve, reject) => child.send('hearthfall:shutdown', err => err ? reject(err) : resolve()));
+        } else child.kill('SIGTERM');
+        const code = await Promise.race([exited, new Promise<number>(resolve => {
+          timeout = setTimeout(() => { child.kill('SIGKILL'); resolve(-1); }, 10000);
+        })]);
+        return { code, log };
+      } finally { if (timeout) clearTimeout(timeout); }
     },
   };
 }
@@ -1395,10 +1403,39 @@ async function main() {
     if (run('static')) await testStatic();
     if (run('world')) await testWorld();
   } finally {
+    let shutdownBot: Bot | undefined;
+    let shutdownSave: CharacterSave | undefined;
+    if (srv.child) {
+      try {
+        srv.child.send({ unexpected: 'ignore this parent message' });
+        shutdownBot = await connect(srv.url, `Stop${RUN}`, 'warrior');
+        check('unknown parent IPC message does not stop the server', !shutdownBot.closed);
+        const before = shutdownBot.char.gold;
+        const granted = await shutdownBot.cmd('debug', { op: 'gold', n: 1234 });
+        await shutdownBot.waitFor(() => shutdownBot!.char.gold === before + 1234);
+        check('shutdown fixture has newly changed live progress', granted.ok && shutdownBot.char.gold === before + 1234);
+        shutdownSave = structuredClone(shutdownBot.char);
+        if (srv.dataDir) {
+          const file = path.join(srv.dataDir, `${shutdownSave.id}.json`);
+          await shutdownBot.waitFor(() => fs.existsSync(file));
+          const prior = JSON.parse(fs.readFileSync(file, 'utf8')) as CharacterSave;
+          check('shutdown probe is newer than its on-disk save', prior.gold !== shutdownSave.gold);
+        }
+      } catch (err) { check('shutdown fixture setup succeeds', false, String(err)); }
+    }
     const res = await srv.stop();
     if (srv.child) {
-      check('server shuts down gracefully on SIGTERM (exit code 0)', res.code === 0, res.code);
+      const transport = process.platform === 'win32' ? 'parent IPC' : 'SIGTERM';
+      check(`server shuts down gracefully on ${transport} (exit code 0)`, res.code === 0, res.code);
       check('shutdown saved characters', /all characters saved/.test(res.log));
+      if (shutdownSave && srv.dataDir) {
+        try {
+          const saved = JSON.parse(fs.readFileSync(path.join(srv.dataDir, `${shutdownSave.id}.json`), 'utf8')) as CharacterSave;
+          check('shutdown persists connected character gold', saved.gold === shutdownSave.gold, saved.gold);
+          check('shutdown preserves connected character items', JSON.stringify([saved.equipment,saved.inventory,saved.stash]) === JSON.stringify([shutdownSave.equipment,shutdownSave.inventory,shutdownSave.stash]));
+        } catch (err) { check('shutdown character file is readable', false, String(err)); }
+      }
+      shutdownBot?.close();
       const bad = res.log.split('\n').filter((l) => /\b(error|exception|TypeError|ReferenceError|unhandled)\b/i.test(l) && !/\[session\] error handling bogus/.test(l));
       check('server log contains no errors', bad.length === 0, bad.slice(0, 8));
       if (srv.dataDir) fs.rmSync(srv.dataDir, { recursive: true, force: true });

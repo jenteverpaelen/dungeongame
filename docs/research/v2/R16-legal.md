@@ -12,4 +12,6 @@ Create a data inventory before accounts or telemetry: field, purpose, legal basi
 
 ## Unfinished
 
+Follow-up 2026-10-09: [installed production review](../../licenses/README.md) records full individual licence reads for 21 packaged texts and release-specific follow-up for two omitted texts. This is one dependency scope, not project-wide clearance. Distribution notices, other-platform binaries, build tooling and original-expression review remain open.
+
 Member-state loot-box rules, PEGI/IARC, original-expression/IP review, terms and every installed component's licence. Public screenshots are research references, not asset licences. No external assets are copied into game content. No claim of release readiness.

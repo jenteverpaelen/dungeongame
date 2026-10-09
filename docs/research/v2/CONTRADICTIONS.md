@@ -32,3 +32,6 @@ Pin current versions; inspect ordinary first sessions; complete slot/skill/rune 
 - TBH's June player guide describes chest timers that conflict with later developer changes. Preserve it as historical UI/flow evidence; the later patch defines the newer rule.
 - Steam's text extraction includes generic removal/incompatibility banners alongside a publicly readable guide. No account was signed in and no moderation conclusion is drawn from those banners.
 - Node's `/docs/v24.19.0/api/crypto.html` path failed; the matching `/download/release/v24.19.0/docs/api/crypto.html` document is readable. Argon2 exists in the documented runtime; do not assume an external package is necessary.
+- Later Chrome research-tab creation again failed with the trusted Node process/kernel-reset error before any tab state returned. No reference-game visual inspection is claimed. Local isolated Chrome game-test captures remain valid separate evidence.
+- A Node SIGTERM listener does not make child.kill('SIGTERM') graceful on Windows. The matching runtime documentation specifies abrupt termination; private parent IPC now tests the same shutdown/save path locally. Earlier failed results remain historical.
+- SQLite WAL has a documented reset race fixed in 3.51.3 and specified backports. The bundled runtime reports 3.53.3; record the actual SQLite version, not only the Node version.

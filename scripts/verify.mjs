@@ -19,6 +19,7 @@ const stages = [
   ['shared', ['--import', 'tsx', '--test', ...sharedTests]],
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts']],
   ['save-failures', ['--import', 'tsx', '--test', 'server/test/saveFailures.test.ts']],
+  ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
   ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],

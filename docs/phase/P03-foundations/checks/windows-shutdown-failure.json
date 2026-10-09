@@ -1,0 +1,11 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-shutdown-fault-a0f16823dc0f4830babd05452fc342a8\\shutdown-fault-6TJJ7s",
+  "syntheticOnly": true,
+  "exitCode": 1,
+  "successMessageAbsent": true,
+  "previousSavePreserved": true,
+  "tempOutputCleaned": true,
+  "scope": "Private parent IPC with a synthetic rename obstruction; not power-loss durability"
+}

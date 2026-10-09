@@ -1,0 +1,367 @@
+{
+  "date": "2026-10-09T02:20:10.558Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "arch": "x64",
+  "cpu": "AMD Ryzen 7 7435HS                             ",
+  "logicalCpus": 16,
+  "totalMemoryBytes": 16849272832,
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp",
+  "uvThreadpoolSize": 4,
+  "syntheticOnly": true,
+  "results": [
+    {
+      "category": "hash",
+      "name": "argon19",
+      "params": {
+        "algorithm": "argon2id",
+        "memory": 19456,
+        "passes": 2,
+        "parallelism": 1,
+        "tagLength": 32
+      },
+      "concurrency": 1,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 28.644,
+        "p50Ms": 28.169,
+        "p95Ms": 31.309,
+        "maxMs": 32.631
+      },
+      "elapsedMs": 688.322,
+      "loopDelayMs": {
+        "samples": 128,
+        "p95": 12.87,
+        "max": 15.589
+      },
+      "baselineRssBytes": 42135552,
+      "sampledPeakRssBytes": 63197184,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-argon19-1"
+    },
+    {
+      "category": "hash",
+      "name": "argon19",
+      "params": {
+        "algorithm": "argon2id",
+        "memory": 19456,
+        "passes": 2,
+        "parallelism": 1,
+        "tagLength": 32
+      },
+      "concurrency": 4,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 45.27,
+        "p50Ms": 45.825,
+        "p95Ms": 49.565,
+        "maxMs": 49.637
+      },
+      "elapsedMs": 285.629,
+      "loopDelayMs": {
+        "samples": 61,
+        "p95": 14.5,
+        "max": 15.729
+      },
+      "baselineRssBytes": 42307584,
+      "sampledPeakRssBytes": 123142144,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-argon19-4"
+    },
+    {
+      "category": "hash",
+      "name": "argon46",
+      "params": {
+        "algorithm": "argon2id",
+        "memory": 47104,
+        "passes": 1,
+        "parallelism": 1,
+        "tagLength": 32
+      },
+      "concurrency": 1,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 36.349,
+        "p50Ms": 36.063,
+        "p95Ms": 37.92,
+        "maxMs": 38.806
+      },
+      "elapsedMs": 873.187,
+      "loopDelayMs": {
+        "samples": 119,
+        "p95": 15.778,
+        "max": 21.266
+      },
+      "baselineRssBytes": 42303488,
+      "sampledPeakRssBytes": 91553792,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-argon46-1"
+    },
+    {
+      "category": "hash",
+      "name": "argon46",
+      "params": {
+        "algorithm": "argon2id",
+        "memory": 47104,
+        "passes": 1,
+        "parallelism": 1,
+        "tagLength": 32
+      },
+      "concurrency": 4,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 62.239,
+        "p50Ms": 62.908,
+        "p95Ms": 67.352,
+        "maxMs": 67.955
+      },
+      "elapsedMs": 399.227,
+      "loopDelayMs": {
+        "samples": 75,
+        "p95": 15.327,
+        "max": 22.938
+      },
+      "baselineRssBytes": 42340352,
+      "sampledPeakRssBytes": 236208128,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-argon46-4"
+    },
+    {
+      "category": "hash",
+      "name": "scrypt128",
+      "params": {
+        "algorithm": "scrypt",
+        "N": 131072,
+        "r": 8,
+        "p": 1,
+        "maxmem": 268435456,
+        "tagLength": 32
+      },
+      "concurrency": 1,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 244.533,
+        "p50Ms": 243.635,
+        "p95Ms": 248.377,
+        "maxMs": 248.408
+      },
+      "elapsedMs": 5869.785,
+      "loopDelayMs": {
+        "samples": 725,
+        "p95": 15.983,
+        "max": 29.229
+      },
+      "baselineRssBytes": 42188800,
+      "sampledPeakRssBytes": 177721344,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-scrypt128-1"
+    },
+    {
+      "category": "hash",
+      "name": "scrypt128",
+      "params": {
+        "algorithm": "scrypt",
+        "N": 131072,
+        "r": 8,
+        "p": 1,
+        "maxmem": 268435456,
+        "tagLength": 32
+      },
+      "concurrency": 4,
+      "warmupOperations": 1,
+      "latency": {
+        "n": 24,
+        "meanMs": 306.078,
+        "p50Ms": 306.297,
+        "p95Ms": 332.402,
+        "maxMs": 336.52
+      },
+      "elapsedMs": 1880.163,
+      "loopDelayMs": {
+        "samples": 256,
+        "p95": 15.753,
+        "max": 29.065
+      },
+      "baselineRssBytes": 42594304,
+      "sampledPeakRssBytes": 580349952,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\hash-scrypt128-4"
+    },
+    {
+      "category": "storage",
+      "name": "json-atomic",
+      "kind": "json-atomic",
+      "characters": 100,
+      "rounds": 5,
+      "payloadBytes": {
+        "min": 4788,
+        "max": 4790,
+        "mean": 4789.8
+      },
+      "latency": {
+        "n": 500,
+        "meanMs": 43.842,
+        "p50Ms": 44.09,
+        "p95Ms": 57.613,
+        "maxMs": 61.913
+      },
+      "burstLatency": {
+        "n": 5,
+        "meanMs": 59.402,
+        "p50Ms": 59.549,
+        "p95Ms": 63.617,
+        "maxMs": 63.617
+      },
+      "latencyScope": "Async write+rename completion from submission; includes I/O queue",
+      "elapsedMs": 339.22,
+      "loopDelayMs": {
+        "samples": 275,
+        "p95": 2.028,
+        "max": 13.328
+      },
+      "baselineRssBytes": 43470848,
+      "sampledPeakRssBytes": 55033856,
+      "validation": {
+        "readBackRows": 100
+      },
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\storage-json-atomic"
+    },
+    {
+      "category": "storage",
+      "name": "json-flush",
+      "kind": "json-flush",
+      "characters": 100,
+      "rounds": 5,
+      "payloadBytes": {
+        "min": 4788,
+        "max": 4790,
+        "mean": 4789.8
+      },
+      "latency": {
+        "n": 500,
+        "meanMs": 56.116,
+        "p50Ms": 56.6,
+        "p95Ms": 68.582,
+        "maxMs": 71.211
+      },
+      "burstLatency": {
+        "n": 5,
+        "meanMs": 71.314,
+        "p50Ms": 72.108,
+        "p95Ms": 74.53,
+        "maxMs": 74.53
+      },
+      "latencyScope": "Async write+rename completion from submission; includes I/O queue",
+      "elapsedMs": 401.332,
+      "loopDelayMs": {
+        "samples": 343,
+        "p95": 1.676,
+        "max": 14.672
+      },
+      "baselineRssBytes": 43323392,
+      "sampledPeakRssBytes": 55853056,
+      "validation": {
+        "readBackRows": 100
+      },
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\storage-json-flush"
+    },
+    {
+      "category": "storage",
+      "name": "sqlite-main",
+      "kind": "sqlite-main",
+      "characters": 100,
+      "rounds": 5,
+      "payloadBytes": {
+        "min": 4788,
+        "max": 4790,
+        "mean": 4789.8
+      },
+      "latency": {
+        "n": 500,
+        "meanMs": 0.453,
+        "p50Ms": 0.432,
+        "p95Ms": 0.596,
+        "maxMs": 0.981
+      },
+      "burstLatency": {
+        "n": 5,
+        "meanMs": 45.503,
+        "p50Ms": 43.541,
+        "p95Ms": 50.757,
+        "maxMs": 50.757
+      },
+      "latencyScope": "SQLite statement execution/commit; queue/IPC excluded",
+      "elapsedMs": 261.239,
+      "loopDelayMs": {
+        "samples": 8,
+        "p95": 51.085,
+        "max": 51.085
+      },
+      "baselineRssBytes": 44666880,
+      "sampledPeakRssBytes": 47448064,
+      "validation": {
+        "sqliteVersion": "3.53.3",
+        "journalMode": "wal",
+        "synchronous": 2,
+        "readBackRows": 100,
+        "rollbackVerified": true,
+        "restoredRows": 100,
+        "backupPages": 123,
+        "backupMs": 5.442
+      },
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\storage-sqlite-main"
+    },
+    {
+      "category": "storage",
+      "name": "sqlite-worker",
+      "kind": "sqlite-worker",
+      "characters": 100,
+      "rounds": 5,
+      "payloadBytes": {
+        "min": 4788,
+        "max": 4790,
+        "mean": 4789.8
+      },
+      "latency": {
+        "n": 500,
+        "meanMs": 0.439,
+        "p50Ms": 0.414,
+        "p95Ms": 0.574,
+        "maxMs": 0.972
+      },
+      "burstLatency": {
+        "n": 5,
+        "meanMs": 44.83,
+        "p50Ms": 43.857,
+        "p95Ms": 50.277,
+        "maxMs": 50.277
+      },
+      "latencyScope": "SQLite statement execution/commit; queue/IPC excluded",
+      "elapsedMs": 276.307,
+      "loopDelayMs": {
+        "samples": 39,
+        "p95": 15.458,
+        "max": 15.696
+      },
+      "baselineRssBytes": 62263296,
+      "sampledPeakRssBytes": 67387392,
+      "validation": {
+        "sqliteVersion": "3.53.3",
+        "journalMode": "wal",
+        "synchronous": 2,
+        "readBackRows": 100,
+        "rollbackVerified": true,
+        "restoredRows": 100,
+        "backupPages": 123,
+        "backupMs": 5.133
+      },
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-foundation-bench-10fALp\\storage-sqlite-worker"
+    }
+  ],
+  "limits": [
+    "Not actual 100-player server load",
+    "Warm filesystem/cache and desktop contention not controlled",
+    "RSS sampling may miss peaks; warmup affects baseline",
+    "No power loss, forced process death or multi-process contention test",
+    "No production storage or credential change; no real saves read"
+  ]
+}

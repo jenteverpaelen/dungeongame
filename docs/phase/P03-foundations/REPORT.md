@@ -39,6 +39,14 @@ Full `npm run verify -- --allow-known-windows-shutdown`: **732 server checks pas
 
 This run's synthetic four-player/monster simulation measured average 0.989 ms, p99 5.865 ms, maximum 9.410 ms excluding fake-client snapshot processing. Including that processing: average 1.154 ms, p99 6.303 ms, maximum 10.000 ms. These are one-run simulation timings, not browser FPS, a 100-player result, or a reference-game balance measurement. The two Windows shutdown failures mean graceful process shutdown is not established by that suite. No independent security review or power-loss durability claim.
 
-## Remaining limits
+## Windows shutdown follow-up
+
+The two prior failures were reproduced consequences of Windows programmatic SIGTERM being a force-kill. The parent IPC path invokes the real graceful shutdown function. A still-connected synthetic character is changed immediately before stopping; the test first confirms disk is older, then verifies gold/items after exit. Unknown IPC messages are ignored. This adds no network admin route.
+
+Latest strict `npm run verify`: **passed**, server **738/738**, simulation **382/382**, every remaining stage passes. [Report](checks/windows-shutdown-verify-report.json), temporary root `hearthfall-verify-AqmgF9`. The large-bundle warning remains. Earlier known-failure reports describe their original code and are not rewritten.
+
+A subsequent targeted [real-process storage-failure drill](checks/windows-shutdown-failure.json) passes with typecheck: the child exits 1, preserves the previous synthetic file, cleans its temp write and does not claim success. This new test is now part of verify; no extra full regression run is claimed after adding that stage. Neither test certifies terminal Ctrl+C, POSIX signals on another host or power-loss durability.
+
+## Remaining limits after follow-up
 
 These are functional checks, not a dense-crowd benchmark, disabled-player evaluation or independent security audit. No accounts/recovery/transactional database/backups added. Recoverable write errors now propagate, but failed progress is retained only in this running process; crash durability and restore remain open. No claim of full P3 or G1 completion.

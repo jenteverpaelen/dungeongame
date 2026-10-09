@@ -1,0 +1,11 @@
+# Graceful shutdown on Windows — evidence before code
+
+2026-10-09. Local full regression repeatedly reports null process exit and no save-completion message. `bot.ts` sends child.kill('SIGTERM'). Node 24.19.0's [child-process kill documentation](https://nodejs.org/download/release/v24.19.0/docs/api/child_process.html#subprocesskillsignal), Windows paragraph read, explicitly describes abrupt force-kill for that call. Its [signal documentation](https://nodejs.org/download/release/v24.19.0/docs/api/process.html#signal-events), Windows notes read, distinguishes terminal Ctrl+C from programmatic kill. These are not interchangeable shutdown tests.
+
+The [process message/channel documentation](https://nodejs.org/download/release/v24.19.0/docs/api/process.html#event-message), message, channel and connected sections read, describes the private IPC channel established by a spawning Node parent. Add one exact string message, `hearthfall:shutdown`, that calls the existing graceful shutdown function. Install it only when the process has an IPC channel. It is not a WebSocket/HTTP command and has no player-facing route. The parent already controls its child process; this adds orderly shutdown, not new remote admin authority.
+
+The test harness creates that IPC channel and uses it on Windows. Other platforms retain SIGTERM coverage. Label the actual path in results. Check exit code, completion log and a connected synthetic character's newly changed gold/items on disk after shutdown; a log alone is not enough. Invalid IPC messages must leave the server running. Retain force-kill only as bounded cleanup after a failed graceful timeout, and report failure in that case.
+
+No timing/balance/UI/save-schema change. No OS shutdown or user's running game process is targeted. Local tests own their child server and fresh DATA_DIR. Terminal Ctrl+C and hard power-loss remain distinct, unverified cases. The prior known-failure reports remain historical evidence; do not retroactively label them green or suppress new failures.
+
+Rollback: remove the parent message handler and restore the previous harness transport together. This would reinstate the known Windows limitation; no save migration is necessary.

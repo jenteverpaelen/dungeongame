@@ -154,3 +154,10 @@ L24 (2026-10-09, settings slice): GAG-BASIC and the actual audio/input/panel sou
 ### L25 — Save failure evidence, 2026-10-09
 
 Local fault injection and scoped research/design in `docs/phase/P03-foundations/SAVE-FAILURE-DESIGN.md`: failed writes currently resolve and permit stale reload. Read before changing persistence. NODE24-FS is registered in the full-game research sources. Scope excludes town/gameplay changes and real saves.
+### L26 — Foundation candidate measurement, 2026-10-09
+
+Before designing a credential or storage system: Node 24.19.0 crypto/SQLite/file docs, OWASP Password Storage, SQLite WAL and synchronous pragma sections are read and scoped in `docs/phase/P03-foundations/MEASUREMENT-PLAN.md`. Compare published hash parameters and fixture-only storage on the owner's PC. No production choice, gameplay number, migration or town change follows before measurement. Installed dependency licence reads are separately recorded in `docs/licenses/`.
+
+### L27 — Windows shutdown verification, 2026-10-09
+
+Node's documented Windows force-kill behavior explains the repeatedly failing SIGTERM assertions. Scoped source/design in `docs/phase/P03-foundations/WINDOWS-SHUTDOWN-DESIGN.md` precedes the change. Test a private parent-process graceful request on Windows with actual saved-state assertions; keep signal tests on supported platforms. No remote admin endpoint or town/gameplay change.

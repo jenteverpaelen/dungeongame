@@ -144,6 +144,11 @@ async function main(): Promise<void> {
 
   process.on('SIGINT', () => void shutdown('SIGINT', 0));
   process.on('SIGTERM', () => void shutdown('SIGTERM', 0));
+  // A local Node supervisor can stop its child gracefully on Windows, where
+  // child.kill('SIGTERM') force-terminates instead of delivering this signal.
+  if (process.channel) process.on('message', (message) => {
+    if (message === 'hearthfall:shutdown') void shutdown('parent IPC', 0);
+  });
   process.on('uncaughtException', (err) => {
     console.error('[fatal] uncaught exception:', err);
     void shutdown('uncaughtException', 1);

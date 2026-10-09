@@ -15,6 +15,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Add scoped dossiers for every remaining original charter with 28 additional primary sources and explicit unanswered questions. This does not close G1.
 - [x] Begin the roadmap's independent foundation subset: verify command, default debug denial, save version/fixtures and placeholder registry.
 - [x] Complete both D3 progression-table reads and deepen PC Torchlight II respec/backup, dated TBH guide and PoE1 subsystem refund evidence. Register six additional sources and five scoped claims; numerical balance eligibility remains false.
+- [x] Read 23 installed production component licences/provenance individually. Measure built-in hashing and synthetic storage/restore on the owner's PC; preserve exact limits and separate this from release/security acceptance.
 
 ## Research depth and remaining scope
 
@@ -31,11 +32,11 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 | R-09 Last Epoch / Grim Dawn / Infinite | Partial L1/L2 for each | Crafting/filters/first session/endgame; Infinite is not II |
 | R-10 case studies | Partial; three games sourced | Immortal/Drakensang; independent causal evidence, retention |
 | R-11 economy/trading | Partial L2; OSRS versioned sinks | Local source/sink audit; WoW/D2R/binding/anti-dupe |
-| R-12 technology/operations | Primary Node24.19/OWASP and code audit | Hash/storage/load measurements; accounts/recovery/free-host limits |
+| R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
 | R-13 UI/accessibility | Basic guidelines read | Actual task/contrast/input/settings audit; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
 | R-15 onboarding | One primary study interpreted; partial | Versioned gameplay traces and Hearthfall player observations |
-| R-16 legal/privacy/licences | CPC currency principles + EDPB guidance | National rules, ages/ratings/IP and installed dependency licences |
+| R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
 | R-19 audio | PannerNode + category guidance | Existing graph/mix/settings audit, concurrency/listening tests |
