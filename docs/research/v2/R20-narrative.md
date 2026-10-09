@@ -6,6 +6,8 @@ Read 2026-10-09. No story content implemented yet.
 
 D4-304's reported quest-state defects supply concrete scenarios: early completion, disconnect, leaving during dialogue and re-entry. They do not prescribe Hearthfall's lore.
 
+POE2-04 adds an action-versus-completion mismatch and repair of previously affected saves. Test the qualifying action and persistent recovery, not only a client completion marker. This is an inferred acceptance requirement, not an implemented quest system.
+
 ## Proposed architecture, awaiting fuller design
 
 Author objectives/dialogue as data with stable IDs. The server evaluates progression and rewards; the client presents current state. Replaying dialogue or reconnecting must not duplicate rewards. Branching prose need not imply a branching reward graph. A small declarative format may be enough; compare it with middleware before adding dependencies.

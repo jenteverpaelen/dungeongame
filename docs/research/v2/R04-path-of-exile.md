@@ -1,6 +1,6 @@
 # Path of Exile 1 and 2 — R-04, first evidence pass
 
-Read 2026-10-09. These are separate games and version histories. Overview L1 and patch details L2; current 2026 builds and observed onboarding remain Q. Claims POE-01–03 and POE2-01.
+Read 2026-10-09. Separate games and version histories. Overview L1 and patch details L2; newer indexed versions and rule changes are recorded in [VERSIONS.md](VERSIONS.md), claims POE-05/06 and POE2-03/04/05. Installed builds and observed onboarding remain Q.
 
 ## Findings
 

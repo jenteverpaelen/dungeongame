@@ -7,6 +7,7 @@ Recorded 2026-10-09; source IDs resolve in [SOURCES.csv](SOURCES.csv).
 | D3 Adventure requires a completed Campaign | Historical requirement superseded in D3-274. Do not merge old and newer new-account flows. Latest 2026 client not established. |
 | PoE has no gold | POE-OVERVIEW says so, but POE-326 explicitly adds core gold use. Keep the old page only for scoped build-model evidence. |
 | PoE2 permits one copy of each support per character | POE2-030 removes that restriction. Do not use launch-era limits as universal. |
+| PoE1 always requires gem/socket colours to match | POE-329 changes this. Older overview text does not establish current compatibility. |
 | Torchlight II PC has the console respec potion | TL2-CONSOLE explicitly scopes the update to consoles. PC behavior remains Q. |
 | Torchlight II rank milestones are level milestones | TL2-DEV refers to invested skill ranks, and is pre-release. Neither interpretation proves final PC unlock levels. |
 | TBH announced October/November features are already shipped | TBH-PATCH separates future plans from released hotfixes. Keep that distinction. |

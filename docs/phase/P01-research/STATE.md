@@ -27,12 +27,14 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 
 ## Research depth and remaining scope
 
+C028 adds VERSIONS.md, five primary source records and five scoped claims. PoE1/2 index versions are established; installed clients and full patch reconciliation remain unverified.
+
 | Charter | State | Next evidence needed |
 |---|---|---|
 | R-01 D3 | Partial L1/L2; Campaign and Adventure included | Current PC version; both first-session traces; full slots/runes tables for two classes; loot/system/UI detail |
 | R-02 Idleon | Primary L1; secondary progression L2 | Versioned early flow; AFK formula/cap; account scope; observed UI |
 | R-03 TBH | L1/L2 | Current build; Cube/rune rules; closed-client rewards; first-session UI and economy |
-| R-04 PoE1/2 | L1/L2; separated | Current versions; gem acquisition/recovery flows; economy and endgame |
+| R-04 PoE1/2 | L1/L2; separate; indexed versions recorded | Installed builds; gem acquisition/recovery flows; economy and endgame |
 | R-05 D4 | Partial L2; 2026 patch defects and rule changes | Current progression gates, systems, reception and atlas |
 | R-06 MapleStory | Partial L2; publisher Guide behavior | Class-specific first session, jobs, channels/social systems |
 | R-07 Lost Ark | Partial L2; Guardian/rest rules | Skill/honing stages, full lockouts, burden and UI |
