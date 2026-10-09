@@ -1,8 +1,10 @@
 import { QUESTS, questById } from '../../shared/src/data/quests';
 import { questText } from '../../shared/src/data/questMessages';
 import { questAvailable, questObjective, questState, validQuestState, writeQuestState } from '../../shared/src/quests';
-import type { QuestDef, QuestState, QuestTarget } from '../../shared/src/questTypes';
-import type { CharacterSave } from '../../shared/src/types';
+import { QUEST_SERVICE_OPS, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
+import { SERVICE_ROLE } from '../../shared/src/townServices';
+import type { CmdOp } from '../../shared/src/protocol';
+import type { CharacterSave, Item } from '../../shared/src/types';
 import { addToInventory } from '../../shared/src/character';
 import { generateItem } from '../../shared/src/items';
 import { Rng } from '../../shared/src/math';
@@ -26,12 +28,17 @@ function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
   });
 }
 function advanceState(save:CharacterSave,q:QuestDef,state:QuestState) {
-  const next={...state,step:state.step+1};
+  const next={...state,step:state.step+1,progress:0};
   reserve(save,q,next);
   writeQuestState(save,q.id,next);
 }
+function countEvent(save:CharacterSave,q:QuestDef,state:QuestState) {
+  const need=q.steps[state.step]?.count??1,progress=(state.progress??0)+1;
+  if(progress>=need)advanceState(save,q,state);
+  else writeQuestState(save,q.id,{...state,progress});
+}
 function advance(inst:Instance,p:Player,q:QuestDef,state:QuestState) {
-  advanceState(p.save,q,state);
+  countEvent(p.save,q,state);
   p.link.markDirty();
   inst.emitTo(p.id,{e:'notice',kind:'info',text:`${questText(q.title)}: ${questObjective(p.save,q).text}`});
 }
@@ -81,16 +88,45 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
 
 /** Only actual authored deaths produce kill events; clients cannot submit them. */
 export function creditQuestKill(inst:Instance,mob:Mob,witnesses:Player[]) {
-  if(!mob.adventureTarget || mob.noReward || mob.dummy)return;
+  if(!mob.adventureSite&&!mob.adventureTarget || mob.noReward || mob.dummy)return;
   for(const p of witnesses) {
     if(p.deadMs>0 || p.hp<=0 || inst.playerById(p.id)!==p || Math.hypot(p.x-mob.x,p.y-mob.y)>XP_SHARE_RANGE)continue;
     for(const q of QUESTS) {
       const state=questState(p.save,q.id);
       if(!state || !validQuestState(q,state) || state.claimed)continue;
       const step=q.steps[state.step];
-      if(step?.kind==='kill' && step.zone===inst.map.zone && step.target===mob.adventureTarget)advance(inst,p,q,state);
+      if(step?.kind!=='kill'||step.zone!==inst.map.zone)continue;
+      // Legacy targets still require the specifically tagged member. A typed count opts into the whole authored site.
+      const matches=step.monsterType?step.target===mob.adventureSite&&step.monsterType===mob.def.id:step.target===mob.adventureTarget;
+      if(matches)advance(inst,p,q,state);
     }
   }
+}
+
+/** Called only after owned ground loot was successfully inserted into inventory. */
+export function creditQuestPickup(inst:Instance,p:Player,item:Item) {
+  if(p.deadMs>0||p.hp<=0||inst.playerById(p.id)!==p)return;
+  for(const q of QUESTS) {
+    const state=questState(p.save,q.id);if(!state||!validQuestState(q,state)||state.claimed)continue;
+    const step=q.steps[state.step];
+    if(step?.kind==='collect'&&step.zone===inst.map.zone&&(!step.itemBase||step.itemBase===item.base))advance(inst,p,q,state);
+  }
+}
+
+/** One successful operation counts once, including bulk salvage; result quality is a separate game rule. */
+export function creditQuestService(s:Session,op:CmdOp) {
+  if(!(QUEST_SERVICE_OPS as readonly string[]).includes(op))return;
+  const inst=s.rec?.inst,role=SERVICE_ROLE[op];
+  if(!inst||!role)return;
+  const npc=inst.map.town?.npcs.find(n=>n.role===role);
+  if(!npc||!inst.canInteract(s,npc.x,npc.y,npc.interactionRadius))return;
+  let changed=false;
+  for(const q of QUESTS) {
+    const state=questState(s.save,q.id);if(!state||!validQuestState(q,state)||state.claimed)continue;
+    const step=q.steps[state.step];
+    if(step?.kind==='service'&&step.serviceOp===op&&step.zone===inst.map.zone&&step.target===npc.id){countEvent(s.save,q,state);changed=true;}
+  }
+  if(changed)s.changed(false);
 }
 
 /** Evaluated after authoritative movement, never from client-supplied positions. */

@@ -6,16 +6,23 @@ import { ZONES } from './data/zones';
 import { MONSTERS } from './data/monsters';
 import { CollisionWorld } from './movement';
 import { PLAYER_RADIUS } from './constants';
-import type { QuestDef, QuestTarget } from './questTypes';
+import { QUEST_SERVICE_OPS, type QuestDef, type QuestTarget, type QuestStep } from './questTypes';
+import { BASES } from './data/items';
+import { SERVICE_ROLE } from './townServices';
+import town from './data/town/hearthmere.json';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
   const errors:string[]=[],ids=new Set(quests.map(q=>q.id));
   const check=(ok:boolean,path:string,message:string)=>{if(!ok)errors.push(`${path}: ${message}`);};
   check(ids.size===quests.length,'quests','duplicate quest ID');
-  const target=(t:QuestTarget,kind:'interact'|'kill'|'reach',path:string)=>{
+  const target=(t:QuestTarget,kind:QuestStep['kind'],path:string,step?:QuestStep)=>{
     const a=ADVENTURES[t.zone];
-    const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target):kind==='reach'?a?.locations.some(i=>i.id===t.target):a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>m.questTarget));
+    const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)
+      :kind==='reach'?a?.locations.some(i=>i.id===t.target)
+      :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
+      :kind==='service'?t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&step?.serviceOp&&n.role===SERVICE_ROLE[step.serviceOp])
+      :a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType?m.type===step.monsterType:m.questTarget));
     check(!!found,path,`unknown ${kind} target ${t.zone}/${t.target}`);
   };
   for(const q of quests) {
@@ -25,7 +32,17 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
     check(new Set(q.steps.map(s=>s.id)).size===q.steps.length,q.id,'duplicate objective ID');
     for(const k of [q.title,q.offer,q.complete,q.rewardText,...q.steps.map(s=>s.text)])check(Object.hasOwn(QUEST_MESSAGES,k),q.id,`unknown message ${k}`);
     target(q.start,'interact',`${q.id}.start`);target(q.finish,'interact',`${q.id}.finish`);
-    for(const [i,s] of q.steps.entries())target(s,s.kind,`${q.id}.steps[${i}]`);
+    for(const [i,s] of q.steps.entries()) {
+      const path=`${q.id}.steps[${i}]`;
+      target(s,s.kind,path,s);
+      check(Number.isSafeInteger(s.count??1)&&(s.count??1)>0,path,'count must be a positive safe integer');
+      if(q.id==='silent_wheel')check((s.count??1)===1,path,'legacy flag adapter requires single-event steps');
+      if(s.kind==='interact'||s.kind==='reach')check((s.count??1)===1,path,'interaction/reach count must be one');
+      if(s.monsterType!==undefined)check(s.kind==='kill'&&Object.hasOwn(MONSTERS,s.monsterType),path,'invalid monster type filter');
+      if(s.itemBase!==undefined)check(s.kind==='collect'&&Object.hasOwn(BASES,s.itemBase),path,'invalid item base filter');
+      if(s.kind==='service')check(!!s.serviceOp&&QUEST_SERVICE_OPS.includes(s.serviceOp),path,'unsupported service operation');
+      else check(s.serviceOp===undefined,path,'service operation on a different objective kind');
+    }
     for(const id of q.requires)check(ids.has(id),q.id,`unknown prerequisite ${id}`);
     if(q.unlocks)check(Object.hasOwn(ZONES,q.unlocks),q.id,`unknown unlocked zone ${q.unlocks}`);
   }

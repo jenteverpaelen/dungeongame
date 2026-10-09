@@ -11,6 +11,10 @@ import { creditQuestReach } from '../src/quests';
 import { killMob } from '../src/sim/kills';
 import { loadCharacter, saveCharacter, flushSaves } from '../src/persistence';
 import type { Session } from '../src/net/session';
+import { QUESTS } from '../../shared/src/data/quests';
+import type { QuestDef } from '../../shared/src/questTypes';
+import { spawnLoot, updateLoot } from '../src/sim/loot';
+import type { Mob } from '../src/sim/types';
 
 assert(process.env.DATA_DIR,'isolated test DATA_DIR required');
 let sequence=0;
@@ -34,6 +38,45 @@ async function fixture(cls:ClassId='warrior') {
   };
   return {world,add,...add()};
 }
+
+test('counted server events retain partial progress, ignore failed actions and count each successful action once',async()=>{
+  const f=await fixture('mage'),catalog=QUESTS as QuestDef[];
+  const q:QuestDef={...structuredClone(QUESTS[1]),id:'adapter_fixture',requires:[],unlocks:undefined,steps:[
+    {id:'kills',kind:'kill',zone:'rillwake_crossing',target:'road',monsterType:'bog_slime',count:2,text:'quest.wheel.warden'},
+    {id:'loot',kind:'collect',zone:'rillwake_crossing',target:'road',itemBase:f.save.equipment.mainhand!.base,count:2,text:'quest.wheel.ledger'},
+    {id:'service',kind:'service',zone:'hearthmere',target:'blacksmith',serviceOp:'salvage',count:2,text:'quest.journal.return'},
+  ]};
+  catalog.push(q);
+  try {
+    f.waypoint();assert(f.travel('rillwake_crossing').ok);f.near('tender');assert(f.quest(q.id,'accept').ok);
+    const state=()=>questState(f.save,q.id)!;
+    const kill=(m:Mob)=>{f.at(m.x,m.y+40);killMob(f.inst(),m,f.player(),'physical','adapter-fixture');};
+    const road=f.inst().mobs.filter(m=>m.adventureSite==='road');
+    kill(road.find(m=>m.def.id==='gloomshroom')!);assert.equal(state().progress??0,0);
+    const slimes=road.filter(m=>m.def.id==='bog_slime');slimes[0].noReward=true;kill(slimes[0]);assert.equal(state().progress??0,0);
+    kill(slimes[1]);assert.equal(state().progress,1);kill(slimes[1]);assert.equal(state().progress,1);
+    await saveCharacter(f.save);await flushSaves();assert.equal((await loadCharacter(f.save.id))!.quests![q.id].progress,1);
+    kill(slimes[2]);assert.equal(state().step,1);assert.equal(state().progress,0);
+    f.player().loot.clear(); // Start the acquisition case with only its deliberately owned fixture drops.
+    const item={...structuredClone(f.save.equipment.mainhand!),id:'pickup-one'};
+    f.save.inventory=f.save.inventory.map((_,i)=>({...item,id:`full-${i}`}));
+    const loot=spawnLoot(f.inst(),f.player(),{type:'item',item},f.player().x,f.player().y,false);loot.armMs=0;
+    updateLoot(f.inst(),f.player(),50);assert.equal(state().progress,0);assert(f.player().loot.has(loot));
+    f.save.inventory[0]=null;updateLoot(f.inst(),f.player(),50);assert.equal(state().progress,1);
+    updateLoot(f.inst(),f.player(),50);assert.equal(state().progress,1);
+    f.save.inventory[1]=null;const second=spawnLoot(f.inst(),f.player(),{type:'item',item:{...item,id:'pickup-two'}},f.player().x,f.player().y,false);second.armMs=0;
+    updateLoot(f.inst(),f.player(),50);assert.equal(state().step,2);assert.equal(state().progress,0);
+    assert(f.travel('hearthmere').ok);f.at(0,0);
+    assert(!runCommand(f.s,f.world,'salvage',{itemId:'pickup-one'}).ok);assert.equal(state().progress,0);
+    const smith=f.inst().map.town!.npcs.find(n=>n.role==='blacksmith')!;
+    // Bind the fixture to the actual authored NPC ID, not a copied name assumption.
+    q.steps[2].target=smith.id;f.at(...smith.approach);
+    assert(!runCommand(f.s,f.world,'salvage',{itemId:'missing'}).ok);assert.equal(state().progress,0);
+    assert(runCommand(f.s,f.world,'salvage',{itemId:'pickup-one'}).ok);assert.equal(state().progress,1);
+    assert(!runCommand(f.s,f.world,'salvage',{itemId:'pickup-one'}).ok);assert.equal(state().progress,1);
+    assert(runCommand(f.s,f.world,'salvage',{itemId:'pickup-two'}).ok);assert.equal(state().step,3);assert.equal(state().progress,0);
+  } finally {catalog.splice(catalog.indexOf(q),1);await f.world.shutdown();}
+});
 
 for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: connected quests, ordered authoritative events, unlock travel, full-bag retry and persistence`,async()=>{
   const f=await fixture(cls);

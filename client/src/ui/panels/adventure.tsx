@@ -4,7 +4,7 @@ import { questText as t } from '@shared/data/questMessages';
 import { DIALOGUES } from '@shared/data/dialogues';
 import { ADVENTURES } from '@shared/adventure';
 import { ZONES } from '@shared/data/zones';
-import { questAvailable, questCompleted, questObjective, questState, trackedQuest, validQuestState } from '@shared/quests';
+import { questAvailable, questCompleted, questObjective, questState, questStepText, trackedQuest, validQuestState } from '@shared/quests';
 import { togglePanel, ui, useUI } from '../store';
 import { PanelFrame, SecHead } from './common';
 import { ItemTooltip } from './tooltip';
@@ -52,7 +52,7 @@ export function AdventurePanel() {
       </div>}
       <SecHead>{t('quest.journal.progress')}</SecHead>
       <ol class="quest-steps">{q.steps.map((s,i)=><li key={s.id} class={state&&i<state.step?'complete':state&&i===state.step?'current':''}>
-        <span aria-label={state&&i<state.step?'Completed':'Pending'}>{state&&i<state.step?'✓':'○'}</span> {t(s.text)}
+        <span aria-label={state&&i<state.step?'Completed':'Pending'}>{state&&i<state.step?'✓':'○'}</span> {questStepText(s,state&&i<state.step?s.count??1:state&&i===state.step?state.progress??0:0)}
       </li>)}<li class={state?.claimed?'complete':ready?'current':''}><span>{state?.claimed?'✓':'○'}</span> {t('quest.journal.return')}</li></ol>
       {!state?.claimed&&available&&<>
         <p class="pn-note">{objective.text} · {ZONES[objective.zone]?.name??objective.zone}</p>

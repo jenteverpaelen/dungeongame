@@ -4,7 +4,7 @@
 
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
-import { questCommand } from './quests';
+import { questCommand, creditQuestService } from './quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { requireNear } from './townServices';
@@ -687,7 +687,9 @@ export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdRes
   try {
     const role = SERVICE_ROLE[op];
     if (role) { const err = requireNear(s, role); if (err) return fail(err); }
-    return HANDLERS[op](s, a, world);
+    const result=HANDLERS[op](s,a,world);
+    if(result.ok)creditQuestService(s,op);
+    return result;
   } catch (err) {
     if (err instanceof ArgError) return fail(err.message);
     throw err;

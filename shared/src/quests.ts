@@ -1,7 +1,7 @@
 import { QUESTS } from './data/quests';
 import { questText } from './data/questMessages';
 import type { CharacterSave } from './types';
-import type { QuestDef, QuestState, QuestTarget } from './questTypes';
+import type { QuestDef, QuestState, QuestTarget, QuestStep } from './questTypes';
 import type { MapData } from './mapgen';
 import { nextTravelPoint } from './worldNavigation';
 
@@ -17,7 +17,12 @@ export function writeQuestState(save: CharacterSave, id: string, state: QuestSta
   } else (save.quests??={})[id]=state;
 }
 export function validQuestState(q: QuestDef, s: QuestState): boolean {
-  return s.revision===q.revision && Number.isInteger(s.step) && s.step>=0 && s.step<=q.steps.length && (!s.claimed || s.step===q.steps.length);
+  const progress=s.progress??0,need=q.steps[s.step]?.count??1;
+  return s.revision===q.revision && Number.isInteger(s.step) && s.step>=0 && s.step<=q.steps.length && (!s.claimed || s.step===q.steps.length)
+    && Number.isSafeInteger(progress)&&progress>=0&&progress<need;
+}
+export function questStepText(step:QuestStep,progress=0):string {
+  return questText(step.text)+((step.count??1)>1?` (${progress}/${step.count})`:'');
 }
 export function questCompleted(save:CharacterSave,id:string):boolean {
   const q=QUESTS.find(q=>q.id===id),s=questState(save,id);
@@ -33,7 +38,7 @@ export function questObjective(save:CharacterSave,q:QuestDef):QuestTarget & {tex
   if(!validQuestState(q,s))return {...q.start,text:questText('quest.journal.unavailable')};
   if(s.claimed)return {...q.finish,text:questText('quest.journal.complete')};
   const step=q.steps[s.step];
-  return step?{...step,text:questText(step.text)}:{...q.finish,text:questText('quest.journal.return')};
+  return step?{...step,text:questStepText(step,s.progress??0)}:{...q.finish,text:questText('quest.journal.return')};
 }
 export function trackedQuest(save:CharacterSave):QuestDef|undefined {
   const candidates=QUESTS.filter(q=>questAvailable(save,q)&&!questCompleted(save,q.id));
@@ -50,6 +55,7 @@ export function questAtTarget(save:CharacterSave,zone:string,target:string):Ques
 export function questPoint(map:MapData,target:QuestTarget,save?:CharacterSave):{x:number;y:number}|undefined {
   if(map.zone!==target.zone)return nextTravelPoint(map,target.zone,save?(id)=>zoneUnlocked(save,id):undefined);
   return map.adventure?.interactions.find(i=>i.id===target.target)
+    ??map.town?.npcs.find(i=>i.id===target.target)
     ??map.adventure?.encounters.find(e=>e.id===target.target)
     ??map.adventure?.locations.find(l=>l.id===target.target);
 }

@@ -77,6 +77,7 @@ export interface Mob extends Hashed {
   type: string;
   /** Set only by an authored encounter; never accepted from a client/debug spawn. */
   adventureTarget?: string;
+  adventureSite?: string;
   tier: EliteTier;
   level: number;
   /** Difficulty index (rifts: the rift's; fields: adopted from the player who found the pack). */

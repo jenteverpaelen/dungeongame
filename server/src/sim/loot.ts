@@ -12,6 +12,7 @@ import type { Instance } from './instance';
 import { touchChar } from './players';
 import { GLOBE_HEAL, GLOBE_RADIUS } from './tuning';
 import type { Loot, LootPayload, Mob, Player } from './types';
+import { creditQuestPickup } from '../quests';
 
 function viewOf(pl: LootPayload): LootView {
   switch (pl.type) {
@@ -105,6 +106,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
         continue;
       }
       if (pl.item.rarity === 'legendary' || pl.item.rarity === 'set') p.save.stats.legendaries++;
+      creditQuestPickup(inst,p,pl.item);
       touchChar(p);
       inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'item', name: pl.item.name, rarity: pl.item.rarity }, l.x, l.y, p.id);
       p.loot.delete(l);
