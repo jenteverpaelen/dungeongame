@@ -189,3 +189,7 @@ Actual Session hello/name loading, WebSocket upgrade/proxy-header handling, clie
 ### L34 — Measure current currency flows before tuning, 2026-10-09
 
 R11, actual shared costs/progression/items and server AFK/command/loot paths precede `docs/phase/P01-research/ECONOMY-MEASUREMENT-PLAN.md`. Deterministic synthetic probes distinguish grants, consumption, transfers and uncollected loot, plus fixed offline assumptions. No balance or reference-game parity follows merely from a code comment naming another game.
+
+### L35 — Reproduce stale enchantment after reforge, 2026-10-09
+
+The P01 handler probe verifies that a pre-reforge option remains accepted against replaced item properties sharing the same ID. Read actual enchantPool exclusions and client pending-choice rendering before `docs/phase/P03-foundations/ENCHANT-TRANSITION-DESIGN.md`. Preserve the paid choice by refusing same-item reforge until it is resolved; unrelated items and existing prices remain. This is local integrity evidence, not a borrowed D3 economic rule.

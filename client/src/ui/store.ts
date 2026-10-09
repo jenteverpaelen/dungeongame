@@ -105,7 +105,7 @@ export function togglePanel(id: PanelId, open?: boolean) {
 }
 
 export function closeAllPanels() {
-  ui.set({ panels: {}, enchant: null });
+  ui.set({ panels: {} });
 }
 
 export function pushNotice(text: string, kind: Notice['kind']) {

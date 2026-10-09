@@ -404,6 +404,7 @@ const reforge: Handler = (s, a) => {
   if (!loc) return fail('Item not found');
   const item = loc.item;
   if (item.rarity !== 'legendary' && item.rarity !== 'set') return fail('Only Legendary and Set items can be reforged');
+  if (s.pendingEnchant?.itemId === item.id) return fail('Choose your pending enchantment at the Mystic before reforging this item.');
   const cost = reforgeCost();
   const why = lacking(save, cost);
   if (why) return fail(why);

@@ -1,0 +1,120 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-enchant-ui-GZrU8B",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-enchant-ui-GZrU8B\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "scope": "Synthetic client UI fixture on a real local Chrome session; no crafting requests, player walk, human usability or performance measurement",
+  "observations": [
+    {
+      "name": "01-mystic-choice",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nEnchantUI\nLevel 1\nWarrior\nDPS\n0\n11 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, EnchantUI.\nAttacks and slotted skills are automatic.\nWASD move · Space dash · E interact · K skills · F1 controls.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nINVENTORY\nLEVEL 70 WARRIOR\nDAMAGE\n14\nTOUGHNESS\n16,080\nRECOVERY\n0\nStrength\n217\nVitality\n147\nLife\n14,653\nArmor\n255\nAll Resist\n8\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n1,000,000,000\n10,000\n10,000\n10,000\n10,000\n10,000\nITEMS 1/60\nGEMS\nSALVAGE ALL\nMYSTIC\nCUBE LEVEL\n8\n0 / 1,506 XP\nArtisan and Cube operations share Cube experience and unlock levels.\nEnchant\n+12\nENCHANT\n\nReroll one property. Choose between two new rolls or keep the original. Only one property per item may ever be enchanted.\n\n×\nOuroboros Loop\nLegendary Ring\nCHOOSE ONE\nORIGINAL\n+692\nStrength\n[626 – 750]\nKEEP\nOPTION 1\n+11.4%\nLife\n[10 – 15]\nTAKE THIS\nOPTION 2\nReduces cooldown of all skills by\n5.8%\n[5 – 8]\nTAKE THIS\nCOST\n19,700\n1\n1\nPICK AN OPTION ABOVE",
+      "offer": {
+        "itemId": "e3por76",
+        "affix": 0,
+        "options": [
+          {
+            "stat": "lifePct",
+            "value": 11.4,
+            "min": 10,
+            "max": 15,
+            "primary": true
+          },
+          {
+            "stat": "cdr",
+            "value": 5.8,
+            "min": 5,
+            "max": 8,
+            "primary": true
+          }
+        ]
+      },
+      "artisan": "mystic"
+    },
+    {
+      "name": "02-reforge-blocked",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nEnchantUI\nLevel 1\nWarrior\nDPS\n0\n116 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, EnchantUI.\nAttacks and slotted skills are automatic.\nWASD move · Space dash · E interact · K skills · F1 controls.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nINVENTORY\nLEVEL 70 WARRIOR\nDAMAGE\n14\nTOUGHNESS\n16,080\nRECOVERY\n0\nStrength\n217\nVitality\n147\nLife\n14,653\nArmor\n255\nAll Resist\n8\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n1,000,000,000\n10,000\n10,000\n10,000\n10,000\n10,000\nITEMS 1/60\nGEMS\nSALVAGE ALL\nTHE ANCIENTS' CUBE\nCUBE LEVEL\n8\n0 / 1,506 XP\nArtisan and Cube operations share Cube experience and unlock levels.\nTransmute Rare\n+60\nExtract Power\n+60\nReforge\n+45\nREFORGE\n\nReroll every property of a Legendary as if newly found — it may become Ancient.\n\n×\nOuroboros Loop\nLegendary Ring\nEvery property is rerolled as if the item had just dropped. The power and look stay the same, it may become Ancient, and its upgrade tier and enchantment reset.\nCURRENT\nOuroboros Loop\nNormal roll\nChoose your pending enchantment at the Mystic before reforging this item.\nCOST\n50,000\n5\n15\nREFORGE",
+      "offer": {
+        "itemId": "e3por76",
+        "affix": 0,
+        "options": [
+          {
+            "stat": "lifePct",
+            "value": 11.4,
+            "min": 10,
+            "max": 15,
+            "primary": true
+          },
+          {
+            "stat": "cdr",
+            "value": 5.8,
+            "min": 5,
+            "max": 8,
+            "primary": true
+          }
+        ]
+      },
+      "artisan": "cube",
+      "disabled": true,
+      "warn": "Choose your pending enchantment at the Mystic before reforging this item."
+    },
+    {
+      "name": "03-returned-choice",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nEnchantUI\nLevel 1\nWarrior\nDPS\n0\n143 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, EnchantUI.\nAttacks and slotted skills are automatic.\nWASD move · Space dash · E interact · K skills · F1 controls.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nINVENTORY\nLEVEL 70 WARRIOR\nDAMAGE\n14\nTOUGHNESS\n16,080\nRECOVERY\n0\nStrength\n217\nVitality\n147\nLife\n14,653\nArmor\n255\nAll Resist\n8\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n1,000,000,000\n10,000\n10,000\n10,000\n10,000\n10,000\nITEMS 1/60\nGEMS\nSALVAGE ALL\nMYSTIC\nCUBE LEVEL\n8\n0 / 1,506 XP\nArtisan and Cube operations share Cube experience and unlock levels.\nEnchant\n+12\nENCHANT\n\nReroll one property. Choose between two new rolls or keep the original. Only one property per item may ever be enchanted.\n\n×\nOuroboros Loop\nLegendary Ring\nCHOOSE ONE\nORIGINAL\n+692\nStrength\n[626 – 750]\nKEEP\nOPTION 1\n+11.4%\nLife\n[10 – 15]\nTAKE THIS\nOPTION 2\nReduces cooldown of all skills by\n5.8%\n[5 – 8]\nTAKE THIS\nCOST\n19,700\n1\n1\nPICK AN OPTION ABOVE",
+      "offer": {
+        "itemId": "e3por76",
+        "affix": 0,
+        "options": [
+          {
+            "stat": "lifePct",
+            "value": 11.4,
+            "min": 10,
+            "max": 15,
+            "primary": true
+          },
+          {
+            "stat": "cdr",
+            "value": 5.8,
+            "min": 5,
+            "max": 8,
+            "primary": true
+          }
+        ]
+      },
+      "artisan": "mystic"
+    },
+    {
+      "name": "04-reforge-ready",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nEnchantUI\nLevel 1\nWarrior\nDPS\n0\n164 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, EnchantUI.\nAttacks and slotted skills are automatic.\nWASD move · Space dash · E interact · K skills · F1 controls.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n0\nE\nUse Waypoint\nINVENTORY\nLEVEL 70 WARRIOR\nDAMAGE\n14\nTOUGHNESS\n16,080\nRECOVERY\n0\nStrength\n217\nVitality\n147\nLife\n14,653\nArmor\n255\nAll Resist\n8\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n1,000,000,000\n10,000\n10,000\n10,000\n10,000\n10,000\nITEMS 1/60\nGEMS\nSALVAGE ALL\nTHE ANCIENTS' CUBE\nCUBE LEVEL\n8\n0 / 1,506 XP\nArtisan and Cube operations share Cube experience and unlock levels.\nTransmute Rare\n+60\nExtract Power\n+60\nReforge\n+45\nREFORGE\n\nReroll every property of a Legendary as if newly found — it may become Ancient.\n\n×\nOuroboros Loop\nLegendary Ring\nEvery property is rerolled as if the item had just dropped. The power and look stay the same, it may become Ancient, and its upgrade tier and enchantment reset.\nCURRENT\nOuroboros Loop\nNormal roll\nCOST\n50,000\n5\n15\nREFORGE",
+      "offer": null,
+      "artisan": "cube",
+      "disabled": false
+    },
+    {
+      "name": "disconnect-clears-session-offer",
+      "passed": true
+    }
+  ]
+}

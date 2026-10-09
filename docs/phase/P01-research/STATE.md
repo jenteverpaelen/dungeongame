@@ -19,6 +19,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Record a fresh-character local Chrome first-session trace and inspect all twelve 1080p frames. Starting gear, physical Waypoint, automatic combat and first level-up observed; equipment/rune purchases and human comprehension remain unmeasured. See FIRST-SESSION-REPORT.md.
 - [x] Correct measured mouse/LMB instruction mismatch using existing labels/tooltips/private new-character chat. Fresh and returning browser flows pass; five final 1080p frames inspected. This is a cue correction, not a completed onboarding system or player study.
 - [x] Map actual economic sources/sinks/transfers and compute 60 offline cases, 15 item-cost fixtures and current Fortune-aware upgrade expectations. Repeat output hashes match; no balance change. Enchant transition semantics and active rates remain next evidence.
+- [x] Reproduce stale enchant/reforge transition with real handlers, preserve before/pilot/after evidence, and correct the state-safety defect (C022). Active earning rates and cross-game economic comparisons remain open.
 
 ## Research depth and remaining scope
 

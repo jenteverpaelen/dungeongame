@@ -481,7 +481,9 @@ export function CubePanel() {
   const fuseKey = fuseSel && char.gems[fuseSel] > 0 ? fuseSel : gemKeys.find((k) => char.gems[k] >= 3 && Number(k.split(':')[1]) < 6) ?? gemKeys[0] ?? null;
   const fuseGem = fuseKey ? { gem: fuseKey.split(':')[0], rank: Number(fuseKey.split(':')[1]) } : null;
 
-  const reason = invalidReason(fn, item);
+  const reason = invalidReason(fn, item)
+    ?? (fn === 'reforge' && item && pending?.itemId === item.id
+      ? 'Choose your pending enchantment at the Mystic before reforging this item.' : null);
   const cost = costFor(fn, item, fuseGem?.rank ?? null);
   const afford = cost ? canAfford(char, cost) : false;
   let canAct = !locked && !busy && !!cost && afford && !reason;

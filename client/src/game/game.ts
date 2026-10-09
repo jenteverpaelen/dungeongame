@@ -50,9 +50,9 @@ export class Game {
 
   async start(name: string, classId: ClassId) {
     sfx.unlock();
-    ui.set({ screen: 'connecting', error: null });
+    ui.set({ screen: 'connecting', error: null, enchant: null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
-      ui.set({ connected: false, error: reason, screen: 'select' });
+      ui.set({ connected: false, error: reason, screen: 'select', enchant: null });
       this.townSound?.destroy();this.townSound=null;
       this.scene.clearEntities();
     });
@@ -238,7 +238,7 @@ export class Game {
   }
 
   private openArtisan(role: Artisan) {
-    ui.set({ artisan: role, enchant: role === 'mystic' ? ui.get().enchant : null });
+    ui.set({ artisan: role });
     if (!ARTISAN_FUNCTIONS[role].includes(cubeUI.get().fn)) cubeUI.set({ fn: ARTISAN_FUNCTIONS[role][0], affix: null, result: null });
     togglePanel('cube', true);
   }

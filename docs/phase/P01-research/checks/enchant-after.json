@@ -1,0 +1,808 @@
+{
+  "node": "v24.19.0",
+  "scope": "Synthetic handler-level calls beside each required NPC. Random offers/reforge rolls; no WebSocket or player-time measurement.",
+  "steps": [
+    {
+      "op": "enchantRoll",
+      "args": {
+        "itemId": "e3por76",
+        "affix": 0
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "options": [
+            {
+              "stat": "flatMin",
+              "value": 94,
+              "min": 84,
+              "max": 100,
+              "primary": true
+            },
+            {
+              "stat": "rcr",
+              "value": 4.1,
+              "min": 4,
+              "max": 8,
+              "primary": true
+            }
+          ],
+          "affix": 0,
+          "original": {
+            "stat": "str",
+            "value": 692,
+            "min": 626,
+            "max": 750,
+            "primary": true
+          },
+          "cubeLevels": 0
+        }
+      },
+      "spentGold": 19700,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 1,
+        "soul": 1,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 12,
+      "enchantCount": 0,
+      "pending": true
+    },
+    {
+      "op": "enchantRoll",
+      "args": {
+        "itemId": "e3por76",
+        "affix": 0
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "options": [
+            {
+              "stat": "rcr",
+              "value": 7.7,
+              "min": 4,
+              "max": 8,
+              "primary": true
+            },
+            {
+              "stat": "allRes",
+              "value": 94,
+              "min": 91,
+              "max": 100,
+              "primary": true
+            }
+          ],
+          "affix": 0,
+          "original": {
+            "stat": "str",
+            "value": 692,
+            "min": 626,
+            "max": 750,
+            "primary": true
+          },
+          "cubeLevels": 0
+        }
+      },
+      "spentGold": 19700,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 1,
+        "soul": 1,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 12,
+      "enchantCount": 0,
+      "pending": true
+    },
+    {
+      "op": "enchantPick",
+      "args": {
+        "itemId": "e3por76",
+        "choice": 0
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "choice": 0,
+          "affix": {
+            "stat": "str",
+            "value": 692,
+            "min": 626,
+            "max": 750,
+            "primary": true
+          }
+        }
+      },
+      "spentGold": 0,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 0,
+        "soul": 0,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 0,
+      "enchantCount": 1,
+      "pending": false
+    },
+    {
+      "op": "enchantRoll",
+      "args": {
+        "itemId": "e3por76",
+        "affix": 0
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "options": [
+            {
+              "stat": "area",
+              "value": 16.1,
+              "min": 16,
+              "max": 20,
+              "primary": true
+            },
+            {
+              "stat": "allRes",
+              "value": 97,
+              "min": 91,
+              "max": 100,
+              "primary": true
+            }
+          ],
+          "affix": 0,
+          "original": {
+            "stat": "str",
+            "value": 692,
+            "min": 626,
+            "max": 750,
+            "primary": true
+          },
+          "cubeLevels": 0
+        }
+      },
+      "spentGold": 26595,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 1,
+        "soul": 1,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 12,
+      "enchantCount": 1,
+      "pending": true
+    },
+    {
+      "op": "reforge",
+      "args": {
+        "itemId": "e3por76"
+      },
+      "result": {
+        "ok": false,
+        "err": "Choose your pending enchantment at the Mystic before reforging this item."
+      },
+      "spentGold": 0,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 0,
+        "soul": 0,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 0,
+      "enchantCount": 1,
+      "pending": true
+    },
+    {
+      "op": "enchantPick",
+      "args": {
+        "itemId": "e3por76",
+        "choice": 1
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "choice": 1,
+          "affix": {
+            "stat": "area",
+            "value": 16.1,
+            "min": 16,
+            "max": 20,
+            "primary": true
+          }
+        }
+      },
+      "spentGold": 0,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 0,
+        "soul": 0,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 0,
+      "enchantCount": 2,
+      "pending": false
+    },
+    {
+      "op": "reforge",
+      "args": {
+        "itemId": "e3por76"
+      },
+      "result": {
+        "ok": true,
+        "data": {
+          "item": {
+            "id": "e3por76",
+            "base": "ring",
+            "kind": "ring",
+            "name": "Ouroboros Loop",
+            "rarity": "legendary",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "str",
+                "value": 674,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "allRes",
+                "value": 95,
+                "min": 91,
+                "max": 100,
+                "primary": true
+              },
+              {
+                "stat": "ias",
+                "value": 6.5,
+                "min": 5,
+                "max": 7,
+                "primary": true
+              },
+              {
+                "stat": "cdr",
+                "value": 7.3,
+                "min": 5,
+                "max": 8,
+                "primary": true
+              },
+              {
+                "stat": "pickup",
+                "value": 26,
+                "min": 20,
+                "max": 40,
+                "primary": false
+              },
+              {
+                "stat": "resourceRegen",
+                "value": 1.3,
+                "min": 1,
+                "max": 2,
+                "primary": false
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": true,
+            "look": {
+              "shape": "ring",
+              "primary": 13938487,
+              "secondary": 10478591,
+              "glow": 16769162,
+              "variant": 1
+            },
+            "legendary": {
+              "power": "ouroboros_loop",
+              "value": 185,
+              "min": 150,
+              "max": 200
+            },
+            "flavor": "Fire becomes frost becomes storm becomes fire."
+          },
+          "cubeLevels": 0
+        }
+      },
+      "spentGold": 50000,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 15,
+        "soul": 5,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 45,
+      "enchantCount": 0,
+      "pending": false
+    },
+    {
+      "op": "enchantPick",
+      "args": {
+        "itemId": "e3por76",
+        "choice": 1
+      },
+      "result": {
+        "ok": false,
+        "err": "Roll the enchantment first"
+      },
+      "spentGold": 0,
+      "spentMats": {
+        "scrap": 0,
+        "dust": 0,
+        "crystal": 0,
+        "soul": 0,
+        "deathsBreath": 0
+      },
+      "cubeXpDelta": 0,
+      "enchantCount": 0,
+      "pending": false
+    }
+  ],
+  "offeredBeforeReforge": {
+    "stat": "area",
+    "value": 16.1,
+    "min": 16,
+    "max": 20,
+    "primary": true
+  },
+  "beforeBlockedReforge": {
+    "version": 1,
+    "id": "enchantaudit",
+    "name": "EnchantAudit",
+    "classId": "warrior",
+    "level": 70,
+    "xp": 0,
+    "gold": 999934005,
+    "materials": {
+      "scrap": 10000,
+      "dust": 10000,
+      "crystal": 9997,
+      "soul": 9997,
+      "deathsBreath": 10000
+    },
+    "gems": {},
+    "equipment": {
+      "mainhand": {
+        "id": "1r1k8qy1",
+        "base": "sword",
+        "kind": "weapon1h",
+        "name": "Short Sword",
+        "rarity": "normal",
+        "ancient": 0,
+        "ilvl": 1,
+        "reqLevel": 1,
+        "affixes": [],
+        "sockets": [],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 0,
+        "bound": false,
+        "look": {
+          "shape": "sword",
+          "primary": 12100474,
+          "secondary": 7234121,
+          "glow": 0,
+          "variant": 0
+        },
+        "weapon": {
+          "min": 2,
+          "max": 4,
+          "aps": 1.4,
+          "element": "physical"
+        }
+      },
+      "offhand": {
+        "id": "8lr4ch2",
+        "base": "shield",
+        "kind": "offhand",
+        "name": "Buckler",
+        "rarity": "normal",
+        "ancient": 0,
+        "ilvl": 1,
+        "reqLevel": 1,
+        "affixes": [],
+        "sockets": [],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 0,
+        "bound": false,
+        "look": {
+          "shape": "shield",
+          "primary": 12100474,
+          "secondary": 7234121,
+          "glow": 0,
+          "variant": 1
+        },
+        "armor": 9
+      },
+      "chest": {
+        "id": "w09vx73",
+        "base": "chest_plate",
+        "kind": "chest",
+        "name": "Worn Breastplate",
+        "rarity": "normal",
+        "ancient": 0,
+        "ilvl": 1,
+        "reqLevel": 1,
+        "affixes": [],
+        "sockets": [],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 0,
+        "bound": false,
+        "look": {
+          "shape": "plate",
+          "primary": 11910340,
+          "secondary": 7172470,
+          "glow": 0,
+          "variant": 2
+        },
+        "armor": 11
+      },
+      "legs": {
+        "id": "qg9n3z4",
+        "base": "legs_plate",
+        "kind": "legs",
+        "name": "Worn Legplates",
+        "rarity": "normal",
+        "ancient": 0,
+        "ilvl": 1,
+        "reqLevel": 1,
+        "affixes": [],
+        "sockets": [],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 0,
+        "bound": false,
+        "look": {
+          "shape": "plate",
+          "primary": 10134445,
+          "secondary": 6054504,
+          "glow": 0,
+          "variant": 0
+        },
+        "armor": 11
+      },
+      "feet": {
+        "id": "kdusen5",
+        "base": "feet_boots",
+        "kind": "feet",
+        "name": "Worn Boots",
+        "rarity": "normal",
+        "ancient": 0,
+        "ilvl": 1,
+        "reqLevel": 1,
+        "affixes": [],
+        "sockets": [],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 0,
+        "bound": false,
+        "look": {
+          "shape": "boots",
+          "primary": 7035450,
+          "secondary": 4208163,
+          "glow": 0,
+          "variant": 2
+        },
+        "armor": 6
+      }
+    },
+    "inventory": [
+      {
+        "id": "e3por76",
+        "base": "ring",
+        "kind": "ring",
+        "name": "Ouroboros Loop",
+        "rarity": "legendary",
+        "ancient": 0,
+        "ilvl": 70,
+        "reqLevel": 70,
+        "affixes": [
+          {
+            "stat": "str",
+            "value": 692,
+            "min": 626,
+            "max": 750,
+            "primary": true
+          },
+          {
+            "stat": "lifePct",
+            "value": 11.4,
+            "min": 10,
+            "max": 15,
+            "primary": true
+          },
+          {
+            "stat": "cdr",
+            "value": 5.8,
+            "min": 5,
+            "max": 8,
+            "primary": true
+          },
+          {
+            "stat": "xpPct",
+            "value": 7.2,
+            "min": 4,
+            "max": 8,
+            "primary": false
+          },
+          {
+            "stat": "pickup",
+            "value": 25,
+            "min": 20,
+            "max": 40,
+            "primary": false
+          }
+        ],
+        "sockets": [
+          null
+        ],
+        "upgrade": 0,
+        "upgradeFortune": 0,
+        "enchantCount": 1,
+        "bound": true,
+        "look": {
+          "shape": "ring",
+          "primary": 13938487,
+          "secondary": 10478591,
+          "glow": 16769162,
+          "variant": 2
+        },
+        "legendary": {
+          "power": "ouroboros_loop",
+          "value": 165,
+          "min": 150,
+          "max": 200
+        },
+        "flavor": "Fire becomes frost becomes storm becomes fire.",
+        "enchanted": 0
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "stash": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "skills": {
+      "slots": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "runes": {},
+      "tiers": {},
+      "primary": "cleave"
+    },
+    "skillPoints": 0,
+    "paragon": {
+      "level": 0,
+      "xp": 0,
+      "spent": {}
+    },
+    "cube": {
+      "level": 8,
+      "xp": 36,
+      "learned": [],
+      "equipped": [
+        null,
+        null,
+        null
+      ]
+    },
+    "difficulty": 0,
+    "lastZone": "hearthmere",
+    "lastSeen": 1791517041243,
+    "stats": {
+      "kills": 0,
+      "elites": 0,
+      "legendaries": 0,
+      "rifts": 0,
+      "playMs": 0,
+      "deaths": 0
+    }
+  },
+  "finalItem": {
+    "id": "e3por76",
+    "base": "ring",
+    "kind": "ring",
+    "name": "Ouroboros Loop",
+    "rarity": "legendary",
+    "ancient": 0,
+    "ilvl": 70,
+    "reqLevel": 70,
+    "affixes": [
+      {
+        "stat": "str",
+        "value": 674,
+        "min": 626,
+        "max": 750,
+        "primary": true
+      },
+      {
+        "stat": "allRes",
+        "value": 95,
+        "min": 91,
+        "max": 100,
+        "primary": true
+      },
+      {
+        "stat": "ias",
+        "value": 6.5,
+        "min": 5,
+        "max": 7,
+        "primary": true
+      },
+      {
+        "stat": "cdr",
+        "value": 7.3,
+        "min": 5,
+        "max": 8,
+        "primary": true
+      },
+      {
+        "stat": "pickup",
+        "value": 26,
+        "min": 20,
+        "max": 40,
+        "primary": false
+      },
+      {
+        "stat": "resourceRegen",
+        "value": 1.3,
+        "min": 1,
+        "max": 2,
+        "primary": false
+      }
+    ],
+    "sockets": [],
+    "upgrade": 0,
+    "upgradeFortune": 0,
+    "enchantCount": 0,
+    "bound": true,
+    "look": {
+      "shape": "ring",
+      "primary": 13938487,
+      "secondary": 10478591,
+      "glow": 16769162,
+      "variant": 1
+    },
+    "legendary": {
+      "power": "ouroboros_loop",
+      "value": 185,
+      "min": 150,
+      "max": 200
+    },
+    "flavor": "Fire becomes frost becomes storm becomes fire."
+  },
+  "blockedReforge": true,
+  "paidChoicePreserved": true,
+  "staleOfferAccepted": false
+}

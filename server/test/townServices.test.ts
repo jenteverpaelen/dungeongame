@@ -108,6 +108,35 @@ test('solid walls block service access even inside interaction radius; travel ch
   } finally { await f.world.shutdown(); }
 });
 
+test('a paid enchant choice must be resolved before the same item can be reforged', async () => {
+  const f = await fixture();
+  try {
+    const first = generateItem(new Rng(17), { ilvl: 70, classId: 'warrior', rarity: 'legendary', legendary: 'ouroboros_loop' });
+    const other = generateItem(new Rng(29), { ilvl: 70, classId: 'warrior', rarity: 'legendary', legendary: 'ouroboros_loop' });
+    f.save.inventory[0] = first; f.save.inventory[1] = other;
+    f.near('mystic');
+    assert.equal(f.cmd('enchantRoll', { itemId: first.id, affix: 0 }).ok, true);
+    const offer = structuredClone(f.s.pendingEnchant), before = structuredClone(f.save);
+    f.near('cube');
+    const blocked = f.cmd('reforge', { itemId: first.id });
+    assert.equal(blocked.ok, false, 'Do not replace the item under a paid offer');
+    assert.match(blocked.err!, /choose.*enchant/i);
+    assert.deepEqual(f.save, before, 'No reforge price, Cube XP or item mutation on rejection');
+    assert.deepEqual(f.s.pendingEnchant, offer, 'Keep the paid choice available');
+    assert.equal(f.cmd('reforge', { itemId: other.id }).ok, true, 'Unrelated items remain usable');
+    assert.deepEqual(f.s.pendingEnchant, offer);
+    f.near('mystic');
+    assert.equal(f.cmd('enchantPick', { itemId: first.id, choice: 0 }).ok, true, 'Keeping the original resolves the offer');
+    assert.equal(f.s.pendingEnchant, null);
+    f.near('cube');
+    assert.equal(f.cmd('reforge', { itemId: first.id }).ok, true);
+    assert.notEqual(f.save.inventory[0], first);
+    assert.equal(f.save.inventory[0]!.id, first.id);
+    f.near('mystic');
+    assert.equal(f.cmd('enchantPick', { itemId: first.id, choice: 1 }).ok, false, 'Old offers cannot be reused');
+  } finally { await f.world.shutdown(); }
+});
+
 test('stash migration, capacity, full inventory, retries, duplicates and save/reload preserve items', async () => {
   ensureDataDir(); const save = createCharacter('StashSave', 'warrior', 4);
   const legacy = structuredClone(save) as Partial<CharacterSave>; delete legacy.stash;
