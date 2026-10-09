@@ -23,3 +23,5 @@ Full local formula inventory, sensitivity analysis, source-verified reference fo
 ## Existing tiers/runes, 2026-10-09
 
 [BUILD-REPORT.md](../../phase/P01-research/BUILD-REPORT.md) records all 54 tiers and 54 runes, 288 runtime-helper combinations, affordability and point/refund conservation. It distinguishes helpers and lexical flag consumers from actual combat execution. All-tier cost72 exceeds level-earned69; that is an existing constraint, not a proposed shortage. Description/runtime differences are queued for focused probes; no balance value changes.
+
+Those focused probes now correct the measured buff/Frost descriptions without changing cast behavior (C025). [FIELD-CALIBRATION-REPORT.md](../../phase/P01-research/FIELD-CALIBRATION-REPORT.md) adds27 repeated inventory-retaining visits. Normal difficulty, aggressive whole-map navigation, frozen gear and natural leveling strongly qualify the results. The source distinguishes credited kills from world deaths and acquired wealth from expired ground drops. Capped bags in20/27 cases and repeated starter deaths support measuring equipment decisions/town visits next, not an immediate class or loot retune.

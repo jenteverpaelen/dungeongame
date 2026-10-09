@@ -205,3 +205,7 @@ GAG-REMAP and MDN's KeyboardEvent.code / Keyboard.getLayoutMap pages were read b
 ### L38 — Probe declared skill behavior, 2026-10-09
 
 BUILD-REPORT.md records a Frost Hydra cone/shard mismatch and static buff percentages. Before editing either, inspect actual cast/summon/projectile/effect code and measure controlled server instances with real Player entities. Compare Frost with ordinary/Arcane Hydra on two separated targets, and cast both damage buffs across all rune/tier states. POE2-02 and the current TBH developer bug notes distinguish visual/description errors from actual damage errors; they supply failure questions, not replacement numbers. No combat redesign, damage tuning or geometry change is justified by a text mismatch alone.
+
+### L39 — Calibrate field rewards without clearing the bag, 2026-10-09
+
+Roadmap F-TEL-02, R14's measurement method and current `sim.ts`, Instance/loot/progression code precede FIELD-CALIBRATION-PLAN.md. The old regression bot has whole-map target knowledge and silently deletes non-legendary/non-set inventory above50 entries. Its XP check uses a monotonic synthetic level marker, not actual cumulative XP. Keep those regression checks intact but do not turn them into economy telemetry. Measure actual XP, full inventory retention, spawned/picked/remaining rewards and tick-resolution kill-time samples in a separately scoped calibration. IDLE-04 reinforces distinguishing active simulation from offline grants; no imported balance values.

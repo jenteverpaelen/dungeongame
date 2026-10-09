@@ -10,7 +10,7 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P1 Research | Active | All 20 original charters plus Torchlight II; complete evidence, matrices and UI observations |
 | P2 Design | Not complete | Turn supported findings into decisions; unknown targets remain unknown |
 | P3 Foundations | Independent subset active | Strict verify passes; save failure handling, Windows shutdown, verified backup/restore, connection-local replay protection, audio/shake settings, keyboard rebinding and content integrity checks added. Auth, durable transactions, backup rotation, remaining settings and independent review stay open |
-| P4 Combat/builds | Existing game preserved | Evidence-based targets and owner playtest; no invented timing values |
+| P4 Combat/builds | Existing game preserved; measured descriptions corrected | Repeated field calibration available; human targets and owner playtest remain open |
 | P5 Quests/dialogue | Not implemented | P3 state safety and supported objective design |
 | P6 Onboarding | Scripted baseline recorded; false mouse cue corrected; no new tutorial | P5, first gear/skill actions, reference footage and unfamiliar-player evidence |
 | P7 Early world | Not implemented | P4–P6 and measured content cost |

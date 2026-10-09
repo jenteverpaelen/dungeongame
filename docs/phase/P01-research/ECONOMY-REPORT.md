@@ -60,4 +60,6 @@ Read paths: `shared/src/cube.ts`, `items.ts`, `character.ts`, `progression.ts`, 
 
 ## Changes and validation
 
+Follow-up C027: FIELD-CALIBRATION-REPORT.md now records27 real-Instance active bot visits and exact pickup/expiry reconciliation. Their enemy mix, levels and policy differ from the fixed offline model. This partially fills the active measurement gap but does not establish casual earning rates, inflation or fairness.
+
 Only correct the two misleading active-rate comments and the inverted minimum-away comment. Runtime constants/formulas/rewards stay identical. The audit completes with all fixture assertions, repeat comparisons and no files written to its isolated DATA_DIR. It does not need a new browser capture because gameplay/UI did not change. Project typecheck and a separate strict TypeScript check of the audit script pass (scripts are outside the project tsconfig). Two separate runs produce identical report SHA256 `29859523D63802CBE816FE5DBD3C7AFBD2A26D88AF654DFD674A97DD79739DC4`. Rollback is the comment/harness/report diff; keep raw findings as historical evidence if mechanics later change.
