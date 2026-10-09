@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C063. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C064. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -323,3 +323,5 @@ Continue equivalent research questions across D3 Campaign/Adventure, Idleon, Tas
 Continue accounts/library/storage/legacy-ownership research and independent foundation gaps, including the naming register and privacy inventory. Do not migrate live characters or attach ownership implicitly. P4 targets require human evidence; P5/P6 reward/tutorial implementation needs a scoped design and state-safety proof. No bulk campaign or economy content is justified by source counts alone.
 
 C063 adds six equally scoped priority-game digests (PoE1/2 separate; both D3 modes explicit), a decision/dependency synthesis and13 versioned caution cases. Existing source/claim/media counts are unchanged; synthesis is not new evidence or G1 approval. Current-coverage notes now reflect the completed bounded footage pass. No game content, system, asset, save, camera, town or UI change. Continue full-catalogue feature comparison, broader digests and a separately designed synthetic objective-state experiment; do not infer new numerical targets. See research/v2/digests/README.md and research/v2/SYNTHESIS.md from the docs root.
+
+C064 adds the full147-feature comparison across seven priority game/mode columns:95 scoped partial-evidence cells and934 unknowns. Every supported cell names its exact subset,claims and unresolved remainder; unknown is not absence. This is catalogue coverage,not feature parity or G1 completion. No game change. Continue broader digests and the separately scoped objective-state experiment; see research/v2/FEATURES.md from the docs root.

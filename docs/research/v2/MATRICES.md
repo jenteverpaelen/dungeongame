@@ -87,3 +87,5 @@ C061 adds separate historical PoE2 skill/support observations:categorised select
 C062 completes the bounded seven-recording pass across all five priority games,D3 modes and PoE games separately. Seasonal Adventure adds target/count activity selection,displayed action/passive locks,artisan rank and salvage/Cube context. Its resource-assisted start cannot populate comparable timelines. All reference values remain balance-ineligible;current input/error/durable state remains open. Next deliverable is a concise per-game digest and explicit decision dependencies.
 
 C063 provides [six game digests](digests/README.md), [decision dependencies](SYNTHESIS.md) and [documented cautions](CAUTIONS.md). These supersede older next-step prose that still calls the bounded historical video pass missing. They do not fill clean-time or current-behavior gaps.
+
+C064 adds the [147-feature comparison](FEATURES.md), its complete CSV and95 scoped evidence records. Compound feature titles are preserved;934 unsupported cells remain unknown rather than absent. This closes structural catalogue coverage for priority games, not the factual research gate.

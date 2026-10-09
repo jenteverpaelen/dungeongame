@@ -1,0 +1,36 @@
+{
+  "checkpoint": "C064",
+  "checkedAtUtc": "2026-10-09T13:13:31.1822088Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 167,
+  "claims": 155,
+  "media": 30,
+  "atlasEntries": 71,
+  "recordings": 7,
+  "frames": 152,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-features-docs-2d4c936c81314b399f3ed4b98ad87617",
+  "gameCodeImported": false,
+  "saveDataRead": false,
+  "featureMatrix": {
+    "features": 147,
+    "gameModeColumns": 7,
+    "cells": 1029,
+    "partialEvidence": 95,
+    "unknown": 934,
+    "fullPresenceClaims": 0,
+    "absenceClaims": 0,
+    "featureTitlesMatch": true,
+    "eachEvidenceUsedExactlyOnce": true,
+    "claimReferencesResolve": true,
+    "sourceManifestCheckpoint": "C062"
+  }
+}

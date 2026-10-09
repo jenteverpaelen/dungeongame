@@ -40,3 +40,5 @@ C060:21 PoE1 frames,seven atlas entries,five visual claims; cumulative165 source
 C061:22 separate PoE2 samples,nine atlas entries,five visual claims;166 sources/151 claims/29 media/64 entries/six recordings/132 samples. Support choice exposes applicability/trade-offs before visible association;2024 uniqueness text predates0.3 removal. Current error/durable flows and all comparable time cells remain open.
 
 C062:20 seasonal D3 Adventure samples(one transition excluded),seven atlas entries,four visual claims. Cumulative167 sources/155 claims/30 media/71 entries/seven recordings/152 samples. All priority games and requested D3 modes now have scoped historical footage. Current behavior and comparable timing remain open;continue owner-readable synthesis instead of treating source counts as completion.
+
+The [full-catalogue feature comparison](FEATURES.md) now maps all147 features across seven game/mode columns, with exact evidence subsets and explicit unknowns. C064 does not increase source counts or declare complete presence/absence.
