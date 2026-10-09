@@ -30,3 +30,5 @@ C057: TL2-EARLY-VIDEO's expanded description establishes publication November 25
 C058: IDLE-EARLY-VIDEO was published November1,2025; no build number was inspected. A visible level8 Warrior conflicts with unqualified use of earlier secondary level10 guidance. Account/F2P claims remain unverified, and the displayed8min away is not a measured wall-clock sample. Exact source conditions and offsets are in TIMELINE-FRAMES.json.
 
 C059: TBH-EARLY-VIDEO publication is June30,2026; no client build inspected. It predates September chest/protection fixes and cannot verify them. Source1280×720 and zoomed desktop presentation also prevent native1080p geometry claims. Source-declared blind/F2P is unverified; samples remain unsuitable for elapsed pacing.
+
+C060: POE1-EARLY-VIDEO published2026-03-03; build unknown. Matching-colour tooltip/tutorial predates3.29 socket changes (POE-05). Standard appears in creation,not full-session configuration. Final class and source-declared first-ever/unedited conditions unverified. Source1280×720 scaled at1920×1080; no current client or comparable pacing claim.

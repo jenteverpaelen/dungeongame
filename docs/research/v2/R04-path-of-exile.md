@@ -1,6 +1,6 @@
 # Path of Exile 1 and 2 — R-04, first evidence pass
 
-Read 2026-10-09. Separate games and version histories. Overview L1 and patch details L2; newer indexed versions and rule changes are recorded in [VERSIONS.md](VERSIONS.md), claims POE-05/06 and POE2-03/04/05. Installed builds and observed onboarding remain Q.
+Read 2026-10-09. Separate games and version histories. Overview L1 and patch details L2; newer indexed versions and rule changes are recorded in [VERSIONS.md](VERSIONS.md), claims POE-05/06 and POE2-03/04/05. Installed builds remain Q; C060 adds scoped historical PoE1 onboarding pixels, with PoE2 observation still separate and incomplete.
 
 ## Findings
 
@@ -33,3 +33,9 @@ C045 adds the equal-question [loot comparison](LOOT.md), including historical/so
 Three PoE1 and four PoE2 published images were inspected separately. PoE1 action/status groups and PoE2 map/combination/boss presentation now have pixel evidence. Capture builds, inputs, timing and errors remain unverified; no cross-game flask, gem or recipe rule is inferred. [V; POE1-UI-GALLERY / POE-09; POE2-UI-GALLERY / POE2-09]
 
 See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.
+
+## C060 — PoE1 recorded early decisions
+
+[DutchSideQuest's Act1 recording](https://www.youtube.com/watch?v=RlQ_Gi6xg9s), published March3,2026, adds21 sampled frames,seven atlas entries and claims POE-10–14. It exposes equipment/gem versus action details,contextual passive/stash help,an explicitly unconfirmed point,quest/map continuity,reward choice and vendor preview. Final class,build,account history and claimed unedited/first-ever conditions remain unknown; tab entitlement and source timing cannot be inferred. Current-rule and support-error coverage remain unfinished.
+
+The passive selection says it is unconfirmed and offers Apply Points/Cancel. Reward choice beside inventory and later bag/action icons are different states. Neither closing a pane nor a later icon proves a saved transaction. March matching-colour instructions predate3.29 and must not replace POE-05. No numerical or gem-system design follows. See TIMELINES.md and TIMELINE-FRAMES.json; PoE2 remains a separate research row.

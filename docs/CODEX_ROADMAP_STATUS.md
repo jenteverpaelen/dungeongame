@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C059. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C060. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -15,6 +15,8 @@ C057 adds 24 Torchlight II samples, including three excluded introductions, and 
 C058 adds21 Idleon guide samples (one intro excluded), ten atlas entries and five visual claims. Allocation, production, collection/equipped contribution, AFK estimate/return and storage/preset context are observed; exact build, inputs, formula, durable outcomes and clean timing remain open. A level8 Warrior contradicts unqualified level10 promotion guidance. Cumulative26 assets/39 entries/three recordings/63 samples. No game or UI change; documentation checks only. Continue TBH/PoE1/PoE2/D3 Adventure footage and independent foundation work.
 
 C059 adds26 Task Bar Hero samples, nine atlas entries and six visual claims. Setup, equipment, stage failure, separate skill investment, Rune prerequisites and Cube selection/preview are observed. Exact build/current protection, input/refund/transaction rules and clean timing remain unverified. Cumulative27 assets/48 entries/four recordings/89 samples; no game or UI change. Continue PoE1/PoE2/D3 Adventure footage, cross-game synthesis and independent foundation work.
+
+C060 adds21 PoE1 Act1 samples,seven atlas entries and five visual claims. Contextual help,pending passive allocation,quest/reward and sale previews are observed. Exact build/final class/account history,actual inputs,support recovery and durable outcomes remain unknown; historical colour rules predate3.29. Cumulative28 media/55 atlas entries/five recordings/110 samples. No game change; continue PoE2/D3 Adventure and cross-game synthesis.
 
 Update the affected rows when adding or removing content or systems. Reference the new change-log entry and its actual verification. Never mark a whole feature done from a subset test. Keep declined/proposed features visible until there is an explicit decision.
 

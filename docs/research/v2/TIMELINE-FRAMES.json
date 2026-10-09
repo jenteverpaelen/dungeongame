@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checkpoint": "C059",
-  "research": "L67;L68;L69;L70",
+  "checkpoint": "C060",
+  "research": "L67;L68;L69;L70;L71",
   "recordings": [
     {
       "id": "D3-CAM-01",
@@ -429,6 +429,156 @@
         {
           "seconds": 3630,
           "observed": "Sorcerer selected; Rare staff explicitly Equipped versus Uncommon bag staff. Tooltips separate damage/speed,inherent modifier,class/level/transfer restrictions,empty Decoration Slot;Auto(Cube) hint. Actual equip/synthesis/decoration untested."
+        }
+      ]
+    },
+    {
+      "id": "POE1-EARLY-01",
+      "source_id": "POE1-EARLY-VIDEO",
+      "media_id": "POE1-V-EARLY",
+      "url": "https://www.youtube.com/watch?v=RlQ_Gi6xg9s",
+      "title": "Total Beginner Plays Path of Exile - Act 1 (Full Stream)",
+      "publisher": "DutchSideQuest",
+      "published": "2026-03-03",
+      "publication_evidence": "Expanded YouTube description; not recording date",
+      "inspected": "2026-10-09",
+      "game": "Path of Exile 1",
+      "platform_evidence": "Keyboard/mouse instructions and PC-style HUD; no installed client inspection",
+      "visible_build": null,
+      "mode": "Act1; Standard displayed during creation; full configuration unverified",
+      "class": "Templar then Witch inspected at creation; final class not established",
+      "game_ui_language": "English",
+      "host_player_ui_language": "Dutch",
+      "account": "Description claims first-ever/blind; stash dropdown1-18 visible,entitlement/history unverified",
+      "difficulty": "Act1; no complete difficulty configuration inspected",
+      "social": "Other avatars visible in town; party membership/credit unknown",
+      "duration_seconds_dom": 16852.781,
+      "decoded_video_dimensions": [
+        1280,
+        720
+      ],
+      "inspection_viewport": [
+        1920,
+        1080
+      ],
+      "rendered_player_dimensions_observed": [
+        [
+          1337,
+          752
+        ],
+        [
+          1348,
+          758
+        ]
+      ],
+      "method": "21 sparse paused frames0-1200s; actual UI slider seeks,read-only currentTime/readyState and personally inspected screenshots. Not continuous viewing or live client play.",
+      "timing_eligible": false,
+      "balance_ready": false,
+      "unverified": [
+        "build",
+        "recording date",
+        "claimed first-ever/unedited/account state",
+        "source speed",
+        "final class",
+        "exact inputs",
+        "support acquisition/invalid-support recovery",
+        "confirmed passive outcome",
+        "transfer/sale/refund rules",
+        "durable grants",
+        "current3.29 client",
+        "human comprehension"
+      ],
+      "inspection_corrections": [
+        "Undecoded960s buffering image excluded and repeated atreadyState4.",
+        "Presenter obscures lower-left resources; some bottom HUD clipped.",
+        "Matching-colour instruction is historical and predatesPOE-05.",
+        "Unconfirmed passive point is explicitly a preview; closing panel is not proof of commit.",
+        "Public chat/host account data excluded."
+      ],
+      "frames": [
+        {
+          "seconds": 0,
+          "observed": "Creation screen with six standing character figures,click-a-class instruction and Back. Presenter inset at lower left. Class choice,account/league and build not established."
+        },
+        {
+          "seconds": 60,
+          "observed": "Templar selected with class name/lore at right; bottom Standard league,name field,Back and dim OK; instruction permits changing class. No mechanical comparison or confirmed character creation in this frame."
+        },
+        {
+          "seconds": 180,
+          "observed": "Witch now selected with different lore; Standard remains,empty name and dim OK. Class choice still unconfirmed."
+        },
+        {
+          "seconds": 300,
+          "observed": "Beach inventory: bow equipped with linked-looking sockets and socketed green skill gem. Separate bow and gem tooltips; gem tags/level/mana/cast-or-attack modifiers,requirements,XP bar and historical matching-colour/right-click-removal instruction. Skip All Tutorials control. Final class/creation input unknown; tooltip is not current3.29 rule."
+        },
+        {
+          "seconds": 360,
+          "observed": "Beach world/minimap and lower flask/skill groups; Skip All Tutorials remains. No contextual instruction or support-gem state in this frame; presenter obscures lower-left resource area."
+        },
+        {
+          "seconds": 420,
+          "observed": "Beach traversal/combat with bow,flask/skill HUD,minimap and Skip All Tutorials. No contextual support-gem or inventory panel at this checkpoint."
+        },
+        {
+          "seconds": 480,
+          "observed": "Beach combat: bow aimed at red-outlined Drowned with target health bar at top. Minimap,lower flask/skill HUD and Skip All Tutorials remain. No passive/support panel here; presenter obscures lower-left resources."
+        },
+        {
+          "seconds": 600,
+          "observed": "Full-screen passive graph extends beyond view. Skills header,search,1 Point Left,0 Refund Points Left,Apply Points and Cancel; contextual tutorial asks selection of a glowing passive to allocate a point. Graph topology/count and actual input unknown."
+        },
+        {
+          "seconds": 615,
+          "observed": "Zoomed passive starting area with bow-wielding portrait; hovered node explains accuracy/projectile effects and Click to allocate. Separate tutorial gives left-click allocation;1 Point Left,0 Refund Points Left,Apply Points/Cancel remain. Portrait alone not used to assert class."
+        },
+        {
+          "seconds": 625,
+          "observed": "Alternative passive tooltip gives evasion/life effects and Click to allocate; point/refund budgets and tutorial unchanged. Inspection does not establish a purchase or new-player preference."
+        },
+        {
+          "seconds": 635,
+          "observed": "Node highlighted; Apply Points/Cancel now coloured,1 Point Left absent,0 Refund Points Left remains. Explicit lower text says1 unconfirmed Passive Skill allocation and tutorial asks applying to confirm. This is a pending selection,not committed allocation."
+        },
+        {
+          "seconds": 645,
+          "observed": "World panel shows Part1/Act1,map route nodes,quest icon and description of kill completed with return-to-town objective. Same next action appears in tracker and lower banner. Passive panel closed; acceptance/save outcome not established."
+        },
+        {
+          "seconds": 660,
+          "observed": "Back in beach combat; quest tracker now directs entry to town for reward. Passive allocation outcome not visible. Target identity/health,minimap and Skip All Tutorials remain."
+        },
+        {
+          "seconds": 720,
+          "observed": "Town entry announcement; quest now names a town NPC for reward. Minimap carries service-like icons; no reward grant or dialogue open in this frame."
+        },
+        {
+          "seconds": 780,
+          "observed": "Stash and inventory side by side; large empty selected stash grid,tabs/dropdown numbered1-18 and highlight search. Contextual help explains Ctrl-click transfer and Alt item details; another hint explains tab reordering. Bow/gloves equipped; bag has shield-like item and stacked scrolls. Capacity entitlement/account history and actual transfer unknown."
+        },
+        {
+          "seconds": 840,
+          "observed": "NPC conversation menu separates lore topics,Purchase Items,Sell Items and Goodbye; world/minimap retained with two tracked objectives including another NPC reward. Public chat text excluded from mechanical claims."
+        },
+        {
+          "seconds": 960,
+          "observed": "NPC dialogue prose with Continue in compact central panel while objectives/world/minimap remain visible; other avatars apparent nearby but party membership unknown. Undecoded initial capture excluded."
+        },
+        {
+          "seconds": 1020,
+          "observed": "Reward NPC dialogue with Continue; tracker still requests talk for reward while another quest names travel and item goals. No reward selection/grant visible in this frame."
+        },
+        {
+          "seconds": 1050,
+          "observed": "Reward panel asks select one of five green gems while inventory remains visible. Contextual illustrated help describes historical matching-colour sockets and right-click removal. No separate confirmation control visible in this sample; exact selection/grant unknown. Historical rule predates3.29."
+        },
+        {
+          "seconds": 1080,
+          "observed": "Sell window beside inventory has separate vendor offer and Your Offer,Accept/Cancel. Shield-like item queued; offered scroll fragment tooltip includes stack conversion information. A green gem is now in bag. Ghost/ownership appearance and acceptance not a durable sale proof."
+        },
+        {
+          "seconds": 1200,
+          "observed": "Field objective now travel/find item. Action-bar hover shows Burning Arrow summary with damage,arrow count,ignite chance,DPS,mana and attack time,distinct from earlier gem-item tooltip; a second active icon and two right-side gem progress bars are visible. No formula correctness or skill acquisition input verified."
         }
       ]
     }

@@ -107,3 +107,22 @@ SacrifEyeZ's [day-one recording](https://www.youtube.com/watch?v=xClJxu1QeMg), p
 The recipe preview is stronger evidence than a blank Cube, but not a completed transaction test. Selected stash inputs coexist with an unchecked inclusion box: that box cannot be interpreted as forbidding every manual stash operation from its label alone. The action hint also changes with Cube context. June footage predates the September lock/chest fixes; neither current protection nor current chest timing is certified.
 
 No new prices, level gates, classes, desktop-strip UI or penalty rules are adopted. Cumulative scope: 164 sources, 141 claims, 27 media assets, 48 atlas entries, four recordings and 89 sampled frames (four earlier introductions excluded). The comparable time matrix remains Q. PoE1/2 and D3 Adventure still lack timestamped early-flow observations; current-build/input/error/durable-state evidence remains incomplete across games.
+
+## C060 — PoE1 pending choices and contextual instructions [V]
+
+DutchSideQuest's [Act1 recording](https://www.youtube.com/watch?v=RlQ_Gi6xg9s), published March3,2026, supplies21 sparse frames through video20:00. Its title/description claims first-ever,blind,unedited play; account history,source speed,recording date and full configuration are unverified. Standard appears during creation; sampled class previews change and do not establish the final class. Stash tabs1–18 do not establish default capacity or entitlement. Source1280×720 is scaled in a1920×1080 Chrome viewport; presenter inset and lower-edge clipping limit observations. [Exact frames](TIMELINE-FRAMES.json).
+
+| Video offsets | Observed state | Boundary |
+|---|---|---|
+|00:00 /01:00 /03:00|Creation figures,selected class/lore,Standard,name and confirmation control|Final class and actual creation input unknown|
+|05:00 /20:00|Equipment/gem requirements and later action-summary tooltip|Historical socket rule; no formula correctness/support recovery proof|
+|10:00 /10:15 /10:25 /10:35|Passive graph and effects; explicit unconfirmed allocation with Apply Points/Cancel|Tentative point is not applied stats or saved progress|
+|10:45 /11:00 /12:00|Quest/map detail,tracker/banner and town reward contact|No exact objective transition or input timing|
+|13:00|Stash,bag,transfer/detail and tab-order help|No entitlement,successful transfer or protection claim|
+|14:00 /16:00 /17:00|Service topics and dialogue retain world/tracker|No party-credit or dialogue-comprehension measurement|
+|17:30|Five gem choices beside inventory with illustrated socket help|No observed selection/grant; no extra confirmation visible in this frame|
+|18:00|Sale input,expected fragment payment,Accept/Cancel|No completed transaction,conservation or persistence proof|
+
+The matching-colour gem instruction predates3.29 (POE-05). Preserve both versions instead of importing a stale constraint. A passive point explicitly labelled unconfirmed is strong evidence of a preview state; a later closed panel cannot prove acceptance. Reward selection is likewise distinct from a later bag gem and equipped action. No support-gem acquisition or invalid-support recovery was observed in these samples; this remains open, not absent from the game.
+
+Cumulative165 sources/146 claims/28 media/55 atlas entries/five recordings/110 samples,including four earlier intro exclusions. Comparable elapsed-time matrix remains unknown. PoE2 and D3 Adventure timestamped early-flow observations remain next; no new gameplay,UI style,town,camera or numerical target follows.

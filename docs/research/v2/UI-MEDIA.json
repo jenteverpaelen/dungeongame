@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C059",
-  "research": "L66;L67;L68;L69;L70",
-  "inspected_media_count": 27,
-  "scope": "23 publisher gallery assets plus four historical recordings with89 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C060",
+  "research": "L66;L67;L68;L69;L70;L71",
+  "inspected_media_count": 28,
+  "scope": "23 publisher gallery assets plus five historical recordings with110 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -358,6 +358,21 @@
       "limits": "No clean pace,current lock enforcement,complete graph,closed-client reward or tested transaction",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "TBH-EARLY-01",
+      "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "POE1-V-EARLY",
+      "source_id": "POE1-EARLY-VIDEO",
+      "url": "https://www.youtube.com/watch?v=RlQ_Gi6xg9s",
+      "natural_width": 1280,
+      "natural_height": 720,
+      "classification": "Published player recording;21 sparse early-flow frames",
+      "observed": "Creation; gem/equipment and action tooltips; passive allocation preview; world/quest detail; stash help; NPC/service dialogue; reward choice and sell preview",
+      "version": "Build unknown; publication2026-03-03 predates3.29 socket change",
+      "inspection": "Chrome1920x1080; decoded1280x720; scaled player,presenter overlay,clipped lower HUD; original notes only",
+      "limits": "No current-rule,comparable timing,actual input or durable transaction guarantee",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "POE1-EARLY-01",
       "retrieved": "2026-10-09"
     }
   ]
