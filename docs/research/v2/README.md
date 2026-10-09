@@ -13,6 +13,10 @@ Continuing research, 2026-10-09. **Research is in progress; the full roadmap res
 
 The initial checkpoint asked what creates an early goal, changes a build and carries between sessions. It is now extended across the whole roadmap. Checkpoints preserve work; they do not end the task. Continue with deeper comparisons, actual UI observations, local measurements and supported implementation. Do not manufacture missing progression timelines to make a table look complete.
 
+## Current reading route
+
+Start with the [six game digests](digests/README.md), then [decisions and dependencies](SYNTHESIS.md) and [documented cautions](CAUTIONS.md). C063 synthesizes existing evidence; counts remain167 sources/155 claims/30 media/71 atlas entries/seven recordings/152 samples. Historical updates above and below retain their original scope. Current/error/durable behavior, ordinary timelines and broader G1 remain incomplete.
+
 ## Evidence rules
 
 `M` = local measurement; `O` = owner direction; `S` = read primary source; `P` = proposal; `Q` = unresolved. `S2` is an explicit extension for a read secondary source: it is **not** primary verification. `V` = personally inspected published pixels, scoped to visible content; not live gameplay or tested behavior. Source-verified means the source states it, not that a current game client was played. Confidence is scoped to the claim's version. Retrieval date is not publication date.

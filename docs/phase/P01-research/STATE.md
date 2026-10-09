@@ -49,20 +49,20 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
 | R-13 UI/accessibility | Basic/remapping/flash guidance; local keyboard and optional flash checks | Broader task/contrast/input/effects audit and human evaluation; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
-| R-15 onboarding | One primary study; scripted first session and earned equipment/skill decisions; partial | Reference-game traces, broader classes/error flows and unfamiliar Hearthfall player observations |
+| R-15 onboarding | One primary study; local first decisions and C056–C062 historical reference traces; partial | Current reference interactions, broader classes/error flows and unfamiliar Hearthfall player observations |
 | R-16 legal/privacy/licences | CPC/EDPB and23 installed production licence reviews; C044 emits reviewed notices | Other-platform/nested/build tooling review; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
 | R-19 audio | PannerNode/category/lifecycle guidance; actual graph audit and C042 channel teardown measurements | Dense mix, concurrency/priority, device output and listening tests |
 | R-20 narrative/quests | Authoring pattern, quest failure cases, cross-game continuity and39 repeated all-class runtime credit cases (C040/C041) | Persisted quest state, party policy, UI observations, original premise, schema and reward semantics |
-| R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration | Pinned final PC tables/client behavior; first-session footage; loot/UI |
+| R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration; C057 scoped early-flow pixel L3 | Pinned final PC tables/client behavior; actual input/error/reward flows; loot and clean timing |
 
 The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The loot comparison and C055's first visual UI atlas now exist; detailed matrices, current-client/error flows and timed first sessions remain incomplete. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.
 
 ## Continuing work
 
 1. Pin the described PC versions for all five games; keep equally scoped questions and time-box inaccessible sources.
-2. Obtain inspectable ordinary early-session footage, distinguish account bonuses/mode/patch, and log actual frames/timestamps. D3 needs two modes; PoE needs separate games. Do not count a video description as observation.
+2. C056–C062 cover historical early-flow pixels for every priority game and both D3 modes, with PoE1/2 separate. C063 synthesizes them. Complete the full feature comparison and broader digests; seek targeted current/error/timing evidence when a pending decision needs it. Ordinary first-account timelines remain unknown.
 3. Complete available skill/rune/slot tables, PC respec rules and first-use UI states; corroborate numerical claims before proposing values.
 4. Trace Hearthfall's current onboarding actions and tier behavior in an isolated local session. Keep bot measurements separate from real-player comprehension. Prepare a small reversible objective proposal only if evidence supports it.
 5. Continue the remaining charters according to the next design dependency. Update both this file and `docs/CODEX_CHANGELOG.md` with additions, removals, why, impact, evidence, checks and unfinished work.
@@ -106,3 +106,5 @@ C060 adds21 PoE1 Act1 samples,seven atlas entries and five visual claims. Contex
 C061 adds22 historical PoE2 frames,nine atlas entries and five visual claims. Skill selection,modifier trade-offs and later support association are separated;old uniqueness text predates0.3. Cumulative29 media/64 entries/six recordings/132 samples. Source resolution changes,presenter obstruction and unknown account/input state limit conclusions. No game changes;continue D3 Adventure,then decision-focused cross-game synthesis.
 
 C062 adds20 seasonal D3 Adventure samples,seven atlas entries and four visual claims. Bounty/activity,slot locks and artisan/Cube states are observed;resource-assisted start,difficulty changes and unknown build limit conclusions. Cumulative30 media/71 entries/seven recordings/152 samples,five introductions/transitions excluded. Bounded priority-game footage pass complete;current/error/durable flows and comparable timelines remain open. Continue per-game digests and decision-focused synthesis.
+
+C063 adds six equally scoped priority-game digests (PoE1/2 separate; both D3 modes explicit), a decision/dependency synthesis and13 versioned caution cases. Existing source/claim/media counts are unchanged; synthesis is not new evidence or G1 approval. Current-coverage notes now reflect the completed bounded footage pass. No game content, system, asset, save, camera, town or UI change. Continue full-catalogue feature comparison, broader digests and a separately designed synthetic objective-state experiment; do not infer new numerical targets. See research/v2/digests/README.md and research/v2/SYNTHESIS.md from the docs root.

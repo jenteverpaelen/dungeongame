@@ -19,9 +19,9 @@ C032 also reads the full [Demon Hunter progression table](https://eu.diablo3.bli
 - Both full progression tables have now been read through level 69. Independently check skill-slot/passive-slot gates and pin the described PC patch.
 - Observe ordinary new-account Campaign and Adventure sessions separately. Record quest steps, levels, menus and interruptions; seasonal speedruns cannot stand in for casual onboarding.
 - First rare/legendary distributions, XP/scaling, artisan costs and endgame/social rules remain unverified in this pass.
-- UI density, keyboard flow, failure states and 1080p measurements need inspected footage. No current-client playback or reference screenshot measurement occurred here.
+- C055/C056/C062 now supply historical inspected pixels. Current-client keyboard/error flows and native1080p geometry measurements remain incomplete.
 
-Next stop condition: a versioned, timestamped first-session trace for each mode plus the two complete class unlock tables; record inaccessible evidence rather than fill gaps from memory.
+Updated dependency after C062: three full published class tables and both historical mode traces exist. Target current/error/durable interactions and clean-account timing when a decision needs them; do not repeat broad sampling just to add counts.
 
 ## Extended availability read — 2026-10-09
 

@@ -20,7 +20,7 @@ The rolling feed shows month/day but not a confirmed year/build in this extracti
 
 ## Remaining evidence
 
-No measured first 1/5/20-hour timeline, offline formula/cap, account-vs-character ownership table, complete class tree or reward schedule. C055/C058 now provide a partial observed UI atlas. Do not accept a guide's fast-clear time as a new-player distribution. Officially linked wiki access failed through available browsing; see [gaps](CONTRADICTIONS.md). Next: versioned beginner footage and primary AFK documentation, with separate active, offline and multi-character results. An uninspected video description is only a lead.
+No measured first 1/5/20-hour timeline, offline formula/cap, account-vs-character ownership table, complete class tree or reward schedule. C055/C058 now provide a partial observed UI atlas. Do not accept a guide's fast-clear time as a new-player distribution. Officially linked wiki access failed through available browsing; see [gaps](CONTRADICTIONS.md). Next: use the C058 historical footage to target primary AFK rules and current promotion/error behavior, with separate active, offline and multi-character results. An uninspected video description is only a lead.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
 

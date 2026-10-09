@@ -15,3 +15,7 @@
 ## P01-D04 — Bound the next research step (2026-10-09)
 
 **What:** inspect early-session actions and existing skill tiers before inventing a longer unlock ladder or large tree. **Why/evidence:** OB-01 in `docs/research/v2/MATRICES.md`. **Effect:** narrows the next investigation; implements no objective/tutorial yet. **Rollback:** change research order if observed problems point elsewhere. No answer from the owner is currently required.
+
+## P01-D05 — Synthesize the bounded priority-game pass (2026-10-09)
+
+**What:** six equally scoped game digests, a decision/dependency table and versioned caution cases before another broad footage collection. **Why/evidence:** L74 and C055–C062 cover every priority game/mode historically; sparse sampling cannot establish current errors, clean timelines or causal retention. **Effect:** preserve current skill access, free refunds, town and UI; define authoritative objective/reward state as the next bounded experiment, with separate design before code. Complete the full feature comparison and broader digests alongside it. **Removal:** no game content; supersede stale current-coverage prose while retaining historical checkpoints. **Rollback:** revise the sequence or inference when stronger evidence changes a pending decision. All external balance targets and G1 remain open. See ../../research/v2/SYNTHESIS.md, C063.
