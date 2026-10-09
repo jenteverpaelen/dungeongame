@@ -74,3 +74,5 @@ The full P1/G1 package is **not complete**. This is not a claim that all 20 orig
 - Browser connector failed before opening public research tabs; local Chrome capture works. No reference-game visual inspection is claimed.
 - Long-range spell clipping returns with the explicitly requested original camera. Town load/performance follow-ups remain deferred, not passed.
 - Keep earlier town checkpoint and old research as historical evidence, not current instructions when contradicted by the owner's later directions.
+
+C045 adds the loot acquisition matrix, five primary source records and eight scoped claims. Local generation, guarantees, pity, class eligibility and actual acquisition are separated; external rate/timeline cells remain unresolved. A suspected boss-floor pity discrepancy is the next deterministic probe, not an assumed tuning decision.

@@ -73,3 +73,5 @@ C040 adds an [objective continuity comparison](OBJECTIVES.md) for the same five 
 | Observe the current loop, then connect a small goal to an existing action | IDLE-03 and POE-03 are patterns; UX-01 cautions that outcomes need testing | Observation is cheap and reversible; objective persistence would need a separate scoped design | Continue this line of research first |
 
 This is a research sequencing decision, not a new tutorial implementation. Evidence needed next: first-session action trace, failed attempts, current tier behavior, versioned reference flows, and the smallest acceptance test for a proposed change. Rollback: abandon the proposed objective if observations show a different problem; existing gameplay remains intact. No owner answer is needed to continue these measurements.
+
+C045 supplies a separate [loot acquisition matrix](LOOT.md) for all five priority games, with PoE1/2 and D3 modes separated. It establishes dimensions and local source rules; it does not complete the missing external cadence measurements.

@@ -25,3 +25,5 @@ The same developer feed's 1.02.01 notes distinguish displayed stat caps from an 
 ## Remaining evidence
 
 Cube functions/costs, respec and rune topology, offline/live ratios, party rules, unlock sequence, drop distribution, Marketplace outcomes and UI flows. Reviews/CCU are not causal retention evidence. Next: match an inspected current build to developer notes, trace an initial session, and test whether rewards occur with the client closed. No purchases, Marketplace trades or account creation are implied by research permission.
+
+C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.

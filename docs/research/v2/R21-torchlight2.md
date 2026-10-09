@@ -37,3 +37,5 @@ Final unmodded PC skill/rank tables, exact respec limits, first-session quest fl
 The [developer modding overview](https://docs.runicgames.com/wiki/Modding_Overview.html), revision1866, separates original content, edited copies and packaged metadata. Conflicting assets resolve by mod priority. This is a useful provenance model, not an authoritative MMO design. [S; TL2-MOD-OVERVIEW]
 
 A [2013 Workshop listing attributed to Runic Games](https://steamcommunity.com/sharedfiles/filedetails/?id=135164919) advertises vendor respec potions as a mod. It does not establish unrestricted respec in the base PC game. No subscription/download occurred; contradictory generic page banners and user comments do not establish current compatibility. [S; TL2-RESPEC-MOD, TL2-06–08]
+
+C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.

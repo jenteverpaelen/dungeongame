@@ -43,3 +43,5 @@ C042 fixes reproduced channel audio surviving disconnect/zone boundaries; source
 C043 restores the existing portraits on return to selection. Built/Vite repeated reconnect checks, typecheck/build and eight inspected frames pass. Continue P1/P3 and the full catalogue; neither lifecycle fix is a completed phase or a stopping point.
 
 C044 emits reproducible reviewed dependency notices and verifies drift/HTTP bytes. All19 strict stages pass; full project legal/platform review remains open. Continue the research matrices and supported independent foundations; a checkpoint is not a stopping point.
+
+C045 advances the required loot matrix across all five reference games and records actual local source paths. Next: reproduce the boss-floor counter discrepancy; external cadence/visual evidence remains incomplete.

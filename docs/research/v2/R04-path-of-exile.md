@@ -25,3 +25,5 @@ Both games need versioned first-ten-level traces, recovery/respec rules, loot-fi
 ## PoE2 build feedback, 2026-10-09
 
 The historical 0.4.0 UI section says equipped-skill compatibility is shown while hovering a support in gemcutting. Its bug-fix section reports mismatched effect/visual behavior and partial-cost benefits. These are useful questions for an actual rules/UI audit, not proof that similar Hearthfall bugs exist (POE2-02). Read scope excludes most numerical balance tables; no claim that December2025 notes are the current October2026 build.
+
+C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.

@@ -32,3 +32,5 @@ Both tables continue rune/passive choices through levels 31–60, add an active 
 The 2.5.0 Armory preview includes equipment, gems, skills/runes and Cube preferences, but explicitly excludes Paragon assignment (D3-09). This makes component scope an essential question for any later Hearthfall loadout feature; a loadout is not simply copied gear. The 2.6.1 preview attributes a rune redesign to dense-area projectile performance and adjusts another skill's range to support its intended synergy (D3-08). These are historical developer explanations, not measured results on this PC.
 
 Elective Mode's community history (D3-10, revision53065) records a tension between category guidance and flexible assignment. Attributed 2012 remarks and user complaints cannot establish prevalence, current defaults or comprehension outcomes. Current primary guide access still fails; no restriction is added to Hearthfall's existing four-slot selection.
+
+C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.

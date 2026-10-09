@@ -19,3 +19,5 @@ WoW and D2R binding/trading, public anti-dupe/RMT reports, TBH fee rules and mea
 ## Local rules inventory and probes [M], 2026-10-09
 
 [ECONOMY-REPORT.md](../../phase/P01-research/ECONOMY-REPORT.md) now maps actual grants, consumption and transfers. Sixty deterministic offline cases, fifteen cost fixtures and a Fortune-aware upgrade expectation are recorded separately from player rates. Offline uses a fixed assumed 15 kills/minute; normal versus higher difficulty and pure weapon-DPS changes do not alter those rewards. Comments were corrected, not rewards. Enchant payment/selection semantics, action frequencies, pickup losses and active/idle fairness still need observation before tuning. The generic salvage XP field differs from the actual rarity-specific handler; future tooling must preserve that distinction.
+
+C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
