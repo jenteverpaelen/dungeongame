@@ -1,10 +1,11 @@
 // Player combat brain (ARCHITECTURE 1.4): auto-attack while moving + auto-cast of the 4 slotted skills.
 
 import { ACQUIRE_BUFFER } from '../shared';
+import { autoCastMode } from '../../../shared/src/autoCast';
 import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
 import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
-import { castPrimary, castSkill, channelTick, startChannel } from './skills';
+import { castPrimary, castSkill, channelTick, endChannel, startChannel } from './skills';
 import type { Mob, Player, SkillRuntime } from './types';
 
 /** Monster weight for auto-cast counting / ground targeting: elites 3×, bosses 10×. */
@@ -158,13 +159,17 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   p.atkCdMs -= dtMs;
   if (p.stunMs > 0 || p.frozenMs > 0) { p.channel = null; if (p.atkCdMs < 0) p.atkCdMs = 0; return; }
 
-  if (p.channel) channelTick(inst, p, dtMs);
+  if (p.channel) {
+    const slot = p.save.skills.slots.indexOf(p.channel.skill);
+    if (slot < 0 || !slotAllowsCast(p, slot)) endChannel(inst, p);
+    else channelTick(inst, p, dtMs);
+  }
 
   // Auto-cast: first eligible slot (left → right), one cast per tick.
   const c = p.ctx;
   for (let i = 0; i < 4; i++) {
     const rt = c.slots[i];
-    if (!rt) continue;
+    if (!rt || !slotAllowsCast(p, i)) continue;
     const id = rt.def.id;
     if ((p.readyAt.get(id) ?? 0) > inst.t) continue;
     if (rt.def.auto.when === 'channel') {
@@ -200,4 +205,9 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   const aps = Math.max(0.2, c.d.aps * (1 + p.live.ias / 100));
   p.atkCdMs += 1000 / aps;
   if (p.atkCdMs < 0) p.atkCdMs = 0;
+}
+
+function slotAllowsCast(p: Player, slot: number): boolean {
+  const mode = autoCastMode(p.save.skills, slot);
+  return mode === 'auto' || (mode === 'still' && !p.moving && p.mv.dashMs <= 0);
 }

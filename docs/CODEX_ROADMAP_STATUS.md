@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C081. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C082. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -68,7 +68,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-CMB-01 | Locked combat spec (auto-cast rules, resources, dash, statuses) | P4 | PARTIAL — `docs/ARCHITECTURE.md` §1.3–1.5 is the working spec | Not locked; current behavior inventoried, no owner parity/feel sign-off or final targets. [build audit](phase/P01-research/BUILD-REPORT.md). |
 | F-CMB-02 | Skill unlock cadence redesign | P4 | PARTIAL — cadence exists: L1, 2, 4, 6, 9, 12 | Existing schedule measured; deliberately unchanged pending reference/human evidence. [build audit](phase/P01-research/BUILD-REPORT.md). |
 | F-CMB-03 | Passives / talent system | P4/P9 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-CMB-04 | Per-slot auto-cast rule customisation | P4 | MISSING — rules fixed in skill data | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-CMB-04 | Per-slot auto-cast rule customisation | P4 | MISSING — rules fixed in skill data | Partial C082: Persisted per-slot Automatic/While still/Paused, server authority, channel recovery, HUD state and legacy-default migration.15 focused/382 sim checks and actual Chrome reconnect pass. Advanced numeric rules and human tactical review remain. [Auto-cast controls](phase/P03-foundations/AUTO-CAST-CONTROLS-REPORT.md). |
 | F-CMB-05 | Optional manual force-cast keys | P4 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-CMB-06 | Respec rules and costs | P4 | PARTIAL — tier reset exists; costs unaudited | Existing free tier reset measured and browser verified; no new fee/rule adopted (C023/C029). [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | F-CMB-07 | Combat feel pass with accessibility toggles | P4 | PARTIAL — shake, flashes, floating numbers exist | Partial: shake/selected-flash options; no broad feel or medical-safety acceptance (C009/C030). [foundation state](phase/P03-foundations/STATE.md). |
@@ -282,7 +282,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-05 | Accept the release ladder R1–R5 (§2.3) | Roadmap is being pursued; no release or gate is marked complete by blanket work permission. |
 | D-06 | Monetization stance | No payments/credit spend; no monetization implementation selected. |
 | D-07 | Naming / IP policy | Original content required; C033 inventories names and rename dependencies. Broader prose/assets/contextual review remains open; no mass ID replacement. |
-| D-08 | Control model | Current automatic combat retained; cue corrected, no manual-cast/rule-editor decision. |
+| D-08 | Control model | Partial C082: Auto-cast identity retained with optional per-slot stationary/pause conditions. Manual casting and advanced rules remain undecided; no balance/cadence change. [Auto-cast controls](phase/P03-foundations/AUTO-CAST-CONTROLS-REPORT.md). |
 | D-09 | Skill slots and unlock cadence | Open: availability/slots/points/time separated; no new gate or slot number selected. |
 | D-10 | Build depth | Open: existing behavior audited; no new passive/mastery/tree chosen. |
 | D-11 | Defensive / utility actives | Open: current dash retained; no utility-slot expansion. |

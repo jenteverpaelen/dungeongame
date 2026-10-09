@@ -385,6 +385,7 @@
   animation: slotFlash 0.5s ease-out forwards;
 }
 .slot-key {
+  white-space: nowrap;
   position: absolute;
   left: 50%;
   bottom: calc(var(--u) * -13);

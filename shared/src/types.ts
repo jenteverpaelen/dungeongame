@@ -92,6 +92,8 @@ export interface Materials {
 export interface SkillLoadout {
   /** Skill id in each of the 4 auto-cast slots (null = empty). Primary attack is separate. */
   slots: (string | null)[];
+  /** Optional in legacy saves. Conditions belong to slot positions, not skill IDs. */
+  autoCast?: import('./autoCast').AutoCastMode[];
   /** Chosen rune per skill id. */
   runes: Record<string, string | null>;
   /** Purchased upgrade tiers (0..3) per skill id. */

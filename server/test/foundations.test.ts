@@ -42,7 +42,7 @@ test('debug requires exact opt-in and explicit disable overrides it, including r
 });
 
 test('legacy/current fixtures retain owned items, overflow slots, progression and extension fields', async () => {
-  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected']) {
+  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected', 'v3-autocast']) {
     const original = await fixture(name), beforeItems = items(original);
     const migrated = normalizeSave(structuredClone(original));
     assert.equal(migrated.version, SAVE_VERSION);
@@ -50,6 +50,7 @@ test('legacy/current fixtures retain owned items, overflow slots, progression an
     for (const key of ['id','name','classId','level','xp','gold','materials','gems','skillPoints','paragon','cube','stats','fixtureExtension'] as const)
       assert.deepEqual((migrated as any)[key], (original as any)[key], key);
     assert.equal(migrated.skills.runes.meteor, 'comet'); assert.equal(migrated.skills.tiers.meteor, 2);
+    assert.deepEqual(migrated.skills.autoCast, original.skills.autoCast ?? ['auto','auto','auto','auto']);
     assert.deepEqual(normalizeSave(structuredClone(migrated)), migrated, 'migration is idempotent');
     await saveCharacter(migrated); await flushSaves();
     const loaded = await loadCharacter(migrated.id);

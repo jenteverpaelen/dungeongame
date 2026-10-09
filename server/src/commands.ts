@@ -8,6 +8,7 @@ import { questCommand, creditQuestService } from './quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
+import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
 import { requireNear } from './townServices';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
@@ -525,6 +526,17 @@ const skillRune: Handler = (s, a) => {
   return done(s, true);
 };
 
+const skillAutoCast: Handler = (s, a) => {
+  const slot = int(a, 'slot', 0, 3), skill = str(a, 'skill');
+  if (!isAutoCastMode(a.mode)) return fail('Invalid auto-cast condition');
+  if (s.save.skills.slots[slot] !== skill) return fail('The skill in this slot changed. Choose it again.');
+  const modes = normalizeAutoCast(s.save.skills.autoCast);
+  modes[slot] = a.mode;
+  s.save.skills.autoCast = modes;
+  // Brain reads the saved restriction directly. No stat refresh, resource reset or cooldown change.
+  return done(s, false);
+};
+
 const skillTier: Handler = (s, a) => {
   const err = buySkillTier(s.save, str(a, 'skill'));
   if (err) return fail(err);
@@ -686,7 +698,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset,
+  skillSlot, skillRune, skillTier, skillReset, skillAutoCast,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

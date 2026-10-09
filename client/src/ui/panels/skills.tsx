@@ -2,6 +2,7 @@
 
 import { useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
+import { AUTO_CAST_MODES, AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText } from '@shared/autoCast';
 import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
@@ -224,6 +225,17 @@ function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
       <div class="sd-stats">
         {stats.map(([k, v]) => <div class="sd-stat" key={k}><label>{k}</label><b>{v}</b></div>)}
       </div>
+      {slotIdx >= 0 && <div class="skill-auto-controls">
+        <div class="sd-sec"><span>Auto-cast · Slot {slotIdx + 1}</span></div>
+        <div class="pn-actions" role="group" aria-label={`Auto-cast condition for slot ${slotIdx + 1}`}>
+          {AUTO_CAST_MODES.map(mode => <button key={mode} class={cls('btn sm', autoCastMode(char.skills, slotIdx) === mode && 'on')}
+            aria-pressed={autoCastMode(char.skills, slotIdx) === mode}
+            onClick={() => void run('skillAutoCast', { slot: slotIdx, skill: skill.id, mode })}>{AUTO_CAST_LABEL[mode]}</button>)}
+        </div>
+        <p class="pn-note">{AUTO_CAST_NOTE[autoCastMode(char.skills, slotIdx)]}</p>
+        <p class="pn-note">{autoCastRuleText(skill, res)}</p>
+        <p class="pn-note">Conditions stay with slot positions when you move skills. Slot order still decides priority.</p>
+      </div>}
       <div class="sd-sec"><span>Runes</span><em>Choose one · changes how the skill behaves</em></div>
       <RuneCards skill={skill} char={char} />
       <div class="sd-sec"><span>Upgrade Tiers</span><em>{tiers} / {skill.tiers.length} unlocked</em></div>
@@ -266,7 +278,7 @@ export function SkillsPanel() {
             <h4>How skills grow</h4>
             <p><b>Runes</b> unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill itself.</p>
             <p><b>Upgrade tiers</b> cost {TIER_COSTS.join(', ')} skill points and stack.</p>
-            <p>Skills fire automatically; slot order decides which is tried first.</p>
+            <p>Skills fire automatically; slot order decides which is tried first. Select a slotted skill to pause it or require standing still.</p>
           </div>
         </div>
         <div class="sdet-wrap scroll">

@@ -5,7 +5,8 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useUI } from '../store';
 import { CLASSES } from '@shared/data/classes';
-import { SKILLS, collectSkillMods, describeSkill, type AutoRule, type SkillDef, type SkillMods } from '@shared/data/skills';
+import { SKILLS, collectSkillMods, describeSkill, type SkillDef, type SkillMods } from '@shared/data/skills';
+import { AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText, type AutoCastMode } from '@shared/autoCast';
 import { DASH, MAX_LEVEL } from '@shared/constants';
 import { fmtInt } from '@shared/format';
 import { paragonXpToNext, xpToNext } from '@shared/progression';
@@ -25,19 +26,9 @@ const KIND_LABEL: Record<string, string> = {
   primary: 'Primary Attack', spender: 'Spender', channel: 'Channeled Spender', cooldown: 'Cooldown Skill', buff: 'Buff', summon: 'Summon',
 };
 
-function autoText(rule: AutoRule, resource: string): string {
-  switch (rule.when) {
-    case 'always': return 'Fires automatically while enemies are in range.';
-    case 'enemiesNear': return `Casts automatically when ${rule.count} or more enem${rule.count > 1 ? 'ies are' : 'y is'} within ${rule.within} units.`;
-    case 'maintainBuff': return 'Kept active automatically in combat.';
-    case 'maintainSummon': return 'Summoned automatically when enemies approach.';
-    case 'channel': return `Starts automatically at ${rule.startAt} ${resource} when enemies are near.`;
-  }
-}
-
 // ───────────────────────── Skill tooltip ─────────────────────────
 
-function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number }) {
+function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number; mode?: AutoCastMode }) {
   const skillsKey = useLocal(bindings, () => bindings.label('skills'));
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
@@ -68,7 +59,8 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
           <div class="st-rune-desc">{rune.desc}</div>
         </div>
       )}
-      <div class="st-auto">{autoText(skill.auto, res)}</div>
+      <div class="st-auto">{autoCastRuleText(skill, res)}</div>
+      {p.mode && <div class="st-desc"><b>{AUTO_CAST_LABEL[p.mode]}</b> · {AUTO_CAST_NOTE[p.mode]}</div>}
       {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority} · slot number, not a cast key. Change your loadout with {skillsKey}.</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
@@ -235,7 +227,7 @@ export function BottomBar() {
     return {
       skill,
       cost,
-      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} />,
+      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} mode={priority === undefined ? undefined : autoCastMode(skills, priority - 1)} />,
     };
   };
 
@@ -255,12 +247,12 @@ export function BottomBar() {
             <Slot
               key={i}
               kind="skill"
-              keyLabel={i + 1}
+              keyLabel={<>{i + 1}{autoCastMode(skills, i) !== 'auto' && <> · {autoCastMode(skills, i) === 'paused' ? 'PAUSED' : 'STILL'}</>}</>}
               skill={s.skill}
               cd={m?.cds[i] ?? 0}
               nominalMs={(s.skill?.cooldown ?? 0) * 1000}
               badge={m?.ch[i] ?? 0}
-              dim={!!s.skill && s.cost > 0 && (m?.res ?? 0) < s.cost}
+              dim={autoCastMode(skills, i) === 'paused' || (!!s.skill && s.cost > 0 && (m?.res ?? 0) < s.cost)}
               active={!!s.skill && s.skill.kind === 'buff' && buffIds.has(s.skill.id)}
               tip={s.tip}
             />

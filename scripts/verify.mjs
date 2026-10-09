@@ -30,7 +30,7 @@ const stages = [
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
   ['adventure', ['--import', 'tsx', '--test', 'server/test/adventure.test.ts', 'server/test/quests.test.ts', 'server/test/questDeliveryRift.test.ts', 'server/test/dungeon.test.ts', 'server/test/reedclaw.test.ts']],
-  ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts']],
+  ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts', 'server/test/autoCastControls.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],

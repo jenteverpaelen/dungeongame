@@ -1038,6 +1038,7 @@
 .character-values > div { display:flex; justify-content:space-between; gap:16px; padding:6px 0; border-bottom:1px solid #2a1f14; }
 .character-values dt { color:var(--text-dim); }
 .character-values dd { margin:0; text-align:right; font-weight:700; }
+.skill-auto-controls .pn-actions { display:flex; gap:8px; flex-wrap:wrap; }
 .quest-hud { display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
 .wm-network { position:relative; height:285px; margin:12px 0; background:radial-gradient(ellipse at center,#30281daa,#100d0a88); border:1px solid #716044; border-radius:4px; }
 .wm-network>svg { position:absolute; inset:0; width:100%; height:100%; }
