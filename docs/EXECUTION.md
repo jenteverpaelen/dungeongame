@@ -31,3 +31,5 @@ Detailed evidence state: `docs/phase/P01-research/STATE.md`. Implementation stat
 [Codex's item-by-item status](CODEX_ROADMAP_STATUS.md) now covers all147 features,86 screens and40 decisions from Claude's file. It preserves the historical snapshot separately from newer scoped evidence and remaining work; these counts are not a completion percentage.
 
 C038 adds a standalone crash/retry/restore experiment to P3 evidence. It leaves live identity, storage selection and durable game-command integration open; see P03 TRANSACTION-REPORT.md. Continue independent roadmap research while owner-population information is pending.
+
+C039 closes measured inherited/coerced class and unsupported-text budget gaps. Strict18-stage verification and two inspected local browser frames pass. No live identity policy is selected; continue the whole-roadmap research and implementation ledger.

@@ -1,0 +1,50 @@
+✔ real upgrade denies foreign/missing/opaque/duplicate origins and preserves known local browser origins (559.1604ms)
+✔ explicit origin list replaces local defaults without wildcard or suffix acceptance (496.1868ms)
+✔ real session log uses socket peer instead of forged forwarding attribution (492.8412ms)
+✔ invalid allowlist prevents listening and data initialization (289.5668ms)
+✔ real hello rejects inherited and coerced class keys before creating saves or reserving names (1116.906ms)
+✔ real socket closes sustained text flood and oversized whole/fragmented messages (556.7824ms)
+✔ debug requires exact opt-in and explicit disable overrides it, including repeated/spoofed requests (4.1114ms)
+✔ legacy/current fixtures retain owned items, overflow slots, progression and extension fields (23.8093ms)
+✔ older sparse saves get missing stash/defaults without losing equipment or legacy fields (0.4255ms)
+✔ future saves cannot load, normalize or save and are never quarantined or overwritten (5.956ms)
+[persist] badversion.json is corrupt (invalid character data); moved to badversion.json.corrupt-1791525157160
+✔ malformed version is quarantined as corrupt; new characters use the current version (5.3791ms)
+✔ future schema with an unfamiliar class or renamed fields is preserved before legacy validation (3.9066ms)
+✖ save loading rejects inherited/coerced class values and preserves their original bytes (71.2671ms)
+✔ corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes (15.759ms)
+✔ quarantine failure diagnostics retain safe codes but exclude arbitrary error details (6.0657ms)
+✔ text messages share the binary budget and the next time window recovers (4.5394ms)
+✔ sustained text and binary floods use the same existing disconnect threshold (12.1281ms)
+✔ ordinary binary pings and occasional malformed frames remain supported (2.4598ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3812.8932
+
+✖ failing tests:
+
+test at server\test\foundations.test.ts:1:5314
+✖ save loading rejects inherited/coerced class values and preserves their original bytes (71.2671ms)
+  AssertionError [ERR_ASSERTION]: The error is expected to be an instance of "UnsupportedSaveVersionError". Received "Error"
+  
+  Error message:
+  
+  invalid character id "futureclassboundary"
+      at async TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\foundations.test.ts:111:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: invalid character id "futureclassboundary"
+        at JsonCharacterStore.file (C:\Users\LaptopJente\dungeongame\server\src\storage\jsonCharacterStore.ts:15:38)
+        at JsonCharacterStore.read (C:\Users\LaptopJente\dungeongame\server\src\storage\jsonCharacterStore.ts:19:42)
+        at loadQueuedCharacter (C:\Users\LaptopJente\dungeongame\server\src\persistence.ts:114:29)
+        at <anonymous> (C:\Users\LaptopJente\dungeongame\server\src\persistence.ts:108:28),
+    operator: 'rejects',
+    diff: 'simple'
+  }

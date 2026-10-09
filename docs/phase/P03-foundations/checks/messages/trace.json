@@ -1,0 +1,89 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-connection-ui-ED3pmz",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-connection-ui-ED3pmz\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "scope": "Installed headless Chrome1920x1080; own local app with fresh profile/data, actual built/Vite browser handshakes and unlisted local page. No production TLS/proxy, account security, human usability or load-performance claim.",
+  "selection": false,
+  "observations": [
+    {
+      "capture": "01-built-client",
+      "origin": "http://127.0.0.1:51377",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "name": "DirectTrace",
+      "level": 1,
+      "text": "1\nDirectTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n68 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, DirectTrace.\nAttacks and slotted skills are automatic.\nF1 shows your controls. Change key bindings in Settings.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint"
+    },
+    {
+      "capture": "02-vite-proxy",
+      "origin": "http://127.0.0.1:51378",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "name": "ProxyTrace",
+      "level": 1,
+      "text": "1\nProxyTrace\nLevel 1\nMage\nDPS\n0\n51 fps\n0 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, ProxyTrace.\nAttacks and slotted skills are automatic.\nF1 shows your controls. Change key bindings in Settings.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint"
+    },
+    {
+      "name": "unlisted-browser-origin",
+      "foreignOrigin": "http://127.0.0.1:51390",
+      "result": "rejected",
+      "handshakes": [
+        {
+          "event": "Network.webSocketWillSendHandshakeRequest",
+          "requestId": "28100.91",
+          "origin": "http://127.0.0.1:51377"
+        },
+        {
+          "event": "Network.webSocketHandshakeResponseReceived",
+          "requestId": "28100.91",
+          "origin": "http://127.0.0.1:51377",
+          "status": 101
+        },
+        {
+          "event": "Network.webSocketWillSendHandshakeRequest",
+          "requestId": "28100.202",
+          "origin": "http://127.0.0.1:51378"
+        },
+        {
+          "event": "Network.webSocketHandshakeResponseReceived",
+          "requestId": "28100.202",
+          "origin": "http://127.0.0.1:51378",
+          "status": 101
+        },
+        {
+          "event": "Network.webSocketWillSendHandshakeRequest",
+          "requestId": "28100.315",
+          "origin": "http://127.0.0.1:51378"
+        },
+        {
+          "event": "Network.webSocketHandshakeResponseReceived",
+          "requestId": "28100.315",
+          "origin": "http://127.0.0.1:51378",
+          "status": 101
+        },
+        {
+          "event": "Network.webSocketWillSendHandshakeRequest",
+          "requestId": "28100.318",
+          "origin": "http://127.0.0.1:51390"
+        },
+        {
+          "event": "Network.webSocketFrameError",
+          "requestId": "28100.318",
+          "error": "Error during WebSocket handshake: Unexpected response code: 403"
+        }
+      ]
+    }
+  ]
+}

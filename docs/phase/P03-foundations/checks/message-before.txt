@@ -1,0 +1,147 @@
+✖ real hello rejects inherited and coerced class keys before creating saves or reserving names (1104.757ms)
+✖ text messages share the binary budget and the next time window recovers (6.3635ms)
+✖ sustained text and binary floods use the same existing disconnect threshold (1.5539ms)
+✔ ordinary binary pings and occasional malformed frames remain supported (3.0456ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 1
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1412.7559
+
+✖ failing tests:
+
+test at server\test\connectionRuntime.test.ts:1:6084
+✖ real hello rejects inherited and coerced class keys before creating saves or reserving names (1104.757ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      {
+        classId: 'constructor',
+        index: 0,
+        malformedWelcome: false,
+  +     rejected: false,
+  +     reused: false,
+  -     rejected: true,
+  -     reused: true,
+        savedBeforeReuse: false
+      },
+      {
+        classId: 'toString',
+        index: 1,
+        malformedWelcome: false,
+  +     rejected: false,
+  +     reused: false,
+  -     rejected: true,
+  -     reused: true,
+        savedBeforeReuse: false
+      },
+      {
+        classId: '__proto__',
+        index: 2,
+        malformedWelcome: false,
+  +     rejected: false,
+  +     reused: false,
+  -     rejected: true,
+  -     reused: true,
+        savedBeforeReuse: false
+      },
+      {
+        classId: 'hasOwnProperty',
+        index: 3,
+        malformedWelcome: false,
+  +     rejected: false,
+  +     reused: false,
+  -     rejected: true,
+  -     reused: true,
+        savedBeforeReuse: false
+      },
+      {
+        classId: [
+          'mage'
+        ],
+        index: 4,
+  +     malformedWelcome: true,
+  +     rejected: false,
+  +     reused: false,
+  +     savedBeforeReuse: true
+  -     malformedWelcome: false,
+  -     rejected: true,
+  -     reused: true,
+  -     savedBeforeReuse: false
+      },
+      {
+        classId: [
+          [
+            'warrior'
+  ...
+        index: 5,
+  +     malformedWelcome: true,
+  +     rejected: false,
+  +     reused: false,
+  +     savedBeforeReuse: true
+  -     malformedWelcome: false,
+  -     rejected: true,
+  -     reused: true,
+  -     savedBeforeReuse: false
+      },
+      {
+        classId: [],
+        index: 6,
+        malformedWelcome: false,
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\connectionRuntime.test.ts:168:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { index: 0, classId: 'constructor', rejected: false, malformedWelcome: false, savedBeforeReuse: false, reused: false }, { index: 1, classId: 'toString', rejected: false, malformedWelcome: false, savedBeforeReuse: false, reused: false }, { index: 2, classId: '__proto__', rejected: false, malformedWelcome: false, savedBeforeReuse: false, reused: false }, { index: 3, classId: 'hasOwnProperty', rejected: false, malformedWelcome: false, savedBeforeReuse: false, reused: false }, { index: 4, classId: [Array], rejected: false, malformedWelcome: true, savedBeforeReuse: true, reused: false }, { index: 5, classId: [Array], rejected: false, malformedWelcome: true, savedBeforeReuse: true, reused: false }, { index: 6, classId: [], rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 7, classId: {}, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 8, classId: null, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 9, classId: 17, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 10, classId: true, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 11, classId: 'paladin', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true } ],
+    expected: [ { index: 0, classId: 'constructor', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 1, classId: 'toString', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 2, classId: '__proto__', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 3, classId: 'hasOwnProperty', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 4, classId: [Array], rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 5, classId: [Array], rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 6, classId: [], rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 7, classId: {}, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 8, classId: null, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 9, classId: 17, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 10, classId: true, rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true }, { index: 11, classId: 'paladin', rejected: true, malformedWelcome: false, savedBeforeReuse: false, reused: true } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\messageBudget.test.ts:1:1001
+✖ text messages share the binary budget and the next time window recovers (6.3635ms)
+  AssertionError [ERR_ASSERTION]: text must consume the connection budget
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\messageBudget.test.ts:28:35)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\messageBudget.test.ts:1:1695
+✖ sustained text and binary floods use the same existing disconnect threshold (1.5539ms)
+  AssertionError [ERR_ASSERTION]: sustained text flood
+  
+  'new' !== 'closed'
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\messageBudget.test.ts:45:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'new',
+    expected: 'closed',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

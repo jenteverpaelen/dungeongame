@@ -10,7 +10,7 @@ import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
 import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
 import { fail, type CmdResult, type InstRec, type World } from '../world';
-import { CLASSES } from '../../../shared/src/data/classes';
+import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
 import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
@@ -184,12 +184,14 @@ export class Session implements PlayerLink {
   // ─────────────────────────── Incoming ───────────────────────────
 
   private onData(data: RawData, isBinary: boolean): void {
-    if (this.state === 'closed' || !isBinary) return;
+    if (this.state === 'closed') return;
     this.alive = true;
     const now = Date.now();
     if (now - this.winStart >= 1000) { this.winStart = now; this.winCount = 0; this.winDropped = 0; }
     const over = ++this.winCount > MAX_MSGS_PER_SEC;
     if (over && ++this.winDropped > FLOOD_KICK_DROPS) { this.kick('Too many messages'); return; }
+    // Unsupported text still costs connection capacity; only binary frames are decoded.
+    if (!isBinary) return;
     const msg = decode(data);
     if (!msg) return;
     if (over) {
@@ -288,7 +290,7 @@ export class Session implements PlayerLink {
     if (this.state !== 'new') return;
     const name = typeof msg.name === 'string' ? msg.name.trim() : '';
     if (!NAME_RE.test(name)) { this.kick('Names are 2-16 letters or numbers.'); return; }
-    if (!CLASSES[msg.classId]) { this.kick('Unknown class.'); return; }
+    if (!isClassId(msg.classId)) { this.kick('Unknown class.'); return; }
     if (msg.v !== PROTOCOL_VERSION) { this.kick('Your game is out of date. Please refresh the page.'); return; }
 
     const id = characterId(name);

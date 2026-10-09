@@ -20,7 +20,7 @@ const stages = [
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts']],
   ['save-failures', ['--import', 'tsx', '--test', 'server/test/saveFailures.test.ts']],
   ['command-replay', ['--import', 'tsx', '--test', 'server/test/commandReplay.test.ts']],
-  ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts']],
+  ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts', 'server/test/messageBudget.test.ts']],
   ['backups', ['--import', 'tsx', '--test', 'server/test/backups.test.ts']],
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],

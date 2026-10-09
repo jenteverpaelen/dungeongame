@@ -7,7 +7,7 @@ import { DATA_DIR } from './config';
 import { JsonCharacterStore } from './storage/jsonCharacterStore';
 import type { CharacterStore } from './storage/characterStore';
 import { INVENTORY_SIZE, MAX_LEVEL, STASH_SIZE } from '../../shared/src/constants';
-import { CLASSES } from '../../shared/src/data/classes';
+import { CLASSES, isClassId } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
@@ -117,7 +117,7 @@ async function loadQueuedCharacter(id: string): Promise<CharacterSave | null> {
     const parsed = JSON.parse(bytes.toString('utf8')) as CharacterSave;
     // Inspect the format before interpreting fields that a future schema may change.
     if (parsed && typeof parsed === 'object') requireSupportedVersion(parsed);
-    if (!parsed || typeof parsed !== 'object' || typeof parsed.name !== 'string' || !CLASSES[parsed.classId]) throw new Error('not a character');
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.name !== 'string' || !isClassId(parsed.classId)) throw new Error('not a character');
     parsed.id = id;
     return normalizeSave(parsed);
   } catch (err) {

@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C038. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C039. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -13,7 +13,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | ID | Feature | Phase | Original snapshot | Current evidence / remaining work |
 |---|---|---|---|---|
 | F-ACC-01 | Account registration and login | P3 | MISSING — name is identity | Design and C037 [library comparison](phase/P03-foundations/AUTH-LIBRARY-REVIEW.md); pinned integration/licences, identity/deployment and implementation open. |
-| F-ACC-02 | Sessions, logout, login rate limits, lockout | P3 | MISSING | Partial connection boundary (C031); no credentials/session revocation/login throttles. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
+| F-ACC-02 | Sessions, logout, login rate limits, lockout | P3 | MISSING | Partial origin/message boundary (C031/C039); no credentials/session revocation/login throttles. [message checks](phase/P03-foundations/MESSAGE-REPORT.md), [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-ACC-03 | Characters owned by accounts, stable IDs, character slots | P3 | MISSING | Not implemented; names remain identity. No real ownership assigned. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-ACC-04 | Character select / create / delete (grace period) / rename | P3 | PARTIAL — class select at login only | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ACC-05 | Account recovery without a paid mail service | P3 | MISSING | Design only; recovery/notification/operational support unresolved. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |

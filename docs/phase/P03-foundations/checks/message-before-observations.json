@@ -1,0 +1,107 @@
+{
+  "observations": [
+    {
+      "index": 0,
+      "classId": "constructor",
+      "rejected": false,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": false
+    },
+    {
+      "index": 1,
+      "classId": "toString",
+      "rejected": false,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": false
+    },
+    {
+      "index": 2,
+      "classId": "__proto__",
+      "rejected": false,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": false
+    },
+    {
+      "index": 3,
+      "classId": "hasOwnProperty",
+      "rejected": false,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": false
+    },
+    {
+      "index": 4,
+      "classId": [
+        "mage"
+      ],
+      "rejected": false,
+      "malformedWelcome": true,
+      "savedBeforeReuse": true,
+      "reused": false
+    },
+    {
+      "index": 5,
+      "classId": [
+        [
+          "warrior"
+        ]
+      ],
+      "rejected": false,
+      "malformedWelcome": true,
+      "savedBeforeReuse": true,
+      "reused": false
+    },
+    {
+      "index": 6,
+      "classId": [],
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    },
+    {
+      "index": 7,
+      "classId": {},
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    },
+    {
+      "index": 8,
+      "classId": null,
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    },
+    {
+      "index": 9,
+      "classId": 17,
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    },
+    {
+      "index": 10,
+      "classId": true,
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    },
+    {
+      "index": 11,
+      "classId": "paladin",
+      "rejected": true,
+      "malformedWelcome": false,
+      "savedBeforeReuse": false,
+      "reused": true
+    }
+  ],
+  "exitCode": 0
+}

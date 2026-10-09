@@ -93,6 +93,26 @@ test('future schema with an unfamiliar class or renamed fields is preserved befo
   assert.deepEqual((await fs.readdir(DATA_DIR)).filter(f => f.startsWith('futureformat')), ['futureformat.json']);
 });
 
+test('save loading rejects inherited/coerced class values and preserves their original bytes', async t => {
+  t.mock.method(console,'error',()=>{});
+  const invalid:unknown[]=['constructor','toString','__proto__','hasOwnProperty',['mage'],[['warrior']],[],{},null,17,true,'paladin'];
+  for(let i=0;i<invalid.length;i++){
+    const id=`classboundary${i}`,file=path.join(DATA_DIR,id+'.json');
+    const original=JSON.stringify({...await fixture('v1-current'),id,classId:invalid[i]});
+    await fs.writeFile(file,original);
+    await assert.rejects(loadCharacter(id),CorruptCharacterError);
+    const names=(await fs.readdir(DATA_DIR)).filter(name=>name.startsWith(id+'.json'));
+    assert.equal(names.length,1);assert.ok(names[0].startsWith(id+'.json.corrupt-'));
+    assert.equal(await fs.readFile(path.join(DATA_DIR,names[0]),'utf8'),original);
+  }
+  const id='futureclsbound',file=path.join(DATA_DIR,id+'.json');
+  const original=JSON.stringify({version:SAVE_VERSION+1,classId:['mage']});
+  await fs.writeFile(file,original);
+  await assert.rejects(loadCharacter(id),UnsupportedSaveVersionError);
+  assert.equal(await fs.readFile(file,'utf8'),original);
+  assert.deepEqual((await fs.readdir(DATA_DIR)).filter(name=>name.startsWith(id)),[id+'.json']);
+});
+
 test('corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes', async t => {
   const lines: string[] = [];
   t.mock.method(console, 'error', (...args: unknown[]) => lines.push(format(...args)));

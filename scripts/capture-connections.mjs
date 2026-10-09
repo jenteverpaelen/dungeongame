@@ -10,8 +10,9 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const selection = process.argv.includes('--selection');
+const messageBoundary = process.argv.includes('--message-boundary');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-connection-ui-'));
-const dataDir = path.join(tmp, 'saves'), out = path.join(root, selection ? 'docs/originality/checks/signatures' : 'docs/phase/P03-foundations/checks/connections');
+const dataDir = path.join(tmp, 'saves'), out = path.join(root, selection ? 'docs/originality/checks/signatures' : messageBoundary ? 'docs/phase/P03-foundations/checks/messages' : 'docs/phase/P03-foundations/checks/connections');
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));

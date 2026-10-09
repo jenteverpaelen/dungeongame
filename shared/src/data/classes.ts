@@ -38,6 +38,11 @@ export interface ClassDef {
   themeColor: number;
 }
 
+/** Untrusted wire/save values must not coerce to a key or name an inherited property. */
+export function isClassId(value: unknown): value is ClassId {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(CLASSES, value);
+}
+
 export const CLASSES: Record<ClassId, ClassDef> = {
   warrior: {
     id: 'warrior',

@@ -8,7 +8,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { Packr } from 'msgpackr';
-import { PROTOCOL_VERSION } from '../../shared/src/protocol';
+import { MAX_MESSAGE_BYTES, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION } from '../../shared/src/protocol';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 async function until(predicate: () => boolean) {
@@ -132,4 +132,76 @@ test('invalid allowlist prevents listening and data initialization', { timeout: 
     await assert.rejects(server.ready(), /WS_ALLOWED_ORIGINS/);
     await assert.rejects(fs.access(path.join(server.runDir, 'saves')), { code: 'ENOENT' });
   } finally { assert.equal(await server.stop(), 1); }
+});
+
+test('real hello rejects inherited and coerced class keys before creating saves or reserving names', { timeout: 30000 }, async () => {
+  const server=await start(), codec=new Packr({useRecords:false});
+  const observations:unknown[]=[];
+  let ws:WebSocket|undefined;
+  try {
+    await server.ready();
+    const bad:unknown[]=['constructor','toString','__proto__','hasOwnProperty',['mage'],[['warrior']],[],{},null,17,true,'paladin'];
+    for(let index=0;index<bad.length;index++) {
+      const classId=bad[index],name=`Boundary${index}`,startLog=server.log().length;
+      ws=new WebSocket(`ws://127.0.0.1:${server.port}/ws`,{origin:`http://127.0.0.1:${server.port}`});
+      const messages:any[]=[];let closed=false;
+      ws.on('message',data=>messages.push(codec.unpack(data as Buffer)));
+      ws.on('close',()=>{closed=true;});
+      await new Promise<void>((resolve,reject)=>{ws!.once('open',resolve);ws!.once('error',reject);});
+      ws.send(codec.pack({t:'hello',name,classId,v:PROTOCOL_VERSION}));
+      await until(()=>closed || messages.some(m=>m.t==='welcome') || server.log().slice(startLog).includes('unhandled rejection'));
+      // Probe reuse while the malformed attempt still owns its socket, if it stayed open.
+      const next=new WebSocket(`ws://127.0.0.1:${server.port}/ws`,{origin:`http://127.0.0.1:${server.port}`});
+      const replies:any[]=[];
+      try {
+        next.on('message',data=>replies.push(codec.unpack(data as Buffer)));
+        await new Promise<void>((resolve,reject)=>{next.once('open',resolve);next.once('error',reject);});
+        const savedBeforeReuse=(await fs.readdir(path.join(server.runDir,'saves'))).includes(`${name.toLowerCase()}.json`);
+        next.send(codec.pack({t:'hello',name,classId:['warrior','ranger','mage'][index%3],v:PROTOCOL_VERSION}));
+        await until(()=>replies.some(m=>m.t==='welcome'||m.t==='err'));
+        observations.push({index,classId,rejected:closed&&messages.some(m=>m.t==='err'&&m.msg==='Unknown class.'),
+          malformedWelcome:messages.some(m=>m.t==='welcome'),savedBeforeReuse,reused:replies.some(m=>m.t==='welcome')});
+      } finally {next.terminate();}
+      ws.terminate();ws=undefined;
+    }
+    assert.equal((await fetch(`http://127.0.0.1:${server.port}/healthz`)).status,200);
+    assert.deepEqual(observations,bad.map((classId,index)=>({index,classId,rejected:true,malformedWelcome:false,savedBeforeReuse:false,reused:true})));
+    assert.doesNotMatch(server.log(),/unhandled rejection|uncaughtException/);
+  } finally {
+    ws?.terminate();const exitCode=await server.stop();
+    await fs.writeFile(path.join(server.runDir,'message-observations.json'),JSON.stringify({observations,exitCode},null,2));
+    assert.equal(exitCode,0);
+  }
+});
+
+test('real socket closes sustained text flood and oversized whole/fragmented messages', {timeout:20000},async()=>{
+  const server=await start(),observations:unknown[]=[];
+  let ws:WebSocket|undefined;
+  try {
+    await server.ready();
+    for(const kind of ['text-flood','oversize','fragmented']){
+      ws=new WebSocket(`ws://127.0.0.1:${server.port}/ws`,{origin:`http://127.0.0.1:${server.port}`});
+      let closed:{code:number;reason:string}|undefined;
+      ws.on('close',(code,reason)=>{closed={code,reason:reason.toString()};});
+      await new Promise<void>((resolve,reject)=>{ws!.once('open',resolve);ws!.once('error',reject);});
+      if(kind==='text-flood')for(let i=0;i<MAX_MESSAGES_PER_SECOND+601;i++)ws.send('unsupported');
+      else if(kind==='oversize')ws.send(Buffer.alloc(MAX_MESSAGE_BYTES+1));
+      else {
+        ws.send(Buffer.alloc(MAX_MESSAGE_BYTES/2),{fin:false});
+        ws.send(Buffer.alloc(MAX_MESSAGE_BYTES/2+1),{fin:true});
+      }
+      await until(()=>!!closed);
+      observations.push({kind,...closed});
+      assert.equal(closed!.code,kind==='text-flood'?4000:1009);
+      if(kind==='text-flood')assert.equal(closed!.reason,'Too many messages');
+      ws=undefined;
+    }
+    assert.equal((await fetch(`http://127.0.0.1:${server.port}/healthz`)).status,200);
+    assert.doesNotMatch(server.log(),/unhandled rejection|uncaughtException/);
+    assert.deepEqual(await fs.readdir(path.join(server.runDir,'saves')),[]);
+  }finally{
+    ws?.terminate();const exitCode=await server.stop();
+    await fs.writeFile(path.join(server.runDir,'message-size-observations.json'),JSON.stringify({observations,exitCode},null,2));
+    assert.equal(exitCode,0);
+  }
 });
