@@ -31,6 +31,14 @@ All seven final captures in `checks/settings/` were opened and inspected. The se
 
 Intermediate harness findings: one run caught a stale build when testing the button-focus correction; capture now builds automatically. An idle effects bus exposed a stale AudioParam `.value` reading; quiet synthetic test signals now keep effect buses processing before testing live gains. A mid-animation Help/login capture was recaptured after the entrance animation. These are documented verification changes, not evidence of random successful retries. No subjective listening, disabled-player evaluation, complete reduced-motion support, frame-rate or cross-browser claim.
 
+## Save failure slice verification
+
+The before-test reproduced a fulfilled write/flush followed by stale gold after a synthetic rename failure. After the fix, all five fault-injection tests pass: old bytes/items preserved, failed snapshots retried, partial temporary output removed, stale reload refused, queue recovery and session retry/notification verified. Tests use a new temporary DATA_DIR on this PC; no real files are faulted.
+
+Full `npm run verify -- --allow-known-windows-shutdown`: **732 server checks pass, two known Windows SIGTERM checks fail**; simulation **382/382**, save failures **5/5**, foundations **6/6**, preferences **3/3**, shared **12/12**, town services **4/4**, verification policy **2/2**, typecheck, content validation and build pass. Outcome remains **passed-with-known-failures**. Evidence: `hearthfall-verify-pl0T4c`; [report](checks/save-failure-verify-report.json). The build retains its large-chunk warning.
+
+This run's synthetic four-player/monster simulation measured average 0.989 ms, p99 5.865 ms, maximum 9.410 ms excluding fake-client snapshot processing. Including that processing: average 1.154 ms, p99 6.303 ms, maximum 10.000 ms. These are one-run simulation timings, not browser FPS, a 100-player result, or a reference-game balance measurement. The two Windows shutdown failures mean graceful process shutdown is not established by that suite. No independent security review or power-loss durability claim.
+
 ## Remaining limits
 
-These are functional checks, not a dense-crowd benchmark, disabled-player evaluation or independent security audit. No accounts/recovery/transactional database/backups added. Existing save write errors still log without propagating to all callers; durability and restore remain open. No claim of full P3 or G1 completion.
+These are functional checks, not a dense-crowd benchmark, disabled-player evaluation or independent security audit. No accounts/recovery/transactional database/backups added. Recoverable write errors now propagate, but failed progress is retained only in this running process; crash durability and restore remain open. No claim of full P3 or G1 completion.

@@ -9,7 +9,7 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P0 Town | Frozen by owner; original camera restored | Deferred hardening remains honestly open |
 | P1 Research | Active | All 20 original charters plus Torchlight II; complete evidence, matrices and UI observations |
 | P2 Design | Not complete | Turn supported findings into decisions; unknown targets remain unknown |
-| P3 Foundations | Independent subset active | Verify/debug/save safeguards and persistent audio/shake settings added; broader auth/settings and storage remain open |
+| P3 Foundations | Independent subset active | Verify/debug/save safeguards, recoverable write failure handling and persistent audio/shake settings added; broader auth/settings and storage remain open |
 | P4 Combat/builds | Existing game preserved | Evidence-based targets and owner playtest; no invented timing values |
 | P5 Quests/dialogue | Not implemented | P3 state safety and supported objective design |
 | P6 Onboarding | Research active; no new tutorial | P5 and observed first-session evidence |

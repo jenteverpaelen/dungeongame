@@ -134,11 +134,11 @@ async function main(): Promise<void> {
       await world.shutdown();
       await flushSaves();
       server.closeAllConnections();
+      console.log('[server] all characters saved, bye');
     } catch (err) {
       console.error('[server] error during shutdown:', err);
       code = code || 1;
     }
-    console.log('[server] all characters saved, bye');
     process.exit(code);
   };
 

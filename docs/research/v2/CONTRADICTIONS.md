@@ -26,3 +26,9 @@ Recorded 2026-10-09; source IDs resolve in [SOURCES.csv](SOURCES.csv).
 ## Evidence still needed
 
 Pin current versions; inspect ordinary first sessions; complete slot/skill/rune and PC respec tables; verify independent provenance; measure UI flows; research source-specific loot/cost formulas. These gaps block copying external numbers into balance, not continued read-only research. Source limitations are not requests for the owner to buy games or supply assets.
+## Follow-up access and scope notes — 2026-10-09
+
+- Idleon's community wiki remains blocked by robots in this browsing tool; do not retry that route or turn unrelated Reddit claims into verified formulas.
+- TBH's June player guide describes chest timers that conflict with later developer changes. Preserve it as historical UI/flow evidence; the later patch defines the newer rule.
+- Steam's text extraction includes generic removal/incompatibility banners alongside a publicly readable guide. No account was signed in and no moderation conclusion is drawn from those banners.
+- Node's `/docs/v24.19.0/api/crypto.html` path failed; the matching `/download/release/v24.19.0/docs/api/crypto.html` document is readable. Argon2 exists in the documented runtime; do not assume an external package is necessary.

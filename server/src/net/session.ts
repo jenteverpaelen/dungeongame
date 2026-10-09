@@ -8,7 +8,7 @@ import { applyAfkGains } from '../afk';
 import { AUTOSAVE_MS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
-import { CorruptCharacterError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
+import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
 import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { CLASSES } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
@@ -62,6 +62,7 @@ export class Session implements PlayerLink {
   private chatTokens = CHAT_BURST;
   private chatAt = Date.now();
   private persistDirty = false;
+  private saveWarning = false;
   private lastSaveAt = 0;
   private charDirty = false;
   private lastCharAt = 0;
@@ -154,7 +155,16 @@ export class Session implements PlayerLink {
     this.playMark = now;
     this.persistDirty = false;
     this.lastSaveAt = now;
-    void saveCharacter(this.save);
+    void saveCharacter(this.save).then(() => {
+      if (this.saveWarning && this.state === 'ready') this.send({ t: 'chat', ch: 'system', text: 'Saving is working again.' });
+      this.saveWarning = false;
+    }, () => {
+      this.persistDirty = true;
+      if (!this.saveWarning && this.state === 'ready') {
+        this.send({ t: 'chat', ch: 'system', text: 'Your progress could not be saved. The server will retry. Please stay connected.' });
+      }
+      this.saveWarning = true;
+    });
   }
 
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
@@ -287,7 +297,8 @@ export class Session implements PlayerLink {
     } catch (err) {
       console.error(`[session] loading ${id} failed:`, err);
       this.kick(err instanceof UnsupportedSaveVersionError ? 'This character needs a newer server version.'
-        : err instanceof CorruptCharacterError ? 'Your character data is damaged. Please contact the server admin.' : 'Could not load your character.');
+        : err instanceof CorruptCharacterError ? 'Your character data is damaged. Please contact the server admin.'
+        : err instanceof SaveWriteError ? 'Your latest progress could not be saved. Please try again after the server storage recovers.' : 'Could not load your character.');
       return;
     }
     if (this.isClosed) return;

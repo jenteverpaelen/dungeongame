@@ -14,6 +14,10 @@ PoE1's [official overview](https://www.pathofexile.com/game) describes skill/sup
 
 Separate the player's active skill from optional modifiers, and make unavailable modifiers understandable. Our runes already provide a smaller build-choice surface [M; HF-AUDIT]; adding a huge tree is not automatically an improvement. Reuse existing panels for any future explanations. Currency/trade changes need their own economy and persistence research.
 
-## Unfinished
+## Respec distinctions — 2026-10-09
+
+The [October 2025 Keepers FAQ](https://www.pathofexile.com/forum/view-thread/3870059) describes free Genesis-tree refunds, a boss-conditioned free Bloodline replacement, and separate paid point refunds. This demonstrates why “PoE respec cost” is too coarse a field: the subsystem and version belong beside the rule. It does not settle the current normal passive-tree economy, and it says nothing about PoE2. [S; POE-04]
+
+## Still unfinished
 
 Both games need versioned first-ten-level traces, recovery/respec rules, loot-filter and inventory error flows, and separate ownership/reset tables. Economy policing, maps/Atlas and public anti-abuse evidence remain out of this pass. Next: source the current versions, then inspect gem acquisition/equipping/invalid-support recovery without conflating their implementations.

@@ -12,6 +12,12 @@ The [developer's September announcements](https://steamcommunity.com/app/3678970
 
 Item protection must remain meaningful across crafting, movement and save/reload. Use these reports as failure cases to investigate when a locked-item system is scoped, not as proof Hearthfall has the same bug. A small always-visible game also warrants studying information priority, while preserving our current UI style.
 
-## Unfinished
+## Historical player-flow corroboration — 2026-10-09
+
+[Zeroxias's guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3734611647), explicitly updated June 9, 2026, distinguishes formation-slot and second-active-slot purchases in the account rune tree from character skill investment. It reports free skill refunds, a totals-list view, and item locking before automatic Cube filling. These are useful interaction questions, not current numerical specifications. Its old chest timers are superseded by the September developer notes already logged. Claims about server overload and optimal teams are the writer's interpretation, not telemetry. Images in the guide have not yet been inspected. [S2; TBH-101, TBH-05]
+
+The shared skill-data comment calling our escalating tier costs “Task Bar Hero-style” is inherited attribution, not independent evidence that current TBH uses those exact costs. Preserve Hearthfall's values until its own behavior and pacing are measured.
+
+## Still unfinished
 
 Cube functions/costs, respec and rune topology, offline/live ratios, party rules, unlock sequence, drop distribution, Marketplace outcomes and UI flows. Reviews/CCU are not causal retention evidence. Next: match an inspected current build to developer notes, trace an initial session, and test whether rewards occur with the client closed. No purchases, Marketplace trades or account creation are implied by research permission.

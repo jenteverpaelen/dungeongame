@@ -8,6 +8,7 @@
 - [x] F-CON-04: placeholder registry with evidence and removal conditions; no content deleted.
 - [x] Inspect all three real local Chrome 1920×1080 captures; fixed 620 camera and current style retained.
 - [x] Persistent master/effects/ambience volume, mute and camera-shake option. Original sound/shake defaults and fixed camera retained; O/F1 entry and keyboard interactions verified in local Chrome.
+- [x] Recoverable save failures reject callers, retain captured progress for bounded retry, prevent stale reconnects, notify connected players and report shutdown failure honestly. Five fault-injection tests and full regression run pass apart from the two recorded Windows shutdown-test failures.
 - [ ] Remaining P3: account identity, recovery, storage design, backups, broader settings/accessibility (including rebinding), content validation, local telemetry and independent review.
 
 This phase is not complete. Continue research in P01 while checking the independent changes; saved checkpoints do not end the task. Before every push check the exact branch. Test data stays in fresh temporary directories. Never migrate or claim ownership of existing player saves as a side effect of tests.

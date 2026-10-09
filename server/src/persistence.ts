@@ -32,7 +32,16 @@ function fileFor(id: string): string {
 
 /** In-flight writes per character id (the tail of a promise chain). */
 const chains = new Map<string, Promise<void>>();
+// Keep the captured state after a recoverable write error. Never fall back to an
+// older file while this process still knows that a newer snapshot was not saved.
+const failedWrites = new Map<string, { json: string; error: SaveWriteError }>();
 let tmpCounter = 0;
+
+export class SaveWriteError extends Error {
+  constructor(readonly characterId: string, cause: unknown) {
+    super(`Could not persist character ${characterId}`, { cause });
+  }
+}
 
 async function writeAtomic(id: string, json: string): Promise<void> {
   const file = fileFor(id);
@@ -51,20 +60,32 @@ export function saveCharacter(save: CharacterSave): Promise<void> {
   requireSupportedVersion(save);
   save.version = SAVE_VERSION;
   save.lastSeen = Date.now();
-  const id = save.id;
-  const json = JSON.stringify(save);
-  const prev = chains.get(id) ?? Promise.resolve();
-  const next: Promise<void> = prev
-    .then(() => writeAtomic(id, json))
-    .catch((err) => { console.error(`[persist] failed to save ${id}:`, err); })
-    .finally(() => { if (chains.get(id) === next) chains.delete(id); });
-  chains.set(id, next);
-  return next;
+  return queueWrite(save.id, JSON.stringify(save));
 }
 
-/** Resolves when every queued write has hit the disk. */
+function queueWrite(id: string, json: string): Promise<void> {
+  const prev = chains.get(id) ?? Promise.resolve();
+  const operation = prev
+    .then(() => writeAtomic(id, json))
+    .then(() => { failedWrites.delete(id); }, (cause) => {
+      const error = new SaveWriteError(id, cause);
+      failedWrites.set(id, { json, error });
+      console.error(`[persist] failed to save ${id}:`, cause);
+      throw error;
+    });
+  // A failed operation rejects its caller, but must not poison the next write.
+  const next = operation.then(() => undefined, () => undefined)
+    .finally(() => { if (chains.get(id) === next) chains.delete(id); });
+  chains.set(id, next);
+  return operation;
+}
+
+/** Drain queued writes, retry failures once, then report unresolved errors. */
 export async function flushSaves(): Promise<void> {
   while (chains.size) await Promise.all([...chains.values()]);
+  await Promise.allSettled([...failedWrites].map(([id, failed]) => queueWrite(id, failed.json)));
+  while (chains.size) await Promise.all([...chains.values()]);
+  if (failedWrites.size) throw new AggregateError([...failedWrites.values()].map(f => f.error), 'Some character saves could not be written');
 }
 
 export class CorruptCharacterError extends Error {}
@@ -79,8 +100,9 @@ function requireSupportedVersion(save: CharacterSave): void {
 /** Load a character or return null if it does not exist. A corrupt file is moved aside and reported. */
 export async function loadCharacter(id: string): Promise<CharacterSave | null> {
   const file = fileFor(id);
-  const pending = chains.get(id);
-  if (pending) await pending;
+  while (chains.has(id)) await chains.get(id);
+  const failed = failedWrites.get(id);
+  if (failed) await queueWrite(id, failed.json);
   let text: string;
   try {
     text = await fsp.readFile(file, 'utf8');

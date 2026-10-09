@@ -14,9 +14,13 @@ The useful comparison is a cadence of new verbs, modifiers and longer goals. Our
 
 ## Unfinished
 
-- Complete both classes' full rune tables; independently check skill-slot/passive-slot gates and pin the described PC patch.
+- Both full progression tables have now been read through level 69. Independently check skill-slot/passive-slot gates and pin the described PC patch.
 - Observe ordinary new-account Campaign and Adventure sessions separately. Record quest steps, levels, menus and interruptions; seasonal speedruns cannot stand in for casual onboarding.
 - First rare/legendary distributions, XP/scaling, artisan costs and endgame/social rules remain unverified in this pass.
 - UI density, keyboard flow, failure states and 1080p measurements need inspected footage. No current-client playback or reference screenshot measurement occurred here.
 
 Next stop condition: a versioned, timestamped first-session trace for each mode plus the two complete class unlock tables; record inaccessible evidence rather than fill gaps from memory.
+
+## Extended availability read — 2026-10-09
+
+Both tables continue rune/passive choices through levels 31–60, add an active at 61, then continue runes/passives through 69. This closes the partial body-read gap, not the live-client or elapsed-time gap. The table is a cadence reference: a later unlock can add a modifier rather than require another action slot. [S; D3-07; D3-PROG-W/B]
