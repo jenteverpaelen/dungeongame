@@ -8,10 +8,10 @@ import '@fontsource/cinzel/700.css';
 
 import { Application, Container, Graphics, Text } from 'pixi.js';
 import { MONSTERS } from '@shared/data/monsters';
-import type { EntDesc, GameEvent, LootView } from '@shared/protocol';
+import { F_MOVING, F_STUN, F_WINDUP, type EntDesc, type GameEvent, type LootView } from '@shared/protocol';
 import type { ItemLook } from '@shared/types';
 import { sfx } from '../audio/sfx';
-import { initArt } from '../render/art';
+import { createMonsterView, initArt } from '../render/art';
 import type { EntityView, Nameplate, ViewState } from '../render/types';
 import { Vfx, type VfxContext } from '../render/vfx';
 
@@ -19,7 +19,7 @@ const qs = new URLSearchParams(location.search);
 const SCENE = qs.get('scene') ?? 'combat';
 /** ?manual=1: time only advances through __gallery.advance(sec) (deterministic captures). */
 const MANUAL = qs.get('manual') === '1';
-const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'beam', 'cast', 'death', 'loot', 'mix', 'stress'];
+const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress'];
 
 await Promise.all([
   document.fonts.load('700 26px "Alegreya Sans"'),
@@ -34,7 +34,7 @@ try { initArt(app.renderer); } catch { /* art module may be mid-rewrite */ }
 
 // ─────────────────────────── world & camera ───────────────────────────
 
-const VIEW_HEIGHT = 920;
+const VIEW_HEIGHT = SCENE === 'charge' ? 620 : 920;
 const world = new Container();
 const ground = new Container();
 const groundFx = new Container();
@@ -140,6 +140,7 @@ function placeholderView(kind: 'player' | 'mob' | 'summon', color: number, accen
 function addEnt(desc: EntDesc, x: number, y: number, h = 40): Ent {
   let view: EntityView;
   if (desc.k === 'loot') view = vfx.createLootView(desc);
+  else if (SCENE === 'charge' && desc.k === 'mob') view = createMonsterView(desc.t, 0, [], desc.sc ?? 1);
   else {
     const def = MONSTERS[desc.t];
     const color = desc.k === 'player' ? (desc.t === 'mage' ? 0x2e86de : desc.t === 'ranger' ? 0x27ae60 : 0xc0392b) : def?.colors.body ?? 0x8fbf6a;
@@ -191,6 +192,7 @@ const ctx: VfxContext = {
   entityPos: (id) => { const e = ents.get(id); return e ? { x: e.x, y: e.y } : null; },
   entityView: (id) => ents.get(id)?.view ?? null,
   entityRadius: (id) => ents.get(id)?.r ?? 16,
+  entityFlags: (id) => ents.get(id)?.flags ?? null,
   shake: (m, ms) => {
     const now = simNow();
     if (m >= shakeMag * Math.max(0, (shakeEnd - now) / shakeDur)) { shakeMag = m; shakeDur = ms; shakeEnd = now + ms; }
@@ -234,6 +236,35 @@ const pickOne = <T,>(a: T[]) => a[(Math.random() * a.length) | 0];
 // ─────────────────────────── scenes ───────────────────────────
 
 const scenes: Record<string, () => void> = {
+  charge() {
+    const def = MONSTERS.siltusk, origin = -def.attack.range / 2, target = origin + def.attack.range;
+    const m = mob(def.id, origin, 0);
+    label('Siltusk · scripted rendering preview', 0, -160, 18);
+    label('Actual rig and warning renderer · fixed 620-unit view', 0, -125, 12);
+    label('Warning is held for inspection; these are not live combat timings.', 0, 125, 12);
+    const controls = document.createElement('div');
+    controls.style.cssText = 'position:fixed;bottom:24px;left:24px;display:flex;gap:12px;align-items:center;color:#e8d9b5;font:16px serif';
+    const status = document.createElement('span');
+    const warning = () => {
+      vfx.clear(); m.x = origin; m.flags = F_WINDUP;
+      fire({e:'tele',v:'charge',s:m.id,x:origin,y:0,r:def.attack.range,w:def.radius*2,a:0,d:def.attack.windupMs});
+      status.textContent = 'Warning held';
+    };
+    for (const [text, action] of [
+      ['Hold warning', warning],
+      ['Interrupt', () => { m.flags=F_STUN; status.textContent='Interrupted · warning removed'; }],
+      ['Charge', () => { m.flags=F_MOVING; status.textContent='Charge · fixed path'; }],
+    ] as const) {
+      const button=document.createElement('button');button.textContent=text;button.addEventListener('click',action);controls.appendChild(button);
+    }
+    controls.appendChild(status);document.body.appendChild(controls);
+    stressTick = dt => {
+      if (!(m.flags & F_MOVING)) return;
+      m.x=Math.min(target,m.x+def.attack.range*dt*1000/def.attack.chargeMs!);
+      if(m.x>=target){m.flags=0;status.textContent='Charge finished';}
+    };
+    warning();
+  },
   combat() {
     camX = 0; camY = 0;
     const me = player(ME, 'warrior', 'Brakka', -460, 140);
@@ -609,7 +640,8 @@ function step(rawMs: number): void {
   for (const e of ents.values()) {
     e.view.root.position.set(e.x, e.y);
     e.view.root.zIndex = e.y;
-    const st: ViewState = { x: e.x, y: e.y, vx: 0, vy: 0, moving: false, facingLeft: e.kind === 'mob', flags: e.flags, attackSeq: 0, hpFrac: e.hp, time, aps: 1.2 };
+    const moving=!!(e.flags & F_MOVING);
+    const st: ViewState = { x: e.x, y: e.y, vx: moving?230/0.17:0, vy: 0, moving, facingLeft: SCENE!=='charge' && e.kind === 'mob', flags: e.flags, attackSeq: 0, hpFrac: e.hp, time, aps: 1.2 };
     e.view.update(viewDt, st);
     if (e.plate) { e.plate.root.position.set(e.x, e.y - e.view.height - 8); e.plate.update(e.hp, e.flags, false); }
   }

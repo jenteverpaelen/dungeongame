@@ -80,13 +80,14 @@ export function chillMob(m: Mob, ms: number) {
 }
 
 export function cancelWindup(m: Mob) {
-  if (m.state === 'windup') { m.state = 'chase'; m.stateMs = 0; m.atkCdMs = Math.max(m.atkCdMs, 400); }
+  if (m.state === 'windup' || m.state === 'charge') { m.charge = undefined; m.state = 'chase'; m.stateMs = 0; m.atkCdMs = Math.max(m.atkCdMs, 400); }
 }
 
 /** Shove a monster `dist` units along (dx, dy) over 0.25 s. */
 export function knockbackMob(m: Mob, dx: number, dy: number, dist: number) {
   const f = ccFactor(m);
   if (f <= 0) return;
+  if (m.def.attack.kind === 'charge') cancelWindup(m);
   const l = Math.hypot(dx, dy) || 1;
   const d = dist * f;
   m.kbX = (dx / l) * (d / 0.25);
@@ -100,6 +101,7 @@ export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: nu
   const dx = tx - m.x, dy = ty - m.y;
   const d = Math.hypot(dx, dy);
   if (d < 1) return;
+  if (m.def.attack.kind === 'charge') cancelWindup(m);
   const s = Math.min(step, d);
   const p = inst.cw.moveCircle(m.x, m.y, m.r, (dx / d) * s, (dy / d) * s, !!m.def.flying);
   m.x = p.x; m.y = p.y;

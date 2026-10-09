@@ -184,7 +184,7 @@ export function updateMonsters(inst: Instance, dtMs: number) {
       m.x = q.x; m.y = q.y;
       inst.mobHash.update(m);
     }
-    if (m.stunMs <= 0 && m.freezeMs <= 0) think(inst, m, dtMs);
+    if (m.stunMs <= 0 && m.freezeMs <= 0 && !(m.def.attack.kind === 'charge' && m.kbMs > 0)) think(inst, m, dtMs);
     if (m.dead) continue;
     let f = mobStatusFlags(m);
     if (m.faceLeft) f |= F_LEFT;
@@ -257,14 +257,17 @@ function think(inst: Instance, m: Mob, dtMs: number) {
     }
     case 'windup': {
       const p = targetOf(inst, m);
-      if (p && m.def.attack.kind !== 'explode') m.faceLeft = p.x < m.x;
+      if (p && m.def.attack.kind !== 'explode' && m.def.attack.kind !== 'charge') m.faceLeft = p.x < m.x;
       m.stateMs -= dtMs * slow;
       if (m.stateMs <= 0) {
         resolveAttack(inst, m);
-        if (!m.dead) { m.state = 'recover'; m.stateMs = 220; }
+        if (!m.dead && !m.charge) { m.state = 'recover'; m.stateMs = 220; }
       }
       return;
     }
+    case 'charge':
+      chargeStep(inst, m, dtMs * slow);
+      return;
     case 'recover':
       m.stateMs -= dtMs;
       if (m.stateMs <= 0) m.state = 'chase';
@@ -291,8 +294,8 @@ function think(inst: Instance, m: Mob, dtMs: number) {
         m.los = !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y);
         m.shotLos = m.los || !shotBlocked(inst, m.x, m.y, p.x, p.y);
       }
-      const ranged = atk.kind === 'ranged' || atk.kind === 'lob';
-      const clearShot = atk.kind === 'lob' ? m.los : m.shotLos;
+      const ranged = atk.kind === 'ranged' || atk.kind === 'lob' || atk.kind === 'charge';
+      const clearShot = atk.kind === 'lob' || atk.kind === 'charge' ? m.los : m.shotLos;
       if (d <= reach && m.atkCdMs <= 0 && (!ranged || clearShot)) { beginAttack(inst, m, p); return; }
       if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !clearShot)) {
         step(inst, m, p.x, p.y, m.speed * slow, dtS, p);
@@ -368,6 +371,13 @@ function beginAttack(inst: Instance, m: Mob, p: Player) {
   m.faceLeft = p.x < m.x;
   // A lob's ground warning starts on launch, after the interruptible windup.
   if(atk.kind==='lob')return;
+  if (atk.kind === 'charge') {
+    const distance = Math.hypot(p.x - m.x, p.y - m.y), length = Math.min(distance, atk.range);
+    const angle = Math.atan2(p.y - m.y, p.x - m.x);
+    m.atkX = m.x + Math.cos(angle) * length; m.atkY = m.y + Math.sin(angle) * length;
+    inst.emit({ e: 'tele', v: 'charge', s: m.id, x: m.x, y: m.y, r: length, w: m.r * 2, a: angle, d: m.windupMs }, m.x, m.y);
+    return;
+  }
   if (atk.kind === 'explode') {
     m.atkX = m.x; m.atkY = m.y;
     inst.emit({ e: 'tele', v: 'slam', x: Math.round(m.x), y: Math.round(m.y), r: atk.aoe ?? 60, d: Math.round(m.windupMs) }, m.x, m.y);
@@ -392,6 +402,13 @@ function resolveAttack(inst: Instance, m: Mob) {
   m.atkCdMs = m.cooldownMs * (m.boss?.enraged ? 0.8 : 1);
   const p = targetOf(inst, m);
   switch (atk.kind) {
+    case 'charge': {
+      const dx = m.atkX - m.x, dy = m.atkY - m.y, distance = Math.hypot(dx, dy);
+      if (distance <= 0) return;
+      m.charge = { dx: dx / distance, dy: dy / distance, left: Math.min(distance, atk.range), hit: new Set() };
+      m.state = 'charge';
+      return;
+    }
     case 'lob': {
       if(!p||inst.cw.segmentBlocked(m.x,m.y,p.x,p.y))return;
       // Lock the landing point and damage at launch. Movement cannot redirect it;
@@ -446,6 +463,30 @@ function resolveAttack(inst: Instance, m: Mob) {
       return;
     }
   }
+}
+
+/** Radius-bounded substeps stop at solids; unlike ordinary pursuit, a charge never slides or turns. */
+function chargeStep(inst: Instance, m: Mob, dtMs: number) {
+  const c = m.charge;
+  if (!c) { m.state = 'recover'; m.stateMs = 220; return; }
+  const distance = Math.min(c.left, m.def.attack.range * dtMs / m.def.attack.chargeMs!);
+  const steps = Math.max(1, Math.ceil(distance / (m.r / 2))), stride = distance / steps;
+  for (let i = 0; i < steps && !m.dead; i++) {
+    const x0 = m.x, y0 = m.y, x1 = x0 + c.dx * stride, y1 = y0 + c.dy * stride;
+    if (inst.cw.town?.circlePathBlocked(x0, y0, m.r, c.dx * stride, c.dy * stride) || !inst.cw.isFree(x1, y1, m.r)) { c.left = 0; break; }
+    m.x = x1; m.y = y1; c.left -= stride; m.moving = true;
+    for (const p of inst.players) {
+      if (p.deadMs > 0 || c.hit.has(p.id)) continue;
+      const along = Math.max(0, Math.min(stride, (p.x - x0) * c.dx + (p.y - y0) * c.dy));
+      const hx = x0 + c.dx * along, hy = y0 + c.dy * along;
+      if (Math.hypot(p.x - hx, p.y - hy) > m.r + PLAYER_RADIUS || inst.cw.segmentBlocked(hx, hy, p.x, p.y)) continue;
+      c.hit.add(p.id);
+      damagePlayer(inst, p, m.dmg, m.def.attack.element, m, m.level, true);
+      if (m.dead) break; // Thorns can kill the charging attacker on contact.
+    }
+  }
+  if (!m.dead) inst.mobHash.update(m);
+  if (m.dead || c.left <= 1e-6) { m.charge = undefined; m.state = 'recover'; m.stateMs = 220; }
 }
 
 // ─────────────────────────── Treasure goblin ───────────────────────────

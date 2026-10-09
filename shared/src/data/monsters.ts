@@ -2,18 +2,19 @@
 // Elite structure follows Diablo 3: Champion packs (blue), Rare + minions (yellow), Rift Guardians, Treasure Goblins.
 
 import type { Element } from '../types';
+import { DASH } from '../constants';
 
-export type MonsterAttackKind = 'melee' | 'ranged' | 'lob' | 'explode' | 'none';
+export type MonsterAttackKind = 'melee' | 'ranged' | 'lob' | 'charge' | 'explode' | 'none';
 
 export interface MonsterDef {
   id: string;
   name: string;
-  family: 'slime' | 'mushroom' | 'bat' | 'sprout' | 'crab' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
+  family: 'slime' | 'mushroom' | 'bat' | 'sprout' | 'crab' | 'boar' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
   hp: number;      // multiplier on base level HP
   dmg: number;     // multiplier on base level damage
   speed: number;   // units / second
   radius: number;
-  attack: { kind: MonsterAttackKind; range: number; windupMs: number; cooldownMs: number; element: Element; projSpeed?: number; aoe?: number; flightMs?: number };
+  attack: { kind: MonsterAttackKind; range: number; windupMs: number; cooldownMs: number; element: Element; projSpeed?: number; aoe?: number; flightMs?: number; chargeMs?: number };
   flying?: boolean;
   weight: number;  // spawn weight within its theme
   themes: string[];
@@ -46,6 +47,13 @@ MONSTERS.reedclaw = {
   colors:{...MONSTERS.mossback.colors},
   attack:{kind:'lob',range:MONSTERS.thornling.attack.range,windupMs:MONSTERS.thornling.attack.windupMs,
     cooldownMs:MONSTERS.thornling.attack.cooldownMs,element:'physical',aoe:75,flightMs:900},
+};
+
+// L97/D038: one authored replacement, inherited Mossback budget and bounded dash template.
+MONSTERS.siltusk = {
+  ...MONSTERS.mossback, id: 'siltusk', name: 'Siltusk', family: 'boar', weight: 0,
+  attack: { kind: 'charge', range: DASH.distance, windupMs: MONSTERS.mossback.attack.windupMs,
+    cooldownMs: MONSTERS.mossback.attack.cooldownMs, element: 'physical', chargeMs: DASH.durationMs },
 };
 
 export const RIFT_GUARDIANS: Record<string, string> = { glade: 'gorgemaw', ashen: 'vexis' };

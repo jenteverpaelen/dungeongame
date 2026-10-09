@@ -42,6 +42,8 @@ export interface VfxContext {
   entityPos(id: number): { x: number; y: number } | null;
   entityView(id: number): EntityView | null;
   entityRadius(id: number): number;
+  /** Optional for offline galleries; live telegraphs can follow authoritative windup cancellation. */
+  entityFlags?(id: number): number | null;
   /** Camera shake in world units for ms. */
   shake(magnitude: number, ms: number): void;
   /** Freeze-frame the world for ms (hit-stop). */

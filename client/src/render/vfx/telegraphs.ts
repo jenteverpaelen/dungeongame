@@ -5,7 +5,7 @@
 
 import { Container, Graphics } from 'pixi.js';
 import { preferences } from '../../game/preferences';
-import type { GameEvent } from '@shared/protocol';
+import { F_WINDUP, type GameEvent } from '@shared/protocol';
 import type { Effect, VfxCore } from './core';
 import type { Fx } from './particles';
 import type { AoeFx } from './aoe';
@@ -22,6 +22,7 @@ const STYLES: Record<string, Style> = {
   frozen_orb: { color: 0x6fd0ff, alpha: 0.95, fill: 0.28 },
   mortar: { color: 0xff6a22, alpha: 0.95, fill: 0.3 },
   lob: { color: 0xffb050, alpha: 0.95, fill: 0.3 },
+  charge: { color: 0xffb050, alpha: 0.95, fill: 0.3 },
   molten_death: { color: 0xff6a10, alpha: 1, fill: 0.32 },
 };
 
@@ -62,6 +63,7 @@ export class Telegraphs {
       case 'frozen_orb': extras.push(this.frostOrb(ev.x, ev.y, d)); V.sound('warn', ev.x, ev.y, 0.6); break;
       case 'mortar': extras.push(this.mortarShell(ev.x, ev.y, d)); break;
       case 'lob': extras.push(this.lobStone(ev.x, ev.y, d)); V.sound('warn',ev.x,ev.y,0.6); break;
+      case 'charge': V.sound('warn',ev.x,ev.y,0.6); break;
       case 'molten_death': extras.push(this.moltenCore(ev.x, ev.y, ev.r, d)); break;
       case 'boss_ring': V.sound('warn', ev.x, ev.y); break;
       default: break;
@@ -105,6 +107,11 @@ export class Telegraphs {
         age += dt;
         const t = clamp(age / d, 0, 1);
         shape.progress(t, age);
+        if (ev.v === 'charge' && ev.s !== undefined && V.ctx.entityFlags) {
+          // Stay visible through slowed windups; disappear on CC/death/launch or leaving the AOI.
+          root.alpha = 1;
+          return !!((V.ctx.entityFlags(ev.s) ?? 0) & F_WINDUP);
+        }
         if (age >= d && !resolved) resolve();
         if (age >= d) {
           const f = clamp((age - d) / 0.14, 0, 1);
@@ -152,6 +159,13 @@ export class Telegraphs {
         return { root, circle: false, progress: (t, age) => { fill.scale.set(Math.max(0.001, t)); base.alpha = pulse(t, age); } };
       }
       base.rotation = a; fill.rotation = a;
+      if (ev.v === 'charge') {
+        const radius = w / 2;
+        base.roundRect(-radius, -radius, r + w, w, radius).fill({color:col, alpha:st.fill*.5});
+        base.roundRect(-radius, -radius, r + w, w, radius).stroke({width:2.5,color:col,alpha:st.alpha});
+        fill.roundRect(-radius, -radius, r + w, w, radius).fill({color:col,alpha:st.fill});
+        return {root,circle:false,progress:(t,age)=>{fill.scale.set(Math.max(.001,t),1);base.alpha=pulse(t,age);}};
+      }
       base.rect(0, -w / 2, r, w).fill({ color: col, alpha: st.fill * 0.5 });
       base.rect(0, -w / 2, r, w).stroke({ width: 2.5, color: col, alpha: st.alpha, join: 'round' });
       fill.rect(0, -w / 2, r, w).fill({ color: col, alpha: st.fill });

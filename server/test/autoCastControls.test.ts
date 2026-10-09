@@ -27,7 +27,7 @@ function fixture(skill = 'magic_weapon') {
   for (const mob of inst.mobs) inst.removeMob(mob);
   inst.addPlayer(link); const p = inst.players[0];
   p.debugInfiniteHp = true; p.res = p.mres; p.atkCdMs = 100000;
-  inst.addMob(createMob(inst, DUMMY_DEF, 1, p.x + 50, p.y, { dummy: true }));
+  createMob(inst, DUMMY_DEF, 1, p.x + 50, p.y, { dummy: true });
   const s = { save, changed() {} } as unknown as Session;
   const cmd = (a: Record<string, unknown>) => runCommand(s, {} as World, 'skillAutoCast', a);
   return { save, inst, p, cmd };

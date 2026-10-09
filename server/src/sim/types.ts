@@ -52,7 +52,7 @@ export interface Dot {
 
 // ─────────────────────────── Monsters ───────────────────────────
 
-export type MobState = 'idle' | 'chase' | 'windup' | 'recover' | 'flee' | 'return';
+export type MobState = 'idle' | 'chase' | 'windup' | 'charge' | 'recover' | 'flee' | 'return';
 
 export interface Pack {
   id: number;
@@ -125,6 +125,8 @@ export interface Mob extends Hashed {
   /** Where the current windup attack lands (slam centre / projectile aim). */
   atkX: number;
   atkY: number;
+  /** Fixed path and per-player contact history for one physical charge. */
+  charge?: { dx: number; dy: number; left: number; hit: Set<number> };
   /** Countdown timers (ms) for elite affix abilities. */
   aff: { molten: number; frozen: number; plagued: number; vortex: number; mortar: number; electrified: number };
   /** Treasure goblin: ms since first noticed (-1 = not yet). */

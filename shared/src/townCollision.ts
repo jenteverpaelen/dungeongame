@@ -112,6 +112,10 @@ export class TownCollision {
     }
     return { x, y };
   }
+  /** Continuous body sweep without sliding, for committed straight-line attacks. */
+  circlePathBlocked(x: number, y: number, r: number, dx: number, dy: number): boolean {
+    return !this.isFree(x, y, r) || this.hit(x, y, dx, dy, r, false).found;
+  }
   segmentBlocked(x0: number, y0: number, x1: number, y1: number): boolean {
     // NPC bodies are excluded: a service/dummy is itself the target of the ray.
     return !this.isFree(x0, y0, .001, true) || !this.isFree(x1, y1, .001, true) || this.hit(x0, y0, x1 - x0, y1 - y0, .001, true).found;

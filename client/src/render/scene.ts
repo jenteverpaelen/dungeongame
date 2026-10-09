@@ -72,6 +72,7 @@ export class Scene {
         return d ? { x: d.x, y: d.y } : null;
       },
       entityView: (id) => this.world.entities.get(id)?.view ?? null,
+      entityFlags: (id) => this.world.entities.get(id)?.flags ?? null,
       entityRadius: (id) => this.world.entities.get(id)?.desc.r ?? 16,
       shake: (m, ms) => this.shake(m, ms),
       hitStop: (ms) => { this.hitStopEnd = Math.max(this.hitStopEnd, performance.now() + Math.min(ms, 90)); },

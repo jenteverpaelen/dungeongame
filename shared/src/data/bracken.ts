@@ -58,7 +58,7 @@ export const BRACKEN:AdventureData={
   locations:[{id:'forecourt',x:2540,y:1650,radius:110}],
   encounters:[
     {id:'causeway',x:1510,y:2130,members:[{type:'thornling',dx:0,dy:0},{type:'bog_slime',dx:80,dy:90},{type:'gloomshroom',dx:-100,dy:-70},{type:'grave_bat',dx:120,dy:-120},{type:'bog_slime',dx:-100,dy:100}]},
-    {id:'basin',x:2490,y:2160,members:[{type:'mossback',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'thornling',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
+    {id:'basin',x:2490,y:2160,members:[{type:'siltusk',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'thornling',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
     {id:'bank',x:1020,y:1620,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'reedclaw',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
     {id:'keeper',x:2590,y:1210,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'The Rootbound Keeper',questTarget:true,combat:'keeper'}]},
   ],

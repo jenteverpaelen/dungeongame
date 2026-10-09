@@ -1,0 +1,23 @@
+{
+    "checkpoint":  "C083",
+    "checkedAtUtc":  "2026-10-09T18:24:17.0028940Z",
+    "scope":  "Documentation integrity only; no game/server runtime tests",
+    "sources":  185,
+    "claims":  181,
+    "media":  30,
+    "atlasEntries":  71,
+    "recordings":  7,
+    "frames":  152,
+    "allCrossReferencesResolve":  true,
+    "timestampsStrictlyIncreasing":  true,
+    "balanceAndTimingEligibility":  false,
+    "roadmapBlob":  "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+    "ledger":  {
+                   "features":  147,
+                   "screens":  86,
+                   "decisions":  40
+               },
+    "isolatedDataDir":  "hf-siltusk-docs-90c49ad223e84e908260c6830cb23bc3",
+    "gameCodeImported":  false,
+    "saveDataRead":  false
+}

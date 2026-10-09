@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 4;
+export const PROTOCOL_VERSION = 5;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -105,7 +105,7 @@ export type GameEvent =
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
   | { e: 'pend'; id: number; x: number; y: number; hit?: 1 }
   | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number }
-  | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number }
+  | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number; s?: number }
   | { e: 'beam'; v: string; x: number; y: number; tx: number; ty: number; el: number; d: number }
   | { e: 'level'; t: number; lv: number }
   | { e: 'paragon'; t: number; lv: number }
