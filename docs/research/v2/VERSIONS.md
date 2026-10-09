@@ -24,3 +24,5 @@ The [UI atlas](UI-ATLAS.md) observes publisher-media pixels for every priority g
 ## C056 historical recording build
 
 D3-CAM-VIDEO visibly identifies2.7.7.93903 in game chat at video00:15/00:30. Expanded YouTube description gives publication November21,2024; recording date remains unknown. Campaign/ActI/Normal/Private Game are visible in the lobby; Hard appears by06:00. Existing Paragon100 is a material start condition. This pins one historical recording, not the current2026 client, an unmodified installation or an ordinary first-account session. [Exact evidence](TIMELINE-FRAMES.json).
+
+C057: TL2-EARLY-VIDEO's expanded description establishes publication November 25, 2023; keyboard/mouse controls are visible. No build, difficulty, mod list or creation settings were inspected. Do not call it the final/current unmodded PC build. Exact unknowns and scaled rendering dimensions are retained in TIMELINE-FRAMES.json.

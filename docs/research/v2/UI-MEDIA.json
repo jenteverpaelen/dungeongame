@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C056",
-  "research": "L66;L67",
-  "inspected_media_count": 24,
-  "scope": "23 publisher-controlled gallery assets plus one historical player recording with18 sparse frames; not installed-game tests. URLs are provenance, not asset licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C057",
+  "research": "L66;L67;L68",
+  "inspected_media_count": 25,
+  "scope": "23 publisher gallery assets plus two historical player recordings with42 sparse frames,3 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -314,6 +314,21 @@
       "limits": "Existing Paragon100, Normal-to-Hard change; not first-account timing, tested input or current client",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "D3-CAM-01"
+    },
+    {
+      "media_id": "TL2-V-EARLY",
+      "source_id": "TL2-EARLY-VIDEO",
+      "url": "https://www.youtube.com/watch?v=DW9gPNNXQhE",
+      "natural_width": 1920,
+      "natural_height": 1080,
+      "classification": "published player recording;24 sparse frames including3 excluded intro frames",
+      "observed": "Quest offer/tracker/choice; contextual level hint; equipment comparison; pet/character panes; vendor-specific action text",
+      "version": "Unknown build/difficulty/mods; published2023-11-25",
+      "inspection": "Chrome viewport1920x1080; normal player scaled around1337x752 or1348x758 after fullscreen overlays; corrected complete frames inspected",
+      "limits": "Not clean first-account timing, exact input/durable outcome or final PC rules",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "TL2-EARLY-01",
+      "retrieved": "2026-10-09"
     }
   ]
 }

@@ -21,3 +21,5 @@ The later [earned-decision trace](../../phase/P01-research/FIRST-DECISIONS-REPOR
 ## C056 — separate source context from progression targets
 
 [D3's first sampled recording](TIMELINES.md) is a new character on an established Paragon100 account with a Normal-to-Hard change. Eighteen historical gameplay frames expose contextual help, dialogue, current/bonus objective state and a waypoint return instruction, plus overlapping level/completion/reward notices. They establish visible presentations, not controlled pacing or comprehension. First-account comparisons for every requested game and ordinary human Hearthfall observations remain open. No tutorial sequence, numeric target or UI redesign is selected from these samples.
+
+C057 adds Torchlight II's contextual level-up tip, visible help preference and later small plus markers, alongside quest and inventory decisions. A tip being shown does not establish it was understood; later markers do not establish points were spent. Its unknown build/start conditions and scaled source inspection remain explicit. Continue ordinary first-account and human Hearthfall observations before selecting a new tutorial or pacing target.

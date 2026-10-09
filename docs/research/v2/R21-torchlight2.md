@@ -45,3 +45,9 @@ C045 adds the equal-question [loot comparison](LOOT.md), including historical/so
 Four publisher images were inspected: three PC-style HUD/world scenes and one decorative character/pet image excluded from control evidence. Companion controls, shortcut labels and NPC markers are visible. These unversioned gallery frames do not prove final unmodded PC defaults or any service outcome. [V; TL2-UI-GALLERY / TL2-13]
 
 See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.
+
+## C057 — early recorded quest and item decisions
+
+Twenty-four sparse frames from Retro Games Hub's November 25, 2023 recording now supplement the stills; three promotional opening frames are excluded. The game is already in-world at 00:15. Build, class label, difficulty, mods and account history remain unknown. [V; TL2-EARLY-VIDEO; TL2-14–17]
+
+Observed states include world speech, formal offer/rewards, active tracker, level-up hint, equipment comparison, paired pet/character grids, quest reward selection and shop context. The same modifier hint changes from transfer to sell, while shop stock uses buy. Item level and alternative equip requirements are visibly distinct. These are useful UI contracts to investigate, not evidence of successful equip, durable reward, safe bulk sale, final-PC rules or exact progression time. No pet system, reward numbers or new UI style is adopted. [Offsets and limits](TIMELINES.md).

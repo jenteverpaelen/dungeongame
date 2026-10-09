@@ -43,3 +43,24 @@ These rows have equal research priority. Their evidence coverage is not equal ye
 - Does a return instruction teach a useful existing service in context? The sampled waypoint objective suggests a question for onboarding; it does not reopen the frozen town or establish a new unlock gate.
 
 No new quest, reward, level gate, UI layout or content removal follows from this recording. D3's manual-action hints are not suitable text for Hearthfall's automatic combat. The first equipment change, skill-selection input, incompatible/full/insufficient states, ordinary first-account Campaign and Adventure traces and all other games' early flows remain open. Continue those alongside decision-independent foundation work; G1 and the full roadmap are not complete.
+
+## C057 — Torchlight II early interfaces [V]
+
+Retro Games Hub's [Part 1 recording](https://www.youtube.com/watch?v=DW9gPNNXQhE), published November 25, 2023, supplies 24 inspected sparse frames through video 16:00. Three opening logo/promotion frames are excluded from game-interface conclusions. Gameplay is already underway at 00:15; creation, build, class label, difficulty, mods, account history, source speed and edits remain unverified. The title does not certify an unmodified fresh start. Thus the clean timeline cells above remain `Q`.
+
+The browser viewport was 1920×1080 and decoded source video 1920×1080. Fullscreen host overlays and page scrolling obstructed some initial captures. Complete frames were then inspected in the normal page player, rendered at approximately 1337×752 or 1348×758. These are **scaled observations, not native-resolution geometry measurements**. The initially undecoded 10:00 capture and host overlays do not count as evidence; corrected frames do. Exact notes are in [TIMELINE-FRAMES.json](TIMELINE-FRAMES.json).
+
+| Video offset | Observed decision context | What remains unknown |
+|---|---|---|
+|00:30 /01:00 /02:00|World speech bubble, then formal quest offer with destination/rewards, then an active tracker|Exact acceptance input and quest persistence|
+|04:00 /04:15|Level 2 notice and contextual tip pointing to a level-up control; later tip absent and plus markers remain|Tip dismissal input/persistence and actual point spending|
+|10:00–10:20 sampled|Equipped and candidate chest pieces shown together; equal armor but extra candidate attributes; equip and transfer instructions|A hover is not an equip; a red X elsewhere has no inspected explanatory tooltip|
+|10:30 /11:00|Pet and character panes coexist; later pet equipment shows icons matching earlier character-bag gear|Exact item identity, transfer input, protection and pet sell-trip outcome|
+|12:00 /12:30 /12:40 /13:00|Town arrival retains talk objective; turn-in presents three choices; comparison separates item level from alternative requirements; selected reward and confirmation appearance change|Actual confirm input, authoritative ownership, durable grant, failures and duplicate handling|
+|13:15|Next quest offer appears|No exact completion timestamp or reward receipt established|
+|14:00 /15:00|Shop context changes modifier hint from transfer to sell; shop potion advertises buy action, price and separate usage instruction|Sale, purchase, buyback, item safety and affordability/error flows|
+|16:00|Town waypoint, fishing label, NPC/map symbols and next objective|Service activation and subsequent progression|
+
+The useful cross-game distinction is **offer → active progress → reward choice → confirmation → owned result**. These samples reveal several presentations but do not prove the entire transaction chain. Similarly, an item disappearing from one grid could mean transfer, sale or equip; observed pane labels and later ownership evidence must resolve that ambiguity. This reinforces the existing objective/acquisition audit rather than selecting a new quest engine or pet system. Preserve Hearthfall's UI style, town and camera. No numeric values are adopted.
+
+Current cumulative scope: two recordings, 42 sampled frames including three excluded introductions; 25 media assets and 29 atlas entries. Other games/modes have publisher stills but no timestamped early-flow record yet. This is a research checkpoint, not complete timelines or G1.

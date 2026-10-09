@@ -9,6 +9,7 @@ Continuing research, 2026-10-09. **Research is in progress; the full roadmap res
 - [Source register](SOURCES.csv), [claim register](CLAIMS.csv), [done / unfinished / next](../../phase/P01-research/STATE.md).
 - [Observed UI atlas](UI-ATLAS.md), [structured entries](UI-ATLAS.csv) and [inspected-media provenance](UI-MEDIA.json). C055 covers23 published assets and18 entries; current-client interactions and first-session timelines remain open.
 - [Timeline evidence](TIMELINES.md) and [exact sampled frames](TIMELINE-FRAMES.json). C056 adds18 sparse historical D3 Campaign frames and five atlas entries (cumulative24 assets/23 entries). Existing Paragon and a difficulty change exclude clean pacing inference. Other modes/games and current-client interactions remain open.
+- C057 extends that record with 24 Torchlight II frames (three intro frames excluded), six atlas entries and explicit version/input limits. Cumulative scope: 25 assets, 29 entries, two recordings and 42 sampled frames. No external balance target or full timeline is certified.
 
 The initial checkpoint asked what creates an early goal, changes a build and carries between sessions. It is now extended across the whole roadmap. Checkpoints preserve work; they do not end the task. Continue with deeper comparisons, actual UI observations, local measurements and supported implementation. Do not manufacture missing progression timelines to make a table look complete.
 
