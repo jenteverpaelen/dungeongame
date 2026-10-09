@@ -1,0 +1,431 @@
+{
+  "root": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ",
+  "source": "actual JSON backup/restore; no server/tick load",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "cpu": "AMD Ryzen 7 7435HS                             ",
+  "totalMemoryBytes": 16849272832,
+  "monitor": {
+    "resolutionMs": 1,
+    "rssIntervalMs": 5,
+    "warmupMs": 25,
+    "finalTurnMs": 10
+  },
+  "results": [
+    {
+      "round": 1,
+      "characters": 3,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-3\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 1,
+        "ranger": 1,
+        "mage": 1
+      },
+      "characterBytes": 219837,
+      "minCharacterBytes": 73132,
+      "maxCharacterBytes": 73537,
+      "items": 375,
+      "fixtureHash": "f023de89b0e031f723f86335088f39ad9383afb6de98e9a86fc84c460910fd0f",
+      "restoredHash": "f023de89b0e031f723f86335088f39ad9383afb6de98e9a86fc84c460910fd0f",
+      "snapshotMs": 13.483,
+      "queuedWriteMs": 16.633,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-3\\backups\\backup-2026-10-09T07-08-13-083Z-987038c5-bcac-4e10-8152-723f1c3e77c8",
+          "characters": 3
+        },
+        "elapsedMs": 32.009,
+        "baselineRssBytes": 62296064,
+        "sampledPeakRssBytes": 64868352,
+        "loopDelayMs": {
+          "samples": 24,
+          "p95": 6.132,
+          "max": 10.101
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 3,
+          "createdAt": "2026-10-09T07:08:13.083Z"
+        },
+        "elapsedMs": 6.239,
+        "baselineRssBytes": 65216512,
+        "sampledPeakRssBytes": 65331200,
+        "loopDelayMs": {
+          "samples": 7,
+          "p95": 15.589,
+          "max": 15.589
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-3\\restored",
+          "characters": 3
+        },
+        "elapsedMs": 14.606,
+        "baselineRssBytes": 65613824,
+        "sampledPeakRssBytes": 66105344,
+        "loopDelayMs": {
+          "samples": 15,
+          "p95": 1.498,
+          "max": 13.238
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    },
+    {
+      "round": 1,
+      "characters": 100,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-100\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 34,
+        "ranger": 33,
+        "mage": 33
+      },
+      "characterBytes": 7323501,
+      "minCharacterBytes": 71925,
+      "maxCharacterBytes": 74299,
+      "items": 12500,
+      "fixtureHash": "5027508ebfaa6b8d54d543eabd4eccb816547a803541d8223ab2995ad590995c",
+      "restoredHash": "5027508ebfaa6b8d54d543eabd4eccb816547a803541d8223ab2995ad590995c",
+      "snapshotMs": 81.479,
+      "queuedWriteMs": 85.223,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-100\\backups\\backup-2026-10-09T07-08-13-795Z-4354217e-066d-4552-9d76-ba27349f06bf",
+          "characters": 100
+        },
+        "elapsedMs": 351.317,
+        "baselineRssBytes": 72105984,
+        "sampledPeakRssBytes": 89317376,
+        "loopDelayMs": {
+          "samples": 343,
+          "p95": 1.471,
+          "max": 8.79
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 100,
+          "createdAt": "2026-10-09T07:08:13.795Z"
+        },
+        "elapsedMs": 100.707,
+        "baselineRssBytes": 89755648,
+        "sampledPeakRssBytes": 92278784,
+        "loopDelayMs": {
+          "samples": 102,
+          "p95": 1.423,
+          "max": 15.393
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-100\\restored",
+          "characters": 100
+        },
+        "elapsedMs": 328.573,
+        "baselineRssBytes": 82272256,
+        "sampledPeakRssBytes": 95993856,
+        "loopDelayMs": {
+          "samples": 321,
+          "p95": 1.51,
+          "max": 9.937
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    },
+    {
+      "round": 1,
+      "characters": 1000,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-1000\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 334,
+        "ranger": 333,
+        "mage": 333
+      },
+      "characterBytes": 73339716,
+      "minCharacterBytes": 71852,
+      "maxCharacterBytes": 74799,
+      "items": 125000,
+      "fixtureHash": "44a83a0e42b59d6d15cbcfde26e89b36fb003ab71ad42dd32048dede76ad89f7",
+      "restoredHash": "44a83a0e42b59d6d15cbcfde26e89b36fb003ab71ad42dd32048dede76ad89f7",
+      "snapshotMs": 716.939,
+      "queuedWriteMs": 728.861,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-1000\\backups\\backup-2026-10-09T07-08-17-781Z-04396b3b-45e4-4438-a8bd-d4e3bc16f2c8",
+          "characters": 1000
+        },
+        "elapsedMs": 2838.162,
+        "baselineRssBytes": 90537984,
+        "sampledPeakRssBytes": 237613056,
+        "loopDelayMs": {
+          "samples": 2811,
+          "p95": 1.373,
+          "max": 9.97
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 1000,
+          "createdAt": "2026-10-09T07:08:17.781Z"
+        },
+        "elapsedMs": 869.059,
+        "baselineRssBytes": 90939392,
+        "sampledPeakRssBytes": 164896768,
+        "loopDelayMs": {
+          "samples": 873,
+          "p95": 1.39,
+          "max": 15.573
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-1-count-1000\\restored",
+          "characters": 1000
+        },
+        "elapsedMs": 2810.628,
+        "baselineRssBytes": 165265408,
+        "sampledPeakRssBytes": 191262720,
+        "loopDelayMs": {
+          "samples": 2803,
+          "p95": 1.382,
+          "max": 16.171
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    },
+    {
+      "round": 2,
+      "characters": 3,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-3\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 1,
+        "ranger": 1,
+        "mage": 1
+      },
+      "characterBytes": 219837,
+      "minCharacterBytes": 73132,
+      "maxCharacterBytes": 73537,
+      "items": 375,
+      "fixtureHash": "f023de89b0e031f723f86335088f39ad9383afb6de98e9a86fc84c460910fd0f",
+      "restoredHash": "f023de89b0e031f723f86335088f39ad9383afb6de98e9a86fc84c460910fd0f",
+      "snapshotMs": 11.97,
+      "queuedWriteMs": 15.144,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-3\\backups\\backup-2026-10-09T07-08-26-178Z-750e3a86-8368-45e0-af6a-1f9400640a91",
+          "characters": 3
+        },
+        "elapsedMs": 28.674,
+        "baselineRssBytes": 62189568,
+        "sampledPeakRssBytes": 65171456,
+        "loopDelayMs": {
+          "samples": 22,
+          "p95": 7.7,
+          "max": 8.503
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 3,
+          "createdAt": "2026-10-09T07:08:26.178Z"
+        },
+        "elapsedMs": 6.429,
+        "baselineRssBytes": 65490944,
+        "sampledPeakRssBytes": 65560576,
+        "loopDelayMs": {
+          "samples": 8,
+          "p95": 22.315,
+          "max": 22.315
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-3\\restored",
+          "characters": 3
+        },
+        "elapsedMs": 12.889,
+        "baselineRssBytes": 65900544,
+        "sampledPeakRssBytes": 66412544,
+        "loopDelayMs": {
+          "samples": 14,
+          "p95": 7.901,
+          "max": 15.368
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    },
+    {
+      "round": 2,
+      "characters": 100,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-100\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 34,
+        "ranger": 33,
+        "mage": 33
+      },
+      "characterBytes": 7323501,
+      "minCharacterBytes": 71925,
+      "maxCharacterBytes": 74299,
+      "items": 12500,
+      "fixtureHash": "5027508ebfaa6b8d54d543eabd4eccb816547a803541d8223ab2995ad590995c",
+      "restoredHash": "5027508ebfaa6b8d54d543eabd4eccb816547a803541d8223ab2995ad590995c",
+      "snapshotMs": 78.637,
+      "queuedWriteMs": 82.334,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-100\\backups\\backup-2026-10-09T07-08-26-855Z-b35f3624-640c-43be-958f-fc9d42bebeeb",
+          "characters": 100
+        },
+        "elapsedMs": 299.675,
+        "baselineRssBytes": 72077312,
+        "sampledPeakRssBytes": 89137152,
+        "loopDelayMs": {
+          "samples": 293,
+          "p95": 1.363,
+          "max": 11.436
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 100,
+          "createdAt": "2026-10-09T07:08:26.855Z"
+        },
+        "elapsedMs": 92.402,
+        "baselineRssBytes": 89579520,
+        "sampledPeakRssBytes": 92188672,
+        "loopDelayMs": {
+          "samples": 94,
+          "p95": 1.352,
+          "max": 7.25
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-100\\restored",
+          "characters": 100
+        },
+        "elapsedMs": 276.955,
+        "baselineRssBytes": 82391040,
+        "sampledPeakRssBytes": 96198656,
+        "loopDelayMs": {
+          "samples": 272,
+          "p95": 1.349,
+          "max": 16.171
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    },
+    {
+      "round": 2,
+      "characters": 1000,
+      "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-1000\\saves",
+      "node": "v24.19.0",
+      "platform": "win32",
+      "syntheticOnly": true,
+      "classCounts": {
+        "warrior": 334,
+        "ranger": 333,
+        "mage": 333
+      },
+      "characterBytes": 73339716,
+      "minCharacterBytes": 71852,
+      "maxCharacterBytes": 74799,
+      "items": 125000,
+      "fixtureHash": "44a83a0e42b59d6d15cbcfde26e89b36fb003ab71ad42dd32048dede76ad89f7",
+      "restoredHash": "44a83a0e42b59d6d15cbcfde26e89b36fb003ab71ad42dd32048dede76ad89f7",
+      "snapshotMs": 692.046,
+      "queuedWriteMs": 695.23,
+      "creation": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-1000\\backups\\backup-2026-10-09T07-08-30-656Z-e1b1228d-d60b-4990-9cc2-735461d842b5",
+          "characters": 1000
+        },
+        "elapsedMs": 2791.111,
+        "baselineRssBytes": 88072192,
+        "sampledPeakRssBytes": 237109248,
+        "loopDelayMs": {
+          "samples": 2773,
+          "p95": 1.353,
+          "max": 10.543
+        }
+      },
+      "verification": {
+        "value": {
+          "characters": 1000,
+          "createdAt": "2026-10-09T07:08:30.656Z"
+        },
+        "elapsedMs": 887.815,
+        "baselineRssBytes": 90406912,
+        "sampledPeakRssBytes": 164126720,
+        "loopDelayMs": {
+          "samples": 891,
+          "p95": 1.383,
+          "max": 6.025
+        }
+      },
+      "restoration": {
+        "value": {
+          "directory": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-backup-scale-oLzPFQ\\round-2-count-1000\\restored",
+          "characters": 1000
+        },
+        "elapsedMs": 2717.734,
+        "baselineRssBytes": 164483072,
+        "sampledPeakRssBytes": 196845568,
+        "loopDelayMs": {
+          "samples": 2712,
+          "p95": 1.365,
+          "max": 15.065
+        }
+      },
+      "assertions": {
+        "allBytesRestored": true,
+        "originalCutPreserved": true,
+        "laterWritePersisted": true,
+        "otherSourcesUnchanged": true
+      }
+    }
+  ],
+  "complete": true
+}

@@ -8,7 +8,9 @@ Set `DATA_DIR` to the intended character directory and `BACKUP_DIR` to a separat
 
 When configured, the server captures a backup at startup, then every 24 hours while running. This is an elapsed interval, not a fixed midnight task; restarting starts a new interval. Connected sessions submit their state first. A capture waits for prior persistence operations, holds later operations until raw bytes are read, then releases the barrier before writing the bundle. Overlapping requests share the active operation. Graceful shutdown stops scheduling and waits for the active operation within the existing eight-second shutdown deadline.
 
-Look for `[backup] verified ...` to confirm completion. A failure is logged explicitly and the next scheduled attempt may retry. A directory's existence alone is not success. Keep the logs and monitor available disk space; no backup is automatically deleted. Each bundle is a complete copy, so space and capture memory increase with stored characters. Large-data performance remains unmeasured.
+Look for `[backup] verified ...` to confirm completion. A failure is logged explicitly and the next scheduled attempt may retry. A directory's existence alone is not success. Keep the logs and monitor available disk space; no backup is automatically deleted. Each bundle is a complete copy, so space and capture memory increase with stored characters.
+
+C048 adds a [synthetic archive-size baseline](BACKUP-SCALE-REPORT.md) at3/100/1000 characters on this PC. It does not measure live game load, disk failure or off-device recovery; production-scale performance remains unverified.
 
 ## Verify and restore
 

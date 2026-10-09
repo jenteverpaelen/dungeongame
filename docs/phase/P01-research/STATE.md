@@ -80,3 +80,5 @@ C045 adds the loot acquisition matrix, five primary source records and eight sco
 C046 reproduces48 counter mismatches in6,528 seeded loot batches and corrects the fallback boss branch. Two repeated after runs have zero mismatches and unchanged generated payload/RNG hashes. Four regressions and all19 strict verification stages pass (747server/382sim); LOOT-COUNTER-REPORT.md records future pity effects and no retroactive save reconstruction.
 
 C047 adds three primary localization sources/two scoped claims and applies complete-context message keys to Settings/controls. Exact four-state Chrome text/labels/geometry and eight inspected captures preserve the existing UI. R17's full inventory, language scope, formatting and platform review remain incomplete.
+
+C048 measures actual raw JSON archive costs in six isolated cases, with reproducible all-class fixture/restore hashes and snapshot/queued-write evidence. Node interval histogram interpretation is sourced; unavailable external control bodies are not counted as read. P3 BACKUP-SCALE-REPORT.md separates local costs from live CCU, tick and recovery guarantees.

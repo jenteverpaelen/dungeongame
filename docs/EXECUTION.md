@@ -49,3 +49,5 @@ C045 advances the required loot matrix across all five reference games and recor
 C046 corrects confirmed boss fallback loot history while preserving the generated reward and existing rules. Strict19-stage verification passes; the wider loot/timing matrix stays incomplete. Continue text/localization foundations and research, preserving the approved UI.
 
 C047 introduces scoped English message keys for Settings/controls. Before/after real Chrome text, accessibility labels and panel geometry match; eight captures inspected. Full text coverage and languages remain open. Continue the research and independent foundations; the checkpoint does not end the roadmap task.
+
+C048 measures actual backup/restore at3/100/1000 synthetic characters in two rounds. All bytes and snapshot boundaries agree; archive cost now has scoped local evidence. Retention, live-server load and recovery policy remain open. Continue P3's color-independent information audit and broader research.
