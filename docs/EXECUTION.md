@@ -45,3 +45,5 @@ C043 restores the existing portraits on return to selection. Built/Vite repeated
 C044 emits reproducible reviewed dependency notices and verifies drift/HTTP bytes. All19 strict stages pass; full project legal/platform review remains open. Continue the research matrices and supported independent foundations; a checkpoint is not a stopping point.
 
 C045 advances the required loot matrix across all five reference games and records actual local source paths. Next: reproduce the boss-floor counter discrepancy; external cadence/visual evidence remains incomplete.
+
+C046 corrects confirmed boss fallback loot history while preserving the generated reward and existing rules. Strict19-stage verification passes; the wider loot/timing matrix stays incomplete. Continue text/localization foundations and research, preserving the approved UI.

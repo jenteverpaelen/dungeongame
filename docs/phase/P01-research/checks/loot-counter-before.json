@@ -1,0 +1,3848 @@
+{
+  "date": "2026-10-09",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "root": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-loot-counter-iBzoYe",
+  "scope": "Synthetic generated batches; no kill/pickup/time-to-upgrade or performance claim",
+  "batches": 6528,
+  "mismatches": 48,
+  "payloadSha256": "c178c9839aa089270c33142fcd306a142d594d55e44212de689f14fddaa97fc8",
+  "observationSha256": "11d9a530df88227f537d6284dc9a4a0893d9c4524342777d16c7b2f69e231e2d",
+  "groups": {
+    "warrior/L1/D0/T4": {
+      "batches": 64,
+      "floors": 2,
+      "mismatches": 2,
+      "empty": 0,
+      "naturalTails": 43
+    },
+    "warrior/L1/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "warrior/L1/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 21
+    },
+    "warrior/L1/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 50
+    },
+    "warrior/L1/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L1/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 74
+    },
+    "warrior/L1/D6/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 40
+    },
+    "warrior/L1/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L1/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 20
+    },
+    "warrior/L1/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 52
+    },
+    "warrior/L1/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L1/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 71
+    },
+    "warrior/L70/D0/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 38
+    },
+    "warrior/L70/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "warrior/L70/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 21
+    },
+    "warrior/L70/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 50
+    },
+    "warrior/L70/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L70/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 68
+    },
+    "warrior/L70/D6/T4": {
+      "batches": 64,
+      "floors": 4,
+      "mismatches": 4,
+      "empty": 0,
+      "naturalTails": 32
+    },
+    "warrior/L70/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L70/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 18
+    },
+    "warrior/L70/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 51
+    },
+    "warrior/L70/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "warrior/L70/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 77
+    },
+    "ranger/L1/D0/T4": {
+      "batches": 64,
+      "floors": 2,
+      "mismatches": 2,
+      "empty": 0,
+      "naturalTails": 43
+    },
+    "ranger/L1/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "ranger/L1/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 21
+    },
+    "ranger/L1/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 50
+    },
+    "ranger/L1/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L1/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 76
+    },
+    "ranger/L1/D6/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 42
+    },
+    "ranger/L1/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L1/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 20
+    },
+    "ranger/L1/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 50
+    },
+    "ranger/L1/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L1/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 77
+    },
+    "ranger/L70/D0/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 36
+    },
+    "ranger/L70/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "ranger/L70/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 21
+    },
+    "ranger/L70/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 49
+    },
+    "ranger/L70/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L70/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 68
+    },
+    "ranger/L70/D6/T4": {
+      "batches": 64,
+      "floors": 4,
+      "mismatches": 4,
+      "empty": 0,
+      "naturalTails": 38
+    },
+    "ranger/L70/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L70/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 18
+    },
+    "ranger/L70/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 53
+    },
+    "ranger/L70/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "ranger/L70/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 71
+    },
+    "mage/L1/D0/T4": {
+      "batches": 64,
+      "floors": 2,
+      "mismatches": 2,
+      "empty": 0,
+      "naturalTails": 45
+    },
+    "mage/L1/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "mage/L1/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 21
+    },
+    "mage/L1/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 50
+    },
+    "mage/L1/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L1/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 75
+    },
+    "mage/L1/D6/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 44
+    },
+    "mage/L1/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L1/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 20
+    },
+    "mage/L1/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 51
+    },
+    "mage/L1/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L1/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 73
+    },
+    "mage/L70/D0/T4": {
+      "batches": 64,
+      "floors": 5,
+      "mismatches": 5,
+      "empty": 0,
+      "naturalTails": 37
+    },
+    "mage/L70/D0/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 90,
+      "naturalTails": 0
+    },
+    "mage/L70/D0/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 20
+    },
+    "mage/L70/D0/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 49
+    },
+    "mage/L70/D0/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L70/D0/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 69
+    },
+    "mage/L70/D6/T4": {
+      "batches": 64,
+      "floors": 4,
+      "mismatches": 4,
+      "empty": 0,
+      "naturalTails": 39
+    },
+    "mage/L70/D6/T0": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L70/D6/T1": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 18
+    },
+    "mage/L70/D6/T2": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 52
+    },
+    "mage/L70/D6/T3": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 87,
+      "naturalTails": 0
+    },
+    "mage/L70/D6/T5": {
+      "batches": 96,
+      "floors": 0,
+      "mismatches": 0,
+      "empty": 0,
+      "naturalTails": 68
+    }
+  },
+  "examples": [
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "magic",
+        "rare",
+        "legendary",
+        "legendary",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 15,
+      "rarities": [
+        "normal",
+        "normal",
+        "rare",
+        "magic",
+        "normal",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "legendary",
+        "normal",
+        "legendary",
+        "normal",
+        "rare",
+        "normal",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "magic",
+        "rare",
+        "legendary",
+        "legendary",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "normal",
+        "rare",
+        "rare",
+        "rare",
+        "magic",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 4,
+      "rarities": [
+        "normal",
+        "magic",
+        "magic",
+        "magic",
+        "normal",
+        "rare",
+        "legendary",
+        "rare",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "set",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "normal",
+        "rare",
+        "legendary",
+        "legendary",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "magic",
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 5,
+      "rarities": [
+        "magic",
+        "magic",
+        "magic",
+        "legendary",
+        "legendary",
+        "set",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare",
+        "set",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "warrior",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 6,
+      "rarities": [
+        "legendary",
+        "rare",
+        "normal",
+        "legendary",
+        "rare",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 15,
+      "rarities": [
+        "normal",
+        "normal",
+        "rare",
+        "magic",
+        "normal",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "legendary",
+        "normal",
+        "legendary",
+        "normal",
+        "rare",
+        "normal",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 6,
+      "rarities": [
+        "legendary",
+        "rare",
+        "normal",
+        "legendary",
+        "rare",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "normal",
+        "rare",
+        "rare",
+        "rare",
+        "magic",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 5,
+      "rarities": [
+        "normal",
+        "rare",
+        "magic",
+        "legendary",
+        "rare",
+        "legendary",
+        "rare",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "set",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "normal",
+        "rare",
+        "legendary",
+        "legendary",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "magic",
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 6,
+      "rarities": [
+        "legendary",
+        "rare",
+        "rare",
+        "legendary",
+        "legendary",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare",
+        "set",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "ranger",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal",
+        "legendary",
+        "rare",
+        "magic",
+        "rare",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "magic",
+        "rare",
+        "legendary",
+        "legendary",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 15,
+      "rarities": [
+        "normal",
+        "normal",
+        "rare",
+        "magic",
+        "normal",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "normal",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "normal",
+        "legendary",
+        "normal",
+        "legendary",
+        "normal",
+        "rare",
+        "normal",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "magic",
+        "rare",
+        "legendary",
+        "legendary",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "normal",
+        "rare",
+        "rare",
+        "rare",
+        "magic",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "normal",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "set",
+        "set",
+        "normal",
+        "rare",
+        "magic",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 1,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 5,
+      "rarities": [
+        "normal",
+        "rare",
+        "magic",
+        "legendary",
+        "rare",
+        "legendary",
+        "rare",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "set",
+        "set"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 2,
+      "rarities": [
+        "legendary",
+        "set",
+        "normal",
+        "rare",
+        "legendary",
+        "legendary",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "legendary",
+        "rare",
+        "rare",
+        "magic",
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 0,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 8,
+      "rarities": [
+        "magic",
+        "set",
+        "rare",
+        "magic",
+        "legendary"
+      ],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 4,
+        "magicFind": 0,
+        "pity": 17,
+        "inRift": true
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare",
+        "legendary"
+      ],
+      "floor": true,
+      "returned": 22,
+      "expected": 0,
+      "mismatch": true
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 0,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 1,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 2,
+      "expected": 2,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 2,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 2,
+      "rarities": [
+        "magic",
+        "magic",
+        "normal"
+      ],
+      "floor": false,
+      "returned": 3,
+      "expected": 3,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [],
+      "floor": false,
+      "returned": 0,
+      "expected": 0,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 3,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 7,
+      "rarities": [
+        "rare"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 1,
+      "rarities": [
+        "legendary",
+        "rare",
+        "magic",
+        "legendary",
+        "magic",
+        "rare",
+        "set",
+        "magic"
+      ],
+      "floor": false,
+      "returned": 1,
+      "expected": 1,
+      "mismatch": false
+    },
+    {
+      "ctx": {
+        "classId": "mage",
+        "level": 70,
+        "difficulty": 6,
+        "elite": 5,
+        "magicFind": 0,
+        "pity": 0,
+        "inRift": false
+      },
+      "seed": 9,
+      "rarities": [
+        "magic",
+        "rare",
+        "rare",
+        "rare",
+        "rare"
+      ],
+      "floor": false,
+      "returned": 5,
+      "expected": 5,
+      "mismatch": false
+    }
+  ]
+}

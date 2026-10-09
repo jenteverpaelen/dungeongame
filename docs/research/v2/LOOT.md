@@ -47,3 +47,5 @@ Acquisition comes later: a personal ground item must fit in the60-slot inventory
 4. External rates still need pinned patches/modes, ordinary footage or reproducible source tables. Equal questions do not imply equal source completeness. No undocumented number is filled from memory.
 
 No game content or rate is changed by this document. No research image, game binary or tool was downloaded. No reference UI pixels or timeline cells were observed. Future updates must retain the distinction between historical design intent, reported fixes and measured runtime results.
+
+C046 follow-up: [6,528-batch probe](../../phase/P01-research/LOOT-COUNTER-REPORT.md) confirms and corrects the boss-floor counter mismatch. The preceding source table remains the pre-fix snapshot. All current drop payloads and RNG continuations match; only returned history changes on the fallback branch. No new rate or pity threshold.

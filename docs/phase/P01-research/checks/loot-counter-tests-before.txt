@@ -1,0 +1,54 @@
+✖ a fallback boss Legendary ends the bad-luck streak (4.5931ms)
+✔ misses after a natural boss success remain counted (0.9191ms)
+✔ no equipment preserves history and the existing threshold applies to the next item (0.3925ms)
+✖ all-class boss histories agree with the generated item sequence (3.8313ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 247.369
+
+✖ failing tests:
+
+test at shared\test\lootHistory.test.ts:1:526
+✖ a fallback boss Legendary ends the bad-luck streak (4.5931ms)
+  AssertionError [ERR_ASSERTION]: The guaranteed last item is a success, not another miss
+  
+  22 !== 0
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\shared\test\lootHistory.test.ts:13:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 22,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at shared\test\lootHistory.test.ts:1:1683
+✖ all-class boss histories agree with the generated item sequence (3.8313ms)
+  AssertionError [ERR_ASSERTION]: warrior/L1/D0/seed15
+  
+  22 !== 0
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\shared\test\lootHistory.test.ts:44:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 22,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

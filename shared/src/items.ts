@@ -334,7 +334,7 @@ export interface DropContext {
   elite: EliteTier;
   classId: ClassId;
   magicFind: number;
-  /** Non-legendary item rolls since the last legendary (bad-luck protection). */
+  /** Equipment misses since the last generated Legendary or Set (bad-luck protection). */
   pity: number;
   inRift: boolean;
 }
@@ -390,9 +390,10 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops
     drops.push({ type: 'item', item });
   }
   if (ctx.elite === 4) {
-    // Rift Guardians always drop at least one legendary (D3 guarantee).
+    // Boss batches include at least one Legendary or Set.
     if (!drops.some((d) => d.type === 'item' && (d.item.rarity === 'legendary' || d.item.rarity === 'set'))) {
       drops.push({ type: 'item', item: generateItem(rng, { ilvl: ctx.level, classId: ctx.classId, rarity: 'legendary', primalAllowed: ctx.difficulty >= 6 }) });
+      pity = 0;
     }
   }
   const goldPiles = ctx.elite === 5 ? 18 : ctx.elite === 4 ? 8 : ctx.elite === 2 ? 3 : ctx.elite === 1 ? 2 : rng.chance(0.22) ? 1 : 0;

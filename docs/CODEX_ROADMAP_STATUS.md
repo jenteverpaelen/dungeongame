@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C045. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C046. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -36,7 +36,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SET-03 | Accessibility options (colour-safe rarity cues, reduced motion/shake/flash, text size, damage-number options) | P3 | MISSING | Partial: shake and selected-flash controls (C009/C030); text scale, full reduced motion, colour/contrast and human evaluation open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SET-04 | Per-account settings sync | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-SET-05 | Language selection | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated18-stage runner passes (C031); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |
+| F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated19-stage runner passes (C046); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |
 | F-TEL-02 | Bot harness metrics (kills/min, TTK, deaths, XP/h) | P3/P4 | PARTIAL — `server/test/bot.ts`, no metrics | Partial:27 retained-inventory visits and exact reward reconciliation (C027); human pacing and broader parity open. [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
 | F-TEL-03 | Drop / economy Monte-Carlo tools | P3 | PARTIAL — `docs/design/baseline-audit.ts` | Partial: reproducible sources/sinks,60 offline cases and15 cost fixtures (C021); live economy and distribution calibration open. [change log](CODEX_CHANGELOG.md). |
 | F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | C035 inventories current fields; C036 closes the reproduced parser/quarantine source-disclosure path. Event schema/retention/complete diagnostic audit remain open. [Report](phase/P03-foundations/CORRUPT-LOG-REPORT.md). |

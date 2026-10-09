@@ -7,7 +7,7 @@ import type {
 import type { Hashed } from './spatial';
 
 export interface SaveX extends CharacterSave {
-  /** Non-legendary item rolls since the last legendary (bad-luck protection), see rollDrops(). Persisted with the save. */
+  /** Equipment misses since the last generated Legendary or Set, see rollDrops(). Persisted with the save. */
   lootPity?: number;
 }
 
