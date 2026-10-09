@@ -1,0 +1,143 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV",
+  "interrupted": false,
+  "allowKnown": false,
+  "outcome": "passed",
+  "results": [
+    {
+      "name": "verify-contract",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 146,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\verify-contract\\saves"
+    },
+    {
+      "name": "license-notices",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 506,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\license-notices\\saves"
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 5838,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\typecheck\\saves"
+    },
+    {
+      "name": "shared",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 942,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\shared\\saves"
+    },
+    {
+      "name": "foundations",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 404,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\foundations\\saves"
+    },
+    {
+      "name": "save-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 411,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\save-failures\\saves"
+    },
+    {
+      "name": "command-replay",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 877,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\command-replay\\saves"
+    },
+    {
+      "name": "connection-security",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 3739,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\connection-security\\saves"
+    },
+    {
+      "name": "backups",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 671,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\backups\\saves"
+    },
+    {
+      "name": "backup-runtime",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1568,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\backup-runtime\\saves"
+    },
+    {
+      "name": "shutdown-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 858,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\shutdown-failures\\saves"
+    },
+    {
+      "name": "client-preferences",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 218,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\client-preferences\\saves"
+    },
+    {
+      "name": "client-bindings",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 204,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\client-bindings\\saves"
+    },
+    {
+      "name": "town-services",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 779,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\town-services\\saves"
+    },
+    {
+      "name": "skill-descriptions",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 823,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\skill-descriptions\\saves"
+    },
+    {
+      "name": "server",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 87810,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\server\\saves"
+    },
+    {
+      "name": "simulation",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 5233,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\simulation\\saves"
+    },
+    {
+      "name": "content",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 225,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\content\\saves"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 822,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-SsPSaV\\build\\saves"
+    }
+  ]
+}

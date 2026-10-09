@@ -41,3 +41,5 @@ C041 completes that current-behavior probe:39 all-class cases repeated identical
 C042 fixes reproduced channel audio surviving disconnect/zone boundaries; source-ended/reconnect/mute checks and full18-stage verification pass. Five inspected browser frames exposed an existing class-portrait return defect; continue that concrete lifecycle correction and the broader roadmap.
 
 C043 restores the existing portraits on return to selection. Built/Vite repeated reconnect checks, typecheck/build and eight inspected frames pass. Continue P1/P3 and the full catalogue; neither lifecycle fix is a completed phase or a stopping point.
+
+C044 emits reproducible reviewed dependency notices and verifies drift/HTTP bytes. All19 strict stages pass; full project legal/platform review remains open. Continue the research matrices and supported independent foundations; a checkpoint is not a stopping point.

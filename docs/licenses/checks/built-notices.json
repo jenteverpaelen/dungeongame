@@ -1,0 +1,11 @@
+{
+  "node": "v24.19.0",
+  "dataDir": "C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-notice-http-b17e592a57324f3a987d5686e3c5f95a",
+  "pass": true,
+  "bytes": 50890,
+  "sha256": "1ee28768114914f7891405b1661d54d149bf10362dda341f75fc7d742d3e9c12",
+  "status": 200,
+  "mime": "text/plain; charset=utf-8",
+  "encoding": "gzip",
+  "scope": "Actual current built text, exact generator match, actual localhost static handler; no gameplay or browser claim"
+}

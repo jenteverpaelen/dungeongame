@@ -15,6 +15,7 @@ const sharedTests = (await fs.readdir(path.join(root, 'shared/test')))
   .filter(f => f.endsWith('.test.ts')).sort().map(f => `shared/test/${f}`);
 const stages = [
   ['verify-contract', ['--test', 'scripts/verification-status.test.mjs']],
+  ['license-notices', ['--import', 'tsx', '--test', 'scripts/license-notices.test.ts']],
   ['typecheck', ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.json', '--noEmit']],
   ['shared', ['--import', 'tsx', '--test', ...sharedTests]],
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts']],

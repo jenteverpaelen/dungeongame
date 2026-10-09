@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C043. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C044. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -158,7 +158,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-PLT-05 | Steam wrapper, cloud save, achievements | P17 (R5) | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-PLT-06 | Controller / Steam Deck input | P17 (post R4) | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-PLT-07 | Store assets (original) | P17 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-PLT-08 | Project-wide licence + IP/naming audit | P3 → P17 | MISSING — start in P3 | Partial:23 installed production licences individually reviewed (C013); notices/build tooling/IP and platform audit open. [Licence record](licenses/README.md). |
+| F-PLT-08 | Project-wide licence + IP/naming audit | P3 → P17 | MISSING — start in P3 | Partial:23 installed production licences individually reviewed (C013); reproducible distribution notices and drift checks added (C044). Build tooling/IP/other-platform review remains open. [Notice report](licenses/NOTICES-REPORT.md). |
 
 ## Screens
 

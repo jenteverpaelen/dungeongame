@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { licenseNoticesPlugin } from '../scripts/license-notices';
 
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
+  plugins: [licenseNoticesPlugin(r('..'))],
   root: r('.'),
   resolve: { alias: { '@shared': r('../shared/src') } },
   esbuild: { jsx: 'automatic', jsxImportSource: 'preact' },

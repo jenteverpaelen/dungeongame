@@ -116,6 +116,7 @@
     },
     {
       "name": "detect-libc",
+      "additionalCopyright": "Copyright 2017 Lovell Fuller and others.",
       "version": "2.1.2",
       "declaredLicense": "Apache-2.0",
       "installedPath": "node_modules/detect-libc",

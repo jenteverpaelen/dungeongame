@@ -50,7 +50,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-13 UI/accessibility | Basic/remapping/flash guidance; local keyboard and optional flash checks | Broader task/contrast/input/effects audit and human evaluation; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
 | R-15 onboarding | One primary study; scripted first session and earned equipment/skill decisions; partial | Reference-game traces, broader classes/error flows and unfamiliar Hearthfall player observations |
-| R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |
+| R-16 legal/privacy/licences | CPC/EDPB and23 installed production licence reviews; C044 emits reviewed notices | Other-platform/nested/build tooling review; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
 | R-19 audio | PannerNode/category/lifecycle guidance; actual graph audit and C042 channel teardown measurements | Dense mix, concurrency/priority, device output and listening tests |
