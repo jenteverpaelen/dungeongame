@@ -18,7 +18,7 @@ export function SettingsPanel() {
         onInput={e => preferences.set({ [key]: Number(e.currentTarget.value) / 100 })} />
     </label>
   );
-  const check = (key: keyof Pick<Preferences, 'muted' | 'cameraShake' | 'reduceFlashes' | 'lootQualityLabels' | 'combatNumbers'>, label: string) => (
+  const check = (key: keyof Pick<Preferences, 'muted' | 'cameraShake' | 'reduceFlashes' | 'lootQualityLabels' | 'combatNumbers' | 'contextualHints'>, label: string) => (
     <label class="settings-check"><input type="checkbox" checked={values[key]} onChange={e => preferences.set({ [key]: e.currentTarget.checked })} /><span>{label}</span></label>
   );
   return (
@@ -40,6 +40,8 @@ export function SettingsPanel() {
         <p class="settings-note">{text('settings.lootQualityNote')}</p>
         {check('combatNumbers', text('settings.combatNumbers'))}
         <p class="settings-note">{text('settings.combatNumbersNote')}</p>
+        {check('contextualHints',text('guide.show'))}
+        <p class="settings-note">{text('guide.settingNote')}</p>
         <p class="settings-note" role="status">{text(retained ? 'settings.retained' : 'settings.sessionOnly')}</p>
         <button class="btn" onClick={() => preferences.reset()}>{text('settings.reset')}</button>
       </div>}

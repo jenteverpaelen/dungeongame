@@ -9,6 +9,7 @@ import { TargetFrame } from './Target';
 import { Chat, Notices, PickupLog } from './Feed';
 import { PlayerPlate } from './PlayerPlate';
 import { AfkModal, DeathScreen, HelpPanel, InteractPrompt } from './Overlays';
+import { ContextualGuidance } from './Guidance';
 
 function GameHud() {
   const ready = useUI((s) => !!(s.char && s.me));
@@ -24,6 +25,7 @@ function GameHud() {
       </div>
       {ready && <BottomBar />}
       <InteractPrompt />
+      <ContextualGuidance />
       <DeathScreen />
       <HelpPanel />
       <AfkModal />

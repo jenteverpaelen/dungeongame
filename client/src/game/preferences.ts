@@ -7,10 +7,11 @@ export interface Preferences {
   reduceFlashes: boolean;
   lootQualityLabels: boolean;
   combatNumbers: boolean;
+  contextualHints: boolean;
 }
 
 export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
-  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true,
+  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true,
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -22,7 +23,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
     const n = input[key];
     if (typeof n === 'number' && Number.isFinite(n)) value[key] = Math.max(0, Math.min(1, n));
   }
-  for (const key of ['muted', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers'] as const) if (typeof input[key] === 'boolean') value[key] = input[key];
+  for (const key of ['muted', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'contextualHints'] as const) if (typeof input[key] === 'boolean') value[key] = input[key];
   return Object.freeze(value);
 }
 

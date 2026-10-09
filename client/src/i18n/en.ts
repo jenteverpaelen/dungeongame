@@ -2,9 +2,11 @@
 // {key} is the runtime physical keyboard label, not a translatable action fragment.
 import { QUEST_MESSAGES } from '@shared/data/questMessages';
 import { MAP_MESSAGES } from './mapMessages';
+import { GUIDANCE_MESSAGES } from './guidanceMessages';
 export const ENGLISH = {
   ...QUEST_MESSAGES,
   ...MAP_MESSAGES,
+  ...GUIDANCE_MESSAGES,
   "settings.title": "Settings",
   "settings.subtitle": "Sound, comfort & controls",
   "settings.tabSound": "Sound & comfort",

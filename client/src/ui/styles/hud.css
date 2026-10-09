@@ -1144,3 +1144,11 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 @media (prefers-reduced-motion: reduce) {
   .wave-f, .wave-b, .liquid-bob, .bubble, .globe-grain::after, .xp-shine, .rb-fill i, .cs-embers i, .cs-card.selected .cs-halo { animation: none; }
 }
+.guide-toast { position:fixed; right:calc(var(--u)*22); bottom:calc(var(--u)*190); width:calc(var(--u)*300); padding:calc(var(--u)*16); pointer-events:auto; }
+.guide-toast h3,.guide-entry h3 { margin:0 0 8px; color:var(--bronze-1); font-size:var(--f-m); }
+.guide-toast p,.guide-entry p { margin:0 0 12px; line-height:1.45; }
+.guide-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.guide-disable { display:block; margin-top:10px; padding:0; background:none; border:0; color:var(--text-dim); text-decoration:underline; cursor:pointer; }
+.help-panel>.guide-library { flex:1 1 auto; min-height:0; overflow-y:auto; }
+.guide-entry { border-top:1px solid var(--bronze-3); margin-top:14px; padding-top:14px; }
+.guide-entry .settings-check { margin-top:10px; }

@@ -1,6 +1,6 @@
 // Full-screen and modal overlays: death screen, AFK report, interact prompt and the F1 help panel.
 
-import { useRef } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import { ui, togglePanel, useUI } from '../store';
 import { ZONES } from '@shared/data/zones';
 import { fmtDuration, fmtInt } from '@shared/format';
@@ -9,6 +9,9 @@ import type { NpcRole } from '@shared/mapgen';
 import { Divider } from './Glyphs';
 import { ACTIONS, bindings, keyLabel } from '../../game/bindings';
 import { useLocal } from '../panels/state';
+import { GuidanceLibrary } from './Guidance';
+import { Tabs } from '../panels/common';
+import { text } from '../../i18n/messages';
 
 // ───────────────────────── Death ─────────────────────────
 
@@ -104,14 +107,17 @@ const FIXED_BINDS: [string, string][] = [
 
 export function HelpPanel() {
   const open = useUI((s) => !!s.panels.help);
+  const [tab,setTab]=useState<'controls'|'guide'>('controls');
   const state = useLocal(bindings, s => s);
   if (!open) return null;
   return (
     <div class="help-wrap">
       <div class="help-panel frame interactive">
         <button class="help-close" onClick={() => togglePanel('help', false)} aria-label="Close">&#x2715;</button>
-        <h2 class="title-plate">Controls</h2>
+        <h2 class="title-plate">{text(tab==='controls'?'guide.controls':'guide.title')}</h2>
         <Divider class="help-div" />
+        <Tabs tabs={[{id:'controls',label:text('guide.controls')},{id:'guide',label:text('guide.title')}]} value={tab} onChange={setTab}/>
+        {tab==='guide'?<GuidanceLibrary/>:<>
         <ul class="help-binds">
           {ACTIONS.map(([action, label]) => <li key={action}>
             <span class="keys">{state.values[action].filter((k): k is string => k !== null).map(k => <kbd key={k}>{keyLabel(k, state.labels)}</kbd>)}</span>
@@ -125,6 +131,7 @@ export function HelpPanel() {
           ))}
         </ul>
         <p class="help-note">Your primary attack and your four skills fire on their own. Choose where to stand, when to dash, and what to carry.</p>
+        </>}
         <button class="btn" onClick={() => { togglePanel('help', false); togglePanel('settings', true); }}>Settings & key bindings</button>
       </div>
     </div>

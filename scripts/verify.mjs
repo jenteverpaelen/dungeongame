@@ -26,7 +26,7 @@ const stages = [
   ['backup-rotation', ['--import', 'tsx', '--test', 'server/test/backupRotation.test.ts']],
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
-  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/audio/lifetime.test.ts']],
+  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/audio/lifetime.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
   ['adventure', ['--import', 'tsx', '--test', 'server/test/adventure.test.ts', 'server/test/quests.test.ts']],

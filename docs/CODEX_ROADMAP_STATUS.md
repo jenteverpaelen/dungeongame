@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C072. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C073. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -94,11 +94,11 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-QST-08 | Lore codex + story presentation (text, camera pan) | P5/P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ONB-01 | Character creation v2 (class explainer, appearance) | P6 | PARTIAL — `ClassSelect` | Existing select flow captured; no appearance system or v2 redesign. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | F-ONB-02 | First-session script (minutes 0–15) | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-ONB-03 | Contextual hint system, progressive disclosure | P6 | MISSING | Only inaccurate auto-combat cues corrected (C019); no contextual hint engine/progressive disclosure. [change log](CODEX_CHANGELOG.md). |
+| F-ONB-03 | Contextual hint system, progressive disclosure | P6 | MISSING | Partial C073: Eight optional contextual cues with individual dismissal, returning-character opt-out and live key labels. Progressive disclosure and complete hint catalogue remain open. [Guidance](adventure/GUIDANCE-REPORT.md). |
 | F-ONB-04 | Tutorial quest chain with scripted first encounters | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ONB-05 | Early loot beats (guaranteed first upgrade) | P6 | MISSING | Partial: C070 guarantees one class-appropriate magic weapon at ledger-recovery level, with preview/full-bag retry. It is not guaranteed better than existing gear; first-session pacing and broader loot beats remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-ONB-06 | Funnel instrumentation + fresh-player test kit | P6 | MISSING | Scripted observations only; no consented unfamiliar-player study/funnel implementation. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
-| F-ONB-07 | Help / FAQ panel v2 | P6 | PARTIAL — controls help panel | Existing Help now shows live bindings/Settings entry (C024); broader FAQ/onboarding open. [foundation state](phase/P03-foundations/STATE.md). |
+| F-ONB-07 | Help / FAQ panel v2 | P6 | PARTIAL — controls help panel | Partial C073: Help retains Controls and adds a rereadable Field guide with individual switches. Broader FAQ and human validation remain open. [Guidance](adventure/GUIDANCE-REPORT.md). |
 | F-WLD-01 | Zone chain with real level bands and gating | P7 | MISSING — fields use 1–70 and 8–70 | Partial C071: Two connected authored fields with a quest prerequisite. Existing level bands remain; no evidence-backed band retune or full zone chain. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | P7 | PARTIAL — procedural map from seed; town authored as JSON | Partial C071: Two typed authored fields with swept route/prop/spawn checks and shared collision. Production art/editor pipeline remains open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Partial C072: Regional/current-area map, actual waypoint/portal connections, locks and physical travel entry implemented. Fog/discovery and wider network remain open. [World map](adventure/WORLD-MAP-REPORT.md). |
@@ -220,8 +220,8 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-38 | Objective / compass markers | P5 | MISSING | Partial C072: Current-area/minimap quest marker resolves the next connecting exit or waypoint. On-world compass overlay remains open. [World map](adventure/WORLD-MAP-REPORT.md). |
 | U-39 | Emote wheel / quick chat | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-40 | Performance overlay (fps, ping, dps) | P3 | PARTIAL — values exist in the store | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-41 | Hint toasts | P6 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-42 | Help panel | P6 v2 | EXISTS (controls) | Help shows live bindings and Settings entry (C024); broader v2 content open. [foundation state](phase/P03-foundations/STATE.md). |
+| U-41 | Hint toasts | P6 | MISSING | Partial C073: Nonblocking state-triggered hint card implemented, suppressed by open panels/modals; inspected1080p. Broader event coverage and user testing remain open. [Guidance](adventure/GUIDANCE-REPORT.md). |
+| U-42 | Help panel | P6 v2 | EXISTS (controls) | Partial C073: Controls plus rereadable Field guide, global/per-character/individual display controls. Existing visual style retained; complete FAQ remains open. [Guidance](adventure/GUIDANCE-REPORT.md). |
 | U-43 | Offline-gains report | P14 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-50 | Inventory (bag grid) | — | EXISTS | Earned gear C029; C053 existing bulk menu, actual service transaction/reconnect and two inspected1080p frames pass. Broader errors/inputs remain open. [bulk report](phase/P03-foundations/BULK-SALVAGE-REPORT.md). |
 | U-51 | Paper-doll / equipment | — | EXISTS | Existing wrist-slot equip/stat change verified (C029); no restyle. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
