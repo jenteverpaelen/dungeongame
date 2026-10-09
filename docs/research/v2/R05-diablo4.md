@@ -21,3 +21,7 @@ Before adding quest rewards or crafting, test disconnect/retry, two players at d
 - Criticism versus fixes: developer defect reports read; independent criticism and outcomes remain unverified.
 
 No D4 balance number has been adopted.
+
+## Additional information channels — launch-era evidence
+
+Blizzard's [accessibility introduction](https://news.blizzard.com/en-gb/article/23954932/combatting-demons-with-accessibility-in-diablo-iv), written before the June6 launch, describes configurable gear-drop/ground audio by rarity, item-hover cues, font sizes and screen narration in its Vision Assistance section. This is a published feature description, not our observed playthrough or a current-patch verification; embedded videos were not inspected. C049's written quality labels are a separate Hearthfall inference from GAG/XAG guidance, not a claim that D4 uses that exact presentation.

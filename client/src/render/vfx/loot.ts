@@ -11,6 +11,15 @@ import { itemIconTexture } from '../art';
 import type { VfxCore } from './core';
 import { LABEL_FONT, ensureFonts } from './fonts';
 import { TAU, clamp, cssToInt, easeOut, hash01, lerpColor, rand } from './util';
+import { preferences } from '../../game/preferences';
+import { text } from '../../i18n/messages';
+
+function labelText(l: LootView, quality: boolean): string {
+  if (!quality || l.lk !== 'item' || !l.rarity) return l.name;
+  const key = l.rarity === 'legendary' ? (l.ancient === 2 ? 'primalLegendary' : l.ancient === 1 ? 'ancientLegendary' : 'legendary')
+    : l.rarity === 'set' ? (l.ancient === 2 ? 'primalSet' : l.ancient === 1 ? 'ancientSet' : 'set') : l.rarity;
+  return text(`loot.${key}`, { name: l.name });
+}
 
 const SHAPE_ICON: Record<string, string> = {
   sword: 'sword', sword2h: 'sword', axe: 'axe', axe2h: 'axe', mace: 'mace', bow: 'bow', crossbow: 'crossbow',
@@ -168,6 +177,7 @@ class LootItemView implements EntityView {
   private beamStyle: BeamStyle | null;
   private labelAlpha = 0;
   private landed = false;
+  private labelQuality = false;
 
   constructor(private V: VfxCore, private M: LootManager, private desc: EntDesc) {
     const T = V.T;
@@ -267,8 +277,10 @@ class LootItemView implements EntityView {
 
   private buildLabel(l: LootView): void {
     ensureFonts();
+    this.labelQuality = preferences.get().values.lootQualityLabels;
+    for (const child of this.label.removeChildren()) child.destroy();
     const col = labelColor(l);
-    const txt = new BitmapText({ text: l.name, style: { fontFamily: LABEL_FONT, fontSize: 13 } });
+    const txt = new BitmapText({ text: labelText(l, this.labelQuality), style: { fontFamily: LABEL_FONT, fontSize: 13 } });
     txt.tint = col;
     const padX = 7, padY = 3;
     const w = Math.ceil(txt.width + padX * 2), h = Math.ceil(txt.height + padY * 2) - 2;
@@ -285,6 +297,7 @@ class LootItemView implements EntityView {
 
   /** True when the label should be shown this frame (item landed and on screen). */
   labelReady(): boolean {
+    if (this.hasLabel && this.labelQuality !== preferences.get().values.lootQualityLabels && this.desc.loot) this.buildLabel(this.desc.loot);
     return this.hasLabel && this.landed && this.root.visible && !!this.root.parent && this.labelAlpha > 0;
   }
 

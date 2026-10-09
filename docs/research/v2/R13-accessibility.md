@@ -21,3 +21,9 @@ GAG-FLASH and XAG118 (UX-04) support effect-specific controls and representative
 ## Keyboard slice, 2026-10-09
 
 GAG-REMAP supports custom assignments and updated prompts. MDN-KEYCODE/MDN-LAYOUT distinguish physical key identity from its printed character and document optional, fallible layout lookup. `P03-foundations/KEYBOARD-DESIGN.md` specifies two bindings per action, conflict rejection, recovery keys, form handling and browser-local persistence. The owner's Chrome reports AZERTY labels (Z/Q on the original up/left positions), demonstrating why default code names alone would be misleading. This is a measured API output, not a hardware/assistive-device usability test. Exact checks and known limits belong in KEYBOARD-REPORT.md.
+
+## Ground-loot text, C049
+
+[GAG-COLOUR](https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/) supports additional text/shape cues, including through settings. [XAG103](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/103) separately addresses multiple sensory channels and non-colour visual cues; simulation cannot substitute for actual player evaluation. Read background/implementation text through audio alternatives; linked examples/videos were not visually inspected.
+
+The actual ground labels lacked written quality while tooltips already identify non-normal rarity and Ancient state. C049 adds an optional written ground label using existing styles, with exact default comparison and seven inspected Chrome frames; [report](../../phase/P03-foundations/LOOT-LABEL-REPORT.md). This inference does not complete bag/stash glanceability, contrast, screen narration or human testing. Default colours/text remain available; no whole-scene palette filter introduced.

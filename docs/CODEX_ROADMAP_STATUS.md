@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C048. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C049. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -33,7 +33,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-CON-06 | Content editors (zone, quest, dialogue) | later | MISSING — D-35 | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-SET-01 | Settings panel: audio buses, graphics quality, UI scale | P3 | MISSING — mute/volume exist in the audio bus | Partial: persistent audio controls (C009); graphics quality and UI scale open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SET-02 | Key rebinding + input abstraction layer | P3 | MISSING | Partial: eleven keyboard actions, two bindings and accurate prompts (C024); other input modes open. [foundation state](phase/P03-foundations/STATE.md). |
-| F-SET-03 | Accessibility options (colour-safe rarity cues, reduced motion/shake/flash, text size, damage-number options) | P3 | MISSING | Partial: shake and selected-flash controls (C009/C030); text scale, full reduced motion, colour/contrast and human evaluation open. [foundation state](phase/P03-foundations/STATE.md). |
+| F-SET-03 | Accessibility options (colour-safe rarity cues, reduced motion/shake/flash, text size, damage-number options) | P3 | MISSING | Partial: shake/selected-flash controls (C009/C030), optional written ground-loot quality (C049). Text scale, full motion/contrast/vision and human evaluation open. [loot label report](phase/P03-foundations/LOOT-LABEL-REPORT.md). |
 | F-SET-04 | Per-account settings sync | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-SET-05 | Language selection | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated19-stage runner passes (C046); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |

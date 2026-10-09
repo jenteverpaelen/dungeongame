@@ -1,0 +1,173 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-loot-labels-5qEuXf",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-loot-labels-5qEuXf\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "exceptions": [],
+  "scope": "Installed local Chrome, synthetic save/profile, controlled twelve-view presentation fixture. Real settings input and reconnect. No earned-drop, human accessibility, vision-simulation or performance claim.",
+  "observations": [
+    {
+      "name": "01-default-labels",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": null,
+      "text": "1\nQualityTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n13 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, QualityTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint",
+      "panels": [],
+      "labels": [
+        {
+          "text": "Quality probe",
+          "tint": 16777215,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 411.6451612903229,
+          "y": 239.0935483870967,
+          "w": 86,
+          "h": 21,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 8882175,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 916.8064516129034,
+          "y": 239.0935483870967,
+          "w": 86,
+          "h": 21,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 16776960,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 1421.967741935484,
+          "y": 239.0935483870967,
+          "w": 86,
+          "h": 21,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 13270868,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 411.3951612903229,
+          "y": 386.9080645161289,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 65280,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 916.5564516129034,
+          "y": 386.9080645161289,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 13270868,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 1421.717741935484,
+          "y": 386.9080645161289,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 13270868,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 411.3951612903229,
+          "y": 534.9725806451615,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 65280,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 916.5564516129034,
+          "y": 534.9725806451615,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Quality probe",
+          "tint": 65280,
+          "width": 85,
+          "height": 20,
+          "children": 2,
+          "x": 1421.717741935484,
+          "y": 534.9725806451615,
+          "w": 86.5,
+          "h": 21.5,
+          "visible": true
+        },
+        {
+          "text": "Ruby probe",
+          "tint": 16777215,
+          "width": 74,
+          "height": 20,
+          "children": 2,
+          "x": 417.1451612903229,
+          "y": 683.2870967741937,
+          "w": 75,
+          "h": 21,
+          "visible": true
+        },
+        {
+          "text": "Material probe",
+          "tint": 10479871,
+          "width": 91,
+          "height": 20,
+          "children": 2,
+          "x": 913.8064516129034,
+          "y": 683.2870967741937,
+          "w": 92,
+          "h": 21,
+          "visible": true
+        },
+        {
+          "text": "Long named item of the distant forgotten watch",
+          "tint": 16776960,
+          "width": 260,
+          "height": 20,
+          "children": 2,
+          "x": 1334.467741935484,
+          "y": 683.2870967741937,
+          "w": 261,
+          "h": 21,
+          "visible": true
+        }
+      ]
+    }
+  ]
+}
