@@ -21,6 +21,16 @@ Evidence root for full run: `C:\Users\LAPTOP~1\AppData\Local\Temp\hearthfall-ver
 
 Opened and inspected all three screenshots: [town](checks/legacy-town.png), [inventory](checks/legacy-inventory.png), [future-save message](checks/future-save-refused.png). Existing town/HUD/panel appearance is retained; the error appears under the existing login controls. That error is small and low contrast in the current style, a later accessibility audit item rather than a silently redesigned screen.
 
-## Limits
+## Settings slice verification
+
+`node scripts/capture-foundations.mjs --settings` builds current source, starts its own real server and uses a fresh Chrome profile and DATA_DIR. Final run: `hf-foundation-browser-eSBBzK`, Chrome 154.0.8037.99, 1920×1080, DPR 1, document visible. [Raw results](checks/settings/browser.json). Preference tests pass 3/3; typecheck/build pass. No additional server-wide regression run is claimed for this client-only slice.
+
+Measured live gains: effects and priority effects 0.25, ambience approximately 0.70; mute holds master at zero after moving its slider. Reload retains values and shake-off; reset returns master approximately 0.80 and both categories to 1, with shake enabled. Fixed view height is 620 throughout. Range arrow keys change volume without movement; focus clears held movement; Space operates checkbox/button without Dash; ordinary buttons still permit WASD. Escape closes and F1 Help opens settings.
+
+All seven final captures in `checks/settings/` were opened and inspected. The settings panel uses the existing border, heading, gold, text and button styles, fits left of the character and above the HUD. Values, checked states and focus indicators are visible; original inventory/town appearance is retained. The login error remains in its existing layout.
+
+Intermediate harness findings: one run caught a stale build when testing the button-focus correction; capture now builds automatically. An idle effects bus exposed a stale AudioParam `.value` reading; quiet synthetic test signals now keep effect buses processing before testing live gains. A mid-animation Help/login capture was recaptured after the entrance animation. These are documented verification changes, not evidence of random successful retries. No subjective listening, disabled-player evaluation, complete reduced-motion support, frame-rate or cross-browser claim.
+
+## Remaining limits
 
 These are functional checks, not a dense-crowd benchmark, disabled-player evaluation or independent security audit. No accounts/recovery/transactional database/backups added. Existing save write errors still log without propagating to all callers; durability and restore remain open. No claim of full P3 or G1 completion.

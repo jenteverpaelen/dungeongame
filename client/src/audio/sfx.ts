@@ -8,6 +8,7 @@
 // * Concurrency: each sound allows `max` starts per 50 ms; a global voice cap drops low-priority voices.
 
 import { SOUNDS, renderSound } from './bank';
+import { preferences } from '../game/preferences';
 
 export interface PlayOpts { x?: number; y?: number; vol?: number }
 
@@ -20,6 +21,9 @@ interface Engine {
   master: GainNode;
   bus: GainNode;
   pri: GainNode;
+  effects: GainNode;
+  priorityEffects: GainNode;
+  ambience: GainNode;
   build: (...p: number[]) => ArrayLike<number>;
 }
 
@@ -36,6 +40,8 @@ class Sfx {
   private loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>();
   private wantLoops = new Set<string>();
   private muted = false;
+  private effectsVolume = 1;
+  private ambienceVolume = 1;
   private ambient = new Map<string, {src:AudioBufferSourceNode; gain:GainNode; pan:StereoPannerNode}>();
 
   /** Town emitter loops have independent positions and lifetime, through the same mute/volume bus. */
@@ -48,7 +54,7 @@ class Sfx {
     if(!voice){
       const buffer=this.buffer(name);if(!buffer)return;
       const src=eng.ctx.createBufferSource(),gain=eng.ctx.createGain(),pan=eng.ctx.createStereoPanner();
-      src.buffer=buffer;src.loop=true;src.connect(gain).connect(pan).connect(eng.bus);gain.gain.value=0;
+      src.buffer=buffer;src.loop=true;src.connect(gain).connect(pan).connect(eng.ambience);gain.gain.value=0;
       src.onended=()=>{src.disconnect();gain.disconnect();pan.disconnect();};src.start();voice={src,gain,pan};this.ambient.set(id,voice);
     }
     voice.gain.gain.setTargetAtTime(def.gain*level,eng.ctx.currentTime,.08);
@@ -59,6 +65,7 @@ class Sfx {
   /** Read-only audio graph evidence for the existing game debug API; never sampled per frame. */
   inspect() {
     return {state:this.eng?.ctx.state??'locked',muted:this.muted,master:this.eng?.master.gain.value??0,
+      categories:this.eng?{effects:this.eng.effects.gain.value,priorityEffects:this.eng.priorityEffects.gain.value,ambience:this.eng.ambience.gain.value}:null,
       listener:[this.lx,this.ly],loops:[...this.ambient].map(([id,v])=>({id,gain:v.gain.gain.value,pan:v.pan.pan.value})),
       buffers:[...this.buffers].filter(([name])=>name.startsWith('town_')).map(([name,b])=>{
         const a=b.getChannelData(0);let sum=0,peak=0;for(const v of a){sum+=v*v;peak=Math.max(peak,Math.abs(v));}
@@ -67,6 +74,18 @@ class Sfx {
   }
 
   constructor() {
+    const apply = () => {
+      const p = preferences.get().values;
+      this.setVolume(p.masterVolume); this.setMuted(p.muted);
+      this.effectsVolume = p.effectsVolume; this.ambienceVolume = p.ambienceVolume;
+      if (this.eng) {
+        const t = this.eng.ctx.currentTime;
+        this.eng.effects.gain.setTargetAtTime(p.effectsVolume, t, 0.02);
+        this.eng.priorityEffects.gain.setTargetAtTime(p.effectsVolume, t, 0.02);
+        this.eng.ambience.gain.setTargetAtTime(p.ambienceVolume, t, 0.02);
+      }
+    };
+    apply(); preferences.subscribe(apply);
     if (typeof window !== 'undefined') {
       const go = () => {
         this.unlock();
@@ -101,11 +120,15 @@ class Sfx {
       comp.release.value = 0.2;
       const bus = ctx.createGain();
       const pri = ctx.createGain();
+      const effects = ctx.createGain(), priorityEffects = ctx.createGain(), ambience = ctx.createGain();
+      effects.gain.value = priorityEffects.gain.value = this.effectsVolume;
+      ambience.gain.value = this.ambienceVolume;
+      effects.connect(bus); priorityEffects.connect(pri); ambience.connect(bus);
       bus.connect(comp);
       pri.connect(comp);
       comp.connect(master);
       master.connect(ctx.destination);
-      this.eng = { ctx, master, bus, pri, build: (...p) => ZZFX.buildSamples(...p) };
+      this.eng = { ctx, master, bus, pri, effects, priorityEffects, ambience, build: (...p) => ZZFX.buildSamples(...p) };
       void ctx.resume().catch(() => undefined);
       for (const name of this.wantLoops) this.startLoop(name);
       this.prebake();
@@ -171,7 +194,7 @@ class Sfx {
       g.connect(p);
       node = p;
     }
-    node.connect(def.pri ? eng.pri : eng.bus);
+    node.connect(def.pri ? eng.priorityEffects : eng.effects);
     src.connect(g);
     this.voices++;
     src.onended = () => { this.voices--; src.disconnect(); g.disconnect(); if (node !== g) node.disconnect(); };
@@ -211,7 +234,7 @@ class Sfx {
     const t = eng.ctx.currentTime;
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(def.gain, t + 0.12);
-    src.connect(g).connect(eng.bus);
+    src.connect(g).connect(eng.effects);
     src.onended = () => { src.disconnect(); g.disconnect(); };
     src.start();
     this.loops.set(name, { src, gain: g });

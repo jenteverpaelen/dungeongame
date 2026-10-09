@@ -10,7 +10,8 @@ import assert from 'node:assert/strict';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-foundation-browser-'));
 const dataDir = path.join(tmp,'saves');
-const out = path.join(root,'docs/phase/P03-foundations/checks');
+const settingsMode = process.argv.includes('--settings');
+const out = path.join(root,'docs/phase/P03-foundations/checks',settingsMode?'settings':'.');
 await fs.mkdir(dataDir,{recursive:true}); await fs.mkdir(out,{recursive:true});
 const old = JSON.parse(await fs.readFile(path.join(root,'server/test/fixtures/saves/v0-unversioned.json'),'utf8'));
 old.id='legacysmoke'; old.name='LegacySmoke'; old.lastSeen=Date.now(); old.lastZone='hearthmere';
@@ -36,6 +37,9 @@ async function connect(url){
 }
 let browser;
 try {
+  // The real server serves dist/client; always capture the current source.
+  const build=launch(process.execPath,['node_modules/vite/bin/vite.js','build','--config','client/vite.config.ts']);
+  await new Promise((resolve,reject)=>{build.on('error',reject);build.on('exit',code=>code===0?resolve():reject(Error('Client build failed: '+code)));});
   const server=launch(process.execPath,['--import','tsx','server/src/main.ts'],{PORT:String(port)});
   await until(async()=>{if(server.exitCode!==null)throw Error('Server exited');try{return(await fetch(`http://localhost:${port}/healthz`)).ok;}catch{return false;}});
   launch('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--remote-debugging-port=0',`--user-data-dir=${path.join(tmp,'chrome')}`,'--window-size=1920,1080','--force-device-scale-factor=1','--no-first-run','--no-default-browser-check','about:blank']);
@@ -67,14 +71,82 @@ try {
   await page.call('Page.reload');await ready();
   const after=await evaluate('__ui.get().char');
   for(const k of ['equipment','inventory','stash','gold','xp','paragon','cube'])assert.deepEqual(after[k],before.char[k],k);
+  let settingsChecks;
+  if(settingsMode) {
+    const key=async(key,code,keyCode)=>{
+      await page.call('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode});
+      await page.call('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:keyCode,nativeVirtualKeyCode:keyCode});
+      await wait(100);
+    };
+    const snapshot=()=>evaluate('({audio:__game.audio.inspect(),stored:JSON.parse(localStorage.getItem("hearthfall.preferences.v1")),viewHeight:innerHeight/__game.scene.cam.zoom,hidden:document.hidden})');
+    // Keep both effect buses processing: Chrome can leave .value stale on a
+    // disconnected, idle AudioParam. Quiet synthetic probes affect this test only.
+    const probes=()=>evaluate('window.__gainProbes=["effects","priorityEffects"].map(k=>{const e=__game.audio.eng,s=e.ctx.createConstantSource();s.offset.value=.00001;s.connect(e[k]);s.start();return s;});true');
+    const setRange=async(label,value)=>{
+      await evaluate(`(()=>{const e=document.querySelector('input[aria-label="${label}"]');e.value=${value};e.dispatchEvent(new Event('input',{bubbles:true}));return true;})()`);
+      await wait(350);
+    };
+    await key('o','KeyO',79);
+    await until(()=>evaluate('Boolean(document.querySelector("[data-panel=settings]"))'));
+    await key('End','End',35);await wait(500);
+    await until(()=>evaluate('__game.audio.inspect().state==="running"'));
+    await probes();
+    assert.ok(Math.abs((await snapshot()).audio.master-1)<.002,'keyboard slider changes live gain');
+    await key('ArrowLeft','ArrowLeft',37);await wait(350);
+    assert.ok(Math.abs((await snapshot()).audio.master-.99)<.002,'arrow adjusts slider');
+    assert.deepEqual(await evaluate('__game.input.move()'),{x:0,y:0},'slider arrow must not move');
+    await evaluate('document.activeElement.blur();true');
+    await page.call('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW'});
+    assert.equal((await evaluate('__game.input.move()')).y,-1);
+    await evaluate('document.querySelector("input[aria-label=Effects]").focus();true');
+    assert.deepEqual(await evaluate('__game.input.move()'),{x:0,y:0},'focusing a control clears held movement');
+    await page.call('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW'});
+    await setRange('Master volume',40);await setRange('Effects',25);await setRange('Ambience',70);
+    await until(async()=>{const s=await snapshot();return Math.abs(s.audio.categories.effects-.25)<.002 && Math.abs(s.audio.categories.priorityEffects-.25)<.002 && Math.abs(s.audio.categories.ambience-.7)<.002;},5000);
+    await evaluate('window.__settingsDashes=0;const dash=__game.input.h.onDash;__game.input.h.onDash=()=>{__settingsDashes++;dash();};document.querySelector(".settings-check input").focus();true');
+    await key(' ','Space',32);await setRange('Master volume',60);
+    const muted=await snapshot();assert.ok(muted.audio.master<.002,'slider cannot unmute');assert.equal(muted.audio.muted,true);
+    assert.equal(await evaluate('__settingsDashes'),0,'checkbox keyboard action must not dash');
+    await evaluate('document.querySelectorAll(".settings-check input")[1].focus();true');await key(' ','Space',32);
+    await evaluate('__game.scene.shake(30,2000);true');await wait(100);
+    const shakeOff=await evaluate('(()=>{const s=__game.scene;return{shakeRemaining:s.shakeEnd-performance.now(),offsetX:s.root.x-Math.round(innerWidth/2-s.cam.x*s.cam.zoom),offsetY:s.root.y-Math.round(innerHeight/2-s.cam.y*s.cam.zoom)}})()');
+    assert.ok(shakeOff.shakeRemaining<0);assert.equal(shakeOff.offsetX,0);assert.equal(shakeOff.offsetY,0);
+    await shot('settings-custom');
+    await page.call('Page.reload');await ready();await key('o','KeyO',79);await wait(700);
+    await until(()=>evaluate('__game.audio.inspect().state==="running"'));await probes();
+    const reloaded=await snapshot();assert.equal(reloaded.stored.values.cameraShake,false);assert.equal(reloaded.audio.muted,true);
+    assert.ok(reloaded.audio.master<.002);assert.ok(Math.abs(reloaded.audio.categories.effects-.25)<.002);
+    assert.ok(Math.abs(reloaded.audio.categories.priorityEffects-.25)<.002);assert.ok(Math.abs(reloaded.audio.categories.ambience-.7)<.002);
+    assert.equal(reloaded.viewHeight,620);assert.equal(reloaded.hidden,false);
+    await shot('settings-reloaded');
+    await evaluate('window.__settingsDashes=0;const dash=__game.input.h.onDash;__game.input.h.onDash=()=>{__settingsDashes++;dash();};document.querySelector(".settings-content button").focus();true');
+    await key(' ','Space',32);await wait(350);
+    assert.equal(await evaluate('__settingsDashes'),0,'button keyboard action must not dash');
+    await page.call('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW'});
+    assert.equal((await evaluate('__game.input.move()')).y,-1,'ordinary focused button must not trap movement');
+    await page.call('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW'});
+    await until(async()=>{const s=await snapshot();return s.audio.state==='running' && Math.abs(s.audio.categories.effects-1)<.002 && Math.abs(s.audio.categories.ambience-1)<.002;},5000);
+    const defaults=await snapshot();assert.equal(defaults.stored.values.cameraShake,true);assert.equal(defaults.audio.muted,false);
+    assert.ok(Math.abs(defaults.audio.master-.8)<.002);assert.ok(Math.abs(defaults.audio.categories.effects-1)<.002);assert.ok(Math.abs(defaults.audio.categories.ambience-1)<.002);
+    await shot('settings-defaults');await key('Escape','Escape',27);
+    assert.equal(await evaluate('Boolean(document.querySelector("[data-panel=settings]"))'),false);
+    await key('F1','F1',112);
+    await evaluate('document.querySelector(".help-panel button.btn").click();true');
+    assert.equal(await evaluate('Boolean(document.querySelector("[data-panel=settings]"))'),true);
+    await wait(400);
+    await shot('settings-from-help');
+    await evaluate('__gainProbes.forEach(s=>{s.stop();s.disconnect();});true');
+    settingsChecks={muted,reloaded,defaults,shakeOff,keyboardControlsNoDash:true,sliderArrowNoMovement:true,focusClearsMovement:true,buttonFocusAllowsMovement:true,escapeCloses:true,helpEntry:true};
+  }
   await evaluate('__game.conn.close(); true');await wait(300);
   await page.call('Page.navigate',{url:`http://localhost:${port}/?autostart=FutureSmoke&class=mage`});
   await until(()=>evaluate('Boolean(document.body.innerText.includes("needs a newer server version"))'));
+  await wait(2000); // Let the existing login entrance animation finish before visual review.
   await shot('future-save-refused');
   assert.equal(await fs.readFile(path.join(dataDir,'futuresmoke.json'),'utf8'),future);
   const report={date:new Date().toISOString(),chrome:await browser.call('Browser.getVersion'),isolatedDataDir:dataDir,
     viewport:{width:before.width,height:before.height,hidden:before.hidden,viewHeight:before.viewHeight},
-    checks:{legacyVersion:after.version,debugDenied:denied,reconnectPreserved:true,futureBytesPreserved:true},
+    checks:{legacyVersion:after.version,debugDenied:denied,reconnectPreserved:true,futureBytesPreserved:true},settingsChecks,
     scope:'Functional screenshots; not a performance or accessibility certification'};
   await fs.writeFile(path.join(out,'browser.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));

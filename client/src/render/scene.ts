@@ -15,6 +15,7 @@ import type { ClientEntity, ClientWorld } from '../game/world';
 import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
 import { inPolygon } from '@shared/townGeometry';
+import { preferences } from '../game/preferences';
 
 /** Original fixed world height, restored at the owner's request. */
 const VIEW_HEIGHT = 620;
@@ -197,6 +198,7 @@ export class Scene {
   // ─────────────────────────── Camera & feedback ───────────────────────────
 
   shake(magnitude: number, ms: number) {
+    if (!preferences.get().values.cameraShake) return;
     const now = performance.now();
     if (magnitude >= this.shakeMag * Math.max(0, (this.shakeEnd - now) / this.shakeDur)) {
       this.shakeMag = magnitude;
@@ -236,7 +238,7 @@ export class Scene {
       this.cam.y = mh > halfH * 2 ? Math.max(halfH, Math.min(mh - halfH, this.cam.y)) : mh / 2;
     }
     let sx = 0, sy = 0;
-    if (now < this.shakeEnd) {
+    if (preferences.get().values.cameraShake && now < this.shakeEnd) {
       const f = (this.shakeEnd - now) / this.shakeDur;
       const m = this.shakeMag * f * f;
       sx = (Math.random() * 2 - 1) * m;

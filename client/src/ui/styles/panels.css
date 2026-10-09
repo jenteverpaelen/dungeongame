@@ -995,6 +995,15 @@
 
 .nm-up { display: inline-block; margin-left: 8px; vertical-align: 2px; padding: 2px 6px 1px; font: 400 12px/1.1 var(--font-num); letter-spacing: 0.02em; color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 180, 0.6); background: linear-gradient(180deg, #ffe38c 0%, #e0aa38 55%, #a8741a 100%); border: 1px solid #2a1806; border-radius: 8px; box-shadow: 0 1px 3px #000, inset 0 1px 0 rgba(255, 255, 255, 0.7); }
 
+.settings-content { display: grid; gap: 14px; padding: 18px; }
+.settings-volume { display: grid; grid-template-columns: 1fr auto; gap: 8px; color: var(--text-bright); font-size: var(--fs-l); }
+.settings-volume output { color: var(--gold-hi); font-family: var(--font-num); }
+.settings-volume input { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--gold); }
+.settings-check { display: flex; align-items: center; gap: 10px; font-size: var(--fs-l); color: var(--text-bright); }
+.settings-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
+.settings-note { margin: 0; color: var(--text); font-size: var(--fs-m); line-height: 1.4; }
+.pn-settings :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 4px; }
+
 /* Short viewports (720p): trim the tall workspaces so left-docked panels stay clear of the bottom HUD. */
 @media (max-height: 820px) {
   .sk-main { height: 540px; }

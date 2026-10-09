@@ -14,6 +14,7 @@ export class Input {
     window.addEventListener('keydown', this.onDown);
     window.addEventListener('keyup', this.onUp);
     window.addEventListener('blur', () => this.down.clear());
+    window.addEventListener('focusin', () => this.down.clear());
     window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX; this.mouseY = e.clientY; });
   }
 
@@ -24,7 +25,17 @@ export class Input {
 
   private onDown = (e: KeyboardEvent) => {
     if (this.typing(e)) {
+      this.down.clear();
       if (e.key === 'Escape' || e.key === 'Enter') this.h.onHotkey(e.key, e);
+      return;
+    }
+    // Native button activation must not dash. Keep movement/hotkeys available
+    // after a mouse click leaves an ordinary game button focused.
+    const target = e.target as Element | null;
+    const button = target?.closest?.('button, [role="button"]');
+    if (target?.closest?.('select, [role="slider"]') || (button && (e.key === ' ' || e.key === 'Enter'))) {
+      this.down.clear();
+      if (e.key === 'Escape') this.h.onHotkey(e.key, e);
       return;
     }
     const k = e.code;

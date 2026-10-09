@@ -99,6 +99,7 @@ const BINDS: [string, string][] = [
   ['K', 'Skills'],
   ['P', 'Paragon'],
   ['U', 'The Ancients’ Cube (when nearby)'],
+  ['O', 'Settings'],
   ['Enter', 'Chat'],
   ['F1', 'This help'],
   ['F2', 'Prototype tools'],
@@ -124,6 +125,7 @@ export function HelpPanel() {
           ))}
         </ul>
         <p class="help-note">Your primary attack and your four skills fire on their own. Choose where to stand, when to dash, and what to carry.</p>
+        <button class="btn" onClick={() => { togglePanel('help', false); togglePanel('settings', true); }}>Sound & camera settings</button>
       </div>
     </div>
   );

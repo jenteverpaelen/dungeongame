@@ -212,7 +212,7 @@ export class Game {
       else pushNotice("Stand beside the Ancients' Cube to use it", 'info');
       return;
     }
-    const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', F1: 'help', F2: 'debug' };
+    const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', o: 'settings', F1: 'help', F2: 'debug' };
     if (panels[k]) { togglePanel(panels[k]); return; }
     if (k === 'e') this.interact();
     void e;
