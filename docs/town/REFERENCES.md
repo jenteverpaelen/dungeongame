@@ -161,3 +161,7 @@ Before designing a credential or storage system: Node 24.19.0 crypto/SQLite/file
 ### L27 — Windows shutdown verification, 2026-10-09
 
 Node's documented Windows force-kill behavior explains the repeatedly failing SIGTERM assertions. Scoped source/design in `docs/phase/P03-foundations/WINDOWS-SHUTDOWN-DESIGN.md` precedes the change. Test a private parent-process graceful request on Windows with actual saved-state assertions; keep signal tests on supported platforms. No remote admin endpoint or town/gameplay change.
+
+### L28 — Content integrity before new content, 2026-10-09
+
+Local registry consumers and Runic's historical GUTS data-editor documentation are recorded in `docs/phase/P03-foundations/CONTENT-VALIDATION-DESIGN.md` before implementation. Validate actual cross-references, array indexing and numeric structure. Keep typed TS and authored town JSON as source of truth; no content/balance/UI change is authorized by a validation result alone.

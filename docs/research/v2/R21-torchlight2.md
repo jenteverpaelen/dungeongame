@@ -24,4 +24,6 @@ That wiki and [PC Gamer's Embermage guide](https://www.pcgamer.com/torchlight-2-
 
 ## Still unfinished
 
+[Runic's GUTS introduction](https://docs.runicgames.com/wiki/Introduction_to_the_Editor), revision dated 2012-11-19, was read fully for authoring context. It separates content domains such as units, skills, affixes, sets and spawn pools. This supports keeping authoring concerns explicit; it supplies no runtime balance values. Hearthfall's new content checker follows its own registry consumers while retaining the current TS/JSON source of truth. [S; TL2-GUTS]
+
 Final unmodded PC skill/rank tables, exact respec limits, first-session quest flow, loot and difficulty rates, and a visual UI atlas. Do not substitute a Torchlight I manual or console notes. Next: inspect a versioned PC class planner or footage and cross-check against shipped documentation. No game purchase is required for public-source research.

@@ -24,7 +24,7 @@ const stages = [
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
-  ['town-content', ['--import', 'tsx', 'scripts/check-town.ts']],
+  ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
 ];
 const results = [];

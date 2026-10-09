@@ -18,9 +18,9 @@
 |---|---|---|---|
 | D3, two classes | Active/rune/passive interleaving in class guides | Q; do not infer slot counts from available abilities | External levels are L2, not balance-ready |
 | Idleon | Community-reported class choice at character L10 | Q | Secondary corroboration only; no copied level gate |
-| TBH | Full initial unlock order Q | Q | No numerical proposal |
+| TBH | Dated June guide distinguishes character investment, formation and second active slot | Full current unlock order Q | Historical guide, no numerical proposal |
 | PoE1 / PoE2 | Modifier model and historical rule changes | Q for new-character acquisition order | No numerical proposal |
-| Torchlight II | Pre-release behavior milestones at skill ranks 5/10/15 | Q for final PC | Rank is not character level |
+| Torchlight II | Pre-release rank milestones corroborated by secondary PC skill reference; last-three-point refunds in two secondary sources | Pinned final PC tables/client behavior remain Q | Rank is not character level; console full-respec update is separate |
 | Hearthfall [M] | Six actives at 1/2/4/6/9/12; last rune at 21 | Audit output | Baseline, not a recommendation |
 
 ## Timeline and loot gaps

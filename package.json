@@ -16,6 +16,7 @@
     "test": "tsx --test shared/test/*.test.ts",
     "test:server": "tsx server/test/bot.ts",
     "town:check": "tsx scripts/check-town.ts",
+    "content:check": "tsx scripts/check-content.ts",
     "test:town-services": "tsx --test server/test/townServices.test.ts"
   },
   "dependencies": {

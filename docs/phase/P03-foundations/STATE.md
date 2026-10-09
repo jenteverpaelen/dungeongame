@@ -12,6 +12,7 @@
 - [x] Correct Windows test transport through private parent IPC; live progress/item assertions and real child-process failure drill. Latest server suite: 738/738; simulation 382/382.
 - [x] Local candidate hash/storage benchmark, including synthetic SQLite backup/restore; no production database or account change selected yet.
 - [x] Individual installed production licence inventory (23 packages); distribution notices and full project audit remain open.
+- [x] F-CON-01 semantic registry checks plus existing town validation in `content:check`; four mutation tests and typecheck pass. Typed TS remains the structural schema. Localization, behavior-flag coverage and originality review remain open.
 - [ ] Remaining P3: account identity, recovery, storage design, backups, broader settings/accessibility (including rebinding), content validation, local telemetry and independent review.
 
 This phase is not complete. Continue research in P01 while checking the independent changes; saved checkpoints do not end the task. Before every push check the exact branch. Test data stays in fresh temporary directories. Never migrate or claim ownership of existing player saves as a side effect of tests.
