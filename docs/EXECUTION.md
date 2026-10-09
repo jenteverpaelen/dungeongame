@@ -35,3 +35,5 @@ C038 adds a standalone crash/retry/restore experiment to P3 evidence. It leaves 
 C039 closes measured inherited/coerced class and unsupported-text budget gaps. Strict18-stage verification and two inspected local browser frames pass. No live identity policy is selected; continue the whole-roadmap research and implementation ledger.
 
 C040 maps the future P5 objective families onto actual authoritative game actions and adds cross-game continuity evidence. No quest engine or reward/cadence policy is selected. Next independent work is a synthetic runtime credit probe; preserve current behavior while identifying integration seams.
+
+C041 completes that current-behavior probe:39 all-class cases repeated identically, preserving the failed ordinary-loot assumption as pilot evidence. Kill, pickup and rift boundaries now have scoped runtime evidence; durable objective integration remains open. Continue the independent audio/settings audit and broader research.

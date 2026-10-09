@@ -1,0 +1,12 @@
+{
+  "pass": false,
+  "node": "v24.19.0",
+  "root": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-objective-credit-X8IDHf",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-objective-credit-X8IDHf\\data",
+  "scope": "Synthetic actual-handler eligibility, not combat/pathfinding, persistence, party policy or human play.",
+  "range": 1400,
+  "xpMultiplier": 3,
+  "observationHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "cases": [],
+  "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nfalse !== true\n\n    at killCases (C:\\Users\\LaptopJente\\dungeongame\\scripts\\probe-objective-credit.ts:93:14)\n    at <anonymous> (C:\\Users\\LaptopJente\\dungeongame\\scripts\\probe-objective-credit.ts:194:45)"
+}

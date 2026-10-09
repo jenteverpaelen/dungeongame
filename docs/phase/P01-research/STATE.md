@@ -54,7 +54,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
 | R-19 audio | PannerNode + category guidance | Existing graph/mix/settings audit, concurrency/listening tests |
-| R-20 narrative/quests | Authoring pattern, quest failure cases and C040 cross-game continuity/current-code integration map | Runtime credit probes, UI observations, original premise, schema and reward semantics |
+| R-20 narrative/quests | Authoring pattern, quest failure cases, cross-game continuity and39 repeated all-class runtime credit cases (C040/C041) | Persisted quest state, party policy, UI observations, original premise, schema and reward semantics |
 | R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration | Pinned final PC tables/client behavior; first-session footage; loot/UI |
 
 The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The timeline and loot matrices and visual UI atlas remain mostly missing. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.

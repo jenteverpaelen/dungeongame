@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C040. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C041. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -69,7 +69,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-MON-05 | Zone events (shrines, pylons, ambushes) | P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-06 | Bestiary data | P7/P14 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | P5 | MISSING | C040 research/action-boundary map; no production schema or quest implementation. [objective evidence](research/v2/OBJECTIVES.md). |
-| F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | C041 measures39 existing kill/pickup/rift cases twice; no quest state or party policy selected. [credit report](phase/P01-research/OBJECTIVE-CREDIT-REPORT.md). |
 | F-QST-03 | NPC dialogue system + UI | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-04 | Quest tracker HUD + journal panel | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Open: no newer full-scope completion evidence; original baseline retained. |
