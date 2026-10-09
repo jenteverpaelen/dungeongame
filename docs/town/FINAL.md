@@ -1,5 +1,7 @@
 # Hearthmere implementation checkpoint — final acceptance pending
 
+> **2026-10-09 owner update:** keep the town as it is; defer the remaining town work. Restore the original fixed 620 u camera and remove automatic spell framing (C001 in `docs/CODEX_CHANGELOG.md`). The earlier camera approval and resume order below are historical. Research now follows Claude's full-game roadmap.
+
 The owner approved the look slice and asked to finish the town fully. D021 records that authorization for the remaining milestones; the branch, save isolation and originality rules remain unchanged. Implementation work was performed in this chat without subagents or new downloads. The owner requested a pause on 2026-10-08 so they can close their PC. This is a checkpoint, not M7/M8 completion; resume from [PAUSED.md](PAUSED.md).
 
 ## Implemented world

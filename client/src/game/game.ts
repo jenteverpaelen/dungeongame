@@ -183,7 +183,6 @@ export class Game {
         break;
       }
     }
-    this.scene.frameSpell(ev, 's' in ev && (ev.s === myId || this.isMine(ev.s)));
     this.scene.vfx.handle(ev);
   }
 

@@ -1,5 +1,7 @@
 # Resume checkpoint — 2026-10-08
 
+> **2026-10-09 owner update:** keep the town as it is; defer the remaining town work. Restore the original fixed 620 u camera and remove automatic spell framing (C001 in `docs/CODEX_CHANGELOG.md`). The earlier camera approval and resume order below are historical. Research now follows Claude's full-game roadmap.
+
 The owner asked to save the current work and stop so they can close their PC; continue when they return. This is an implementation checkpoint, not a completed final gate. Read AGENTS.md and HANDOFF.md, then this file, before editing. Work only on `codex/new-tristram-town`, solo in this chat. Never touch the protected baseline, real saves, `.local` or `.env`; use a new temporary DATA_DIR for every test. No new download or paid service is authorized by this pause.
 
 ## Current scope and approvals

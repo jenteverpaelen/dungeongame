@@ -74,3 +74,8 @@ The cached run measures 61.88 FPS average versus 53.49 before caching and 42.19 
 ## Pause checkpoint — 2026-10-08
 
 The owner asked to finish saving the work so they can close the PC and continue tomorrow. Stop implementation and preserve the current branch, test evidence and remaining work in PAUSED.md. No new milestone-completion tags are warranted: the five-second startup target and final camera/performance/visual checks remain open. Existing authorizations and the solo-work requirement carry forward.
+
+
+## D026 — Owner rejects adaptive zoom; freeze town (2026-10-09)
+
+The owner requests restoring the old fixed camera and leaving the town as it is. Restore 620 u view height, 90 ms follow smoothing and normal map bounds; remove the spell-framing event hook, module and its two feature-only tests. Long-range effects can again extend offscreen. Keep town geometry/art/services, historical evidence and all unrelated tests. D025 is superseded. Remaining town hardening/performance work is deferred, not passed. Evidence: L21; implementation/removal rationale and future implications: `docs/CODEX_CHANGELOG.md` C001.

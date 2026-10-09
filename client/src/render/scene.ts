@@ -5,7 +5,7 @@ import { Application, Container } from 'pixi.js';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
-import { F_LEFT, F_MOVING, type EntDesc, type GameEvent } from '@shared/protocol';
+import { F_LEFT, F_MOVING, type EntDesc } from '@shared/protocol';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, setViewScale,
 } from './art';
@@ -15,9 +15,9 @@ import type { ClientEntity, ClientWorld } from '../game/world';
 import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
 import { inPolygon } from '@shared/townGeometry';
-import { REST_VIEW_HEIGHT, SpellFraming } from './cameraFraming';
 
-/** Moderate resting zoom; owned spells temporarily expand the camera to contain their visuals. */
+/** Original fixed world height, restored at the owner's request. */
+const VIEW_HEIGHT = 620;
 
 interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string }
 
@@ -51,11 +51,6 @@ export class Scene {
   private townLife: TownLife | null = null;
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
-  private spellFraming = new SpellFraming();
-  private viewHeight = REST_VIEW_HEIGHT;
-
-  frameSpell(ev: GameEvent, owned: boolean): void { this.spellFraming.record(ev, owned, performance.now()); }
-
   toggleCollision() {
     this.showCollision = !this.showCollision;
     if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
@@ -84,8 +79,7 @@ export class Scene {
   // ─────────────────────────── Map ───────────────────────────
 
   setMap(map: MapData) {
-    this.spellFraming.clear(); this.viewHeight = REST_VIEW_HEIGHT;
-    this.cam.zoom=this.app.screen.height/REST_VIEW_HEIGHT;
+    this.cam.zoom=this.app.screen.height/VIEW_HEIGHT;
     setViewScale(this.cam.zoom*this.app.renderer.resolution);
     this.roofAlpha.clear();
     this.townLife?.destroy();this.townLife=null;
@@ -222,27 +216,21 @@ export class Scene {
     this.time += dtMs / 1000;
     const viewDt = now < this.hitStopEnd ? 0 : dtMs / 1000;
     const scr = this.app.screen;
+    const zoom = scr.height / VIEW_HEIGHT;
+    if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     // Camera follows the predicted player with a small movement lead.
-    let framing = false;
     if (me) {
       const lead = 0.14;
       const tx = me.x + Math.max(-70, Math.min(70, me.vx * lead));
       const ty = me.y + Math.max(-50, Math.min(50, me.vy * lead));
-      const fit = this.spellFraming.target(now, tx, ty, scr.width / scr.height);
-      framing = fit.active;
-      // Pull back immediately so a new telegraph is visible; return gently after the effect ends.
-      this.viewHeight = fit.height > this.viewHeight ? fit.height
-        : this.viewHeight + (fit.height - this.viewHeight) * (1 - Math.exp(-dtMs / 700));
-      const k = framing ? 1 : 1 - Math.exp(-dtMs / 140);
-      this.cam.x += (fit.x - this.cam.x) * k;
-      this.cam.y += (fit.y - this.cam.y) * k;
+      const k = 1 - Math.exp(-dtMs / 90);
+      this.cam.x += (tx - this.cam.x) * k;
+      this.cam.y += (ty - this.cam.y) * k;
     }
-    const zoom = scr.height / this.viewHeight;
-    if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     const halfW = scr.width / 2 / this.cam.zoom, halfH = scr.height / 2 / this.cam.zoom;
     const townTime=this.world.serverNow()/1000;
     this.townLife?.update(viewDt,townTime,this.cam.x,this.cam.y,halfW,halfH);
-    if (this.map && !framing) {
+    if (this.map) {
       const mw = this.map.w * 64, mh = this.map.h * 64;
       this.cam.x = mw > halfW * 2 ? Math.max(halfW, Math.min(mw - halfW, this.cam.x)) : mw / 2;
       this.cam.y = mh > halfH * 2 ? Math.max(halfH, Math.min(mh - halfH, this.cam.y)) : mh / 2;

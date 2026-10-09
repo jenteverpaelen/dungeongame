@@ -92,21 +92,21 @@ if(mage) {
  const spot=[2000,1080];
  if(!cw.isFree(...spot,16))throw Error('Mage camera fixture is no longer walkable');
  await go(spot);await evaluate('__casts.length=0');await until(()=>evaluate('__casts.some(c=>c.ev.sk==="meteor")'));
- await wait(300);await capture('town-camera-meteor-fall');
- const audit=()=>evaluate('(()=>{const s=__game.scene,now=performance.now(),r=s.spellFraming.regions.filter(r=>r.until>now),project=(x,y)=>[s.root.x+x*s.cam.zoom,s.root.y+y*s.cam.zoom];return{height:s.viewHeight,cam:s.cam,hero:project(__game.predictor.x,__game.predictor.y),regions:r.map(r=>({min:project(r.x0,r.y0),max:project(r.x1,r.y1)})),casts:__casts.slice(-5),hidden:document.hidden}})()');
- camera={restViewHeight:800,position:spot,meteor:await audit()};
- await wait(600);await capture('town-camera-meteor-impact');
+ await wait(300);await capture('town-camera-restored-meteor-fall');
+ const audit=()=>evaluate('(()=>{const s=__game.scene,project=(x,y)=>[s.root.x+x*s.cam.zoom,s.root.y+y*s.cam.zoom];return{height:innerHeight/s.cam.zoom,cam:{...s.cam},hero:project(__game.predictor.x,__game.predictor.y),casts:__casts.slice(-5),hidden:document.hidden}})()');
+ camera={restViewHeight:620,position:spot,meteor:await audit()};
+ await wait(600);await capture('town-camera-restored-meteor-impact');
  await evaluate('__game.conn.cmd("skillRune",{skill:"meteor",rune:"meteor_shower"})',true);
  await evaluate('__casts.length=0');await until(()=>evaluate('__casts.some(c=>c.ev.sk==="meteor"&&c.ev.r==="meteor_shower")'));
- await wait(350);await capture('town-camera-meteor-shower');camera.shower=await audit();
+ await wait(350);await capture('town-camera-restored-meteor-shower');camera.shower=await audit();
  await evaluate('__game.conn.cmd("skillSlot",{slot:0,skill:null})',true);await go([2450,820]);
  await evaluate('__game.conn.cmd("skillSlot",{slot:1,skill:"frost_nova"})',true);
  await evaluate('__casts.length=0');await until(()=>evaluate('__casts.some(c=>c.ev.sk==="frost_nova")'));
- await wait(150);await capture('town-camera-frost-nova');camera.nova=await audit();
- for(const [name,a] of Object.entries(camera))if(a?.regions) {
-   if(a.hidden||a.regions.some(r=>r.min[0]<-8||r.min[1]<-8||r.max[0]>1928||r.max[1]>1088))throw Error('Own spell outside viewport: '+name);
+ await wait(150);await capture('town-camera-restored-frost-nova');camera.nova=await audit();
+ for(const [name,a] of Object.entries(camera))if(a?.cam) {
+   if(a.hidden||Math.abs(a.height-620)>1e-6)throw Error('Fixed camera changed during cast: '+name);
  }
- console.log('Real mage casts framed',JSON.stringify({position:spot,meteorHeight:camera.meteor.height,showerHeight:camera.shower.height,novaHeight:camera.nova.height}));
+ console.log('Fixed zoom preserved during real mage casts',JSON.stringify({position:spot,meteorHeight:camera.meteor.height,showerHeight:camera.shower.height,novaHeight:camera.nova.height}));
 }
 if(verify) {
  await key('Escape','Escape');await key('e','KeyE');await key('Escape','Escape');await wait(1800);
@@ -186,6 +186,6 @@ if(process.argv.includes('--lifecycle')||verify) {
  lifecycle={allocation,allOwnedSourcesDestroyed:disposed,reentry:true,npcAtlases};console.log(JSON.stringify(lifecycle));
 }
 if(verify){await evaluate('__game.conn.close()');await wait(500);audio.disconnected=await evaluate('__game.audio.inspect()');if(audio.disconnected.loops.length)throw Error('Ambient loops survived disconnect');}
-await fs.writeFile(path.join(out,'checks',mage?'town-camera-mage.json':multiplayerOnly?'town-complete-multiplayer.json':verify?'town-complete-verification.json':perimeter?'town-complete-perimeters.json':process.argv.includes('--lifecycle')?'town-complete-lifecycle.json':process.argv.includes('--quick')?'town-complete-load.json':'town-complete-browser.json'),JSON.stringify({date:'2026-10-08',version,startup,actual,shots,services,audio,life,camera,multiplayer,lifecycle,isolatedDataDir:path.join(tmp,'saves')},null,2));
+await fs.writeFile(path.join(out,'checks',mage?'town-camera-restored.json':multiplayerOnly?'town-complete-multiplayer.json':verify?'town-complete-verification.json':perimeter?'town-complete-perimeters.json':process.argv.includes('--lifecycle')?'town-complete-lifecycle.json':process.argv.includes('--quick')?'town-complete-load.json':'town-complete-browser.json'),JSON.stringify({date:new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Brussels'}),version,startup,actual,shots,services,audio,life,camera,multiplayer,lifecycle,isolatedDataDir:path.join(tmp,'saves')},null,2));
 } catch(e) { console.error(e);await fs.writeFile(path.join(out,'checks','town-complete-browser-error.txt'),String(e)+'\n'+logs.join(''));process.exitCode=1; }
 finally {if(browser)try{await browser.call('Browser.close')}catch{}for(const p of procs)try{p.kill()}catch{};console.log('Stopped only slice capture processes; test files at '+tmp);setTimeout(()=>process.exit(process.exitCode??0),1000);}

@@ -1,5 +1,7 @@
 # Hearthmere — authored town
 
+> **2026-10-09 owner update:** keep the town as it is; defer the remaining town work. Restore the original fixed 620 u camera and remove automatic spell framing (C001 in `docs/CODEX_CHANGELOG.md`). The earlier camera approval and resume order below are historical. Research now follows Claude's full-game roadmap.
+
 **Paused at the owner's request, 2026-10-08.** Work is saved as an implementation checkpoint. [Resume notes and remaining checks](PAUSED.md). Final acceptance is pending.
 
 The approved look is extended across the town, with working physical services, shared collision, lighting, life, positional sound and enterable Inn/Forge rooms. The owner's instruction to finish all remaining work superseded the intermediate gate pauses (D021).
