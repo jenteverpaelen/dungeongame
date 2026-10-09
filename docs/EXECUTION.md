@@ -53,3 +53,5 @@ C047 introduces scoped English message keys for Settings/controls. Before/after 
 C048 measures actual backup/restore at3/100/1000 synthetic characters in two rounds. All bytes and snapshot boundaries agree; archive cost now has scoped local evidence. Retention, live-server load and recovery policy remain open. Continue P3's color-independent information audit and broader research.
 
 C049 adds optional written ground-loot quality, default off. Seven inspected Chrome frames and actual control/reconnect/reset checks preserve default appearance. The broader accessibility and full roadmap remain incomplete; continue source-grounded work without treating this checkpoint as a stop.
+
+C050 completes a pinned session-source/licence review and exact isolated download proposal. No archives or dependencies installed; explicit download approval and runtime integration remain pending. Continue independent roadmap research and supported changes; this permission boundary does not stop the rest of the task.

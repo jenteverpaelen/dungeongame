@@ -1,0 +1,41 @@
+{
+  "retrievedUtc": "2026-10-09T07:36:36.7967160Z",
+  "endpoint": "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk",
+  "query": {
+    "cookie": [
+      "0.7.2"
+    ],
+    "cookie-signature": [
+      "1.0.7"
+    ],
+    "debug": [
+      "2.6.9"
+    ],
+    "depd": [
+      "2.0.0"
+    ],
+    "express-session": [
+      "1.19.0"
+    ],
+    "ms": [
+      "2.0.0"
+    ],
+    "on-headers": [
+      "1.1.0"
+    ],
+    "parseurl": [
+      "1.3.3"
+    ],
+    "random-bytes": [
+      "1.0.0"
+    ],
+    "safe-buffer": [
+      "5.2.1"
+    ],
+    "uid-safe": [
+      "2.1.5"
+    ]
+  },
+  "response": {},
+  "scope": "Official npm bulk advisory response for these exact pins; no package content read and no assurance against unknown or omitted vulnerabilities"
+}

@@ -35,3 +35,5 @@
 - [x] F-TEL-02 subset: separate27-case field calibration with per-minute XP/gold/kills, death/TTK samples and reconciled retained inventory. Repeated gameplay payload matches; see P01 FIELD-CALIBRATION-REPORT.md. Human pacing, service-loop calibration and full class parity remain open.
 
 This phase is not complete. Continue research in P01 while checking the independent changes; saved checkpoints do not end the task. Before every push check the exact branch. Test data stays in fresh temporary directories. Never migrate or claim ownership of existing player saves as a side effect of tests.
+
+C050: session candidate proposal pins eleven archives/82,439bytes, full upstream licence reads and an empty exact-pin npm advisory response. Source-derived failure/revocation checks are documented; archive review/runtime tests await specific download approval. No production session system or broader security acceptance is claimed.

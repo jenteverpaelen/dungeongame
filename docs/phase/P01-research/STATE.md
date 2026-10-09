@@ -84,3 +84,5 @@ C047 adds three primary localization sources/two scoped claims and applies compl
 C048 measures actual raw JSON archive costs in six isolated cases, with reproducible all-class fixture/restore hashes and snapshot/queued-write evidence. Node interval histogram interpretation is sourced; unavailable external control bodies are not counted as read. P3 BACKUP-SCALE-REPORT.md separates local costs from live CCU, tick and recovery guarantees.
 
 C049 adds three primary accessibility/gear-cue sources and two scoped claims. Ground-loot text is an optional measured implementation inference, not a copied D4 feature or accessibility certification. Seven inspected Chrome frames and exact default label checks support the bounded change; wider R13 scope remains open.
+
+C050 extends R12 with pinned session middleware/store/session/cookie source, eleven individual upstream licences and a scoped advisory query. Exact download and fault-test proposal is prepared; no archive or production dependency change. Continue the wider roadmap while the owner considers that specific request.
