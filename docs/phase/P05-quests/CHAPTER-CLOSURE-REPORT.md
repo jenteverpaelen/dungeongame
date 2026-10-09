@@ -1,0 +1,29 @@
+# P5 quest chapter implementation — C087
+
+2026-10-09, solo. L101/D042 and the [plan](CHAPTER-CLOSURE-PLAN.md) preceded implementation. This closes the quest engine/UI work against the current game's cooperative instances and difficulty system. P6 onboarding and the combined human G5 acceptance remain open; it is not a full-roadmap completion claim.
+
+## Completed implementation
+
+All eight Claude objective families now have authoritative paths, including explicit NPC conversation and type/family kill filters; object inspection remains supported. Exact physical contacts include human town NPCs. Generic atomic-preflight reward bundles support XP, gold, the existing reserved class weapon and route unlocks. Positive story flags, chapter grouping, bounded completion history, explicit return-to-giver repeats and stale-cycle rejection are integrated. All four original quests retain their IDs, revisions, objective counts and rewards; no new live economy grant or repeatable farm was added.
+
+The journal now has status/search filters, chapter progress, completion counts, recovered original readings, conditional dialogue with exits, and explicit credit/repeat explanations. Shared offered/active/turn-in markers drive NPC labels and both maps; town minimap guidance now also resolves the tracked exit or service. Existing frames, fonts, colors, town layout and fixed620/90ms camera remain. Forty additional quests and twelve long objectives exist only in a labelled browser presentation fixture.
+
+Content validation rejects unsupported rewards, bad contacts/families/flags, trapped/orphan dialogue branches and cyclic world-unlock requirements. Adventure reachability now sweeps actual player collision on the town validator's diameter grid; it checks contacts, locations, exits and encounter approaches independently of authored route lists. This is conservative reachability, not a combat/RNG/fun proof. [Authoring contract](AUTHORING.md) documents exact supported behavior and rollout/rollback deviations.
+
+## Measured verification
+
+- 44 distinct focused checks passed across shared quest/chapter, server quest/chapter/delivery/rift, legacy adventure/dungeon and foundation/save suites. The added wire case round-trips actual client payloads through MessagePack and command receipts. Four-client cases cover personal versus nearby kills, late acceptance, disconnect/rejoin, living/range eligibility and present-member rift completion. Every objective family has a tested server path.
+- Synthetic v0–v6 fixtures retain inventory, overflow, preferences, legacy progress and unknown future quest records across normalize/save/load. Full bag, duplicate reward ownership, gold overflow and stale cycles leave owned state unchanged. Save6/protocol9 prevent older code ignoring the new history/commands.
+- Typecheck, content check and production build passed. Existing Vite config/chunk warnings remain. No full-server campaign/performance/balance rerun claimed for this quest change.
+- Initial legacy tests failed because the new temporary directory had not been created; creating that test directory made all11 pass. Two UI fixture typing issues were corrected. A real Chrome acceptance attempt exposed an undefined optional property retained by MessagePack and rejected by receipt validation. The final shared request builder omits absent fields; the new wire regression and real acceptance pass. These failures were not game-content or real-save corruption.
+- Actual local Chrome: labelled many/long, empty search/catalogue/records, completed chapter, unlocked dialogue, lore and ready/reserved-reward states inspected. Live isolated hero ChapterC087 walked from the Waypoint to Orren with ordinary movement and infinite HP enabled, opened physical dialogue and accepted the quest; journal/tracker changed to the cart objective. Images in `docs/adventure/tour/c087-*.jpg`. The walkthrough overlay is visible in the live image; gallery images explicitly identify synthetic data. Six fixture captures are measured1920x1080. The supplementary live dialogue/acceptance capture is2048x1090: the browser viewport override did not resize that tab, so it is not presented as a1080p capture. Browser error/warning log was empty on the corrected client.
+
+Isolated roots: `hf-c087-checks-0cf96aacdaf94720b6d83e3e717c443b`; `hf-c087-build-18f5917acac84fac802a371f584bccc6` (fixture type failure); `hf-c087-build-823b393e4a4f4d5b8b3fd4f185af67b0` (missing test directory); `hf-c087-legacy-06a9e577a7c645bcb2614f78049ef912`; `hf-c087-final-88b59b2e056d4b00a231f705c8a4fe50`. Chrome uses the existing `hf-pump-browser-da62d181bbb24ae4ae06b78ec15ae7b6`. Backups disabled. No real saves read or modified.
+
+## Scope, removal and remaining work
+
+No game content was deleted. Newly claimed weapon rewards stop retaining a redundant item copy in quest history; the actual awarded item remains in inventory and the completion count remains. Existing claimed-save copies are preserved until a normal compatible write. Future history shows the authored reward description rather than a second owned-item object.
+
+F-QST-01..05 and the existing F-WLD-03 network/UI have implemented scope. F-QST-06..08 have their P5 chapter/repeat/lore capabilities; later authored acts, real bounty budgets and broader story presentation remain P7/P12 work. Exclusive social parties/scaling belong to P10, timed-rift ranks to P12, human onboarding acceptance to P6/G5, and cross-history restore/external transaction guarantees to storage/operations. No claim that these future systems exist. No global quest-off switch was placed over already-approved saved adventures; rollback retains definitions and save compatibility to avoid stranding progress or removing route locks.
+
+The owner requested a stop after this checkpoint so they can close the PC. Finish the commit/push, stop owned preview processes, then resume from `docs/RESUME_TOMORROW.md`. Do not start another chapter tonight.

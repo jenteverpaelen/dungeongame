@@ -1,7 +1,11 @@
 // Scene graph, camera and entity-view lifecycle. Layers (bottom → top):
 // ground tiles → decals → groundFx → entities (y-sorted, incl. tall props) → aboveFx → text.
 
-import { Application, Container } from 'pixi.js';
+import { Application, Container, type Text } from 'pixi.js';
+import type { CharacterSave } from '@shared/types';
+import { questMarker } from '@shared/quests';
+import { ui } from '../ui/store';
+import { nameLabel } from './art/npcs';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
@@ -21,7 +25,7 @@ import { preferences } from '../game/preferences';
 /** Original fixed world height, restored at the owner's request. */
 const VIEW_HEIGHT = 620;
 
-interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string }
+interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questLabel?:Text }
 
 export interface LocalPlayerState { x: number; y: number; vx: number; vy: number; facingLeft: boolean; moving: boolean; dashing: boolean }
 
@@ -54,6 +58,7 @@ export class Scene {
   private adventureLife: AdventureLife | null = null;
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
+  private questStamp:CharacterSave|null=null;
   toggleCollision() {
     this.showCollision = !this.showCollision;
     if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
@@ -94,6 +99,7 @@ export class Scene {
     for (const s of this.statics) s.view.destroy();
     this.props = [];
     this.statics = [];
+    this.questStamp=null;
     this.vfx.clear();
     this.map = map;
     this.collisionOverlay?.destroy({ children: true });
@@ -113,7 +119,8 @@ export class Scene {
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
-      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id });
+      const questLabel=nameLabel('',-90,0xffdb83);questLabel.style.fontSize=18;questLabel.visible=false;view.root.addChild(questLabel);
+      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id,questLabel });
     }
     for (const p of map.portals) {
       const view = createPortalView(p.label, 'town');
@@ -268,6 +275,14 @@ export class Scene {
         ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
         : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
       if(p.building)p.view.alpha=this.roofAlpha.get(p.building)??1;
+    }
+    const questSave=ui.get().char;
+    if(questSave!==this.questStamp) {
+      for(const s of this.statics)if(s.questLabel&&s.npcId&&this.map) {
+        const marker=questSave&&questMarker(questSave,this.map.zone,s.npcId);
+        s.questLabel.text=marker??'';s.questLabel.visible=!!marker;
+      }
+      this.questStamp=questSave;
     }
     for (const s of this.statics) {
       const vis = s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;

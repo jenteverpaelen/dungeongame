@@ -3,7 +3,7 @@ import type { QuestDef } from '../questTypes';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
   {
-    id:'silent_wheel', revision:1, title:'quest.wheel.title', offer:'quest.wheel.offer', complete:'quest.wheel.complete',
+    id:'silent_wheel', chapter:'water_road', grantsFlags:['mill_names_recovered'], revision:1, title:'quest.wheel.title', offer:'quest.wheel.offer', complete:'quest.wheel.complete',
     rewardText:'quest.reward.weapon', start:orren, finish:orren, requires:[], reward:'magic_weapon',
     steps:[
       {id:'cart',kind:'interact',zone:orren.zone,target:'cart',text:'quest.wheel.cart'},
@@ -12,7 +12,7 @@ export const QUESTS: readonly QuestDef[] = [
     ],
   },
   {
-    id:'high_water', revision:1, title:'quest.highwater.title', offer:'quest.highwater.offer', complete:'quest.highwater.complete',
+    id:'high_water', chapter:'water_road', revision:1, title:'quest.highwater.title', offer:'quest.highwater.offer', complete:'quest.highwater.complete',
     rewardText:'quest.highwater.reward', start:orren, finish:orren, requires:['silent_wheel'], reward:'passage', unlocks:'bracken_sluice',
     steps:[
       {id:'ridge',kind:'reach',zone:orren.zone,target:'old_ridge',text:'quest.highwater.ridge'},
@@ -20,7 +20,7 @@ export const QUESTS: readonly QuestDef[] = [
     ],
   },
   {
-    id:'under_spillway', revision:1, title:'quest.spillway.title', offer:'quest.spillway.offer', complete:'quest.spillway.complete',
+    id:'under_spillway', chapter:'water_road', revision:1, title:'quest.spillway.title', offer:'quest.spillway.offer', complete:'quest.spillway.complete',
     rewardText:'quest.reward.weapon', start:orren, finish:orren, requires:['high_water'], reward:'magic_weapon', unlocks:'reedvault_pumpworks',
     steps:[
       {id:'approach',kind:'reach',zone:'bracken_sluice',target:'forecourt',text:'quest.spillway.approach'},
@@ -29,7 +29,7 @@ export const QUESTS: readonly QuestDef[] = [
     ],
   },
   {
-    id:'pressure_below',revision:1,title:'quest.pump.title',offer:'quest.pump.offer',complete:'quest.pump.complete',
+    id:'pressure_below',chapter:'water_road',grantsFlags:['waterworks_repaired'],revision:1,title:'quest.pump.title',offer:'quest.pump.offer',complete:'quest.pump.complete',
     rewardText:'quest.reward.weapon',start:orren,finish:orren,requires:['under_spillway'],reward:'magic_weapon',
     steps:[
       {id:'west',kind:'wave',zone:'reedvault_pumpworks',target:'west',text:'quest.pump.west'},

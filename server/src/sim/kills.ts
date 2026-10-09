@@ -37,7 +37,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
 
   const witnesses = inst.playersNear(m.x, m.y, XP_SHARE_RANGE);
   if (killer && killer.deadMs <= 0 && inst.playerById(killer.id) && !witnesses.includes(killer)) witnesses.push(killer);
-  creditQuestKill(inst,m,witnesses);
+  creditQuestKill(inst,m,witnesses,killer);
   const eliteKill = isEliteTier(m.tier);
   const riftGuardian = m.tier === 4 && inst.rift && inst.rift.guardian === m.id;
   for (const p of witnesses) {

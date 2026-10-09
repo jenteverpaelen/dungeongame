@@ -42,7 +42,7 @@ test('debug requires exact opt-in and explicit disable overrides it, including r
 });
 
 test('legacy/current fixtures retain owned items, overflow slots, progression and extension fields', async () => {
-  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected', 'v3-autocast', 'v4-target-priority', 'v5-auto-rules']) {
+  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected', 'v3-autocast', 'v4-target-priority', 'v5-auto-rules', 'v6-quest-history']) {
     const original = await fixture(name), beforeItems = items(original);
     const migrated = normalizeSave(structuredClone(original));
     assert.equal(migrated.version, SAVE_VERSION);
@@ -57,6 +57,7 @@ test('legacy/current fixtures retain owned items, overflow slots, progression an
     await saveCharacter(migrated); await flushSaves();
     const loaded = await loadCharacter(migrated.id);
     assert.deepEqual(loaded, migrated, 'save/reload preserves normalized state');
+    assert.deepEqual(loaded!.quests, original.quests, 'quest history and unknown future records are retained');
     assert.deepEqual(items(loaded!), beforeItems);
   }
 });

@@ -2,11 +2,16 @@ import { useState } from 'preact/hooks';
 import { QUESTS } from '@shared/data/quests';
 import { questText as t } from '@shared/data/questMessages';
 import { DIALOGUES } from '@shared/data/dialogues';
+import { CHAPTERS, LORE } from '@shared/data/story';
 import { ADVENTURES } from '@shared/adventure';
+import town from '@shared/data/town/hearthmere.json';
 import { ZONES } from '@shared/data/zones';
-import { questAvailable, questCompleted, questObjective, questState, questStepText, trackedQuest, validQuestState } from '@shared/quests';
-import { togglePanel, ui, useUI } from '../store';
-import { PanelFrame, SecHead } from './common';
+import { loreAvailable, questAvailable, questCompleted, questContact, questMarker, questObjective, questState, questStatus, questStepText, questUnlocks, storyFlag, trackedQuest, validQuestState, type QuestStatus } from '@shared/quests';
+import type { CharacterSave } from '@shared/types';
+import type { QuestDef } from '@shared/questTypes';
+import { questRequest } from '@shared/questRequests';
+import { togglePanel, ui, useUI, worldReader } from '../store';
+import { PanelFrame, SecHead, Tabs } from './common';
 import { ItemTooltip } from './tooltip';
 import { run } from './util';
 import { QuestDelivery } from './questDelivery';
@@ -17,59 +22,98 @@ export function openJournal() {
 }
 
 export function AdventurePanel() {
-  const save=useUI(s=>s.char),target=useUI(s=>s.adventureTarget),contactZone=useUI(s=>s.adventureZone);
-  const selected=useUI(s=>s.journalQuest),zone=useUI(s=>s.zone),interact=useUI(s=>s.interact);
-  const [busy,setBusy]=useState(false),[dialogue,setDialogue]=useState('');
+  const save=useUI(s=>s.char),selected=useUI(s=>s.journalQuest);
+  const [view,setView]=useState<'quests'|'lore'>('quests'),[filter,setFilter]=useState<QuestStatus|'all'>('all'),[search,setSearch]=useState('');
   if(!save)return null;
-  const q=QUESTS.find(q=>q.id===selected)??trackedQuest(save)??QUESTS[0];
+  const entries=QUESTS.filter(q=>(filter==='all'||questStatus(save,q)===filter)&&t(q.title).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+  const q=entries.find(q=>q.id===selected)??entries.find(q=>q.id===trackedQuest(save)?.id)??entries[0];
+  const readings=LORE.filter(l=>loreAvailable(save,l));
+  return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={530}>
+    <Tabs tabs={[{id:'quests',label:t('quest.journal.all')},{id:'lore',label:t('quest.journal.lore'),badge:readings.length}]} value={view} onChange={setView}/>
+    {view==='lore'?<>
+      {!readings.length&&<p>{t('quest.journal.loreEmpty')}</p>}
+      {readings.map(l=><details class="quest-reading" key={l.id}><summary>{t(l.title)}</summary><p>{t(l.text)}</p></details>)}
+    </>:<>
+      <div class="quest-filters">
+        <label>{t('quest.journal.search')}<input type="search" value={search} onInput={e=>setSearch(e.currentTarget.value)}/></label>
+        <label>{t('quest.journal.progress')}<select value={filter} onChange={e=>setFilter(e.currentTarget.value as QuestStatus|'all')}>
+          {(['all','active','available','complete','locked','unavailable'] as const).map(f=><option value={f} key={f}>{t(f==='all'?'quest.journal.all':f==='unavailable'?'quest.journal.retained':('quest.journal.'+f) as Parameters<typeof t>[0])}</option>)}
+        </select></label>
+      </div>
+      <nav class="quest-list" aria-label={t('quest.journal.all')}>
+        {entries.map(entry=><button key={entry.id} class={'btn '+(entry.id===q?.id?'primary':'')} aria-pressed={entry.id===q?.id} onClick={()=>ui.set({journalQuest:entry.id})}>
+          <strong>{t(entry.title)}</strong><small>{t(('quest.journal.'+questStatus(save,entry)) as Parameters<typeof t>[0])}</small>
+        </button>)}
+      </nav>
+      {q?<QuestDetails key={q.id} save={save} q={q}/>:<p role="status">{t('quest.journal.empty')}</p>}
+    </>}
+  </PanelFrame>;
+}
+
+function Conversation({save,zone,target,name}:{save:CharacterSave;zone:string;target:string;name:string}) {
+  const [nodeId,setNodeId]=useState('');
+  const conversation=DIALOGUES[zone+'/'+target];
+  if(!conversation)return null;
+  const node=conversation.nodes[nodeId]??conversation.nodes[conversation.start];
+  return <div class="quest-dialogue"><SecHead>{name}</SecHead><p>{t(node.text)}</p>
+    {node.choices.filter(c=>(c.when??[]).every(f=>storyFlag(save,f))).map((c,i)=><button key={i} class="btn" onClick={()=>setNodeId(c.to)}>{t(c.label)}</button>)}
+  </div>;
+}
+
+function QuestDetails({save,q}:{save:CharacterSave;q:QuestDef}) {
+  const selectedTarget=useUI(s=>s.adventureTarget),selectedZone=useUI(s=>s.adventureZone);
+  const zone=useUI(s=>s.zone),interact=useUI(s=>s.interact),[busy,setBusy]=useState(false);
+  const contactZone=selectedZone??zone?.zone;
+  const target=selectedTarget??worldReader.current?.map()?.npcs.find(n=>n.name===interact?.name)?.id;
+  const npc=contactZone===town.id?town.npcs.find(n=>n.id===target):contactZone&&ADVENTURES[contactZone]?.npcs.find(n=>n.id===target);
+  const present=!!npc&&zone?.zone===contactZone&&interact?.name===npc.name;
   const state=questState(save,q.id),available=questAvailable(save,q),valid=!state||validQuestState(q,state);
-  const objective=questObjective(save,q),step=state&&q.steps[state.step];
-  const npc=contactZone&&ADVENTURES[contactZone]?.npcs.find(n=>n.id===target);
-  const present=!!npc && zone?.zone===contactZone && interact?.name===npc.name;
-  const conversation=DIALOGUES[`${contactZone}/${target}`];
-  const node=conversation?.nodes[dialogue]??conversation?.nodes[conversation.start];
+  const objective=questObjective(save,q),step=state&&q.steps[state.step],ready=state?.step===q.steps.length&&!state.claimed;
   const atStart=present&&contactZone===q.start.zone&&target===q.start.target;
   const atFinish=present&&contactZone===q.finish.zone&&target===q.finish.target;
-  const atStep=present&&step?.kind==='interact'&&step.zone===contactZone&&step.target===target;
-  const atDelivery=present&&step?.kind==='deliver'&&step.zone===contactZone&&step.target===target;
-  const ready=state?.step===q.steps.length&&!state.claimed;
-  const act=async(action:string)=>{setBusy(true);try{await run('quest',{action,target,quest:q.id});}finally{setBusy(false);}};
-  return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={530}>
-    <nav class="quest-list" aria-label="Adventures">
-      {QUESTS.map(entry=>{
-        const s=questState(save,entry.id),completed=questCompleted(save,entry.id),offered=questAvailable(save,entry);
-        return <button key={entry.id} class={`btn ${entry.id===q.id?'primary':''}`} aria-pressed={entry.id===q.id} onClick={()=>ui.set({journalQuest:entry.id})}>
-          <strong>{t(entry.title)}</strong><small>{t(completed?'quest.journal.complete':s?'quest.journal.active':offered?'quest.journal.available':'quest.journal.locked')}</small>
-        </button>;
-      })}
-    </nav>
+  const atStep=present&&!!step&&step.zone===contactZone&&step.target===target;
+  const chapter=CHAPTERS.find(c=>c.id===q.chapter),chapterQuests=QUESTS.filter(other=>other.chapter===q.chapter);
+  const completed=chapterQuests.filter(other=>questCompleted(save,other.id)).length;
+  const act=async(action:string)=>{setBusy(true);try{await run('quest',questRequest(q,state,target,action));}finally{setBusy(false);}};
+  const reward=typeof q.reward==='object'?q.reward:undefined;
+  return <>
+    {chapter&&<div class="quest-chapter"><SecHead>{t(chapter.act)} · {t(chapter.title)}</SecHead>
+      <p class="pn-note">{completed===chapterQuests.length?t('quest.journal.chapterComplete'):t('quest.journal.chapter')}: {completed}/{chapterQuests.length}</p>
+    </div>}
     <SecHead>{t(q.title)}</SecHead>
     {!valid?<p>{t('quest.journal.unavailable')}</p>:<>
       <p>{t(state?.claimed?q.complete:q.offer)}</p>
-      {!available&&<p class="pn-note">{t('quest.journal.requires')}</p>}
-      {present && <div class="quest-dialogue">
-        <SecHead>{npc.name}</SecHead>
-        <p>{t(node?.text??q.offer)}</p>
-        {node?.choices.map(choice=><button key={choice.to} class="btn" onClick={()=>setDialogue(choice.to)}>{t(choice.label)}</button>)}
-      </div>}
+      {!available&&<p class="pn-note">{t('quest.journal.requires')} {q.requires.map(id=>QUESTS.find(other=>other.id===id)).filter(Boolean).map(other=>t(other!.title)).join(' · ')}</p>}
+      {present&&npc&&contactZone&&target&&<Conversation key={contactZone+'/'+target} save={save} zone={contactZone} target={target} name={npc.name}/>}
       <SecHead>{t('quest.journal.progress')}</SecHead>
       <ol class="quest-steps">{q.steps.map((s,i)=><li key={s.id} class={state&&i<state.step?'complete':state&&i===state.step?'current':''}>
-        <span aria-label={state&&i<state.step?'Completed':'Pending'}>{state&&i<state.step?'✓':'○'}</span> {questStepText(s,state&&i<state.step?s.count??1:state&&i===state.step?state.progress??0:0)}
-      </li>)}<li class={state?.claimed?'complete':ready?'current':''}><span>{state?.claimed?'✓':'○'}</span> {t('quest.journal.return')}</li></ol>
-      {!state?.claimed&&available&&<>
-        <p class="pn-note">{objective.text} · {ZONES[objective.zone]?.name??objective.zone}</p>
-        {!state&&atStart&&<button class="btn primary" disabled={busy} onClick={()=>void act('accept')}>{t('quest.journal.accept')}</button>}
-        {atStep&&<button class="btn primary" disabled={busy} onClick={()=>void act('inspect')}>{t('quest.journal.inspect')}</button>}
-        {atDelivery&&step&&<QuestDelivery key={`${q.id}:${q.revision}:${step.id}`} save={save} step={step} onDeliver={async itemIds=>
-          (await run('quest',{action:'deliver',target,quest:q.id,revision:q.revision,step:step.id,itemIds})).ok}/>}
-        {ready&&atFinish&&<button class="btn primary" disabled={busy} onClick={()=>void act('claim')}>{t('quest.journal.claim')}</button>}
-        {!atStart&&!atFinish&&!atStep&&!atDelivery&&<p class="pn-note">{t('quest.journal.contact')}</p>}
-        <button class="btn" disabled={busy||trackedQuest(save)?.id===q.id} onClick={()=>void act('track')}>{t(trackedQuest(save)?.id===q.id?'quest.journal.tracked':'quest.journal.track')}</button>
+        <span aria-label={t(state&&i<state.step?'quest.journal.complete':'quest.journal.active')}>{state&&i<state.step?'✓':'○'}</span> {questStepText(s,state&&i<state.step?s.count??1:state&&i===state.step?state.progress??0:0)}
+      </li>)}<li class={state?.claimed?'complete':ready?'current':''}><span>{state?.claimed?'✓':'○'}</span> {t('quest.journal.return')}: {questContact(q.finish)}</li></ol>
+      {available&&<>
+        {(!state||state.claimed&&q.repeat)&&atStart&&<button class="btn primary" disabled={busy} onClick={()=>void act('accept')}>{t(state?'quest.journal.repeat':'quest.journal.accept')}</button>}
+        {!state?.claimed&&<>
+          <p class="pn-note">{objective.text} · {ZONES[objective.zone]?.name??objective.zone}</p>
+          {atStep&&step?.kind==='interact'&&<button class="btn primary" disabled={busy} onClick={()=>void act('inspect')}>{t('quest.journal.inspect')}</button>}
+          {atStep&&step?.kind==='talk'&&<button class="btn primary" disabled={busy} onClick={()=>void act('objectiveTalk')}>{t('quest.journal.talk')}</button>}
+          {atStep&&step?.kind==='deliver'&&<QuestDelivery key={q.id+':'+state?.cycle+':'+step.id} save={save} step={step} onDeliver={async itemIds=>(await run('quest',{...questRequest(q,state,target,'deliver'),itemIds})).ok}/>}
+          {ready&&atFinish&&<button class="btn primary" disabled={busy} onClick={()=>void act('claim')}>{t('quest.journal.claim')}</button>}
+          {!atStart&&!atFinish&&!atStep&&<p class="pn-note">{t('quest.journal.contact')}</p>}
+          <button class="btn" disabled={busy||trackedQuest(save)?.id===q.id} onClick={()=>void act('track')}>{t(trackedQuest(save)?.id===q.id?'quest.journal.tracked':'quest.journal.track')}</button>
+        </>}
       </>}
+      {!!(state?.completions??(state?.claimed?1:0))&&<p class="pn-note">{t('quest.journal.history')}: {state?.completions??1}</p>}
       <SecHead>{t(state?.reward&&!state.claimed?'quest.journal.reserved':'quest.journal.reward')}</SecHead>
       {state?.reward&&!state.claimed?<ItemTooltip item={state.reward}/>:<p class="pn-note">{t(q.rewardText)}</p>}
+      {!!reward?.xp&&<p>{t('quest.journal.xp')}: {reward.xp.toLocaleString()}</p>}
+      {!!reward?.gold&&<p>{t('quest.journal.gold')}: {reward.gold.toLocaleString()}</p>}
+      {questUnlocks(q).map(id=><p key={id}>{t('quest.journal.unlock')}: {ZONES[id]?.name??id}</p>)}
+      <details class="quest-rules"><summary>{t('quest.journal.rules')}</summary>
+        <p>{t(q.repeat?'quest.journal.repeatRule':'quest.journal.once')}</p><p>{t('quest.journal.sharing')}</p>
+        {q.steps.some(s=>s.credit==='killer')&&<p>{t('quest.journal.killer')}</p>}
+        {q.steps.some(s=>s.kind==='collect')&&<p>{t('quest.journal.collection')}</p>}
+      </details>
     </>}
-  </PanelFrame>;
+  </>;
 }
 
 export function AdventureTracker() {

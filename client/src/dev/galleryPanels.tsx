@@ -45,6 +45,10 @@ import { PanelFrame } from '../ui/panels/common';
 import { planQuestDelivery } from '@shared/questDelivery';
 import type { QuestStep } from '@shared/questTypes';
 import { completedRunSummary } from '../game/runSummary';
+import { QUESTS } from '@shared/data/quests';
+import { QUEST_MESSAGES, type QuestMessageKey } from '@shared/data/questMessages';
+import { writeQuestState } from '@shared/quests';
+import type { QuestDef } from '@shared/questTypes';
 
 const qs = new URLSearchParams(location.search);
 if (qs.has('still')) {
@@ -189,6 +193,7 @@ const find = (id: string): Item | null => char.inventory.find((i) => i?.id === i
 const fail = (err: string): CmdResult => ({ ok: false, err });
 
 async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResult> {
+  if(op==='quest')return fail('Presentation fixture only. Quest commands are checked against the local server.');
   await new Promise((r) => setTimeout(r, 120));
   const id = a.itemId as string;
   const item = id ? find(id) : null;
@@ -403,6 +408,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
+      {s === 'adventure' && <div style={{position:'fixed',top:8,left:8,color:'#ffdb83',zIndex:1000}}>P5 presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
@@ -410,6 +416,26 @@ function Gallery() {
 }
 
 setupUI();
+if(qs.get('s')==='adventure') {
+  // Stress the real journal using disposable in-page data only. Never imported by the game entry.
+  const mode=qs.get('quests')??'active',catalogue=QUESTS as QuestDef[];
+  if(mode==='empty')catalogue.splice(0);
+  if(mode==='many')for(let i=0;i<40;i++) {
+    const title=('fixture.quest.'+i) as QuestMessageKey;
+    (QUEST_MESSAGES as Record<string,string>)[title]='Fixture adventure '+(i+1);
+    catalogue.push({...structuredClone(QUESTS[0]),id:'gallery_'+i,title,requires:[],grantsFlags:undefined,
+      offer:'quest.pump.offer',steps:Array.from({length:12},(_,j)=>({...QUESTS[0].steps[0],id:'fixture_'+j,text:'quest.pump.offer'}))});
+  }
+  if(mode==='many')ui.set({journalQuest:'gallery_0'});
+  else if(mode!=='empty') {
+    if(mode==='complete')for(const q of QUESTS)writeQuestState(char,q.id,{revision:q.revision,step:q.steps.length,claimed:true});
+    else if(mode==='ready')writeQuestState(char,QUESTS[0].id,{revision:1,step:3,claimed:false,reward:gen({rarity:'magic',base:'sword'})});
+    else if(mode==='active')writeQuestState(char,QUESTS[0].id,{revision:1,step:1,claimed:false});
+    else if(mode==='unavailable')char.quests={high_water:{revision:99,step:0,claimed:false}};
+    ui.set({journalQuest:mode==='unavailable'?'high_water':'silent_wheel',adventureTarget:'tender',adventureZone:'rillwake_crossing',
+      zone:{...ui.get().zone!,zone:'rillwake_crossing',name:'Rillwake Crossing',kind:'field'},interact:{name:'Orren · Mill Tender',role:'quest'}});
+  }
+}
 if(qs.get('s')==='runSummary') {
   // Explicit synthetic result for presentation review; never writes a save or grants loot.
   const isRift=qs.get('run')==='rift';
@@ -420,7 +446,7 @@ if(qs.get('s')==='runSummary') {
 }
 
 const scene = (qs.get('s') ?? 'inventory').split(',');
-const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary'];
+const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary', 'adventure'];
 for (const p of scene) if ((panelIds as string[]).includes(p)) togglePanel(p as PanelId, true);
 
 const cubeFn = qs.get('cube');

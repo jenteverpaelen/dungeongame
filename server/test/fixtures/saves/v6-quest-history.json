@@ -1,0 +1,532 @@
+{
+  "id": "fixturev6",
+  "name": "FixtureV6",
+  "classId": "mage",
+  "level": 22,
+  "xp": 1234,
+  "gold": 876543,
+  "materials": {
+    "scrap": 0,
+    "dust": 0,
+    "crystal": 0,
+    "soul": 17,
+    "deathsBreath": 0
+  },
+  "gems": {
+    "ruby:3": 4
+  },
+  "equipment": {
+    "mainhand": {
+      "id": "don8hz1",
+      "base": "wand",
+      "kind": "weapon1h",
+      "name": "Wand",
+      "rarity": "normal",
+      "ancient": 0,
+      "ilvl": 1,
+      "reqLevel": 1,
+      "affixes": [],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "wand",
+        "primary": 10253126,
+        "secondary": 6178090,
+        "glow": 0,
+        "variant": 0
+      },
+      "weapon": {
+        "min": 2,
+        "max": 4,
+        "aps": 1.4,
+        "element": "physical"
+      },
+      "protected": true
+    },
+    "offhand": {
+      "id": "12tc44j2",
+      "base": "orb",
+      "kind": "offhand",
+      "name": "Orb",
+      "rarity": "normal",
+      "ancient": 0,
+      "ilvl": 1,
+      "reqLevel": 1,
+      "affixes": [],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "orb",
+        "primary": 43176,
+        "secondary": 25957,
+        "glow": 0,
+        "variant": 2
+      },
+      "armor": 3
+    },
+    "chest": {
+      "id": "greav43",
+      "base": "chest_robe",
+      "kind": "chest",
+      "name": "Worn Robe",
+      "rarity": "normal",
+      "ancient": 0,
+      "ilvl": 1,
+      "reqLevel": 1,
+      "affixes": [],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "robe",
+        "primary": 3824268,
+        "secondary": 2307668,
+        "glow": 0,
+        "variant": 2
+      },
+      "armor": 8
+    },
+    "legs": {
+      "id": "ycpzxp4",
+      "base": "legs_cloth",
+      "kind": "legs",
+      "name": "Worn Leggings",
+      "rarity": "normal",
+      "ancient": 0,
+      "ilvl": 1,
+      "reqLevel": 1,
+      "affixes": [],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "cloth",
+        "primary": 12099706,
+        "secondary": 7233609,
+        "glow": 0,
+        "variant": 2
+      },
+      "armor": 8
+    },
+    "feet": {
+      "id": "145hfly5",
+      "base": "feet_shoes",
+      "kind": "feet",
+      "name": "Worn Slippers",
+      "rarity": "normal",
+      "ancient": 0,
+      "ilvl": 1,
+      "reqLevel": 1,
+      "affixes": [],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "shoes",
+        "primary": 9189946,
+        "secondary": 5514019,
+        "glow": 0,
+        "variant": 0
+      },
+      "armor": 5
+    }
+  },
+  "inventory": [
+    {
+      "id": "6rqcth6",
+      "base": "chest_robe",
+      "kind": "chest",
+      "name": "Sun Shell",
+      "rarity": "rare",
+      "ancient": 0,
+      "ilvl": 22,
+      "reqLevel": 22,
+      "affixes": [
+        {
+          "stat": "skillDmg",
+          "value": 7.3,
+          "min": 5.5,
+          "max": 8.3,
+          "primary": true,
+          "param": "frost_nova"
+        },
+        {
+          "stat": "armor",
+          "value": 71,
+          "min": 62,
+          "max": 73,
+          "primary": true
+        },
+        {
+          "stat": "vit",
+          "value": 68,
+          "min": 62,
+          "max": 74,
+          "primary": true
+        },
+        {
+          "stat": "xpPct",
+          "value": 3.1,
+          "min": 2.2,
+          "max": 4.4,
+          "primary": false
+        }
+      ],
+      "sockets": [],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "robe",
+        "primary": 5204794,
+        "secondary": 13939002,
+        "glow": 0,
+        "variant": 2
+      },
+      "armor": 134,
+      "protected": true
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "stash": [
+    null,
+    null,
+    null,
+    {
+      "id": "o5mbr97",
+      "base": "ring",
+      "kind": "ring",
+      "name": "Ouroboros Loop",
+      "rarity": "legendary",
+      "ancient": 0,
+      "ilvl": 70,
+      "reqLevel": 70,
+      "affixes": [
+        {
+          "stat": "int",
+          "value": 661,
+          "min": 626,
+          "max": 750,
+          "primary": true
+        },
+        {
+          "stat": "allRes",
+          "value": 99,
+          "min": 91,
+          "max": 100,
+          "primary": true
+        },
+        {
+          "stat": "chd",
+          "value": 47.2,
+          "min": 45,
+          "max": 50,
+          "primary": true
+        },
+        {
+          "stat": "xpPct",
+          "value": 4.8,
+          "min": 4,
+          "max": 8,
+          "primary": false
+        },
+        {
+          "stat": "pickup",
+          "value": 32,
+          "min": 20,
+          "max": 40,
+          "primary": false
+        }
+      ],
+      "sockets": [
+        null
+      ],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "ring",
+        "primary": 13938487,
+        "secondary": 10478591,
+        "glow": 16769162,
+        "variant": 3
+      },
+      "legendary": {
+        "power": "ouroboros_loop",
+        "value": 160,
+        "min": 150,
+        "max": 200
+      },
+      "flavor": "Fire becomes frost becomes storm becomes fire.",
+      "protected": true
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "id": "xjkjeu8",
+      "base": "chest_robe",
+      "kind": "chest",
+      "name": "Gale Husk",
+      "rarity": "rare",
+      "ancient": 0,
+      "ilvl": 22,
+      "reqLevel": 22,
+      "affixes": [
+        {
+          "stat": "int",
+          "value": 66,
+          "min": 62,
+          "max": 74,
+          "primary": true
+        },
+        {
+          "stat": "eliteDR",
+          "value": 3.7,
+          "min": 2.8,
+          "max": 3.9,
+          "primary": true
+        },
+        {
+          "stat": "pickup",
+          "value": 2,
+          "min": 1,
+          "max": 2,
+          "primary": false
+        },
+        {
+          "stat": "goldFind",
+          "value": 8.8,
+          "min": 8.3,
+          "max": 13.9,
+          "primary": false
+        }
+      ],
+      "sockets": [
+        null,
+        null
+      ],
+      "upgrade": 0,
+      "upgradeFortune": 0,
+      "enchantCount": 0,
+      "bound": false,
+      "look": {
+        "shape": "robe",
+        "primary": 3421258,
+        "secondary": 13939002,
+        "glow": 0,
+        "variant": 0
+      },
+      "armor": 125
+    }
+  ],
+  "skills": {
+    "slots": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "runes": {
+      "meteor": "comet"
+    },
+    "tiers": {
+      "meteor": 2
+    },
+    "primary": "magic_missile",
+    "autoCast": [
+      "still",
+      "paused",
+      "auto",
+      "paused"
+    ],
+    "targetPriority": "elites",
+    "autoRules": [
+      {
+        "enemyWeight": 3,
+        "within": 300,
+        "elitesOnly": true,
+        "reservePct": 25,
+        "requireBuff": "magic_weapon"
+      },
+      null,
+      null,
+      null
+    ]
+  },
+  "skillPoints": 3,
+  "paragon": {
+    "level": 5,
+    "xp": 345,
+    "spent": {
+      "p_main": 2
+    }
+  },
+  "cube": {
+    "level": 8,
+    "xp": 234,
+    "learned": [
+      "ouroboros_loop"
+    ],
+    "equipped": [
+      null,
+      null,
+      null
+    ]
+  },
+  "difficulty": 0,
+  "lastZone": "hearthmere",
+  "lastSeen": 1700000000000,
+  "stats": {
+    "kills": 101,
+    "elites": 9,
+    "legendaries": 2,
+    "rifts": 1,
+    "playMs": 789000,
+    "deaths": 3
+  },
+  "fixtureExtension": {
+    "marker": "preserve unknown additive fields"
+  },
+  "version": 6,
+  "quests": {
+    "high_water": {
+      "revision": 1,
+      "step": 2,
+      "claimed": true,
+      "completions": 1
+    },
+    "future_fixture": {
+      "revision": 1,
+      "step": 0,
+      "claimed": false,
+      "cycle": 3,
+      "completions": 3
+    }
+  }
+}

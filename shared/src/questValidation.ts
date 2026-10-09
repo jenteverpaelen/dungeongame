@@ -1,7 +1,10 @@
 import { ADVENTURES, loadAdventure } from './adventure';
 import { QUESTS } from './data/quests';
 import { QUEST_MESSAGES } from './data/questMessages';
-import { DIALOGUES } from './data/dialogues';
+import { CHAPTERS } from './data/story';
+import { validateDialogues, validateQuestGraph } from './questAuthoring';
+import { questRewardError } from './questRewards';
+import { questUnlocks } from './quests';
 import { ZONES } from './data/zones';
 import { MONSTERS } from './data/monsters';
 import { CollisionWorld } from './movement';
@@ -13,6 +16,7 @@ import town from './data/town/hearthmere.json';
 import { inPolygon } from './townGeometry';
 import { validateAdventureAmbience } from './adventureAmbience';
 import { DIFFICULTIES } from './progression';
+import { validateAdventureReachability } from './adventureReachability';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
@@ -21,30 +25,40 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
   check(ids.size===quests.length,'quests','duplicate quest ID');
   const target=(t:QuestTarget,kind:QuestStep['kind'],path:string,step?:QuestStep)=>{
     const a=ADVENTURES[t.zone];
-    const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)
-      :kind==='deliver'?a?.interactions.some(i=>i.id===t.target&&i.kind==='person')
+    const person=a?.interactions.some(i=>i.id===t.target&&i.kind==='person')||t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&['blacksmith','jeweler','mystic','healer','vendor','quest'].includes(n.role));
+    const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)||t.zone===town.id&&town.npcs.some(n=>n.id===t.target)
+      :kind==='deliver'||kind==='talk'?person
       :kind==='rift'?t.zone==='rift'&&t.target==='completion'
       :kind==='reach'?a?.locations.some(i=>i.id===t.target)
       :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
       :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)
       :kind==='service'?t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&step?.serviceOp&&n.role===SERVICE_ROLE[step.serviceOp])
-      :kind==='kill'&&a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType?m.type===step.monsterType:m.questTarget));
+      :kind==='kill'&&a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType||step?.monsterFamily
+        ?(!step.monsterType||m.type===step.monsterType)&&(!step.monsterFamily||MONSTERS[m.type]?.family===step.monsterFamily):m.questTarget));
     check(!!found,path,`unknown ${kind} target ${t.zone}/${t.target}`);
   };
   for(const q of quests) {
     check(/^[a-z][a-z0-9_]*$/.test(q.id),q.id,'invalid ID');
     check(Number.isSafeInteger(q.revision)&&q.revision>0,q.id,'invalid revision');
     check(q.steps.length>0,q.id,'no objectives');
+    check(!q.chapter||CHAPTERS.some(c=>c.id===q.chapter),q.id,'unknown chapter');
+    check(q.repeat===undefined||q.repeat==='on_return',q.id,'unsupported repeat rule');
+    check(q.id!=='silent_wheel'||!q.repeat,q.id,'legacy quest cannot repeat');
+    const rewardError=questRewardError(q);if(rewardError)errors.push(`${q.id}: ${rewardError}`);
+    for(const flag of [...q.grantsFlags??[],...q.requiresFlags??[]])check(/^[a-z][a-z0-9_]*$/.test(flag),q.id,'invalid story flag');
+    for(const flag of q.requiresFlags??[])check(quests.some(p=>p.grantsFlags?.includes(flag)),q.id,`unknown story flag ${flag}`);
     check(new Set(q.steps.map(s=>s.id)).size===q.steps.length,q.id,'duplicate objective ID');
     for(const k of [q.title,q.offer,q.complete,q.rewardText,...q.steps.map(s=>s.text)])check(Object.hasOwn(QUEST_MESSAGES,k),q.id,`unknown message ${k}`);
-    target(q.start,'interact',`${q.id}.start`);target(q.finish,'interact',`${q.id}.finish`);
+    target(q.start,'talk',`${q.id}.start`);target(q.finish,'talk',`${q.id}.finish`);
     for(const [i,s] of q.steps.entries()) {
       const path=`${q.id}.steps[${i}]`;
       target(s,s.kind,path,s);
       check(Number.isSafeInteger(s.count??1)&&(s.count??1)>0,path,'count must be a positive safe integer');
       if(q.id==='silent_wheel')check((s.count??1)===1,path,'legacy flag adapter requires single-event steps');
-      if(s.kind==='interact'||s.kind==='reach'||s.kind==='wave')check((s.count??1)===1,path,'interaction/reach/wave count must be one');
+      if(s.kind==='interact'||s.kind==='talk'||s.kind==='reach'||s.kind==='wave')check((s.count??1)===1,path,'interaction/reach/wave count must be one');
       if(s.monsterType!==undefined)check(s.kind==='kill'&&Object.hasOwn(MONSTERS,s.monsterType),path,'invalid monster type filter');
+      if(s.monsterFamily!==undefined)check(s.kind==='kill'&&Object.values(MONSTERS).some(m=>m.family===s.monsterFamily),path,'invalid monster family filter');
+      if(s.credit!==undefined)check(s.kind==='kill'&&['nearby','killer'].includes(s.credit),path,'invalid kill credit policy');
       if(s.itemBase!==undefined)check((s.kind==='collect'||s.kind==='deliver')&&Object.hasOwn(BASES,s.itemBase),path,'invalid item base filter');
       if(s.kind==='deliver') {
         check(!!s.itemBase&&Object.hasOwn(BASES,s.itemBase),path,'delivery requires an item base');
@@ -57,7 +71,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       else check(s.serviceOp===undefined,path,'service operation on a different objective kind');
     }
     for(const id of q.requires)check(ids.has(id),q.id,`unknown prerequisite ${id}`);
-    if(q.unlocks)check(Object.hasOwn(ZONES,q.unlocks),q.id,`unknown unlocked zone ${q.unlocks}`);
+    for(const zone of questUnlocks(q))check(Object.hasOwn(ZONES,zone),q.id,`unknown unlocked zone ${zone}`);
   }
   const visited=new Set<string>(),active=new Set<string>();
   const visit=(id:string)=>{
@@ -67,16 +81,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
     active.delete(id);visited.add(id);
   };
   for(const q of quests)visit(q.id);
-  for(const [id,d] of Object.entries(DIALOGUES)) {
-    check(Object.hasOwn(d.nodes,d.start),id,'unknown dialogue start');
-    for(const [node,n] of Object.entries(d.nodes)) {
-      check(Object.hasOwn(QUEST_MESSAGES,n.text),`${id}/${node}`,'unknown dialogue text');
-      for(const c of n.choices) {
-        check(Object.hasOwn(d.nodes,c.to),`${id}/${node}`,'unknown dialogue destination');
-        check(Object.hasOwn(QUEST_MESSAGES,c.label),`${id}/${node}`,'unknown choice text');
-      }
-    }
-  }
+  errors.push(...validateQuestGraph(quests),...validateDialogues());
   return errors;
 }
 
@@ -86,6 +91,7 @@ export function validateAdventures():string[] {
   for(const id of Object.keys(ADVENTURES)) {
     const map=loadAdventure(id,1),a=map.adventure!,cw=new CollisionWorld(map);
     errors.push(...validateAdventureAmbience(a));
+    errors.push(...validateAdventureReachability(map));
     check((ZONES[id]?.kind==='dungeon')===!!a.dungeon,`${id}: dungeon runtime/kind mismatch`);
     if(a.dungeon){
       const stages=a.dungeon.stages;

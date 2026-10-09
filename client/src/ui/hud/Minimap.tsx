@@ -7,7 +7,7 @@ import { DIFFICULTIES } from '@shared/progression';
 import { TILE } from '@shared/constants';
 import { clamp01, fmtClock, safeGet, safeSet } from './util';
 import { AdventureTracker } from '../panels/adventure';
-import { questObjective, questPoint, trackedQuest } from '@shared/quests';
+import { questMarker, questObjective, questPoint, trackedQuest } from '@shared/quests';
 import { ui, togglePanel } from '../store';
 import { text } from '../../i18n/messages';
 import { questText } from '@shared/data/questMessages';
@@ -112,14 +112,18 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   };
 
   // static map features
-  const save=ui.get().char, adventure=baked.map.adventure;
-  if(save && adventure) {
+  const save=ui.get().char;
+  if(save) {
     const quest=trackedQuest(save);
     const dungeon=ui.get().dungeon;
     const point=dungeon?questPoint(baked.map,{zone:baked.map.zone,target:dungeon.target},save):quest&&questPoint(baked.map,questObjective(save,quest),save);
     if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
   }
-  for (const n of baked.map.npcs) npcIcon(g, n.role, px(n.x), py(n.y));
+  for (const n of baked.map.npcs) {
+    npcIcon(g, n.role, px(n.x), py(n.y));
+    const marker=save&&questMarker(save,baked.map.zone,n.id);
+    if(marker){g.font='bold 15px sans-serif';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#140e0a';g.fillStyle='#ffdb83';g.strokeText(marker,px(n.x),py(n.y)-7);g.fillText(marker,px(n.x),py(n.y)-7);}
+  }
   for (const p of baked.map.portals) { const [x, y, off] = clampTo(px(p.x), py(p.y)); if (!off) portalIcon(g, x, y, t); }
 
   // dynamic entities, drawn in priority order (cheap first)

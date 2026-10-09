@@ -5,6 +5,8 @@ import type { QuestDef, QuestState, QuestTarget, QuestStep } from './questTypes'
 import type { MapData } from './mapgen';
 import { nextTravelPoint } from './worldNavigation';
 import town from './data/town/hearthmere.json';
+import { ADVENTURES } from './adventure';
+import type { LoreEntry } from './data/story';
 
 /** C070 remains the sole owner of this quest's save shape; never duplicate its reward. */
 export function questState(save: CharacterSave, id: string): QuestState | undefined {
@@ -19,37 +21,68 @@ export function writeQuestState(save: CharacterSave, id: string, state: QuestSta
 }
 export function validQuestState(q: QuestDef, s: QuestState): boolean {
   const progress=s.progress??0,need=q.steps[s.step]?.count??1;
+  const cycle=s.cycle??0,completions=s.completions??(s.claimed?1:0);
   return s.revision===q.revision && Number.isInteger(s.step) && s.step>=0 && s.step<=q.steps.length && (!s.claimed || s.step===q.steps.length)
-    && Number.isSafeInteger(progress)&&progress>=0&&progress<need && (q.steps[s.step]?.kind!=='deliver'||progress===0);
+    && Number.isSafeInteger(progress)&&progress>=0&&progress<need && (q.steps[s.step]?.kind!=='deliver'||progress===0)
+    && typeof s.claimed==='boolean' && Number.isSafeInteger(cycle)&&cycle>=0 && Number.isSafeInteger(completions)
+    && completions===cycle+(s.claimed?1:0) && (!!q.repeat||cycle===0);
 }
 export function questStepText(step:QuestStep,progress=0):string {
   return questText(step.text)+((step.count??1)>1?` (${progress}/${step.count})`:'');
 }
 export function questCompleted(save:CharacterSave,id:string):boolean {
   const q=QUESTS.find(q=>q.id===id),s=questState(save,id);
-  return !!q && !!s && validQuestState(q,s) && s.claimed;
+  return !!q && !!s && validQuestState(q,s) && (s.claimed||(s.completions??0)>0);
 }
-export function questAvailable(save:CharacterSave,q:QuestDef):boolean { return q.requires.every(id=>questCompleted(save,id)); }
+export function storyFlag(save:CharacterSave,flag:string):boolean {
+  return QUESTS.some(q=>q.grantsFlags?.includes(flag)&&questCompleted(save,q.id));
+}
+export function questAvailable(save:CharacterSave,q:QuestDef):boolean {
+  return q.requires.every(id=>questCompleted(save,id))&&(q.requiresFlags??[]).every(f=>storyFlag(save,f));
+}
+export const questUnlocks=(q:QuestDef):string[]=>[...(q.unlocks?[q.unlocks]:[]),...(q.reward&&typeof q.reward==='object'&&Array.isArray(q.reward.unlocks)?q.reward.unlocks:[])];
+export const questHasWeapon=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&q.reward.item==='magic_weapon';
 export function zoneUnlocked(save:CharacterSave,zone:string):boolean {
-  return QUESTS.filter(q=>q.unlocks===zone).every(q=>questCompleted(save,q.id));
+  return QUESTS.filter(q=>questUnlocks(q).includes(zone)).every(q=>questCompleted(save,q.id));
+}
+export function questContact(target:QuestTarget):string {
+  return ADVENTURES[target.zone]?.interactions.find(i=>i.id===target.target)?.name
+    ??(target.zone===town.id?town.npcs.find(n=>n.id===target.target)?.name:undefined)??target.target;
+}
+export function loreAvailable(save:CharacterSave,entry:LoreEntry):boolean {
+  const q=QUESTS.find(q=>q.id===entry.quest),s=questState(save,entry.quest);
+  return !!q&&!!s&&validQuestState(q,s)&&(questCompleted(save,q.id)||s.step>=entry.afterStep);
+}
+export type QuestStatus='active'|'available'|'complete'|'locked'|'unavailable';
+export function questStatus(save:CharacterSave,q:QuestDef):QuestStatus {
+  const s=questState(save,q.id);
+  return s&&!validQuestState(q,s)?'unavailable':s?.claimed?'complete':s?'active':questAvailable(save,q)?'available':'locked';
+}
+export function questMarker(save:CharacterSave,zone:string,target:string):'!'|'?'|'◆'|undefined {
+  const same=(p:QuestTarget)=>p.zone===zone&&p.target===target;
+  const candidates=QUESTS.filter(q=>questAvailable(save,q));
+  if(candidates.some(q=>{const s=questState(save,q.id);return s&&validQuestState(q,s)&&!s.claimed&&s.step===q.steps.length&&same(q.finish);}))return '?';
+  if(candidates.some(q=>{const s=questState(save,q.id);return (!s||s.claimed&&q.repeat)&&same(q.start);}))return '!';
+  if(candidates.some(q=>{const s=questState(save,q.id);return s&&validQuestState(q,s)&&!s.claimed&&same(questObjective(save,q));}))return '◆';
+  return undefined;
 }
 export function questObjective(save:CharacterSave,q:QuestDef):QuestTarget & {text:string} {
   const s=questState(save,q.id);
-  if(!s)return {...q.start,text:questText('quest.journal.start')};
+  if(!s)return {...q.start,text:`${questText('quest.journal.start')}: ${questContact(q.start)}`};
   if(!validQuestState(q,s))return {...q.start,text:questText('quest.journal.unavailable')};
   if(s.claimed)return {...q.finish,text:questText('quest.journal.complete')};
   const step=q.steps[s.step];
-  return step?{...step,text:questStepText(step,s.progress??0)}:{...q.finish,text:questText('quest.journal.return')};
+  return step?{...step,text:questStepText(step,s.progress??0)}:{...q.finish,text:`${questText('quest.journal.return')}: ${questContact(q.finish)}`};
 }
 export function trackedQuest(save:CharacterSave):QuestDef|undefined {
-  const candidates=QUESTS.filter(q=>questAvailable(save,q)&&!questCompleted(save,q.id));
+  const candidates=QUESTS.filter(q=>questAvailable(save,q)&&!questState(save,q.id)?.claimed);
   return candidates.find(q=>q.id===save.trackedQuest)??candidates.find(q=>questState(save,q.id))??candidates[0];
 }
 export function questAtTarget(save:CharacterSave,zone:string,target:string):QuestDef|undefined {
   const candidates=QUESTS.filter(q=>questAvailable(save,q));
   const matches=(t:QuestTarget)=>t.zone===zone&&t.target===target;
-  return candidates.find(q=>questState(save,q.id)&&!questCompleted(save,q.id)&&matches(questObjective(save,q)))
-    ??candidates.find(q=>!questState(save,q.id)&&matches(q.start))
+  return candidates.find(q=>questState(save,q.id)&&!questState(save,q.id)?.claimed&&matches(questObjective(save,q)))
+    ??candidates.find(q=>(!questState(save,q.id)||q.repeat&&questState(save,q.id)?.claimed)&&matches(q.start))
     ??candidates.find(q=>q.steps.some(matches))
     ??candidates.find(q=>matches(q.start));
 }

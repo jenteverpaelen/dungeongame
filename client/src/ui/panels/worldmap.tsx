@@ -4,7 +4,7 @@ import { ZONES } from '@shared/data/zones';
 import { QUESTS } from '@shared/data/quests';
 import { questText } from '@shared/data/questMessages';
 import { CollisionWorld } from '@shared/movement';
-import { questCompleted, questObjective, questPoint, trackedQuest, zoneUnlocked } from '@shared/quests';
+import { questCompleted, questMarker, questObjective, questPoint, questUnlocks, trackedQuest, zoneUnlocked } from '@shared/quests';
 import { worldConnections, zoneRoute } from '@shared/worldNavigation';
 import type { MapData } from '@shared/mapgen';
 import type { CharacterSave } from '@shared/types';
@@ -21,7 +21,7 @@ const edges=worldConnections();
 const regions=Object.values(ZONES).filter(z=>z.kind!=='rift');
 
 function routeLock(save:CharacterSave,id:string) {
-  return QUESTS.find(q=>q.unlocks===id&&!questCompleted(save,q.id));
+  return QUESTS.find(q=>questUnlocks(q).includes(id)&&!questCompleted(save,q.id));
 }
 
 export function WorldMapPanel() {
@@ -72,7 +72,7 @@ export function WorldMapPanel() {
         {here?<span>{t('map.here')}</span>:!canTravel&&!locked&&!tooLow&&<span>{t(me?.dead?'map.dead':'map.physical')}</span>}
       </div>
     </>:map&&terrain?<>
-      <LocalMap map={map} terrain={terrain} me={me} point={point||undefined} objectiveLabel={objective?.text}/>
+      <LocalMap map={map} save={save} terrain={terrain} me={me} point={point||undefined} objectiveLabel={objective?.text}/>
       <p class="pn-note">{t('map.groundNote')}</p>
       <div class="wm-key"><span>▲ {t('map.here')}</span><span>◆ {t('map.objective')}</span><span>○ {t('map.services')}</span><span>↗ {t('map.exits')}</span></div>
       <div class="wm-locations">{map.portals.map((p,i)=><button class="btn" key={i} onClick={()=>{setSelected(p.to);setView('routes');}}>↗ {p.label}</button>)}</div>
@@ -86,7 +86,7 @@ export function WorldMapPanel() {
   </PanelFrame>;
 }
 
-function LocalMap({map,terrain,me,point,objectiveLabel}:{map:MapData;terrain:string;me:{x:number;y:number}|null;point?:{x:number;y:number};objectiveLabel?:string}) {
+function LocalMap({map,save,terrain,me,point,objectiveLabel}:{map:MapData;save:CharacterSave;terrain:string;me:{x:number;y:number}|null;point?:{x:number;y:number};objectiveLabel?:string}) {
   const w=map.w*TILE,h=map.h*TILE;
   const [selected,setSelected]=useState<string|null>(null);
   const npcs=map.npcs.filter(n=>n.role!=='dummy');
@@ -96,6 +96,7 @@ function LocalMap({map,terrain,me,point,objectiveLabel}:{map:MapData;terrain:str
     <image href={terrain} x="0" y="0" width={w} height={h}/>
     {npcs.map(n=><g key={n.id} transform={`translate(${n.x},${n.y})`}>
       <title>{n.name} · {n.role}</title><circle r={r*(n.id===selected?1.4:.65)} class="service"/>
+      <text y={-r} text-anchor="middle" fill="#ffdb83" stroke="#140e0a" stroke-width={r/8} paint-order="stroke" font-size={r*2.5} font-weight="bold">{questMarker(save,map.zone,n.id)}</text>
     </g>)}
     {map.portals.map((p,i)=><g key={i} transform={`translate(${p.x},${p.y})`}>
       <title>{p.label}</title><circle r={r} class="exit"/>
