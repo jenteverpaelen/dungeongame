@@ -42,6 +42,7 @@ async function mount(canvas: HTMLCanvasElement) {
 
 /** Watch the DOM for preview canvases (the class-select screen) and animate them. */
 export function startPreviews() {
+  if (observer) return;
   const scan = () => {
     document.querySelectorAll<HTMLCanvasElement>('canvas[data-preview]').forEach((c) => void mount(c));
     for (const [c, p] of previews) if (!c.isConnected) { previews.delete(c); destroyPreview(p); }

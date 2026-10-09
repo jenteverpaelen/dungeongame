@@ -9,10 +9,11 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const selection = process.argv.includes('--selection');
+const returnSelection = process.argv.includes('--return-selection');
+const selection = process.argv.includes('--selection') || returnSelection;
 const messageBoundary = process.argv.includes('--message-boundary');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-connection-ui-'));
-const dataDir = path.join(tmp, 'saves'), out = path.join(root, selection ? 'docs/originality/checks/signatures' : messageBoundary ? 'docs/phase/P03-foundations/checks/messages' : 'docs/phase/P03-foundations/checks/connections');
+const dataDir = path.join(tmp, 'saves'), out = path.join(root, returnSelection ? 'docs/phase/P03-foundations/checks/preview-return' : selection ? 'docs/originality/checks/signatures' : messageBoundary ? 'docs/phase/P03-foundations/checks/messages' : 'docs/phase/P03-foundations/checks/connections');
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -37,13 +38,14 @@ function launch(args, env = {}, ipc = false, exe = process.execPath) {
 }
 async function connect(url) {
   const ws = new WebSocket(url); await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
-  let id = 0; const pending = new Map(), events = [];
+  let id = 0; const pending = new Map(), events = [], errors = [];
   ws.onmessage = event => {
     const message = JSON.parse(event.data);
     if (message.id) { const p = pending.get(message.id); pending.delete(message.id); message.error ? p?.reject(message.error) : p?.resolve(message.result); }
     else if (message.method?.startsWith('Network.webSocket') && /Handshake|FrameError/.test(message.method)) events.push(message);
+    else if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
   };
-  const channel = { ws, events, call: (method, params = {}) => new Promise((resolve, reject) => {
+  const channel = { ws, events, errors, call: (method, params = {}) => new Promise((resolve, reject) => {
     const n = ++id; pending.set(n, { resolve, reject }); ws.send(JSON.stringify({ id: n, method, params }));
   }) }; channels.push(channel); return channel;
 }
@@ -68,6 +70,17 @@ try {
   const page = await connect(tabs.find(tab => tab.type === 'page').webSocketDebuggerUrl);
   await page.call('Page.enable'); await page.call('Runtime.enable'); await page.call('Network.enable');
   await page.call('Emulation.setDeviceMetricsOverride', { width: 1920, height: 1080, deviceScaleFactor: 1, mobile: false });
+  if (returnSelection) await page.call('Page.addScriptToEvaluateOnNewDocument', { source: `(()=>{
+    const active=new Set(),NativeObserver=window.MutationObserver;
+    window.MutationObserver=class extends NativeObserver{
+      observe(target,options){if(target.id==='ui')active.add(this);return super.observe(target,options)}
+      disconnect(){active.delete(this);return super.disconnect()}
+    };
+    Object.defineProperty(window,'__previewObserverCount',{get:()=>active.size});
+    const getContext=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(...args){const ctx=getContext.apply(this,args);
+      if(ctx&&this.dataset.preview&&['webgl','webgl2'].includes(args[0]))this.dataset.testRenderer=args[0];return ctx;};
+  })()` });
   const evaluate = async expression => {
     const r = await page.call('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
     if (r.exceptionDetails) throw Error(JSON.stringify(r.exceptionDetails)); return r.result.value;
@@ -101,6 +114,30 @@ try {
     observations.push({ capture: name, ...state });
     const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64')); console.log(`Captured ${name}`);
+    if (returnSelection) {
+      assert.equal(await evaluate('__previewObserverCount'), 0);
+      for (let cycle=1;cycle<=2;cycle++) {
+        await evaluate('__game.conn.close();true');
+        await until(() => evaluate('__ui.get().screen==="select" && document.querySelectorAll("canvas[data-preview][data-test-renderer]").length===3'));
+        await wait(600);
+        const lifecycle = await evaluate(`(()=>{
+          for(let i=0;i<5;i++)__ui.set({ping:i});
+          return {observers:__previewObserverCount,canvases:Array.from(document.querySelectorAll('canvas[data-preview]'),c=>({classId:c.dataset.preview,renderer:c.dataset.testRenderer})),
+            screen:__ui.get().screen,width:innerWidth,height:innerHeight,hidden:document.hidden};
+        })()`);
+        assert.equal(lifecycle.observers, 1); assert.equal(lifecycle.canvases.length, 3);
+        assert.deepEqual(lifecycle.canvases.map(c=>c.classId), ['warrior','ranger','mage']);
+        const capture = `${name}-return-${cycle}`;
+        observations.push({ capture, ...lifecycle });
+        const frame = await page.call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+        await fs.writeFile(path.join(out,capture+'.png'),Buffer.from(frame.data,'base64'));
+        console.log(`Captured ${capture}`);
+        await evaluate(`__game.start(${JSON.stringify(character)},'mage')`);
+        await until(() => evaluate('__ui.get().screen==="game" && !!__game.world.me'));
+        assert.equal(await evaluate('__previewObserverCount'), 0);
+      }
+      assert.deepEqual(page.errors, [], 'No browser runtime exception across preview initialization/destruction');
+    }
   }
   await page.call('Page.navigate', { url: foreignOrigin });
   await until(() => evaluate(`location.origin===${JSON.stringify(foreignOrigin)}`));
@@ -121,6 +158,6 @@ finally {
   for (const child of procs) if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
   if (foreign) { foreign.closeAllConnections(); await new Promise(resolve => foreign.close(resolve)); }
   await fs.writeFile(path.join(out, 'trace.json'), JSON.stringify({ tmp, dataDir, node: process.version, browserVersion, passed, failure,
-    scope: 'Installed headless Chrome1920x1080; own local app with fresh profile/data, actual built/Vite browser handshakes and unlisted local page. No production TLS/proxy, account security, human usability or load-performance claim.', selection, observations }, null, 2) + '\n');
+    scope: 'Installed headless Chrome1920x1080; own local app with fresh profile/data, actual built/Vite browser handshakes and unlisted local page. No production TLS/proxy, account security, human usability or load-performance claim.', selection, returnSelection, observations }, null, 2) + '\n');
   await fs.writeFile(path.join(tmp, 'capture.log'), logs.join('')); console.log(`Connection browser evidence: ${tmp}`);
 }

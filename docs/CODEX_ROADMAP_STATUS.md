@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C042. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C043. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -173,7 +173,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-05 | Delete / rename / restore dialogs | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-06 | Server / channel status and maintenance banner | P16 | PARTIAL — channel info exists | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-07 | Loading screen with tips | P6 | PARTIAL — `Connecting` | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-08 | Disconnect / reconnect / queue | P16 | PARTIAL — error state | Reconnect/save-error/future-save refusal checked; C042 fixes channel audio surviving disconnect. Portrait return defect found; queue/recovery UI remains open. [audio report](phase/P03-foundations/AUDIO-LIFETIME-REPORT.md). |
+| U-08 | Disconnect / reconnect / queue | P16 | PARTIAL — error state | Reconnect/save-error/future-save refusal checked; C042 fixes channel audio and C043 restores returning portraits. Queue/recovery UI remains open. [preview report](phase/P03-foundations/PREVIEW-RETURN.md). |
 | U-09 | Patch notes / news | P18 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-10 | Settings: audio | P3 | PARTIAL — buses exist, no UI | Audio controls implemented using existing style; local persistence/reload/reset checked (C009). [foundation state](phase/P03-foundations/STATE.md). |
 | U-11 | Settings: graphics / performance | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |

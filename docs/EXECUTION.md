@@ -39,3 +39,5 @@ C040 maps the future P5 objective families onto actual authoritative game action
 C041 completes that current-behavior probe:39 all-class cases repeated identically, preserving the failed ordinary-loot assumption as pilot evidence. Kill, pickup and rift boundaries now have scoped runtime evidence; durable objective integration remains open. Continue the independent audio/settings audit and broader research.
 
 C042 fixes reproduced channel audio surviving disconnect/zone boundaries; source-ended/reconnect/mute checks and full18-stage verification pass. Five inspected browser frames exposed an existing class-portrait return defect; continue that concrete lifecycle correction and the broader roadmap.
+
+C043 restores the existing portraits on return to selection. Built/Vite repeated reconnect checks, typecheck/build and eight inspected frames pass. Continue P1/P3 and the full catalogue; neither lifecycle fix is a completed phase or a stopping point.

@@ -44,8 +44,12 @@ async function boot() {
   const game = new Game(app);
   session.start = (name, classId) => { void game.start(name, classId); };
   render(h(App, null), document.getElementById('ui')!);
-  startPreviews();
-  ui.subscribe(() => { if (ui.get().screen === 'game') stopPreviews(); });
+  const syncPreviews = () => {
+    if (ui.get().screen === 'select') startPreviews();
+    else stopPreviews();
+  };
+  syncPreviews();
+  ui.subscribe(syncPreviews);
 
   // Dev convenience: ?autostart=Name&class=mage jumps straight into the world.
   const qs = new URLSearchParams(location.search);
