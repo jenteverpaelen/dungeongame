@@ -193,3 +193,7 @@ R11, actual shared costs/progression/items and server AFK/command/loot paths pre
 ### L35 — Reproduce stale enchantment after reforge, 2026-10-09
 
 The P01 handler probe verifies that a pre-reforge option remains accepted against replaced item properties sharing the same ID. Read actual enchantPool exclusions and client pending-choice rendering before `docs/phase/P03-foundations/ENCHANT-TRANSITION-DESIGN.md`. Preserve the paid choice by refusing same-item reforge until it is resolved; unrelated items and existing prices remain. This is local integrity evidence, not a borrowed D3 economic rule.
+
+### L36 — Trace existing build decisions before expanding progression, 2026-10-09
+
+R01/R03/R04/R21 distinguish character unlocks, equipped slots and invested ranks. Current `character.ts`, skill definitions, `playerctx.ts`, brain/cast/damage/summon consumers are the measurement source for a complete local tier/rune inventory. PoE2's primary 0.4.0 notes (3883495, UI and bug-fix sections read) report compatibility hints and tooltip/runtime mismatches; they motivate checking our own behavior, not importing their values. Record definition, merged runtime and actual behavioral evidence separately. No new skill, unlock schedule, name, target duration or numeric balance follows from this audit.

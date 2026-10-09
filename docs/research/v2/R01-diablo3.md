@@ -24,3 +24,9 @@ Next stop condition: a versioned, timestamped first-session trace for each mode 
 ## Extended availability read — 2026-10-09
 
 Both tables continue rune/passive choices through levels 31–60, add an active at 61, then continue runes/passives through 69. This closes the partial body-read gap, not the live-client or elapsed-time gap. The table is a cadence reference: a later unlock can add a modifier rather than require another action slot. [S; D3-07; D3-PROG-W/B]
+
+## Build scope and performance, 2026-10-09
+
+The 2.5.0 Armory preview includes equipment, gems, skills/runes and Cube preferences, but explicitly excludes Paragon assignment (D3-09). This makes component scope an essential question for any later Hearthfall loadout feature; a loadout is not simply copied gear. The 2.6.1 preview attributes a rune redesign to dense-area projectile performance and adjusts another skill's range to support its intended synergy (D3-08). These are historical developer explanations, not measured results on this PC.
+
+Elective Mode's community history (D3-10, revision53065) records a tension between category guidance and flexible assignment. Attributed 2012 remarks and user complaints cannot establish prevalence, current defaults or comprehension outcomes. Current primary guide access still fails; no restriction is added to Hearthfall's existing four-slot selection.

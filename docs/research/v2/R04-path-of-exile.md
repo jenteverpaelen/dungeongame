@@ -21,3 +21,7 @@ The [October 2025 Keepers FAQ](https://www.pathofexile.com/forum/view-thread/387
 ## Still unfinished
 
 Both games need versioned first-ten-level traces, recovery/respec rules, loot-filter and inventory error flows, and separate ownership/reset tables. Economy policing, maps/Atlas and public anti-abuse evidence remain out of this pass. Next: source the current versions, then inspect gem acquisition/equipping/invalid-support recovery without conflating their implementations.
+
+## PoE2 build feedback, 2026-10-09
+
+The historical 0.4.0 UI section says equipped-skill compatibility is shown while hovering a support in gemcutting. Its bug-fix section reports mismatched effect/visual behavior and partial-cost benefits. These are useful questions for an actual rules/UI audit, not proof that similar Hearthfall bugs exist (POE2-02). Read scope excludes most numerical balance tables; no claim that December2025 notes are the current October2026 build.

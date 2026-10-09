@@ -19,3 +19,7 @@ These are proposed local methods, not borrowed success claims. No level cap, XP 
 ## Remaining
 
 Full local formula inventory, sensitivity analysis, source-verified reference formulas, player timing and build choice quality. Existing simulations reveal large set/rare differences but do not alone establish what to nerf.
+
+## Existing tiers/runes, 2026-10-09
+
+[BUILD-REPORT.md](../../phase/P01-research/BUILD-REPORT.md) records all 54 tiers and 54 runes, 288 runtime-helper combinations, affordability and point/refund conservation. It distinguishes helpers and lexical flag consumers from actual combat execution. All-tier cost72 exceeds level-earned69; that is an existing constraint, not a proposed shortage. Description/runtime differences are queued for focused probes; no balance value changes.

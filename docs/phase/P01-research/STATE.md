@@ -20,6 +20,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Correct measured mouse/LMB instruction mismatch using existing labels/tooltips/private new-character chat. Fresh and returning browser flows pass; five final 1080p frames inspected. This is a cue correction, not a completed onboarding system or player study.
 - [x] Map actual economic sources/sinks/transfers and compute 60 offline cases, 15 item-cost fixtures and current Fortune-aware upgrade expectations. Repeat output hashes match; no balance change. Enchant transition semantics and active rates remain next evidence.
 - [x] Reproduce stale enchant/reforge transition with real handlers, preserve before/pilot/after evidence, and correct the state-safety defect (C022). Active earning rates and cross-game economic comparisons remain open.
+- [x] Inventory 54 tiers / 54 runes and 288 actual runtime-helper combinations; confirm affordability and refund conservation in repeatable synthetic probes. BUILD-REPORT.md distinguishes source mismatches and untested behavior; no balancing change.
 
 ## Research depth and remaining scope
 
