@@ -41,6 +41,8 @@ This is a structural comparison, not a pacing target or proof of reference-game 
 
 For **every requested game**, T=10 min / 1 h / 5 h / 20 h / 50 h / 100 h / 200 h remains unmeasured. We cannot yet populate level, zone, loot beat, UI exposure or social-state cells honestly. A level-unlock table is not a time series. The next pass starts with ordinary first-session footage and records account bonuses, seasonal state, platform, skips and patch. Later-hour cells need different evidence.
 
+C056 starts the explicit [timeline matrix and observation record](TIMELINES.md). Eighteen historical D3 Campaign video-offset samples now exist, but account Paragon and a difficulty change make them ineligible for clean first-account time cells. They strengthen UI evidence while comparable elapsed-play-time cells remain unknown.
+
 No external first-legendary distribution, drop-rate formula, pity threshold or crafting-cost table is ready for balance implementation. TBH's chest rule revision is a caution about reward pacing, not a number to reuse. Hearthfall's seeded loot simulation is reproducible but assumes a class, difficulty, elite source and Magic Find; it is not a population playtest. Read the [metric corrections](../../design/ROADMAP_ERRATA.md).
 
 ## UI atlas — text evidence only

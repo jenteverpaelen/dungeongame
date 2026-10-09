@@ -40,3 +40,9 @@ C045 adds the equal-question [loot comparison](LOOT.md), including historical/so
 Three dated2.5.0 media assets now have inspected pixels: material list, a single item tooltip and two untimed Armory animation frames. Cropped/low-resolution preview images do not establish the current PC HUD or either Campaign/Adventure opening flow. [V; D3-250-UI / D3-27]
 
 See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.
+
+## C056 — historical Campaign gameplay samples
+
+Eighteen inspected paused frames now establish a versioned interface sequence: creation/lobby, objective help/dialogue, Paragon previews, settings, waypoint return and reward notices. [V; D3-CAM-VIDEO; D3-28–30] The recording's2.7.7.93903 build and November21,2024 publication are separate provenance facts. Level1 already has Paragon100; at level2 allocation points/previews are visible, and difficulty changes from Normal to Hard between inspected05:00/06:00 frames. Do not use level4 at video10:00 as first-account balance evidence.
+
+[TIMELINES.md](TIMELINES.md) preserves offsets and unknowns. Actual item/skill-selection inputs, unavailable/failed states, committed allocations, uncut ordinary Campaign and separate Adventure first sessions remain open. This refines UI evidence without closing R-01 or adding content.

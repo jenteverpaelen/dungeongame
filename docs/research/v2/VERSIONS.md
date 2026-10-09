@@ -20,3 +20,7 @@ POE-329 changes socket colour from an insertion restriction to a quality opportu
 ## C055 visual-source provenance
 
 The [UI atlas](UI-ATLAS.md) observes publisher-media pixels for every priority game, with PoE1/2 separate. Only D3's selected news illustrations have a specific dated patch context: March16,2017,2.5.0 preview. Current Steam gallery retrieval, asset query timestamps and filenames do not pin capture builds or default settings. Visible high-level Idleon characters are not evidence of a new-character timeline. Installed-client version and D3 mode-specific first-session gaps remain open.
+
+## C056 historical recording build
+
+D3-CAM-VIDEO visibly identifies2.7.7.93903 in game chat at video00:15/00:30. Expanded YouTube description gives publication November21,2024; recording date remains unknown. Campaign/ActI/Normal/Private Game are visible in the lobby; Hard appears by06:00. Existing Paragon100 is a material start condition. This pins one historical recording, not the current2026 client, an unmodified installation or an ordinary first-account session. [Exact evidence](TIMELINE-FRAMES.json).

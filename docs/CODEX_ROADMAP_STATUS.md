@@ -1,12 +1,14 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C055. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C056. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
 Current constraints: town frozen; approved UI style and original fixed620/90ms camera retained; one permitted branch; no subagents; isolated test data; no paid services. All P1 research charters remain partial and no phase/release gate is certified complete. Account legacy-ownership information is pending; independent research/foundation work continues.
 
 C055 adds the first [observed reference UI atlas](research/v2/UI-ATLAS.md):23 publisher assets,18 entries and explicit current-version/interaction/timing gaps. These reference observations do not mark any Hearthfall screen implemented or certify a phase.
+
+C056 adds18 historical Campaign frames and the [timeline evidence matrix](research/v2/TIMELINES.md). Existing Paragon and changing difficulty exclude a clean pacing target. The cumulative atlas has24 media assets and23 entries; actual first-account/error/input flows remain open.
 
 Update the affected rows when adding or removing content or systems. Reference the new change-log entry and its actual verification. Never mark a whole feature done from a subset test. Keep declined/proposed features visible until there is an explicit decision.
 

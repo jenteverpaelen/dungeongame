@@ -1,0 +1,24 @@
+{
+  "checkpoint": "C056",
+  "checkedAtUtc": "2026-10-09T11:30:25.0913343Z",
+  "scope": "Documentation integrity only; sparse external video observations, not game/server tests",
+  "sources": 161,
+  "claims": 126,
+  "media": 24,
+  "atlasEntries": 23,
+  "recordings": 1,
+  "frames": 18,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-timeline-docs-88614ccd8aec466ba44613894b145642",
+  "gameCodeImported": false,
+  "saveDataRead": false,
+  "pilot": "Initial validator incorrectly expected S- screen IDs; corrected to existing U- IDs. No ledger content changed to satisfy the check."
+}

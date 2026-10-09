@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C055",
-  "research": "L66",
-  "inspected_media_count": 23,
-  "scope": "Publisher-controlled gallery pixels, not installed-game tests. URLs are provenance, not asset licences. No binary copies, pixel hashes, current-build claim, user-account data or inferred play times.",
+  "checkpoint": "C056",
+  "research": "L66;L67",
+  "inspected_media_count": 24,
+  "scope": "23 publisher-controlled gallery assets plus one historical player recording with18 sparse frames; not installed-game tests. URLs are provenance, not asset licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -300,6 +300,20 @@
       "version": "Patch2.5.0 preview; article March16,2017; not current client",
       "inspection": "Chrome on owner's PC; image-viewing viewport1920x1080; native image letterboxed/scaled as browser displays; no gameplay interaction",
       "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "D3-V-CAMPAIGN",
+      "source_id": "D3-CAM-VIDEO",
+      "url": "https://www.youtube.com/watch?v=6Eqo6ftZ3no",
+      "natural_width": 1920,
+      "natural_height": 1080,
+      "classification": "published player recording; 18 sparse frames",
+      "observed": "Creation/lobby, objective/dialogue help, Paragon preview, sound settings, waypoint return, level/reward notice overlap",
+      "version": "2.7.7.93903; historical PC Campaign; published2024-11-21",
+      "inspection": "Chrome on owner PC; viewport1920x1080; frames and conditions in TIMELINE-FRAMES.json",
+      "limits": "Existing Paragon100, Normal-to-Hard change; not first-account timing, tested input or current client",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "D3-CAM-01"
     }
   ]
 }

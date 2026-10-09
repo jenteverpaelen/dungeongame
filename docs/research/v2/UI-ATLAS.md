@@ -55,3 +55,9 @@ All seven rows remain open. D3 modes and PoE games are separated to prevent a si
 Check unique source/claim/media/entry IDs, every source/media reference, valid dimensions and that every media asset is either used or explicitly excluded. Keep numerical balance eligibility false. Preserve the original Claude roadmap. This docs-only checkpoint requires no game/server test or real-save access; earlier gameplay verification remains historical evidence, not a newly repeated run.
 
 Next: obtain ordinary versioned early-flow footage with timestamped frames and inspect the missing inventory/skill/error surfaces. Keep the partial atlas as the observed baseline and extend it; do not replace missing behavior with plausible prose.
+
+## C056 — first timestamped campaign samples
+
+The cumulative atlas now contains23 entries from24 media assets: C055's23 publisher assets plus one player recording with18 inspected sparse frames. Five new D3 entries cover creation/lobby, objectives/dialogue, Paragon preview, sound options and overlapping level/reward notices. See [timeline provenance](TIMELINES.md) and [exact frames](TIMELINE-FRAMES.json). No existing publisher observations were overwritten.
+
+Visible build2.7.7.93903, Campaign and publication November21,2024 pin the historical scope. Existing Paragon100 and a Normal-to-Hard change disqualify the recording as clean first-account pace evidence. The observed-gameplay claims are L3 only for the sampled pixels; no current-client or tested-input claim follows. D3's ordinary first-account trace and all other mode/game flow rows above remain open. The video asset has decoded1920x1080 dimensions; no binary copy is committed.
