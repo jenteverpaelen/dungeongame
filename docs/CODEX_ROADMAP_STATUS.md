@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C071. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C072. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -88,7 +88,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | Partial C071: Server physical authority, local living credit, ordered progression, save/reload/full-bag/replay checks; four-client fixture. Formal party policy and cross-restore receipts open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-QST-03 | NPC dialogue system + UI | P5 | MISSING | Partial C071: Original data-driven branching conversation plus physical offer/inspect/claim panel. Broader condition/action tooling and full localization open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-QST-04 | Quest tracker HUD + journal panel | P5 | MISSING | Partial C071: Catalogue, selected tracking, completed/available/locked states and reserved reward preview. Filtering, long/many states and lore open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
-| F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Partial C071: Objective/connecting-portal minimap pins. General NPC icons and world-map pins open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
+| F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Partial C072: Tracked objective and next physical route are shared across area/minimap; NPC/service and exit markers added. General in-world NPC quest-giver indicators remain open. [World map](adventure/WORLD-MAP-REPORT.md). |
 | F-QST-06 | Campaign structure (acts/chapters) + zone gating | P5/P7 | MISSING | Partial C071: A three-quest chain opens Bracken Sluice server-side. Full chapter/act structure remains open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-QST-07 | Repeatable quests / bounties | P7/P12 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-08 | Lore codex + story presentation (text, camera pan) | P5/P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -101,7 +101,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ONB-07 | Help / FAQ panel v2 | P6 | PARTIAL — controls help panel | Existing Help now shows live bindings/Settings entry (C024); broader FAQ/onboarding open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-WLD-01 | Zone chain with real level bands and gating | P7 | MISSING — fields use 1–70 and 8–70 | Partial C071: Two connected authored fields with a quest prerequisite. Existing level bands remain; no evidence-backed band retune or full zone chain. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | P7 | PARTIAL — procedural map from seed; town authored as JSON | Partial C071: Two typed authored fields with swept route/prop/spawn checks and shared collision. Production art/editor pipeline remains open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
-| F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Partial C071: Quest-locked destination and physical field-to-field travel added. World map and wider network remain open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
+| F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Partial C072: Regional/current-area map, actual waypoint/portal connections, locks and physical travel entry implemented. Fog/discovery and wider network remain open. [World map](adventure/WORLD-MAP-REPORT.md). |
 | F-WLD-04 | Objective dungeons | P7/P9 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-WLD-05 | Ambient life and zone audio | P7 | PARTIAL — rich in town, minimal in fields | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-WLD-06 | Town upgrades as systems land | ongoing | PARTIAL — Hearthmere | Frozen by owner; town follow-ups deferred, no complete acceptance claim. [Town pause](town/PAUSED.md). |
@@ -217,7 +217,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-35 | Quest tracker | P5 | MISSING | Partial C071: Selected quest tracker and catalogue integrated; long/many states remain open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | U-36 | Boss health bar | P4 | PARTIAL — target frame | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-37 | Ground loot labels / beams | P11 | verify in P11 | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-38 | Objective / compass markers | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-38 | Objective / compass markers | P5 | MISSING | Partial C072: Current-area/minimap quest marker resolves the next connecting exit or waypoint. On-world compass overlay remains open. [World map](adventure/WORLD-MAP-REPORT.md). |
 | U-39 | Emote wheel / quick chat | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-40 | Performance overlay (fps, ping, dps) | P3 | PARTIAL — values exist in the store | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-41 | Hint toasts | P6 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
@@ -239,8 +239,8 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-63 | Collection codex | P11 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-64 | Item-link preview | P11 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-65 | Confirm / destroy dialog | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-70 | World map | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-71 | Waypoint travel | P5 | EXISTS | Partial C071: Bracken unlock and field portal travel integrated; original waypoint panel retained. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
+| U-70 | World map | P5 | MISSING | Partial C072: Regional and current-area map implemented, local1080p views inspected. Fog/discovery, layers and wider map acceptance remain open. [World map](adventure/WORLD-MAP-REPORT.md). |
+| U-71 | Waypoint travel | P5 | EXISTS | Partial C072: Map enters existing physical travel and links existing channel panel; lock text shown. No new travel permission. [World map](adventure/WORLD-MAP-REPORT.md). |
 | U-72 | Rift obelisk (difficulty, open) | P12 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-73 | Rift / dungeon end summary | P7 | PARTIAL — notices | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-74 | Dungeon objective tracker | P7/P9 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |

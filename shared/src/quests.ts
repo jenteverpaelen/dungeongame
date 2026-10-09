@@ -3,6 +3,7 @@ import { questText } from './data/questMessages';
 import type { CharacterSave } from './types';
 import type { QuestDef, QuestState, QuestTarget } from './questTypes';
 import type { MapData } from './mapgen';
+import { nextTravelPoint } from './worldNavigation';
 
 /** C070 remains the sole owner of this quest's save shape; never duplicate its reward. */
 export function questState(save: CharacterSave, id: string): QuestState | undefined {
@@ -46,8 +47,8 @@ export function questAtTarget(save:CharacterSave,zone:string,target:string):Ques
     ??candidates.find(q=>q.steps.some(matches))
     ??candidates.find(q=>matches(q.start));
 }
-export function questPoint(map:MapData,target:QuestTarget):{x:number;y:number}|undefined {
-  if(map.zone!==target.zone)return map.portals.find(p=>p.to===target.zone);
+export function questPoint(map:MapData,target:QuestTarget,save?:CharacterSave):{x:number;y:number}|undefined {
+  if(map.zone!==target.zone)return nextTravelPoint(map,target.zone,save?(id)=>zoneUnlocked(save,id):undefined);
   return map.adventure?.interactions.find(i=>i.id===target.target)
     ??map.adventure?.encounters.find(e=>e.id===target.target)
     ??map.adventure?.locations.find(l=>l.id===target.target);

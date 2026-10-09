@@ -11,6 +11,7 @@ import { togglePanel } from '../store';
 import { Bar, PanelFrame } from './common';
 import { IconLock, IconStar4, IconSkull, Svg } from './icons';
 import { useU } from './state';
+import { text } from '../../i18n/messages';
 import { cls, run } from './util';
 
 // ───────────────────────────── zone glyphs ─────────────────────────────
@@ -79,6 +80,7 @@ export function WaypointPanel() {
   };
   return (
     <PanelFrame id="waypoint" title="Waypoint" width={560} sub={<span class="pn-lv">{world ? `${fmtInt(world.online)} heroes online` : ''}</span>}>
+      <button class="btn" onClick={()=>togglePanel('worldmap',true)}>{text('map.title')}</button>
       <div class="wp-list">
         {zones.map((z) => {
           const chans = (world?.channels ?? []).filter((c) => c.zone === z.id).sort((a, b) => a.channel - b.channel);

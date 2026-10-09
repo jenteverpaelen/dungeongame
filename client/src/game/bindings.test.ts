@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 import { BindingStore, DEFAULT_BINDINGS, keyLabel } from './bindings';
 import { Input } from './input';
 
+test('adding map and journal preserves old custom M/J and assigns distinct free keys',()=>{
+  const old={...DEFAULT_BINDINGS} as Record<string,readonly [string,string|null]>;
+  delete old.journal;delete old.map;old.dash=['KeyJ',null];old.interact=['KeyM',null];
+  const keys=new BindingStore({getItem:()=>JSON.stringify({version:1,values:old}),setItem(){}});
+  for(const [action,pair] of Object.entries(old))assert.deepEqual(keys.get().values[action as keyof typeof DEFAULT_BINDINGS],pair);
+  assert.equal(keys.action('KeyM'),'interact');assert.equal(keys.action('KeyJ'),'dash');
+  assert.equal(keys.action(keys.get().values.journal[0]),'journal');assert.equal(keys.action(keys.get().values.map[0]),'map');
+});
+
 test('adding the journal retains every old custom binding even when J was already assigned',()=>{
   const old={...DEFAULT_BINDINGS} as Record<string,readonly [string,string|null]>;
   delete old.journal;old.dash=['KeyJ',null];

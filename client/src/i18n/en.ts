@@ -1,8 +1,10 @@
 // Complete context-specific English messages. Keep action sentences separate for translation.
 // {key} is the runtime physical keyboard label, not a translatable action fragment.
 import { QUEST_MESSAGES } from '@shared/data/questMessages';
+import { MAP_MESSAGES } from './mapMessages';
 export const ENGLISH = {
   ...QUEST_MESSAGES,
+  ...MAP_MESSAGES,
   "settings.title": "Settings",
   "settings.subtitle": "Sound, comfort & controls",
   "settings.tabSound": "Sound & comfort",

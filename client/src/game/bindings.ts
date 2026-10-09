@@ -7,6 +7,7 @@ export const ACTIONS = [
   ['inventory', text('controls.inventory.label')], ['skills', text('controls.skills.label')],
   ['paragon', text('controls.paragon.label')], ['cube', text('controls.cube.label')], ['settings', text('controls.settings.label')],
   ['journal', text('controls.journal.label')],
+  ['map', text('controls.map.label')],
 ] as const;
 export type Action = typeof ACTIONS[number][0];
 export type Bindings = Readonly<Record<Action, readonly [string, string | null]>>;
@@ -16,6 +17,7 @@ const defaults: Record<Action, [string, string | null]> = {
   dash: ['Space', null], interact: ['KeyE', null], inventory: ['KeyI', 'KeyB'], skills: ['KeyK', null],
   paragon: ['KeyP', null], cube: ['KeyU', null], settings: ['KeyO', null],
   journal: ['KeyJ', null],
+  map: ['KeyM', null],
 };
 function freeze(values: Record<Action, [string, string | null]>): Bindings {
   for (const pair of Object.values(values)) Object.freeze(pair);
@@ -45,7 +47,7 @@ function parseBindings(input: unknown): Bindings | undefined {
   const result = {} as Record<Action, [string, string | null]>, seen = new Set<string>();
   for (const [action] of ACTIONS) {
     const pair = (input as Record<string, unknown>)[action];
-    if(action==='journal' && pair===undefined)continue; // C070 records predate this action.
+    if((action==='journal'||action==='map') && pair===undefined)continue; // Older records predate these actions.
     if (!Array.isArray(pair) || pair.length !== 2 || typeof pair[0] !== 'string') return;
     for (const [i, code] of pair.entries()) {
       if (code === null && i === 1) continue;
@@ -54,10 +56,10 @@ function parseBindings(input: unknown): Bindings | undefined {
     }
     result[action] = [pair[0], pair[1]];
   }
-  if(!result.journal) {
-    // Retain every old binding. A custom J takes precedence over the new default.
-    const free=['KeyJ',...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(c=>'Key'+c)].find(k=>!seen.has(k))!;
-    result.journal=[free,null];
+  for(const action of ['journal','map'] as const)if(!result[action]) {
+    // Retain every old binding, including custom J/M; assign new actions to unused keys.
+    const free=[defaults[action][0],...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(c=>'Key'+c),...'0123456789'.split('').map(c=>'Digit'+c)].find(k=>!seen.has(k))!;
+    result[action]=[free,null];seen.add(free);
   }
   return freeze(result);
 }

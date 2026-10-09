@@ -211,6 +211,7 @@ export class Game {
     if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
     if (k === 'Enter') { ui.set({ chatOpen: true }); this.input.clear(); return; }
     if (k === 'j') { if(st.panels.adventure)togglePanel('adventure',false);else openJournal();return; }
+    if (k === 'm') { togglePanel('worldmap'); return; }
     if (k === 'u') {
       const n = this.world.map?.town?.npcs.find(n => n.role === 'cube');
       if (n && Math.hypot(n.x - this.predictor.x, n.y - this.predictor.y) <= n.interactionRadius && !this.world.collision?.segmentBlocked(this.predictor.x, this.predictor.y, n.x, n.y)) this.openArtisan('cube');

@@ -1,7 +1,7 @@
 // Keyboard input shares its bindings with Settings, Help and HUD prompts.
 import { bindings, refreshKeyboardLayout, type Action, type BindingStore } from './bindings';
 
-const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i', skills: 'k', paragon: 'p', cube: 'u', settings: 'o', journal:'j' };
+const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i', skills: 'k', paragon: 'p', cube: 'u', settings: 'o', journal:'j', map:'m' };
 
 export interface InputHandlers {
   onDash(): void;
