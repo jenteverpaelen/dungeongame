@@ -1,6 +1,7 @@
 // Server configuration (environment driven).
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { parseBackupKeep } from './backupPolicy';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,6 +12,8 @@ export const ROOT_DIR = path.resolve(here, '..', '..');
 export const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT_DIR, 'server', 'data', 'characters');
 /** Opt in to verified local backups; retention/off-device copies are operator policy. */
 export const BACKUP_DIR = process.env.BACKUP_DIR ? path.resolve(process.env.BACKUP_DIR) : undefined;
+export const BACKUP_KEEP = parseBackupKeep(process.env.BACKUP_KEEP);
+if (BACKUP_KEEP > 0 && !BACKUP_DIR) throw new Error('BACKUP_KEEP requires an explicit BACKUP_DIR');
 export const CLIENT_DIR = path.join(ROOT_DIR, 'dist', 'client');
 
 export const AUTOSAVE_MS = 30_000;

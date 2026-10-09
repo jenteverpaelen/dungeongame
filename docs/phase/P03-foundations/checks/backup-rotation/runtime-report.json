@@ -1,0 +1,18 @@
+{
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-gksMSB\\backup-runtime\\saves\\rotation-runtime-vi4GOs",
+  "node": "v24.19.0",
+  "counts": [
+    1,
+    2,
+    2,
+    3
+  ],
+  "removed": [
+    "backup-2026-10-09T08-26-47-209Z-b4299349-39e2-41c5-a5b2-454494c3fd27"
+  ],
+  "plan": "{\n  \"keep\": [\n    \"C:\\\\Users\\\\LaptopJente\\\\AppData\\\\Local\\\\Temp\\\\hearthfall-verify-gksMSB\\\\backup-runtime\\\\saves\\\\rotation-runtime-vi4GOs\\\\backups\\\\backup-2026-10-09T08-26-48-792Z-330aa059-1511-493d-b144-dc44aeca5d05\"\n  ],\n  \"remove\": [\n    \"C:\\\\Users\\\\LaptopJente\\\\AppData\\\\Local\\\\Temp\\\\hearthfall-verify-gksMSB\\\\backup-runtime\\\\saves\\\\rotation-runtime-vi4GOs\\\\backups\\\\backup-2026-10-09T08-26-48-259Z-ac8e1237-5590-485d-8356-1d07782fa774\",\n    \"C:\\\\Users\\\\LaptopJente\\\\AppData\\\\Local\\\\Temp\\\\hearthfall-verify-gksMSB\\\\backup-runtime\\\\saves\\\\rotation-runtime-vi4GOs\\\\backups\\\\backup-2026-10-09T08-26-47-715Z-1dab82a5-b0c2-4a49-86fe-42f68fd53178\"\n  ],\n  \"excluded\": [],\n  \"removed\": []\n}\nRead-only rotation plan; no files changed. Configure BACKUP_KEEP explicitly to enable future scheduled rotation.\n",
+  "sourceIsolation": true,
+  "restoredBytesEqual": true,
+  "syntheticOnly": true,
+  "scope": "Actual local child servers; not hostile filesystem races or power-loss simulation"
+}

@@ -1,0 +1,91 @@
+✔ retention is disabled by default and rejects ambiguous or unsafe counts (1.8616ms)
+✖ read-only plan changes no bytes; rotation retains the anchor and newest eligible backup with restorable items (86.6979ms)
+✖ legacy, foreign, corrupt, incomplete, unknown, future and missing-character histories are all preserved (117.081ms)
+✔ invalid, empty, unscoped, linked and outside anchors fail before any deletion (46.8877ms)
+✖ deletion failure leaves every selected survivor intact and the partial candidate is preserved next time (46.2786ms)
+✖ a failed new capture cannot rotate older snapshots; rotation errors do not erase backup success (43.9982ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 2
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 608.9623
+
+✖ failing tests:
+
+test at server\test\backupRotation.test.ts:1:1828
+✖ read-only plan changes no bytes; rotation retains the anchor and newest eligible backup with restorable items (86.6979ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+  +   'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-708Z-ee17d172-c5dd-4887-8cc4-fa8c88c739f6',
+  +   'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-690Z-617221b1-40ce-4bd3-9fed-f703970dcb61'
+  -   'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-708Z-ee17d172-c5dd-4887-8cc4-fa8c88c739f6',
+  -   'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-690Z-617221b1-40ce-4bd3-9fed-f703970dcb61'
+    ]
+
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\backupRotation.test.ts:41:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-708Z-ee17d172-c5dd-4887-8cc4-fa8c88c739f6', 'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-690Z-617221b1-40ce-4bd3-9fed-f703970dcb61' ],
+    expected: [ 'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-708Z-ee17d172-c5dd-4887-8cc4-fa8c88c739f6', 'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-4i6aJa\\backup-2026-10-09T08-24-32-690Z-617221b1-40ce-4bd3-9fed-f703970dcb61' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\backupRotation.test.ts:1:3048
+✖ legacy, foreign, corrupt, incomplete, unknown, future and missing-character histories are all preserved (117.081ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+    [
+  +   'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-Sh0VUc\\backup-2026-10-09T08-24-32-744Z-837217ac-84d7-4c15-b64c-8ae93daacac7'
+  -   'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-Sh0VUc\\backup-2026-10-09T08-24-32-744Z-837217ac-84d7-4c15-b64c-8ae93daacac7'
+    ]
+
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\backupRotation.test.ts:76:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'C:\\Users\\LaptopJente\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-Sh0VUc\\backup-2026-10-09T08-24-32-744Z-837217ac-84d7-4c15-b64c-8ae93daacac7' ],
+    expected: [ 'C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rotation-check-3497aee9941a464586b48cee16754589\\saves\\rotation-tests-tAcvPG\\case-Sh0VUc\\backup-2026-10-09T08-24-32-744Z-837217ac-84d7-4c15-b64c-8ae93daacac7' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\backupRotation.test.ts:1:6347
+✖ deletion failure leaves every selected survivor intact and the partial candidate is preserved next time (46.2786ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\backupRotation.test.ts:110:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /Synthetic/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at server\test\backupRotation.test.ts:1:7296
+✖ a failed new capture cannot rotate older snapshots; rotation errors do not erase backup success (43.9982ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rotation failed; new verified backup remains/. Input:
+
+  '[backup] failed; no completed backup reported: Error: Synthetic live save failure'
+
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\backupRotation.test.ts:131:59)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '[backup] failed; no completed backup reported: Error: Synthetic live save failure',
+    expected: /rotation failed; new verified backup remains/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -1,0 +1,12 @@
+Restore drill evidence: C:\Users\LAPTOP~1\AppData\Local\Temp\hearthfall-verify-gksMSB\backup-runtime\saves\restore-drill-yKhZVn
+✔ configured real server backup restores through CLI and reconnects with the same owned items (1490.6689ms)
+Rotation runtime evidence: C:\Users\LAPTOP~1\AppData\Local\Temp\hearthfall-verify-gksMSB\backup-runtime\saves\rotation-runtime-vi4GOs
+✔ real startup rotation is opt-in, scoped by source and previewed without deletion (2788.3477ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4585.2405

@@ -4,7 +4,7 @@
 import http from 'node:http';
 import type { Socket } from 'node:net';
 import { WebSocketServer } from 'ws';
-import { BACKUP_DIR, CLIENT_DIR, PORT } from './config';
+import { BACKUP_DIR, BACKUP_KEEP, CLIENT_DIR, PORT } from './config';
 import { startCharacterBackups } from './backupSchedule';
 import { Session } from './net/session';
 import { allowedWebSocketOrigin, webSocketOrigins } from './net/origin';
@@ -131,7 +131,7 @@ async function main(): Promise<void> {
   let shuttingDown = false;
   const backups = BACKUP_DIR ? startCharacterBackups(BACKUP_DIR, () => {
     for (const session of sessions) session.saveNow();
-  }) : undefined;
+  }, BACKUP_KEEP) : undefined;
   const shutdown = async (reason: string, code: number): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;

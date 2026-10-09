@@ -9,6 +9,7 @@ import WebSocket from 'ws';
 import { Packr } from 'msgpackr';
 import { createCharacter } from '../../shared/src/character';
 import { PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
+import { restoreCharacterBackup, verifyCharacterBackup } from '../src/backups';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 async function until(predicate: () => boolean) {
@@ -18,14 +19,14 @@ async function until(predicate: () => boolean) {
     await new Promise(resolve => setTimeout(resolve, 15));
   }
 }
-async function start(saveDir: string, backupDir = '') {
+async function start(saveDir: string, backupDir = '', keepCount = 0) {
   const reservation = net.createServer();
   await new Promise<void>(resolve => reservation.listen(0, '127.0.0.1', resolve));
   const port = (reservation.address() as net.AddressInfo).port;
   await new Promise<void>((resolve, reject) => reservation.close(err => err ? reject(err) : resolve()));
   const child = spawn(process.execPath, ['--import', 'tsx', 'server/src/main.ts'], {
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: backupDir, WS_ALLOWED_ORIGINS: undefined, PORT: String(port), ENABLE_DEBUG: '0' },
+    env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: backupDir, BACKUP_KEEP: String(keepCount), WS_ALLOWED_ORIGINS: undefined, PORT: String(port), ENABLE_DEBUG: '0' },
   });
   let log = '', startupError: Error | undefined;
   child.on('error', error => { startupError = error; });
@@ -69,7 +70,7 @@ test('configured real server backup restores through CLI and reconnects with the
   const cli = async (args: string[]) => {
     const child = spawn(process.execPath, ['--import', 'tsx', 'scripts/restore-saves.ts', ...args], {
       cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: '' },
+      env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: '', BACKUP_KEEP: '0' },
     });
     let output = '';
     child.stdout!.on('data', data => { output += data; });
@@ -108,4 +109,46 @@ test('configured real server backup restores through CLI and reconnects with the
     }, null, 2) + '\n');
     console.log(`Restore drill evidence: ${runDir}`);
   } finally { ws?.terminate(); await second.cleanup(); await fs.writeFile(path.join(runDir, 'after.log'), second.log()); }
+});
+
+test('real startup rotation is opt-in, scoped by source and previewed without deletion', { timeout: 30000 }, async () => {
+  assert.ok(process.env.DATA_DIR, 'Runtime rotation requires an isolated DATA_DIR');
+  const runDir = await fs.mkdtemp(path.join(process.env.DATA_DIR, 'rotation-runtime-'));
+  const saveDir = path.join(runDir, 'saves'), backups = path.join(runDir, 'backups');
+  await fs.mkdir(saveDir);
+  const c = createCharacter('RotationRuntime', 'ranger', 53), counts: number[] = [], removed: string[] = [];
+  let previous: string[] = [];
+  for (const [i, keep] of [0, 0, 2, 0].entries()) {
+    c.gold = 10 + i; await fs.writeFile(path.join(saveDir, c.id + '.json'), JSON.stringify(c));
+    const server = await start(saveDir, backups, keep);
+    try {
+      await until(server.ready);
+      await until(() => server.log().includes(keep ? '[backup] rotation kept' : '[backup] verified'));
+      assert.equal(await server.stop(), 0);
+    } finally { await server.cleanup(); await fs.writeFile(path.join(runDir, `run-${i}.log`), server.log()); }
+    const names = (await fs.readdir(backups)).sort(); counts.push(names.length);
+    removed.push(...previous.filter(n => !names.includes(n))); previous = names;
+    for (const name of names) await verifyCharacterBackup(path.join(backups, name));
+  }
+  assert.deepEqual(counts, [1, 2, 2, 3]); assert.equal(removed.length, 1);
+  const newest = path.join(backups, previous.at(-1)!);
+  const restored = await restoreCharacterBackup(newest, path.join(runDir, 'restored'));
+  assert.deepEqual(await fs.readFile(path.join(restored.directory, c.id + '.json')), await fs.readFile(path.join(saveDir, c.id + '.json')));
+  const cli = spawn(process.execPath, ['--import', 'tsx', 'scripts/restore-saves.ts', 'plan', backups, newest, '1'], {
+    cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: '', BACKUP_KEEP: '0' },
+  });
+  let output = ''; cli.stdout!.on('data', data => { output += data; }); cli.stderr!.on('data', data => { output += data; });
+  assert.equal(await new Promise<number | null>((resolve, reject) => { cli.once('close', resolve); cli.once('error', reject); }), 0, output);
+  assert.match(output, /Read-only rotation plan/); assert.deepEqual((await fs.readdir(backups)).sort(), previous);
+  const differentSource = await start(restored.directory, backups, 1);
+  try {
+    await until(differentSource.ready); await until(() => differentSource.log().includes('[backup] rotation kept'));
+    assert.match(differentSource.log(), /preserved 3 excluded entries/); assert.equal(await differentSource.stop(), 0);
+  } finally { await differentSource.cleanup(); await fs.writeFile(path.join(runDir, 'other-source.log'), differentSource.log()); }
+  assert.equal((await fs.readdir(backups)).length, 4);
+  for (const name of previous) await verifyCharacterBackup(path.join(backups, name));
+  await fs.writeFile(path.join(runDir, 'report.json'), JSON.stringify({ runDir, node: process.version, counts, removed, plan: output,
+    sourceIsolation: true, restoredBytesEqual: true, syntheticOnly: true, scope: 'Actual local child servers; not hostile filesystem races or power-loss simulation' }, null, 2) + '\n');
+  console.log(`Rotation runtime evidence: ${runDir}`);
 });

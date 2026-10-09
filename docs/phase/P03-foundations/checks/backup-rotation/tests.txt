@@ -1,0 +1,15 @@
+✔ retention is disabled by default and rejects ambiguous or unsafe counts (1.7029ms)
+✔ read-only plan changes no bytes; rotation retains the anchor and newest eligible backup with restorable items (125.9324ms)
+✔ legacy, foreign, corrupt, incomplete, unknown, future and missing-character histories are all preserved (127.0285ms)
+✔ invalid, empty, unscoped, linked and outside anchors fail before any deletion (41.4305ms)
+✔ deletion failure leaves every selected survivor intact and the partial candidate is preserved next time (48.9944ms)
+✔ a survivor changing after the plan aborts before the first candidate deletion (38.2134ms)
+✔ a failed new capture cannot rotate older snapshots; rotation errors do not erase backup success (42.9122ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 660.8046

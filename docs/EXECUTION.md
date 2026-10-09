@@ -61,3 +61,5 @@ C051 tests a narrow P5 authoring contract independently of the live game:14 pass
 C052 adds optional combat-number visibility, preserving default style and event feedback. Targeted checks/build, actual local Chrome input/reconnect/reset and seven inspected1080p frames pass. Continue the whole-roadmap research and state-safety work; no phase or release gate is declared complete.
 
 C053 enforces the existing bulk-salvage guarantee server-side. All19 stages pass (756server/382sim), plus actual local Chrome menu/reconnect checks. Continue whole-roadmap work; this checkpoint does not complete item filtering or any whole phase.
+
+C054 adds optional host/path-scoped backup count rotation. Default0 retains all backups; actual configuration remains unchanged. Twenty strict stages pass (756server/382sim); seven focused tests and child-server rotation/plan/restore checks pass on isolated synthetic saves. No player data used. Excluded histories may exceed the count; retention remains a partial operations feature, not a recovery certification. See phase/P03-foundations/BACKUP-ROTATION-REPORT.md.
