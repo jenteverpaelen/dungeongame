@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C036. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C037. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -12,7 +12,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 
 | ID | Feature | Phase | Original snapshot | Current evidence / remaining work |
 |---|---|---|---|---|
-| F-ACC-01 | Account registration and login | P3 | MISSING — name is identity | Design only; identity/library/deployment and implementation open. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
+| F-ACC-01 | Account registration and login | P3 | MISSING — name is identity | Design and C037 [library comparison](phase/P03-foundations/AUTH-LIBRARY-REVIEW.md); pinned integration/licences, identity/deployment and implementation open. |
 | F-ACC-02 | Sessions, logout, login rate limits, lockout | P3 | MISSING | Partial connection boundary (C031); no credentials/session revocation/login throttles. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-ACC-03 | Characters owned by accounts, stable IDs, character slots | P3 | MISSING | Not implemented; names remain identity. No real ownership assigned. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-ACC-04 | Character select / create / delete (grace period) / rename | P3 | PARTIAL — class select at login only | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -288,7 +288,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-27 | Guild scope | Guild scope unselected. |
 | D-28 | Moderation policy and staffing | Moderation policy/staffing unresolved; no automatic messages to other people. |
 | D-29 | Capacity targets per release step | No new capacity promise; town100-player requirement remains unaccepted performance work. |
-| D-30 | Account credential model | Argon2id candidate measured; credential/recovery design written. Library/deployment/ownership work remains. |
+| D-30 | Account credential model | Argon2id candidate measured; design and C037 library fit review written. No dependency selected; integration/deployment/ownership work remains. |
 | D-31 | Storage | JSON store boundary implemented; worker SQLite measured as candidate, no migration selected. |
 | D-32 | Hosting and budget | No paid services. Local PC testing authorized; public hosting/deployment still not selected. |
 | D-33 | Integration branch and release process | Owner override: ONLY codex/new-tristram-town; no phase branches/rebase/protected-ref changes. |

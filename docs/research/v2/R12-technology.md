@@ -31,3 +31,5 @@ Measure hash latency/memory under login load; map session ownership, claim/recov
 ## Identity design note — 2026-10-09
 
 Five additional primary source reads (AUTH-01–05) and the actual login/upgrade/storage audit inform [ACCOUNT-DESIGN.md](../../phase/P03-foundations/ACCOUNT-DESIGN.md). It separates credentials, sessions, character ownership, recovery and migration. Legacy names are not ownership evidence; the owner has a pending question about existing players. No production accounts, save assignment or security acceptance is claimed. Authentication libraries, deployment, no-email recovery limitations, transaction storage and attack/restore drills remain open.
+
+C037's [library review](../../phase/P03-foundations/AUTH-LIBRARY-REVIEW.md) compares documented Better Auth, express-session, deprecated Lucia and an internal adapter against those boundaries. Email assumptions, session-cache revocation, worker storage and version-specific licence/advisory/integration evidence remain unresolved; no dependency or default policy selected. Nine primary source records and four scoped claims support the comparison.
