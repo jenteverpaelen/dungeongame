@@ -14,7 +14,7 @@ Hearthfall uses PixiJS 8, Preact, Node and an authoritative 20 Hz server. The in
 
 ## Implemented bounded application
 
-P03 adds explicit debug opt-in, save version refusal, synthetic migration fixtures and honest isolated verification. These do not implement accounts, recovery, backups or a production security boundary.
+P03 adds explicit debug opt-in, save version refusal, synthetic migration fixtures and honest isolated verification. A later bounded slice adds a JSON store interface, verified local bundles and a real-process CLI restore/reconnect drill; see `../../phase/P03-foundations/BACKUP-DESIGN.md`. These do not implement accounts, recovery credentials, retention/off-device policy or a production security boundary.
 
 ## Remaining work
 

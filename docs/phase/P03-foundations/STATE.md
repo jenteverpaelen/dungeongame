@@ -13,6 +13,8 @@
 - [x] Local candidate hash/storage benchmark, including synthetic SQLite backup/restore; no production database or account change selected yet.
 - [x] Individual installed production licence inventory (23 packages); distribution notices and full project audit remain open.
 - [x] F-CON-01 semantic registry checks plus existing town validation in `content:check`; four mutation tests and typecheck pass. Typed TS remains the structural schema. Localization, behavior-flag coverage and originality review remain open.
-- [ ] Remaining P3: account identity, recovery, storage design, backups, broader settings/accessibility (including rebinding), content validation, local telemetry and independent review.
+- [x] F-SAV-04: CharacterStore boundary retaining JSON/IDs and per-character ordering. No production database migration.
+- [x] F-SAV-03/OPS-04 subset: opt-in startup/daily verified backup, new-destination-only restore, failure tests and real-process CLI/reconnect drill. Strict full verify passes; rotation, off-device policy and large-data/power-loss tests remain open.
+- [ ] Remaining P3: account identity/recovery/migration, replay-safe commands, backup rotation/operations, broader settings/accessibility (including rebinding), localization/originality, local telemetry and independent review.
 
 This phase is not complete. Continue research in P01 while checking the independent changes; saved checkpoints do not end the task. Before every push check the exact branch. Test data stays in fresh temporary directories. Never migrate or claim ownership of existing player saves as a side effect of tests.

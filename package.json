@@ -17,6 +17,7 @@
     "test:server": "tsx server/test/bot.ts",
     "town:check": "tsx scripts/check-town.ts",
     "content:check": "tsx scripts/check-content.ts",
+    "saves:backup": "tsx scripts/restore-saves.ts",
     "test:town-services": "tsx --test server/test/townServices.test.ts"
   },
   "dependencies": {

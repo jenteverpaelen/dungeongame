@@ -165,3 +165,7 @@ Node's documented Windows force-kill behavior explains the repeatedly failing SI
 ### L28 — Content integrity before new content, 2026-10-09
 
 Local registry consumers and Runic's historical GUTS data-editor documentation are recorded in `docs/phase/P03-foundations/CONTENT-VALIDATION-DESIGN.md` before implementation. Validate actual cross-references, array indexing and numeric structure. Keep typed TS and authored town JSON as source of truth; no content/balance/UI change is authorized by a validation result alone.
+
+### L29 — JSON store and verified restore, 2026-10-09
+
+Current persistence/queue audit, local storage measurements, Node exclusive creation/copy contract and the roadmap's backup requirement precede `docs/phase/P03-foundations/BACKUP-DESIGN.md`. Preserve JSON/IDs, capture through the server's queues, publish a checked manifest and restore only into a new destination. No real-save migration, deletion or town change. Retention/off-device policy and multi-process ownership remain separate.

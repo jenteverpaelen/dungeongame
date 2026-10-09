@@ -1,0 +1,14 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\backup-runtime\\saves\\restore-drill-rVv4ns",
+  "syntheticOnly": true,
+  "configuredStartupBackup": true,
+  "verifyCli": "{\n  \"characters\": 1,\n  \"createdAt\": \"2026-10-09T02:48:39.376Z\"\n}\n",
+  "restoreCli": "{\n  \"directory\": \"C:\\\\Users\\\\LAPTOP~1\\\\AppData\\\\Local\\\\Temp\\\\hearthfall-verify-nYTrIQ\\\\backup-runtime\\\\saves\\\\restore-drill-rVv4ns\\\\restored\",\n  \"characters\": 1\n}\nVerified restore complete. Activation is separate; the current DATA_DIR was not changed.\n",
+  "originalBytesUnchanged": true,
+  "restoredBytesEqual": true,
+  "reconnectItemsAndProgressEqual": true,
+  "backupsDisabledWhenUnconfigured": true,
+  "scope": "Local Node child processes, private IPC shutdown and WebSocket reconnect; not crash/power-loss or off-device recovery"
+}

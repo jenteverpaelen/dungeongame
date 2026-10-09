@@ -1,0 +1,108 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ",
+  "interrupted": false,
+  "allowKnown": false,
+  "outcome": "passed",
+  "results": [
+    {
+      "name": "verify-contract",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 160,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\verify-contract\\saves"
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 6171,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\typecheck\\saves"
+    },
+    {
+      "name": "shared",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1043,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\shared\\saves"
+    },
+    {
+      "name": "foundations",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 344,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\foundations\\saves"
+    },
+    {
+      "name": "save-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 505,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\save-failures\\saves"
+    },
+    {
+      "name": "backups",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 754,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\backups\\saves"
+    },
+    {
+      "name": "backup-runtime",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1613,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\backup-runtime\\saves"
+    },
+    {
+      "name": "shutdown-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 839,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\shutdown-failures\\saves"
+    },
+    {
+      "name": "client-preferences",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 203,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\client-preferences\\saves"
+    },
+    {
+      "name": "town-services",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 723,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\town-services\\saves"
+    },
+    {
+      "name": "server",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 87252,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\server\\saves"
+    },
+    {
+      "name": "simulation",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 5471,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\simulation\\saves"
+    },
+    {
+      "name": "content",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 240,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\content\\saves"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 807,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-nYTrIQ\\build\\saves"
+    }
+  ]
+}

@@ -50,3 +50,15 @@ A subsequent targeted [real-process storage-failure drill](checks/windows-shutdo
 ## Remaining limits after follow-up
 
 These are functional checks, not a dense-crowd benchmark, disabled-player evaluation or independent security audit. No accounts/recovery/transactional database/backups added. Recoverable write errors now propagate, but failed progress is retained only in this running process; crash durability and restore remain open. No claim of full P3 or G1 completion.
+
+## Backup/restore follow-up
+
+The paragraph above records the pre-backup checkpoint. Backups are now implemented as the bounded JSON slice in `BACKUP-DESIGN.md`; accounts and a transactional database remain unimplemented.
+
+Strict `npm run verify` passes at `hearthfall-verify-nYTrIQ`, Windows/Node24.19.0. Server 738/738, simulation 382/382, backup unit/failure tests 18/18, real-process restore drill 1/1, shared 16/16, foundations 6/6, save failures 5/5, shutdown failures 1/1, preferences 3/3, services 4/4, policy 2/2, typecheck/content/build pass. The existing bundle-size warning remains. Exact stage report: [backup verification](checks/backup-verify-report.json); [restore drill](checks/backup-restore-drill.json).
+
+Measured: a configured server writes a completed bundle; CLI verification and restore preserve exact bytes; the original directory remains unchanged; a second real server loads the restored equipment, inventory, stash, gold and XP over WebSocket. An unconfigured server starts with backups disabled. Unit tests force overlapping save/read/snapshot order, storage failures, malformed manifests, hash mismatches, missing/extra files, existing destinations, directory/junction substitution and partial restore. Fake-clock coverage verifies the 24-hour scheduling interval; this is not a 24-hour wall-clock soak.
+
+Initial runtime test failed because it waited for `char`; the existing protocol sends the initial character inside `welcome`. Inspection confirmed successful login; the harness was corrected, then the targeted drill and entire suite passed. No server behavior was changed to appease that test.
+
+No power-loss, multiprocess, off-device, retention-rotation, large-save-volume, hostile local operator, full security or fresh visual-performance claim. Raw-byte archive validity is separate from save-schema validity. All fixtures are synthetic, all DATA_DIRs isolated, and only child processes launched by the drill are stopped.

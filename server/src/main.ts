@@ -4,7 +4,8 @@
 import http from 'node:http';
 import type { Socket } from 'node:net';
 import { WebSocketServer } from 'ws';
-import { CLIENT_DIR, PORT } from './config';
+import { BACKUP_DIR, CLIENT_DIR, PORT } from './config';
+import { startCharacterBackups } from './backupSchedule';
 import { Session } from './net/session';
 import { createStaticHandler } from './net/static';
 import { ensureDataDir, flushSaves } from './persistence';
@@ -121,9 +122,13 @@ async function main(): Promise<void> {
   // ─────────────────────────── Shutdown ───────────────────────────
 
   let shuttingDown = false;
+  const backups = BACKUP_DIR ? startCharacterBackups(BACKUP_DIR, () => {
+    for (const session of sessions) session.saveNow();
+  }) : undefined;
   const shutdown = async (reason: string, code: number): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;
+    const backupsStopped = backups?.stop();
     console.log(`[server] shutting down (${reason})...`);
     if (loopTimer) clearTimeout(loopTimer);
     const hardExit = setTimeout(() => { console.error('[server] shutdown timed out'); process.exit(code || 1); }, 8000);
@@ -133,6 +138,7 @@ async function main(): Promise<void> {
       for (const s of [...sessions]) s.shutdown('Server restarting');
       await world.shutdown();
       await flushSaves();
+      await backupsStopped;
       server.closeAllConnections();
       console.log('[server] all characters saved, bye');
     } catch (err) {

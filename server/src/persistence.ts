@@ -3,10 +3,9 @@ import { autoSlotSkills } from '../../shared/src/progression';
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
 
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
-import path from 'node:path';
 import { DATA_DIR } from './config';
+import { JsonCharacterStore } from './storage/jsonCharacterStore';
+import type { CharacterStore } from './storage/characterStore';
 import { INVENTORY_SIZE, MAX_LEVEL, STASH_SIZE } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
@@ -14,7 +13,7 @@ import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
-const ID_RE = /^[a-z0-9]{2,16}$/;
+const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
 
 /** Characters are identified case-insensitively by name. */
 export function characterId(name: string): string {
@@ -22,20 +21,15 @@ export function characterId(name: string): string {
 }
 
 export function ensureDataDir(): void {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  store.ensure();
 }
 
-function fileFor(id: string): string {
-  if (!ID_RE.test(id)) throw new Error(`invalid character id "${id}"`);
-  return path.join(DATA_DIR, `${id}.json`);
-}
-
-/** In-flight writes per character id (the tail of a promise chain). */
+/** In-flight reads/writes/quarantines per character id (the settled tail). */
 const chains = new Map<string, Promise<void>>();
 // Keep the captured state after a recoverable write error. Never fall back to an
 // older file while this process still knows that a newer snapshot was not saved.
 const failedWrites = new Map<string, { json: string; error: SaveWriteError }>();
-let tmpCounter = 0;
+let writeBarrier = Promise.resolve();
 
 export class SaveWriteError extends Error {
   constructor(readonly characterId: string, cause: unknown) {
@@ -43,15 +37,15 @@ export class SaveWriteError extends Error {
   }
 }
 
-async function writeAtomic(id: string, json: string): Promise<void> {
-  const file = fileFor(id);
-  const tmp = `${file}.${process.pid}.${++tmpCounter}.tmp`;
+async function persistSnapshot(id: string, json: string): Promise<void> {
   try {
-    await fsp.writeFile(tmp, json);
-    await fsp.rename(tmp, file);
-  } catch (err) {
-    await fsp.rm(tmp, { force: true }).catch(() => undefined);
-    throw err;
+    await store.write(id, json);
+    failedWrites.delete(id);
+  } catch (cause) {
+    const error = new SaveWriteError(id, cause);
+    failedWrites.set(id, { json, error });
+    console.error(`[persist] failed to save ${id}:`, cause);
+    throw error;
   }
 }
 
@@ -64,20 +58,31 @@ export function saveCharacter(save: CharacterSave): Promise<void> {
 }
 
 function queueWrite(id: string, json: string): Promise<void> {
+  return enqueue(id, () => persistSnapshot(id, json));
+}
+
+function enqueue<T>(id: string, action: () => Promise<T>): Promise<T> {
   const prev = chains.get(id) ?? Promise.resolve();
-  const operation = prev
-    .then(() => writeAtomic(id, json))
-    .then(() => { failedWrites.delete(id); }, (cause) => {
-      const error = new SaveWriteError(id, cause);
-      failedWrites.set(id, { json, error });
-      console.error(`[persist] failed to save ${id}:`, cause);
-      throw error;
-    });
+  const barrier = writeBarrier;
+  const operation = Promise.all([prev, barrier]).then(action);
   // A failed operation rejects its caller, but must not poison the next write.
   const next = operation.then(() => undefined, () => undefined)
     .finally(() => { if (chains.get(id) === next) chains.delete(id); });
   chains.set(id, next);
   return operation;
+}
+
+/** Snapshot all previously submitted operations; subsequent ones wait until capture ends. */
+export async function snapshotCharacters(): Promise<Map<string, Buffer>> {
+  const previousBarrier = writeBarrier, pending = [...chains.values()];
+  let release!: () => void;
+  writeBarrier = new Promise<void>(resolve => { release = resolve; });
+  try {
+    await previousBarrier;
+    await Promise.all(pending);
+    if (failedWrites.size) throw new AggregateError([...failedWrites.values()].map(f=>f.error), 'Cannot back up while progress is unsaved');
+    return await store.snapshot();
+  } finally { release(); }
 }
 
 /** Drain queued writes, retry failures once, then report unresolved errors. */
@@ -98,20 +103,17 @@ function requireSupportedVersion(save: CharacterSave): void {
 }
 
 /** Load a character or return null if it does not exist. A corrupt file is moved aside and reported. */
-export async function loadCharacter(id: string): Promise<CharacterSave | null> {
-  const file = fileFor(id);
-  while (chains.has(id)) await chains.get(id);
+export function loadCharacter(id: string): Promise<CharacterSave | null> {
+  return enqueue(id, () => loadQueuedCharacter(id));
+}
+
+async function loadQueuedCharacter(id: string): Promise<CharacterSave | null> {
   const failed = failedWrites.get(id);
-  if (failed) await queueWrite(id, failed.json);
-  let text: string;
+  if (failed) await persistSnapshot(id, failed.json);
+  const bytes = await store.read(id);
+  if (bytes === null) return null;
   try {
-    text = await fsp.readFile(file, 'utf8');
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return null;
-    throw err;
-  }
-  try {
-    const parsed = JSON.parse(text) as CharacterSave;
+    const parsed = JSON.parse(bytes.toString('utf8')) as CharacterSave;
     // Inspect the format before interpreting fields that a future schema may change.
     if (parsed && typeof parsed === 'object') requireSupportedVersion(parsed);
     if (!parsed || typeof parsed !== 'object' || typeof parsed.name !== 'string' || !CLASSES[parsed.classId]) throw new Error('not a character');
@@ -120,9 +122,12 @@ export async function loadCharacter(id: string): Promise<CharacterSave | null> {
   } catch (err) {
     // A newer format is not corrupt. Leave its original bytes and filename untouched.
     if (err instanceof UnsupportedSaveVersionError) throw err;
-    const backup = `${file}.corrupt-${Date.now()}`;
-    await fsp.rename(file, backup).catch(() => undefined);
-    console.error(`[persist] ${id}.json is corrupt (${(err as Error).message}); moved to ${path.basename(backup)}`);
+    try {
+      const backup = await store.quarantine(id);
+      console.error(`[persist] ${id}.json is corrupt (${(err as Error).message}); moved to ${backup}`);
+    } catch (quarantineError) {
+      console.error(`[persist] ${id}.json is corrupt; could not quarantine:`, quarantineError);
+    }
     throw new CorruptCharacterError(`character ${id} is corrupt`);
   }
 }
