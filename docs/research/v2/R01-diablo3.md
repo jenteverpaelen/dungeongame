@@ -34,3 +34,9 @@ The 2.5.0 Armory preview includes equipment, gems, skills/runes and Cube prefere
 Elective Mode's community history (D3-10, revision53065) records a tension between category guidance and flexible assignment. Attributed 2012 remarks and user complaints cannot establish prevalence, current defaults or comprehension outcomes. Current primary guide access still fails; no restriction is added to Hearthfall's existing four-slot selection.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## C055 — observed publisher interface examples
+
+Three dated2.5.0 media assets now have inspected pixels: material list, a single item tooltip and two untimed Armory animation frames. Cropped/low-resolution preview images do not establish the current PC HUD or either Campaign/Adventure opening flow. [V; D3-250-UI / D3-27]
+
+See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.

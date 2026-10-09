@@ -57,7 +57,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-20 narrative/quests | Authoring pattern, quest failure cases, cross-game continuity and39 repeated all-class runtime credit cases (C040/C041) | Persisted quest state, party policy, UI observations, original premise, schema and reward semantics |
 | R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration | Pinned final PC tables/client behavior; first-session footage; loot/UI |
 
-The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The timeline and loot matrices and visual UI atlas remain mostly missing. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.
+The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The loot comparison and C055's first visual UI atlas now exist; detailed matrices, current-client/error flows and timed first sessions remain incomplete. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.
 
 ## Continuing work
 
@@ -71,7 +71,7 @@ The full P1/G1 package is **not complete**. This is not a claim that all 20 orig
 
 - No subagents. Never alter protected baseline refs. Check branch before any push. Never commit real saves, `.local` or `.env`.
 - Relevant PC/Chrome use is authorized. The latest supplied AGENTS.md repeats explicit per-download name/source/size approval; a31MB GDC2015 presentation request is pending. Record source/hash/purpose/licence after approval; no paid services or account creation implied.
-- Browser connector failed before opening public research tabs; local Chrome capture works. No reference-game visual inspection is claimed.
+- Earlier browser-connector failures remain historical. C055 successfully inspects publisher media in real Chrome on this PC; current reference-client interaction and timed gameplay are still unobserved.
 - Long-range spell clipping returns with the explicitly requested original camera. Town load/performance follow-ups remain deferred, not passed.
 - Keep earlier town checkpoint and old research as historical evidence, not current instructions when contradicted by the owner's later directions.
 
@@ -90,3 +90,5 @@ C050 extends R12 with pinned session middleware/store/session/cookie source, ele
 C051 adds three primary authoring sources/three scoped claims and an isolated three-quest/eight-objective/branching-dialogue probe. Strict typecheck and14 checks pass; conditional traps distinguish finite-state checks from unconditional topology. QUEST-AUTHORING-REPORT.md preserves the unimplemented live state/reward/UI and research limits.
 
 C052 adds two primary option/distraction sources and two scoped claims, then verifies optional combat-number display with exact default styles and local Chrome controls. Historical D4 notes are not a current-client UI observation; instrumented presentation events are not a human combat/accessibility study. All seven captures inspected; broader research remains incomplete.
+
+C055 adds the first personally inspected reference UI atlas:23 publisher media assets,18 structured entries, six source records and six scoped visual claims. All five requested games are covered with PoE1/2 separate; D3's dated2.5.0 illustrations do not replace Campaign and Adventure first-session traces. Actual image dimensions, decorative exclusions, observed controls and untested interactions/errors are explicit. Browser access now works. No new game code, assets, balance, UI style, town or camera changes. Continue ordinary early-flow footage and missing inventory/skill/error states; see ../../research/v2/UI-ATLAS.md.

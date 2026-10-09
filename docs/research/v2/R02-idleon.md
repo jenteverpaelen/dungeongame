@@ -23,3 +23,9 @@ The rolling feed shows month/day but not a confirmed year/build in this extracti
 No measured first 1/5/20-hour timeline, offline formula/cap, account-vs-character ownership table, class tree, full reward schedule or UI atlas. Do not accept a guide's fast-clear time as a new-player distribution. Officially linked wiki access failed through available browsing; see [gaps](CONTRADICTIONS.md). Next: versioned beginner footage and primary AFK documentation, with separate active, offline and multi-character results. An uninspected video description is only a lead.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## C055 — observed publisher interface examples
+
+Five published images were inspected; four contribute high-level HUD/encounter/construction observations, one illustration is excluded. The shown1371/676/502 levels and static rates are not time-to-level or AFK measurements. Entry inputs and error states remain untested. [V; IDLE-UI-GALLERY / IDLE-08]
+
+See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.

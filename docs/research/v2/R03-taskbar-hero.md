@@ -27,3 +27,9 @@ The same developer feed's 1.02.01 notes distinguish displayed stat caps from an 
 Cube functions/costs, respec and rune topology, offline/live ratios, party rules, unlock sequence, drop distribution, Marketplace outcomes and UI flows. Reviews/CCU are not causal retention evidence. Next: match an inspected current build to developer notes, trace an initial session, and test whether rewards occur with the client closed. No purchases, Marketplace trades or account creation are implied by research permission.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## C055 — observed publisher interface examples
+
+Four published images were inspected, covering compact combat, equipment/status/travel panes and a Ukrainian-language Cube/tooltip example. Visible locks, empty cells and selectors do not establish current protection, recipe or unlock rules; no actual operation was performed. [V; TBH-UI-GALLERY / TBH-09]
+
+See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.

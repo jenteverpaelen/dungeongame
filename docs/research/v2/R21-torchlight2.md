@@ -39,3 +39,9 @@ The [developer modding overview](https://docs.runicgames.com/wiki/Modding_Overvi
 A [2013 Workshop listing attributed to Runic Games](https://steamcommunity.com/sharedfiles/filedetails/?id=135164919) advertises vendor respec potions as a mod. It does not establish unrestricted respec in the base PC game. No subscription/download occurred; contradictory generic page banners and user comments do not establish current compatibility. [S; TL2-RESPEC-MOD, TL2-06–08]
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## C055 — observed publisher interface examples
+
+Four publisher images were inspected: three PC-style HUD/world scenes and one decorative character/pet image excluded from control evidence. Companion controls, shortcut labels and NPC markers are visible. These unversioned gallery frames do not prove final unmodded PC defaults or any service outcome. [V; TL2-UI-GALLERY / TL2-13]
+
+See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.

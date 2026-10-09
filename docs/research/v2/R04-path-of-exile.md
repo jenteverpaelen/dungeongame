@@ -27,3 +27,9 @@ Both games need versioned first-ten-level traces, recovery/respec rules, loot-fi
 The historical 0.4.0 UI section says equipped-skill compatibility is shown while hovering a support in gemcutting. Its bug-fix section reports mismatched effect/visual behavior and partial-cost benefits. These are useful questions for an actual rules/UI audit, not proof that similar Hearthfall bugs exist (POE2-02). Read scope excludes most numerical balance tables; no claim that December2025 notes are the current October2026 build.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## C055 — observed publisher interface examples
+
+Three PoE1 and four PoE2 published images were inspected separately. PoE1 action/status groups and PoE2 map/combination/boss presentation now have pixel evidence. Capture builds, inputs, timing and errors remain unverified; no cross-game flask, gem or recipe rule is inferred. [V; POE1-UI-GALLERY / POE-09; POE2-UI-GALLERY / POE2-09]
+
+See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.

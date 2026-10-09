@@ -1,0 +1,23 @@
+{
+  "checkpoint": "C055",
+  "checkedAtUtc": "2026-10-09T11:14:25.5288503Z",
+  "scope": "Documentation integrity only; no game/server test rerun",
+  "sources": 160,
+  "claims": 123,
+  "media": 23,
+  "entries": 18,
+  "excludedMedia": [
+    "IDLE-V00",
+    "TL2-V12"
+  ],
+  "allCrossReferencesResolve": true,
+  "dimensionsPositive": true,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "features": 147,
+  "screens": 86,
+  "decisions": 40,
+  "isolatedDataDir": "hf-ui-atlas-docs-4ac5fa6301584aa498b362960a3d8370",
+  "gameCodeImported": false,
+  "saveDataRead": false,
+  "pilot": "First validation command assumed semicolon-only source separators and rejected existing OSRS-TAX1|OSRS-TAX2. Corrected validator to accept existing pipe separator; no source data changed."
+}

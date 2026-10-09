@@ -16,3 +16,7 @@ PoE search snippets returned older notes; opening the publisher indexes supplied
 ## Consequences for the research
 
 POE-329 changes socket colour from an insertion restriction to a quality opportunity. The equipment-socket model remains separate from PoE2. Keep old claims versioned. POE2-055 documents completion without a required action and repair of affected quest state; it also adds decision/navigation feedback. These supply test questions, not our rewards or demonstrated usability gains. See POE-05/06 and POE2-03/04/05.
+
+## C055 visual-source provenance
+
+The [UI atlas](UI-ATLAS.md) observes publisher-media pixels for every priority game, with PoE1/2 separate. Only D3's selected news illustrations have a specific dated patch context: March16,2017,2.5.0 preview. Current Steam gallery retrieval, asset query timestamps and filenames do not pin capture builds or default settings. Visible high-level Idleon characters are not evidence of a new-character timeline. Installed-client version and D3 mode-specific first-session gaps remain open.
