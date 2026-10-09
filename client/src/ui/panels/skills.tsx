@@ -291,7 +291,7 @@ export function SkillsPanel() {
             <h4>How skills grow</h4>
             <p><b>Runes</b> unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill itself.</p>
             <p><b>Upgrade tiers</b> cost {TIER_COSTS.join(', ')} skill points and stack.</p>
-            <p>Skills fire automatically; slot order decides which is tried first. Select a slotted skill to pause it or require standing still.</p>
+            <p>Skills fire automatically; slot order decides which is tried first. Select a slotted skill to pause automatic casts or require standing still. Optional manual keys are in Settings → Controls.</p>
           </div>
         </div>
         <div class="sdet-wrap scroll">

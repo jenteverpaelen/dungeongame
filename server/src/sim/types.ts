@@ -325,7 +325,7 @@ export interface PortalEnt {
 
 export interface InputMsg { seq: number; mx: number; my: number; dash: boolean }
 
-export interface ChannelState { skill: string; graceMs: number; tickMs: number; devilMs: number; spunMs: number }
+export interface ChannelState { skill: string; graceMs: number; tickMs: number; devilMs: number; spunMs: number; manual?: boolean }
 
 export interface SkillRuntime {
   def: SkillDef;
@@ -390,6 +390,8 @@ export interface Player extends Hashed {
   live: LiveMods;
   summons: Summon[];
   channel: ChannelState | null;
+  /** One request for the next brain tick; never persisted or carried between instances. */
+  manualCast?: { slot: number; skill: string };
   deadMs: number;
   stunMs: number;
   frozenMs: number;

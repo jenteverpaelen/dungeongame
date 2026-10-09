@@ -8,7 +8,11 @@ export const ACTIONS = [
   ['paragon', text('controls.paragon.label')], ['cube', text('controls.cube.label')], ['settings', text('controls.settings.label')],
   ['journal', text('controls.journal.label')],
   ['map', text('controls.map.label')],
+  ['cast1', text('controls.cast1.label')], ['cast2', text('controls.cast2.label')],
+  ['cast3', text('controls.cast3.label')], ['cast4', text('controls.cast4.label')],
 ] as const;
+export const CAST_ACTIONS = ['cast1', 'cast2', 'cast3', 'cast4'] as const;
+const ADDED_ACTIONS = ['journal', 'map', ...CAST_ACTIONS] as const;
 export type Action = typeof ACTIONS[number][0];
 export type Bindings = Readonly<Record<Action, readonly [string, string | null]>>;
 export const BINDINGS_KEY = 'hearthfall.bindings.v1';
@@ -18,6 +22,7 @@ const defaults: Record<Action, [string, string | null]> = {
   paragon: ['KeyP', null], cube: ['KeyU', null], settings: ['KeyO', null],
   journal: ['KeyJ', null],
   map: ['KeyM', null],
+  cast1: ['Digit1', null], cast2: ['Digit2', null], cast3: ['Digit3', null], cast4: ['Digit4', null],
 };
 function freeze(values: Record<Action, [string, string | null]>): Bindings {
   for (const pair of Object.values(values)) Object.freeze(pair);
@@ -47,7 +52,7 @@ function parseBindings(input: unknown): Bindings | undefined {
   const result = {} as Record<Action, [string, string | null]>, seen = new Set<string>();
   for (const [action] of ACTIONS) {
     const pair = (input as Record<string, unknown>)[action];
-    if((action==='journal'||action==='map') && pair===undefined)continue; // Older records predate these actions.
+    if(ADDED_ACTIONS.some(a => a === action) && pair===undefined)continue; // Older records predate these actions.
     if (!Array.isArray(pair) || pair.length !== 2 || typeof pair[0] !== 'string') return;
     for (const [i, code] of pair.entries()) {
       if (code === null && i === 1) continue;
@@ -56,8 +61,8 @@ function parseBindings(input: unknown): Bindings | undefined {
     }
     result[action] = [pair[0], pair[1]];
   }
-  for(const action of ['journal','map'] as const)if(!result[action]) {
-    // Retain every old binding, including custom J/M; assign new actions to unused keys.
+  for(const action of ADDED_ACTIONS)if(!result[action]) {
+    // Retain every old binding; assign newly introduced actions to unused keys.
     const free=[defaults[action][0],...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(c=>'Key'+c),...'0123456789'.split('').map(c=>'Digit'+c)].find(k=>!seen.has(k))!;
     result[action]=[free,null];seen.add(free);
   }

@@ -51,6 +51,7 @@ export function SettingsPanel() {
 
 function ControlsSettings() {
   const state = useLocal(bindings, s => s);
+  const manual = useLocal(preferences, s => s.values.manualSkills);
   const [capture, setCapture] = useState<{ action: Action; slot: 0 | 1 } | null>(null);
   const [message, setMessage] = useState(text('controls.initial'));
   useEffect(() => { void refreshKeyboardLayout(); }, []);
@@ -74,6 +75,8 @@ function ControlsSettings() {
     return () => { window.removeEventListener('keydown', down, true); window.removeEventListener('blur', cancel); bindings.capture(false); };
   }, [capture]);
   return <div class="settings-content" data-controls-editor>
+    <label class="settings-check"><input type="checkbox" checked={manual} onChange={e => preferences.set({ manualSkills: e.currentTarget.checked })} /><span>{text('controls.manualSkills')}</span></label>
+    <p class="settings-note">{text('controls.manualNote')}</p>
     <p class="settings-note">{text('controls.note')}</p>
     <div class="settings-bindings">
       {ACTIONS.map(([action, label]) => <div class="settings-binding" key={action}>

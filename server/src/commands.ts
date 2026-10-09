@@ -545,6 +545,15 @@ const targetPriority: Handler = (s, a) => {
   return done(s, false);
 };
 
+const skillCast: Handler = (s, a) => {
+  const slot = int(a, 'slot', 0, 3), skill = str(a, 'skill');
+  const inst = s.rec?.inst;
+  if (!inst?.requestSkillCast) return fail('Character is not ready');
+  const err = inst.requestSkillCast(s, slot, skill);
+  // Acceptance only queues intent; the next simulation tick validates and spends resources.
+  return err ? fail(err) : ok();
+};
+
 const skillTier: Handler = (s, a) => {
   const err = buySkillTier(s.save, str(a, 'skill'));
   if (err) return fail(err);
@@ -706,7 +715,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority,
+  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

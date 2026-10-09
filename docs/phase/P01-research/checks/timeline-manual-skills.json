@@ -1,0 +1,23 @@
+{
+    "checkpoint":  "C085",
+    "checkedAtUtc":  "2026-10-09T19:04:25.0455437Z",
+    "scope":  "Documentation integrity only; no game/server runtime tests",
+    "sources":  187,
+    "claims":  183,
+    "media":  30,
+    "atlasEntries":  71,
+    "recordings":  7,
+    "frames":  152,
+    "allCrossReferencesResolve":  true,
+    "timestampsStrictlyIncreasing":  true,
+    "balanceAndTimingEligibility":  false,
+    "roadmapBlob":  "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+    "ledger":  {
+                   "features":  147,
+                   "screens":  86,
+                   "decisions":  40
+               },
+    "isolatedDataDir":  "hf-manual-skills-docs-95bbe65e8c144a3e98b7266ea53b245f",
+    "gameCodeImported":  false,
+    "saveDataRead":  false
+}

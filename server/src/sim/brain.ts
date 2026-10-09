@@ -167,46 +167,76 @@ function ruleHolds(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   }
 }
 
-/** Per tick: channel upkeep, at most one auto-cast, and the primary attack. */
+/** Check both at receipt and at execution: a loadout or control state can change between them. */
+export function validateManualCast(p: Player, slot: number, skill: string): string | null {
+  if (!Number.isInteger(slot) || slot < 0 || slot >= 4) return 'Invalid skill slot';
+  if (p.deadMs > 0 || p.hp <= 0) return 'Cannot cast while dead';
+  if (p.stunMs > 0 || p.frozenMs > 0) return 'Cannot cast while stunned or frozen';
+  const rt = p.ctx.slots[slot];
+  if (!rt || p.save.skills.slots[slot] !== skill || rt.def.id !== skill) return 'The skill in this slot changed. Choose it again.';
+  if (rt.def.classId !== p.save.classId || rt.def.kind === 'primary' || p.save.level < rt.def.unlock) return 'Skill is not unlocked';
+  return null;
+}
+
+/** Both entry paths spend through the same budget. Only automatic trigger rules differ. */
+function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolean): string | null {
+  const id = rt.def.id;
+  if ((p.readyAt.get(id) ?? 0) > inst.t) return `${rt.def.name} is on cooldown`;
+  if (rt.def.auto.when === 'channel') {
+    if (p.channel) return 'Already channeling';
+    const a = rt.def.auto;
+    if (p.res < a.startAt || p.res < skillCost(p, rt) * 0.25) return `Not enough resource for ${rt.def.name}`;
+    if (!manual && !anyEnemyWithin(inst, p.x, p.y, a.within)) return 'No enemy in range';
+    startChannel(inst, p, rt, manual);
+    return null;
+  }
+  const cost = skillCost(p, rt);
+  if (p.res < cost) return `Not enough resource for ${rt.def.name}`;
+  if (!manual && !ruleHolds(inst, p, rt)) return 'Automatic condition not met';
+  if (!castSkill(inst, p, rt)) return `No valid target for ${rt.def.name}`;
+  p.res -= cost;
+  // Seal of the Patient Thief: every resource-spending cast shortens all active cooldowns.
+  const thief = cost > 0 ? p.ctx.power('patient_thief') : 0;
+  if (thief) for (const [k, v] of p.readyAt) p.readyAt.set(k, v - thief * 1000);
+  const cd = skillCooldownMs(p, rt);
+  if (cd > 0) p.readyAt.set(id, inst.t + cd);
+  p.castFlagMs = 300;
+  p.attackSeq++;
+  return null;
+}
+
+/** Per tick: channel upkeep, at most one slotted cast (manual or automatic), and the primary attack. */
 export function playerBrain(inst: Instance, p: Player, dtMs: number) {
+  const request = p.manualCast;
+  p.manualCast = undefined;
+  let requestError = request ? validateManualCast(p, request.slot, request.skill) : null;
+  if (requestError) inst.emitTo(p.id, { e: 'notice', text: requestError, kind: 'warn' });
   if (p.deadMs > 0) return;
   p.atkCdMs -= dtMs;
   if (p.stunMs > 0 || p.frozenMs > 0) { p.channel = null; if (p.atkCdMs < 0) p.atkCdMs = 0; return; }
 
+  let usedSlot = false;
+  if (request && !requestError && p.channel?.skill === request.skill) {
+    endChannel(inst, p);
+    usedSlot = true; // An explicit stop cannot restart automatically in this tick.
+  }
   if (p.channel) {
     const slot = p.save.skills.slots.indexOf(p.channel.skill);
-    if (slot < 0 || !slotAllowsCast(p, slot)) endChannel(inst, p);
+    if (slot < 0 || (!p.channel.manual && !slotAllowsCast(p, slot))) endChannel(inst, p);
     else channelTick(inst, p, dtMs);
   }
 
-  // Auto-cast: first eligible slot (left → right), one cast per tick.
   const c = p.ctx;
-  for (let i = 0; i < 4; i++) {
+  if (request && !requestError && !usedSlot) {
+    requestError = trySlotCast(inst, p, c.slots[request.slot]!, true);
+    usedSlot = requestError === null;
+    if (requestError) inst.emitTo(p.id, { e: 'notice', text: requestError, kind: 'warn' });
+  }
+  // Failed manual attempts do not stall the normal automatic priority order.
+  for (let i = 0; !usedSlot && i < 4; i++) {
     const rt = c.slots[i];
     if (!rt || !slotAllowsCast(p, i)) continue;
-    const id = rt.def.id;
-    if ((p.readyAt.get(id) ?? 0) > inst.t) continue;
-    if (rt.def.auto.when === 'channel') {
-      if (p.channel) continue;
-      const a = rt.def.auto;
-      if (p.res < a.startAt || p.res < skillCost(p, rt) * 0.25) continue;
-      if (!anyEnemyWithin(inst, p.x, p.y, a.within)) continue;
-      startChannel(inst, p, rt);
-      break;
-    }
-    const cost = skillCost(p, rt);
-    if (p.res < cost) continue;
-    if (!ruleHolds(inst, p, rt)) continue;
-    if (!castSkill(inst, p, rt)) continue;
-    p.res -= cost;
-    // Seal of the Patient Thief: every resource-spending cast shortens all active cooldowns.
-    const thief = cost > 0 ? c.power('patient_thief') : 0;
-    if (thief) for (const [k, v] of p.readyAt) p.readyAt.set(k, v - thief * 1000);
-    const cd = skillCooldownMs(p, rt);
-    if (cd > 0) p.readyAt.set(id, inst.t + cd);
-    p.castFlagMs = 300;
-    p.attackSeq++;
-    break;
+    usedSlot = trySlotCast(inst, p, rt, false) === null;
   }
 
   // Primary attack (not while spinning).

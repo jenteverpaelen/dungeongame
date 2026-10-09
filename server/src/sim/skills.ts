@@ -121,9 +121,9 @@ function magicMissile(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
 
 // ─────────────────────────── Whirlwind (channel) ───────────────────────────
 
-export function startChannel(inst: Instance, p: Player, rt: SkillRuntime) {
+export function startChannel(inst: Instance, p: Player, rt: SkillRuntime, manual = false) {
   // First Dust Devil bursts out as the spin starts (D3), then one per second of channelling.
-  p.channel = { skill: rt.def.id, graceMs: 600, tickMs: 0, devilMs: 150, spunMs: 0 };
+  p.channel = { skill: rt.def.id, graceMs: 600, tickMs: 0, devilMs: 150, spunMs: 0, manual };
   p.castFlagMs = 300;
   p.attackSeq++;
   emitCast(inst, p, rt, p.x, p.y, skillRadius(rt));

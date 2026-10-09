@@ -15,7 +15,8 @@ import type { ClassId } from '@shared/types';
 import { BuffGlyph, DashGlyph, SkillGlyph } from './Glyphs';
 import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
-import { bindings } from '../../game/bindings';
+import { bindings, CAST_ACTIONS } from '../../game/bindings';
+import { preferences } from '../../game/preferences';
 import { useLocal } from '../panels/state';
 
 const ELEMENT_COLOR: Record<string, string> = {
@@ -28,7 +29,7 @@ const KIND_LABEL: Record<string, string> = {
 
 // ───────────────────────── Skill tooltip ─────────────────────────
 
-function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number; mode?: AutoCastMode }) {
+function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number; mode?: AutoCastMode; castKey?: string }) {
   const skillsKey = useLocal(bindings, () => bindings.label('skills'));
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
@@ -61,7 +62,7 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
       )}
       <div class="st-auto">{autoCastRuleText(skill, res)}</div>
       {p.mode && <div class="st-desc"><b>{AUTO_CAST_LABEL[p.mode]}</b> · {AUTO_CAST_NOTE[p.mode]}</div>}
-      {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority} · slot number, not a cast key. Change your loadout with {skillsKey}.</div>}
+      {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority}. {p.castKey ? `Press ${p.castKey} to cast${skill.kind === 'channel' ? ' or stop the channel' : ''}.` : 'Manual keys are off; enable them in Settings → Controls.'} Change your loadout with {skillsKey}.</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
   );
@@ -206,7 +207,8 @@ export function XpBar() {
 // ───────────────────────── Bottom bar assembly ─────────────────────────
 
 export function BottomBar() {
-  const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash') }));
+  const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash'), casts: CAST_ACTIONS.map(a => bindings.label(a)) }));
+  const manual = useLocal(preferences, s => s.values.manualSkills);
   const char = useUI((s) => (s.char ? { cls: s.char.classId, skills: s.char.skills, level: s.char.level } : null));
   const rcr = useUI((s) => s.derived?.rcr ?? 0);
   const m = useUI((s) => (s.me ? { cds: s.me.cds, ch: s.me.ch, res: s.me.res, dashCd: s.me.dashCd, buffs: s.me.buffs } : null));
@@ -219,7 +221,7 @@ export function BottomBar() {
     if (!skill) return { skill: null, tip: priority === undefined ? null : (
       <div class="skill-tip tip-small" role="tooltip">
         <div class="st-name">Empty skill slot {priority}</div>
-        <div class="st-desc">Auto-cast priority {priority} · slot number, not a cast key. Choose skills with {keys.skills}.</div>
+        <div class="st-desc">Auto-cast priority {priority}. Choose skills with {keys.skills}.</div>
       </div>
     ), cost: 0 };
     const mods = collectSkillMods(skill, skills.runes[skill.id], skills.tiers[skill.id] ?? 0);
@@ -227,7 +229,7 @@ export function BottomBar() {
     return {
       skill,
       cost,
-      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} mode={priority === undefined ? undefined : autoCastMode(skills, priority - 1)} />,
+      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} mode={priority === undefined ? undefined : autoCastMode(skills, priority - 1)} castKey={manual && priority !== undefined ? keys.casts[priority - 1] : undefined} />,
     };
   };
 
@@ -247,12 +249,12 @@ export function BottomBar() {
             <Slot
               key={i}
               kind="skill"
-              keyLabel={<>{i + 1}{autoCastMode(skills, i) !== 'auto' && <> · {autoCastMode(skills, i) === 'paused' ? 'PAUSED' : 'STILL'}</>}</>}
+              keyLabel={<>{manual ? keys.casts[i] : i + 1}{autoCastMode(skills, i) !== 'auto' && <> · {autoCastMode(skills, i) === 'paused' ? 'PAUSED' : 'STILL'}</>}</>}
               skill={s.skill}
               cd={m?.cds[i] ?? 0}
               nominalMs={(s.skill?.cooldown ?? 0) * 1000}
               badge={m?.ch[i] ?? 0}
-              dim={autoCastMode(skills, i) === 'paused' || (!!s.skill && s.cost > 0 && (m?.res ?? 0) < s.cost)}
+              dim={(!manual && autoCastMode(skills, i) === 'paused') || (!!s.skill && s.cost > 0 && (m?.res ?? 0) < s.cost)}
               active={!!s.skill && s.skill.kind === 'buff' && buffIds.has(s.skill.id)}
               tip={s.tip}
             />

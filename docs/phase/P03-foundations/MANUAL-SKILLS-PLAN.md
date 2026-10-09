@@ -1,0 +1,3 @@
+# Optional manual skill assist — C085
+
+L99/D040 precede code. Finish F-CMB-05 for the existing four slots while retaining automatic targeting/combat and the normal cast budget. Opt-in on this browser, rebindable physical keys, accurate HUD/Help/Skills text, isolated command queue and tick-time validation, shared costs/cooldowns, explicit channel start/stop, no repeated key hold or delayed backlog. No new character-save schema or economy values. Check negative requests and all classes, input/storage compatibility, default regression and actual local Chrome controls/cast/failure/reconnect. Human tactical review stays separate from implemented functionality.

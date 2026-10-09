@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 6;
+export const PROTOCOL_VERSION = 7;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -186,7 +186,7 @@ export type CmdOp =
   | 'quest'
   | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
-  | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillAutoCast' | 'targetPriority'
+  | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillAutoCast' | 'targetPriority' | 'skillCast'
   | 'paragon' | 'paragonReset'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';

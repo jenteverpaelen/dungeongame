@@ -78,7 +78,7 @@ function inputFixture(run: (f: { keys: BindingStore; input: Input; hits: string[
   } });
   try {
     const keys = new BindingStore(), hits: string[] = [];
-    const input = new Input({ onDash() { hits.push('dash'); }, onHotkey(k) { hits.push(k); } }, keys);
+    const input = new Input({ onDash() { hits.push('dash'); }, onHotkey(k) { hits.push(k); }, onSkill(slot) { hits.push(`cast${slot + 1}`); } }, keys);
     const fire = (type: string, code = '', extra = {}) => {
       const event = { code, key: code.startsWith('Key') ? code.slice(3).toLowerCase() : code, target: null,
         repeat: false, defaultPrevented: false, preventDefault() { this.defaultPrevented = true; }, ...extra };
@@ -98,6 +98,23 @@ test('input releases independent alternates and rejects movement repeats after c
   fire('keydown', 'KeyW'); assert.equal(input.move().y, 0);
   fire('keydown', 'KeyT'); assert.equal(input.move().y, -1); fire('focusin'); assert.equal(input.move().y, 0);
 }));
+
+test('manual keys preserve older custom number assignments and reject repeats, modifiers and text entry', () => {
+  const old = { ...DEFAULT_BINDINGS } as Record<string, readonly [string, string | null]>;
+  for(const action of ['cast1','cast2','cast3','cast4'])delete old[action];
+  old.dash=['Digit1',null];old.skills=['Digit2',null];
+  const keys=new BindingStore({getItem:()=>JSON.stringify({version:1,values:old}),setItem(){}});
+  for(const [action,pair] of Object.entries(old))assert.deepEqual(keys.get().values[action as keyof typeof DEFAULT_BINDINGS],pair);
+  assert.equal(new Set(Object.values(keys.get().values).flat().filter(Boolean)).size,Object.values(keys.get().values).flat().filter(Boolean).length);
+  inputFixture(({keys,hits,fire})=>{
+    fire('keydown','Digit1');fire('keydown','Digit1',{repeat:true});
+    for(const extra of [{shiftKey:true},{ctrlKey:true},{altKey:true},{metaKey:true},{isComposing:true},
+      {target:{tagName:'INPUT'}},{target:{tagName:'TEXTAREA'}},{target:{isContentEditable:true}},
+      {target:{closest:(q:string)=>q.includes('data-controls-editor')}}])fire('keydown','Digit1',extra);
+    keys.capture(true);fire('keydown','Digit1');keys.capture(false);
+    assert.deepEqual(hits,['cast1']);keys.assign('cast1',0,'KeyY');fire('keydown','Digit1');fire('keydown','KeyY');assert.deepEqual(hits,['cast1','cast1']);
+  });
+});
 test('remapped actions respect native forms, capture, modifiers, repeat and Tab navigation', () => inputFixture(({ keys, hits, fire }) => {
   keys.assign('dash', 0, 'KeyY'); fire('keydown', 'Space'); fire('keydown', 'KeyY'); fire('keydown', 'KeyY', { repeat: true });
   assert.deepEqual(hits, ['dash']);

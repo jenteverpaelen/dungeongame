@@ -18,6 +18,7 @@ import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, typ
 import { questAtTarget } from '@shared/quests';
 import { openJournal } from '../ui/panels/adventure';
 import { Input } from './input';
+import { preferences } from './preferences';
 import { Predictor } from './prediction';
 import { ClientWorld } from './world';
 import { completedRunSummary } from './runSummary';
@@ -44,6 +45,7 @@ export class Game {
     this.input = new Input({
       onDash: () => { sfx.unlock(); this.predictor.queueDash(); },
       onHotkey: (k, e) => this.hotkey(k, e),
+      onSkill: slot => this.manualSkill(slot),
     });
     worldReader.current = {
       map: () => this.world.map,
@@ -212,6 +214,15 @@ export class Game {
   }
 
   // ─────────────────────────── Input ───────────────────────────
+
+  private manualSkill(slot: number) {
+    const st = ui.get();
+    if (!preferences.get().values.manualSkills || st.screen !== 'game' || !st.connected || st.chatOpen || Object.values(st.panels).some(Boolean)) return;
+    const skill = st.char?.skills.slots[slot];
+    if (!skill) return;
+    sfx.unlock();
+    void this.conn?.cmd('skillCast', { slot, skill }).then(r => { if (!r.ok && r.err) pushNotice(r.err, 'warn'); });
+  }
 
   private hotkey(k: string, e: KeyboardEvent) {
     const st = ui.get();

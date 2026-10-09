@@ -7,7 +7,7 @@ test('independent preferences survive a new store, including zero volume and fal
   const storage = { getItem:(k:string)=>data.get(k)??null, setItem:(k:string,v:string)=>{data.set(k,v);} };
   const store = new PreferenceStore(storage);
   assert.deepEqual(store.get().values,DEFAULT_PREFERENCES);
-  store.set({masterVolume:0.4,effectsVolume:0,ambienceVolume:0.7,muted:true,cameraShake:false,reduceFlashes:true,lootQualityLabels:true,combatNumbers:false});
+  store.set({masterVolume:0.4,effectsVolume:0,ambienceVolume:0.7,muted:true,cameraShake:false,reduceFlashes:true,lootQualityLabels:true,combatNumbers:false,manualSkills:true});
   const reloaded = new PreferenceStore(storage);
   assert.deepEqual(reloaded.get().values,store.get().values);
   assert.equal(JSON.parse(data.get(PREFERENCES_KEY)!).version,1);
@@ -42,6 +42,7 @@ test('existing version1 preferences preserve prior settings and default missing/
     assert.equal(store.get().values.reduceFlashes,false);
     assert.equal(store.get().values.lootQualityLabels,false);
     assert.equal(store.get().values.combatNumbers,true);
+    assert.equal(store.get().values.manualSkills,false);
     assert.equal(store.get().values.cameraShake,false);
     assert.equal(store.get().values.muted,true);
     assert.equal(store.get().values.masterVolume,0.3);

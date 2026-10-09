@@ -1,11 +1,12 @@
 // Keyboard input shares its bindings with Settings, Help and HUD prompts.
-import { bindings, refreshKeyboardLayout, type Action, type BindingStore } from './bindings';
+import { bindings, CAST_ACTIONS, refreshKeyboardLayout, type Action, type BindingStore } from './bindings';
 
 const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i', skills: 'k', paragon: 'p', cube: 'u', settings: 'o', journal:'j', map:'m' };
 
 export interface InputHandlers {
   onDash(): void;
   onHotkey(key: string, e: KeyboardEvent): void;
+  onSkill?(slot: number): void;
 }
 
 export class Input {
@@ -65,6 +66,10 @@ export class Input {
     }
     if (action && HOTKEYS[action]) {
       e.preventDefault(); if (!e.repeat) this.h.onHotkey(HOTKEYS[action]!, e); return;
+    }
+    const slot = CAST_ACTIONS.findIndex(a => a === action);
+    if (slot >= 0) {
+      e.preventDefault(); if (!e.repeat && !e.shiftKey) this.h.onSkill?.(slot); return;
     }
     if (['F1', 'F2', 'F3'].includes(k)) e.preventDefault();
     if (!e.repeat && ['Escape', 'Enter', 'F1', 'F2', 'F3'].includes(k)) this.h.onHotkey(k, e);

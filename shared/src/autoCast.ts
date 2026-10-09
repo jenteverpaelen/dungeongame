@@ -6,8 +6,8 @@ export type AutoCastMode = typeof AUTO_CAST_MODES[number];
 export const AUTO_CAST_LABEL: Record<AutoCastMode, string> = { auto: 'Automatic', still: 'While still', paused: 'Paused' };
 export const AUTO_CAST_NOTE: Record<AutoCastMode, string> = {
   auto: 'Uses the normal skill rule. Cooldown, resource and target checks still apply.',
-  still: 'Uses the normal skill rule only while you are standing still. Moving also stops a channel.',
-  paused: 'Does not start casts and stops an active channel. Existing buffs, summons and launched attacks continue.',
+  still: 'Automatic casts require standing still. Moving stops an automatic channel. Optional manual keys still work.',
+  paused: 'Stops automatic casts and automatic channels. Optional manual keys still work. Existing effects continue.',
 };
 export const isAutoCastMode = (value: unknown): value is AutoCastMode =>
   value === 'auto' || value === 'still' || value === 'paused';

@@ -14,7 +14,7 @@ import { packMemberGone } from './kills';
 import { clearPlayerLoot } from './loot';
 import { updateMonsters } from './monsters';
 import { addPlayerEntity, debugHeal, playerTick, processInputs, refreshPlayerStats, removePlayerEntity } from './players';
-import { playerBrain } from './brain';
+import { playerBrain, validateManualCast } from './brain';
 import { updateProjectiles } from './projectiles';
 import { replicate } from './replication';
 import { RiftRuntime, debugBoss, riftTick } from './rift';
@@ -211,6 +211,16 @@ export class Instance implements InstanceApi {
 
   activateDungeon(link:PlayerLink,target:string):string|null {
     return this.dungeon ? this.dungeon.activate(link,target) : 'Not in an objective dungeon';
+  }
+
+  requestSkillCast(link: PlayerLink, slot: number, skill: string): string | null {
+    const p = this.byLink.get(link);
+    if (!p) return 'Character is not ready';
+    const err = validateManualCast(p, slot, skill);
+    if (err) return err;
+    if (p.manualCast) return 'A skill request is already pending';
+    p.manualCast = { slot, skill };
+    return null;
   }
 
   dungeonState(){return this.dungeon?.state()??null;}

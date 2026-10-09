@@ -62,6 +62,7 @@ export interface InstanceApi {
   playerCount(): number;
   /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
+  requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;
   activateDungeon?(link: PlayerLink, target: string): string | null;
   dungeonState?(): DungeonState | null;
   spawnPortal(spec: PortalSpec): number;

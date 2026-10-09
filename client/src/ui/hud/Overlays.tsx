@@ -7,7 +7,8 @@ import { fmtDuration, fmtInt } from '@shared/format';
 import type { Materials } from '@shared/types';
 import type { NpcRole } from '@shared/mapgen';
 import { Divider } from './Glyphs';
-import { ACTIONS, bindings, keyLabel } from '../../game/bindings';
+import { ACTIONS, bindings, CAST_ACTIONS, keyLabel } from '../../game/bindings';
+import { preferences } from '../../game/preferences';
 import { useLocal } from '../panels/state';
 import { GuidanceLibrary } from './Guidance';
 import { Tabs } from '../panels/common';
@@ -109,6 +110,7 @@ export function HelpPanel() {
   const open = useUI((s) => !!s.panels.help);
   const [tab,setTab]=useState<'controls'|'guide'>('controls');
   const state = useLocal(bindings, s => s);
+  const manual = useLocal(preferences, s => s.values.manualSkills);
   if (!open) return null;
   return (
     <div class="help-wrap">
@@ -119,7 +121,7 @@ export function HelpPanel() {
         <Tabs tabs={[{id:'controls',label:text('guide.controls')},{id:'guide',label:text('guide.title')}]} value={tab} onChange={setTab}/>
         {tab==='guide'?<GuidanceLibrary/>:<>
         <ul class="help-binds">
-          {ACTIONS.map(([action, label]) => <li key={action}>
+          {ACTIONS.filter(([action]) => manual || !CAST_ACTIONS.some(a => a === action)).map(([action, label]) => <li key={action}>
             <span class="keys">{state.values[action].filter((k): k is string => k !== null).map(k => <kbd key={k}>{keyLabel(k, state.labels)}</kbd>)}</span>
             <span class="desc">{label}</span>
           </li>)}
@@ -130,7 +132,7 @@ export function HelpPanel() {
             </li>
           ))}
         </ul>
-        <p class="help-note">Your primary attack and your four skills fire on their own. Choose where to stand, when to dash, and what to carry.</p>
+        <p class="help-note">{text(manual ? 'controls.manualOn' : 'controls.manualOff')}</p>
         </>}
         <button class="btn" onClick={() => { togglePanel('help', false); togglePanel('settings', true); }}>Settings & key bindings</button>
       </div>
