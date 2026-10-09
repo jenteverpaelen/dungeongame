@@ -4,6 +4,7 @@
 // "Manual" particles never expire on their own: their owner effect positions them every frame.
 
 import { Container, Particle, ParticleContainer, Texture } from 'pixi.js';
+import { preferences } from '../../game/preferences';
 import type { FxTextures } from './atlas';
 import { TAU, clamp, toBgr } from './util';
 
@@ -39,6 +40,8 @@ export class Fx extends Particle {
   fo = 0.5;
   /** Flicker amplitude (0..1). */
   flick = 0;
+  /** Optional celebration burst; can be discarded when reduced flashes is enabled mid-effect. */
+  celebration = false;
   vr = 0;
   /** Rotate to face the screen-space velocity. */
   align = false;
@@ -137,7 +140,7 @@ export class FxLayer {
     p.vx = 0; p.vy = 0; p.vz = 0; p.gz = 0; p.drag = 0; p.bounce = 0; p.settle = false;
     p.age = 0; p.life = life;
     p.w0 = 10; p.w1 = 10; p.k = 1; p.se = 0;
-    p.a0 = 1; p.fi = 0; p.fo = 0.5; p.flick = 0;
+    p.a0 = 1; p.fi = 0; p.fo = 0.5; p.flick = 0; p.celebration = false;
     p.vr = 0; p.rotation = 0; p.align = false; p.manual = false;
     p.lerpCol = false; p.bgr = 0xffffff; p.u = 0; p.v = 0;
     p.anchorX = 0.5; p.anchorY = 0.5;
@@ -167,12 +170,13 @@ export class FxLayer {
     this.container.update();
   }
 
-  update(dt: number): void {
+  update(dt: number, reduceFlashes = preferences.get().values.reduceFlashes): void {
     const list = this.list;
     const n = list.length;
     let w = 0;
     for (let i = 0; i < n; i++) {
       const p = list[i];
+      if (reduceFlashes && p.celebration) { this.free.push(p); continue; }
       if (p.manual) { list[w++] = p; continue; }
       p.age += dt;
       if (p.age >= p.life) { this.free.push(p); continue; }
@@ -222,7 +226,7 @@ export class FxLayer {
       let a = p.a0;
       if (p.fi > 0 && t < p.fi) a *= t / p.fi;
       if (t > p.fo) { const u = (t - p.fo) / (1 - p.fo); a *= 1 - u * u; }
-      if (p.flick > 0) a *= 1 - p.flick * (0.5 + 0.5 * Math.sin(p.age * 38 + p.gx));
+      if (p.flick > 0) a *= reduceFlashes ? 1 - p.flick : 1 - p.flick * (0.5 + 0.5 * Math.sin(p.age * 38 + p.gx));
       const a8 = (a < 0 ? 0 : a > 1 ? 1 : a) * 255;
 
       // ---- colour ----
@@ -285,7 +289,9 @@ export class FxSystem {
 
   update(dt: number): void {
     this.budget = clamp(1.25 - this.live / 4800, 0.18, 1);
-    for (const l of this.layers) l.update(dt);
+    const reduceFlashes = preferences.get().values.reduceFlashes;
+    this.aFlash.container.visible = !reduceFlashes;
+    for (const l of this.layers) l.update(dt, reduceFlashes);
   }
 
   clear(): void {

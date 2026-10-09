@@ -3,6 +3,7 @@
 // glow (parallel tree of dilated silhouettes behind the body), tints, and the shadow.
 
 import { Container, Graphics, Sprite } from 'pixi.js';
+import { preferences } from '../../game/preferences';
 import type { SheetLike, Version } from './bake';
 import { shadowSprite } from './fx';
 
@@ -68,6 +69,7 @@ export class Puppet {
   // ───────────── flash ─────────────
 
   flash(now: number, ms: number): void {
+    if (preferences.get().values.reduceFlashes) return;
     this.flashUntil = Math.max(this.flashUntil, now + ms);
     if (!this.flashing) this.setVersion('f');
   }
@@ -100,7 +102,7 @@ export class Puppet {
 
   /** Call once per frame after posing. */
   sync(now: number): void {
-    if (this.flashing && now >= this.flashUntil) this.setVersion('n');
+    if (this.flashing && (now >= this.flashUntil || preferences.get().values.reduceFlashes)) this.setVersion('n');
     const r = this.rimRoot;
     if (!r) return;
     const b = this.body;

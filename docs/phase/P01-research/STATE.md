@@ -45,7 +45,7 @@ C029 adds a naturally earned Mage item/rune/tier/refund/reconnect observation, n
 | R-10 case studies | Partial; three games sourced | Immortal/Drakensang; independent causal evidence, retention |
 | R-11 economy/trading | Partial L2; OSRS versioned sinks plus local source/sink map and deterministic cost/offline probes | Enchant transitions; active rates; WoW/D2R/binding/anti-dupe |
 | R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
-| R-13 UI/accessibility | Basic guidelines read | Actual task/contrast/input/settings audit; approved style preserved |
+| R-13 UI/accessibility | Basic/remapping/flash guidance; local keyboard and optional flash checks | Broader task/contrast/input/effects audit and human evaluation; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
 | R-15 onboarding | One primary study; scripted first session and earned equipment/skill decisions; partial | Reference-game traces, broader classes/error flows and unfamiliar Hearthfall player observations |
 | R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |

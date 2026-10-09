@@ -1,0 +1,145 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-flash-ui-Rhoel2",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-flash-ui-Rhoel2\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": false,
+  "failure": "Error: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":0,\"scriptId\":\"33\",\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"SyntaxError\",\"description\":\"SyntaxError: Identifier 'p' has already been declared\",\"objectId\":\"-405255200286338784.2.2\"}}\n    at evaluate (file:///C:/Users/LaptopJente/dungeongame/scripts/capture-reduced-flash.mjs:60:35)\n    at async file:///C:/Users/LaptopJente/dungeongame/scripts/capture-reduced-flash.mjs:123:3",
+  "scope": "Own local game, installed Chrome, synthetic L1 save/profile. Actual settings controls/reload; injected presentation events and controlled renderer steps explicitly test visuals only, not server-earned rewards, human usability, photosensitivity thresholds or performance.",
+  "observations": [
+    {
+      "name": "01-default-setting",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nFlashTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n64 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, FlashTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "skills": {
+        "slots": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "runes": {},
+        "tiers": {},
+        "primary": "magic_missile"
+      },
+      "points": 0,
+      "settings": null,
+      "panels": [
+        {
+          "name": "settings",
+          "x": 21.599990844726562,
+          "y": 31.091552734375,
+          "w": 472.800048828125,
+          "h": 668.69189453125,
+          "scrollHeight": 684,
+          "clientHeight": 677
+        }
+      ]
+    },
+    {
+      "name": "02-default-burst-warning",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nFlashTrace\nLevel 1\nMage\nDPS\n0\n13 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nLEVEL 1\nWelcome to Hearthfall, FlashTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "skills": {
+        "slots": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "runes": {},
+        "tiers": {},
+        "primary": "magic_missile"
+      },
+      "points": 0,
+      "settings": null,
+      "probe": {
+        "visible": true,
+        "celebrations": 56,
+        "particles": 56,
+        "telegraphs": 1,
+        "projectiles": 0,
+        "sounds": [
+          "level",
+          "warn"
+        ]
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 678.875,
+          "scrollHeight": 684,
+          "clientHeight": 677
+        }
+      ]
+    },
+    {
+      "name": "03-existing-burst-hidden",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nFlashTrace\nLevel 1\nMage\nDPS\n0\n13 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nLEVEL 1\nWelcome to Hearthfall, FlashTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "skills": {
+        "slots": [
+          null,
+          null,
+          null,
+          null
+        ],
+        "runes": {},
+        "tiers": {},
+        "primary": "magic_missile"
+      },
+      "points": 0,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": true
+        }
+      },
+      "probe": {
+        "visible": false,
+        "celebrations": 0,
+        "particles": 0,
+        "telegraphs": 1,
+        "projectiles": 0,
+        "sounds": [
+          "level",
+          "warn"
+        ]
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 678.875,
+          "scrollHeight": 684,
+          "clientHeight": 677
+        }
+      ]
+    }
+  ]
+}

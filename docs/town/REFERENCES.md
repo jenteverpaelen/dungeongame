@@ -213,3 +213,7 @@ Roadmap F-TEL-02, R14's measurement method and current `sim.ts`, Instance/loot/p
 ### L40 — Observe earned first equipment and skill decisions, 2026-10-09
 
 R15/UX-CHI12 require separating scripted execution from human discovery. FIRST-SESSION-REPORT and C027 leave successful early equipment/rune decisions unobserved. Read existing inventory tooltips/equip handling, skill selection/refund controls and real movement/loot replication before FIRST-DECISIONS-PLAN.md. POE2-05 supplies a comparison-feedback question, not an instruction to copy UI. Use a fresh character, earned drops/levels, existing controls and server validation; preserve camera/style/town. No tutorial timing, reward or level target follows from one assisted trace.
+
+### L41 — Optional reduction of specific flash effects, 2026-10-09
+
+FIRST-DECISIONS screenshot02 shows the existing level-up burst. Current source identifies its560u beam,220u flash, particle flicker formula, top flash layer and white hit-silhouette paths. These are implementation measurements, not photosensitivity threshold measurements. Read GAG-FLASH and XAG118 before REDUCED-FLASH-DESIGN.md; UX-04 supports effect-specific controls and continued testing. Roadmap F-SET-03 requests this option. Preserve original defaults, warning geometry, server combat, frozen town art and camera; no invented intensity percentage or safety claim.

@@ -1,0 +1,13 @@
+# Reduce flashes — scoped option, before code
+
+2026-10-09; evidence L41/UX-04, C029 frame02 and actual particle/cast/puppet/player/telegraph paths. F-SET-03 remains broader than this slice.
+
+Add browser-local `reduceFlashes:false` to existing version1 preferences, defaulting missing/malformed old values safely. Existing Settings checkbox style, same sound/comfort tab. Explain concrete affected effects. This is optional; do not redesign the default visuals or camera.
+
+When enabled: hide the dedicated top impact-flash layer immediately, prevent white hit silhouettes while retaining squash/knockback, omit decorative level/Paragon burst particles while retaining notices/nameplates/audio, and remove already-active tagged burst particles on the next update. Steady ordinary particle flicker at the existing envelope minimum (no new intensity target). Stop pulsing telegraph outlines at their existing full opacity; keep shape, fill/countdown, timing and attack payoff. Omit the extra completion disc/ring flash, retaining actual attack visuals. Re-enabling effects restores normal future effects without replaying old celebrations.
+
+Alternatives: dimming all effects could hide danger/projectiles; arbitrary frequency/intensity cutoffs would imply an unmeasured threshold; disabling all VFX loses combat information. A small client-only option addresses measured effect paths and leaves broader auditing explicit. Town ambience, other spell beams/colour transitions, loot animations, low-health UI and spatial patterns are outside this first option; this is not full reduced motion or a safety guarantee.
+
+Acceptance: legacy settings load with unchanged defaults; true survives reload/reset behavior; active/new flash suppression; player/puppet hit motion retained; ordinary projectiles, warning shapes/countdown and text remain; level and Paragon updates/audio still dispatch. Use targeted preferences tests plus a controlled own-app rendering fixture and actual checkbox/reload flows in installed Chrome1920×1080. Inspect screenshots. Synthetic VFX events are presentation probes, not server-earned combat evidence. Typecheck/build and appropriate existing checks, isolated DATA_DIR for all tests. Record any harness errors separately.
+
+Removal/effect: no content deleted. The chosen optional setting hides only listed cosmetic effects for that browser. No player save migration, server simulation, balance, art/name replacement, dependency, download or paid tool. Rollback: remove preference/control and rendering guards together; old stored extra field is safely ignored. Future: representative dense real combat/video analysis and human accessibility testing remain needed.

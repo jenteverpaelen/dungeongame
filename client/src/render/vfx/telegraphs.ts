@@ -4,6 +4,7 @@
 // it, so a matching `aoe` arriving a moment later is not drawn twice (and vice versa).
 
 import { Container, Graphics } from 'pixi.js';
+import { preferences } from '../../game/preferences';
 import type { GameEvent } from '@shared/protocol';
 import type { Effect, VfxCore } from './core';
 import type { Fx } from './particles';
@@ -69,7 +70,7 @@ export class Telegraphs {
       resolved = true;
       const s = V.sys, T = s.T;
       // Completion flash on the marker.
-      if (shape.circle) {
+      if (shape.circle && !preferences.get().values.reduceFlashes) {
         s.ring(s.gAdd, T.ringHard, ev.x, ev.y, ev.r * 0.98, ev.r * 1.08, st.color, 0.2, 0.9);
         const fl = s.gAdd.add(T.disc, ev.x, ev.y, 0.18);
         fl.w0 = fl.w1 = ev.r * 2.05; fl.a0 = st.fill * 1.4; fl.fo = 0; fl.tintTo(st.color);
@@ -270,7 +271,7 @@ export class Telegraphs {
         const t = clamp(age / d, 0, 1);
         const z = 22 + Math.sin(age * 4) * 4;
         const appear = clamp(age / 0.2, 0, 1);
-        const beat = 1 + 0.15 * Math.sin(age * (8 + t * 30));
+        const beat = preferences.get().values.reduceFlashes ? 1 : 1 + 0.15 * Math.sin(age * (8 + t * 30));
         glow.place(x, y, z); glow.setScale(70 * appear * beat); glow.setAlpha(0.7);
         core.place(x, y, z); core.setScale(26 * appear); core.setAlpha(1);
         flake.place(x, y, z); flake.setScale(30 * appear); flake.rotation += dt * 3; flake.setAlpha(0.9);
@@ -319,7 +320,7 @@ export class Telegraphs {
       update: (dt) => {
         age += dt;
         const t = clamp(age / d, 0, 1);
-        const beat = 0.6 + 0.4 * Math.abs(Math.sin(age * (5 + t * 20)));
+        const beat = preferences.get().values.reduceFlashes ? 0.6 : 0.6 + 0.4 * Math.abs(Math.sin(age * (5 + t * 20)));
         crack.place(x, y, 0); crack.setScale(r * 1.6 * (0.5 + t * 0.6)); crack.setAlpha(0.4 + 0.6 * beat * t);
         glow.place(x, y, 0); glow.setScale(r * 2.2 * (0.6 + t * 0.5)); glow.setAlpha(0.25 + 0.35 * beat);
         if (Math.random() < 0.5 * s.budget) s.ember(x + rand(-r, r) * 0.6, y + rand(-r, r) * 0.4, 2, 0xff8a3d, rand(0.4, 0.8), 5, 80);
@@ -335,5 +336,5 @@ export class Telegraphs {
 }
 
 function pulse(t: number, age: number): number {
-  return t < 0.6 ? 1 : 0.7 + 0.3 * Math.abs(Math.cos(age * (8 + t * 20)));
+  return preferences.get().values.reduceFlashes || t < 0.6 ? 1 : 0.7 + 0.3 * Math.abs(Math.cos(age * (8 + t * 20)));
 }

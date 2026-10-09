@@ -9,6 +9,7 @@
 // Skills are choreographed in choreo.ts; weapon trails are ribbons sampled along the real tip path.
 
 import { Container, Graphics, Matrix, Sprite, Texture } from 'pixi.js';
+import { preferences } from '../../game/preferences';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -674,7 +675,7 @@ export class PlayerArt implements PlayerView {
 
     // flash bookkeeping
     const nowMs = performance.now();
-    const wantFlash = nowMs < this.flashUntil;
+    const wantFlash = !preferences.get().values.reduceFlashes && nowMs < this.flashUntil;
     if (wantFlash !== this.flashing) {
       this.flashing = wantFlash;
       for (const { obj, name } of this.all) if (!name.startsWith('head@') && !name.startsWith('leg@')) this.sheet.setVersion(obj, name, wantFlash ? 'f' : 'n');
@@ -1266,7 +1267,7 @@ export class PlayerArt implements PlayerView {
 
   hit(intensity: number, crit: boolean): void {
     if (this.destroyed) return;
-    this.flashUntil = Math.max(this.flashUntil, performance.now() + (crit ? 90 : 70));
+    if (!preferences.get().values.reduceFlashes) this.flashUntil = Math.max(this.flashUntil, performance.now() + (crit ? 90 : 70));
     this.hitK = Math.max(this.hitK, 0.6 + 0.4 * clamp(intensity));
   }
 

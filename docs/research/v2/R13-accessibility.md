@@ -14,6 +14,10 @@ Check login, combat, inventory comparison, skill selection, service rejection an
 
 No complete UI atlas, screen-reader audit, controller navigation or text scaling verification yet. Local screenshots establish specific flows, not accessibility certification. Persistent independent sound controls and camera-shake settings have since been implemented and checked locally (C009 and foundation records); keyboard remapping is checked in C024. No UI art overhaul is authorized.
 
+## Reduced-flash slice, 2026-10-09
+
+GAG-FLASH and XAG118 (UX-04) support effect-specific controls and representative testing. L41 records the observed celebration burst and actual rendering paths before design. C030 adds an optional control using existing Settings styles; seven inspected Chrome1080p captures and controlled rendering checks preserve warning/projectile information. REDUCED-FLASH-REPORT.md separates measured behavior from untested thresholds, dense combat, other effects and human accessibility. Default visuals and camera stay unchanged.
+
 ## Keyboard slice, 2026-10-09
 
 GAG-REMAP supports custom assignments and updated prompts. MDN-KEYCODE/MDN-LAYOUT distinguish physical key identity from its printed character and document optional, fallible layout lookup. `P03-foundations/KEYBOARD-DESIGN.md` specifies two bindings per action, conflict rejection, recovery keys, form handling and browser-local persistence. The owner's Chrome reports AZERTY labels (Z/Q on the original up/left positions), demonstrating why default code names alone would be misleading. This is a measured API output, not a hardware/assistive-device usability test. Exact checks and known limits belong in KEYBOARD-REPORT.md.

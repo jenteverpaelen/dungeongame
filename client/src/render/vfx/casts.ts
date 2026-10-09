@@ -2,6 +2,7 @@
 
 import { SKILLS } from '@shared/data/skills';
 import { ELEMENT_INDEX, type GameEvent } from '@shared/protocol';
+import { preferences } from '../../game/preferences';
 import type { VfxCore } from './core';
 import type { AoeFx } from './aoe';
 import type { Telegraphs } from './telegraphs';
@@ -218,6 +219,10 @@ export class Casts {
     const p = V.ctx.entityPos(id);
     if (!p) return;
     const { x, y } = p;
+    const me = id === V.ctx.myId();
+    V.sound(paragon ? 'paragon' : 'level', me ? undefined : x, me ? undefined : y, me ? 1 : 0.5);
+    if (preferences.get().values.reduceFlashes) return;
+    const starts = s.layers.map(layer => layer.count);
     const main = paragon ? 0x7f9bff : 0xffc83d, hot = paragon ? 0xe6ecff : 0xfff2b8;
     const H = 560, W = 92;
     const beam = s.aAdd.add(T.beam, x, y + 2, 1.5);
@@ -238,7 +243,9 @@ export class Casts {
     }
     for (let i = 0, n = s.n(20); i < n; i++) s.spark(x, y, 20, rand(0, TAU), rand(200, 380), 14, i % 2 ? hot : main, 0.4);
     if (paragon) for (let i = 0; i < 6; i++) s.glint(x + rand(-40, 40), y, rand(40, 200), rand(22, 34), hot, rand(0.5, 0.9));
-    const me = id === V.ctx.myId();
-    V.sound(paragon ? 'paragon' : 'level', me ? undefined : x, me ? undefined : y, me ? 1 : 0.5);
+    for (let i = 0; i < s.layers.length; i++) {
+      const list = s.layers[i].list;
+      for (let j = starts[i]; j < list.length; j++) list[j].celebration = true;
+    }
   }
 }

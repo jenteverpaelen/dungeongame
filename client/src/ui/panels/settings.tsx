@@ -17,7 +17,7 @@ export function SettingsPanel() {
         onInput={e => preferences.set({ [key]: Number(e.currentTarget.value) / 100 })} />
     </label>
   );
-  const check = (key: keyof Pick<Preferences, 'muted' | 'cameraShake'>, label: string) => (
+  const check = (key: keyof Pick<Preferences, 'muted' | 'cameraShake' | 'reduceFlashes'>, label: string) => (
     <label class="settings-check"><input type="checkbox" checked={values[key]} onChange={e => preferences.set({ [key]: e.currentTarget.checked })} /><span>{label}</span></label>
   );
   return (
@@ -32,6 +32,9 @@ export function SettingsPanel() {
         <SecHead>Camera</SecHead>
         {check('cameraShake', 'Camera shake')}
         <p class="settings-note">Shake from impacts can be turned off. Your view distance stays the same.</p>
+        <SecHead>Effects</SecHead>
+        {check('reduceFlashes', 'Reduce flashes')}
+        <p class="settings-note">Hide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.</p>
         <p class="settings-note" role="status">{retained ? 'Settings are remembered in this browser.' : 'Settings apply for this session. Browser storage is unavailable.'}</p>
         <button class="btn" onClick={() => preferences.reset()}>Restore defaults</button>
       </div>}
