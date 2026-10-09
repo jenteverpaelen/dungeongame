@@ -1,0 +1,143 @@
+{
+  "node": "v24.19.0",
+  "platform": "win32",
+  "runDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG",
+  "interrupted": false,
+  "allowKnown": false,
+  "outcome": "passed",
+  "results": [
+    {
+      "name": "verify-contract",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 140,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\verify-contract\\saves"
+    },
+    {
+      "name": "license-notices",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 440,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\license-notices\\saves"
+    },
+    {
+      "name": "typecheck",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 6063,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\typecheck\\saves"
+    },
+    {
+      "name": "shared",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 972,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\shared\\saves"
+    },
+    {
+      "name": "foundations",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 391,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\foundations\\saves"
+    },
+    {
+      "name": "save-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 388,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\save-failures\\saves"
+    },
+    {
+      "name": "command-replay",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 757,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\command-replay\\saves"
+    },
+    {
+      "name": "connection-security",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 4008,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\connection-security\\saves"
+    },
+    {
+      "name": "backups",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 691,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\backups\\saves"
+    },
+    {
+      "name": "backup-runtime",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1715,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\backup-runtime\\saves"
+    },
+    {
+      "name": "shutdown-failures",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1013,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\shutdown-failures\\saves"
+    },
+    {
+      "name": "client-preferences",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 239,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\client-preferences\\saves"
+    },
+    {
+      "name": "client-bindings",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 225,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\client-bindings\\saves"
+    },
+    {
+      "name": "town-services",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 1141,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\town-services\\saves"
+    },
+    {
+      "name": "skill-descriptions",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 884,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\skill-descriptions\\saves"
+    },
+    {
+      "name": "server",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 95516,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\server\\saves"
+    },
+    {
+      "name": "simulation",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 5555,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\simulation\\saves"
+    },
+    {
+      "name": "content",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 229,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\content\\saves"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "durationMs": 845,
+      "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hearthfall-verify-TgodOG\\build\\saves"
+    }
+  ]
+}

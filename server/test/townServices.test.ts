@@ -8,7 +8,7 @@ import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { CollisionWorld } from '../../shared/src/movement';
 import type { CmdOp } from '../../shared/src/protocol';
-import type { CharacterSave } from '../../shared/src/types';
+import type { CharacterSave, ClassId, Rarity } from '../../shared/src/types';
 import { World } from '../src/world';
 import { runCommand } from '../src/commands';
 import type { Session } from '../src/net/session';
@@ -17,9 +17,9 @@ import { ensureDataDir, loadCharacter, normalizeSave, saveCharacter } from '../s
 
 assert.ok(process.env.DATA_DIR, 'Tests require an explicit isolated DATA_DIR');
 let sequence = 0;
-async function fixture() {
+async function fixture(classId: ClassId = 'warrior') {
   const world = new World(); await world.init();
-  const save = createCharacter(`Service${++sequence}`, 'warrior', 1);
+  const save = createCharacter(`Service${++sequence}`, classId, 1);
   save.level = 70; save.cube.level = 8; save.paragon.level = 40; save.gold = 1e9;
   for (const k of Object.keys(save.materials) as (keyof typeof save.materials)[]) save.materials[k] = 10000;
   save.gems['ruby:1'] = 30;
@@ -80,6 +80,61 @@ test('near the right service: all existing mutations and unlock gating still wor
     f.near('obelisk'); ok('riftOpen', { difficulty: 0 }); ok('riftEnter'); ok('leave');
   } finally { await f.world.shutdown(); }
 });
+
+for (const classId of ['warrior', 'ranger', 'mage'] as const) {
+  test(`${classId}: bulk salvage rejects protected and mixed rarities without any mutation`, async () => {
+    const f = await fixture(classId);
+    try {
+      const rng = new Rng(71);
+      for (const [i, rarity] of (['normal', 'magic', 'rare', 'legendary', 'set'] as Rarity[]).entries()) {
+        const item = generateItem(rng, { ilvl: 70, classId, rarity });
+        item.sockets = [{ gem: 'ruby', rank: 1 }];
+        f.save.inventory[i] = item;
+      }
+      f.near('blacksmith');
+      for (const rarities of [['legendary'], ['set'], ['normal', 'legendary'], ['rare', 'set'],
+        ['normal', 'magic', 'rare', 'legendary', 'set'], ['normal', 'bogus'], ['normal', 1], [],
+        ['normal', 'normal', 'normal', 'normal', 'normal', 'normal']]) {
+        const before = structuredClone(f.save);
+        assert.equal(f.cmd('salvageAll', { rarities }).ok, false, JSON.stringify(rarities));
+        assert.deepEqual(f.save, before, 'Rejected batches must not change items, gems, materials or Cube XP');
+      }
+    } finally { await f.world.shutdown(); }
+  });
+
+  test(`${classId}: bulk salvage preserves other storage and yields once; individual valuable salvage remains`, async () => {
+    const f = await fixture(classId);
+    try {
+      const rng = new Rng(71);
+      const items = (['normal', 'magic', 'rare', 'legendary', 'set'] as const).map(rarity =>
+        generateItem(rng, { ilvl: 70, classId, rarity, ancientAllowed: false }));
+      items[0].sockets = [{ gem: 'ruby', rank: 1 }, null];
+      items[1].sockets = [{ gem: 'ruby', rank: 1 }];
+      f.save.inventory.fill(null); items.forEach((item, i) => { f.save.inventory[i] = item; });
+      f.save.stash[0] = generateItem(rng, { ilvl: 70, classId, rarity: 'normal' });
+      const before = structuredClone(f.save);
+      f.near('paragon');
+      assert.match(f.cmd('salvageAll', { rarities: ['normal', 'magic'] }).err!, /Stand beside/);
+      assert.deepEqual(f.save, before);
+      f.near('blacksmith');
+      const result = f.cmd('salvageAll', { rarities: ['normal', 'magic', 'normal'] });
+      assert.equal(result.ok, true);
+      assert.deepEqual(result.data, { count: 2, mats: { scrap: 3, dust: 3 }, xp: 6, cubeLevels: 0 });
+      assert.deepEqual(f.save.inventory, [null, null, ...before.inventory.slice(2)]);
+      assert.deepEqual(f.save.equipment, before.equipment); assert.deepEqual(f.save.stash, before.stash);
+      assert.deepEqual(f.save.materials, { ...before.materials, scrap: before.materials.scrap + 3, dust: before.materials.dust + 3 });
+      assert.deepEqual(f.save.gems, { ...before.gems, 'ruby:1': before.gems['ruby:1'] + 2 });
+      const after = structuredClone(f.save);
+      assert.equal(f.cmd('salvageAll', { rarities: ['normal', 'magic'] }).ok, false);
+      assert.deepEqual(f.save, after, 'Retry cannot award twice');
+      assert.equal(f.cmd('salvageAll', { rarities: ['rare'] }).ok, true);
+      for (const item of items.slice(3)) {
+        assert.equal(f.cmd('salvage', { itemId: item.id }).ok, true, item.rarity);
+        assert.equal(f.save.inventory.some(i => i?.id === item.id), false);
+      }
+    } finally { await f.world.shutdown(); }
+  });
+}
 
 test('solid walls block service access even inside interaction radius; travel checks destination and rift portal', async () => {
   const f = await fixture();

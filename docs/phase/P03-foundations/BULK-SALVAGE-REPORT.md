@@ -1,0 +1,17 @@
+# Bulk-salvage boundary — C053
+
+2026-10-09; design in BULK-SALVAGE-DESIGN.md, research L64. The server now shares the menu's Normal/Magic/Rare list and rejects an entire request containing any other rarity before changing the save. Individual Legendary/Set salvage and all existing yields remain available. No item content, camera, town, UI style or schema changed.
+
+## Measured on this PC
+
+- Before the fix, all three class-specific rejection tests failed on `['legendary']`; the three valid-operation tests already passed. Afterward all six pass, including nine rejected request shapes per class, exact material/gem returns, equipment/stash conservation, service proximity, duplicate allowed entries, empty-result retries and individually targeted valuable items. Before/after logs are retained in checks/bulk-salvage.
+- Strict19-stage verification passes;756 server checks,382 simulation checks. Root `hearthfall-verify-TgodOG`, report copied beside the logs. The existing bot now levels its synthetic Cube through individual salvage and includes nine additional network rejection checks. Build's existing native-loader/bundle warnings remain; no relaxed stage or known-failure allowance.
+- Installed Chrome154.0.8037.99, Node24.19.0, actual1920×1080/DPR1, visible document, fixed620-world-height camera. Fresh profile, generated Mage save and owned local server in `hf-bulk-salvage-XBe7Yg`. Every run isolates DATA_DIR and clears BACKUP_DIR. All owned processes stop afterward.
+- Actual input movement follows a collision-clear town route to the Blacksmith. A far request rejects; the three menu choices are exactly Normal/Magic/Rare. A mixed Normal/Legendary command rejects without changing items/storage/materials/gems/Cube. The real menu button consumes two generated items, returns3Scrap/3Dust, preserves the three remaining IDs and survives actual disconnect/reconnect. This is not earned loot, a human study or a durability/crash guarantee.
+- Both captured PNGs were personally inspected: menu and controls fit on screen; after salvage the expected three slots remain. The existing tiny low-contrast protection note is a remaining readability concern, not fixed by this server correction. Town, paperdoll and HUD retain their appearance. No frame-rate conclusion is drawn from this capture or the suite's timing, which was not a dedicated idle-machine benchmark.
+
+The first capture pilot (`hf-bulk-salvage-zVMwNO`) used an incorrect button label, `Salvage` rather than `Salvage All`, and stopped before taking a screenshot. The script was corrected; pilot-trace.json preserves that failure. The successful run has no runtime exceptions. Regression roots: `hf-bulk-before-f2e7bb4bf70e4ff6842abe00da37b6f7`, `hf-bulk-after-9509f8f86868413d99f97a13f7936219` in the user's Temp directory.
+
+## Scope and future effect
+
+Only the undocumented direct-command ability to bulk-delete Legendary/Set items is removed. It contradicted the longstanding visible guarantee. No broad favorite/lock feature, automatic filter, rollback receipt or new reward rule is implied. Modified clients must use explicit individual salvage for valuable gear; save files need no migration. F-ITM-07 remains incomplete. Future item protection must cover each consuming/replacing operation and persistence boundary; TBH/D4 research identifies those questions, not a finished specification. Rollback would restore the contradiction and should be avoided in favor of a corrective patch.

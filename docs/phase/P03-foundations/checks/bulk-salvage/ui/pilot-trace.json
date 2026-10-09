@@ -1,0 +1,39 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bulk-salvage-zVMwNO",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bulk-salvage-zVMwNO\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": false,
+  "failure": "Error: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":0,\"columnNumber\":83,\"scriptId\":\"39\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"\",\"scriptId\":\"39\",\"url\":\"\",\"lineNumber\":0,\"columnNumber\":83}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"TypeError\",\"description\":\"TypeError: Cannot read properties of undefined (reading 'setAttribute')\\n    at <anonymous>:1:84\",\"objectId\":\"-4132298071782850936.2.2\"}}\n    at evaluate (file:///C:/Users/LaptopJente/dungeongame/scripts/capture-bulk-salvage.mjs:71:35)\n    at async file:///C:/Users/LaptopJente/dungeongame/scripts/capture-bulk-salvage.mjs:114:3",
+  "exceptions": [],
+  "scope": "Installed local Chrome and real local server; synthetic generated gear, ordinary movement to Blacksmith, actual menu click, rejected mixed request and reconnect. No earned-loot, human usability or performance claim.",
+  "observations": [
+    {
+      "name": "physical-route",
+      "start": [
+        2891.5,
+        2418.6
+      ],
+      "target": [
+        3116.8,
+        2255.4
+      ],
+      "route": [
+        [
+          3018.2,
+          2353.3
+        ],
+        [
+          3116.8,
+          2255.4
+        ]
+      ]
+    }
+  ]
+}

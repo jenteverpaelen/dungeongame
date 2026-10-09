@@ -39,3 +39,5 @@ This phase is not complete. Continue research in P01 while checking the independ
 C050: session candidate proposal pins eleven archives/82,439bytes, full upstream licence reads and an empty exact-pin npm advisory response. Source-derived failure/revocation checks are documented; archive review/runtime tests await specific download approval. No production session system or broader security acceptance is claimed.
 
 C052: Show combat numbers, default on, hides floating damage/healing with no accumulated hidden burst. Typecheck,7 targeted checks, content/build and actual Chrome input/reconnect/reset pass; five styles match the baseline and instrumented event feedback agrees. Seven1080p captures inspected. COMBAT-NUMBERS-REPORT.md records remaining accessibility and category-filter scope.
+
+C053: shared bulk-rarity protection closes a reproduced all-class server/menu mismatch. Six targeted tests and all19 strict stages pass (756server/382sim); two local Chrome1080p menu/result frames inspected and reconnect preserves results. BULK-SALVAGE-REPORT.md records scope, selector pilot and remaining item-protection work.

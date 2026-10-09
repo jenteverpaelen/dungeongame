@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C052. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C053. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -107,7 +107,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ITM-04 | Crafting recipes + materials | P11 | PARTIAL — Cube ops, 5 materials | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ITM-05 | Transmog / appearance slots | P11 | MISSING — look slots exist (9) | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ITM-06 | Gems / socketables expansion | P11 | PARTIAL — 5 gems × 6 ranks | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-ITM-07 | Loot filter + auto-pickup / auto-salvage rules | P11 | PARTIAL — `salvageAll` by rarity exists | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-ITM-07 | Loot filter + auto-pickup / auto-salvage rules | P11 | PARTIAL — `salvageAll` by rarity exists | C053 enforces existing bulk rarity protection with shared client/server rules; all-class/network/browser checks pass. Automatic filtering and pickup remain open. [report](phase/P03-foundations/BULK-SALVAGE-REPORT.md). |
 | F-ITM-08 | Item compare, tooltips v2, item links in chat | P11 | PARTIAL — compare and tooltip exist | One earned comparison/equip flow verified (C029); no item links or full v2. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | F-ITM-09 | Collection codex (legendaries, sets) | P11 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ITM-10 | Item-level and base-tier curve review | P11 | PARTIAL | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -207,7 +207,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-41 | Hint toasts | P6 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-42 | Help panel | P6 v2 | EXISTS (controls) | Help shows live bindings and Settings entry (C024); broader v2 content open. [foundation state](phase/P03-foundations/STATE.md). |
 | U-43 | Offline-gains report | P14 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-50 | Inventory (bag grid) | — | EXISTS | Existing bag/equip flow observed with earned loot (C029); broader errors/inputs open. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
+| U-50 | Inventory (bag grid) | — | EXISTS | Earned gear C029; C053 existing bulk menu, actual service transaction/reconnect and two inspected1080p frames pass. Broader errors/inputs remain open. [bulk report](phase/P03-foundations/BULK-SALVAGE-REPORT.md). |
 | U-51 | Paper-doll / equipment | — | EXISTS | Existing wrist-slot equip/stat change verified (C029); no restyle. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | U-52 | Character sheet (full stats, breakdown) | P4 | PARTIAL — stats strip | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-53 | Item tooltip + comparison | P11 v2 | EXISTS | One earned tooltip comparison matches actual derived stats (C029); gear-aware skill summaries open. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |

@@ -1,0 +1,67 @@
+✖ warrior: bulk salvage rejects protected and mixed rarities without any mutation (207.1876ms)
+✔ warrior: bulk salvage preserves other storage and yields once; individual valuable salvage remains (88.6657ms)
+✖ ranger: bulk salvage rejects protected and mixed rarities without any mutation (85.7535ms)
+✔ ranger: bulk salvage preserves other storage and yields once; individual valuable salvage remains (63.626ms)
+✖ mage: bulk salvage rejects protected and mixed rarities without any mutation (62.7897ms)
+✔ mage: bulk salvage preserves other storage and yields once; individual valuable salvage remains (62.8908ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 3
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 920.689
+
+✖ failing tests:
+
+test at server\test\townServices.test.ts:1:4799
+✖ warrior: bulk salvage rejects protected and mixed rarities without any mutation (207.1876ms)
+  AssertionError [ERR_ASSERTION]: ["legendary"]
+  
+  true !== false
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\townServices.test.ts:99:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\townServices.test.ts:1:4799
+✖ ranger: bulk salvage rejects protected and mixed rarities without any mutation (85.7535ms)
+  AssertionError [ERR_ASSERTION]: ["legendary"]
+  
+  true !== false
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\townServices.test.ts:99:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at server\test\townServices.test.ts:1:4799
+✖ mage: bulk salvage rejects protected and mixed rarities without any mutation (62.7897ms)
+  AssertionError [ERR_ASSERTION]: ["legendary"]
+  
+  true !== false
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\townServices.test.ts:99:16)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -4,7 +4,10 @@
 
 import { AFFIXES, AFFIX_BY_STAT, BASES, GEMS, GEM_RANKS, LEGENDARIES } from './data/items';
 import type { CubeSlot } from './data/items';
-import type { CharacterSave, Item, Materials } from './types';
+import type { CharacterSave, Item, Materials, Rarity } from './types';
+
+/** Bulk salvage must match the inventory menu's promise; valuable gear is targeted individually. */
+export const BULK_SALVAGE_RARITIES: readonly Rarity[] = ['normal', 'magic', 'rare'];
 
 export type CubeOp =
   | 'salvage' | 'enchant' | 'upgrade' | 'transmute' | 'extract' | 'reforge' | 'socket' | 'fuse';

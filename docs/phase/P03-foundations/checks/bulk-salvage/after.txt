@@ -1,0 +1,14 @@
+✔ warrior: bulk salvage rejects protected and mixed rarities without any mutation (180.4584ms)
+✔ warrior: bulk salvage preserves other storage and yields once; individual valuable salvage remains (79.2708ms)
+✔ ranger: bulk salvage rejects protected and mixed rarities without any mutation (73.9712ms)
+✔ ranger: bulk salvage preserves other storage and yields once; individual valuable salvage remains (61.169ms)
+✔ mage: bulk salvage rejects protected and mixed rarities without any mutation (61.7382ms)
+✔ mage: bulk salvage preserves other storage and yields once; individual valuable salvage remains (76.3561ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 852.9055

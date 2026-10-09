@@ -569,13 +569,20 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('salvageAll bad rarity rejected', !r.ok, r);
   r = await b.cmd('salvageAll', { rarities: [] });
   c('salvageAll empty list rejected', !r.ok, r);
+  for (const rarities of [['legendary'], ['set'], ['normal', 'legendary']]) {
+    const before = JSON.stringify({ inventory: b.char.inventory, materials: b.char.materials, gems: b.char.gems, cube: b.char.cube });
+    r = await b.cmd('salvageAll', { rarities });
+    c(`salvageAll rejects ${rarities.join('/')} without mutation`, !r.ok && before === JSON.stringify({ inventory: b.char.inventory, materials: b.char.materials, gems: b.char.gems, cube: b.char.cube }), r);
+  }
 
   // Level the Cube to 8 by salvaging debug legendaries (each op grants Cube XP).
   let guard = 0;
   while (b.char.cube.level < 8 && guard++ < 60) {
     await b.cmd('debug', { op: 'legendaries' });
     await b.cmd('debug', { op: 'set' });
-    await b.cmd('salvageAll', { rarities: ['legendary', 'set'] });
+    for (const item of b.inv().filter(i => i.rarity === 'legendary' || i.rarity === 'set')) {
+      await b.cmd('salvage', { itemId: item.id });
+    }
   }
   c('Cube reached level 8 through salvage XP', b.char.cube.level >= 8, { level: b.char.cube.level, xp: b.char.cube.xp, need: cubeXpToNext(b.char.cube.level) });
 

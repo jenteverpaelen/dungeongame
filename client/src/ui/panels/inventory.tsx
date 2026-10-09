@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AFFIX_BY_STAT, GEMS } from '@shared/data/items';
-import { CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
+import { BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
 import { fmtCompact, fmtInt } from '@shared/format';
 import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
 import { canClassUse } from '@shared/items';
@@ -307,7 +307,6 @@ function GemGrid({ char }: { char: CharacterSave }) {
 
 // ───────────────────────────── salvage ─────────────────────────────
 
-const SALVAGEABLE: Rarity[] = ['normal', 'magic', 'rare'];
 const RARITY_NAME: Record<Rarity, string> = { normal: 'Normal', magic: 'Magic', rare: 'Rare', legendary: 'Legendary', set: 'Set' };
 
 function sumYield(items: Item[]): Partial<Materials> {
@@ -327,12 +326,12 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
   const open = useLocal(invUI, (s) => s.salvageMenu);
   const [, rerender] = useForce();
   if (!open) return null;
-  const rarities = SALVAGEABLE.filter((r) => sel.current[r]);
+  const rarities = BULK_SALVAGE_RARITIES.filter((r) => sel.current[r]);
   const items = char.inventory.filter((i): i is Item => !!i && rarities.includes(i.rarity));
   return (
     <div class="menu salvage-menu">
       <div class="menu-t">Salvage All</div>
-      {SALVAGEABLE.map((r) => {
+      {BULK_SALVAGE_RARITIES.map((r) => {
         const n = char.inventory.filter((i) => i && i.rarity === r).length;
         return (
           <div class="menu-row" key={r}>

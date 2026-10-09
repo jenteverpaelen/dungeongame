@@ -16,7 +16,7 @@ import {
   addToInventory, buySkillTier, equipItem, findEquipped, findInventory, resetSkillTiers, setSkillRune, setSkillSlot, unequipItem,
 } from '../../shared/src/character';
 import {
-  CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, addCubeXp, canAfford, canEnchantAffix, cubeSlotOf, cubeUnlocked, enchantCost, enchantPool,
+  BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, addCubeXp, canAfford, canEnchantAffix, cubeSlotOf, cubeUnlocked, enchantCost, enchantPool,
   extractCost, fuseCost, gemRemoveCost, maxSockets, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance,
   upgradeCost, type Cost, type CubeOp,
 } from '../../shared/src/cube';
@@ -62,7 +62,6 @@ const slotArg = (a: Args, k: string): Slot => {
   return v as Slot;
 };
 
-const RARITIES: Rarity[] = ['normal', 'magic', 'rare', 'legendary', 'set'];
 const MAT_NAME: Record<MaterialId, string> = { scrap: 'Scrap', dust: 'Arcane Dust', crystal: 'Veiled Crystals', soul: 'Forgotten Souls', deathsBreath: "Death's Breath" };
 const MAT_IDS = Object.keys(MAT_NAME) as MaterialId[];
 const CUBE_SLOT_NAMES = ['weapon', 'armor', 'jewelry'] as const;
@@ -203,10 +202,10 @@ const salvageAll: Handler = (s, a) => {
   const cubeErr = requireCube(save, 'salvage');
   if (cubeErr) return fail(cubeErr);
   const list = a.rarities;
-  if (!Array.isArray(list) || list.length === 0 || list.length > RARITIES.length) return fail('Choose which rarities to salvage');
+  if (!Array.isArray(list) || list.length === 0 || list.length > BULK_SALVAGE_RARITIES.length) return fail('Choose which rarities to salvage');
   const wanted = new Set<Rarity>();
   for (const r of list) {
-    if (typeof r !== 'string' || !RARITIES.includes(r as Rarity)) return fail('Unknown rarity');
+    if (typeof r !== 'string' || !BULK_SALVAGE_RARITIES.includes(r as Rarity)) return fail('Bulk salvage only accepts Normal, Magic and Rare items');
     wanted.add(r as Rarity);
   }
   const mats: Partial<Materials> = {};

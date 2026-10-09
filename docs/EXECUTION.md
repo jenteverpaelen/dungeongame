@@ -59,3 +59,5 @@ C050 completes a pinned session-source/licence review and exact isolated downloa
 C051 tests a narrow P5 authoring contract independently of the live game:14 passing checks cover references, prerequisites and conditional exit paths. This is evidence for design, not completed quests or a reason to stop. Continue durable objective/reward research and independent foundations while session-download approval is pending.
 
 C052 adds optional combat-number visibility, preserving default style and event feedback. Targeted checks/build, actual local Chrome input/reconnect/reset and seven inspected1080p frames pass. Continue the whole-roadmap research and state-safety work; no phase or release gate is declared complete.
+
+C053 enforces the existing bulk-salvage guarantee server-side. All19 stages pass (756server/382sim), plus actual local Chrome menu/reconnect checks. Continue whole-roadmap work; this checkpoint does not complete item filtering or any whole phase.

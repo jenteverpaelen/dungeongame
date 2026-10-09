@@ -1,0 +1,1146 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bulk-salvage-XBe7Yg",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bulk-salvage-XBe7Yg\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "exceptions": [],
+  "scope": "Installed local Chrome and real local server; synthetic generated gear, ordinary movement to Blacksmith, actual menu click, rejected mixed request and reconnect. No earned-loot, human usability or performance claim.",
+  "observations": [
+    {
+      "name": "physical-route",
+      "start": [
+        2891.5,
+        2418.6
+      ],
+      "target": [
+        3116.8,
+        2255.4
+      ],
+      "route": [
+        [
+          3018.2,
+          2353.3
+        ],
+        [
+          3116.8,
+          2255.4
+        ]
+      ]
+    },
+    {
+      "name": "01-existing-bulk-menu",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nBulkTrace\nParagon 0\nMage\nDPS\n0\n118 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BulkTrace.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n100\nINVENTORY\nLEVEL 70 MAGE\nDAMAGE\n14\nTOUGHNESS\n16,023\nRECOVERY\n0\nIntelligence\n217\nVitality\n147\nLife\n14,653\nArmor\n101\nAll Resist\n22\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n0\n0\n0\n0\n0\n0\nITEMS 5/60\nGEMS\nSALVAGE ALL\nSALVAGE ALL\nNormal\n1\nMagic\n1\nRare\n1\nYou will receive\n3\n3\nLegendary and Set items are never salvaged in bulk.\nCANCEL\nSALVAGE 2",
+      "char": {
+        "version": 1,
+        "id": "bulktrace",
+        "name": "BulkTrace",
+        "classId": "mage",
+        "level": 70,
+        "xp": 0,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "gems": {},
+        "equipment": {
+          "mainhand": {
+            "id": "1ndlw6z1",
+            "base": "wand",
+            "kind": "weapon1h",
+            "name": "Wand",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wand",
+              "primary": 10253126,
+              "secondary": 6178090,
+              "glow": 0,
+              "variant": 0
+            },
+            "weapon": {
+              "min": 2,
+              "max": 4,
+              "aps": 1.4,
+              "element": "physical"
+            }
+          },
+          "offhand": {
+            "id": "1u61xvy2",
+            "base": "orb",
+            "kind": "offhand",
+            "name": "Orb",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "orb",
+              "primary": 4025855,
+              "secondary": 2441625,
+              "glow": 0,
+              "variant": 2
+            },
+            "armor": 3
+          },
+          "chest": {
+            "id": "14oflam3",
+            "base": "chest_robe",
+            "kind": "chest",
+            "name": "Worn Robe",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "robe",
+              "primary": 9189946,
+              "secondary": 5514019,
+              "glow": 0,
+              "variant": 2
+            },
+            "armor": 7
+          },
+          "legs": {
+            "id": "1i093z44",
+            "base": "legs_cloth",
+            "kind": "legs",
+            "name": "Worn Leggings",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "cloth",
+              "primary": 3421258,
+              "secondary": 2039596,
+              "glow": 0,
+              "variant": 1
+            },
+            "armor": 9
+          },
+          "feet": {
+            "id": "1iuxypy5",
+            "base": "feet_shoes",
+            "kind": "feet",
+            "name": "Worn Slippers",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "shoes",
+              "primary": 3421258,
+              "secondary": 2039596,
+              "glow": 0,
+              "variant": 3
+            },
+            "armor": 5
+          }
+        },
+        "inventory": [
+          {
+            "id": "1c6slsd6",
+            "base": "shoulders_mantle",
+            "kind": "shoulders",
+            "name": "Starforged Mantle",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "mantle",
+              "primary": 5204794,
+              "secondary": 3096611,
+              "glow": 0,
+              "variant": 0
+            },
+            "armor": 1306
+          },
+          {
+            "id": "1mw6p4e7",
+            "base": "hands_gloves",
+            "kind": "hands",
+            "name": "Timeless Starforged Gloves",
+            "rarity": "magic",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "cdr",
+                "value": 6.9,
+                "min": 5.5,
+                "max": 8,
+                "primary": true
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "gloves",
+              "primary": 9136709,
+              "secondary": 5930495,
+              "glow": 0,
+              "variant": 3
+            },
+            "armor": 1255
+          },
+          {
+            "id": "fjvipy8",
+            "base": "legs_leather",
+            "kind": "legs",
+            "name": "Bone Pillars",
+            "rarity": "rare",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 635,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "armor",
+                "value": 407,
+                "min": 397,
+                "max": 465,
+                "primary": true
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 3085,
+                "min": 3000,
+                "max": 5000,
+                "primary": false
+              },
+              {
+                "stat": "goldFind",
+                "value": 16.7,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              }
+            ],
+            "sockets": [
+              null
+            ],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "leather",
+              "primary": 9136709,
+              "secondary": 13939002,
+              "glow": 0,
+              "variant": 0
+            },
+            "armor": 2139
+          },
+          {
+            "id": "1fblyww9",
+            "base": "wand",
+            "kind": "weapon1h",
+            "name": "Spindle of a Thousand Missiles",
+            "rarity": "legendary",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 740,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "weaponDmgPct",
+                "value": 9.3,
+                "min": 7,
+                "max": 10,
+                "primary": true
+              },
+              {
+                "stat": "ias",
+                "value": 5.2,
+                "min": 5,
+                "max": 7,
+                "primary": true
+              },
+              {
+                "stat": "lifePerHit",
+                "value": 5183,
+                "min": 4000,
+                "max": 6000,
+                "primary": true
+              },
+              {
+                "stat": "goldFind",
+                "value": 20.7,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 6240,
+                "min": 5000,
+                "max": 8000,
+                "primary": false
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wand",
+              "primary": 15261951,
+              "secondary": 11766015,
+              "glow": 14074623,
+              "variant": 1
+            },
+            "weapon": {
+              "min": 1595,
+              "max": 3319,
+              "aps": 1.4,
+              "element": "physical"
+            },
+            "legendary": {
+              "power": "thousand_missiles",
+              "value": 111,
+              "min": 100,
+              "max": 150
+            },
+            "flavor": "Point. Wish. Repeat."
+          },
+          {
+            "id": "1p53diga",
+            "base": "hands_wraps",
+            "kind": "hands",
+            "name": "Starcaller Wraps",
+            "rarity": "set",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 646,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "armor",
+                "value": 420,
+                "min": 397,
+                "max": 465,
+                "primary": true
+              },
+              {
+                "stat": "chc",
+                "value": 9.2,
+                "min": 8,
+                "max": 10,
+                "primary": true
+              },
+              {
+                "stat": "chd",
+                "value": 47.1,
+                "min": 45,
+                "max": 50,
+                "primary": true
+              },
+              {
+                "stat": "goldFind",
+                "value": 17.9,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 3607,
+                "min": 3000,
+                "max": 5000,
+                "primary": false
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wraps",
+              "primary": 2299210,
+              "secondary": 16751164,
+              "glow": 3997550,
+              "variant": 2
+            },
+            "armor": 1222,
+            "set": "fallen_star"
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stash": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "skills": {
+          "slots": [
+            "meteor",
+            "black_hole",
+            "frost_nova",
+            "hydra"
+          ],
+          "runes": {},
+          "tiers": {},
+          "primary": "magic_missile"
+        },
+        "skillPoints": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "cube": {
+          "level": 8,
+          "xp": 0,
+          "learned": [],
+          "equipped": [
+            null,
+            null,
+            null
+          ]
+        },
+        "difficulty": 0,
+        "lastZone": "hearthmere",
+        "lastSeen": 1791533690868,
+        "stats": {
+          "kills": 0,
+          "elites": 0,
+          "legendaries": 0,
+          "rifts": 0,
+          "playMs": 0,
+          "deaths": 0
+        }
+      },
+      "menu": "SALVAGE ALL\nNormal\n1\nMagic\n1\nRare\n1\nYou will receive\n3\n3\nLegendary and Set items are never salvaged in bulk.\nCANCEL\nSALVAGE 2",
+      "panels": [
+        {
+          "x": 1436,
+          "y": 18,
+          "w": 466,
+          "h": 839.71875
+        }
+      ]
+    },
+    {
+      "name": "mixed-request-rejected",
+      "reply": {
+        "ok": false,
+        "err": "Bulk salvage only accepts Normal, Magic and Rare items"
+      }
+    },
+    {
+      "name": "02-after-bulk",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "0\nBulkTrace\nParagon 0\nMage\nDPS\n0\n114 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BulkTrace.\n14.7K\nAUTO\n1\n2\n3\n4\nSPACE\n100\nINVENTORY\nLEVEL 70 MAGE\nDAMAGE\n14\nTOUGHNESS\n16,023\nRECOVERY\n0\nIntelligence\n217\nVitality\n147\nLife\n14,653\nArmor\n101\nAll Resist\n22\nCrit Chance\n5.0%\nCrit Damage\n50%\nAttack Speed\n1.40\nCooldown Red.\n0.0%\nArea Damage\n0%\n0\n3\n3\n0\n0\n0\nITEMS 3/60\nGEMS\nSALVAGE ALL",
+      "char": {
+        "version": 1,
+        "id": "bulktrace",
+        "name": "BulkTrace",
+        "classId": "mage",
+        "level": 70,
+        "xp": 0,
+        "gold": 0,
+        "materials": {
+          "scrap": 3,
+          "dust": 3,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "gems": {},
+        "equipment": {
+          "mainhand": {
+            "id": "1ndlw6z1",
+            "base": "wand",
+            "kind": "weapon1h",
+            "name": "Wand",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wand",
+              "primary": 10253126,
+              "secondary": 6178090,
+              "glow": 0,
+              "variant": 0
+            },
+            "weapon": {
+              "min": 2,
+              "max": 4,
+              "aps": 1.4,
+              "element": "physical"
+            }
+          },
+          "offhand": {
+            "id": "1u61xvy2",
+            "base": "orb",
+            "kind": "offhand",
+            "name": "Orb",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "orb",
+              "primary": 4025855,
+              "secondary": 2441625,
+              "glow": 0,
+              "variant": 2
+            },
+            "armor": 3
+          },
+          "chest": {
+            "id": "14oflam3",
+            "base": "chest_robe",
+            "kind": "chest",
+            "name": "Worn Robe",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "robe",
+              "primary": 9189946,
+              "secondary": 5514019,
+              "glow": 0,
+              "variant": 2
+            },
+            "armor": 7
+          },
+          "legs": {
+            "id": "1i093z44",
+            "base": "legs_cloth",
+            "kind": "legs",
+            "name": "Worn Leggings",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "cloth",
+              "primary": 3421258,
+              "secondary": 2039596,
+              "glow": 0,
+              "variant": 1
+            },
+            "armor": 9
+          },
+          "feet": {
+            "id": "1iuxypy5",
+            "base": "feet_shoes",
+            "kind": "feet",
+            "name": "Worn Slippers",
+            "rarity": "normal",
+            "ancient": 0,
+            "ilvl": 1,
+            "reqLevel": 1,
+            "affixes": [],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "shoes",
+              "primary": 3421258,
+              "secondary": 2039596,
+              "glow": 0,
+              "variant": 3
+            },
+            "armor": 5
+          }
+        },
+        "inventory": [
+          null,
+          null,
+          {
+            "id": "fjvipy8",
+            "base": "legs_leather",
+            "kind": "legs",
+            "name": "Bone Pillars",
+            "rarity": "rare",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 635,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "armor",
+                "value": 407,
+                "min": 397,
+                "max": 465,
+                "primary": true
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 3085,
+                "min": 3000,
+                "max": 5000,
+                "primary": false
+              },
+              {
+                "stat": "goldFind",
+                "value": 16.7,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              }
+            ],
+            "sockets": [
+              null
+            ],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "leather",
+              "primary": 9136709,
+              "secondary": 13939002,
+              "glow": 0,
+              "variant": 0
+            },
+            "armor": 2139
+          },
+          {
+            "id": "1fblyww9",
+            "base": "wand",
+            "kind": "weapon1h",
+            "name": "Spindle of a Thousand Missiles",
+            "rarity": "legendary",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 740,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "weaponDmgPct",
+                "value": 9.3,
+                "min": 7,
+                "max": 10,
+                "primary": true
+              },
+              {
+                "stat": "ias",
+                "value": 5.2,
+                "min": 5,
+                "max": 7,
+                "primary": true
+              },
+              {
+                "stat": "lifePerHit",
+                "value": 5183,
+                "min": 4000,
+                "max": 6000,
+                "primary": true
+              },
+              {
+                "stat": "goldFind",
+                "value": 20.7,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 6240,
+                "min": 5000,
+                "max": 8000,
+                "primary": false
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wand",
+              "primary": 15261951,
+              "secondary": 11766015,
+              "glow": 14074623,
+              "variant": 1
+            },
+            "weapon": {
+              "min": 1595,
+              "max": 3319,
+              "aps": 1.4,
+              "element": "physical"
+            },
+            "legendary": {
+              "power": "thousand_missiles",
+              "value": 111,
+              "min": 100,
+              "max": 150
+            },
+            "flavor": "Point. Wish. Repeat."
+          },
+          {
+            "id": "1p53diga",
+            "base": "hands_wraps",
+            "kind": "hands",
+            "name": "Starcaller Wraps",
+            "rarity": "set",
+            "ancient": 0,
+            "ilvl": 70,
+            "reqLevel": 70,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 646,
+                "min": 626,
+                "max": 750,
+                "primary": true
+              },
+              {
+                "stat": "armor",
+                "value": 420,
+                "min": 397,
+                "max": 465,
+                "primary": true
+              },
+              {
+                "stat": "chc",
+                "value": 9.2,
+                "min": 8,
+                "max": 10,
+                "primary": true
+              },
+              {
+                "stat": "chd",
+                "value": 47.1,
+                "min": 45,
+                "max": 50,
+                "primary": true
+              },
+              {
+                "stat": "goldFind",
+                "value": 17.9,
+                "min": 15,
+                "max": 25,
+                "primary": false
+              },
+              {
+                "stat": "lifePerKill",
+                "value": 3607,
+                "min": 3000,
+                "max": 5000,
+                "primary": false
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "wraps",
+              "primary": 2299210,
+              "secondary": 16751164,
+              "glow": 3997550,
+              "variant": 2
+            },
+            "armor": 1222,
+            "set": "fallen_star"
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stash": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "skills": {
+          "slots": [
+            "meteor",
+            "black_hole",
+            "frost_nova",
+            "hydra"
+          ],
+          "runes": {},
+          "tiers": {},
+          "primary": "magic_missile"
+        },
+        "skillPoints": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "cube": {
+          "level": 8,
+          "xp": 6,
+          "learned": [],
+          "equipped": [
+            null,
+            null,
+            null
+          ]
+        },
+        "difficulty": 0,
+        "lastZone": "hearthmere",
+        "lastSeen": 1791533693529,
+        "stats": {
+          "kills": 0,
+          "elites": 0,
+          "legendaries": 0,
+          "rifts": 0,
+          "playMs": 4,
+          "deaths": 0
+        }
+      },
+      "panels": [
+        {
+          "x": 1436,
+          "y": 18,
+          "w": 466,
+          "h": 839.71875
+        }
+      ]
+    },
+    {
+      "name": "reconnect-preserved-result",
+      "passed": true
+    }
+  ]
+}
