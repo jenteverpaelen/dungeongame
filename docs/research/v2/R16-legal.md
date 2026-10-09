@@ -1,0 +1,15 @@
+# R-16 — Legal, privacy and licences
+
+Read 2026-10-09. Research for implementation planning, not legal clearance. No paid feature or publication is being introduced.
+
+[EU-CPC](https://commission.europa.eu/document/download/8af13e88-6540-436c-b137-9853e7fe866a_en?filename=Key+principles+on+in-game+virtual+currencies.pdf), 21 March 2025, sets out consumer-protection principles for purchased virtual currencies: comprehensible real-money pricing, avoiding obscured costs/forced surplus, clear terms and applicable withdrawal rights. It is not a blanket rule that all loot systems are prohibited or permitted.
+
+[EDPB-BASIC](https://www.edpb.europa.eu/sme/learn-the-basics/data-protection-basics_en) explains purpose-limited, proportionate collection and retention. [EDPB-RIGHTS](https://www.edpb.europa.eu/sme/be-compliant/respect-individuals-rights_en) explains access, correction, erasure and portability with conditions and exceptions. A deletion button alone is insufficient. EUR-Lex retrieval did not expose the regulation body in this pass; it is not recorded as read.
+
+## Inference for foundations
+
+Create a data inventory before accounts or telemetry: field, purpose, legal basis to determine, access, retention and deletion/export handling. Avoid collecting email/date of birth merely because other games do. Account recovery and children's access need an explicit policy; do not invent an age threshold from the owner's location.
+
+## Unfinished
+
+Member-state loot-box rules, PEGI/IARC, original-expression/IP review, terms and every installed component's licence. Public screenshots are research references, not asset licences. No external assets are copied into game content. No claim of release readiness.

@@ -5,6 +5,8 @@
   "type": "module",
   "description": "2D massively-multiplayer action RPG prototype (browser + Steam)",
   "scripts": {
+    "verify": "node scripts/verify.mjs",
+    "test:foundations": "tsx --test server/test/foundations.test.ts",
     "dev": "node scripts/dev.mjs",
     "dev:server": "tsx watch server/src/main.ts",
     "dev:client": "vite --config client/vite.config.ts",

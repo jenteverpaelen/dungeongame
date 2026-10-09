@@ -1,12 +1,14 @@
 # Evidence program — v2
 
-First bounded pass, 2026-10-09. **Research is in progress; the full roadmap research gate is not complete.** Equal attention to the owner's five requested games means the same questions and explicit gaps, not a ranking by popularity or number of accessible webpages. D3 includes Campaign and Adventure; PoE1/2 are separate; Torchlight II is an added charter, not a substitute name for Infinite.
+Continuing research, 2026-10-09. **Research is in progress; the full roadmap research gate is not complete.** All 21 charter dossiers now exist, with explicit coverage and remaining questions. This is coverage of the research program, not a declaration that every question is answered. Equal attention to the owner's five requested games means the same questions and explicit gaps, not a ranking by popularity or number of accessible webpages. D3 includes Campaign and Adventure; PoE1/2 are separate; Torchlight II is an added charter, not a substitute name for Infinite.
 
 - [D3](R01-diablo3.md), [Idleon](R02-idleon.md), [Task Bar Hero](R03-taskbar-hero.md), [PoE1/2](R04-path-of-exile.md), [Torchlight II](R21-torchlight2.md).
 - [Onboarding research](R15-onboarding.md), [comparison and option brief](MATRICES.md), [contradictions/access gaps](CONTRADICTIONS.md).
+- [D4](R05-diablo4.md), [MapleStory](R06-maplestory.md), [Lost Ark](R07-lost-ark.md), [survivors](R08-survivors.md), [Last Epoch / Grim Dawn / Infinite](R09-arpg-builds.md), [case studies](R10-case-studies.md), [economy](R11-economy.md).
+- [Technology](R12-technology.md), [accessibility](R13-accessibility.md), [balance](R14-balance.md), [legal/privacy](R16-legal.md), [platforms](R17-platforms.md), [art pipeline](R18-art-pipeline.md), [audio](R19-audio.md), [narrative](R20-narrative.md).
 - [Source register](SOURCES.csv), [claim register](CLAIMS.csv), [done / unfinished / next](../../phase/P01-research/STATE.md).
 
-This pass asks: what creates an early goal, what changes a build, what carries between sessions, and which evidence is unsafe to transfer? Stop condition for this pass: each requested game has a read primary source, a version boundary, a plausible lesson, and explicit missing evidence. It does **not** close the complete research charters.
+The initial checkpoint asked what creates an early goal, changes a build and carries between sessions. It is now extended across the whole roadmap. Checkpoints preserve work; they do not end the task. Continue with deeper comparisons, actual UI observations, local measurements and supported implementation. Do not manufacture missing progression timelines to make a table look complete.
 
 ## Evidence rules
 

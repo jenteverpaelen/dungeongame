@@ -594,7 +594,7 @@ function classSet(save: CharacterSave, rng: Rng): Item[] {
 }
 
 const debug: Handler = (s, a) => {
-  if (process.env.DISABLE_DEBUG === '1') return fail('Debug commands are disabled on this server');
+  if (process.env.ENABLE_DEBUG !== '1' || process.env.DISABLE_DEBUG === '1') return fail('Debug commands are disabled on this server');
   const save = s.save;
   const op = str(a, 'op');
 

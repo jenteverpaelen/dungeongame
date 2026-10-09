@@ -1,6 +1,7 @@
 // Character creation, equipment rules, inventory and skill loadout helpers (shared validation).
 
 import { INVENTORY_SIZE, STASH_SIZE } from './constants';
+import { SAVE_VERSION } from './saveVersion';
 import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
@@ -14,6 +15,7 @@ export function createCharacter(name: string, classId: ClassId, seed: number): C
   const cls = CLASSES[classId];
   const firstSkill = skillsForClass(classId).find((s) => s.kind !== 'primary' && s.unlock <= 1);
   return {
+    version: SAVE_VERSION,
     id: `${name.toLowerCase()}`,
     name,
     classId,

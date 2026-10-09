@@ -29,7 +29,7 @@ if (!process.env.E2E_SKIP_BUILD) {
   if (b.status !== 0) { console.error('build failed'); process.exit(1); }
 }
 spawnSync('fuser', ['-k', `${PORT}/tcp`]); // stale server from an aborted run
-run('npx', ['tsx', 'server/src/main.ts'], { PORT, XP_MULT: '3', DATA_DIR: '/tmp/claude-0/e2e-data' });
+run('npx', ['tsx', 'server/src/main.ts'], { PORT, ENABLE_DEBUG: '1', DISABLE_DEBUG: '0', XP_MULT: '3', DATA_DIR: '/tmp/claude-0/e2e-data' });
 await new Promise((r) => setTimeout(r, 3000));
 const BASE = `http://localhost:${PORT}`;
 

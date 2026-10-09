@@ -8,7 +8,7 @@ import { applyAfkGains } from '../afk';
 import { AUTOSAVE_MS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
-import { CorruptCharacterError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
+import { CorruptCharacterError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
 import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { CLASSES } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
@@ -286,7 +286,8 @@ export class Session implements PlayerLink {
       save = await loadCharacter(id);
     } catch (err) {
       console.error(`[session] loading ${id} failed:`, err);
-      this.kick(err instanceof CorruptCharacterError ? 'Your character data is damaged. Please contact the server admin.' : 'Could not load your character.');
+      this.kick(err instanceof UnsupportedSaveVersionError ? 'This character needs a newer server version.'
+        : err instanceof CorruptCharacterError ? 'Your character data is damaged. Please contact the server admin.' : 'Could not load your character.');
       return;
     }
     if (this.isClosed) return;

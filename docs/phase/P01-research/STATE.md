@@ -11,6 +11,9 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Reproduce baseline audit with isolated data; add precise errata rather than silently alter Claude's draft.
 - [x] Equal first-pass dossiers for five owner-selected games; additional onboarding literature dossier.
 - [x] Source/claim CSVs, version/access gaps, initial comparisons, research option brief, additions/removals log and this status file.
+- [x] Read the entire Claude roadmap, including all phases, feature catalogue and appendices; track P0–P18 in `docs/EXECUTION.md`.
+- [x] Add scoped dossiers for every remaining original charter with 28 additional primary sources and explicit unanswered questions. This does not close G1.
+- [x] Begin the roadmap's independent foundation subset: verify command, default debug denial, save version/fixtures and placeholder registry.
 
 ## Research depth and remaining scope
 
@@ -20,27 +23,27 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 | R-02 Idleon | Primary L1; secondary progression L2 | Versioned early flow; AFK formula/cap; account scope; observed UI |
 | R-03 TBH | L1/L2 | Current build; Cube/rune rules; closed-client rewards; first-session UI and economy |
 | R-04 PoE1/2 | L1/L2; separated | Current versions; gem acquisition/recovery flows; economy and endgame |
-| R-05 D4 | Not started in v2 | Full charter |
-| R-06 MapleStory | Not started in v2 | Full charter |
-| R-07 Lost Ark | Not started in v2 | Full charter |
-| R-08 survivors games | Not started in v2 | Full charter |
-| R-09 Last Epoch / Grim Dawn / Infinite | Not started in v2 | Full charter; Infinite is not Torchlight II |
-| R-10 case studies | Not started in v2 | Full charter |
-| R-11 economy/trading | Not started in v2 | Public primary evidence and policy options |
-| R-12 technology/operations | Not started in v2 | Version-specific primary documentation and local constraints |
-| R-13 UI/accessibility | Not started in v2 | Guidelines and observed flows; preserve approved style |
-| R-14 balance math | Local baseline reproduced; external research not started | Formula verification, source-specific tests and suitable targets |
+| R-05 D4 | Partial L2; 2026 patch defects and rule changes | Current progression gates, systems, reception and atlas |
+| R-06 MapleStory | Partial L2; publisher Guide behavior | Class-specific first session, jobs, channels/social systems |
+| R-07 Lost Ark | Partial L2; Guardian/rest rules | Skill/honing stages, full lockouts, burden and UI |
+| R-08 survivors games | L1 publisher loop; feel unmeasured | Observed combat, evolution, other games and transfer limits |
+| R-09 Last Epoch / Grim Dawn / Infinite | Partial L1/L2 for each | Crafting/filters/first session/endgame; Infinite is not II |
+| R-10 case studies | Partial; three games sourced | Immortal/Drakensang; independent causal evidence, retention |
+| R-11 economy/trading | Partial L2; OSRS versioned sinks | Local source/sink audit; WoW/D2R/binding/anti-dupe |
+| R-12 technology/operations | Primary Node24.19/OWASP and code audit | Hash/storage/load measurements; accounts/recovery/free-host limits |
+| R-13 UI/accessibility | Basic guidelines read | Actual task/contrast/input/settings audit; approved style preserved |
+| R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
 | R-15 onboarding | One primary study interpreted; partial | Versioned gameplay traces and Hearthfall player observations |
-| R-16 legal/privacy/licences | Not started in v2 | Current authoritative sources; not assumptions from old dossiers |
-| R-17 platforms | Not started in v2 | Full charter |
-| R-18 art pipeline | Not started in v2 | Full charter; no town restyle |
-| R-19 audio | Not started in v2 | Full charter; no asset downloads |
-| R-20 narrative/quests | Not started in v2 | Full charter |
+| R-16 legal/privacy/licences | CPC currency principles + EDPB guidance | National rules, ages/ratings/IP and installed dependency licences |
+| R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
+| R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
+| R-19 audio | PannerNode + category guidance | Existing graph/mix/settings audit, concurrency/listening tests |
+| R-20 narrative/quests | Authoring pattern + quest failure cases | UI observations, original premise, schema and reward semantics |
 | R-21 Torchlight II PC (owner addition) | L1/L2 historical/marketing | Final PC skills/respec; first-session footage; loot/UI |
 
 The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The timeline and loot matrices and visual UI atlas remain mostly missing. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.
 
-## Next bounded pass
+## Continuing work
 
 1. Pin the described PC versions for all five games; keep equally scoped questions and time-box inaccessible sources.
 2. Obtain inspectable ordinary early-session footage, distinguish account bonuses/mode/patch, and log actual frames/timestamps. D3 needs two modes; PoE needs separate games. Do not count a video description as observation.

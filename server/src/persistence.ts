@@ -11,6 +11,7 @@ import { INVENTORY_SIZE, MAX_LEVEL, STASH_SIZE } from '../../shared/src/constant
 import { CLASSES } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
+import { SAVE_VERSION } from '../../shared/src/saveVersion';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const ID_RE = /^[a-z0-9]{2,16}$/;
@@ -47,6 +48,8 @@ async function writeAtomic(id: string, json: string): Promise<void> {
 
 /** Persist a character. The JSON snapshot is taken synchronously; the write happens asynchronously. */
 export function saveCharacter(save: CharacterSave): Promise<void> {
+  requireSupportedVersion(save);
+  save.version = SAVE_VERSION;
   save.lastSeen = Date.now();
   const id = save.id;
   const json = JSON.stringify(save);
@@ -65,6 +68,13 @@ export async function flushSaves(): Promise<void> {
 }
 
 export class CorruptCharacterError extends Error {}
+export class UnsupportedSaveVersionError extends Error {}
+
+function requireSupportedVersion(save: CharacterSave): void {
+  const version = save.version === undefined ? 0 : save.version;
+  if (!Number.isInteger(version) || version < 0) throw new Error('invalid save version');
+  if (version > SAVE_VERSION) throw new UnsupportedSaveVersionError(`Save version ${version} requires a newer server`);
+}
 
 /** Load a character or return null if it does not exist. A corrupt file is moved aside and reported. */
 export async function loadCharacter(id: string): Promise<CharacterSave | null> {
@@ -80,10 +90,14 @@ export async function loadCharacter(id: string): Promise<CharacterSave | null> {
   }
   try {
     const parsed = JSON.parse(text) as CharacterSave;
+    // Inspect the format before interpreting fields that a future schema may change.
+    if (parsed && typeof parsed === 'object') requireSupportedVersion(parsed);
     if (!parsed || typeof parsed !== 'object' || typeof parsed.name !== 'string' || !CLASSES[parsed.classId]) throw new Error('not a character');
     parsed.id = id;
     return normalizeSave(parsed);
   } catch (err) {
+    // A newer format is not corrupt. Leave its original bytes and filename untouched.
+    if (err instanceof UnsupportedSaveVersionError) throw err;
     const backup = `${file}.corrupt-${Date.now()}`;
     await fsp.rename(file, backup).catch(() => undefined);
     console.error(`[persist] ${id}.json is corrupt (${(err as Error).message}); moved to ${path.basename(backup)}`);
@@ -96,6 +110,7 @@ const num = (v: unknown, d: number, lo = 0, hi = Number.MAX_SAFE_INTEGER): numbe
 
 /** Repair saves written by older builds (missing fields, wrong array lengths). Mutates and returns the save. */
 export function normalizeSave(save: CharacterSave): CharacterSave {
+  requireSupportedVersion(save);
   save.level = Math.floor(num(save.level, 1, 1, MAX_LEVEL));
   if (save.skills?.slots) autoSlotSkills(save);
   save.xp = num(save.xp, 0);
@@ -141,5 +156,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
 
   const st = (save.stats ??= { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 });
   for (const k of ['kills', 'elites', 'legendaries', 'rifts', 'playMs', 'deaths'] as const) st[k] = num(st[k], 0);
+  // v0 -> v1 retains the existing field/default migration and adds only this marker.
+  save.version = SAVE_VERSION;
   return save;
 }

@@ -35,8 +35,34 @@ Maintained by Codex for the owner. Every addition, removal or behavior change re
 
 ## Standing owner instructions — 2026-10-09
 
+- Continue through the full Claude file. Saving a checkpoint is not a stop request; keep working through research and supported implementation.
+
 - Make additions/removals autonomously when sufficient research supports them; ask only for unresolved consequential choices. The draft roadmap's routine approval pauses are superseded within this authorized scope. Do not treat uncertainty or silence as an answer.
 - Preserve the existing UI style. Keep town content as it stands, apart from the explicitly requested camera rollback.
 - Cover D3 (Campaign and Adventure), Idleon, Task Bar Hero, Path of Exile and Torchlight II equally. Distinguish PoE 1/2 and Torchlight II/Infinite.
 - Owner gives standing permission for necessary downloads, PC use and relevant Chrome tabs. This supersedes per-download confirmation for this work. Keep a source/size/purpose/licence register; no paid services or account creation are implied.
 - Maintain this additions/removals log and a done/unfinished/next status file. Work solo.
+
+## C004–C006 — Independent foundations (implemented, 2026-10-09)
+
+**Evidence before implementation:** roadmap §2.2/P3, current code audit and FND-01–05 in `docs/phase/P03-foundations/REFERENCES.md`.
+
+**C004 addition:** one local verification command with a separate temporary DATA_DIR per stage, preserved logs and strict failure reporting. Why: repeated manual commands invite skipped checks and accidental real-save use. Scope excludes any claim of complete visual/performance or security review. Rollback: remove the runner/script entry; existing commands remain.
+
+**C005 behavior removal:** remove implicit debug permission; require ENABLE_DEBUG=1, with DISABLE_DEBUG=1 retaining precedence. Why: currently every connected client can grant itself progression unless an operator remembers to disable it. Effect: ordinary servers deny cheat operations; local tests/capture tools opt in explicitly. No combat/economy rules change. Rollback: revert guard and explicit harness flags together; no save migration.
+
+**C006 addition:** save schema marker and guarded legacy-to-current normalization, plus synthetic fixtures. Why: future fields need explicit compatibility boundaries; unknown future saves must not be mistaken for corruption or overwritten. Effect: preserve existing character/item data and old unversioned files; future-format load fails safely, even with unfamiliar classes or renamed fields. No account migration, rename, stash expansion or real-save test. Rollback: revert version guard/marker additions together; version 1 adds no incompatible gameplay fields. Never overwrite a newer save to force a downgrade.
+
+**Validation [M]:** full local runner: shared 12, initial foundations 5, town services 4, simulation 382, typecheck/build/content checks pass; server 731 pass / 2 known Windows shutdown failures. Final targeted tests: foundations 6/6, failure policy 2/2, typecheck pass. Real installed Chrome 1920×1080 confirms migration/reconnect, default debug denial and untouched future file; all three screenshots inspected. Details/limits in `phase/P03-foundations/REPORT.md`. No account/security/durability certification.
+
+**Related safety addition:** ignore `.local/`, `.env`, `.env.*` and `reference-local/` to reduce accidental staging of private/test/reference material. No existing files deleted or read as part of this change.
+
+## C007 — Register actual development substitutes (2026-10-09)
+
+**Evidence [M]:** FND-07 source audit. **Addition:** `docs/PLACEHOLDERS.md` records blockout, VFX targets, panel mock, infrastructure simulation and inspection seams with exposure/limits/removal conditions. **Why/effect:** prevent prototype evidence being mistaken for production acceptance. **Removal:** none; useful collision tools and fixtures remain. **Future:** every new substitute gets an expiry condition. **Rollback:** documentation-only; archive superseded entries.
+
+## C008 — Extend research across all Claude charters (2026-10-09)
+
+**Evidence [O/S]:** owner directs the whole file; public primary bodies read and scoped in source register before design. **Addition:** R05–R14 and R16–R20 dossiers, bringing every R01–R21 charter into the ledger; 28 additional sources and 24 claims. Separate documented features from inferences, marketing, missing visual observations and numerical targets. **Why/effect:** make later foundations/economy/quest/platform choices traceable without pretending the full research gate has passed. Updated Node24 SQLite status and OSRS tax history demonstrate why version boundaries matter.
+
+**Removal:** none; original Claude file and historical findings remain intact. **Future:** deepen each unanswered charter and the cross-game matrices; finish independent implementation while evidence accumulates. **Validation:** source/claim IDs and links checked before commit. **Rollback:** supersede findings with new evidence; do not erase the research history. No reference-game art/text/audio or new dependency ships.

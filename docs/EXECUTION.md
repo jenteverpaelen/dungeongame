@@ -1,0 +1,29 @@
+# Full roadmap execution
+
+Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoint is not a request to stop. Work solo on `codex/new-tristram-town`, preserve town and UI style, research before design, maintain the change log. Routine supported decisions are authorized. Do not reinterpret the old paste-in prompt's stop-after-three-charters as a current instruction.
+
+## Phase ledger
+
+| Phase | Current state | Dependency / next work |
+|---|---|---|
+| P0 Town | Frozen by owner; original camera restored | Deferred hardening remains honestly open |
+| P1 Research | Active | All 20 original charters plus Torchlight II; complete evidence, matrices and UI observations |
+| P2 Design | Not complete | Turn supported findings into decisions; unknown targets remain unknown |
+| P3 Foundations | Independent subset active | Verify runner, explicit debug opt-in, save version/fixtures; broader auth/settings need research |
+| P4 Combat/builds | Existing game preserved | Evidence-based targets and owner playtest; no invented timing values |
+| P5 Quests/dialogue | Not implemented | P3 state safety and supported objective design |
+| P6 Onboarding | Research active; no new tutorial | P5 and observed first-session evidence |
+| P7 Early world | Not implemented | P4–P6 and measured content cost |
+| P8 Economy | Not implemented | Sources/sinks, persistence and anti-dupe evidence |
+| P9 Mid game | Not implemented | Verified early-game content and build progression |
+| P10 Social | Not implemented | Account identity, privacy, party rules and moderation |
+| P11 Itemization | Existing system preserved | Balance/loot research and save compatibility |
+| P12 Endgame | Existing untimed rifts preserved | Reward/rank design and server validation |
+| P13 Extra modes | Not selected | Research-backed per-mode fit; not automatic feature approval |
+| P14 Meta/idle | Existing AFK preserved | Account ownership and offline fairness research |
+| P15 Live operations/trading | Not implemented | Economy and anti-abuse; no payment systems implied |
+| P16 Scale/security | Not completed | Load budgets, independent review and restore drills |
+| P17 Platforms/legal | Research pending | Browser first; no purchases, publishing or account creation implied |
+| P18 Release operations | Not started | Earlier acceptance criteria and real testers |
+
+Detailed evidence state: `docs/phase/P01-research/STATE.md`. Implementation state: `docs/phase/P03-foundations/STATE.md`. Every change/removal and its research: `docs/CODEX_CHANGELOG.md`. A phase entry is not completion of its individual feature list in roadmap §8.
