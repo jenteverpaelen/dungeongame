@@ -1,0 +1,47 @@
+{
+  "scope": "Selected registry display/authoring name fields/components only; presence does not prove visible UI use. Exact three-class label comparison is not legal clearance or proof of copying/originality. No descriptions/UI strings/assets/saved-item scan.",
+  "rowCount": 694,
+  "groups": {
+    "classes": 9,
+    "item_components": 121,
+    "items": 339,
+    "monster_components": 26,
+    "monsters": 21,
+    "skills": 126,
+    "town": 48,
+    "zones": 4
+  },
+  "comparison": {
+    "exact_label_match": 69,
+    "no_exact_match_in_reviewed_class": 57
+  },
+  "skillComparison": {
+    "exact_label_match": 18
+  },
+  "runeComparison": {
+    "exact_label_match": 50,
+    "no_exact_match_in_reviewed_class": 4
+  },
+  "tierComparison": {
+    "exact_label_match": 1,
+    "no_exact_match_in_reviewed_class": 53
+  },
+  "referenceCounts": [
+    {
+      "source": "D3-ACT-W",
+      "skills": 26,
+      "runes": 130
+    },
+    {
+      "source": "D3-ACT-B",
+      "skills": 23,
+      "runes": 115
+    },
+    {
+      "source": "D3-ACT-DH",
+      "skills": 24,
+      "runes": 120
+    }
+  ],
+  "registrySha256": "11f079a9a164d389a7ba7640ea243e9cf83d8d99cc0b64a42724992b99a1e27e"
+}
