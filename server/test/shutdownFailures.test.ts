@@ -34,7 +34,7 @@ test('real child shutdown reports failed storage, exits nonzero and never claims
   await new Promise<void>((resolve, reject) => reservation.close(err => err ? reject(err) : resolve()));
   const child = spawn(process.execPath, ['--import', 'tsx', 'server/src/main.ts'], {
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    env: { ...process.env, DATA_DIR: saveDir, PORT: String(port), ENABLE_DEBUG: '1', DISABLE_DEBUG: '0' },
+    env: { ...process.env, BACKUP_DIR: '', DATA_DIR: saveDir, PORT: String(port), ENABLE_DEBUG: '1', DISABLE_DEBUG: '0' },
   });
   let log = '', startupError: Error | undefined;
   child.on('error', err => { startupError = err; });

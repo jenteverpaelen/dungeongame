@@ -11,3 +11,7 @@ This supports testing instruction in context, not declaring that an ARPG tutoria
 Use fresh isolated characters with the current UI. Log first movement, first combat, first pickup, first successful equipment change, first skill/rune change, first service use, wrong attempts and requests for help. Keep real-player observations separate from scripted bots. Ask what action they intend next; elapsed time alone cannot show comprehension. Compare a future minimal contextual objective with the unchanged baseline only after a playable scope is established. Do not silently collect external analytics or personal data.
 
 Completion requires versioned first-session traces for each requested game and a Hearthfall baseline observation. The study alone does not complete R-15. A second attempted paper was blocked by a verification page and is not counted as evidence.
+
+## Local scripted baseline [M], 2026-10-09
+
+[First-session report](../../phase/P01-research/FIRST-SESSION-REPORT.md) and twelve inspected local Chrome frames establish the current class-selection, Help, Skills, inventory and Waypoint flow. A fresh Mage reaches level two and receives Meteor automatically after normal field movement. The primary mouse/LMB cue conflicts with actual automatic combat. No human discovery, retention or first successful gear/rune decision is established. The route helper did not produce a town walk: spawn already equals the Waypoint approach. Keep these limits when choosing a correction.

@@ -42,6 +42,8 @@ No external first-legendary distribution, drop-rate formula, pity threshold or c
 
 No pixel layout or UI restyle follows from these text sources. The owner likes the current Hearthfall UI.
 
+Hearthfall now has a separate [local first-session atlas and trace](../../phase/P01-research/FIRST-SESSION-REPORT.md): twelve inspected 1080p frames with initial/disabled states, physical travel and first level-up. This is a scripted local baseline, not reference-game or unfamiliar-player evidence. It does not fill the external timeline cells above.
+
 ## OB-01 — How to choose the first progression improvement [P]
 
 **Problem established:** our remaining unlock availability after level 21 is limited in the audited skill system (HF-01). **Not established:** how new players experience that interval or which change will help most.

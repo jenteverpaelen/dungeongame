@@ -173,3 +173,11 @@ Current persistence/queue audit, local storage measurements, Node exclusive crea
 ### L30 — Command replay boundary, 2026-10-09
 
 Actual client ID/timeout behavior, server dispatch/limits, AWS's request-identifier/atomicity/retention discussion and RFC6455 framing rules precede `docs/phase/P03-foundations/COMMAND-REPLAY-DESIGN.md`. Reproduce repeat effects, then protect this connection's requests without promising cross-reconnect or crash-safe transactions. No service costs, town or UI changes.
+
+### L31 — Observe the existing first-session flow, 2026-10-09
+
+Current UI/input/game code and UX-CHI12/R15 precede `docs/phase/P01-research/FIRST-SESSION-PLAN.md`. Use a fresh synthetic character in local Chrome, visible UI controls and normal movement; mark authored-route assistance and scripted time. This audit cannot substitute for an unfamiliar player or missing reference-game footage. No gameplay/UI redesign follows without additional evidence.
+
+### L32 — Correct the demonstrated control-label mismatch, 2026-10-09
+
+The twelve inspected baseline captures and input/SkillBar/Skills/Session code establish that mouse/LMB suggests an action that automatic combat does not accept. `docs/phase/P01-research/CONTROLS-CUE-DESIGN.md` precedes the small label/tooltip/private-new-character-message correction. Existing UI elements, new-character detection, slots, costs and Help remain; no tutorial effectiveness, retention or balance claim follows.

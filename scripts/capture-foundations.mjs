@@ -23,7 +23,7 @@ const procs=[], logs=[], channels=[];
 const wait = ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn,timeout=120000){const start=Date.now();while(Date.now()-start<timeout){const v=await fn();if(v)return v;await wait(200);}throw Error('Readiness timeout');}
 function launch(exe,args,extra={}) {
-  const env={...process.env,DATA_DIR:dataDir,...extra}; delete env.ENABLE_DEBUG; delete env.DISABLE_DEBUG;
+  const env={...process.env,BACKUP_DIR:'',DATA_DIR:dataDir,...extra}; delete env.ENABLE_DEBUG; delete env.DISABLE_DEBUG;
   const p=spawn(exe,args,{cwd:root,windowsHide:true,env,stdio:['ignore','pipe','pipe']});
   procs.push(p); for(const s of [p.stdout,p.stderr])s.on('data',d=>logs.push(String(d)));
   return p;

@@ -15,7 +15,7 @@ const out = path.join(repo,'docs/town');
 await fs.mkdir(path.join(out,'tour'),{recursive:true});
 const procs=[]; const logs=[];
 const wait = ms => new Promise(r=>setTimeout(r,ms));
-function launch(exe,args,env={}) { const p=spawn(exe,args,{cwd:repo,windowsHide:true,env:{...process.env,ENABLE_DEBUG:'1',DISABLE_DEBUG:'0',DATA_DIR:path.join(tmp,'saves'),...env},stdio:['ignore','pipe','pipe']}); procs.push(p); p.stdout.on('data',d=>logs.push(String(d)));p.stderr.on('data',d=>logs.push(String(d)));return p; }
+function launch(exe,args,env={}) { const p=spawn(exe,args,{cwd:repo,windowsHide:true,env:{...process.env,BACKUP_DIR:'',ENABLE_DEBUG:'1',DISABLE_DEBUG:'0',DATA_DIR:path.join(tmp,'saves'),...env},stdio:['ignore','pipe','pipe']}); procs.push(p); p.stdout.on('data',d=>logs.push(String(d)));p.stderr.on('data',d=>logs.push(String(d)));return p; }
 async function cdp(url) {const ws=new WebSocket(url);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});let id=0;const q=new Map();ws.onmessage=e=>{const m=JSON.parse(e.data); if(m.id){const h=q.get(m.id);q.delete(m.id);m.error?h?.reject(m.error):h?.resolve(m.result);}};return {ws,call:(method,params={})=>new Promise((resolve,reject)=>{const n=++id;q.set(n,{resolve,reject});ws.send(JSON.stringify({id:n,method,params}));})};}
 async function until(f,n=150){for(let i=0;i<n;i++){try{const v=await f();if(v)return v}catch{}await wait(200)}throw Error('Timed out waiting for readiness');}
 const save=createCharacter('M2Walkthrough','warrior',1);save.level=70;save.cube.level=8;save.paragon.level=40;save.gold=1e9;for(const k in save.materials)save.materials[k]=10000;save.gems['ruby:1']=30;

@@ -16,6 +16,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Begin the roadmap's independent foundation subset: verify command, default debug denial, save version/fixtures and placeholder registry.
 - [x] Complete both D3 progression-table reads and deepen PC Torchlight II respec/backup, dated TBH guide and PoE1 subsystem refund evidence. Register six additional sources and five scoped claims; numerical balance eligibility remains false.
 - [x] Read 23 installed production component licences/provenance individually. Measure built-in hashing and synthetic storage/restore on the owner's PC; preserve exact limits and separate this from release/security acceptance.
+- [x] Record a fresh-character local Chrome first-session trace and inspect all twelve 1080p frames. Starting gear, physical Waypoint, automatic combat and first level-up observed; equipment/rune purchases and human comprehension remain unmeasured. See FIRST-SESSION-REPORT.md.
 
 ## Research depth and remaining scope
 
@@ -35,7 +36,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 | R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
 | R-13 UI/accessibility | Basic guidelines read | Actual task/contrast/input/settings audit; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
-| R-15 onboarding | One primary study interpreted; partial | Versioned gameplay traces and Hearthfall player observations |
+| R-15 onboarding | One primary study plus local scripted first-session trace; partial | Reference-game traces, first gear/skill decisions and unfamiliar Hearthfall player observations |
 | R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
