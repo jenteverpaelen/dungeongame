@@ -10,6 +10,7 @@ import { transferStash } from '../../shared/src/stash';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
 import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
 import { isTargetPriority } from '../../shared/src/targetPriority';
+import { isAutoCastRule } from '../../shared/src/autoCastRules';
 import { requireNear } from './townServices';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
@@ -554,6 +555,17 @@ const skillCast: Handler = (s, a) => {
   return err ? fail(err) : ok();
 };
 
+const skillAutoRule: Handler = (s, a) => {
+  const slot = int(a,'slot',0,3), skill = str(a,'skill');
+  if (s.save.skills.slots[slot] !== skill) return fail('The skill in this slot changed. Choose it again.');
+  if (a.rule !== null && !isAutoCastRule(a.rule,s.save.classId)) return fail('Invalid automatic skill rule');
+  if (a.rule?.requireBuff === skill) return fail('A skill cannot wait for its own buff');
+  const rules = Array.from({length:4},(_,i) => s.save.skills.autoRules?.[i] ?? null);
+  rules[slot] = a.rule === null ? null : { ...a.rule };
+  s.save.skills.autoRules = rules;
+  return done(s,false);
+};
+
 const skillTier: Handler = (s, a) => {
   const err = buySkillTier(s.save, str(a, 'skill'));
   if (err) return fail(err);
@@ -715,7 +727,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast,
+  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast, skillAutoRule,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

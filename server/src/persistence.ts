@@ -13,6 +13,7 @@ import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
+import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
@@ -179,6 +180,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   sk.slots.length = 4;
   sk.autoCast = normalizeAutoCast(sk.autoCast);
   sk.targetPriority = normalizeTargetPriority(sk.targetPriority);
+  normalizeSavedAutoRules(sk, save.classId);
   sk.runes ??= {};
   sk.tiers ??= {};
   sk.primary ||= CLASSES[save.classId].primary;

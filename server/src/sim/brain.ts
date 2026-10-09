@@ -1,7 +1,8 @@
 // Player combat brain (ARCHITECTURE 1.4): auto-attack while moving + auto-cast of the 4 slotted skills.
 
-import { ACQUIRE_BUFFER } from '../shared';
+import { ACQUIRE_BUFFER, TICK_MS } from '../shared';
 import { autoCastMode } from '../../../shared/src/autoCast';
+import { autoRuleForSlot, DEFAULT_AUTO_RULE, type AutoCastRule } from '../../../shared/src/autoCastRules';
 import type { TargetPriority } from '../../../shared/src/targetPriority';
 import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
@@ -140,15 +141,16 @@ function ruleWithin(rt: SkillRuntime, within: number): number {
   return within * Math.max(1, skillRadius(rt) / rt.def.radius);
 }
 
-function ruleHolds(inst: Instance, p: Player, rt: SkillRuntime): boolean {
+function ruleHolds(inst: Instance, p: Player, rt: SkillRuntime, rule: Readonly<AutoCastRule>): boolean {
   const a = rt.def.auto;
   switch (a.when) {
     case 'always':
       return anyEnemyWithin(inst, p.x, p.y, rt.def.range || 400);
     case 'enemiesNear': {
-      const within = ruleWithin(rt, a.within);
-      if (rt.def.id === 'rend') return enemyWeight(inst, p.x, p.y, within, (m) => !hasDot(m, 'bleed', p.id)) >= a.count;
-      return enemyWeight(inst, p.x, p.y, within) >= a.count;
+      const within = ruleWithin(rt, Math.min(rule.within ?? a.within, a.within));
+      const count = rule.enemyWeight ?? a.count;
+      if (rt.def.id === 'rend') return enemyWeight(inst, p.x, p.y, within, (m) => !hasDot(m, 'bleed', p.id)) >= count;
+      return enemyWeight(inst, p.x, p.y, within) >= count;
     }
     case 'maintainBuff': {
       const b = getBuff(p, rt.def.id);
@@ -167,6 +169,18 @@ function ruleHolds(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   }
 }
 
+function automaticFilters(inst: Instance, p: Player, rt: SkillRuntime, rule: Readonly<AutoCastRule>, spending: number): boolean {
+  if (rule.reservePct > 0 && p.res - spending < p.mres * rule.reservePct / 100) return false;
+  if (rule.requireBuff && !getBuff(p,rule.requireBuff)) return false;
+  if (rule.elitesOnly) {
+    const a = rt.def.auto;
+    const within = a.when === 'enemiesNear' ? ruleWithin(rt,Math.min(rule.within ?? a.within,a.within))
+      : a.when === 'channel' ? a.within : a.when === 'maintainBuff' ? 700 : rt.def.range || 400;
+    if (!inst.queryMobs(p.x,p.y,within).some(m => !m.dead && (m.tier === 1 || m.tier === 2 || m.tier === 4))) return false;
+  }
+  return true;
+}
+
 /** Check both at receipt and at execution: a loadout or control state can change between them. */
 export function validateManualCast(p: Player, slot: number, skill: string): string | null {
   if (!Number.isInteger(slot) || slot < 0 || slot >= 4) return 'Invalid skill slot';
@@ -179,20 +193,21 @@ export function validateManualCast(p: Player, slot: number, skill: string): stri
 }
 
 /** Both entry paths spend through the same budget. Only automatic trigger rules differ. */
-function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolean): string | null {
+function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolean, rule: Readonly<AutoCastRule> = DEFAULT_AUTO_RULE): string | null {
   const id = rt.def.id;
   if ((p.readyAt.get(id) ?? 0) > inst.t) return `${rt.def.name} is on cooldown`;
   if (rt.def.auto.when === 'channel') {
     if (p.channel) return 'Already channeling';
     const a = rt.def.auto;
     if (p.res < a.startAt || p.res < skillCost(p, rt) * 0.25) return `Not enough resource for ${rt.def.name}`;
+    if (!manual && !automaticFilters(inst,p,rt,rule,skillCost(p,rt)*TICK_MS/1000)) return 'Automatic condition not met';
     if (!manual && !anyEnemyWithin(inst, p.x, p.y, a.within)) return 'No enemy in range';
     startChannel(inst, p, rt, manual);
     return null;
   }
   const cost = skillCost(p, rt);
   if (p.res < cost) return `Not enough resource for ${rt.def.name}`;
-  if (!manual && !ruleHolds(inst, p, rt)) return 'Automatic condition not met';
+  if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
   if (!castSkill(inst, p, rt)) return `No valid target for ${rt.def.name}`;
   p.res -= cost;
   // Seal of the Patient Thief: every resource-spending cast shortens all active cooldowns.
@@ -222,7 +237,8 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   }
   if (p.channel) {
     const slot = p.save.skills.slots.indexOf(p.channel.skill);
-    if (slot < 0 || (!p.channel.manual && !slotAllowsCast(p, slot))) endChannel(inst, p);
+    const rt = p.ctx.slots[slot];
+    if (!rt || slot < 0 || (!p.channel.manual && (!slotAllowsCast(p, slot) || !automaticFilters(inst,p,rt,autoRuleForSlot(p.save.skills,slot),skillCost(p,rt)*dtMs/1000)))) endChannel(inst, p);
     else channelTick(inst, p, dtMs);
   }
 
@@ -236,7 +252,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   for (let i = 0; !usedSlot && i < 4; i++) {
     const rt = c.slots[i];
     if (!rt || !slotAllowsCast(p, i)) continue;
-    usedSlot = trySlotCast(inst, p, rt, false) === null;
+    usedSlot = trySlotCast(inst, p, rt, false, autoRuleForSlot(p.save.skills,i)) === null;
   }
 
   // Primary attack (not while spinning).

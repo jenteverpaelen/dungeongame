@@ -96,6 +96,8 @@ export interface SkillLoadout {
   autoCast?: import('./autoCast').AutoCastMode[];
   /** Optional in legacy saves. Applies to fresh single-target acquisition. */
   targetPriority?: import('./targetPriority').TargetPriority;
+  /** Automatic-only conditions belonging to positions. Null uses the original authored rule. */
+  autoRules?: (import('./autoCastRules').AutoCastRule | null)[];
   /** Chosen rune per skill id. */
   runes: Record<string, string | null>;
   /** Purchased upgrade tiers (0..3) per skill id. */

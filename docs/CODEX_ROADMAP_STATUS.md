@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C085. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C086. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -26,7 +26,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 
 ## Features
 
-**Current inventory through C085:** 4 rows explicitly record implemented scope, 56 contain partial work/research, and 87 remain open with no newer implementation claim. This is a conservative reading of the existing evidence, not an audited percentage of total effort. No phase or release gate is complete. Some individual implementations still need owner playtest; other rows have substantial code/content missing, which is stated separately in their evidence.
+**Current inventory through C086:** 5 rows explicitly record implemented scope, 55 contain partial work/research, and 87 remain open with no newer implementation claim. This is a conservative reading of the existing evidence, not an audited percentage of total effort. No phase or release gate is complete. Some individual implementations still need owner playtest; other rows have substantial code/content missing, which is stated separately in their evidence.
 
 **Read Current status and Current evidence first.** Historical baseline is Claude's original snapshot, preserved for comparison: MISSING there does not mean it is still missing today. Implemented scope means the bounded implementation exists, not that every future extension or the enclosing phase is accepted. The earlier15–20% estimate mixed research and partial progress and must not be used as a completed-feature score.
 
@@ -72,7 +72,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-CMB-01 | Locked combat spec (auto-cast rules, resources, dash, statuses) | P4 | Partial / research | Not locked; current behavior inventoried, no owner parity/feel sign-off or final targets. [build audit](phase/P01-research/BUILD-REPORT.md). | PARTIAL — `docs/ARCHITECTURE.md` §1.3–1.5 is the working spec |
 | F-CMB-02 | Skill unlock cadence redesign | P4 | Partial / research | Existing schedule measured; deliberately unchanged pending reference/human evidence. [build audit](phase/P01-research/BUILD-REPORT.md). | PARTIAL — cadence exists: L1, 2, 4, 6, 9, 12 |
 | F-CMB-03 | Passives / talent system | P4/P9 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
-| F-CMB-04 | Per-slot auto-cast rule customisation | P4 | Partial / research | Partial C082: Persisted per-slot Automatic/While still/Paused, server authority, channel recovery, HUD state and legacy-default migration.15 focused/382 sim checks and actual Chrome reconnect pass. Advanced numeric rules and human tactical review remain. [Auto-cast controls](phase/P03-foundations/AUTO-CAST-CONTROLS-REPORT.md). | MISSING — rules fixed in skill data |
+| F-CMB-04 | Per-slot auto-cast rule customisation | P4 | Implemented scope | Implemented C086: saved slot modes, weighted threshold/base radius, elite/boss gate, post-spend reserve and buff dependency; server validation, Apply/Clear and explanations.33 focused/382 default simulation checks and local Chrome save/reload pass. Full P4 balance/feel acceptance remains separate. [Report](phase/P03-foundations/AUTO-RULE-EDITOR-REPORT.md). | MISSING — rules fixed in skill data |
 | F-CMB-05 | Optional manual force-cast keys | P4 | Implemented scope | Implemented C085: optional remappable manual keys, bounded server request, shared costs/cooldowns, all15 slotted paths, channel stop, input/modal guards, HUD/Help and reconnect. P4 balance/feel acceptance remains separate. [Report](phase/P03-foundations/MANUAL-SKILLS-REPORT.md). | MISSING |
 | F-CMB-06 | Respec rules and costs | P4 | Partial / research | Existing free tier reset measured and browser verified; no new fee/rule adopted (C023/C029). [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). | PARTIAL — tier reset exists; costs unaudited |
 | F-CMB-07 | Combat feel pass with accessibility toggles | P4 | Partial / research | Partial: shake/selected-flash options; no broad feel or medical-safety acceptance (C009/C030). [foundation state](phase/P03-foundations/STATE.md). | PARTIAL — shake, flashes, floating numbers exist |
@@ -286,7 +286,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-05 | Accept the release ladder R1–R5 (§2.3) | Roadmap is being pursued; no release or gate is marked complete by blanket work permission. |
 | D-06 | Monetization stance | No payments/credit spend; no monetization implementation selected. |
 | D-07 | Naming / IP policy | Original content required; C033 inventories names and rename dependencies. Broader prose/assets/contextual review remains open; no mass ID replacement. |
-| D-08 | Control model | Partial through C085: Automatic combat plus optional cast conditions, target preference and default-off manual keys. Advanced rules and human tactical review remain. [Report](phase/P03-foundations/MANUAL-SKILLS-REPORT.md). |
+| D-08 | Control model | Implementation through C086: Automatic combat retained with saved per-slot rule editor, target preference and default-off manual keys. Human tactical review remains P4 acceptance. [Report](phase/P03-foundations/AUTO-RULE-EDITOR-REPORT.md). |
 | D-09 | Skill slots and unlock cadence | Open: availability/slots/points/time separated; no new gate or slot number selected. |
 | D-10 | Build depth | Open: existing behavior audited; no new passive/mastery/tree chosen. |
 | D-11 | Defensive / utility actives | Open: current dash retained; no utility-slot expansion. |
@@ -347,3 +347,5 @@ C083 status question: the owner was given an approximate15–20% whole-roadmap e
 C084 implements Claude §10.1 A6's optional target-preference control. It is a scoped combat addition rather than a new catalogue row or a completed phase. The approximate15–20% whole-roadmap estimate remains subjective; no feature weighting, ETA or new percentage is inferred from this checkpoint. [Evidence and open work](phase/P03-foundations/TARGET-PREFERENCE-REPORT.md).
 
 C085 completes the bounded F-CMB-05 implementation. Current classification:4 implemented scopes,56 partial/research,87 open. Broader P4 review remains separate. No new whole-roadmap percentage. [Evidence](phase/P03-foundations/MANUAL-SKILLS-REPORT.md).
+
+C086 closes F-CMB-04 implementation. Current conservative feature inventory:5 implemented scopes,55 partial/research,87 open. Next work is P5 chapter closure against Claude’s actual criteria; bulk later content and owner playtesting are tracked separately. No phase or effort-percentage claim.

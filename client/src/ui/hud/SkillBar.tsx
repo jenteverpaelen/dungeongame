@@ -17,6 +17,7 @@ import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
 import { bindings, CAST_ACTIONS } from '../../game/bindings';
 import { preferences } from '../../game/preferences';
+import { autoRuleForSlot, autoRuleSummary } from '@shared/autoCastRules';
 import { useLocal } from '../panels/state';
 
 const ELEMENT_COLOR: Record<string, string> = {
@@ -29,7 +30,7 @@ const KIND_LABEL: Record<string, string> = {
 
 // ───────────────────────── Skill tooltip ─────────────────────────
 
-function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number; mode?: AutoCastMode; castKey?: string }) {
+function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number; mode?: AutoCastMode; castKey?: string; ruleText?: string }) {
   const skillsKey = useLocal(bindings, () => bindings.label('skills'));
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
@@ -62,6 +63,7 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
       )}
       <div class="st-auto">{autoCastRuleText(skill, res)}</div>
       {p.mode && <div class="st-desc"><b>{AUTO_CAST_LABEL[p.mode]}</b> · {AUTO_CAST_NOTE[p.mode]}</div>}
+      {p.ruleText && <div class="st-desc">{p.ruleText}</div>}
       {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority}. {p.castKey ? `Press ${p.castKey} to cast${skill.kind === 'channel' ? ' or stop the channel' : ''}.` : 'Manual keys are off; enable them in Settings → Controls.'} Change your loadout with {skillsKey}.</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
@@ -229,7 +231,7 @@ export function BottomBar() {
     return {
       skill,
       cost,
-      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} mode={priority === undefined ? undefined : autoCastMode(skills, priority - 1)} castKey={manual && priority !== undefined ? keys.casts[priority - 1] : undefined} />,
+      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} mode={priority === undefined ? undefined : autoCastMode(skills, priority - 1)} castKey={manual && priority !== undefined ? keys.casts[priority - 1] : undefined} ruleText={priority !== undefined && skills.autoRules?.[priority - 1] ? autoRuleSummary(autoRuleForSlot(skills,priority - 1),skill) : undefined}/>,
     };
   };
 

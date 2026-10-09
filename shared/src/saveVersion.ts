@@ -1,2 +1,2 @@
-/** v2 protects items; v3 adds cast restrictions; v4 preserves target preference. */
-export const SAVE_VERSION = 4;
+/** v2 protects items; v3 cast modes; v4 target preference; v5 automatic spending/trigger rules. */
+export const SAVE_VERSION = 5;

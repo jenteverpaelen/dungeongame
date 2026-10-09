@@ -15,6 +15,7 @@ import { SkillGlyph } from './skillicons';
 import { Local, useLocal, useU } from './state';
 import { textTipHandlers } from './tooltip';
 import { cls, run } from './util';
+import { AutoRuleEditor } from './autoRules';
 
 const skillsUI = new Local<{ selected: string | null; assign: number | null }>({ selected: null, assign: null });
 
@@ -236,6 +237,7 @@ function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         <p class="pn-note">{AUTO_CAST_NOTE[autoCastMode(char.skills, slotIdx)]}</p>
         <p class="pn-note">{autoCastRuleText(skill, res)}</p>
         <p class="pn-note">Conditions stay with slot positions when you move skills. Slot order still decides priority.</p>
+        <AutoRuleEditor key={`${slotIdx}:${skill.id}`} skill={skill} char={char} slot={slotIdx}/>
       </div>}
       <div class="sd-sec"><span>Runes</span><em>Choose one · changes how the skill behaves</em></div>
       <RuneCards skill={skill} char={char} />
