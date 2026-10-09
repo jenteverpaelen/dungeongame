@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C034. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C035. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -17,7 +17,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ACC-03 | Characters owned by accounts, stable IDs, character slots | P3 | MISSING | Not implemented; names remain identity. No real ownership assigned. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-ACC-04 | Character select / create / delete (grace period) / rename | P3 | PARTIAL — class select at login only | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ACC-05 | Account recovery without a paid mail service | P3 | MISSING | Design only; recovery/notification/operational support unresolved. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
-| F-ACC-06 | Data export and deletion (GDPR) | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-ACC-06 | Data export and deletion (GDPR) | P3 | MISSING | C035 [data inventory](phase/P03-foundations/DATA-INVENTORY.md) identifies scope/lifecycle gaps. Ownership, rights workflow, retention and implementation remain open. |
 | F-ACC-07 | Migration of existing name-keyed saves to accounts | P3 | MISSING | Not implemented; existing-player population question pending; no live migration. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). |
 | F-SAV-01 | Save schema version + forward migrations | P3 | PARTIAL — load-time normalisation exists; explicit version not found | Current version1 and legacy normalization covered; future-version refusal, C006. New shapes still require migrations. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SAV-02 | Golden-save fixtures per version | P3 | MISSING (map fixtures exist, not saves) | Current synthetic legacy/version1/future refusal fixtures checked, C006. No real-save migration evidence. [foundation state](phase/P03-foundations/STATE.md). |
@@ -39,7 +39,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated18-stage runner passes (C031); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |
 | F-TEL-02 | Bot harness metrics (kills/min, TTK, deaths, XP/h) | P3/P4 | PARTIAL — `server/test/bot.ts`, no metrics | Partial:27 retained-inventory visits and exact reward reconciliation (C027); human pacing and broader parity open. [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
 | F-TEL-03 | Drop / economy Monte-Carlo tools | P3 | PARTIAL — `docs/design/baseline-audit.ts` | Partial: reproducible sources/sinks,60 offline cases and15 cost fixtures (C021); live economy and distribution calibration open. [change log](CODEX_CHANGELOG.md). |
-| F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | C035 inventories current console fields and reproduces parser-source disclosure; event schema/retention/complete diagnostic audit remain open. [Inventory](phase/P03-foundations/DATA-INVENTORY.md). |
 | F-TEL-05 | Funnel and session analytics views | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-06 | Performance-budget checks (client fps, server tick) | P3 | PARTIAL — town PERF scripts | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-07 | Replay / determinism tests for combat | P4 | PARTIAL — movement parity tests only | Partial: repeated build/field gameplay payloads match (C023/C027); not a complete recorded-input combat replay system. [build audit](phase/P01-research/BUILD-REPORT.md); [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
@@ -292,7 +292,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-31 | Storage | JSON store boundary implemented; worker SQLite measured as candidate, no migration selected. |
 | D-32 | Hosting and budget | No paid services. Local PC testing authorized; public hosting/deployment still not selected. |
 | D-33 | Integration branch and release process | Owner override: ONLY codex/new-tristram-town; no phase branches/rebase/protected-ref changes. |
-| D-34 | Telemetry and privacy | Local synthetic evidence retained; no production analytics/third-party tracking added. |
+| D-34 | Telemetry and privacy | C035 inventories current data/recipients/lifetimes. Legal bases, retention and rights procedure remain unresolved; no production analytics/third-party tracking added. |
 | D-35 | Content tools | Current typed data and semantic validator retained; no quest scripting dependency adopted. |
 | D-36 | Art pipeline at scale | Approved town/UI frozen; no new art pipeline or imported assets. |
 | D-37 | Audio approach | Procedural audio retained; no downloaded pack or commissioned work. |

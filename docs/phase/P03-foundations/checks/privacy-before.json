@@ -1,0 +1,34 @@
+{
+  "node": "v24.19.0",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-privacy-probe-854291db951e4ec6b7386df2c6bf52ba",
+  "scope": "Synthetic source-schema and actual persistence probe; no real saves or browser profile read.",
+  "keys": [
+    "classId",
+    "cube",
+    "difficulty",
+    "equipment",
+    "gems",
+    "gold",
+    "id",
+    "inventory",
+    "lastSeen",
+    "lastZone",
+    "level",
+    "materials",
+    "name",
+    "paragon",
+    "skillPoints",
+    "skills",
+    "stash",
+    "stats",
+    "version",
+    "xp"
+  ],
+  "count": 20,
+  "unknownFieldPreserved": true,
+  "corruptBytesPreserved": true,
+  "parserLogIncludesSyntheticContent": true,
+  "logs": [
+    "[persist] badprobe.json is corrupt (Unexpected token 'S', \"SYNTH_X\" is not valid JSON); moved to badprobe.json.corrupt-1791523878709"
+  ]
+}

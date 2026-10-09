@@ -12,6 +12,8 @@ Create a data inventory before accounts or telemetry: field, purpose, legal basi
 
 ## Unfinished
 
+C035 adds the source-based [current data inventory](../../phase/P03-foundations/DATA-INVENTORY.md): save groups, raw backups/quarantine, console diagnostics, multiplayer/chat recipients and browser storage, with actual lifecycle gaps. A synthetic parser probe confirms saved text can enter corrupt-file logs. No real data read, retention period/legal basis invented, or export/delete flow enabled. OWASP-LOG exclusion/collection/protection/disposal sections support a narrowly scoped diagnostic follow-up.
+
 C033 adds a [registry naming inventory](../../originality/README.md) with694 definition paths and a bounded exact-label comparison against three primary class guides. This establishes lexical overlaps and rename dependencies, not infringement or legal clearance. It does not scan real saved items or authorize replacing stable IDs. Other text/assets, provenance, trademark and contextual review remain open.
 
 Follow-up 2026-10-09: [installed production review](../../licenses/README.md) records full individual licence reads for 21 packaged texts and release-specific follow-up for two omitted texts. This is one dependency scope, not project-wide clearance. Distribution notices, other-platform binaries, build tooling and original-expression review remain open.
