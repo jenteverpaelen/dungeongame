@@ -41,7 +41,7 @@ export const ACQUIRE_BUFFER = 40;
 
 /** Offline (AFK) progression cap, Legends of Idleon style. */
 export const AFK_MAX_HOURS = 12;
-export const AFK_EFFICIENCY = 0.25; // fraction of active kill rate earned while offline
+export const AFK_EFFICIENCY = 0.25; // multiplier on the fixed assumed 60 kills/minute offline baseline
 
 /** Channel capacities (MapleStory-style channels). */
 export const TOWN_CHANNEL_CAP = 100;

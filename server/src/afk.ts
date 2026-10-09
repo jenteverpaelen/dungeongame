@@ -1,5 +1,6 @@
 // Idleon-style offline gains (ARCHITECTURE §1.10). If a character logged out while standing in a training
-// field, the time they were away is converted into kills at AFK_EFFICIENCY of the active kill rate.
+// field, elapsed time uses a fixed assumed 60 kills/minute times AFK_EFFICIENCY.
+// This is not the player's measured active kill rate and does not depend on weapon DPS.
 
 import { XP_MULT } from './config';
 import { AFK_EFFICIENCY, AFK_MAX_HOURS } from '../../shared/src/constants';
@@ -12,7 +13,7 @@ import type { CharacterSave, Materials } from '../../shared/src/types';
 
 export type AfkReport = Omit<Extract<S2C, { t: 'afk' }>, 't'>;
 
-/** Away for at most this long counts; shorter absences are ignored. */
+/** Absences must be strictly longer than this threshold to count. */
 export const AFK_MIN_AWAY_MS = 2 * 60_000;
 const AFK_MAX_AWAY_MS = AFK_MAX_HOURS * 3_600_000;
 /** Fraction of kills dropping a gold pile, and the materials per kill (Idleon: stuff trickles in). */

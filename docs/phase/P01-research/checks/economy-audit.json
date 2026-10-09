@@ -1,0 +1,4241 @@
+{
+  "schema": 1,
+  "node": "v24.19.0",
+  "xpMult": 3,
+  "scope": "Computed synthetic fixtures from current functions. No actual saves, world runtime, elapsed farming time or balance target.",
+  "fixtures": "Fixed clock and seed; AFK starts unequipped with no reward affixes; high-level setup is synthetic, not a played character.",
+  "afk": [
+    {
+      "cls": "warrior",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 1,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 0,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1980,
+        "gold": 45,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 2
+      },
+      "after": {
+        "level": 3,
+        "xp": 232,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 2,
+        "gold": 45,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 59400,
+        "gold": 1364,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 7
+      },
+      "after": {
+        "level": 8,
+        "xp": 4216,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 7,
+        "gold": 1364,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 10,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 9,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 54990,
+        "gold": 343,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 1
+      },
+      "after": {
+        "level": 11,
+        "xp": 4217,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 10,
+        "gold": 343,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 1649700,
+        "gold": 10283,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 10
+      },
+      "after": {
+        "level": 20,
+        "xp": 248621,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 19,
+        "gold": 10283,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 30,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 351270,
+        "gold": 2995,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 30,
+        "xp": 351270,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 2995,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 10538100,
+        "gold": 89840,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 8
+      },
+      "after": {
+        "level": 38,
+        "xp": 1512450,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 37,
+        "gold": 89840,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1480320,
+        "gold": 69792,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 1480320,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 69792,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 44409600,
+        "gold": 2093769,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 5
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 5,
+          "xp": 3909600,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 2093769,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "warrior",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 1,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 0,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1980,
+        "gold": 45,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 2
+      },
+      "after": {
+        "level": 3,
+        "xp": 232,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 2,
+        "gold": 45,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 59400,
+        "gold": 1364,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 7
+      },
+      "after": {
+        "level": 8,
+        "xp": 4216,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 7,
+        "gold": 1364,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 10,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 9,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 54990,
+        "gold": 343,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 1
+      },
+      "after": {
+        "level": 11,
+        "xp": 4217,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 10,
+        "gold": 343,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 1649700,
+        "gold": 10283,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 10
+      },
+      "after": {
+        "level": 20,
+        "xp": 248621,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 19,
+        "gold": 10283,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 30,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 351270,
+        "gold": 2995,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 30,
+        "xp": 351270,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 2995,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 10538100,
+        "gold": 89840,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 8
+      },
+      "after": {
+        "level": 38,
+        "xp": 1512450,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 37,
+        "gold": 89840,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1480320,
+        "gold": 69792,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 1480320,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 69792,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 44409600,
+        "gold": 2093769,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 5
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 5,
+          "xp": 3909600,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 2093769,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "ranger",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 1,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 0,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1980,
+        "gold": 45,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 2
+      },
+      "after": {
+        "level": 3,
+        "xp": 232,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 2,
+        "gold": 45,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 59400,
+        "gold": 1364,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 7
+      },
+      "after": {
+        "level": 8,
+        "xp": 4216,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 7,
+        "gold": 1364,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 1,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 712800,
+        "gold": 16371,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 15
+      },
+      "after": {
+        "level": 16,
+        "xp": 35047,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 15,
+        "gold": 16371,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 3.3825,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 10,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 9,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 54990,
+        "gold": 343,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 1
+      },
+      "after": {
+        "level": 11,
+        "xp": 4217,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 10,
+        "gold": 343,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 1649700,
+        "gold": 10283,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 10
+      },
+      "after": {
+        "level": 20,
+        "xp": 248621,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 19,
+        "gold": 10283,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 10,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 19796400,
+        "gold": 123397,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 30
+      },
+      "after": {
+        "level": 40,
+        "xp": 1042585,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 39,
+        "gold": 123397,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 4.21275,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 30,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 351270,
+        "gold": 2995,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 30,
+        "xp": 351270,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 29,
+        "gold": 2995,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 10538100,
+        "gold": 89840,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 8
+      },
+      "after": {
+        "level": 38,
+        "xp": 1512450,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 37,
+        "gold": 89840,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 30,
+      "comparedDifficulties": [
+        0,
+        3
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 126457200,
+        "gold": 1078076,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 38
+      },
+      "after": {
+        "level": 68,
+        "xp": 4089180,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 67,
+        "gold": 1078076,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120000,
+      "report": null,
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 0,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 0
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 120001,
+      "report": {
+        "ms": 120001,
+        "xp": 1480320,
+        "gold": 69792,
+        "kills": 30,
+        "mats": {},
+        "zone": "whispering_glade",
+        "levels": 0
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 0,
+          "xp": 1480320,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 69792,
+        "materials": {
+          "scrap": 0,
+          "dust": 0,
+          "crystal": 0,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 30
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 3600000,
+      "report": {
+        "ms": 3600000,
+        "xp": 44409600,
+        "gold": 2093769,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 5
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 5,
+          "xp": 3909600,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 2093769,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 43200000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    {
+      "cls": "mage",
+      "initialLevel": 70,
+      "comparedDifficulties": [
+        0,
+        13
+      ],
+      "awayMs": 86400000,
+      "report": {
+        "ms": 43200000,
+        "xp": 532915200,
+        "gold": 25125229,
+        "kills": 10800,
+        "mats": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72
+        },
+        "zone": "whispering_glade",
+        "levels": 39
+      },
+      "after": {
+        "level": 70,
+        "xp": 0,
+        "paragon": {
+          "level": 39,
+          "xp": 18115200,
+          "spent": {}
+        },
+        "skillPoints": 69,
+        "gold": 25125229,
+        "materials": {
+          "scrap": 270,
+          "dust": 270,
+          "crystal": 72,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 10800
+      },
+      "beforeStats": {
+        "sheetDps": 9.747749999999998,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    }
+  ],
+  "zoneExclusions": [
+    {
+      "zone": "hearthmere",
+      "result": {
+        "report": null,
+        "after": {
+          "level": 30,
+          "xp": 0,
+          "paragon": {
+            "level": 0,
+            "xp": 0,
+            "spent": {}
+          },
+          "skillPoints": 29,
+          "gold": 0,
+          "materials": {
+            "scrap": 0,
+            "dust": 0,
+            "crystal": 0,
+            "soul": 0,
+            "deathsBreath": 0
+          },
+          "kills": 0
+        },
+        "beforeStats": {
+          "sheetDps": 6.0577499999999995,
+          "xpPct": 0,
+          "goldFind": 0
+        }
+      }
+    },
+    {
+      "zone": "rift",
+      "result": {
+        "report": null,
+        "after": {
+          "level": 30,
+          "xp": 0,
+          "paragon": {
+            "level": 0,
+            "xp": 0,
+            "spent": {}
+          },
+          "skillPoints": 29,
+          "gold": 0,
+          "materials": {
+            "scrap": 0,
+            "dust": 0,
+            "crystal": 0,
+            "soul": 0,
+            "deathsBreath": 0
+          },
+          "kills": 0
+        },
+        "beforeStats": {
+          "sheetDps": 6.0577499999999995,
+          "xpPct": 0,
+          "goldFind": 0
+        }
+      }
+    },
+    {
+      "zone": "missing",
+      "result": {
+        "report": null,
+        "after": {
+          "level": 30,
+          "xp": 0,
+          "paragon": {
+            "level": 0,
+            "xp": 0,
+            "spent": {}
+          },
+          "skillPoints": 29,
+          "gold": 0,
+          "materials": {
+            "scrap": 0,
+            "dust": 0,
+            "crystal": 0,
+            "soul": 0,
+            "deathsBreath": 0
+          },
+          "kills": 0
+        },
+        "beforeStats": {
+          "sheetDps": 6.0577499999999995,
+          "xpPct": 0,
+          "goldFind": 0
+        }
+      }
+    }
+  ],
+  "weaponComparison": {
+    "noWeapon": {
+      "report": {
+        "ms": 3600000,
+        "xp": 10538100,
+        "gold": 89840,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 8
+      },
+      "after": {
+        "level": 38,
+        "xp": 1512450,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 37,
+        "gold": 89840,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 6.0577499999999995,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    },
+    "withWeapon": {
+      "report": {
+        "ms": 3600000,
+        "xp": 10538100,
+        "gold": 89840,
+        "kills": 900,
+        "mats": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6
+        },
+        "zone": "whispering_glade",
+        "levels": 8
+      },
+      "after": {
+        "level": 38,
+        "xp": 1512450,
+        "paragon": {
+          "level": 0,
+          "xp": 0,
+          "spent": {}
+        },
+        "skillPoints": 37,
+        "gold": 89840,
+        "materials": {
+          "scrap": 22,
+          "dust": 22,
+          "crystal": 6,
+          "soul": 0,
+          "deathsBreath": 0
+        },
+        "kills": 900
+      },
+      "beforeStats": {
+        "sheetDps": 141.3475,
+        "xpPct": 0,
+        "goldFind": 0
+      }
+    }
+  },
+  "itemCosts": [
+    {
+      "ilvl": 1,
+      "rarity": "normal",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "scrap": 1
+        },
+        "cubeXp": 2
+      },
+      "socket": {
+        "gold": 20500,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 104,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 140,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 466,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 206,
+            "mats": {
+              "scrap": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 3456,
+            "mats": {
+              "scrap": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 14156,
+            "mats": {
+              "scrap": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 1,
+      "rarity": "magic",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "dust": 1
+        },
+        "cubeXp": 4
+      },
+      "socket": {
+        "gold": 20500,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 104,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 140,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 466,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 309,
+            "mats": {
+              "dust": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 5184,
+            "mats": {
+              "dust": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 21234,
+            "mats": {
+              "dust": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 1,
+      "rarity": "rare",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "crystal": 1,
+          "dust": 1
+        },
+        "cubeXp": 9
+      },
+      "socket": {
+        "gold": 20500,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 104,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 140,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 466,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 515,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 8640,
+            "mats": {
+              "crystal": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 35391,
+            "mats": {
+              "crystal": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 1,
+      "rarity": "legendary",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 20500,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 104,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 140,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 466,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 1030,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 17281,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 70781,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 1,
+      "rarity": "set",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 20500,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 104,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 140,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 466,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 1030,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 17281,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 70781,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 20,
+      "rarity": "normal",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "scrap": 1
+        },
+        "cubeXp": 2
+      },
+      "socket": {
+        "gold": 30000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 1700,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 2295,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 7623,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 2600,
+            "mats": {
+              "scrap": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 43621,
+            "mats": {
+              "scrap": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 178671,
+            "mats": {
+              "scrap": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 20,
+      "rarity": "magic",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "dust": 1
+        },
+        "cubeXp": 4
+      },
+      "socket": {
+        "gold": 30000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 1700,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 2295,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 7623,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 3900,
+            "mats": {
+              "dust": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 65431,
+            "mats": {
+              "dust": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 268006,
+            "mats": {
+              "dust": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 20,
+      "rarity": "rare",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "crystal": 1,
+          "dust": 1
+        },
+        "cubeXp": 9
+      },
+      "socket": {
+        "gold": 30000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 1700,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 2295,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 7623,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 6500,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 109052,
+            "mats": {
+              "crystal": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 446677,
+            "mats": {
+              "crystal": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 20,
+      "rarity": "legendary",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 30000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 1700,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 2295,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 7623,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 13000,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 218104,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 893353,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 20,
+      "rarity": "set",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 30000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 1700,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 2295,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 7623,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 13000,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 218104,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 893353,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 70,
+      "rarity": "normal",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "scrap": 3
+        },
+        "cubeXp": 2
+      },
+      "socket": {
+        "gold": 55000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 19700,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 26595,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 88335,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 29600,
+            "mats": {
+              "scrap": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 496606,
+            "mats": {
+              "scrap": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 2034097,
+            "mats": {
+              "scrap": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 70,
+      "rarity": "magic",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "dust": 3
+        },
+        "cubeXp": 4
+      },
+      "socket": {
+        "gold": 55000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 19700,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 26595,
+            "mats": {
+              "dust": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 88335,
+            "mats": {
+              "dust": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 44400,
+            "mats": {
+              "dust": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 744908,
+            "mats": {
+              "dust": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 3051145,
+            "mats": {
+              "dust": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 70,
+      "rarity": "rare",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "crystal": 3,
+          "dust": 1
+        },
+        "cubeXp": 9
+      },
+      "socket": {
+        "gold": 55000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 19700,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 26595,
+            "mats": {
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 88335,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 74000,
+            "mats": {
+              "crystal": 2
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 1241514,
+            "mats": {
+              "crystal": 14,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 5085241,
+            "mats": {
+              "crystal": 20,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 70,
+      "rarity": "legendary",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 55000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 19700,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 26595,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 88335,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 148000,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 2483028,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 10170483,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ilvl": 70,
+      "rarity": "set",
+      "fixture": "non-ancient wand; no sockets; tier/enchant count zero",
+      "salvage": {
+        "mats": {
+          "soul": 1,
+          "crystal": 2
+        },
+        "cubeXp": 30
+      },
+      "socket": {
+        "gold": 55000,
+        "mats": {
+          "soul": 2,
+          "crystal": 10
+        }
+      },
+      "enchant": [
+        {
+          "completedPicks": 0,
+          "cost": {
+            "gold": 19700,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 1,
+          "cost": {
+            "gold": 26595,
+            "mats": {
+              "soul": 1,
+              "crystal": 1
+            }
+          }
+        },
+        {
+          "completedPicks": 5,
+          "cost": {
+            "gold": 88335,
+            "mats": {
+              "soul": 1,
+              "crystal": 2
+            }
+          }
+        }
+      ],
+      "upgrade": [
+        {
+          "tier": 0,
+          "cost": {
+            "gold": 148000,
+            "mats": {
+              "soul": 1,
+              "crystal": 3
+            }
+          }
+        },
+        {
+          "tier": 6,
+          "cost": {
+            "gold": 2483028,
+            "mats": {
+              "soul": 4,
+              "crystal": 15,
+              "deathsBreath": 1
+            }
+          }
+        },
+        {
+          "tier": 9,
+          "cost": {
+            "gold": 10170483,
+            "mats": {
+              "soul": 5,
+              "crystal": 21,
+              "deathsBreath": 4
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "fixedCosts": {
+    "transmute": {
+      "gold": 25000,
+      "mats": {
+        "deathsBreath": 3,
+        "crystal": 10,
+        "dust": 20
+      }
+    },
+    "extract": {
+      "gold": 10000,
+      "mats": {
+        "deathsBreath": 1,
+        "crystal": 5,
+        "dust": 5,
+        "scrap": 5
+      }
+    },
+    "reforge": {
+      "gold": 50000,
+      "mats": {
+        "soul": 5,
+        "crystal": 15
+      }
+    },
+    "gems": [
+      {
+        "rank": 1,
+        "fuse": {
+          "gold": 1500,
+          "mats": {}
+        },
+        "remove": 500
+      },
+      {
+        "rank": 2,
+        "fuse": {
+          "gold": 4500,
+          "mats": {}
+        },
+        "remove": 1250
+      },
+      {
+        "rank": 3,
+        "fuse": {
+          "gold": 13500,
+          "mats": {}
+        },
+        "remove": 3125
+      },
+      {
+        "rank": 4,
+        "fuse": {
+          "gold": 40500,
+          "mats": {}
+        },
+        "remove": 7813
+      },
+      {
+        "rank": 5,
+        "fuse": {
+          "gold": 121500,
+          "mats": {}
+        },
+        "remove": 19531
+      }
+    ]
+  },
+  "cubeFunctions": [
+    {
+      "op": "salvage",
+      "unlock": 1,
+      "listedXp": 3,
+      "note": "Actual handler uses rarity-dependent salvageXp instead"
+    },
+    {
+      "op": "fuse",
+      "unlock": 2,
+      "listedXp": 8,
+      "note": ""
+    },
+    {
+      "op": "enchant",
+      "unlock": 3,
+      "listedXp": 12,
+      "note": ""
+    },
+    {
+      "op": "upgrade",
+      "unlock": 4,
+      "listedXp": 18,
+      "note": ""
+    },
+    {
+      "op": "transmute",
+      "unlock": 5,
+      "listedXp": 60,
+      "note": ""
+    },
+    {
+      "op": "extract",
+      "unlock": 6,
+      "listedXp": 60,
+      "note": ""
+    },
+    {
+      "op": "reforge",
+      "unlock": 7,
+      "listedXp": 45,
+      "note": ""
+    },
+    {
+      "op": "socket",
+      "unlock": 8,
+      "listedXp": 30,
+      "note": ""
+    }
+  ],
+  "upgradeModel": [
+    {
+      "tierFrom": 0,
+      "chancePercent": 100,
+      "fortuneStart": 0,
+      "maxAttempts": 1,
+      "expectedAttempts": 1,
+      "costPerAttempt": {
+        "gold": 148000,
+        "mats": {
+          "soul": 1,
+          "crystal": 3
+        }
+      },
+      "expectedGold": 148000
+    },
+    {
+      "tierFrom": 1,
+      "chancePercent": 100,
+      "fortuneStart": 0,
+      "maxAttempts": 1,
+      "expectedAttempts": 1,
+      "costPerAttempt": {
+        "gold": 236800,
+        "mats": {
+          "soul": 1,
+          "crystal": 5
+        }
+      },
+      "expectedGold": 236800
+    },
+    {
+      "tierFrom": 2,
+      "chancePercent": 100,
+      "fortuneStart": 0,
+      "maxAttempts": 1,
+      "expectedAttempts": 1,
+      "costPerAttempt": {
+        "gold": 378880,
+        "mats": {
+          "soul": 2,
+          "crystal": 7
+        }
+      },
+      "expectedGold": 378880
+    },
+    {
+      "tierFrom": 3,
+      "chancePercent": 95,
+      "fortuneStart": 0,
+      "maxAttempts": 2,
+      "expectedAttempts": 1.05,
+      "costPerAttempt": {
+        "gold": 606208,
+        "mats": {
+          "soul": 2,
+          "crystal": 9
+        }
+      },
+      "expectedGold": 636518.4
+    },
+    {
+      "tierFrom": 4,
+      "chancePercent": 85,
+      "fortuneStart": 0,
+      "maxAttempts": 4,
+      "expectedAttempts": 1.163905,
+      "costPerAttempt": {
+        "gold": 969933,
+        "mats": {
+          "soul": 3,
+          "crystal": 11
+        }
+      },
+      "expectedGold": 1128909.868365
+    },
+    {
+      "tierFrom": 5,
+      "chancePercent": 70,
+      "fortuneStart": 0,
+      "maxAttempts": 6,
+      "expectedAttempts": 1.3866085120000002,
+      "costPerAttempt": {
+        "gold": 1551892,
+        "mats": {
+          "soul": 3,
+          "crystal": 13
+        }
+      },
+      "expectedGold": 2151866.6569047044
+    },
+    {
+      "tierFrom": 6,
+      "chancePercent": 55,
+      "fortuneStart": 0,
+      "maxAttempts": 9,
+      "expectedAttempts": 1.7028740585428523,
+      "costPerAttempt": {
+        "gold": 2483028,
+        "mats": {
+          "soul": 4,
+          "crystal": 15,
+          "deathsBreath": 1
+        }
+      },
+      "expectedGold": 4228283.967835542
+    },
+    {
+      "tierFrom": 7,
+      "chancePercent": 42,
+      "fortuneStart": 0,
+      "maxAttempts": 11,
+      "expectedAttempts": 2.101349141799011,
+      "costPerAttempt": {
+        "gold": 3972845,
+        "mats": {
+          "soul": 4,
+          "crystal": 17,
+          "deathsBreath": 2
+        }
+      },
+      "expectedGold": 8348334.431250492
+    },
+    {
+      "tierFrom": 8,
+      "chancePercent": 30,
+      "fortuneStart": 0,
+      "maxAttempts": 13,
+      "expectedAttempts": 2.6414044155259564,
+      "costPerAttempt": {
+        "gold": 6356552,
+        "mats": {
+          "soul": 5,
+          "crystal": 19,
+          "deathsBreath": 3
+        }
+      },
+      "expectedGold": 16790224.52032035
+    },
+    {
+      "tierFrom": 9,
+      "chancePercent": 20,
+      "fortuneStart": 0,
+      "maxAttempts": 15,
+      "expectedAttempts": 3.3011694008962427,
+      "costPerAttempt": {
+        "gold": 10170483,
+        "mats": {
+          "soul": 5,
+          "crystal": 21,
+          "deathsBreath": 4
+        }
+      },
+      "expectedGold": 33574487.27193542
+    }
+  ],
+  "modelLimits": "Expected attempts assume independent uniform success draws and exact current Fortune rules; no observed distribution or player spending behavior."
+}
