@@ -16,12 +16,26 @@
 
 | Game | Source-established milestone | Skill slots / full tables | Transfer status |
 |---|---|---|---|
-| D3, two classes | Active/rune/passive interleaving in class guides | Q; do not infer slot counts from available abilities | External levels are L2, not balance-ready |
+| D3, three classes | Active/rune/passive interleaving in Wizard, Barbarian and Demon Hunter guides | Full published availability bodies read; equipped-slot gates Q | External levels are L2, not balance-ready |
 | Idleon | Community-reported class choice at character L10 | Q | Secondary corroboration only; no copied level gate |
 | TBH | Dated June guide distinguishes character investment, formation and second active slot | Full current unlock order Q | Historical guide, no numerical proposal |
 | PoE1 / PoE2 | Modifier model and historical rule changes | Q for new-character acquisition order | No numerical proposal |
 | Torchlight II | Pre-release rank milestones corroborated by secondary PC skill reference; last-three-point refunds in two secondary sources | Pinned final PC tables/client behavior remain Q | Rank is not character level; console full-respec update is separate |
 | Hearthfall [M] | Six actives at 1/2/4/6/9/12; last rune at 21 | Audit output | Baseline, not a recommendation |
+
+### Separate the choices before comparing cadence
+
+| Game / scope | New ability access | Investment / point source | Equipped capacity | Reversal evidence | Time axis |
+|---|---|---|---|---|---|
+| D3 PC Campaign + Adventure | Three published class tables, character level (D3-01–04/07/11) | Rune/passive availability is distinct from acquiring a new active; numerical spending model not measured here | Slot gates still Q | Historical Armory scope known, current switching flow Q | Both new-account mode traces Q |
+| Idleon | Secondary World1 class milestone (IDLE-03) | Multi-character roles advertised; exact talent award/preset rules Q | Current slot/order Q | Current refund flow Q | Open-client event and general offline rewards must stay separate (IDLE-04) |
+| Task Bar Hero | June guide separates character skills and account rune purchases (TBH-05) | Different progression scopes; current cost graph Q | Formation/second-active purchases described historically; current full order Q | June guide reports free refunds; current UI confirmation Q | Closed-client behavior and ordinary first session Q |
+| PoE1 | Equipment/gem rules, now versioned to3.29 source scope (POE-05) | Gem access is not a character-level active table | Exact current early socket/loadout sequence Q | Subsystem refunds separately versioned; not a universal respec rule | Ordinary new-account acquisition trace Q |
+| PoE2 | Separate gem/support model and versioned compatibility rules | Do not merge its investment model with PoE1 | Current early loadout sequence Q | Attribute failure/recovery and preview information sourced; actual UI Q | Ordinary new-account acquisition trace Q |
+| Torchlight II unmodded PC | Level-gated availability and rank milestones (TL2-01/04) | Separate character/fame award graphs documented; values Q (TL2-09) | Current PC action-bar flow Q | Last-three-point limit has secondary corroboration; full-refund mod and console update are distinct | First-session trace Q |
+| Hearthfall current [M] | Existing six-skill level schedule |69 ordinary points by70; all tiers cost72; actual helper/refund probes | One automatic primary plus four slots from creation | Free tier refund preserves runes/slots; earned Mage browser flow verified | Assisted local first decisions and bot simulations are separate from human times |
+
+This is a structural comparison, not a pacing target or proof of reference-game usability. Each game receives the same questions; missing evidence is retained rather than substituted with a familiar game's rules. No new unlock, point source, slot, respec fee or account system follows from this table.
 
 ## Timeline and loot gaps
 

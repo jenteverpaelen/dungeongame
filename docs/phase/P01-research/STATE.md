@@ -31,6 +31,8 @@ C028 adds VERSIONS.md, five primary source records and five scoped claims. PoE1/
 
 C029 adds a naturally earned Mage item/rune/tier/refund/reconnect observation, nine inspected local Chrome1080p frames and item/stat conservation checks. FIRST-DECISIONS-REPORT.md separates assisted execution from human discovery; no new tutorial or pacing target.
 
+C032 adds a third complete published D3 class progression read, Runic's separate character/fame point-source fields, and a comparison of availability/investment/capacity/reversal/time for every priority game. Values absent from sources remain unknown. `docs/CODEX_ROADMAP_STATUS.md` tracks all273 feature/screen/decision IDs separately from the unchanged Claude draft; no new phase-complete claim.
+
 | Charter | State | Next evidence needed |
 |---|---|---|
 | R-01 D3 | Partial L1/L2; Campaign and Adventure included | Current PC version; both first-session traces; full slots/runes tables for two classes; loot/system/UI detail |

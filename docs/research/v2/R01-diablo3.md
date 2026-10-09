@@ -14,6 +14,8 @@ The useful comparison is a cadence of new verbs, modifiers and longer goals. Our
 
 ## Unfinished
 
+C032 also reads the full [Demon Hunter progression table](https://eu.diablo3.blizzard.com/en-us/class/demon-hunter/progression) through69 (D3-11). It provides a third-class cross-check of ability/modifier interleaving, including an active at61 and later modifiers. This still does not establish action-slot gates, elapsed play time or the installed PC version.
+
 - Both full progression tables have now been read through level 69. Independently check skill-slot/passive-slot gates and pin the described PC patch.
 - Observe ordinary new-account Campaign and Adventure sessions separately. Record quest steps, levels, menus and interruptions; seasonal speedruns cannot stand in for casual onboarding.
 - First rare/legendary distributions, XP/scaling, artisan costs and endgame/social rules remain unverified in this pass.

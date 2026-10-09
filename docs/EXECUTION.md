@@ -27,3 +27,5 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P18 Release operations | Not started | Earlier acceptance criteria and real testers |
 
 Detailed evidence state: `docs/phase/P01-research/STATE.md`. Implementation state: `docs/phase/P03-foundations/STATE.md`. Every change/removal and its research: `docs/CODEX_CHANGELOG.md`. A phase entry is not completion of its individual feature list in roadmap §8.
+
+[Codex's item-by-item status](CODEX_ROADMAP_STATUS.md) now covers all147 features,86 screens and40 decisions from Claude's file. It preserves the historical snapshot separately from newer scoped evidence and remaining work; these counts are not a completion percentage.
