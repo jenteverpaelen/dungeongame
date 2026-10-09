@@ -68,3 +68,5 @@ C060: PoE1 historical matching-colour instructions and later3.29 rules coexist a
 C061: PoE2 historical uniqueness instruction is retained beside0.3 removal,not silently treated as current. Selecting a skill changes displayed support suggestions;that does not prove enforcement or actual effect. Later occupied support slot is stronger than picker appearance but still no durable transaction test. Chapter gameplay begins still shows creation;store browsing,presenter and resolution changes limit pacing/geometry.
 
 C062:Adventure footage is a seasonal resource-assisted run,not an ordinary new-account clock. Do not identify the unsampled5.1million/475 grant mechanism from memory or equate sourceSSF with verified configuration. Displayed level18 slot locks strengthen UI evidence but do not settle all current gates. Physical Altar/next unlock banner and grey Cube entries do not reveal transaction/power rules.
+
+C066: Wolcen shutdown page metadata says November14,2024 while its body schedules closure from September3,2024 (CASE-04). Treat the website date,announcement content and actual closure as separate facts; chronology/causality unresolved.

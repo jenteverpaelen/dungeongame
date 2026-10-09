@@ -19,3 +19,15 @@ C063, 2026-10-09. Reported defects are versioned evidence of a failure class, no
 | Restore omits part of ownership | TL2-05 separates character and shared-stash files; it does not describe MMO-safe storage | Restore checks must cover the whole selected ownership scope. Local C038/C048/C054 are bounded experiments, not a release recovery certification |
 
 These rules explain scope and future consequences without removing working content. They are also acceptance questions for future work, not a claim that every listed system should be added. No external numerical target is adopted.
+
+## Wider incident cases — C066
+
+| Case | Evidence and limit | Rule / status here |
+|---|---|---|
+| Correction applies the wrong ownership scope | DSO-01:developer acknowledges account/character aggregation error | Future repair must use the original rule’s scope and support review; no sanctions selected |
+| Partial delivery and staged repair | DSO-02:documented package incident | Reconcile delivery against durable operation records; no payment subsystem proposed |
+| Bundle/conversion friction | IMM-02/03:publisher revision and attributed consumer criticism | Keep no-payment scope; do not hide an operation’s effective cost behind unexplained conversions |
+| Fixed-group participation friction | IMM-04:historical membership requirement revised | Evaluate mixed membership/availability before social gating; no group size copied |
+| Service lifetime and chronology | CASE-03/04:shutdown announcement with conflicting page/body dates | Plan export/recovery; do not infer actual shutdown or its causes from metadata alone |
+
+Developer incident reports do not quantify prevalence or retention. Consumer criticism is not a court ruling. No policy for penalties,compensation,paid currency or hosting lifetime is adopted from these cases.

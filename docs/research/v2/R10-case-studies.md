@@ -10,4 +10,10 @@ Read 2026-10-09. Partial L1/L2. Separate documented features, developer explanat
 
 ## Unfinished
 
-Diablo Immortal and Drakensang need source-based case studies; neither is labeled a failure here merely because the roadmap suggests one. Independent accounts of Wolcen's scope, actual shutdown chronology, player-cost effects, architecture and longitudinal retention data remain missing. No made-up CCU or commercial outcome.
+C066 supplies initial source-based Immortal/Drakensang cases below; neither is labeled a failed game merely because the roadmap suggests one. Independent accounts of Wolcen's scope, actual shutdown chronology, player-cost effects, architecture and longitudinal retention data remain missing. No made-up CCU or commercial outcome.
+
+## C066 — bounded incidents replace reputation-based labels
+
+Diablo Immortal now has historical publisher purchase/group-access evidence and a scoped consumer-organisation critique (IMM-01–04). Drakensang now has dated quest-scope and package-delivery incidents plus a delay announcement (DSO-01–03). These establish concrete questions,not a causal decline or monetization-success model. See the [Immortal](digests/diablo-immortal.md) and [Drakensang](digests/drakensang-online.md) digests.
+
+The re-read Wolcen page displays a November14,2024 date above text announcing a September3 closure; preserve this chronology mismatch (CASE-04). Its architecture explanation remains attributed. No current gameplay,compensation completion,retention or legal determination is verified. All three cases require further scoped evidence before broader conclusions.

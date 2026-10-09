@@ -42,3 +42,5 @@ C061:22 separate PoE2 samples,nine atlas entries,five visual claims;166 sources/
 C062:20 seasonal D3 Adventure samples(one transition excluded),seven atlas entries,four visual claims. Cumulative167 sources/155 claims/30 media/71 entries/seven recordings/152 samples. All priority games and requested D3 modes now have scoped historical footage. Current behavior and comparable timing remain open;continue owner-readable synthesis instead of treating source counts as completion.
 
 The [full-catalogue feature comparison](FEATURES.md) now maps all147 features across seven game/mode columns, with exact evidence subsets and explicit unknowns. C064 does not increase source counts or declare complete presence/absence.
+
+C066 adds13 broader-game/economy digests (19 total),six sources and eight scoped claims,including first Immortal/Drakensang incident evidence and a Wolcen date contradiction. Cautions distinguish developer reports,consumer criticism and unverified outcomes. Cumulative173 sources/163 claims;media/atlas unchanged. No game change. WoW/D2R economy digests and broader factual/current-client evidence remain open;continue the whole roadmap.

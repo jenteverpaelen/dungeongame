@@ -1,0 +1,36 @@
+{
+  "checkpoint": "C066",
+  "checkedAtUtc": "2026-10-09T13:30:33.6766491Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 173,
+  "claims": 163,
+  "media": 30,
+  "atlasEntries": 71,
+  "recordings": 7,
+  "frames": 152,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-broader-digests-docs-b3bc14739dcf49f78881b8a9da845795",
+  "gameCodeImported": false,
+  "saveDataRead": false,
+  "broaderDigests": {
+    "totalDigests": 19,
+    "newDigests": 13,
+    "localLinksChecked": 70,
+    "claimOccurrencesChecked": 85,
+    "newSources": 6,
+    "newClaims": 8,
+    "featureEvidenceReferencesResolve": true,
+    "sourceManifestCheckpoint": "C062",
+    "newGamePixels": false,
+    "downloadsToPC": 0,
+    "gateCompletionClaimed": false
+  }
+}
