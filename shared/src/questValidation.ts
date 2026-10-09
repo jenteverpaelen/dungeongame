@@ -31,7 +31,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       :kind==='rift'?t.zone==='rift'&&t.target==='completion'
       :kind==='reach'?a?.locations.some(i=>i.id===t.target)
       :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
-      :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)
+      :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)||a?.events?.some(e=>e.id===t.target)
       :kind==='service'?t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&step?.serviceOp&&n.role===SERVICE_ROLE[step.serviceOp])
       :kind==='kill'&&a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType||step?.monsterFamily
         ?(!step.monsterType||m.type===step.monsterType)&&(!step.monsterFamily||MONSTERS[m.type]?.family===step.monsterFamily):m.questTarget));
@@ -94,6 +94,14 @@ export function validateAdventures():string[] {
     errors.push(...validateAdventureAmbience(a));
     errors.push(...validateAdventureReachability(map));
     check((ZONES[id]?.kind==='dungeon')===!!a.dungeon,`${id}: dungeon runtime/kind mismatch`);
+    if(a.events?.length){
+      check(ZONES[id]?.kind==='field',`${id}: events require a shared field`);
+      for(const key of ['id','trigger','encounter'] as const)check(new Set(a.events.map(e=>e[key])).size===a.events.length,`${id}: duplicate event ${key}`);
+      for(const e of a.events){
+        check(!!e.name&&a.interactions.some(i=>i.id===e.trigger),`${id}/${e.id}: missing event interaction`);
+        check(a.encounters.some(p=>p.id===e.encounter&&p.members.length>0),`${id}/${e.id}: missing event encounter`);
+      }
+    }
     if(a.dungeon){
       const stages=a.dungeon.stages;
       check(stages.length>0&&new Set(stages.map(s=>s.id)).size===stages.length,`${id}: invalid/duplicate stages`);

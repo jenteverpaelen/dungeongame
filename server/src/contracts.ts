@@ -64,6 +64,7 @@ export interface InstanceApi {
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
   requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;
   activateDungeon?(link: PlayerLink, target: string): string | null;
+  activateFieldEvent?(link: PlayerLink, target: string): string | null;
   dungeonState?(): DungeonState | null;
   spawnPortal(spec: PortalSpec): number;
   removeEntity(id: number): void;

@@ -1,4 +1,5 @@
 import { autoSlotSkills } from '../../shared/src/progression';
+import { ownedItems } from '../../shared/src/merchant';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -170,7 +171,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   // Preserve any future/oversized save entries; never truncate player-owned items.
   // v2: absence remains unprotected. A malformed present flag errs toward safety;
   // the player can explicitly remove protection after loading.
-  for (const item of [...save.inventory, ...save.stash, ...Object.values(save.equipment)]) {
+  for (const item of ownedItems(save)) {
     if (item && typeof item === 'object' && item.protected !== undefined && typeof item.protected !== 'boolean') item.protected = true;
   }
 

@@ -2,6 +2,7 @@
 // elite / skill death hooks, goblin and guardian specials.
 
 import { recordIntro } from '../../../shared/src/onboarding';
+import { recordCreature } from '../../../shared/src/bestiary';
 import { monsterXp, type Element } from '../shared';
 import { XP_MULT, XP_SHARE_RANGE } from '../config';
 import { healPlayer, isEliteTier } from './damage';
@@ -31,6 +32,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
   inst.emit({ e: 'die', t: m.id, el: elIdx(el), x: Math.round(m.x), y: Math.round(m.y), ...(big ? { big: 1 as const } : {}) }, m.x, m.y, killer?.id ?? 0);
   inst.counters.kills++;
   if (isEliteTier(m.tier)) inst.counters.eliteKills++;
+  inst.spawner.eventKilled(m);
   packMemberGone(inst, m);
 
   skillDeathHooks(inst, m, killer, skill);
@@ -44,7 +46,10 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
   for (const p of witnesses) {
     const xp = monsterXp(m.level, m.tier, m.diff) * (1 + p.ctx.d.xpPct / 100) * XP_MULT;
     p.save.stats.kills++;
-    if(!m.noReward&&p.deadMs<=0&&p.hp>0){recordIntro(p.save,'kill');if(eliteKill)recordIntro(p.save,'elite');}
+    if(!m.noReward&&p.deadMs<=0&&p.hp>0){
+      if(Math.hypot(p.x-m.x,p.y-m.y)<=XP_SHARE_RANGE)recordCreature(p.save,m.def.id,m.affixes);
+      recordIntro(p.save,'kill');if(eliteKill)recordIntro(p.save,'elite');
+    }
     p.kills++;
     if (eliteKill) p.save.stats.elites++;
     grantXp(inst, p, xp);

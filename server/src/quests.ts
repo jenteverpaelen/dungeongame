@@ -56,6 +56,10 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
     if(typeof a.target!=='string'||!inst?.activateDungeon)return fail('Not in an objective dungeon');
     const error=inst.activateDungeon(s,a.target);return error?fail(error):ok();
   }
+  if(a.action==='activateField') {
+    if(typeof a.target!=='string'||!inst?.activateFieldEvent)return fail('Not beside a field event');
+    const error=inst.activateFieldEvent(s,a.target);return error?fail(error):ok();
+  }
   if(a.action==='talk') {
     if(!inst || typeof a.target!=='string' || !near(s,{zone:inst.map.zone,target:a.target}))return fail('Stand beside the person or object to interact');
     return ok({target:a.target});
@@ -181,7 +185,8 @@ export function creditQuestReach(inst:Instance,p:Player) {
 
 /** Called only by the authoritative dungeon after its complete living-initiator check. */
 export function creditQuestWave(inst:Instance,p:Player,target:string) {
-  if(inst.kind!=='dungeon'||!inst.dungeon||p.deadMs>0||p.hp<=0||inst.playerById(p.id)!==p)return;
+  const authored=inst.kind==='dungeon'&&!!inst.dungeon || inst.kind==='field'&&inst.map.adventure?.events?.some(e=>e.id===target);
+  if(!authored||p.deadMs>0||p.hp<=0||inst.playerById(p.id)!==p)return;
   for(const q of QUESTS){
     const state=questState(p.save,q.id);if(!state||!validQuestState(q,state)||state.claimed)continue;
     const step=q.steps[state.step];

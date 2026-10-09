@@ -43,5 +43,20 @@ export const QUESTS: readonly QuestDef[] = [
       {id:'record',kind:'interact',zone:'reedvault_pumpworks',target:'work_record',text:'quest.pump.record'},
     ],
   },
+  {
+    id:'contract_road',revision:1,title:'quest.contract.road.title',offer:'quest.contract.road.offer',complete:'quest.contract.done',
+    rewardText:'quest.contract.gold',start:orren,finish:orren,requires:['silent_wheel'],repeat:'on_return',reward:{gold:54},
+    steps:[{id:'slimes',kind:'kill',zone:orren.zone,target:'road',monsterType:'bog_slime',count:3,text:'quest.contract.road.kill'}],
+  },
+  {
+    id:'contract_bank',revision:1,title:'quest.contract.bank.title',offer:'quest.contract.bank.offer',complete:'quest.contract.done',
+    rewardText:'quest.contract.gold',start:orren,finish:orren,requires:['under_spillway'],repeat:'on_return',reward:{gold:64},
+    steps:[{id:'bats',kind:'kill',zone:'bracken_sluice',target:'bank',monsterType:'grave_bat',count:2,text:'quest.contract.bank.kill'}],
+  },
+  {
+    id:'contract_alarm',revision:1,title:'quest.contract.alarm.title',offer:'quest.contract.alarm.offer',complete:'quest.contract.done',
+    rewardText:'quest.contract.gold',start:orren,finish:orren,requires:['high_water'],repeat:'on_return',reward:{gold:108},
+    steps:[{id:'alarm',kind:'wave',zone:orren.zone,target:'survey_alarm',text:'quest.contract.alarm.clear'}],
+  },
 ];
 export const questById = (id: string) => QUESTS.find(q => q.id === id);

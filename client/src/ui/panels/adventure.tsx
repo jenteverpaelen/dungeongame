@@ -16,6 +16,8 @@ import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { ItemTooltip } from './tooltip';
 import { run } from './util';
 import { QuestDelivery } from './questDelivery';
+import { Bestiary } from './bestiary';
+import { MERCHANTS } from '@shared/merchant';
 
 export function openJournal() {
   ui.set({adventureTarget:null,adventureZone:null,journalQuest:null});
@@ -24,14 +26,16 @@ export function openJournal() {
 
 export function AdventurePanel() {
   const save=useUI(s=>s.char),selected=useUI(s=>s.journalQuest);
-  const [view,setView]=useState<'quests'|'lore'>('quests'),[filter,setFilter]=useState<QuestStatus|'all'>('all'),[search,setSearch]=useState('');
+  const [view,setView]=useState<'quests'|'lore'|'bestiary'>('quests'),[filter,setFilter]=useState<QuestStatus|'all'>('all'),[search,setSearch]=useState('');
   if(!save)return null;
   const entries=QUESTS.filter(q=>(!q.tutorial||validIntro(save.onboarding))&&(filter==='all'||questStatus(save,q)===filter)&&t(q.title).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const q=entries.find(q=>q.id===selected)??entries.find(q=>q.id===trackedQuest(save)?.id)??entries[0];
   const readings=LORE.filter(l=>loreAvailable(save,l));
   return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={1040}>
-    <Tabs tabs={[{id:'quests',label:t('quest.journal.all')},{id:'lore',label:t('quest.journal.lore'),badge:readings.length}]} value={view} onChange={setView}/>
-    {view==='lore'?<>
+    <Tabs tabs={[{id:'quests',label:t('quest.journal.all')},{id:'lore',label:t('quest.journal.lore'),badge:readings.length},{id:'bestiary',label:'Bestiary'}]} value={view} onChange={setView}/>
+    <FieldEventInteraction/>
+    <MerchantInteraction/>
+    {view==='bestiary'?<Bestiary save={save}/>:view==='lore'?<>
       {!readings.length&&<p>{t('quest.journal.loreEmpty')}</p>}
       <Paged size={1} label="Lore pages">{readings.map(l=><details class="quest-reading" key={l.id} open><summary>{t(l.title)}</summary><p>{t(l.text)}</p></details>)}</Paged>
     </>:<>
@@ -49,6 +53,24 @@ export function AdventurePanel() {
       <div class="journal-detail">{q?<QuestDetails key={q.id} save={save} q={q}/>:<p role="status">{t('quest.journal.empty')}</p>}</div></div>
     </>}
   </PanelFrame>;
+}
+
+function MerchantInteraction(){
+  const target=useUI(s=>s.adventureTarget),zone=useUI(s=>s.zone),interact=useUI(s=>s.interact);
+  const def=MERCHANTS.find(m=>m.zone===zone?.zone&&m.target===target),npc=def&&ADVENTURES[def.zone]?.npcs.find(n=>n.id===def.target);
+  return npc&&interact?.name===npc.name?<button class="btn" onClick={()=>togglePanel('merchant',true)}>Trade gear with {def!.name}</button>:null;
+}
+
+function FieldEventInteraction(){
+  const zone=useUI(s=>s.zone),target=useUI(s=>s.adventureTarget),interact=useUI(s=>s.interact),states=useUI(s=>s.fieldEvents);
+  const [busy,setBusy]=useState(false);
+  const data=zone&&ADVENTURES[zone.zone],event=data?.events?.find(e=>e.trigger===target),npc=data?.npcs.find(n=>n.id===target);
+  if(!event||interact?.name!==npc?.name)return null;
+  const state=states.find(s=>s.id===event.id);
+  return <div class="quest-dialogue"><SecHead>{event.name}</SecHead>
+    <p>{state?.phase==='active'?`Encounter active · ${state.remaining} remaining`:state?.phase==='recovering'?'The overlook is settling. Leave the area before another alarm.':'Optional encounter: raise the alarm to draw out the creatures at the overlook.'}</p>
+    <button class="btn" disabled={busy||state?.joined||state?.phase==='recovering'} onClick={async()=>{setBusy(true);try{await run('quest',{action:'activateField',target:event.trigger});}finally{setBusy(false);}}}>{state?.joined?'Joined':state?.phase==='active'?'Join the alarm':'Raise the alarm'}</button>
+  </div>;
 }
 
 function Conversation({save,zone,target,name}:{save:CharacterSave;zone:string;target:string;name:string}) {

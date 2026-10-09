@@ -38,6 +38,7 @@ export class Game {
   private fpsT = 0;
   private lastRiftKey = '';
   private lastDungeonKey = '';
+  private lastFieldEventKey = '';
   private whirl = false;
   private observationPosition?:{x:number;y:number;dead:number};
 
@@ -137,6 +138,7 @@ export class Game {
     this.predictor.reset();
     this.dmgLog = [];
     this.lastDungeonKey='';
+    this.lastFieldEventKey='';ui.set({fieldEvents:[]});
     this.lastRiftKey='';
     ui.set({ zone, myId: you, rift: null, dungeon:null, target: null, interact: null, panels: {} });
     const def = ZONES[zone.zone];
@@ -167,6 +169,8 @@ export class Game {
     } else if (this.lastRiftKey) { this.lastRiftKey = ''; ui.set({ rift: null }); }
     const dungeonKey=s.dungeon?`${s.dungeon.stage}|${s.dungeon.phase}|${s.dungeon.remaining}`:'';
     if(dungeonKey!==this.lastDungeonKey){this.lastDungeonKey=dungeonKey;ui.set({dungeon:s.dungeon??null});}
+    const fieldKey=JSON.stringify(s.fieldEvents??[]);
+    if(fieldKey!==this.lastFieldEventKey){this.lastFieldEventKey=fieldKey;ui.set({fieldEvents:s.fieldEvents??[]});}
     const zone=ui.get().zone;
     if(zone&&ui.get().lastRun?.instance!==zone.instance) {
       const summary=completedRunSummary(zone,s.rift,s.dungeon);

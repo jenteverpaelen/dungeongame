@@ -9,6 +9,10 @@ import {
   CHAMPION_CHANCE, FIELD_NEAR_DIST, FIELD_NEAR_PACKS, FIELD_VISIBLE_DIST, FIELD_VISIBLE_PACKS, GOBLIN_FIELD_CHANCE, GOBLIN_RIFT_CHANCE, RARE_CHANCE, RESPAWN_MIN_DIST, RESPAWN_PREF_DIST, RIFT_PACKS,
 } from './tuning';
 import type { Mob, Pack, Player } from './types';
+import type { FieldEventState } from '../../../shared/src/protocol';
+import type { PlayerLink } from '../contracts';
+import { creditQuestWave } from '../quests';
+import { XP_SHARE_RANGE } from '../config';
 
 let packSeq = 1;
 
@@ -31,6 +35,7 @@ export class Spawner {
   private slots: Slot[] = [];
   private pending: number[] = [];
   private nextCheck = 0;
+  private events = new Map<number, { remaining: Set<number>; members: Set<number>; valid: boolean }>();
   constructor(private inst: Instance) {}
 
   init() {
@@ -54,7 +59,7 @@ export class Spawner {
 
   private initField() {
     const inst = this.inst;
-    if (inst.map.adventure) { for (let i=0;i<this.slots.length;i++) this.populate(i,true); return; }
+    if (inst.map.adventure) { for (let i=0;i<this.slots.length;i++) if(!this.eventAt(i)) this.populate(i,true); return; }
     const order = inst.rng.shuffle(this.slots.map((_, i) => i));
     const n = Math.min(inst.def.packTarget, order.length);
     for (let i = 0; i < n; i++) this.populate(order[i], true);
@@ -82,6 +87,52 @@ export class Spawner {
       spawnGoblin(inst, s.x + 60, s.y + 40, inst.level, true);
     }
     inst.rift?.finalize();
+  }
+
+  private eventAt(i:number){return this.inst.map.adventure?.events?.find(e=>e.encounter===this.inst.map.adventure!.encounters[i]?.id);}
+
+  eventStates(playerId:number):FieldEventState[] {
+    return this.slots.flatMap((slot,i)=>{
+      const event=this.eventAt(i);if(!event)return [];
+      const run=this.events.get(i);
+      return [{id:event.id,phase:slot.pack?'active':slot.respawnAt!==undefined?'recovering':'ready',remaining:run?.remaining.size??0,joined:!!run?.members.has(playerId)}];
+    });
+  }
+
+  activateEvent(link:PlayerLink,target:string):string|null {
+    const event=this.inst.map.adventure?.events?.find(e=>e.trigger===target);
+    if(!event)return 'No field event at this object';
+    const spot=this.inst.map.adventure!.interactions.find(i=>i.id===target)!;
+    const player=this.inst.players.find(p=>p.link===link);
+    if(!player||!this.inst.canInteract(link,spot.x,spot.y,spot.radius))return 'Stand beside the survey marker while alive';
+    const index=this.inst.map.adventure!.encounters.findIndex(e=>e.id===event.encounter),slot=this.slots[index];
+    if(!slot)return 'This encounter is unavailable';
+    if(!slot.pack){
+      if(slot.respawnAt!==undefined)return 'The overlook must settle; leave the area before sounding another alarm';
+      this.populate(index,false);
+      this.events.set(index,{remaining:new Set(this.inst.mobs.filter(m=>!m.dead&&m.pack===slot.pack).map(m=>m.id)),members:new Set(),valid:true});
+    }
+    const run=this.events.get(index);
+    if(!run?.valid)return 'This interrupted encounter must be cleared before another alarm';
+    run.members.add(player.id);
+    this.inst.emitTo(player.id,{e:'notice',kind:'info',text:`${event.name}: joined. Clear the overlook and remain alive nearby.`});
+    return null;
+  }
+
+  /** Actual deaths only; despawns invalidate the wave instead of completing it. */
+  eventKilled(mob:Mob) {
+    const index=mob.pack?.slot;if(index===undefined)return;
+    const run=this.events.get(index),event=this.eventAt(index);
+    if(!run||!event||!run.remaining.delete(mob.id))return;
+    if(mob.noReward)run.valid=false;
+    if(run.remaining.size)return;
+    if(run.valid)for(const p of this.inst.players){
+      if(run.members.has(p.id)&&p.deadMs<=0&&p.hp>0&&Math.hypot(p.x-mob.x,p.y-mob.y)<=XP_SHARE_RANGE){
+        creditQuestWave(this.inst,p,event.id);
+        this.inst.emitTo(p.id,{e:'notice',kind:'info',text:`${event.name}: cleared. Return to Orren if your contract is ready.`});
+      }
+    }
+    this.events.delete(index);
   }
 
   /** Level and difficulty for a new pack: the rift's, or (fields) those of the nearest player. */
@@ -135,9 +186,16 @@ export class Spawner {
     if (inst.kind !== 'field' || inst.t < this.nextCheck) return;
     this.nextCheck = inst.t + 1000;
     if(inst.map.adventure) {
+      for(const [i,run] of this.events){
+        for(const id of run.members){const p=inst.playerById(id);if(!p||p.deadMs>0||p.hp<=0)run.members.delete(id);}
+        for(const id of run.remaining)if(!inst.mob(id)){run.remaining.delete(id);run.valid=false;}
+        if(!run.remaining.size){this.events.delete(i);this.slots[i].pack=null;this.slots[i].respawnAt=inst.t+inst.def.respawnSec*1000;}
+      }
       for(let i=0;i<this.slots.length;i++) {
         const s=this.slots[i];
-        if(!s.pack && s.respawnAt!==undefined && inst.t>=s.respawnAt && inst.players.every(p=>Math.hypot(p.x-s.x,p.y-s.y)>=RESPAWN_MIN_DIST))this.populate(i,true);
+        if(!s.pack && s.respawnAt!==undefined && inst.t>=s.respawnAt && inst.players.every(p=>Math.hypot(p.x-s.x,p.y-s.y)>=RESPAWN_MIN_DIST)){
+          if(this.eventAt(i))s.respawnAt=undefined;else this.populate(i,true);
+        }
       }
       return;
     }

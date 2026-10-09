@@ -16,6 +16,7 @@ row('lantern', [[880,2460],[1350,1990],[1790,1970],[2730,1200],[3170,1140]], 6);
 
 export const RILLWAKE: AdventureData = {
   id: 'rillwake_crossing', size: [64,52],
+  events:[{id:'survey_alarm',name:'The Overlook Alarm',trigger:'survey',encounter:'overlook'}],
   ambience: {
     motion: [
       {id:'camp-water',kind:'ripples',position:[450,2160],width:40},

@@ -4,6 +4,7 @@ import { questHasWeapon, writeQuestState } from './quests';
 import { addToInventory } from './character';
 import { addXp, xpToNext } from './progression';
 import { MAX_LEVEL } from './constants';
+import { ownedItems } from './merchant';
 
 /** Existing level-cap XP bar is the largest supported single authored award (L101). */
 export const MAX_QUEST_XP=xpToNext(MAX_LEVEL);
@@ -31,7 +32,7 @@ export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState):
   const next=structuredClone(save);
   if(questHasWeapon(q)) {
     if(!state.reward)return {error:'Your reserved reward could not be read'};
-    if([...next.inventory,...next.stash,...Object.values(next.equipment)].some(i=>i?.id===state.reward!.id))return {error:'This reward is already owned'};
+    if(ownedItems(next).some(i=>i?.id===state.reward!.id))return {error:'This reward is already owned'};
     if(addToInventory(next,structuredClone(state.reward))<0)return {error:'Make room in your inventory, then speak with the quest giver again'};
   }
   next.gold=gold;

@@ -151,6 +151,7 @@ function buildSnapshot(inst: Instance, p: Player, now: number, rift: Snapshot['r
   if (ev) snap.ev = ev;
   if (rift) snap.rift = rift;
   if (inst.dungeon) snap.dungeon = inst.dungeon.state();
+  if (inst.map.adventure?.events?.length) snap.fieldEvents = inst.spawner.eventStates(p.id);
   return snap;
 }
 

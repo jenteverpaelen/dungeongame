@@ -1103,3 +1103,7 @@
 .ob-list .page-items { gap:0; }
 .ob-list .page-nav { padding:4px 8px; }
 .pn-adventure .quest-reading { min-height:180px; }
+/* The exchange has room for both item columns, including long set descriptions. */
+.merchant-preview .tt { width:100%; max-width:none; }
+.merchant-preview .tt-body { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:18px; align-items:start; }
+.merchant-preview .tt-foot { grid-column:1 / -1; }

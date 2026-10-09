@@ -1,0 +1,23 @@
+{
+    "checkpoint":  "C090",
+    "checkedAtUtc":  "2026-10-09T23:22:51.8991336Z",
+    "scope":  "Documentation integrity only; no game/server runtime tests",
+    "sources":  188,
+    "claims":  184,
+    "media":  30,
+    "atlasEntries":  71,
+    "recordings":  7,
+    "frames":  152,
+    "allCrossReferencesResolve":  true,
+    "timestampsStrictlyIncreasing":  true,
+    "balanceAndTimingEligibility":  false,
+    "roadmapBlob":  "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+    "ledger":  {
+                   "features":  147,
+                   "screens":  86,
+                   "decisions":  40
+               },
+    "isolatedDataDir":  "hf-field-loop-docs-ee4f35f52762400684c0b120a2503741",
+    "gameCodeImported":  false,
+    "saveDataRead":  false
+}

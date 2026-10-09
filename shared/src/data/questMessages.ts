@@ -1,5 +1,16 @@
 /** Original quest prose. Stable keys also serve the client localization catalogue. */
 export const QUEST_MESSAGES = {
+  'quest.contract.road.title':'Contract: Clear the Timber Road',
+  'quest.contract.road.offer':'The camp needs the road kept clear between timber runs. Defeat three bog slimes on the road above camp after taking this contract, then return to Orren.',
+  'quest.contract.road.kill':'Defeat bog slimes on the timber road',
+  'quest.contract.bank.title':'Contract: The Bank Patrol',
+  'quest.contract.bank.offer':'Grave bats keep gathering on the optional bank path in Bracken Sluice. Defeat two there after accepting, then return to Orren.',
+  'quest.contract.bank.kill':'Defeat grave bats on Bracken’s bank path',
+  'quest.contract.alarm.title':'Contract: Sound the Overlook',
+  'quest.contract.alarm.offer':'Raise the alarm at the survey marker and clear the overlook. Join the alarm there in person and stay alive nearby through its final defeat. Bring the report back to Orren.',
+  'quest.contract.alarm.clear':'Raise or join the survey alarm and clear its entire encounter',
+  'quest.contract.done':'The route is clear for the next crew. Your payment is ready. Return when you want another contract.',
+  'quest.contract.gold':'Gold on return. Accept again in person for another run; earlier kills never count toward a new contract.',
   'quest.firstroad.title':'A Foot on the Road',
   'quest.firstroad.offer':'The slimes have reached the path above camp. Try your footing there, then come back. I have a spare weapon with a little more bite than the one you arrived with.',
   'quest.firstroad.complete':'You held your ground. Look this over before you head farther up the road; keep whichever weapon suits you better.',

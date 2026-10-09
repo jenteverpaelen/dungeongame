@@ -3,6 +3,8 @@
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
 import { onboardingCommand, introCommandResult } from './onboarding';
+import { merchantCommand } from './merchant';
+import { ownedItems } from '../../shared/src/merchant';
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
 import { questCommand, creditQuestService } from './quests';
@@ -149,7 +151,7 @@ function sumMats(into: Partial<Materials>, mats: Partial<Materials>): void {
 const itemProtect: Handler = (s, a) => {
   const id = str(a, 'itemId');
   if (typeof a.protected !== 'boolean') return fail('Choose protection on or off');
-  const owned = [...s.save.inventory, ...s.save.stash, ...Object.values(s.save.equipment)].filter(i => i?.id === id);
+  const owned = ownedItems(s.save).filter(i => i?.id === id);
   if (owned.length !== 1) return fail(owned.length ? 'Duplicate item id; protection unchanged' : 'Item not found');
   if (!!owned[0]!.protected === a.protected) return ok();
   if (a.protected) owned[0]!.protected = true; else delete owned[0]!.protected;
@@ -723,6 +725,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
+  merchant:merchantCommand,
   onboarding: onboardingCommand,
   adventure: adventureCommand,
   quest: questCommand,

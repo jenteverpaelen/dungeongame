@@ -212,6 +212,7 @@ export class Instance implements InstanceApi {
   activateDungeon(link:PlayerLink,target:string):string|null {
     return this.dungeon ? this.dungeon.activate(link,target) : 'Not in an objective dungeon';
   }
+  activateFieldEvent(link:PlayerLink,target:string):string|null { return this.spawner.activateEvent(link,target); }
 
   requestSkillCast(link: PlayerLink, slot: number, skill: string): string | null {
     const p = this.byLink.get(link);
