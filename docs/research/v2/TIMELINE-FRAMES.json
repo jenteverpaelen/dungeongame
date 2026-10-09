@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checkpoint": "C058",
-  "research": "L67;L68;L69",
+  "checkpoint": "C059",
+  "research": "L67;L68;L69;L70",
   "recordings": [
     {
       "id": "D3-CAM-01",
@@ -260,6 +260,175 @@
         {
           "seconds": 3000,
           "observed": "Same level17 Warrior has all visible basic talents0,58 points left and selected efficiency passive current/next values. Previous allocations absent; switch/reset input and persistence unobserved."
+        }
+      ]
+    },
+    {
+      "id": "TBH-EARLY-01",
+      "source_id": "TBH-EARLY-VIDEO",
+      "media_id": "TBH-V-EARLY",
+      "url": "https://www.youtube.com/watch?v=xClJxu1QeMg",
+      "title": "Let's Play TBH: Task Bar Hero - Day 1: First Impressions and Progression",
+      "publisher": "SacrifEyeZ",
+      "published": "2026-06-30",
+      "publication_evidence": "Expanded YouTube description; recording date unknown",
+      "inspected": "2026-10-09",
+      "game": "Task Bar Hero",
+      "platform_evidence": "Windows desktop and mouse/keyboard instructions visible; installed client not inspected",
+      "visible_build": null,
+      "mode": "Early progression; source declares blind/F2P, independently unverified",
+      "class": "Initially Sorcerer; later Knight and Sorcerer selected with two occupied portrait slots",
+      "game_ui_language": "English",
+      "host_player_ui_language": "Dutch",
+      "account": "Setup and early levels visible; prior account history/bonuses/spending unverified",
+      "difficulty": "Stage labels visible; complete session configuration unknown",
+      "social": "Multiple hero portraits; no other human participant or cooperative-credit rule established",
+      "duration_seconds_dom": 3820.561,
+      "decoded_video_dimensions": [
+        1280,
+        720
+      ],
+      "inspection_viewport": [
+        1920,
+        1080
+      ],
+      "rendered_player_dimensions_observed": [
+        [
+          1337,
+          752
+        ],
+        [
+          1348,
+          758
+        ]
+      ],
+      "method": "26 sparse paused frames through3630 seconds; UI seeks,readyState4/read-only currentTime/paused checks and personally inspected video-area screenshots. Source alternates desktop view and zoom/crops. Not continuous viewing or live client.",
+      "timing_eligible": false,
+      "balance_ready": false,
+      "unverified": [
+        "build",
+        "recording date",
+        "pristine account/F2P",
+        "source speed/edits",
+        "exact inputs",
+        "skill gate/refund enforcement",
+        "all rune nodes",
+        "Cube costs/formulas/protection",
+        "durable grants",
+        "death recovery rules",
+        "closed-client rewards",
+        "new-player comprehension"
+      ],
+      "inspection_corrections": [
+        "Undecoded seek states excluded; frames inspected afterreadyState4.",
+        "Source annotations and unrelated desktop background not treated as game UI.",
+        "Skill ruler initially looked level-like; same-level marker change and level10/marker9 frame prevent that label.",
+        "Intervening3015s frame establishes selected Alchemy inputs/preview;3000/3030 alone do not."
+      ],
+      "frames": [
+        {
+          "seconds": 0,
+          "observed": "Language setup: English selected,16 written choices in two columns,Next and note that settings can change it later. Input and later language change untested."
+        },
+        {
+          "seconds": 30,
+          "observed": "Hero selection around campfire: six written class names, three padlocked. Back control; lock rules and selection input not established."
+        },
+        {
+          "seconds": 60,
+          "observed": "Sorcerer-like sprite/enemy in tiny combat strip over unrelated desktop content. Fine labels unreadable; unrelated background excluded."
+        },
+        {
+          "seconds": 120,
+          "observed": "Zoomed Stage1-1 strip: HP bar, XP-like bar, chest bubble/progress indicators and truncated acquisition notice. Red-arrow origin uncertain; unrelated background excluded."
+        },
+        {
+          "seconds": 180,
+          "observed": "Records reports staff obtained; dismissible help gives drag/right-click equip alternatives. Combat below. Red annotations not attributed to game; no equip or saved ownership proof."
+        },
+        {
+          "seconds": 210,
+          "observed": "Hero explicitly Sorcerer level1, gear silhouettes/bag and Inventory/Formation tabs. Staff tooltip: written grade, attack damage/speed, class/level requirement, untradable/value, equip cue and Q hint toggle. Help remains."
+        },
+        {
+          "seconds": 240,
+          "observed": "Zoomed level2 Sorcerer notice and1-2 portal; equip help above. Sample time is not notice onset or a pacing target."
+        },
+        {
+          "seconds": 300,
+          "observed": "Level2 bag has two staffs with different backgrounds; plain tooltip/acquisition text, empty-looking weapon slot and persistent help. Acquisition is not equipment use."
+        },
+        {
+          "seconds": 330,
+          "observed": "More bag items and red-X overlay; gear slot still appears empty, help persists. No tooltip explains red-X condition."
+        },
+        {
+          "seconds": 420,
+          "observed": "Level2 bag includes armor-like item; help remains and gear silhouettes empty. Combat separate; no confusion, learning-time or failed-equip inference."
+        },
+        {
+          "seconds": 600,
+          "observed": "Level3 with staff/armor in gear slots, help absent. Failed Stage1-3(12/12) notice and downed avatar with enemy. Exact equip/retry input, loss and recovery unknown."
+        },
+        {
+          "seconds": 660,
+          "observed": "Same level3 equipment; avatar upright with green bar and1-3 portal. More red-X items; recovery path/duration/penalty unknown."
+        },
+        {
+          "seconds": 900,
+          "observed": "Status beside Hero: active rank0/5, AoE description/cooldown, grey Refund/Level Up,2 available points. Grid rank1/3 and locked rows beside unlabeled ruler10/20. Downed avatar. No applied formula, spend/refund or enforced gate verified."
+        },
+        {
+          "seconds": 960,
+          "observed": "Hero still level3; active1/5, available1, ruler2(previously1), lower row locked. Derived stats and changed active-slot appearance. Ruler may track investment, not character level; exact input/casting unknown."
+        },
+        {
+          "seconds": 1200,
+          "observed": "Hero level4, ranks3/3+1/5,0 available,ruler4. Cube Synthesis level1, empty3x3 inputs, level filter,Auto Fill,unchecked Include Stash. Written nine-same-grade recipe/minimum item level; no cost/output/protection tested."
+        },
+        {
+          "seconds": 1230,
+          "observed": "Cube still empty; failed Stage1-5(13/13) notice and downed hero. Empty input grid is not by itself an insufficient-input error."
+        },
+        {
+          "seconds": 1290,
+          "observed": "Connected rune graph, partial nodes with colors/checks, balance and tooltip rank1/3,stage-boss gold effect,next price,Level Up. Full count,account scope,purchase outcome unknown."
+        },
+        {
+          "seconds": 1320,
+          "observed": "Empty character-slot tooltip names Rune unlock prerequisite and Formation navigation. Actual prerequisite cost/unlock unobserved; Cube empty."
+        },
+        {
+          "seconds": 1380,
+          "observed": "Runes title; graph extends below viewport. Lower currency/different node states without full purchase sequence; no exhaustive node count."
+        },
+        {
+          "seconds": 1800,
+          "observed": "Knight level5 with equipment,two occupied character portraits and another locked slot. Red-X bag items,chest bubbles,Warning banner. Formation purchase/switch/warning consequence unsampled."
+        },
+        {
+          "seconds": 2400,
+          "observed": "Rune tooltip for inventory-slot expansion:rank1/3,effect+1,currency price,Level Up. Exact capacity,purchase,scope and currency acquisition unknown."
+        },
+        {
+          "seconds": 3000,
+          "observed": "Stash/Hero/Alchemy level4:1-9 items to gold,Auto Fill/unchecked Include Stash,Take All/Stash All. Candidate sword has red Knight-only restriction; Equipped staff comparison class/level/inherent stat. Hint Auto(Cube) replaces Equip. Clipped consumed-item/gold record; identity/safety unverified."
+        },
+        {
+          "seconds": 3015,
+          "observed": "Four visible level5 Alchemy inputs; corresponding stash cells marked Cube;expected gold400,execute control gold-colored. Include Stash unchecked. Candidate/Equipped staff comparison. Checkbox does not establish ban on all manual stash input; selection/protection/transaction unknown."
+        },
+        {
+          "seconds": 3030,
+          "observed": "Sorcerer level8; fewer bag/stash items,higher currency,Cube level4 bar near full. Clipped consumed-item record and external Alchemy achievement toast. No transaction reconciliation or persistence proof."
+        },
+        {
+          "seconds": 3600,
+          "observed": "Knight level10;ranks3/3+1/8+5/5 total9,available1,ruler9,row at10 still locked. Attack tooltip Alt/Z hints;Cube Synthesis level5 empty. Character level alone does not explain gate; full rule unknown."
+        },
+        {
+          "seconds": 3630,
+          "observed": "Sorcerer selected; Rare staff explicitly Equipped versus Uncommon bag staff. Tooltips separate damage/speed,inherent modifier,class/level/transfer restrictions,empty Decoration Slot;Auto(Cube) hint. Actual equip/synthesis/decoration untested."
         }
       ]
     }

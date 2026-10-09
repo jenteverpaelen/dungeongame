@@ -17,7 +17,7 @@
 | Game | Source-established milestone | Skill slots / full tables | Transfer status |
 |---|---|---|---|
 | D3, three classes | Active/rune/passive interleaving in Wizard, Barbarian and Demon Hunter guides | Full published availability bodies read; equipped-slot gates Q | External levels are L2, not balance-ready |
-| Idleon | Community-reported class choice at character L10 | Q | Secondary corroboration only; no copied level gate |
+| Idleon | Guides report L10, but C058 shows a Warrior at L8 | Exact current minimum Q; contradiction retained | Neither observed L8 nor guide L10 is adopted as a gate |
 | TBH | Dated June guide distinguishes character investment, formation and second active slot | Full current unlock order Q | Historical guide, no numerical proposal |
 | PoE1 / PoE2 | Modifier model and historical rule changes | Q for new-character acquisition order | No numerical proposal |
 | Torchlight II | Pre-release rank milestones corroborated by secondary PC skill reference; last-three-point refunds in two secondary sources | Pinned final PC tables/client behavior remain Q | Rank is not character level; console full-respec update is separate |
@@ -45,7 +45,7 @@ C056 starts the explicit [timeline matrix and observation record](TIMELINES.md).
 
 No external first-legendary distribution, drop-rate formula, pity threshold or crafting-cost table is ready for balance implementation. TBH's chest rule revision is a caution about reward pacing, not a number to reuse. Hearthfall's seeded loot simulation is reproducible but assumes a class, difficulty, elite source and Magic Find; it is not a population playtest. Read the [metric corrections](../../design/ROADMAP_ERRATA.md).
 
-## UI atlas — text evidence only
+## Initial text-source coverage — later pixel observations remain separate
 
 | Game / screen | Read evidence | Still required before atlas completion |
 |---|---|---|
@@ -77,3 +77,5 @@ C040 adds an [objective continuity comparison](OBJECTIVES.md) for the same five 
 This is a research sequencing decision, not a new tutorial implementation. Evidence needed next: first-session action trace, failed attempts, current tier behavior, versioned reference flows, and the smallest acceptance test for a proposed change. Rollback: abandon the proposed objective if observations show a different problem; existing gameplay remains intact. No owner answer is needed to continue these measurements.
 
 C045 supplies a separate [loot acquisition matrix](LOOT.md) for all five priority games, with PoE1/2 and D3 modes separated. It establishes dimensions and local source rules; it does not complete the missing external cadence measurements.
+
+C057–C059 extend the observed atlas to48 entries and four recordings (89 sparse frames). Torchlight II separates reward selection and confirmation; Idleon separates estimates/return/acquisition and exposes the L10/L8 class contradiction; TBH separates character level/investment and selected-input/expected-output states. These update the evidence coverage above, not comparable elapsed timelines or hidden transaction rules. Exact offsets, versions and limitations: TIMELINES.md and TIMELINE-FRAMES.json. No reference value is balance-ready.

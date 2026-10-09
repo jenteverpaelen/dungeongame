@@ -28,3 +28,5 @@ Sources were read as public pages or through the web tool's PDF viewer; C055 add
 Not all referenced games' latest 2026 patches are established. Historical patch notes are deliberately labeled historical. No visual UI atlas entry is claimed from a text-only page.
 
 C058 extends observed flow research to Idleon:21 frames (one introduction excluded), ten atlas entries and five visual claims. Cumulative163 sources/135 claims/26 media/39 entries/three recordings/63 video samples. Displayed rates, return totals and later acquisition are kept separate; level8 Warrior contradicts universal level10 promotion guidance. All clean timeline and behavior/error gaps remain open.
+
+C059 adds26 Task Bar Hero frames, nine atlas entries and six visual claims. Cumulative164 sources/141 claims/27 media/48 entries/four recordings/89 samples. Skill investment is distinguished from character level, and Cube input/preview from result. June footage cannot certify September fixes. Remaining current rules, negative/durable flows and comparable time cells stay open.

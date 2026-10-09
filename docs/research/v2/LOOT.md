@@ -49,3 +49,5 @@ Acquisition comes later: a personal ground item must fit in the60-slot inventory
 No game content or rate is changed by this document. No research image, game binary or tool was downloaded. No reference UI pixels or timeline cells were observed. Future updates must retain the distinction between historical design intent, reported fixes and measured runtime results.
 
 C046 follow-up: [6,528-batch probe](../../phase/P01-research/LOOT-COUNTER-REPORT.md) confirms and corrects the boss-floor counter mismatch. The preceding source table remains the pre-fix snapshot. All current drop payloads and RNG continuations match; only returned history changes on the fallback branch. No new rate or pity threshold.
+
+C058/C059 visual follow-up: Idleon separately displays AFK estimates, elapsed-away totals and later acquisition text; TBH shows selected Cube inputs, expected return, later clipped receipts and contextual Equip/Cube hints. These are scoped published pixels, not verified formulas or conservation/persistence tests. June TBH footage predates September protection fixes. No current rarity, timing, capacity or safety target is adopted; see TIMELINES.md.

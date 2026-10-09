@@ -1,0 +1,24 @@
+{
+  "checkpoint": "C059",
+  "checkedAtUtc": "2026-10-09T12:21:26.5036024Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 164,
+  "claims": 141,
+  "media": 27,
+  "atlasEntries": 48,
+  "recordings": 4,
+  "frames": 89,
+  "excludedIntroFrames": 4,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "screens": 86,
+    "decisions": 40,
+    "features": 147
+  },
+  "isolatedDataDir": "hf-tbh-docs-709bdddb5b784e11a1cdd16514ce5b62",
+  "gameCodeImported": false,
+  "saveDataRead": false
+}

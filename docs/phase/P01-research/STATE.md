@@ -37,7 +37,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 |---|---|---|
 | R-01 D3 | Partial L1/L2; Campaign and Adventure included | Current PC version; both first-session traces; full slots/runes tables for two classes; loot/system/UI detail |
 | R-02 Idleon | Primary L1; secondary L2; C058 scoped video-pixel L3 | Pinned class-rule contradiction; AFK formula/cap; account scope; clean timing and actual error/durable flows |
-| R-03 TBH | L1/L2 | Current build; Cube/rune rules; closed-client rewards; first-session UI and economy |
+| R-03 TBH | L1/L2; C059 scoped early-flow pixel L3 | Current build/protection; full Cube/rune/refund rules; closed-client rewards; error/durable flows and clean timing |
 | R-04 PoE1/2 | L1/L2; separate; indexed versions recorded | Installed builds; gem acquisition/recovery flows; economy and endgame |
 | R-05 D4 | Partial L2; 2026 patch defects and rule changes | Current progression gates, systems, reception and atlas |
 | R-06 MapleStory | Partial L2; publisher Guide behavior | Class-specific first session, jobs, channels/social systems |
@@ -98,3 +98,5 @@ C056 adds18 sparse, versioned D3 Campaign video frames, a provenance manifest an
 C057 extends observed early-flow research to Torchlight II: 24 sparse frames, three intro exclusions, six atlas entries and four visual claims. Offer/progress/choice, inventory ownership and context-sensitive vendor wording are distinct observations; exact inputs, durable results, build and clean timing remain unknown. Cumulative 25 assets/29 atlas entries/two recordings/42 samples. No game change or runtime-test rerun; documentation integrity checked. Continue equal-scope footage and independent foundations; see ../../research/v2/TIMELINES.md.
 
 C058 adds21 Idleon guide samples (one intro excluded), ten atlas entries and five visual claims. Allocation, production, collection/equipped contribution, AFK estimate/return and storage/preset context are observed; exact build, inputs, formula, durable outcomes and clean timing remain open. A level8 Warrior contradicts unqualified level10 promotion guidance. Cumulative26 assets/39 entries/three recordings/63 samples. No game or UI change; documentation checks only. Continue TBH/PoE1/PoE2/D3 Adventure footage and independent foundation work. See ../../research/v2/TIMELINES.md.
+
+C059 adds26 Task Bar Hero samples, nine atlas entries and six visual claims. Setup, equipment, stage failure, separate skill investment, Rune prerequisites and Cube selection/preview are observed. Exact build/current protection, input/refund/transaction rules and clean timing remain unverified. Cumulative27 assets/48 entries/four recordings/89 samples; no game or UI change. Continue PoE1/PoE2/D3 Adventure footage, cross-game synthesis and independent foundation work. See ../../research/v2/TIMELINES.md.

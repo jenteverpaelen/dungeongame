@@ -86,3 +86,24 @@ GriffyBit's [guided playthrough](https://www.youtube.com/watch?v=Gkwf75q4NUk), p
 The useful distinction is **estimate → return summary → claim/collection → owned, persisted result**. The footage exposes several presentations, but does not prove every transition. Likewise collection is distinct from equipped contribution, and allocation from assignment. These extend audit questions; they do not select an alt economy, card system, unlock schedule or paid feature. The clean timeline cells remain Q.
 
 Cumulative evidence:163 sources,135 claims,26 media assets,39 atlas entries,three recordings and63 sampled frames, including four excluded introductions. TBH, PoE1/2 and D3 Adventure still need timestamped early-flow coverage; every game needs versioned behavior/error and comparable elapsed-time evidence. No G1 completion, game content change, numerical target or UI redesign.
+
+## C059 — Task Bar Hero setup, investment and crafting [V]
+
+SacrifEyeZ's [day-one recording](https://www.youtube.com/watch?v=xClJxu1QeMg), published June 30, 2026, supplies 26 sparse frames through video 60:30. Its description declares blind/free play, but clean account, spending, exact build, source speed and uncut elapsed play are unverified. The source is 1280×720 at first/final checks, scaled inside a 1920×1080 Chrome viewport; it alternates desktop and zoomed/cropped views. Unrelated background and uncertain red annotations are excluded. [Exact frames](TIMELINE-FRAMES.json) describe each visible state.
+
+| Video offsets | Observed state | Evidence boundary |
+|---|---|---|
+|00:00 /00:30|Language setup, then six hero labels with three padlocks|No class unlock or actual selection input verified|
+|01:00–07:00 sampled|Compact strip, chest/acquisition notices, equip help, bag growth and item restrictions|No clean elapsed first-equip time or inference of confusion|
+|10:00 /11:00|Equipped gear; failed-stage/downed view followed later by upright avatar|Penalty, retry and recovery duration unknown|
+|15:00 /16:00 /20:00|Skill ranks/budget/ruler and hero level are separate values|Ruler changes at constant character level; no full gate/refund rule|
+|20:00 /20:30|Synthesis recipe, level filter, empty grid and stash inclusion; another failed-stage notice|Empty grid is not itself an insufficient-input error|
+|21:30 /22:00 /23:00 /40:00|Partial rune graph/costs and explicit Rune prerequisite for a formation slot|No exhaustive topology, exact unlock or account scope|
+|30:00|Knight level5, two occupied portraits, Warning banner|Team recruitment/switch and warning consequences unobserved|
+|50:00 /50:15 /50:30|Alchemy/stash comparisons; four selected inputs, expected return and later receipt/currency changes|Item identities, safety, formula and save transaction not reconciled|
+|60:00|Knight level10, nine visible invested ranks, one available point, ruler9; next row locked|Do not mistake ruler for character level or assert an exact gate|
+|60:30|Rare equipped staff compared with Uncommon candidate; separate inherent/decoration information|Equip/synthesis/decoration inputs and rules untested|
+
+The recipe preview is stronger evidence than a blank Cube, but not a completed transaction test. Selected stash inputs coexist with an unchecked inclusion box: that box cannot be interpreted as forbidding every manual stash operation from its label alone. The action hint also changes with Cube context. June footage predates the September lock/chest fixes; neither current protection nor current chest timing is certified.
+
+No new prices, level gates, classes, desktop-strip UI or penalty rules are adopted. Cumulative scope: 164 sources, 141 claims, 27 media assets, 48 atlas entries, four recordings and 89 sampled frames (four earlier introductions excluded). The comparable time matrix remains Q. PoE1/2 and D3 Adventure still lack timestamped early-flow observations; current-build/input/error/durable-state evidence remains incomplete across games.

@@ -1,6 +1,6 @@
 # Task Bar Hero — R-03, first evidence pass
 
-Read 2026-10-09. PC store overview L1; September developer patch details L2. No closed-client reward experiment or full skill-tree inspection. Claims TBH-01–04.
+Read 2026-10-09. PC store overview L1; September developer patch details L2; C059 adds scoped recorded-pixel L3 evidence. No closed-client reward experiment or full skill-tree inspection. Claims TBH-01–15.
 
 ## Findings
 
@@ -33,3 +33,13 @@ C045 adds the equal-question [loot comparison](LOOT.md), including historical/so
 Four published images were inspected, covering compact combat, equipment/status/travel panes and a Ukrainian-language Cube/tooltip example. Visible locks, empty cells and selectors do not establish current protection, recipe or unlock rules; no actual operation was performed. [V; TBH-UI-GALLERY / TBH-09]
 
 See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. Earlier statements that no external pixels had been inspected describe the preceding checkpoint. Current-client first-session traces, fine1080p layout measurements and actual input/error flows remain open. No assets or numerical targets are adopted.
+
+## C059 — early recorded decisions and failure states
+
+[SacrifEyeZ's day-one recording](https://www.youtube.com/watch?v=xClJxu1QeMg), published June 30, 2026, contributes26 sparse frames and nine atlas entries. Setup, equipment/help, failure notices, skill investment, rune/formation prerequisites, stash and Cube preview states are visible. The source alternates desktop/zoomed views; exact build, prior account state and claimed blind/F2P status remain unverified. [Exact observations](TIMELINE-FRAMES.json), claims TBH-10–15.
+
+Character level, invested ranks and the status ruler must remain separate. The level10 Knight still has the next row locked with nine visible invested ranks and one available point. This supports an investment interpretation but does not establish the complete unlock/refund rule. A partial rune graph cannot verify197 nodes. Formation's locked slot does give a written prerequisite and navigation hint.
+
+Alchemy shows selected inputs, marked stash cells and expected gold, then later changed contents/currency and clipped receipt text. That is not an authoritative conservation or persistence test. Include Stash remains unchecked with visible stash selection, so its precise autofill/manual scope needs testing. The Equip/Cube action hint changes with context. June footage cannot certify the September protection fixes. Failed-stage and later upright appearances likewise do not establish recovery penalties or timing.
+
+No new Hearthfall class, cost, gate, desktop UI, penalty or monetization follows. Continue pinned current rules, complete skill/rune/recipe tables, closed-client reward evidence, actual negative states and durable transaction checks. Comparable elapsed first-session pace remains unknown.

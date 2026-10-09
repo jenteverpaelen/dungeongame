@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C058",
-  "research": "L66;L67;L68;L69",
-  "inspected_media_count": 26,
-  "scope": "23 publisher gallery assets plus three historical recordings with63 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C059",
+  "research": "L66;L67;L68;L69;L70",
+  "inspected_media_count": 27,
+  "scope": "23 publisher gallery assets plus four historical recordings with89 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -343,6 +343,21 @@
       "limits": "Not a controlled first account, timing target, tested transaction or verified F2P account",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "IDLE-EARLY-01",
+      "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "TBH-V-EARLY",
+      "source_id": "TBH-EARLY-VIDEO",
+      "url": "https://www.youtube.com/watch?v=xClJxu1QeMg",
+      "natural_width": 1280,
+      "natural_height": 720,
+      "classification": "Published player recording;26 sparse early-flow frames",
+      "observed": "Language/hero setup; equipment/help; stage failure/recovery appearances; skill investment; Cube selected-input preview; rune/formation prerequisite; stash comparisons",
+      "version": "Unknown build; published2026-06-30, before logged September fixes",
+      "inspection": "Chrome viewport1920x1080; decoded1280x720 at first/final checks; scaled page player and source crops; unrelated desktop/uncertain annotations excluded",
+      "limits": "No clean pace,current lock enforcement,complete graph,closed-client reward or tested transaction",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "TBH-EARLY-01",
       "retrieved": "2026-10-09"
     }
   ]

@@ -28,3 +28,5 @@ D3-CAM-VIDEO visibly identifies2.7.7.93903 in game chat at video00:15/00:30. Exp
 C057: TL2-EARLY-VIDEO's expanded description establishes publication November 25, 2023; keyboard/mouse controls are visible. No build, difficulty, mod list or creation settings were inspected. Do not call it the final/current unmodded PC build. Exact unknowns and scaled rendering dimensions are retained in TIMELINE-FRAMES.json.
 
 C058: IDLE-EARLY-VIDEO was published November1,2025; no build number was inspected. A visible level8 Warrior conflicts with unqualified use of earlier secondary level10 guidance. Account/F2P claims remain unverified, and the displayed8min away is not a measured wall-clock sample. Exact source conditions and offsets are in TIMELINE-FRAMES.json.
+
+C059: TBH-EARLY-VIDEO publication is June30,2026; no client build inspected. It predates September chest/protection fixes and cannot verify them. Source1280×720 and zoomed desktop presentation also prevent native1080p geometry claims. Source-declared blind/F2P is unverified; samples remain unsuitable for elapsed pacing.
