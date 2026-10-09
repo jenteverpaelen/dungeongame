@@ -5,13 +5,14 @@ import { DIALOGUES } from './data/dialogues';
 import { ZONES } from './data/zones';
 import { MONSTERS } from './data/monsters';
 import { CollisionWorld } from './movement';
-import { PLAYER_RADIUS } from './constants';
+import { INVENTORY_SIZE, PLAYER_RADIUS } from './constants';
 import { QUEST_SERVICE_OPS, type QuestDef, type QuestTarget, type QuestStep } from './questTypes';
 import { BASES } from './data/items';
 import { SERVICE_ROLE } from './townServices';
 import town from './data/town/hearthmere.json';
 import { inPolygon } from './townGeometry';
 import { validateAdventureAmbience } from './adventureAmbience';
+import { DIFFICULTIES } from './progression';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
@@ -21,6 +22,8 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
   const target=(t:QuestTarget,kind:QuestStep['kind'],path:string,step?:QuestStep)=>{
     const a=ADVENTURES[t.zone];
     const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)
+      :kind==='deliver'?a?.interactions.some(i=>i.id===t.target&&i.kind==='person')
+      :kind==='rift'?t.zone==='rift'&&t.target==='completion'
       :kind==='reach'?a?.locations.some(i=>i.id===t.target)
       :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
       :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)
@@ -42,7 +45,14 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       if(q.id==='silent_wheel')check((s.count??1)===1,path,'legacy flag adapter requires single-event steps');
       if(s.kind==='interact'||s.kind==='reach'||s.kind==='wave')check((s.count??1)===1,path,'interaction/reach/wave count must be one');
       if(s.monsterType!==undefined)check(s.kind==='kill'&&Object.hasOwn(MONSTERS,s.monsterType),path,'invalid monster type filter');
-      if(s.itemBase!==undefined)check(s.kind==='collect'&&Object.hasOwn(BASES,s.itemBase),path,'invalid item base filter');
+      if(s.itemBase!==undefined)check((s.kind==='collect'||s.kind==='deliver')&&Object.hasOwn(BASES,s.itemBase),path,'invalid item base filter');
+      if(s.kind==='deliver') {
+        check(!!s.itemBase&&Object.hasOwn(BASES,s.itemBase),path,'delivery requires an item base');
+        check(['normal','magic','rare','legendary','set'].includes(s.itemRarity??''),path,'delivery requires an exact item rarity');
+        check((s.count??1)<=INVENTORY_SIZE,path,'delivery exceeds bag capacity');
+      } else check(s.itemRarity===undefined,path,'item rarity on a different objective kind');
+      if(s.kind==='rift')check(Number.isInteger(s.minDifficulty)&&!!DIFFICULTIES[s.minDifficulty!],path,'rift requires an existing minimum difficulty');
+      else check(s.minDifficulty===undefined,path,'rift difficulty on a different objective kind');
       if(s.kind==='service')check(!!s.serviceOp&&QUEST_SERVICE_OPS.includes(s.serviceOp),path,'unsupported service operation');
       else check(s.serviceOp===undefined,path,'service operation on a different objective kind');
     }

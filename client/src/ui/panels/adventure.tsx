@@ -9,6 +9,7 @@ import { togglePanel, ui, useUI } from '../store';
 import { PanelFrame, SecHead } from './common';
 import { ItemTooltip } from './tooltip';
 import { run } from './util';
+import { QuestDelivery } from './questDelivery';
 
 export function openJournal() {
   ui.set({adventureTarget:null,adventureZone:null,journalQuest:null});
@@ -30,6 +31,7 @@ export function AdventurePanel() {
   const atStart=present&&contactZone===q.start.zone&&target===q.start.target;
   const atFinish=present&&contactZone===q.finish.zone&&target===q.finish.target;
   const atStep=present&&step?.kind==='interact'&&step.zone===contactZone&&step.target===target;
+  const atDelivery=present&&step?.kind==='deliver'&&step.zone===contactZone&&step.target===target;
   const ready=state?.step===q.steps.length&&!state.claimed;
   const act=async(action:string)=>{setBusy(true);try{await run('quest',{action,target,quest:q.id});}finally{setBusy(false);}};
   return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={530}>
@@ -58,8 +60,10 @@ export function AdventurePanel() {
         <p class="pn-note">{objective.text} · {ZONES[objective.zone]?.name??objective.zone}</p>
         {!state&&atStart&&<button class="btn primary" disabled={busy} onClick={()=>void act('accept')}>{t('quest.journal.accept')}</button>}
         {atStep&&<button class="btn primary" disabled={busy} onClick={()=>void act('inspect')}>{t('quest.journal.inspect')}</button>}
+        {atDelivery&&step&&<QuestDelivery key={`${q.id}:${q.revision}:${step.id}`} save={save} step={step} onDeliver={async itemIds=>
+          (await run('quest',{action:'deliver',target,quest:q.id,revision:q.revision,step:step.id,itemIds})).ok}/>}
         {ready&&atFinish&&<button class="btn primary" disabled={busy} onClick={()=>void act('claim')}>{t('quest.journal.claim')}</button>}
-        {!atStart&&!atFinish&&!atStep&&<p class="pn-note">{t('quest.journal.contact')}</p>}
+        {!atStart&&!atFinish&&!atStep&&!atDelivery&&<p class="pn-note">{t('quest.journal.contact')}</p>}
         <button class="btn" disabled={busy||trackedQuest(save)?.id===q.id} onClick={()=>void act('track')}>{t(trackedQuest(save)?.id===q.id?'quest.journal.tracked':'quest.journal.track')}</button>
       </>}
       <SecHead>{t(state?.reward&&!state.claimed?'quest.journal.reserved':'quest.journal.reward')}</SecHead>

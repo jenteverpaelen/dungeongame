@@ -4,6 +4,7 @@ import type { CharacterSave } from './types';
 import type { QuestDef, QuestState, QuestTarget, QuestStep } from './questTypes';
 import type { MapData } from './mapgen';
 import { nextTravelPoint } from './worldNavigation';
+import town from './data/town/hearthmere.json';
 
 /** C070 remains the sole owner of this quest's save shape; never duplicate its reward. */
 export function questState(save: CharacterSave, id: string): QuestState | undefined {
@@ -19,7 +20,7 @@ export function writeQuestState(save: CharacterSave, id: string, state: QuestSta
 export function validQuestState(q: QuestDef, s: QuestState): boolean {
   const progress=s.progress??0,need=q.steps[s.step]?.count??1;
   return s.revision===q.revision && Number.isInteger(s.step) && s.step>=0 && s.step<=q.steps.length && (!s.claimed || s.step===q.steps.length)
-    && Number.isSafeInteger(progress)&&progress>=0&&progress<need;
+    && Number.isSafeInteger(progress)&&progress>=0&&progress<need && (q.steps[s.step]?.kind!=='deliver'||progress===0);
 }
 export function questStepText(step:QuestStep,progress=0):string {
   return questText(step.text)+((step.count??1)>1?` (${progress}/${step.count})`:'');
@@ -53,6 +54,11 @@ export function questAtTarget(save:CharacterSave,zone:string,target:string):Ques
     ??candidates.find(q=>matches(q.start));
 }
 export function questPoint(map:MapData,target:QuestTarget,save?:CharacterSave):{x:number;y:number}|undefined {
+  if(target.zone==='rift') {
+    if(map.zone==='rift')return undefined; // Existing hunt/Guardian display owns live rift guidance.
+    const obelisk=town.npcs.find(n=>n.role==='obelisk')!;
+    return questPoint(map,{zone:town.id,target:obelisk.id},save);
+  }
   if(map.zone!==target.zone)return nextTravelPoint(map,target.zone,save?(id)=>zoneUnlocked(save,id):undefined);
   const stage=map.adventure?.dungeon?.stages.find(s=>s.id===target.target);
   return map.adventure?.interactions.find(i=>i.id===(stage?.trigger??target.target))

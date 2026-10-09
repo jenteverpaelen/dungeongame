@@ -1,15 +1,19 @@
-import type { Item } from './types';
+import type { Item, Rarity } from './types';
 import type { QuestMessageKey } from './data/questMessages';
 
 export interface QuestTarget { zone: string; target: string }
 export interface QuestStep extends QuestTarget {
   id: string;
   text: QuestMessageKey;
-  kind: 'interact' | 'kill' | 'reach' | 'collect' | 'service' | 'wave';
+  kind: 'interact' | 'kill' | 'reach' | 'collect' | 'service' | 'wave' | 'deliver' | 'rift';
   /** Successful server events required; omitted means one. */
   count?: number;
   monsterType?: string;
   itemBase?: string;
+  /** Delivery requires an exact base and rarity; it never chooses a player's gear. */
+  itemRarity?: Rarity;
+  /** Existing difficulty index, not a timed-rift rank. */
+  minDifficulty?: number;
   serviceOp?: QuestServiceOp;
 }
 /** Operations with a real successful mutation; panel opens and power re-selection are excluded. */

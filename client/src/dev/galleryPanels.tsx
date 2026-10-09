@@ -19,6 +19,7 @@ import '@fontsource/lilita-one/400.css';
 import '../ui/styles/tokens.css';
 
 import { render } from 'preact';
+import { useState } from 'preact/hooks';
 import { BASES, GEM_IDS, affixScale } from '@shared/data/items';
 import { buySkillTier, createCharacter, equipItem, resetSkillTiers, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
 import { addCubeXp, canAfford, enchantCost, enchantPool, extractCost, fuseCost, gemRemoveCost, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost, FORTUNE_PER_FAIL } from '@shared/cube';
@@ -39,6 +40,10 @@ import { ItemGlyph, SlotGlyph } from '../ui/panels/glyphs';
 import { SkillGlyph, CubeFnIcon } from '../ui/panels/skillicons';
 import { SKILLS } from '@shared/data/skills';
 import { CUBE_FUNCTIONS } from '@shared/cube';
+import { QuestDelivery } from '../ui/panels/questDelivery';
+import { PanelFrame } from '../ui/panels/common';
+import { planQuestDelivery } from '@shared/questDelivery';
+import type { QuestStep } from '@shared/questTypes';
 
 const qs = new URLSearchParams(location.search);
 if (qs.has('still')) {
@@ -155,6 +160,7 @@ function makeCharacter(): CharacterSave {
 }
 
 let char = makeCharacter();
+if(qs.get('s')==='delivery')char.inventory[31]={...structuredClone(char.inventory[6]!),id:'delivery-protected',protected:true};
 
 function enchantOptions(item: Item, idx: number): AffixRoll[] {
   const pool = enchantPool(item, idx);
@@ -378,12 +384,24 @@ function IconsSheet() {
 
 // ───────────────────────────── boot ─────────────────────────────
 
+function DeliverySheet() {
+  const [done,setDone]=useState(false);
+  const step:QuestStep={id:'fixture',kind:'deliver',zone:'rillwake_crossing',target:'tender',text:'quest.delivery.title',itemBase:'sword',itemRarity:'rare'};
+  return <PanelFrame id="adventure" title="Delivery preview" sub="Development fixture · no server or character save" width={530}>
+    {done?<p role="status">Fixture delivery completed. The selected item was removed; the protected item remains.</p>:
+      <QuestDelivery save={char} step={step} onDeliver={async ids=>{
+        const plan=planQuestDelivery(char,step,ids);if(plan.error!==undefined)return false;
+        for(const slot of plan.slots)char.inventory[slot]=null;char.gems=plan.gems;sync();setDone(true);return true;
+      }}/>}
+  </PanelFrame>;
+}
 function Gallery() {
   const s = qs.get('s') ?? 'inventory';
   return (
     <>
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
+      {s === 'delivery' && <DeliverySheet />}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>

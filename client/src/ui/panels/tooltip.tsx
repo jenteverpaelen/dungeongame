@@ -259,7 +259,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
           </div>
           {classBad && char && <div class="bad one">{CLASSES[char.classId].name}s cannot use this item</div>}
           {item.bound && <div class="bound one">Account Bound</div>}
-          {item.protected && <div class="bound one">Protected · cannot destroy, salvage, transmute, extract or reforge</div>}
+          {item.protected && <div class="bound one">Protected · cannot destroy, salvage, transmute, extract, reforge or deliver</div>}
           {showTier && (
             <div class="tier">
               <div class="tier-row">

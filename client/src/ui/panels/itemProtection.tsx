@@ -11,7 +11,7 @@ export function ProtectionButton() {
   const on = useLocal(invUI, s => s.protectMode);
   return <button class={cls('btn sm', on && 'on')} aria-pressed={on} aria-label={on ? 'Finish protecting items' : 'Protect items'}
     onClick={() => invUI.set({ protectMode: !on, salvageMenu: false, confirm: null })}
-    {...textTipHandlers(() => ({ title: 'Item protection', lines: ['Turn on, then click a bag, worn or stash item to protect or unprotect it.', 'Protected items cannot be destroyed, salvaged, transmuted, extracted or reforged.', 'Equipping, storage, enchanting, empowering and socket changes still work.'] }), 'item-protection')}>
+    {...textTipHandlers(() => ({ title: 'Item protection', lines: ['Turn on, then click a bag, worn or stash item to protect or unprotect it.', 'Protected items cannot be destroyed, salvaged, transmuted, extracted, reforged or delivered.', 'Equipping, storage, enchanting, empowering and socket changes still work.'] }), 'item-protection')}>
     {on ? 'Done' : 'Protect'}
   </button>;
 }

@@ -4,6 +4,9 @@ import { QUESTS } from '../src/data/quests';
 import { validateQuests, validateAdventures } from '../src/questValidation';
 import { createCharacter } from '../src/character';
 import { questState, writeQuestState, trackedQuest, zoneUnlocked, validQuestState, questStepText } from '../src/quests';
+import { questPoint } from '../src/quests';
+import { generateMap } from '../src/mapgen';
+import { DIFFICULTIES } from '../src/progression';
 
 test('live catalogue references, prerequisites, routes, interaction points and spawns validate',()=>{
   assert.deepEqual(validateQuests(),[]);assert.deepEqual(validateAdventures(),[]);
@@ -41,4 +44,19 @@ test('wave objectives require an actual authored dungeon stage and one completio
   assert.deepEqual(validateQuests([q]),[]);
   q.steps[0].target='missing';assert(validateQuests([q]).some(e=>e.includes('unknown wave target')));
   q.steps[0].target='west';q.steps[0].count=2;assert(validateQuests([q]).some(e=>e.includes('count must be one')));
+});
+
+test('delivery requires an exact safe batch and person; rift objectives use existing difficulty and Obelisk guidance',()=>{
+  const q=structuredClone(QUESTS[1]);q.id='handover_fixture';q.requires=[];delete q.unlocks;
+  q.steps=[{id:'deliver',kind:'deliver',zone:'rillwake_crossing',target:'tender',text:'quest.delivery.title',itemBase:'sword',itemRarity:'normal',count:2},
+    {id:'rift',kind:'rift',zone:'rift',target:'completion',text:'quest.wheel.warden',minDifficulty:1}];
+  assert.deepEqual(validateQuests([q]),[]);
+  assert(!validQuestState(q,{revision:1,step:0,claimed:false,progress:1}),'no partial delivery batches');
+  for(const change of [{itemBase:undefined},{itemRarity:undefined},{target:'cart'},{count:61}])
+    assert(validateQuests([{...q,steps:[{...q.steps[0],...change}]}]).length>0);
+  for(const minDifficulty of [-1,undefined,NaN,1.5,DIFFICULTIES.length])
+    assert(validateQuests([{...q,steps:[{...q.steps[1],minDifficulty}]}]).some(e=>e.includes('minimum difficulty')));
+  const town=generateMap('hearthmere',1),point=questPoint(town,q.steps[1]);
+  const obelisk=town.town!.npcs.find(n=>n.role==='obelisk')!;assert.deepEqual(point,obelisk);
+  const field=generateMap('rillwake_crossing',1);assert.deepEqual(questPoint(field,q.steps[1]),field.portals.find(p=>p.to==='hearthmere'));
 });

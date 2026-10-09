@@ -11,6 +11,7 @@ import { spawnProj } from './projectiles';
 import { nearPlayer, playerZoneLevel, themeMonsters, zoneDifficulty } from './spawner';
 import { BOSS_ADDS_MS, BOSS_RING_COUNT, BOSS_RING_MS, RIFT_KILL_FRACTION } from './tuning';
 import type { Mob, Pack, Player } from './types';
+import { creditQuestRift } from '../quests';
 
 export class RiftRuntime {
   progress = 0;
@@ -96,6 +97,7 @@ export class RiftRuntime {
       dropFor(inst, p, m.x, m.y, m.level, 4);
       dropFor(inst, p, m.x, m.y, m.level, 2); // completion bonus per player
       p.save.stats.rifts++;
+      creditQuestRift(inst,p);
       touchChar(p);
     }
     inst.spawnPortal({ kind: 'town', x: m.x, y: m.y + 40, label: 'To Hearthmere', ttlMs: 0 });

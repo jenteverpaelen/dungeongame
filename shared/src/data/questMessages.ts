@@ -1,5 +1,17 @@
 /** Original quest prose. Stable keys also serve the client localization catalogue. */
 export const QUEST_MESSAGES = {
+  'quest.delivery.title': 'Choose items to deliver',
+  'quest.delivery.selected': 'selected',
+  'quest.delivery.scope': 'Select matching items from your bag. Protected, equipped and stashed items cannot be delivered. Socketed gems are returned to you.',
+  'quest.delivery.items': 'Matching bag items',
+  'quest.delivery.protected': 'Protected',
+  'quest.delivery.level': 'Item level',
+  'quest.delivery.empty': 'No matching items in your bag.',
+  'quest.delivery.review': 'Review delivery',
+  'quest.delivery.warning': 'The selected items below will be permanently handed over. Review their properties before confirming.',
+  'quest.delivery.changed': 'Your selection changed. Go back and review it again.',
+  'quest.delivery.back': 'Change selection',
+  'quest.delivery.confirm': 'Deliver selected items',
   'quest.pump.title': 'Pressure Below',
   'quest.pump.offer': 'The floodgate is free, but the pump below it is still choked. There is a hatch on the east side of the spillway forecourt. Turn the west pressure wheel, then the east, and clear whatever the water drives out. Start the main pump last. Bring back the maintenance record so we can keep it running.',
   'quest.pump.complete': 'The pressure is holding. With that record, the next crew can keep the intake clear without guessing which wheel to turn. I will put your name beside the repair.',

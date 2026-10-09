@@ -13,6 +13,7 @@ import { fail, ok, type CmdResult } from './world';
 import type { Session } from './net/session';
 import type { Instance } from './sim/instance';
 import type { Mob, Player } from './sim/types';
+import { planQuestDelivery } from '../../shared/src/questDelivery';
 
 function near(s:Session, target:QuestTarget):boolean {
   const inst=s.rec?.inst;
@@ -27,10 +28,13 @@ function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
     base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword',
   });
 }
-function advanceState(save:CharacterSave,q:QuestDef,state:QuestState) {
+function nextState(save:CharacterSave,q:QuestDef,state:QuestState):QuestState {
   const next={...state,step:state.step+1,progress:0};
   reserve(save,q,next);
-  writeQuestState(save,q.id,next);
+  return next;
+}
+function advanceState(save:CharacterSave,q:QuestDef,state:QuestState) {
+  writeQuestState(save,q.id,nextState(save,q,state));
 }
 function countEvent(save:CharacterSave,q:QuestDef,state:QuestState) {
   const need=q.steps[state.step]?.count??1,progress=(state.progress??0)+1;
@@ -80,6 +84,17 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
       }
       writeQuestState(s.save,q.id,{...state,claimed:true});
       if(s.save.trackedQuest===q.id)delete s.save.trackedQuest;
+    } else if(a.action==='deliver') {
+      const step=q.steps[state.step];
+      if(step?.kind!=='deliver'||a.step!==step.id||a.revision!==q.revision)return fail('This delivery is no longer the current objective');
+      if(a.target!==step.target||!near(s,step))return fail('Bring the selected items to the recipient in person');
+      const plan=planQuestDelivery(s.save,step,a.itemIds,s.pendingEnchant?.itemId);
+      if(plan.error!==undefined)return fail(plan.error);
+      // Prepare random reward/state first; a generation failure must not consume inputs.
+      const next=nextState(s.save,q,state);
+      for(const slot of plan.slots)s.save.inventory[slot]=null;
+      s.save.gems=plan.gems;
+      writeQuestState(s.save,q.id,next);
     } else if(a.action==='inspect') {
       if(typeof a.target!=='string' || !near(s,{zone:inst.map.zone,target:a.target}))return fail('Stand beside the object to investigate');
       const index=q.steps.findIndex(step=>step.kind==='interact' && step.zone===inst.map.zone && step.target===a.target);
@@ -153,5 +168,15 @@ export function creditQuestWave(inst:Instance,p:Player,target:string) {
     const state=questState(p.save,q.id);if(!state||!validQuestState(q,state)||state.claimed)continue;
     const step=q.steps[state.step];
     if(step?.kind==='wave'&&step.zone===inst.map.zone&&step.target===target)advance(inst,p,q,state);
+  }
+}
+
+/** Called once by RiftRuntime.complete, using its existing present-member eligibility. */
+export function creditQuestRift(inst:Instance,p:Player) {
+  if(inst.kind!=='rift'||inst.rift?.phase!=='done'||inst.playerById(p.id)!==p)return;
+  for(const q of QUESTS) {
+    const state=questState(p.save,q.id);if(!state||!validQuestState(q,state)||state.claimed)continue;
+    const step=q.steps[state.step];
+    if(step?.kind==='rift'&&step.zone===inst.map.zone&&step.target==='completion'&&inst.difficulty>=(step.minDifficulty??Infinity))advance(inst,p,q,state);
   }
 }
