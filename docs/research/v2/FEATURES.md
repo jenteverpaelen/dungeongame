@@ -1,8 +1,8 @@
 # Full-catalogue feature comparison
 
-C064, 2026-10-09; evidence before mapping: L75. [Matrix CSV](FEATURES.csv) contains every147 feature ID from Claude's unchanged §8 catalogue, across seven columns: D3 Campaign, D3 Adventure, Idleon, Task Bar Hero, PoE1, PoE2 and Torchlight II PC. The title remains identical to the catalogue/status ledger.
+C068 update, 2026-10-09; evidence before mapping: L75/L79. [Matrix CSV](FEATURES.csv) contains every147 feature ID from Claude's unchanged §8 catalogue, across22 game/mode columns: the seven priority columns plus15 broader reference/economy games. Every named game in the digest index is included; D3 modes and PoE1/2 remain separate. The title remains identical to the catalogue/status ledger.
 
-Of1029 cells,95 have **partial evidence** and934 are **unknown**. These are research-coverage counts, not a completion percentage or comparative game score. The [evidence CSV](FEATURE-EVIDENCE.csv) gives each supported cell's game, feature, claim IDs, exact supported subset and unresolved remainder. Claims resolve to versioned sources in [CLAIMS.csv](CLAIMS.csv) and [SOURCES.csv](SOURCES.csv).
+Of3234 cells,131 have **partial evidence** and3103 are **unknown**. These are research-coverage counts, not a completion percentage or comparative game score. The [evidence CSV](FEATURE-EVIDENCE.csv) gives each supported cell's game, feature, claim IDs, exact supported subset and unresolved remainder. Claims resolve to versioned sources in [CLAIMS.csv](CLAIMS.csv) and [SOURCES.csv](SOURCES.csv).
 
 ## How to read a cell
 
@@ -18,10 +18,10 @@ Examples: item comparison does not prove item links in chat; a sale preview does
 |---|---|---|
 | Identity, command replay, storage and operations | Current primary engineering guidance plus local failure/restore experiments | Public game screenshots cannot establish internal architecture. Continue P3's bounded work; do not infer a backend from a feature being visible |
 | Build and modifier decisions | Existing class tables, observed choices and local runtime-helper probes; targeted current recovery evidence | Keep current skills/refunds. Full tables and human evidence are needed before progression changes |
-| Quests and rewards | Observed offer/progress/claim distinctions plus C040/C041 authority boundaries and C051 authoring checks | Next candidate is an isolated durable-state experiment, separately designed before code |
+| Quests and rewards | Observed offer/progress/claim distinctions plus C040/C041 authority boundaries and C051 authoring checks | C065 now tests isolated durable state; actual production event authority,identity and recovery remain open |
 | Loot/economy | [Loot matrix](LOOT.md), source conditions, measured local generation versus acquisition | Do not use rare-item screenshots as drop rates or finite-bag income as unconstrained yield |
 | Social, endgame, live operations and platforms | Versioned subsystem rules, current flow/error observations and later phase-specific experiments | Do not adopt an entire system simply because it appears in the catalogue; scope remains undecided |
 
-This fulfils structural coverage of the feature catalogue for the priority games; factual coverage remains partial, and other reference games remain to be added where relevant. The [Hearthfall implementation ledger](../../CODEX_ROADMAP_STATUS.md) is separate. No cell changes its status or approves a feature for implementation. No game code, balance value, content, asset, setting or save changes here.
+This supplies structural coverage for every named reference game; factual coverage remains partial. A public incident or marketing description supports only its named subset, never internal architecture or complete presence. The [Hearthfall implementation ledger](../../CODEX_ROADMAP_STATUS.md) is separate. No cell changes its status or approves a feature for implementation. No game code, balance value, content, asset, setting or save changes here.
 
-Validation: every feature exactly once; seven complete columns; one evidence record per supported cell; no unused/duplicate evidence; game/feature match; claim/source references resolve; original roadmap hash and273-ID ledger unchanged. [Recorded check](../../phase/P01-research/checks/timeline-features.json). G1 remains open.
+Validation: every feature exactly once; 22 complete columns; one evidence record per supported cell; no unused/duplicate evidence; game/feature match; claim/source references resolve; original roadmap hash and273-ID ledger unchanged. [Recorded check](../../phase/P01-research/checks/timeline-gate-audit.json). G1 remains open.

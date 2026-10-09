@@ -15,7 +15,7 @@ The initial checkpoint asked what creates an early goal, changes a build and car
 
 ## Current reading route
 
-Start with the [game digests](digests/README.md), then [decisions and dependencies](SYNTHESIS.md) and [documented cautions](CAUTIONS.md). C063 synthesizes existing evidence; counts remain167 sources/155 claims/30 media/71 atlas entries/seven recordings/152 samples. Historical updates above and below retain their original scope. Current/error/durable behavior, ordinary timelines and broader G1 remain incomplete.
+Start with the [requirement audit](G1-AUDIT.md) and [game digests](digests/README.md), then [decisions and dependencies](SYNTHESIS.md) and [documented cautions](CAUTIONS.md). C063 synthesizes existing evidence; counts remain167 sources/155 claims/30 media/71 atlas entries/seven recordings/152 samples. Historical updates above and below retain their original scope. Current/error/durable behavior, ordinary timelines and broader G1 remain incomplete.
 
 ## Evidence rules
 
@@ -46,3 +46,5 @@ The [full-catalogue feature comparison](FEATURES.md) now maps all147 features ac
 C066 adds13 broader-game/economy digests (19 total),six sources and eight scoped claims,including first Immortal/Drakensang incident evidence and a Wolcen date contradiction. Cautions distinguish developer reports,consumer criticism and unverified outcomes. Cumulative173 sources/163 claims;media/atlas unchanged. No game change. WoW/D2R economy digests and broader factual/current-client evidence remain open;continue the whole roadmap.
 
 C067 adds WoW/D2R ownership and migration examples:four sources,eight claims and two digests (21 named games total). All external balance flags remain false;177 sources/171 claims,media unchanged. Existing character stash and runtime remain unchanged. Current trade rules,economic effects,broader matrices,legacy-dossier status and download inventory remain research work; no G1 completion.
+
+C068 widens the feature matrix to22 game/mode columns and reconciles legacy/download/gate status. See [G1-AUDIT](G1-AUDIT.md); structure is complete in more places,factual coverage remains partial. No source count or runtime change.
