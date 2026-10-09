@@ -1,0 +1,9 @@
+# Existing economy: inventory and deterministic probes
+
+2026-10-09, before harness implementation. Evidence: R11's source/sink distinction, actual shared Cube/item/progression functions, server command handlers, AFK calculation and loot pickup. This measures Hearthfall; reference-game economy rates remain unverified.
+
+Create synthetic characters only, require a fresh isolated DATA_DIR, and pin XP_MULT to the current prototype default 3 for comparable output. Invoke existing functions without a running world or actual save access. Record input class/level/difficulty/away duration, output XP/gold/materials/levels/items, and exact costs from current helpers. Cover the two-minute AFK boundary, one hour, the twelve-hour cap and beyond-cap duration; compare classes/difficulties and paired equipment variants. Record initial-level versus post-level-up calculation explicitly. These are computed fixtures, not observed active farming or player behavior.
+
+Produce a code-path source/sink/transfer table with mutation and failure boundaries. Distinguish spawned ground loot from credited inventory; returning gems and stash transfers are not sinks. Investigate the actual enchant charge/count sequence separately before labeling any difference a bug. No invented reward target, drop-rate change, offline rewrite, new currency, trading or price tuning follows from the audit.
+
+Validate fixture invariants and repeatability. Keep the prior full baseline audit, corrected metrics and screenshots. If comments claim a measured active kill rate but code uses a fixed assumption, correct only that description with the observed formula; preserve all gameplay numbers. Open issues must identify evidence needed and possible future consequences rather than silently replacing mechanics.

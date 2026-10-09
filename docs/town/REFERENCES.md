@@ -181,3 +181,11 @@ Current UI/input/game code and UX-CHI12/R15 precede `docs/phase/P01-research/FIR
 ### L32 — Correct the demonstrated control-label mismatch, 2026-10-09
 
 The twelve inspected baseline captures and input/SkillBar/Skills/Session code establish that mouse/LMB suggests an action that automatic combat does not accept. `docs/phase/P01-research/CONTROLS-CUE-DESIGN.md` precedes the small label/tooltip/private-new-character-message correction. Existing UI elements, new-character detection, slots, costs and Help remain; no tutorial effectiveness, retention or balance claim follows.
+
+### L33 — Account boundaries before implementation, 2026-10-09
+
+Actual Session hello/name loading, WebSocket upgrade/proxy-header handling, client connection and save/backup code are audited alongside OWASP-AUTHN/SESSION/RECOVERY and NIST63B4-PASS/RECOVERY. Read scopes and limits are in the source/claim registers before writing the account design note. Existing code has no proof of save ownership; guessing an owner or assigning their saves is not a research-supported migration. No actual save/account change follows from this note.
+
+### L34 — Measure current currency flows before tuning, 2026-10-09
+
+R11, actual shared costs/progression/items and server AFK/command/loot paths precede `docs/phase/P01-research/ECONOMY-MEASUREMENT-PLAN.md`. Deterministic synthetic probes distinguish grants, consumption, transfers and uncollected loot, plus fixed offline assumptions. No balance or reference-game parity follows merely from a code comment naming another game.

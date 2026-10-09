@@ -25,3 +25,7 @@ Measure hash latency/memory under login load; map session ownership, claim/recov
 ## Replay scope — 2026-10-09
 
 [AWS-IDEMPOTENCY](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/) separates intentional repeated actions from retries through request identifiers, discusses matching responses and changed parameters, and requires atomic mutation/receipt recording for durable guarantees. [RFC6455 §5.4](https://www.rfc-editor.org/rfc/rfc6455#section-5.4) describes ordered WebSocket fragmentation, not application replay protection. Hearthfall's measured repeated paid fusion motivated a connection-local receipt guard. Its memory-only boundary explicitly leaves reconnect/crash-safe transactions unfinished; see the scoped design and tests in P03.
+
+## Identity design note — 2026-10-09
+
+Five additional primary source reads (AUTH-01–05) and the actual login/upgrade/storage audit inform [ACCOUNT-DESIGN.md](../../phase/P03-foundations/ACCOUNT-DESIGN.md). It separates credentials, sessions, character ownership, recovery and migration. Legacy names are not ownership evidence; the owner has a pending question about existing players. No production accounts, save assignment or security acceptance is claimed. Authentication libraries, deployment, no-email recovery limitations, transaction storage and attack/restore drills remain open.
