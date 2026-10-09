@@ -42,7 +42,7 @@ async function boot() {
   initArt(app.renderer);
 
   const game = new Game(app);
-  session.start = (name, classId) => { void game.start(name, classId); };
+  session.start = (name, classId, options) => { void game.start(name, classId, options); };
   render(h(App, null), document.getElementById('ui')!);
   const syncPreviews = () => {
     if (ui.get().screen === 'select') startPreviews();

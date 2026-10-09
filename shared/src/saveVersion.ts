@@ -1,2 +1,2 @@
-/** v6 adds bounded quest cycles/history; older servers must not ignore repeat tokens. */
-export const SAVE_VERSION = 6;
+/** v7 preserves selected appearance and optional introduction accomplishments. */
+export const SAVE_VERSION = 7;

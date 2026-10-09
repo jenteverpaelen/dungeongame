@@ -9,6 +9,7 @@ import { CLASS_NAME, hex } from './util';
 
 export function PlayerPlate() {
   const v = useUI((s) => (s.char && s.me ? { name: s.char.name, cls: s.char.classId, lv: s.me.lv, pl: s.me.pl } : null));
+  const showNumbers=useUI(s=>!s.char?.onboarding||s.char.onboarding.status!=='active'||s.char.onboarding.done.includes('kill'));
   const dps = useUI((s) => s.dps);
   const fps = useUI((s) => s.fps);
   const ping = useUI((s) => s.ping);
@@ -30,15 +31,15 @@ export function PlayerPlate() {
           <i />
           <span style={{ color: theme === '#c0392b' ? '#e0705a' : undefined }}>{CLASS_NAME[v.cls]}</span>
         </div>
-        <div class="pi-dps" title="Damage per second (5 s window)">
+        {showNumbers&&<div class="pi-dps" title="Damage per second (5 s window)">
           <span class="dps-label">DPS</span>
           <span class="dps-val">{fmtCompact(dps)}</span>
-        </div>
-        <div class="pi-net">
+        </div>}
+        {showNumbers&&<div class="pi-net">
           <span>{Math.round(fps)} fps</span>
           <i />
           <span class={`ping ${pingTone}`}>{Math.round(ping)} ms</span>
-        </div>
+        </div>}
       </div>
     </div>
   );

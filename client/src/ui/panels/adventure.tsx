@@ -1,3 +1,4 @@
+import { introduced, validIntro } from '@shared/onboarding';
 import { useState } from 'preact/hooks';
 import { QUESTS } from '@shared/data/quests';
 import { questText as t } from '@shared/data/questMessages';
@@ -11,7 +12,7 @@ import type { CharacterSave } from '@shared/types';
 import type { QuestDef } from '@shared/questTypes';
 import { questRequest } from '@shared/questRequests';
 import { togglePanel, ui, useUI, worldReader } from '../store';
-import { PanelFrame, SecHead, Tabs } from './common';
+import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { ItemTooltip } from './tooltip';
 import { run } from './util';
 import { QuestDelivery } from './questDelivery';
@@ -25,14 +26,14 @@ export function AdventurePanel() {
   const save=useUI(s=>s.char),selected=useUI(s=>s.journalQuest);
   const [view,setView]=useState<'quests'|'lore'>('quests'),[filter,setFilter]=useState<QuestStatus|'all'>('all'),[search,setSearch]=useState('');
   if(!save)return null;
-  const entries=QUESTS.filter(q=>(filter==='all'||questStatus(save,q)===filter)&&t(q.title).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
+  const entries=QUESTS.filter(q=>(!q.tutorial||validIntro(save.onboarding))&&(filter==='all'||questStatus(save,q)===filter)&&t(q.title).toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
   const q=entries.find(q=>q.id===selected)??entries.find(q=>q.id===trackedQuest(save)?.id)??entries[0];
   const readings=LORE.filter(l=>loreAvailable(save,l));
-  return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={530}>
+  return <PanelFrame id="adventure" title={t('quest.journal.title')} sub={t('quest.journal.subtitle')} width={1040}>
     <Tabs tabs={[{id:'quests',label:t('quest.journal.all')},{id:'lore',label:t('quest.journal.lore'),badge:readings.length}]} value={view} onChange={setView}/>
     {view==='lore'?<>
       {!readings.length&&<p>{t('quest.journal.loreEmpty')}</p>}
-      {readings.map(l=><details class="quest-reading" key={l.id}><summary>{t(l.title)}</summary><p>{t(l.text)}</p></details>)}
+      <Paged size={1} label="Lore pages">{readings.map(l=><details class="quest-reading" key={l.id} open><summary>{t(l.title)}</summary><p>{t(l.text)}</p></details>)}</Paged>
     </>:<>
       <div class="quest-filters">
         <label>{t('quest.journal.search')}<input type="search" value={search} onInput={e=>setSearch(e.currentTarget.value)}/></label>
@@ -40,12 +41,12 @@ export function AdventurePanel() {
           {(['all','active','available','complete','locked','unavailable'] as const).map(f=><option value={f} key={f}>{t(f==='all'?'quest.journal.all':f==='unavailable'?'quest.journal.retained':('quest.journal.'+f) as Parameters<typeof t>[0])}</option>)}
         </select></label>
       </div>
-      <nav class="quest-list" aria-label={t('quest.journal.all')}>
+      <div class="journal-columns"><nav class="quest-list" aria-label={t('quest.journal.all')}><Paged key={filter+search} size={6} label="Quest pages">
         {entries.map(entry=><button key={entry.id} class={'btn '+(entry.id===q?.id?'primary':'')} aria-pressed={entry.id===q?.id} onClick={()=>ui.set({journalQuest:entry.id})}>
           <strong>{t(entry.title)}</strong><small>{t(('quest.journal.'+questStatus(save,entry)) as Parameters<typeof t>[0])}</small>
         </button>)}
-      </nav>
-      {q?<QuestDetails key={q.id} save={save} q={q}/>:<p role="status">{t('quest.journal.empty')}</p>}
+      </Paged></nav>
+      <div class="journal-detail">{q?<QuestDetails key={q.id} save={save} q={q}/>:<p role="status">{t('quest.journal.empty')}</p>}</div></div>
     </>}
   </PanelFrame>;
 }
@@ -75,6 +76,7 @@ function QuestDetails({save,q}:{save:CharacterSave;q:QuestDef}) {
   const chapter=CHAPTERS.find(c=>c.id===q.chapter),chapterQuests=QUESTS.filter(other=>other.chapter===q.chapter);
   const completed=chapterQuests.filter(other=>questCompleted(save,other.id)).length;
   const act=async(action:string)=>{setBusy(true);try{await run('quest',questRequest(q,state,target,action));}finally{setBusy(false);}};
+  const [section,setSection]=useState<'story'|'objectives'|'reward'|'rules'>('story');
   const reward=typeof q.reward==='object'?q.reward:undefined;
   return <>
     {chapter&&<div class="quest-chapter"><SecHead>{t(chapter.act)} · {t(chapter.title)}</SecHead>
@@ -82,36 +84,43 @@ function QuestDetails({save,q}:{save:CharacterSave;q:QuestDef}) {
     </div>}
     <SecHead>{t(q.title)}</SecHead>
     {!valid?<p>{t('quest.journal.unavailable')}</p>:<>
-      <p>{t(state?.claimed?q.complete:q.offer)}</p>
-      {!available&&<p class="pn-note">{t('quest.journal.requires')} {q.requires.map(id=>QUESTS.find(other=>other.id===id)).filter(Boolean).map(other=>t(other!.title)).join(' · ')}</p>}
-      {present&&npc&&contactZone&&target&&<Conversation key={contactZone+'/'+target} save={save} zone={contactZone} target={target} name={npc.name}/>}
-      <SecHead>{t('quest.journal.progress')}</SecHead>
-      <ol class="quest-steps">{q.steps.map((s,i)=><li key={s.id} class={state&&i<state.step?'complete':state&&i===state.step?'current':''}>
-        <span aria-label={t(state&&i<state.step?'quest.journal.complete':'quest.journal.active')}>{state&&i<state.step?'✓':'○'}</span> {questStepText(s,state&&i<state.step?s.count??1:state&&i===state.step?state.progress??0:0)}
-      </li>)}<li class={state?.claimed?'complete':ready?'current':''}><span>{state?.claimed?'✓':'○'}</span> {t('quest.journal.return')}: {questContact(q.finish)}</li></ol>
-      {available&&<>
+      <Tabs tabs={[{id:'story',label:'Story'},{id:'objectives',label:t('quest.journal.progress')},{id:'reward',label:t('quest.journal.reward')},{id:'rules',label:t('quest.journal.rules')}]} value={section} onChange={setSection}/>
+      {section==='story'&&<>
+        <p>{t(state?.claimed?q.complete:q.offer)}</p>
+        {!available&&<p class="pn-note">{t('quest.journal.requires')} {q.requires.map(id=>QUESTS.find(other=>other.id===id)).filter(Boolean).map(other=>t(other!.title)).join(' · ')}</p>}
+        {present&&npc&&contactZone&&target&&<Conversation key={contactZone+'/'+target} save={save} zone={contactZone} target={target} name={npc.name}/>}
+        {!!(state?.completions??(state?.claimed?1:0))&&<p class="pn-note">{t('quest.journal.history')}: {state?.completions??1}</p>}
+      </>}
+      {section==='objectives'&&<>
+        <Paged size={4} label="Objective pages" class="quest-steps">{q.steps.map((s,i)=><div key={s.id} role="listitem" class={state&&i<state.step?'complete':state&&i===state.step?'current':''}>
+          <span aria-label={t(state&&i<state.step?'quest.journal.complete':'quest.journal.active')}>{state&&i<state.step?'✓':'○'}</span> {questStepText(s,state&&i<state.step?s.count??1:state&&i===state.step?state.progress??0:0)}
+        </div>)}<div role="listitem" class={state?.claimed?'complete':ready?'current':''}><span>{state?.claimed?'✓':'○'}</span> {t('quest.journal.return')}: {questContact(q.finish)}</div></Paged>
+        {atStep&&step?.kind==='deliver'&&<QuestDelivery key={q.id+':'+state?.cycle+':'+step.id} save={save} step={step} onDeliver={async itemIds=>(await run('quest',{...questRequest(q,state,target,'deliver'),itemIds})).ok}/>}
+      </>}
+      {section==='reward'&&<>
+        <SecHead>{t(state?.reward&&!state.claimed?'quest.journal.reserved':'quest.journal.reward')}</SecHead>
+        {state?.reward&&!state.claimed?<ItemTooltip item={state.reward}/>:<p class="pn-note">{t(q.rewardText)}</p>}
+        {!!reward?.xp&&<p>{t('quest.journal.xp')}: {reward.xp.toLocaleString()}</p>}
+        {!!reward?.gold&&<p>{t('quest.journal.gold')}: {reward.gold.toLocaleString()}</p>}
+        {questUnlocks(q).map(id=><p key={id}>{t('quest.journal.unlock')}: {ZONES[id]?.name??id}</p>)}
+      </>}
+      {section==='rules'&&<>
+        <p>{t(q.repeat?'quest.journal.repeatRule':'quest.journal.once')}</p><p>{t('quest.journal.sharing')}</p>
+        {q.steps.some(s=>s.credit==='killer')&&<p>{t('quest.journal.killer')}</p>}
+        {q.steps.some(s=>s.kind==='collect')&&<p>{t('quest.journal.collection')}</p>}
+      </>}
+      {available&&<div class="quest-actions">
         {(!state||state.claimed&&q.repeat)&&atStart&&<button class="btn primary" disabled={busy} onClick={()=>void act('accept')}>{t(state?'quest.journal.repeat':'quest.journal.accept')}</button>}
         {!state?.claimed&&<>
           <p class="pn-note">{objective.text} · {ZONES[objective.zone]?.name??objective.zone}</p>
           {atStep&&step?.kind==='interact'&&<button class="btn primary" disabled={busy} onClick={()=>void act('inspect')}>{t('quest.journal.inspect')}</button>}
           {atStep&&step?.kind==='talk'&&<button class="btn primary" disabled={busy} onClick={()=>void act('objectiveTalk')}>{t('quest.journal.talk')}</button>}
-          {atStep&&step?.kind==='deliver'&&<QuestDelivery key={q.id+':'+state?.cycle+':'+step.id} save={save} step={step} onDeliver={async itemIds=>(await run('quest',{...questRequest(q,state,target,'deliver'),itemIds})).ok}/>}
+          {atStep&&step?.kind==='deliver'&&section!=='objectives'&&<button class="btn" onClick={()=>setSection('objectives')}>{t('quest.delivery.title')}</button>}
           {ready&&atFinish&&<button class="btn primary" disabled={busy} onClick={()=>void act('claim')}>{t('quest.journal.claim')}</button>}
           {!atStart&&!atFinish&&!atStep&&<p class="pn-note">{t('quest.journal.contact')}</p>}
           <button class="btn" disabled={busy||trackedQuest(save)?.id===q.id} onClick={()=>void act('track')}>{t(trackedQuest(save)?.id===q.id?'quest.journal.tracked':'quest.journal.track')}</button>
         </>}
-      </>}
-      {!!(state?.completions??(state?.claimed?1:0))&&<p class="pn-note">{t('quest.journal.history')}: {state?.completions??1}</p>}
-      <SecHead>{t(state?.reward&&!state.claimed?'quest.journal.reserved':'quest.journal.reward')}</SecHead>
-      {state?.reward&&!state.claimed?<ItemTooltip item={state.reward}/>:<p class="pn-note">{t(q.rewardText)}</p>}
-      {!!reward?.xp&&<p>{t('quest.journal.xp')}: {reward.xp.toLocaleString()}</p>}
-      {!!reward?.gold&&<p>{t('quest.journal.gold')}: {reward.gold.toLocaleString()}</p>}
-      {questUnlocks(q).map(id=><p key={id}>{t('quest.journal.unlock')}: {ZONES[id]?.name??id}</p>)}
-      <details class="quest-rules"><summary>{t('quest.journal.rules')}</summary>
-        <p>{t(q.repeat?'quest.journal.repeatRule':'quest.journal.once')}</p><p>{t('quest.journal.sharing')}</p>
-        {q.steps.some(s=>s.credit==='killer')&&<p>{t('quest.journal.killer')}</p>}
-        {q.steps.some(s=>s.kind==='collect')&&<p>{t('quest.journal.collection')}</p>}
-      </details>
+      </div>}
     </>}
   </>;
 }
@@ -120,6 +129,7 @@ export function AdventureTracker() {
   const save=useUI(s=>s.char),zone=useUI(s=>s.zone),dungeon=useUI(s=>s.dungeon);
   const lastRun=useUI(s=>s.lastRun);
   if(!save)return null;
+  if(!introduced(save,'adventure'))return null;
   const q=trackedQuest(save),objective=q&&questObjective(save,q);
   return <div class="quest-hud interactive">
     <button class="btn" onClick={openJournal}>{t('quest.journal.title')}</button>

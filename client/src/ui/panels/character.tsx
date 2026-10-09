@@ -6,7 +6,7 @@ import { characterText as t } from '@shared/data/characterMessages';
 import { fmtInt, fmtNum, fmtPct } from '@shared/format';
 import { ELEMENTS } from '@shared/types';
 import { useUI } from '../store';
-import { PanelFrame, SecHead, Tabs } from './common';
+import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { fmtPowerValue } from './util';
 
 type Section='overview'|'offense'|'defense'|'utility'|'powers';
@@ -15,10 +15,11 @@ function Values({rows}:{rows:[string,string][]}) {
 }
 export function CharacterPanel() {
   const save=useUI(s=>s.char),d=useUI(s=>s.derived);
+  const [powerTab,setPowerTab]=useState<'legendary'|'sets'>('legendary');
   const [section,setSection]=useState<Section>('overview');
   if(!save||!d)return null;
   const n=fmtInt,p=fmtPct;
-  return <PanelFrame id="character" title={t('title')} sub={`${save.name} · ${CLASSES[save.classId].name} · ${save.level}`} width={530}>
+  return <PanelFrame id="character" title={t('title')} sub={`${save.name} · ${CLASSES[save.classId].name} · ${save.level}`} width={820}>
     <p class="pn-note">{t('scope')}</p>
     <Tabs tabs={(['overview','offense','defense','utility','powers'] as Section[]).map(id=>({id,label:t(id)}))} value={section} onChange={setSection}/>
     {section==='overview'&&<>
@@ -47,20 +48,21 @@ export function CharacterPanel() {
       <p class="pn-note">{t('reductionNote')}</p><p class="pn-note">{t('resourceNote')}</p>
     </>}
     {section==='powers'&&<>
-      <SecHead>{t('legendary')}</SecHead>
+      <Tabs tabs={[{id:'legendary',label:t('legendary')},{id:'sets',label:t('sets')}]} value={powerTab} onChange={setPowerTab}/>
+      {powerTab==='legendary'&&<>
       {!Object.keys(d.powers).length&&<p>{t('none')}</p>}
-      {Object.entries(d.powers).map(([id,value])=><div class="quest-dialogue" key={id}>
+      <Paged size={3} label="Legendary power pages">{Object.entries(d.powers).map(([id,value])=><div class="quest-dialogue" key={id}>
         <strong>{LEGENDARIES[id]?.name??id}</strong>
         <small> · {t(Object.values(save.equipment).some(item=>item?.legendary?.power===id)?'gear':'cube')}</small>
         <p>{LEGENDARIES[id]?.power.replaceAll('{v}',fmtPowerValue(value))??String(value)}</p>
       </div>)}
-      <p class="pn-note">{t('powerNote')}</p>
-      <SecHead>{t('sets')}</SecHead>
+      </Paged><p class="pn-note">{t('powerNote')}</p></>}
+      {powerTab==='sets'&&<>
       {!Object.keys(d.sets).length&&<p>{t('none')}</p>}
-      {Object.entries(d.sets).map(([id,count])=><div class="quest-dialogue" key={id}>
+      <Paged size={1} label="Set pages">{Object.entries(d.sets).map(([id,count])=><div class="quest-dialogue" key={id}>
         <strong>{SETS[id]?.name??id} · {count}/{SETS[id]?.pieces.length??'—'}</strong>
         {SETS[id]?.bonuses.map(b=><p key={b.count}><b>{t(count>=b.count?'active':'inactive')} ({b.count})</b> · {b.text}</p>)}
-      </div>)}
+      </div>)}</Paged></>}
     </>}
   </PanelFrame>;
 }

@@ -44,7 +44,7 @@ export function playerLook(save: CharacterSave): PlayerLook {
     const it = save.equipment[s as Slot];
     if (it) slots[s] = it.look;
   }
-  return { classId: save.classId, slots };
+  return { classId: save.classId, slots, ...(save.appearance?{appearance:save.appearance}:{}) };
 }
 
 // ─────────────────────────── Inventory ───────────────────────────

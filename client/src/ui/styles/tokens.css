@@ -129,4 +129,4 @@ canvas { display: block; }
 .btn:disabled { filter: grayscale(1) brightness(0.6); cursor: default; }
 .btn.primary { background: linear-gradient(180deg, #7a3a12 0%, #4a1f08 60%, #331404 100%); }
 
-.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--frame-hi) transparent; }
+.scroll { overflow-y: visible; scrollbar-width: thin; scrollbar-color: var(--frame-hi) transparent; }

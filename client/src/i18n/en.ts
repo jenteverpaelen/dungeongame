@@ -4,7 +4,9 @@ import { QUEST_MESSAGES } from '@shared/data/questMessages';
 import { MAP_MESSAGES } from './mapMessages';
 import { GUIDANCE_MESSAGES } from './guidanceMessages';
 import { AUTO_RULE_MESSAGES } from './autoRuleMessages';
+import { ONBOARDING_MESSAGES } from './onboardingMessages';
 export const ENGLISH = {
+  ...ONBOARDING_MESSAGES,
   ...AUTO_RULE_MESSAGES,
   "controls.manualSkills": "Enable manual skill keys",
   "controls.manualNote": "Optional: press a skill key to cast using automatic targeting. Costs and cooldowns still apply. Press a channel key again to stop. Keys are inactive while windows or chat are open.",

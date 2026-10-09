@@ -6,7 +6,8 @@ import { SERVICE_ROLE } from '../../shared/src/townServices';
 import type { CmdOp } from '../../shared/src/protocol';
 import type { CharacterSave, Item } from '../../shared/src/types';
 import { planQuestReward } from '../../shared/src/questRewards';
-import { generateItem } from '../../shared/src/items';
+import { recordIntro } from '../../shared/src/onboarding';
+import { generateItem, starterUpgrade } from '../../shared/src/items';
 import { Rng } from '../../shared/src/math';
 import { XP_SHARE_RANGE } from './config';
 import { fail, ok, type CmdResult } from './world';
@@ -24,6 +25,7 @@ function near(s:Session, target:QuestTarget):boolean {
 }
 function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
   if(state.step!==q.steps.length || !questHasWeapon(q) || state.reward)return;
+  if(typeof q.reward==='object'&&q.reward.item==='starter_upgrade'){state.reward=starterUpgrade(new Rng((Math.random()*0xffffffff)>>>0),save.classId);return;}
   state.reward=generateItem(new Rng((Math.random()*0xffffffff)>>>0),{
     ilvl:save.level,classId:save.classId,rarity:'magic',smartChance:1,
     base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword',
@@ -161,6 +163,7 @@ export function creditQuestService(s:Session,op:CmdOp) {
     if(step?.kind==='service'&&step.serviceOp===op&&step.zone===inst.map.zone&&step.target===npc.id){countEvent(s.save,q,state);changed=true;}
   }
   if(changed)s.changed(false);
+  if(recordIntro(s.save,'service'))s.changed(false);
 }
 
 /** Evaluated after authoritative movement, never from client-supplied positions. */

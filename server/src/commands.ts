@@ -2,6 +2,7 @@
 // shared helpers (equipItem, setSkillSlot, cube costs, generateItem...), then call session.changed() which
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
+import { onboardingCommand, introCommandResult } from './onboarding';
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
 import { questCommand, creditQuestService } from './quests';
@@ -722,6 +723,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
+  onboarding: onboardingCommand,
   adventure: adventureCommand,
   quest: questCommand,
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
@@ -744,7 +746,7 @@ export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdRes
       if (reason) return fail(reason);
     }
     const result=HANDLERS[op](s,a,world);
-    if(result.ok)creditQuestService(s,op);
+    if(result.ok){creditQuestService(s,op);if(introCommandResult(s,op,a))s.changed(false);}
     return result;
   } catch (err) {
     if (err instanceof ArgError) return fail(err.message);

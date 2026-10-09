@@ -8,7 +8,7 @@ import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods,
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Element } from '@shared/types';
-import { PanelFrame } from './common';
+import { PanelFrame, Tabs } from './common';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { IconCheck, IconLock, IconStar4, hex } from './icons';
 import { SkillGlyph } from './skillicons';
@@ -180,6 +180,7 @@ function TierLadder({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
 }
 
 function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const [section,setSection]=useState<'overview'|'runes'|'tiers'|'casting'|'rules'>('overview');
   const runeId = char.skills.runes[skill.id] ?? null;
   const tiers = char.skills.tiers[skill.id] ?? 0;
   const mods = collectSkillMods(skill, runeId, tiers);
@@ -223,11 +224,13 @@ function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         )}
       </div>
       {locked && <div class="sd-lock"><IconLock size={14} /> Reach level <b>{skill.unlock}</b> to unlock this skill.</div>}
-      <p class="sd-desc">{describeSkill(skill, mods)}</p>
+      <Tabs tabs={[{id:'overview',label:'Overview'},{id:'runes',label:'Runes'},{id:'tiers',label:'Tiers'},{id:'casting',label:'Casting'},{id:'rules',label:'Rules'}]} value={section} onChange={setSection}/>
+      {section==='overview'&&<><p class="sd-desc">{describeSkill(skill, mods)}</p>
       <div class="sd-stats">
         {stats.map(([k, v]) => <div class="sd-stat" key={k}><label>{k}</label><b>{v}</b></div>)}
       </div>
-      {slotIdx >= 0 && <div class="skill-auto-controls">
+      </>}
+      {section==='casting'&&(slotIdx >= 0 ? <div class="skill-auto-controls">
         <div class="sd-sec"><span>Auto-cast · Slot {slotIdx + 1}</span></div>
         <div class="pn-actions" role="group" aria-label={`Auto-cast condition for slot ${slotIdx + 1}`}>
           {AUTO_CAST_MODES.map(mode => <button key={mode} class={cls('btn sm', autoCastMode(char.skills, slotIdx) === mode && 'on')}
@@ -237,12 +240,14 @@ function Detail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         <p class="pn-note">{AUTO_CAST_NOTE[autoCastMode(char.skills, slotIdx)]}</p>
         <p class="pn-note">{autoCastRuleText(skill, res)}</p>
         <p class="pn-note">Conditions stay with slot positions when you move skills. Slot order still decides priority.</p>
-        <AutoRuleEditor key={`${slotIdx}:${skill.id}`} skill={skill} char={char} slot={slotIdx}/>
-      </div>}
+      </div>:<p class="pn-note">Assign this skill to a slot to choose its casting conditions.</p>)}
+      {section==='rules'&&(slotIdx>=0?<AutoRuleEditor key={`${slotIdx}:${skill.id}`} skill={skill} char={char} slot={slotIdx}/>:<p class="pn-note">Assign this skill to a slot to edit its automatic rules.</p>)}
+      {section==='runes'&&<>
       <div class="sd-sec"><span>Runes</span><em>Choose one · changes how the skill behaves</em></div>
       <RuneCards skill={skill} char={char} />
-      <div class="sd-sec"><span>Upgrade Tiers</span><em>{tiers} / {skill.tiers.length} unlocked</em></div>
-      <TierLadder skill={skill} char={char} />
+      </>}
+      {section==='tiers'&&<><div class="sd-sec"><span>Upgrade Tiers</span><em>{tiers} / {skill.tiers.length} unlocked</em></div>
+      <TierLadder skill={skill} char={char} /></>}
     </div>
   );
 }
@@ -251,6 +256,7 @@ export function SkillsPanel() {
   const char = useU((s) => s.char);
   const selected = useLocal(skillsUI, (s) => s.selected);
   const [confirm, setConfirm] = useState(false);
+  const [listTab,setListTab]=useState<'skills'|'target'|'guide'>('skills');
   if (!char) return null;
   const list = skillsForClass(char.classId);
   const sel = SKILLS[selected ?? ''] && SKILLS[selected ?? ''].classId === char.classId ? SKILLS[selected!] : (list.find((s) => s.kind !== 'primary' && s.unlock <= char.level) ?? list[0]);
@@ -276,9 +282,9 @@ export function SkillsPanel() {
         </div>
       </div>
       <div class="sk-main">
-        <div class="slist scroll">
-          {list.map((s) => <SkillRow key={s.id} skill={s} char={char} />)}
-          <div class="sk-legend target-priority-controls">
+        <div class="slist"><Tabs tabs={[{id:'skills',label:'Skills'},{id:'target',label:'Targets'},{id:'guide',label:'Guide'}]} value={listTab} onChange={setListTab}/>
+          {listTab==='skills'&&list.map((s) => <SkillRow key={s.id} skill={s} char={char} />)}
+          {listTab==='target'&&<div class="sk-legend target-priority-controls">
             <h4>Target preference</h4>
             <div class="pn-actions" role="group" aria-label="Target preference">
               {TARGET_PRIORITIES.map(mode => <button key={mode} class={cls('btn sm', preference === mode && 'primary')}
@@ -289,15 +295,16 @@ export function SkillsPanel() {
             <p>{TARGET_PRIORITY_NOTE[preference]}</p>
             <p>Used by primary attacks, target-based skills and new summon targets. Crowd-aiming skills keep their aim rules; companions keep valid targets near you.</p>
           </div>
-          <div class="sk-legend">
+          }
+          {listTab==='guide'&&<div class="sk-legend">
             <h4>How skills grow</h4>
             <p><b>Runes</b> unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill itself.</p>
             <p><b>Upgrade tiers</b> cost {TIER_COSTS.join(', ')} skill points and stack.</p>
             <p>Skills fire automatically; slot order decides which is tried first. Select a slotted skill to pause automatic casts or require standing still. Optional manual keys are in Settings → Controls.</p>
-          </div>
+          </div>}
         </div>
-        <div class="sdet-wrap scroll">
-          <Detail skill={sel} char={char} />
+        <div class="sdet-wrap">
+          <Detail key={sel.id} skill={sel} char={char} />
         </div>
       </div>
     </PanelFrame>

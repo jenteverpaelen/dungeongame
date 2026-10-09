@@ -42,10 +42,11 @@ test('debug requires exact opt-in and explicit disable overrides it, including r
 });
 
 test('legacy/current fixtures retain owned items, overflow slots, progression and extension fields', async () => {
-  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected', 'v3-autocast', 'v4-target-priority', 'v5-auto-rules', 'v6-quest-history']) {
+  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected', 'v3-autocast', 'v4-target-priority', 'v5-auto-rules', 'v6-quest-history', 'v7-onboarding']) {
     const original = await fixture(name), beforeItems = items(original);
     const migrated = normalizeSave(structuredClone(original));
     assert.equal(migrated.version, SAVE_VERSION);
+    assert.deepEqual(migrated.onboarding,original.onboarding);assert.deepEqual(migrated.appearance,original.appearance);
     assert.deepEqual(items(migrated), beforeItems);
     for (const key of ['id','name','classId','level','xp','gold','materials','gems','skillPoints','paragon','cube','stats','fixtureExtension'] as const)
       assert.deepEqual((migrated as any)[key], (original as any)[key], key);

@@ -3,6 +3,7 @@
 // (main material) and secondary (trim) colours; `variant` adds small details; glowing (legendary / set)
 // pieces get emissive trims here and auras in the view.
 
+import { appearanceFor, type HeroAppearance } from '@shared/appearance';
 import type { ClassId, ItemLook } from '@shared/types';
 import { CLASSES } from '@shared/data/classes';
 import {
@@ -20,8 +21,8 @@ export interface Body {
   eyes: number;
 }
 
-export function classBody(cls: ClassId): Body {
-  const a = CLASSES[cls].appearance;
+export function classBody(cls: ClassId, choice?:HeroAppearance): Body {
+  const a = appearanceFor(cls,choice);
   return { cls, skin: a.skin, hair: a.hair, hairStyle: a.hairStyle, eyes: a.eyes };
 }
 

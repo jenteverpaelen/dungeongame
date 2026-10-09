@@ -8,7 +8,7 @@ import { fmtInt } from '@shared/format';
 import { DIFFICULTIES } from '@shared/progression';
 import { zoneUnlocked } from '@shared/quests';
 import { togglePanel } from '../store';
-import { Bar, PanelFrame } from './common';
+import { Bar, PanelFrame, Paged } from './common';
 import { IconLock, IconStar4, IconSkull, Svg } from './icons';
 import { useU } from './state';
 import { text } from '../../i18n/messages';
@@ -164,7 +164,7 @@ export function ObeliskPanel() {
         <p>Open a rift to hunt through an endless wilderness. Slay enough monsters to draw out the Rift Guardian, then claim his spoils. Higher difficulties bring more experience, gold and legendaries.</p>
       </div>
       <div class="ob-head"><span>Difficulty</span><span>Experience</span><span>Gold</span><span>Legendaries</span></div>
-      <div class="ob-list scroll">
+      <div class="ob-list"><Paged size={8} initial={Math.floor(sel/8)} label="Difficulty pages">
         {DIFFICULTIES.map((x, i) => {
           const lk = char.level < x.minLevel;
           return (
@@ -180,7 +180,7 @@ export function ObeliskPanel() {
             </button>
           );
         })}
-      </div>
+      </Paged></div>
       <div class="ob-sum">
         <div class="ob-sum-l">
           <b>{d.name}</b>

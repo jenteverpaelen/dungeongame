@@ -1,6 +1,8 @@
 // One Session per WebSocket connection. Implements PlayerLink (the simulation's view of a connected player)
 // and routes client messages: hello, in, cmd, chat, ping.
 
+import { isHeroAppearance } from '../../../shared/src/appearance';
+import { startIntro } from '../../../shared/src/onboarding';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
@@ -293,6 +295,8 @@ export class Session implements PlayerLink {
     if (!isClassId(msg.classId)) { this.kick('Unknown class.'); return; }
     if (msg.v !== PROTOCOL_VERSION) { this.kick('Your game is out of date. Please refresh the page.'); return; }
 
+    if(msg.appearance!==undefined&&!isHeroAppearance(msg.appearance)){this.kick('Invalid appearance');return;}
+    if(msg.tutorial!==undefined&&typeof msg.tutorial!=='boolean'){this.kick('Invalid introduction choice');return;}
     const id = characterId(name);
     if (!this.world.reserve(id, this)) { this.kick('That character is already online.'); return; }
     this.charId = id;
@@ -314,6 +318,7 @@ export class Session implements PlayerLink {
     const now = Date.now();
     const isNew = save === null;
     if (!save) save = createCharacter(name, msg.classId, (Math.random() * 0xffffffff) >>> 0);
+    if(isNew){if(msg.appearance)save.appearance={...msg.appearance};if(msg.tutorial!==false)startIntro(save);}
     const afk = isNew ? null : applyAfkGains(save, now);
 
     this.save = save;

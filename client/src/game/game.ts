@@ -1,5 +1,6 @@
 // Client game controller: connection, message handling, prediction, interpolation and the frame loop.
 
+import { funnel } from './funnel';
 import type { Application } from 'pixi.js';
 import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
@@ -38,6 +39,7 @@ export class Game {
   private lastRiftKey = '';
   private lastDungeonKey = '';
   private whirl = false;
+  private observationPosition?:{x:number;y:number;dead:number};
 
   constructor(private app: Application) {
     this.world = new ClientWorld({ onAdd: (e) => this.scene.onAdd(e), onRemove: (e) => this.scene.onRemove(e) });
@@ -53,12 +55,15 @@ export class Game {
       myPos: () => (this.predictor.ready ? { x: this.predictor.x, y: this.predictor.y } : null),
     };
     app.ticker.add((t) => this.frame(t.deltaMS));
+    document.addEventListener('visibilitychange',()=>funnel.clock(performance.now(),!document.hidden&&ui.get().screen==='game'));
+    window.addEventListener('pagehide',()=>funnel.stop());
   }
 
-  async start(name: string, classId: ClassId) {
+  async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
     ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
+      funnel.stop();
       ui.set({ connected: false, error: reason, screen: 'select', enchant: null });
       this.stopChannelAudio();
       this.townSound?.destroy();this.townSound=null;
@@ -74,7 +79,7 @@ export class Game {
     this.conn = conn;
     installApi((op, a) => conn.cmd(op, a), (text) => conn.send({ t: 'chat', text }));
     ui.set({ connected: true });
-    conn.send({ t: 'hello', name, classId, v: PROTOCOL_VERSION });
+    conn.send({ t: 'hello', name, classId, v: PROTOCOL_VERSION, ...options });
   }
 
   // ─────────────────────────── Messages ───────────────────────────
@@ -82,6 +87,7 @@ export class Game {
   private onMessage(m: S2C) {
     switch (m.t) {
       case 'welcome':
+        funnel.observe(m.char);
         this.enterZone(m.zone, m.you);
         this.applyDerived(m.derived);
         ui.set({ screen: 'game', char: m.char, derived: m.derived, world: m.world });
@@ -93,6 +99,7 @@ export class Game {
         this.onSnapshot(m);
         break;
       case 'char':
+        funnel.observe(m.char);
         this.applyDerived(m.derived);
         ui.set({ char: m.char, derived: m.derived });
         break;
@@ -116,6 +123,9 @@ export class Game {
   }
 
   private enterZone(zone: ZoneInfo, you: number) {
+    this.observationPosition=undefined;
+    if(zone.zone==='rillwake_crossing')funnel.event('field');
+    if(zone.kind==='town'&&funnel.get().records.at(-1)?.first.elite!==undefined)funnel.event('return');
     this.stopChannelAudio();
     this.townSound?.destroy();this.townSound=null;
     this.adventureSound?.destroy();this.adventureSound=null;
@@ -140,6 +150,9 @@ export class Game {
   }
 
   private onSnapshot(s: Snapshot) {
+    const prev=this.observationPosition;
+    if(prev&&!prev.dead&&!s.me.dead&&Math.hypot(s.me.x-prev.x,s.me.y-prev.y)>0.5)funnel.event('move');
+    this.observationPosition={x:s.me.x,y:s.me.y,dead:s.me.dead};
     this.world.applySnapshot(s);
     const me = this.world.me;
     this.predictor.frozen = s.me.dead > 0 || (!!me && (me.flags & (F_FROZEN | F_STUN)) !== 0);
@@ -164,6 +177,9 @@ export class Game {
   private onEvent(ev: GameEvent) {
     const myId = this.world.myId;
     switch (ev.e) {
+      case 'dash':
+        if(ev.t===myId)funnel.event('dash');
+        break;
       case 'die': {
         const e = this.world.entities.get(ev.t);
         if (e) this.scene.startDeath(e, ev.el);
@@ -186,6 +202,7 @@ export class Game {
         pushNotice(ev.text, ev.kind);
         break;
       case 'pickup':
+        if(ev.t===myId&&ev.lk==='item')funnel.event('loot');
         if (ev.t === myId) ui.set((st) => ({ pickups: [...st.pickups.slice(-7), { id: Math.random(), lk: ev.lk, name: ev.name, rarity: ev.rarity, amount: ev.amount, at: performance.now() }] }));
         break;
       case 'shake':
@@ -300,6 +317,7 @@ export class Game {
   }
 
   private frame(dtMs: number) {
+    funnel.clock(performance.now(),!document.hidden&&ui.get().screen==='game');
     const st = ui.get();
     if (st.screen === 'game' && this.world.map) {
       const mv = st.chatOpen ? { x: 0, y: 0 } : this.input.move();

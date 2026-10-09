@@ -1,5 +1,6 @@
 // Animated class previews on the character-select screen (one small Pixi app per <canvas data-preview>).
 
+import { isHeroAppearance } from '@shared/appearance';
 import { Application } from 'pixi.js';
 import { createCharacter, playerLook } from '@shared/character';
 import { F_CHANNEL, F_MOVING } from '@shared/protocol';
@@ -29,8 +30,11 @@ async function mount(canvas: HTMLCanvasElement) {
   view.root.position.set(canvas.width / 2, canvas.height * 0.86);
   app.stage.addChild(view.root);
   entry.view = view;
-  let seq = 0, lastSwing = 0;
+  let seq = 0, lastSwing = 0, lastAppearance='';
+
   app.ticker.add((t) => {
+    const chosen=canvas.dataset.appearance??'';
+    if(chosen!==lastAppearance){lastAppearance=chosen;let value:unknown;try{value=JSON.parse(chosen);}catch{}view.setLook({...look,...(isHeroAppearance(value)?{appearance:value}:{appearance:undefined})});}
     time += t.deltaMS / 1000;
     const phase = time % 7;
     // Idle → attack flourish → signature move (whirlwind for the warrior) → walk in place.

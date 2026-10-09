@@ -15,7 +15,7 @@ export function questRewardError(q:QuestDef):string|undefined {
   for(const [key,max] of [['xp',MAX_QUEST_XP],['gold',Number.MAX_SAFE_INTEGER]] as const) {
     if(r[key]!==undefined&&(!Number.isSafeInteger(r[key])||r[key]!<0||r[key]!>max))return `Invalid ${key} award`;
   }
-  if(r.item!==undefined&&r.item!=='magic_weapon')return 'Unsupported item reward';
+  if(r.item!==undefined&&r.item!=='magic_weapon'&&r.item!=='starter_upgrade')return 'Unsupported item reward';
   if(r.unlocks!==undefined&&(!Array.isArray(r.unlocks)||r.unlocks.some(id=>typeof id!=='string')))return 'Invalid unlock reward';
 }
 

@@ -47,7 +47,7 @@ const sheets = new Map<string, Sheet>();
 const idle: string[] = [];
 
 function lookKey(look: PlayerLook): string {
-  const parts: string[] = [look.classId];
+  const parts: string[] = [look.classId,JSON.stringify(look.appearance??null)];
   for (const k of Object.keys(look.slots).sort()) {
     const l = look.slots[k as LookSlot]!;
     parts.push(`${k}:${l.shape}:${l.primary}:${l.secondary}:${l.glow}:${l.variant}`);
@@ -56,7 +56,7 @@ function lookKey(look: PlayerLook): string {
 }
 
 /** Every part a look needs (names must match the rig below). */
-export function playerParts(look: PlayerLook, body: Body = classBody(look.classId)): PartSpec[] {
+export function playerParts(look: PlayerLook, body: Body = classBody(look.classId,look.appearance)): PartSpec[] {
   const sl = look.slots;
   const specs: PartSpec[] = [];
   const add = (name: string, draw: PartSpec['draw'], flash = true) => specs.push({ name, draw, flash });

@@ -10,6 +10,8 @@ import { Divider } from './Glyphs';
 import { ACTIONS, bindings, CAST_ACTIONS, keyLabel } from '../../game/bindings';
 import { preferences } from '../../game/preferences';
 import { useLocal } from '../panels/state';
+import { IntroductionLibrary, HelpQuestions, PlaytestTimings } from './Introduction';
+import { introduced } from '@shared/onboarding';
 import { GuidanceLibrary } from './Guidance';
 import { Tabs } from '../panels/common';
 import { text } from '../../i18n/messages';
@@ -108,7 +110,8 @@ const FIXED_BINDS: [string, string][] = [
 
 export function HelpPanel() {
   const open = useUI((s) => !!s.panels.help);
-  const [tab,setTab]=useState<'controls'|'guide'>('controls');
+  const tab=useUI(s=>s.helpTab),save=useUI(s=>s.char);
+  const setTab=(helpTab:import('../store').UIState['helpTab'])=>ui.set({helpTab});
   const state = useLocal(bindings, s => s);
   const manual = useLocal(preferences, s => s.values.manualSkills);
   if (!open) return null;
@@ -116,12 +119,12 @@ export function HelpPanel() {
     <div class="help-wrap">
       <div class="help-panel frame interactive">
         <button class="help-close" onClick={() => togglePanel('help', false)} aria-label="Close">&#x2715;</button>
-        <h2 class="title-plate">{text(tab==='controls'?'guide.controls':'guide.title')}</h2>
+        <h2 class="title-plate">{text(tab==='controls'?'guide.controls':tab==='guide'?'guide.title':tab==='intro'?'intro.title':tab==='faq'?'intro.faq':'intro.timings')}</h2>
         <Divider class="help-div" />
-        <Tabs tabs={[{id:'controls',label:text('guide.controls')},{id:'guide',label:text('guide.title')}]} value={tab} onChange={setTab}/>
-        {tab==='guide'?<GuidanceLibrary/>:<>
+        <Tabs tabs={[{id:'controls',label:text('guide.controls')},{id:'guide',label:text('guide.title')},{id:'intro',label:text('intro.title')},{id:'faq',label:text('intro.faq')},{id:'timings',label:text('intro.timings')}]} value={tab} onChange={setTab}/>
+        {tab==='guide'?<GuidanceLibrary/>:tab==='intro'?<IntroductionLibrary/>:tab==='faq'?<HelpQuestions/>:tab==='timings'?<PlaytestTimings/>:<>
         <ul class="help-binds">
-          {ACTIONS.filter(([action]) => manual || !CAST_ACTIONS.some(a => a === action)).map(([action, label]) => <li key={action}>
+          {ACTIONS.filter(([action]) => introduced(save,action)&&(manual || !CAST_ACTIONS.some(a => a === action))).map(([action, label]) => <li key={action}>
             <span class="keys">{state.values[action].filter((k): k is string => k !== null).map(k => <kbd key={k}>{keyLabel(k, state.labels)}</kbd>)}</span>
             <span class="desc">{label}</span>
           </li>)}

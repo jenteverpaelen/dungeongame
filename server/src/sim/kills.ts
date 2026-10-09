@@ -1,6 +1,7 @@
 // Monster death consequences: XP (shared within range), personal loot, rift progress, Hellforge, life per kill,
 // elite / skill death hooks, goblin and guardian specials.
 
+import { recordIntro } from '../../../shared/src/onboarding';
 import { monsterXp, type Element } from '../shared';
 import { XP_MULT, XP_SHARE_RANGE } from '../config';
 import { healPlayer, isEliteTier } from './damage';
@@ -43,6 +44,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
   for (const p of witnesses) {
     const xp = monsterXp(m.level, m.tier, m.diff) * (1 + p.ctx.d.xpPct / 100) * XP_MULT;
     p.save.stats.kills++;
+    if(!m.noReward&&p.deadMs<=0&&p.hp>0){recordIntro(p.save,'kill');if(eliteKill)recordIntro(p.save,'elite');}
     p.kills++;
     if (eliteKill) p.save.stats.elites++;
     grantXp(inst, p, xp);

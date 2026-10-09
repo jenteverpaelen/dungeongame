@@ -25,10 +25,11 @@ export type QuestServiceOp=typeof QUEST_SERVICE_OPS[number];
 export interface QuestReward {
   xp?: number;
   gold?: number;
-  item?: 'magic_weapon';
+  item?: 'magic_weapon' | 'starter_upgrade';
   unlocks?: string[];
 }
 export interface QuestDef {
+  tutorial?: boolean;
   id: string;
   revision: number;
   title: QuestMessageKey;

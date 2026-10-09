@@ -27,7 +27,7 @@ export function AutoRuleEditor({skill,char,slot}:{skill:SkillDef;char:CharacterS
     setPending(false);
     if (result.ok) { if (!rule) setDraft({...DEFAULT_AUTO_RULE}); pushNotice(text('rules.saved'),'info'); }
   };
-  return <details class="auto-rule-editor">
+  return <details class="auto-rule-editor" open>
     <summary>{text('rules.title')}</summary>
     <p class="pn-note">{autoRuleSummary(autoRuleForSlot(char.skills,slot),skill)}</p>
     <div class="auto-rule-fields">

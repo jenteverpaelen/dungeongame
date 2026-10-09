@@ -1,3 +1,4 @@
+import { validIntro } from './onboarding';
 import { QUESTS } from './data/quests';
 import { questText } from './data/questMessages';
 import type { CharacterSave } from './types';
@@ -38,10 +39,10 @@ export function storyFlag(save:CharacterSave,flag:string):boolean {
   return QUESTS.some(q=>q.grantsFlags?.includes(flag)&&questCompleted(save,q.id));
 }
 export function questAvailable(save:CharacterSave,q:QuestDef):boolean {
-  return q.requires.every(id=>questCompleted(save,id))&&(q.requiresFlags??[]).every(f=>storyFlag(save,f));
+  return (!q.tutorial||validIntro(save.onboarding))&&q.requires.every(id=>questCompleted(save,id))&&(q.requiresFlags??[]).every(f=>storyFlag(save,f));
 }
 export const questUnlocks=(q:QuestDef):string[]=>[...(q.unlocks?[q.unlocks]:[]),...(q.reward&&typeof q.reward==='object'&&Array.isArray(q.reward.unlocks)?q.reward.unlocks:[])];
-export const questHasWeapon=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&q.reward.item==='magic_weapon';
+export const questHasWeapon=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&(q.reward.item==='magic_weapon'||q.reward.item==='starter_upgrade');
 export function zoneUnlocked(save:CharacterSave,zone:string):boolean {
   return QUESTS.filter(q=>questUnlocks(q).includes(zone)).every(q=>questCompleted(save,q.id));
 }
@@ -75,7 +76,7 @@ export function questObjective(save:CharacterSave,q:QuestDef):QuestTarget & {tex
   return step?{...step,text:questStepText(step,s.progress??0)}:{...q.finish,text:`${questText('quest.journal.return')}: ${questContact(q.finish)}`};
 }
 export function trackedQuest(save:CharacterSave):QuestDef|undefined {
-  const candidates=QUESTS.filter(q=>questAvailable(save,q)&&!questState(save,q.id)?.claimed);
+  const candidates=QUESTS.filter(q=>questAvailable(save,q)&&(!q.tutorial||save.onboarding?.status==='active')&&!questState(save,q.id)?.claimed);
   return candidates.find(q=>q.id===save.trackedQuest)??candidates.find(q=>questState(save,q.id))??candidates[0];
 }
 export function questAtTarget(save:CharacterSave,zone:string,target:string):QuestDef|undefined {

@@ -15,7 +15,7 @@ import { KIND_LABEL } from '@shared/items';
 import type { AffixRoll, CharacterSave, Item, Materials } from '@shared/types';
 import { ARTISAN_FUNCTIONS, ARTISAN_NAMES } from '@shared/townServices';
 import { ui } from '../store';
-import { Bar, CostList, PanelFrame } from './common';
+import { Bar, CostList, PanelFrame, Paged } from './common';
 import { cubeUI, setCubeItem } from './cubestate';
 import { canDropOn, useDrag } from './dnd';
 import { CubeEmblem, GemIcon, IconArrowRight, IconCheck, IconChevron, IconDelta, IconLock, IconStar4, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
@@ -142,7 +142,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
     .sort((a, b) => order.indexOf(a.gem) - order.indexOf(b.gem) || a.rank - b.rank);
   if (!list.length) return <Hint>You have no gems. Gems drop from elites and rift guardians.</Hint>;
   return (
-    <div class="fuse-list scroll">
+    <div class="fuse-list"><Paged size={4} label="Gem pages">
       {list.map((g) => {
         const can = g.n >= 3 && g.rank < 6;
         return (
@@ -153,7 +153,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
           </button>
         );
       })}
-    </div>
+    </Paged></div>
   );
 }
 
@@ -350,12 +350,12 @@ function KanaiSlots({ char }: { char: CharacterSave }) {
             {open === i && (
               <div class="ks-menu">
                 <button class="ks-opt none" onClick={() => { setOpen(null); void run('cubeEquip', { slot: i, power: null }); }}>None</button>
-                {options.map((id) => (
+                <Paged key={slot} size={2} label="Learned powers">{options.map((id) => (
                   <button key={id} class={cls('ks-opt', p === id && 'cur')} onClick={() => { setOpen(null); void run('cubeEquip', { slot: i, power: id }); }}>
                     <b>{LEGENDARIES[id].name}</b>
                     <em>{powerText(id)}</em>
                   </button>
-                ))}
+                ))}</Paged>
                 {options.length === 0 && <div class="ks-none">No learned {slot} powers.</div>}
               </div>
             )}

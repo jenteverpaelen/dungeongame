@@ -1,6 +1,7 @@
 // Player entities: creation, input & movement (shared stepMove), timers, regeneration, resources,
 // death & respawn, XP / level-ups and stat refreshes.
 
+import { recordIntro } from '../../../shared/src/onboarding';
 import type { PlayerLink } from '../contracts';
 import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
@@ -115,10 +116,12 @@ export function processInputs(inst: Instance, p: Player) {
   p.x = p.mv.x; p.y = p.mv.y;
   const moved = Math.abs(p.x - x0) + Math.abs(p.y - y0);
   p.moving = moved > 0.5;
+  if(p.moving&&recordIntro(p.save,'move'))touchChar(p);
   if (p.faceLockMs <= 0 && Math.abs(p.lastIn.mx) > 0.05 && !blocked) p.faceLeft = p.lastIn.mx < 0;
 }
 
 function onDash(inst: Instance, p: Player, sx: number, sy: number) {
+  if(recordIntro(p.save,'dash'))touchChar(p);
   p.invulnMs = Math.max(p.invulnMs, DASH.invulnMs);
   const tx = sx + p.mv.dashDx * DASH.distance, ty = sy + p.mv.dashDy * DASH.distance;
   inst.emit({ e: 'dash', t: p.id, x: Math.round(sx), y: Math.round(sy), tx: Math.round(tx), ty: Math.round(ty) }, sx, sy, p.id);
@@ -207,6 +210,7 @@ export function killPlayer(inst: Instance, p: Player, el: Element) {
   inst.emit({ e: 'die', t: p.id, el: elIdx(el), x: Math.round(p.x), y: Math.round(p.y) }, p.x, p.y, p.id);
   inst.counters.playerDeaths++;
   p.save.stats.deaths++;
+  recordIntro(p.save,'death');
   touchChar(p);
   for (const m of inst.mobs) if (m.target === p.id) m.target = 0;
 }
@@ -246,6 +250,7 @@ export function grantXp(inst: Instance, p: Player, xp: number) {
   const before = save.level;
   const r = addXp(save, Math.max(1, Math.round(xp)));
   if (r.levels > 0) {
+    recordIntro(p.save,'level');
     autoSlotSkills(save, before);
     refreshPlayerStats(inst, p, false);
     p.res = CLASSES[save.classId].resource.id === 'fury' ? p.res : p.mres;

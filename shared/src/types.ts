@@ -126,6 +126,8 @@ export interface CubeState {
 
 /** Persistent character save (server-side authority, replicated to the owning client). */
 export interface CharacterSave {
+  appearance?: import('./appearance').HeroAppearance;
+  onboarding?: import('./onboarding').IntroState;
   /** Optional adventure state; old saves require no rewrite to participate. */
   rillwake?: import('./adventureTypes').RillwakeQuest;
   quests?: Record<string, import('./questTypes').QuestState>;

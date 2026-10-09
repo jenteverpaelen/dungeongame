@@ -1,6 +1,7 @@
 // Personal loot (ARCHITECTURE 1.8): drops are rolled per eligible player with rollDrops(), scattered in a
 // D3-style fountain around the corpse, visible to and collectable by their owner only.
 
+import { recordIntro } from '../../../shared/src/onboarding';
 import {
   DIFFICULTIES, ITEM_PICKUP_RADIUS, MAGNET_RADIUS, addToInventory, gemName, goldAmount, rollDrops, type Drop, type EliteTier,
   type LootView,
@@ -107,6 +108,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
       }
       if (pl.item.rarity === 'legendary' || pl.item.rarity === 'set') p.save.stats.legendaries++;
       creditQuestPickup(inst,p,pl.item);
+      recordIntro(p.save,'loot');
       touchChar(p);
       inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'item', name: pl.item.name, rarity: pl.item.rarity }, l.x, l.y, p.id);
       p.loot.delete(l);

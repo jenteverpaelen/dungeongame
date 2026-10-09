@@ -1,5 +1,7 @@
 // Tiny observable store for the DOM UI (Preact). The game loop writes into it; components read via useUI().
 
+import { introduced } from '@shared/onboarding';
+import { text } from '../i18n/messages';
 import { useEffect, useState } from 'preact/hooks';
 import type { MapData, NpcRole } from '@shared/mapgen';
 import type { DungeonState, LootView, MeState, RiftState, WorldInfo, ZoneInfo } from '@shared/protocol';
@@ -24,6 +26,7 @@ export interface TargetInfo {
 }
 
 export interface UIState {
+  helpTab:'controls'|'guide'|'intro'|'faq'|'timings';
   adventureTarget: string | null;
   adventureZone: string | null;
   journalQuest: string | null;
@@ -73,6 +76,7 @@ class Store<T extends object> {
 }
 
 export const ui = new Store<UIState>({
+  helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, lastRun:null, world: null,
@@ -108,6 +112,11 @@ let seq = 1;
 export const nextId = () => seq++;
 
 export function togglePanel(id: PanelId, open?: boolean) {
+  const current=ui.get();
+  if((open??!current.panels[id])&&!introduced(current.char,id)) {
+    const key=id==='inventory'||id==='character'?'intro.faq.loot.body':id==='skills'?'intro.faq.points.body':id==='adventure'?'intro.faq.map.body':undefined;
+    if(key)pushNotice(text(key),'info');
+  }
   ui.set((s) => ({ panels: { ...s.panels, [id]: open ?? !s.panels[id] } }));
 }
 

@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 9;
+export const PROTOCOL_VERSION = 10;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -36,6 +36,7 @@ export type LookSlot = 'head' | 'shoulders' | 'chest' | 'hands' | 'legs' | 'feet
 export const LOOK_SLOTS: LookSlot[] = ['head', 'shoulders', 'chest', 'hands', 'legs', 'feet', 'waist', 'mainhand', 'offhand'];
 
 export interface PlayerLook {
+  appearance?: import('./appearance').HeroAppearance;
   classId: ClassId;
   slots: Partial<Record<LookSlot, ItemLook>>;
 }
@@ -179,7 +180,7 @@ export type S2C =
   | { t: 'pong'; c: number; s: number }
   | { t: 'err'; msg: string };
 
-export type CmdOp =
+export type CmdOp = 'onboarding'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
   | 'stashDeposit' | 'stashWithdraw'
   | 'adventure'
@@ -192,7 +193,7 @@ export type CmdOp =
   | 'debug';
 
 export type C2S =
-  | { t: 'hello'; name: string; classId: ClassId; v: number }
+  | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
   // Reusing an ID means retrying that request, not performing another action.

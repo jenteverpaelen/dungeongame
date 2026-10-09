@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { preferences, type Preferences } from '../../game/preferences';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
-import { PanelFrame, SecHead, Tabs } from './common';
+import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { useLocal } from './state';
 import { text } from '../../i18n/messages';
 
@@ -22,10 +22,10 @@ export function SettingsPanel() {
     <label class="settings-check"><input type="checkbox" checked={values[key]} onChange={e => preferences.set({ [key]: e.currentTarget.checked })} /><span>{label}</span></label>
   );
   return (
-    <PanelFrame id="settings" title={text('settings.title')} width={480} sub={text('settings.subtitle')}>
+    <PanelFrame id="settings" title={text('settings.title')} width={820} sub={text('settings.subtitle')}>
       <Tabs tabs={[{ id: 'sound', label: text('settings.tabSound') }, { id: 'controls', label: text('settings.tabControls') }]} value={tab} onChange={setTab} />
       {tab === 'controls' ? <ControlsSettings /> : <div class="settings-content">
-        <SecHead>{text('settings.soundHeading')}</SecHead>
+        <div class="settings-columns"><section><SecHead>{text('settings.soundHeading')}</SecHead>
         {slider('masterVolume', text('settings.masterVolume'))}
         {check('muted', text('settings.muted'))}
         {slider('effectsVolume', text('settings.effectsVolume'))}
@@ -33,7 +33,7 @@ export function SettingsPanel() {
         <SecHead>{text('settings.cameraHeading')}</SecHead>
         {check('cameraShake', text('settings.cameraShake'))}
         <p class="settings-note">{text('settings.cameraNote')}</p>
-        <SecHead>{text('settings.effectsHeading')}</SecHead>
+        </section><section><SecHead>{text('settings.effectsHeading')}</SecHead>
         {check('reduceFlashes', text('settings.reduceFlashes'))}
         <p class="settings-note">{text('settings.flashesNote')}</p>
         {check('lootQualityLabels', text('settings.lootQualityLabels'))}
@@ -42,7 +42,7 @@ export function SettingsPanel() {
         <p class="settings-note">{text('settings.combatNumbersNote')}</p>
         {check('contextualHints',text('guide.show'))}
         <p class="settings-note">{text('guide.settingNote')}</p>
-        <p class="settings-note" role="status">{text(retained ? 'settings.retained' : 'settings.sessionOnly')}</p>
+        </section></div><p class="settings-note" role="status">{text(retained ? 'settings.retained' : 'settings.sessionOnly')}</p>
         <button class="btn" onClick={() => preferences.reset()}>{text('settings.reset')}</button>
       </div>}
     </PanelFrame>
@@ -78,7 +78,7 @@ function ControlsSettings() {
     <label class="settings-check"><input type="checkbox" checked={manual} onChange={e => preferences.set({ manualSkills: e.currentTarget.checked })} /><span>{text('controls.manualSkills')}</span></label>
     <p class="settings-note">{text('controls.manualNote')}</p>
     <p class="settings-note">{text('controls.note')}</p>
-    <div class="settings-bindings">
+    <div class="settings-bindings"><Paged size={8} label="Key binding pages">
       {ACTIONS.map(([action, label]) => <div class="settings-binding" key={action}>
         <span>{label}</span>
         {([0, 1] as const).map(slot => {
@@ -92,7 +92,7 @@ function ControlsSettings() {
         <button class="btn" aria-label={text(`controls.${action}.clearAlternate`)} disabled={!state.values[action][1] || !!capture}
           onClick={() => { bindings.assign(action, 1, null); setMessage(text(`controls.${action}.cleared`)); }}>{text('controls.clearGlyph')}</button>
       </div>)}
-    </div>
+    </Paged></div>
     <p class="settings-note" role="status" aria-live="polite">{message}</p>
     <p class="settings-note">{text(state.layoutAvailable ? 'controls.layoutKnown' : 'controls.layoutFallback')}</p>
     <p class="settings-note">{text(state.retained ? 'controls.retained' : 'controls.sessionOnly')}</p>

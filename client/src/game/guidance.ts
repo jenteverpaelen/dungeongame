@@ -1,9 +1,10 @@
 import type { CharacterSave } from '@shared/types';
+import { validIntro } from '@shared/onboarding';
 import { canClassUse } from '@shared/items';
-import { skillsForClass, TIER_COSTS } from '@shared/data/skills';
+import { skillsForClass, runeUnlockLevel, TIER_COSTS } from '@shared/data/skills';
 import type { NpcRole } from '@shared/mapgen';
 
-export const HINT_IDS=['steer','gear','points','bag','death','quest','reward','services'] as const;
+export const HINT_IDS=['steer','gear','points','bag','death','quest','reward','services','loot','level','rune','elite','legendary','cube','rift'] as const;
 export type HintId=typeof HINT_IDS[number];
 interface Progress { automatic:boolean; dismissed:HintId[] }
 interface GuidanceState { characters:Record<string,Progress>; retained:boolean }
@@ -42,11 +43,19 @@ export class GuidanceStore {
 }
 
 /** Uses current authoritative state; no timers, extra rewards or inferred item superiority. */
-export function eligibleHints(save:CharacterSave,zone:string,role?:NpcRole):HintId[] {
+export function eligibleHints(save:CharacterSave,zone:string,role?:NpcRole,elite=false):HintId[] {
   const result:HintId[]=[];
+  const intro=validIntro(save.onboarding)?save.onboarding:undefined;
   if(save.inventory.length>0&&save.inventory.every(Boolean))result.push('bag');
   if(save.stats.deaths>0)result.push('death');
-  if(save.rillwake?.claimed&&save.rillwake.reward&&save.inventory.some(i=>i?.id===save.rillwake!.reward!.id))result.push('reward');
+  if((save.rillwake?.claimed&&save.rillwake.reward&&save.inventory.some(i=>i?.id===save.rillwake!.reward!.id))||(intro?.done.includes('claim')&&!intro.done.includes('equip')&&save.inventory.some(Boolean)))result.push('reward');
+  if(elite)result.push('elite');
+  if(save.stats.legendaries>0||save.inventory.some(i=>i?.rarity==='legendary'||i?.rarity==='set'))result.push('legendary');
+  if(role==='cube')result.push('cube');
+  if(role==='obelisk'||zone==='rift')result.push('rift');
+  if(skillsForClass(save.classId).some(s=>s.unlock<=save.level&&s.runes.some((_,i)=>runeUnlockLevel(s,i)<=save.level)))result.push('rune');
+  if(save.level>1)result.push('level');
+  if(intro?.done.includes('loot')||save.inventory.some(Boolean))result.push('loot');
   if(skillsForClass(save.classId).some(s=>s.unlock<=save.level&&(save.skills.tiers[s.id]??0)<TIER_COSTS.length&&save.skillPoints>=TIER_COSTS[save.skills.tiers[s.id]??0]))result.push('points');
   if(save.inventory.some(i=>i&&i.reqLevel<=save.level&&canClassUse(save.classId,i)))result.push('gear');
   if(zone==='rillwake_crossing'&&!save.rillwake)result.push('quest');

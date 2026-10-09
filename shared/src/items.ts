@@ -409,6 +409,19 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops
   return { drops, pity };
 }
 
+/** One-time tutorial reward. Upper legal normal starter damage + one legal positive main affix. */
+export function starterUpgrade(rng:Rng,classId:ClassId):Item {
+  const base=BASES[CLASSES[classId].starter.mainhand];
+  const item=generateItem(rng,{ilvl:1,classId,base:base.id,rarity:'normal'});
+  const avg=weaponAvgDamage(1,base);
+  item.weapon={min:Math.max(1,Math.round(avg*(1-0.35)*1.05)),max:Math.max(2,Math.round(avg*(1+0.35)*1.05)),aps:base.weapon!.aps,element:'physical'};
+  item.rarity='magic';
+  item.affixes=[makeAffix(rng,AFFIX_BY_STAT[CLASSES[classId].mainStat],base.kind,1,0,classId)];
+  item.name=`${MAGIC_PREFIX[CLASSES[classId].mainStat]} ${base.names[0]}`;
+  item.look=makeLook(rng,base,'magic',0);
+  return item;
+}
+
 /** Starter equipment for a fresh character. */
 export function starterItems(rng: Rng, classId: ClassId): Partial<Record<Slot, Item>> {
   const st = CLASSES[classId].starter;

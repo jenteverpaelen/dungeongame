@@ -3,6 +3,11 @@ import type { QuestDef } from '../questTypes';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
   {
+    id:'first_road',tutorial:true,revision:1,title:'quest.firstroad.title',offer:'quest.firstroad.offer',complete:'quest.firstroad.complete',
+    rewardText:'quest.firstroad.reward',start:orren,finish:orren,requires:[],reward:{item:'starter_upgrade'},
+    steps:[{id:'slime',kind:'kill',zone:orren.zone,target:'road',monsterType:'bog_slime',text:'quest.firstroad.slime'}],
+  },
+  {
     id:'silent_wheel', chapter:'water_road', grantsFlags:['mill_names_recovered'], revision:1, title:'quest.wheel.title', offer:'quest.wheel.offer', complete:'quest.wheel.complete',
     rewardText:'quest.reward.weapon', start:orren, finish:orren, requires:[], reward:'magic_weapon',
     steps:[

@@ -1,5 +1,10 @@
 /** Original quest prose. Stable keys also serve the client localization catalogue. */
 export const QUEST_MESSAGES = {
+  'quest.firstroad.title':'A Foot on the Road',
+  'quest.firstroad.offer':'The slimes have reached the path above camp. Try your footing there, then come back. I have a spare weapon with a little more bite than the one you arrived with.',
+  'quest.firstroad.complete':'You held your ground. Look this over before you head farther up the road; keep whichever weapon suits you better.',
+  'quest.firstroad.reward':'One level 1 magic version of your class’s starting weapon, with a main-stat bonus. Stronger than the original normal starter; compare it with anything you found since.',
+  'quest.firstroad.slime':'Defeat a bog slime on the road above Orren’s camp',
   'story.actOne': 'Act I',
   'story.waterRoad': 'The Water Road',
   'story.cart': 'Tracks at the crossing',

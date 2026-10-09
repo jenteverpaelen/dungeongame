@@ -1,6 +1,8 @@
 // Shared building blocks: the ornate panel frame, bars, cost rows, tabs, checkbox.
 
 import type { ComponentChildren } from 'preact';
+import { toChildArray } from 'preact';
+import { useState } from 'preact/hooks';
 import { fmtInt } from '@shared/format';
 import type { Cost } from '@shared/cube';
 import type { CharacterSave, Materials, MaterialId } from '@shared/types';
@@ -8,6 +10,20 @@ import { togglePanel, type PanelId } from '../store';
 import { GoldIcon, IconCheck, IconClose, MatIcon, MATERIAL_INFO, MATERIAL_ORDER } from './icons';
 import { hideTip, textTipHandlers } from './tooltip';
 import { cls } from './util';
+
+/** Bounded visible lists. All entries stay reachable without a scrolling menu. */
+export function Paged({children,size=6,initial=0,label='Pages',class:c}:{children:ComponentChildren;size?:number;initial?:number;label?:string;class?:string}) {
+  const entries=toChildArray(children),pages=Math.max(1,Math.ceil(entries.length/size));
+  const [requested,setPage]=useState(initial),page=Math.max(0,Math.min(requested,pages-1));
+  return <div class={cls('paged',c)}>
+    <div class="page-items">{entries.slice(page*size,(page+1)*size)}</div>
+    {pages>1&&<nav class="page-nav" aria-label={label}>
+      <button class="btn sm" disabled={page===0} onClick={()=>setPage(page-1)}>Previous</button>
+      <span role="status">{page+1} / {pages}</span>
+      <button class="btn sm" disabled={page===pages-1} onClick={()=>setPage(page+1)}>Next</button>
+    </nav>}
+  </div>;
+}
 
 export function PanelFrame(p: {
   id: PanelId;

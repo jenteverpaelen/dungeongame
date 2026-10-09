@@ -42,6 +42,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
     check(Number.isSafeInteger(q.revision)&&q.revision>0,q.id,'invalid revision');
     check(q.steps.length>0,q.id,'no objectives');
     check(!q.chapter||CHAPTERS.some(c=>c.id===q.chapter),q.id,'unknown chapter');
+    check(!q.tutorial||!q.repeat,q.id,'tutorial reward cannot repeat');
     check(q.repeat===undefined||q.repeat==='on_return',q.id,'unsupported repeat rule');
     check(q.id!=='silent_wheel'||!q.repeat,q.id,'legacy quest cannot repeat');
     const rewardError=questRewardError(q);if(rewardError)errors.push(`${q.id}: ${rewardError}`);

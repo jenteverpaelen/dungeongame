@@ -209,6 +209,7 @@ export function XpBar() {
 // ───────────────────────── Bottom bar assembly ─────────────────────────
 
 export function BottomBar() {
+  const disclosure=useUI(s=>!s.char?.onboarding||s.char.onboarding.status!=='active'||s.char.level>1);
   const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash'), casts: CAST_ACTIONS.map(a => bindings.label(a)) }));
   const manual = useLocal(preferences, s => s.values.manualSkills);
   const char = useUI((s) => (s.char ? { cls: s.char.classId, skills: s.char.skills, level: s.char.level } : null));
@@ -247,7 +248,7 @@ export function BottomBar() {
         <div class="bar-slots">
           <Slot kind="primary" keyLabel="AUTO" skill={primary.skill} cd={0} nominalMs={0} tip={primary.tip} active={false} />
           <i class="bar-sep" />
-          {slots.map((s, i) => (
+          {slots.map((s, i) => (!disclosure&&!s.skill?null:(
             <Slot
               key={i}
               kind="skill"
@@ -260,7 +261,7 @@ export function BottomBar() {
               active={!!s.skill && s.skill.kind === 'buff' && buffIds.has(s.skill.id)}
               tip={s.tip}
             />
-          ))}
+          )))}
           <i class="bar-sep" />
           <Slot kind="dash" keyLabel={keys.dash.toUpperCase()} skill={null} cd={m?.dashCd ?? 0} nominalMs={DASH.cooldownMs} tip={<DashTip />} />
         </div>

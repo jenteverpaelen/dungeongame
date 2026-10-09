@@ -2,6 +2,7 @@
 // moves them between instances, garbage-collects empty ones and broadcasts world info.
 // The gameplay simulation lives behind the InstanceApi contract (server/src/contracts.ts).
 
+import { recordIntro } from '../../shared/src/onboarding';
 import { EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
@@ -252,6 +253,8 @@ export class World {
     to.emptySince = Date.now();
     s.rec = to;
     s.entityId = you;
+    if(to.zoneId==='rillwake_crossing')recordIntro(s.save,'field');
+    if(to.kind==='town'&&s.save.onboarding?.done.includes('elite'))recordIntro(s.save,'return');
     s.save.lastZone = to.kind === 'rift' ? TOWN_ID : to.zoneId;
     s.hold = null;
     s.send(announce(you, to));
