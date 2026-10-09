@@ -1,0 +1,466 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-combat-numbers-m21Sfo",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-combat-numbers-m21Sfo\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "exceptions": [],
+  "scope": "Installed local Chrome, synthetic save/profile, controlled five-style numeric fixture and actual presentation handlers. Real settings input and reconnect. No earned-drop, human accessibility, vision-simulation or performance claim.",
+  "observations": [
+    {
+      "name": "01-default-numbers",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": null,
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n53 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint",
+      "panels": [],
+      "numbers": {
+        "count": 5,
+        "quads": 32,
+        "recs": 5,
+        "lanes": 5,
+        "numbers": [
+          {
+            "amount": 123,
+            "px": 20,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 0
+          },
+          {
+            "amount": 124,
+            "px": 29,
+            "fill": 4182783,
+            "outline": 136250,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 1
+          },
+          {
+            "amount": 125,
+            "px": 15.5,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 2
+          },
+          {
+            "amount": 126,
+            "px": 21,
+            "fill": 3820287,
+            "outline": 42,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 3
+          },
+          {
+            "amount": 127,
+            "px": 16,
+            "fill": 9109373,
+            "outline": 532486,
+            "alpha": 1,
+            "prefix": "+",
+            "count": 1,
+            "kind": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "visible-handler-feedback",
+      "sounds": [
+        [
+          "hit",
+          2951.5,
+          2418.6,
+          0.8
+        ],
+        [
+          "crit",
+          2951.5,
+          2418.6,
+          1
+        ],
+        [
+          "hurt",
+          null,
+          null,
+          1
+        ]
+      ],
+      "shakes": [
+        [
+          3,
+          90,
+          0.15
+        ],
+        [
+          4,
+          140,
+          0.2
+        ]
+      ],
+      "stops": [
+        [
+          45
+        ]
+      ],
+      "hits": [
+        [
+          0.6,
+          false
+        ],
+        [
+          1,
+          true
+        ]
+      ],
+      "particles": 29,
+      "hitEma": 100,
+      "numbers": 5
+    },
+    {
+      "name": "02-hidden-setting",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": false,
+          "lootQualityLabels": false,
+          "combatNumbers": false
+        }
+      },
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n3 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nShow loot quality\n\nAdd written rarity and Ancient/Primal labels to items on the ground. Item colours stay the same.\n\nShow combat numbers\n\nShow floating damage and healing amounts during combat.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "panels": [
+        {
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 833.65625
+        }
+      ],
+      "numbers": {
+        "count": 0,
+        "quads": 0,
+        "recs": 0,
+        "lanes": 0,
+        "numbers": []
+      }
+    },
+    {
+      "name": "hidden-handler-feedback",
+      "sounds": [
+        [
+          "hit",
+          2951.5,
+          2418.6,
+          0.8
+        ],
+        [
+          "crit",
+          2951.5,
+          2418.6,
+          1
+        ],
+        [
+          "hurt",
+          null,
+          null,
+          1
+        ]
+      ],
+      "shakes": [
+        [
+          3,
+          90,
+          0.15
+        ],
+        [
+          4,
+          140,
+          0.2
+        ]
+      ],
+      "stops": [
+        [
+          45
+        ]
+      ],
+      "hits": [
+        [
+          0.6,
+          false
+        ],
+        [
+          1,
+          true
+        ]
+      ],
+      "particles": 29,
+      "hitEma": 100,
+      "numbers": 0
+    },
+    {
+      "name": "03-hidden-numbers",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": false,
+          "lootQualityLabels": false,
+          "combatNumbers": false
+        }
+      },
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n3 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint",
+      "panels": [],
+      "numbers": {
+        "count": 0,
+        "quads": 0,
+        "recs": 0,
+        "lanes": 0,
+        "numbers": []
+      }
+    },
+    {
+      "name": "04-retained-setting",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": false,
+          "lootQualityLabels": false,
+          "combatNumbers": false
+        }
+      },
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n0 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nShow loot quality\n\nAdd written rarity and Ancient/Primal labels to items on the ground. Item colours stay the same.\n\nShow combat numbers\n\nShow floating damage and healing amounts during combat.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "panels": [
+        {
+          "x": 18.08013916015625,
+          "y": 18.3172607421875,
+          "w": 479.8397216796875,
+          "h": 833.3778686523438
+        }
+      ],
+      "numbers": {
+        "count": 0,
+        "quads": 0,
+        "recs": 0,
+        "lanes": 0,
+        "numbers": []
+      }
+    },
+    {
+      "name": "05-enabled-setting",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": false,
+          "lootQualityLabels": false,
+          "combatNumbers": true
+        }
+      },
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nShow loot quality\n\nAdd written rarity and Ancient/Primal labels to items on the ground. Item colours stay the same.\n\nShow combat numbers\n\nShow floating damage and healing amounts during combat.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "panels": [
+        {
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 833.65625
+        }
+      ],
+      "numbers": {
+        "count": 5,
+        "quads": 32,
+        "recs": 5,
+        "lanes": 5,
+        "numbers": [
+          {
+            "amount": 123,
+            "px": 20,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 0
+          },
+          {
+            "amount": 124,
+            "px": 29,
+            "fill": 4182783,
+            "outline": 136250,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 1
+          },
+          {
+            "amount": 125,
+            "px": 15.5,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 2
+          },
+          {
+            "amount": 126,
+            "px": 21,
+            "fill": 3820287,
+            "outline": 42,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 3
+          },
+          {
+            "amount": 127,
+            "px": 16,
+            "fill": 9109373,
+            "outline": 532486,
+            "alpha": 1,
+            "prefix": "+",
+            "count": 1,
+            "kind": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "06-reset-setting",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "settings": {
+        "version": 1,
+        "values": {
+          "masterVolume": 0.8,
+          "effectsVolume": 1,
+          "ambienceVolume": 1,
+          "muted": false,
+          "cameraShake": true,
+          "reduceFlashes": false,
+          "lootQualityLabels": false,
+          "combatNumbers": true
+        }
+      },
+      "text": "1\nNumbersTrace\nLevel 1\nMage\nDPS\n0\n0 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nHEARTHMERE\nWelcome to Hearthfall, NumbersTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n80%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nShow loot quality\n\nAdd written rarity and Ancient/Primal labels to items on the ground. Item colours stay the same.\n\nShow combat numbers\n\nShow floating damage and healing amounts during combat.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "panels": [
+        {
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 833.65625
+        }
+      ],
+      "numbers": {
+        "count": 5,
+        "quads": 32,
+        "recs": 5,
+        "lanes": 5,
+        "numbers": [
+          {
+            "amount": 123,
+            "px": 20,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 0
+          },
+          {
+            "amount": 124,
+            "px": 29,
+            "fill": 4182783,
+            "outline": 136250,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 1
+          },
+          {
+            "amount": 125,
+            "px": 15.5,
+            "fill": 16777215,
+            "outline": 396052,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 2
+          },
+          {
+            "amount": 126,
+            "px": 21,
+            "fill": 3820287,
+            "outline": 42,
+            "alpha": 1,
+            "prefix": "",
+            "count": 1,
+            "kind": 3
+          },
+          {
+            "amount": 127,
+            "px": 16,
+            "fill": 9109373,
+            "outline": 532486,
+            "alpha": 1,
+            "prefix": "+",
+            "count": 1,
+            "kind": 4
+          }
+        ]
+      }
+    }
+  ]
+}

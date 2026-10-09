@@ -18,6 +18,8 @@ export const ENGLISH = {
   "settings.flashesNote": "Hide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.",
   "settings.lootQualityLabels": "Show loot quality",
   "settings.lootQualityNote": "Add written rarity and Ancient/Primal labels to items on the ground. Item colours stay the same.",
+  "settings.combatNumbers": "Show combat numbers",
+  "settings.combatNumbersNote": "Show floating damage and healing amounts during combat.",
   "loot.normal": "[Normal] {name}",
   "loot.magic": "[Magic] {name}",
   "loot.rare": "[Rare] {name}",

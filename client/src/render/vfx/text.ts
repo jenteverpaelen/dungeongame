@@ -6,6 +6,7 @@
 
 import { Container, Particle, ParticleContainer, type Texture } from 'pixi.js';
 import { fmtCompact } from '@shared/format';
+import { preferences } from '../../game/preferences';
 import { getGlyphAtlas, type GlyphAtlas } from './atlas';
 import { clamp, easeOut, easeOut3, toBgr } from './util';
 
@@ -86,7 +87,7 @@ export class CombatText {
 
   /** Spawn a number at world (x, y) = head of the target. */
   spawn(amount: number, x: number, y: number, o: NumOpts): void {
-    if (!(amount > 0)) return;
+    if (!preferences.get().values.combatNumbers || !(amount > 0)) return;
     const now = this.time;
     const crowded = this.nums.length > 190;
     if (o.key) {
@@ -259,6 +260,11 @@ export class CombatText {
   update(dt: number): void {
     this.time += dt;
     this.burst = 0;
+    if (!preferences.get().values.combatNumbers) {
+      // Clear active glyphs and merge history so hidden hits cannot return as a later burst.
+      if (this.nums.length || this.recs.size || this.lanes.size) this.clear();
+      return;
+    }
     const zoom = this.zoom() || 1;
     const list = this.container.particleChildren;
     list.length = 0;

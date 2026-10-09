@@ -57,3 +57,5 @@ C049 adds optional written ground-loot quality, default off. Seven inspected Chr
 C050 completes a pinned session-source/licence review and exact isolated download proposal. No archives or dependencies installed; explicit download approval and runtime integration remain pending. Continue independent roadmap research and supported changes; this permission boundary does not stop the rest of the task.
 
 C051 tests a narrow P5 authoring contract independently of the live game:14 passing checks cover references, prerequisites and conditional exit paths. This is evidence for design, not completed quests or a reason to stop. Continue durable objective/reward research and independent foundations while session-download approval is pending.
+
+C052 adds optional combat-number visibility, preserving default style and event feedback. Targeted checks/build, actual local Chrome input/reconnect/reset and seven inspected1080p frames pass. Continue the whole-roadmap research and state-safety work; no phase or release gate is declared complete.

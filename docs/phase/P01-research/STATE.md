@@ -88,3 +88,5 @@ C049 adds three primary accessibility/gear-cue sources and two scoped claims. Gr
 C050 extends R12 with pinned session middleware/store/session/cookie source, eleven individual upstream licences and a scoped advisory query. Exact download and fault-test proposal is prepared; no archive or production dependency change. Continue the wider roadmap while the owner considers that specific request.
 
 C051 adds three primary authoring sources/three scoped claims and an isolated three-quest/eight-objective/branching-dialogue probe. Strict typecheck and14 checks pass; conditional traps distinguish finite-state checks from unconditional topology. QUEST-AUTHORING-REPORT.md preserves the unimplemented live state/reward/UI and research limits.
+
+C052 adds two primary option/distraction sources and two scoped claims, then verifies optional combat-number display with exact default styles and local Chrome controls. Historical D4 notes are not a current-client UI observation; instrumented presentation events are not a human combat/accessibility study. All seven captures inspected; broader research remains incomplete.
