@@ -11,7 +11,7 @@ import { fmtInt } from '@shared/format';
 import { paragonXpToNext, xpToNext } from '@shared/progression';
 import type { BuffView } from '@shared/protocol';
 import type { ClassId } from '@shared/types';
-import { BuffGlyph, DashGlyph, MouseGlyph, SkillGlyph } from './Glyphs';
+import { BuffGlyph, DashGlyph, SkillGlyph } from './Glyphs';
 import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
 
@@ -35,7 +35,7 @@ function autoText(rule: AutoRule, resource: string): string {
 
 // ───────────────────────── Skill tooltip ─────────────────────────
 
-function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods }) {
+function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: string | null; tiers: number; mods: SkillMods; priority?: number }) {
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
   const rune = skill.runes.find((r) => r.id === p.runeId);
@@ -65,7 +65,8 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
           <div class="st-rune-desc">{rune.desc}</div>
         </div>
       )}
-      {skill.auto.when !== 'channel' && <div class="st-auto">{autoText(skill.auto, res)}</div>}
+      <div class="st-auto">{autoText(skill.auto, res)}</div>
+      {p.priority !== undefined && <div class="st-desc">Auto-cast priority {p.priority} · slot number, not a cast key. Change your loadout with K.</div>}
       {p.tiers > 0 && <div class="st-tiers">{[0, 1, 2].map((i) => <i class={i < p.tiers ? 'on' : ''} />)}<span>Upgrade tier {p.tiers}</span></div>}
     </div>
   );
@@ -217,20 +218,25 @@ export function BottomBar() {
   const { cls, skills } = char;
   const buffIds = new Set((m?.buffs ?? []).map((b) => b.id));
 
-  const mk = (sid: string | null): { skill: SkillDef | null; tip: ComponentChildren; cost: number } => {
+  const mk = (sid: string | null, priority?: number): { skill: SkillDef | null; tip: ComponentChildren; cost: number } => {
     const skill = sid ? SKILLS[sid] ?? null : null;
-    if (!skill) return { skill: null, tip: null, cost: 0 };
+    if (!skill) return { skill: null, tip: priority === undefined ? null : (
+      <div class="skill-tip tip-small" role="tooltip">
+        <div class="st-name">Empty skill slot {priority}</div>
+        <div class="st-desc">Auto-cast priority {priority} · slot number, not a cast key. Choose skills with K.</div>
+      </div>
+    ), cost: 0 };
     const mods = collectSkillMods(skill, skills.runes[skill.id], skills.tiers[skill.id] ?? 0);
     const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - rcr / 100));
     return {
       skill,
       cost,
-      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} />,
+      tip: <SkillTip skill={skill} classId={cls} rcr={rcr} runeId={skills.runes[skill.id] ?? null} tiers={skills.tiers[skill.id] ?? 0} mods={mods} priority={priority} />,
     };
   };
 
   const primary = mk(skills.primary);
-  const slots = [0, 1, 2, 3].map((i) => mk(skills.slots[i] ?? null));
+  const slots = [0, 1, 2, 3].map((i) => mk(skills.slots[i] ?? null, i + 1));
 
   return (
     <div class="hud-bottom">
@@ -239,7 +245,7 @@ export function BottomBar() {
         <BuffRow />
         <XpBar />
         <div class="bar-slots">
-          <Slot kind="primary" keyLabel={<MouseGlyph />} skill={primary.skill} cd={0} nominalMs={0} tip={primary.tip} active={false} />
+          <Slot kind="primary" keyLabel="AUTO" skill={primary.skill} cd={0} nominalMs={0} tip={primary.tip} active={false} />
           <i class="bar-sep" />
           {slots.map((s, i) => (
             <Slot

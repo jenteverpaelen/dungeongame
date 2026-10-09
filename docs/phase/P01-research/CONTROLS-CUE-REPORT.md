@@ -1,0 +1,11 @@
+# Automatic-combat cue correction — verification
+
+2026-10-09, local Windows PC. Design and prior evidence: [CONTROLS-CUE-DESIGN.md](CONTROLS-CUE-DESIGN.md), L31/L32. Changed only primary labels, automatic-slot tooltip copy, the previously hidden channel-rule description and private system hints for newly created characters. No CSS, combat input, costs, unlocks, camera, town or save fields changed.
+
+`npm run typecheck` passes. `node --import tsx scripts/capture-onboarding.mjs --controls` builds the current client and passes fresh-character, real login, primary/empty-slot hover, Skills label and saved-character reconnect assertions. Final isolated root: `hf-first-session-W4exk9`; Node v24.19.0, installed Chrome 154.0.8037.99, fresh profile, debug off, BACKUP_DIR empty. All retained game frames report visible 1920×1080 and exactly 620 world units of view height. Raw evidence: [trace.json](checks/controls-cues/trace.json).
+
+Opened and inspected all five final PNGs: first town, Skills, primary tooltip, empty-slot tooltip and returning character. AUTO fits both existing label treatments; SPACE remains. New-character instructions fit the existing chat region. Returning login shows only the welcome line. An initial successful capture used the existing faint secondary tooltip text; inspection motivated using the existing readable body-text class for the new slot explanation, followed by another complete capture. No stylesheet change was needed.
+
+Limits: this is a scripted Mage interaction, not a comprehension/retention study or cross-class/full-tooltip matrix. The primary tooltip and nearby interaction prompt still have an existing overlap; broader HUD stacking and low-contrast secondary copy remain accessibility audit items. No performance claim comes from the FPS readout. Full server/simulation regressions were already green before this copy-only change and were not repeated for new labels/private messages. No new test substitutes for missing reference-game footage or human first-session evidence.
+
+Rollback: revert the three production-file changes together. This restores the previous cues and removes the new-character hints without a data migration. The reusable mouse glyph and historical evidence remain in the repository.

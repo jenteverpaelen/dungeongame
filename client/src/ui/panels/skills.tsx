@@ -48,7 +48,7 @@ function SlotStrip({ char }: { char: CharacterSave }) {
       <div class="sslot primary" {...textTipHandlers(() => ({ title: primary.name, icon: <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={34} />, sub: 'Primary attack · always active', lines: [describeSkill(primary, collectSkillMods(primary, char.skills.runes[primary.id], char.skills.tiers[primary.id] ?? 0))] }), 'prim')}
         onClick={() => skillsUI.set({ selected: primary.id })}>
         <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={40} />
-        <span class="sslot-key">LMB</span>
+        <span class="sslot-key">AUTO</span>
       </div>
       <i class="slot-sep" />
       {Array.from({ length: SKILL_SLOTS }, (_, i) => {

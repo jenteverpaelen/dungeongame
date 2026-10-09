@@ -11,11 +11,13 @@ import { townPath } from '../server/test/townNavigation.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-first-session-'));
-const dataDir = path.join(tmp, 'saves'), out = path.join(root, 'docs/phase/P01-research/checks/first-session');
+const controlsCheck = process.argv.includes('--controls');
+const dataDir = path.join(tmp, 'saves'), out = path.join(root, 'docs/phase/P01-research/checks', controlsCheck ? 'controls-cues' : 'first-session');
+const controlsShots = new Set(['01-first-town', '03-first-skills', '12-primary-tooltip', '13-slot-tooltip', '14-returning']);
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const started = performance.now(), wait = ms => new Promise(r => setTimeout(r, ms));
-let browser, page, server, passed = false, failure;
+let browser, page, server, browserVersion, passed = false, failure;
 async function until(fn, timeout = 15000) {
   const deadline = performance.now() + timeout;
   while (performance.now() < deadline) { const result = await fn(); if (result) return result; await wait(100); }
@@ -52,6 +54,7 @@ try {
   const active = await until(async () => { try { return await fs.readFile(path.join(tmp, 'chrome/DevToolsActivePort'), 'utf8'); } catch { return false; } });
   const [cdpPort, browserPath] = active.trim().split('\n');
   browser = await connect(`ws://127.0.0.1:${cdpPort}${browserPath}`);
+  browserVersion = await browser.call('Browser.getVersion');
   const tabs = await (await fetch(`http://127.0.0.1:${cdpPort}/json/list`)).json();
   page = await connect(tabs.find(t => t.type === 'page').webSocketDebuggerUrl);
   await page.call('Page.enable'); await page.call('Runtime.enable');
@@ -67,8 +70,10 @@ try {
       camera:u?.screen==='game'?innerHeight/__game.scene.cam.zoom:null};})()`);
     assert.equal(state.width, 1920); assert.equal(state.height, 1080); assert.equal(state.hidden, false);
     if (state.screen === 'game') assert.equal(state.camera, 620);
-    const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-    await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64'));
+    if (!controlsCheck || controlsShots.has(name)) {
+      const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+      await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64'));
+    }
     observations.push({ name, action, elapsedScriptMs: Math.round(performance.now() - started), ...state });
     console.log(`Captured ${name}: ${state.screen}, level ${state.char?.level ?? '-'}, ${state.zone?.zone ?? '-'}`);
   };
@@ -88,9 +93,42 @@ try {
   await until(() => evaluate('(()=>{const g=__game.scene.ground.children[0]?.children[0];return g?.tiles && !g.wanted.length && !g.timer})()'));
   await wait(1500); await evaluate('document.activeElement.blur();true');
   await record('01-first-town', 'Enter World through the visible class/name controls');
+  if (controlsCheck) {
+    assert.equal(await evaluate("document.querySelector('.slot-primary .slot-key').textContent"), 'AUTO');
+    assert.equal(await evaluate("document.querySelector('.slot-dash .slot-key').textContent"), 'SPACE');
+    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.').length"), 1);
+    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text.includes('WASD move')).length"), 1);
+    for (const [selector, name, expected] of [
+      ['.slot-primary', '12-primary-tooltip', 'Fires automatically'],
+      ['.slot-skill', '13-slot-tooltip', 'slot number, not a cast key'],
+    ]) {
+      const rect = await evaluate(`(()=>{const r=document.querySelector('${selector}').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+      await page.call('Input.dispatchMouseEvent', { type: 'mouseMoved', ...rect }); await wait(350);
+      assert.ok((await evaluate("document.querySelector('[role=tooltip]')?.textContent ?? ''")).includes(expected));
+      await record(name, 'Hover the existing HUD slot; accurate automatic-combat cue');
+    }
+    await page.call('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1900, y: 20 });
+  }
   await key('F1', 'F1', 112); await record('02-controls', 'Known F1 hotkey, deliberately opened by script');
   await key('Escape', 'Escape', 27);
   await key('k', 'KeyK', 75); await record('03-first-skills', 'Known K hotkey at level one');
+  if (controlsCheck) {
+    assert.equal(await evaluate("document.querySelector('.sslot.primary .sslot-key').textContent"), 'AUTO');
+    await key('Escape', 'Escape', 27);
+    await evaluate('__game.conn.close();true');
+    await until(async () => { try { return JSON.parse(await fs.readFile(path.join(dataDir, 'firsttrace.json'), 'utf8')).id === 'firsttrace'; } catch { return false; } });
+    await page.call('Page.reload');
+    await until(() => evaluate('Boolean(document.querySelector(".cs-go"))'));
+    await evaluate(`document.querySelector('canvas[data-preview="mage"]').closest('button').click();
+      const n=document.querySelector('input[placeholder="Hero name"]');n.value='FirstTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
+    await until(() => evaluate('!document.querySelector(".cs-go").disabled'));
+    await evaluate('document.querySelector(".cs-go").click();true');
+    await until(() => evaluate('__ui.get().screen==="game" && __ui.get().chat.some(l=>l.text.startsWith("Welcome to"))'));
+    await wait(2000);
+    assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.' || l.text.includes('WASD move')).length"), 0);
+    await record('14-returning', 'Reconnect the same saved character through class selection; no repeated new-character hints');
+    passed = true;
+  } else {
   await key('Escape', 'Escape', 27);
   await key('i', 'KeyI', 73); await record('04-first-inventory', 'Known I hotkey, original starting equipment');
   await key('Escape', 'Escape', 27);
@@ -124,6 +162,7 @@ try {
   await key('Escape', 'Escape', 27); await key('i', 'KeyI', 73);
   await record('11-inventory-after-field', 'Inspect collected items without scripted gear grants');
   passed = true;
+  }
 } catch (error) { failure = String(error.stack ?? error); console.error(failure); process.exitCode = 1; }
 finally {
   if (browser) await browser.call('Browser.close').catch(() => {});
@@ -133,7 +172,7 @@ finally {
     await Promise.race([new Promise(resolve => server.once('close', resolve)), wait(9000)]);
   }
   for (const p of procs) if (p.exitCode === null && p.signalCode === null) p.kill('SIGKILL');
-  await fs.writeFile(path.join(out, 'trace.json'), JSON.stringify({ tmp, dataDir, node: process.version, passed, failure,
+  await fs.writeFile(path.join(out, 'trace.json'), JSON.stringify({ tmp, dataDir, node: process.version, browserVersion, controlsCheck, passed, failure,
     scope: 'Scripted expert baseline in installed local Chrome; not a fresh-player test or reference-game visual observation', observations }, null, 2) + '\n');
   await fs.writeFile(path.join(tmp, 'capture.log'), logs.join(''));
   console.log(`First-session evidence: ${tmp}; captures: ${out}`);
