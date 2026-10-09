@@ -2,6 +2,7 @@
 
 import { ACQUIRE_BUFFER } from '../shared';
 import { autoCastMode } from '../../../shared/src/autoCast';
+import type { TargetPriority } from '../../../shared/src/targetPriority';
 import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
 import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
@@ -17,10 +18,23 @@ export function isTargetable(m: Mob): boolean {
   return !m.dead;
 }
 
-/** Nearest monster within range (body-inclusive), preferring elites / bosses within 1.2× the nearest distance. */
-export function pickTarget(inst: Instance, x: number, y: number, range: number, needLos: boolean): Mob | null {
+/** Body-inclusive acquisition. Default preserves the original nearby-elite preference. */
+export function pickTarget(inst: Instance, x: number, y: number, range: number, needLos: boolean, preference: TargetPriority = 'default'): Mob | null {
   const list = inst.queryMobs(x, y, range);
   if (!list.length) return null;
+  if (preference === 'nearest' || preference === 'elites' || preference === 'lowestLife') {
+    let best: Mob | null = null, bestRank = Infinity, bestDistance = Infinity;
+    for (const m of list) {
+      if (!isTargetable(m)) continue;
+      const rank = preference === 'lowestLife' ? m.hp / m.mhp
+        : preference === 'elites' && (m.tier === 0 || m.tier === 3) ? 1 : 0;
+      const distance = Math.hypot(m.x - x, m.y - y) - m.r;
+      if (rank > bestRank || (rank === bestRank && distance >= bestDistance)) continue;
+      if (needLos && shotBlocked(inst, x, y, m.x, m.y)) continue;
+      best = m; bestRank = rank; bestDistance = distance;
+    }
+    return best;
+  }
   let best: Mob | null = null, bd = Infinity;
   for (const m of list) {
     if (!isTargetable(m)) continue;
@@ -199,7 +213,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   if (p.channel) { if (p.atkCdMs < 0) p.atkCdMs = 0; return; }
   if (p.atkCdMs > 0) return;
   const melee = c.attackRange < 200;
-  const tgt = pickTarget(inst, p.x, p.y, c.attackRange + ACQUIRE_BUFFER, !melee);
+  const tgt = pickTarget(inst, p.x, p.y, c.attackRange + ACQUIRE_BUFFER, !melee, p.save.skills.targetPriority);
   if (!tgt) { p.atkCdMs = 0; return; }
   castPrimary(inst, p, tgt);
   const aps = Math.max(0.2, c.d.aps * (1 + p.live.ias / 100));

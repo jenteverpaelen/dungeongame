@@ -246,7 +246,7 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const half = 30 * DEG * mul;
   let ang = bestConeAngle(inst, p.x, p.y, len, half);
   if (ang === null) {
-    const t = pickTarget(inst, p.x, p.y, len, false);
+    const t = pickTarget(inst, p.x, p.y, len, false, p.save.skills.targetPriority);
     if (!t) return false;
     ang = Math.atan2(t.y - p.y, t.x - p.x);
   }
@@ -308,7 +308,7 @@ function trimSummons(p: Player, skill: string, max: number) {
 function multishotTarget(inst: Instance, p: Player, range: number): { ang: number; x: number; y: number } | null {
   const ang = bestConeAngle(inst, p.x, p.y, range, 35 * DEG);
   if (ang === null) return null;
-  const t = pickTarget(inst, p.x, p.y, range, false);
+  const t = pickTarget(inst, p.x, p.y, range, false, p.save.skills.targetPriority);
   const d = t ? Math.min(range, Math.hypot(t.x - p.x, t.y - p.y)) : range * 0.7;
   return { ang, x: p.x + Math.cos(ang) * d, y: p.y + Math.sin(ang) * d };
 }
@@ -556,7 +556,7 @@ function castNova(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: num
 }
 
 function hydra(inst: Instance, p: Player, rt: SkillRuntime): boolean {
-  const t = pickTarget(inst, p.x, p.y, rt.def.range, false);
+  const t = pickTarget(inst, p.x, p.y, rt.def.range, false, p.save.skills.targetPriority);
   if (!t) return false;
   const a = Math.atan2(t.y - p.y, t.x - p.x);
   let x = p.x + Math.cos(a) * 60, y = p.y + Math.sin(a) * 60;

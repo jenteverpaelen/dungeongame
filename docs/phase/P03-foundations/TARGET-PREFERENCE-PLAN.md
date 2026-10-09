@@ -1,0 +1,3 @@
+# Target preference — C084
+
+L98/D039 precede code. Optional saved Default/Nearest/Elites first/Lowest life selection on the existing pickTarget seam, including fresh summon acquisition. Default keeps the existing two-pass routine. No new range/LOS/resource/cooldown/stat formula. Area/cone crowd aim and held Companion targets stay unchanged and are explained. Strict command and legacy/default normalization, save/protocol compatibility, existing-style Skills controls. Focused selectors, actual primary/summon use, invalid requests and persistence; one baseline sim/type/content/build and actual local Chrome1080p reconnect check. Log concrete limits and no content deletion.

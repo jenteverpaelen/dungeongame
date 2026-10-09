@@ -12,6 +12,7 @@ import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
+import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
@@ -177,6 +178,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   while (sk.slots.length < 4) sk.slots.push(null);
   sk.slots.length = 4;
   sk.autoCast = normalizeAutoCast(sk.autoCast);
+  sk.targetPriority = normalizeTargetPriority(sk.targetPriority);
   sk.runes ??= {};
   sk.tiers ??= {};
   sk.primary ||= CLASSES[save.classId].primary;
@@ -196,7 +198,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
 
   const st = (save.stats ??= { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 });
   for (const k of ['kills', 'elites', 'legendaries', 'rifts', 'playMs', 'deaths'] as const) st[k] = num(st[k], 0);
-  // Preserve owned objects; v3 also preserves per-slot cast restrictions.
+  // Preserve owned objects and saved combat preferences.
   save.version = SAVE_VERSION;
   return save;
 }

@@ -94,6 +94,8 @@ export interface SkillLoadout {
   slots: (string | null)[];
   /** Optional in legacy saves. Conditions belong to slot positions, not skill IDs. */
   autoCast?: import('./autoCast').AutoCastMode[];
+  /** Optional in legacy saves. Applies to fresh single-target acquisition. */
+  targetPriority?: import('./targetPriority').TargetPriority;
   /** Chosen rune per skill id. */
   runes: Record<string, string | null>;
   /** Purchased upgrade tiers (0..3) per skill id. */

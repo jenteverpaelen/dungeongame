@@ -123,7 +123,7 @@ function sentry(inst: Instance, s: Summon, p: Player, dtMs: number) {
   const fast = rt.flags.has('fastSentry');
   s.fireMs -= dtMs;
   if (s.fireMs <= 0) {
-    const tgt = pickTarget(inst, s.x, s.y, 560, true);
+    const tgt = pickTarget(inst, s.x, s.y, 560, true, p.save.skills.targetPriority);
     if (!tgt) { s.fireMs = 150; }
     else {
       s.fireMs += 1000 / (fast ? 1.5 : 1);
@@ -143,7 +143,7 @@ function sentry(inst: Instance, s: Summon, p: Player, dtMs: number) {
   if (rt.flags.has('rockets')) {
     s.rocketMs -= dtMs;
     if (s.rocketMs <= 0) {
-      const tgt = pickTarget(inst, s.x, s.y, 600, false);
+      const tgt = pickTarget(inst, s.x, s.y, 600, false, p.save.skills.targetPriority);
       if (!tgt) s.rocketMs = 200;
       else {
         s.rocketMs += 1500;
@@ -164,7 +164,7 @@ function hydra(inst: Instance, s: Summon, p: Player, dtMs: number) {
   const base: Strike = { skill: 'hydra', coef: rt.def.coef, el, pct: skillPct(p, rt), src: s.id };
   s.fireMs -= dtMs;
   if (s.fireMs > 0) return;
-  const tgt = pickTarget(inst, s.x, s.y, 500, true);
+  const tgt = pickTarget(inst, s.x, s.y, 500, true, p.save.skills.targetPriority);
   if (!tgt) { s.fireMs = 150; return; }
   faceTo(s, tgt.x);
   s.attackSeq++;
@@ -196,7 +196,7 @@ function companion(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: numb
   // keep the current target while it is alive and near the owner
   let tgt = s.targetId ? inst.mob(s.targetId) ?? null : null;
   if (!tgt || tgt.dead || Math.hypot(tgt.x - p.x, tgt.y - p.y) > 480) {
-    tgt = pickTarget(inst, p.x, p.y, 400, false);
+    tgt = pickTarget(inst, p.x, p.y, 400, false, p.save.skills.targetPriority);
     s.targetId = tgt ? tgt.id : 0;
   }
   if (Math.hypot(s.x - p.x, s.y - p.y) > 900) { s.x = p.x - 30; s.y = p.y + 10; }

@@ -9,6 +9,7 @@ import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
 import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
+import { isTargetPriority } from '../../shared/src/targetPriority';
 import { requireNear } from './townServices';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
@@ -537,6 +538,13 @@ const skillAutoCast: Handler = (s, a) => {
   return done(s, false);
 };
 
+const targetPriority: Handler = (s, a) => {
+  if (!isTargetPriority(a.mode)) return fail('Invalid target preference');
+  s.save.skills.targetPriority = a.mode;
+  // Read on acquisition; leave current effects, stats, resource and cooldowns alone.
+  return done(s, false);
+};
+
 const skillTier: Handler = (s, a) => {
   const err = buySkillTier(s.save, str(a, 'skill'));
   if (err) return fail(err);
@@ -698,7 +706,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillAutoCast,
+  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

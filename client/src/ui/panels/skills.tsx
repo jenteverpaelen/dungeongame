@@ -3,6 +3,7 @@
 import { useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AUTO_CAST_MODES, AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText } from '@shared/autoCast';
+import { TARGET_PRIORITIES, TARGET_PRIORITY_LABEL, TARGET_PRIORITY_NOTE, normalizeTargetPriority } from '@shared/targetPriority';
 import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
@@ -252,6 +253,7 @@ export function SkillsPanel() {
   const list = skillsForClass(char.classId);
   const sel = SKILLS[selected ?? ''] && SKILLS[selected ?? ''].classId === char.classId ? SKILLS[selected!] : (list.find((s) => s.kind !== 'primary' && s.unlock <= char.level) ?? list[0]);
   const spent = skillPointsSpent(char);
+  const preference = normalizeTargetPriority(char.skills.targetPriority);
   return (
     <PanelFrame id="skills" title="Skills" width={940} sub={<span class="pn-lv">{CLASSES[char.classId].name}</span>}>
       <div class="sk-top">
@@ -274,6 +276,17 @@ export function SkillsPanel() {
       <div class="sk-main">
         <div class="slist scroll">
           {list.map((s) => <SkillRow key={s.id} skill={s} char={char} />)}
+          <div class="sk-legend target-priority-controls">
+            <h4>Target preference</h4>
+            <div class="pn-actions" role="group" aria-label="Target preference">
+              {TARGET_PRIORITIES.map(mode => <button key={mode} class={cls('btn sm', preference === mode && 'primary')}
+                aria-pressed={preference === mode} onClick={() => void run('targetPriority', { mode })}>
+                {TARGET_PRIORITY_LABEL[mode]}
+              </button>)}
+            </div>
+            <p>{TARGET_PRIORITY_NOTE[preference]}</p>
+            <p>Used by primary attacks, target-based skills and new summon targets. Crowd-aiming skills keep their aim rules; companions keep valid targets near you.</p>
+          </div>
           <div class="sk-legend">
             <h4>How skills grow</h4>
             <p><b>Runes</b> unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill itself.</p>
