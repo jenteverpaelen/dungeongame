@@ -1,6 +1,6 @@
 // Inventory (I / B): Diablo 3 style paperdoll over a 10x6 bag grid, character sheet strip, wealth row, gems tab.
 
-import { useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AFFIX_BY_STAT, GEMS } from '@shared/data/items';
 import { BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
@@ -18,6 +18,8 @@ import { GemIcon, IconDelta, MatIcon, MATERIAL_ORDER, gemColor, lighten } from '
 import { useLocal, useU } from './state';
 import { hideTip, ItemVisual, itemHover, textTipHandlers } from './tooltip';
 import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util';
+import { ITEM_PROTECTION_REASON } from '@shared/itemProtection';
+import { ProtectionBadge, ProtectionButton, toggleItemProtection } from './itemProtection';
 
 // ───────────────────────────── paperdoll ─────────────────────────────
 
@@ -95,6 +97,7 @@ function usableBy(char: CharacterSave, item: Item): boolean {
 
 /** Shift + right-click: valuable items ask first, plain gear is broken down immediately. */
 function quickSalvage(item: Item) {
+  if (item.protected) { pushNotice(ITEM_PROTECTION_REASON, 'warn'); return; }
   const char = ui.get().char;
   if (!char || char.cube.level < (CUBE_FUNCTIONS.find((f) => f.op === 'salvage')?.unlock ?? 1)) { pushNotice('The Cube cannot salvage yet', 'warn'); return; }
   const valuable = item.rarity === 'legendary' || item.rarity === 'set' || item.ancient > 0 || item.upgrade > 0 || item.enchanted !== undefined;
@@ -103,6 +106,7 @@ function quickSalvage(item: Item) {
 }
 
 function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
+  const protectMode = useLocal(invUI, s => s.protectMode);
   const item = char.equipment[slot] ?? null;
   const drag = useDrag();
   const r = RECTS[slot];
@@ -116,21 +120,25 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
       style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
       data-drop={`eq:${slot}`}
       data-slot={slot}
-      onPointerDown={item ? (e) => beginDrag(e as PointerEvent, { kind: 'eq', slot, item }) : undefined}
+      role={protectMode && item ? 'button' : undefined} tabIndex={protectMode && item ? 0 : undefined}
+      aria-label={protectMode && item ? `${item.protected ? 'Unprotect' : 'Protect'} ${item.name}` : undefined}
+      onKeyDown={(e) => { if (protectMode && item && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleItemProtection(item); } }}
+      onPointerDown={item && !protectMode ? (e) => beginDrag(e as PointerEvent, { kind: 'eq', slot, item }) : undefined}
       onContextMenu={(e) => {
         e.preventDefault();
-        if (!item) return;
+        if (!item || protectMode) return;
         hideTip();
         if ((e as MouseEvent).shiftKey) quickSalvage(item);
         else void run('unequip', { slot });
       }}
-      onClick={() => { if (item && cubeOpen && !justDragged()) setCubeItem(item.id); }}
+      onClick={() => { if (!item || justDragged()) return; if (protectMode) toggleItemProtection(item); else if (cubeOpen) setCubeItem(item.id); }}
       {...hover}
     >
       <div class="eq-in">
         {item ? <ItemVisual item={item} size={iconSize(slot)} /> : <SlotGlyph slot={slot} size={iconSize(slot) - 2} />}
       </div>
       {item && badgeOf(item)}
+      {item && <ProtectionBadge item={item} />}
       {item && <SocketDots item={item} />}
     </div>
   );
@@ -207,6 +215,7 @@ function useUpgradeFlags(char: CharacterSave): boolean[] {
 }
 
 function BagCell({ index, item, char, flag }: { index: number; item: Item | null; char: CharacterSave; flag: boolean }) {
+  const protectMode = useLocal(invUI, s => s.protectMode);
   const drag = useDrag();
   const cubeOpen = useU((s) => !!s.panels.cube);
   const inCube = useLocal(cubeUI, (s) => !!item && s.itemId === item.id);
@@ -218,22 +227,27 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
       class={cls('cell', item ? rarityClass(item) : 'empty', bad && 'unusable', inCube && 'in-cube', ok && 'drop-ok')}
       data-drop={`bag:${index}`}
       data-idx={index}
-      onPointerDown={item ? (e) => beginDrag(e as PointerEvent, { kind: 'bag', index, item }) : undefined}
+      role={protectMode && item ? 'button' : undefined} tabIndex={protectMode && item ? 0 : undefined}
+      aria-label={protectMode && item ? `${item.protected ? 'Unprotect' : 'Protect'} ${item.name}` : undefined}
+      onKeyDown={(e) => { if (protectMode && item && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleItemProtection(item); } }}
+      onPointerDown={item && !protectMode ? (e) => beginDrag(e as PointerEvent, { kind: 'bag', index, item }) : undefined}
       onContextMenu={(e) => {
         e.preventDefault();
-        if (!item) return;
+        if (!item || protectMode) return;
         hideTip();
         if ((e as MouseEvent).shiftKey) quickSalvage(item);
         else void run('equip', { itemId: item.id });
       }}
       onClick={() => {
         if (!item || justDragged()) return;
-        if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id });
+        if (protectMode) toggleItemProtection(item);
+        else if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id });
         else if (cubeOpen) setCubeItem(item.id);
       }}
       {...(item ? hover : {})}
     >
       {item && <ItemVisual item={item} size={32} />}
+      {item && <ProtectionBadge item={item} />}
       {item && badgeOf(item)}
       {item && <SocketDots item={item} />}
       {item && flag && <i class="cell-flag"><IconDelta up size={8} /></i>}
@@ -327,12 +341,12 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
   const [, rerender] = useForce();
   if (!open) return null;
   const rarities = BULK_SALVAGE_RARITIES.filter((r) => sel.current[r]);
-  const items = char.inventory.filter((i): i is Item => !!i && rarities.includes(i.rarity));
+  const items = char.inventory.filter((i): i is Item => !!i && !i.protected && rarities.includes(i.rarity));
   return (
     <div class="menu salvage-menu">
       <div class="menu-t">Salvage All</div>
       {BULK_SALVAGE_RARITIES.map((r) => {
-        const n = char.inventory.filter((i) => i && i.rarity === r).length;
+        const n = char.inventory.filter((i) => i && !i.protected && i.rarity === r).length;
         return (
           <div class="menu-row" key={r}>
             <Check on={!!sel.current[r]} onChange={(v) => { sel.current[r] = v; rerender(); }}>
@@ -343,7 +357,7 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
         );
       })}
       <div class="menu-sum">You will receive <YieldChips y={sumYield(items)} /></div>
-      <div class="menu-note">Legendary and Set items are never salvaged in bulk.</div>
+      <div class="menu-note">Protected, Legendary and Set items are never salvaged in bulk.</div>
       <div class="menu-act">
         <button class="btn sm" onClick={() => invUI.set({ salvageMenu: false })}>Cancel</button>
         <button class="btn sm primary" disabled={!items.length} onClick={() => { invUI.set({ salvageMenu: false }); void run('salvageAll', { rarities }); }}>
@@ -378,6 +392,7 @@ function ConfirmDialog({ char }: { char: CharacterSave }) {
           <button class="btn sm" onClick={close}>Cancel</button>
           <button
             class="btn sm primary"
+            disabled={!!live.protected}
             onClick={() => { close(); void run(isSalvage ? 'salvage' : 'destroy', { itemId: live.id }); }}
           >
             {isSalvage ? 'Salvage' : 'Destroy'}
@@ -391,6 +406,8 @@ function ConfirmDialog({ char }: { char: CharacterSave }) {
 // ───────────────────────────── panel ─────────────────────────────
 
 export function InventoryPanel() {
+  useEffect(() => () => invUI.set({ protectMode: false }), []);
+  const protectMode = useLocal(invUI, s => s.protectMode);
   const char = useU((s) => s.char);
   const tab = useLocal(invUI, (s) => s.tab);
   const menuOpen = useLocal(invUI, (s) => s.salvageMenu);
@@ -408,6 +425,7 @@ export function InventoryPanel() {
           <button class={cls('seg-b', tab === 'gems' && 'on')} onClick={() => invUI.set({ tab: 'gems' })}>Gems</button>
         </div>
         <div class="bag-tools">
+          <ProtectionButton />
           <button class={cls('btn sm', menuOpen && 'on')} onClick={() => invUI.set({ salvageMenu: !menuOpen })} {...textTipHandlers(() => ({ title: 'Salvage', lines: ['Shift + right-click an item to salvage it.', 'Salvage All breaks down every Normal, Magic or Rare item you tick.'] }), 'salv')}>
             Salvage All
           </button>
@@ -420,6 +438,7 @@ export function InventoryPanel() {
         </div>
       </div>
       <div class="bag-wrap">
+        {protectMode && <div class="cw-note">Click a bag or worn item to protect or unprotect it. Choose Done to finish.</div>}
         {tab === 'items' ? <BagGrid char={char} /> : <GemGrid char={char} />}
         <SalvageMenu char={char} />
         <ConfirmDialog char={char} />

@@ -30,4 +30,5 @@ export const invUI = new Local<{
   tab: 'items' | 'gems';
   confirm: InvConfirm | null;
   salvageMenu: boolean;
-}>({ tab: 'items', confirm: null, salvageMenu: false });
+  protectMode: boolean;
+}>({ tab: 'items', confirm: null, salvageMenu: false, protectMode: false });

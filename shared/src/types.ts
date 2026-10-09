@@ -73,6 +73,8 @@ export interface Item {
   enchanted?: number;
   enchantCount: number;
   bound: boolean;
+  /** Player-selected protection from destruction, consumption and full reforge. */
+  protected?: boolean;
   look: ItemLook;
   flavor?: string;
 }

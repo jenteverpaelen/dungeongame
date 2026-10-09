@@ -165,6 +165,11 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   save.stash = save.stash.map(i => i && typeof i === 'object' ? i : null);
   while (save.stash.length < STASH_SIZE) save.stash.push(null);
   // Preserve any future/oversized save entries; never truncate player-owned items.
+  // v2: absence remains unprotected. A malformed present flag errs toward safety;
+  // the player can explicitly remove protection after loading.
+  for (const item of [...save.inventory, ...save.stash, ...Object.values(save.equipment)]) {
+    if (item && typeof item === 'object' && item.protected !== undefined && typeof item.protected !== 'boolean') item.protected = true;
+  }
 
   const sk = (save.skills ??= { slots: [null, null, null, null], runes: {}, tiers: {}, primary: CLASSES[save.classId].primary });
   if (!Array.isArray(sk.slots)) sk.slots = [];
@@ -189,7 +194,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
 
   const st = (save.stats ??= { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 });
   for (const k of ['kills', 'elites', 'legendaries', 'rifts', 'playMs', 'deaths'] as const) st[k] = num(st[k], 0);
-  // v0 -> v1 retains the existing field/default migration and adds only this marker.
+  // v0/v1 -> v2 preserves owned objects and adds the protection compatibility marker.
   save.version = SAVE_VERSION;
   return save;
 }

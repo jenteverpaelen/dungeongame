@@ -42,7 +42,7 @@ test('debug requires exact opt-in and explicit disable overrides it, including r
 });
 
 test('legacy/current fixtures retain owned items, overflow slots, progression and extension fields', async () => {
-  for (const name of ['v0-unversioned', 'v1-current']) {
+  for (const name of ['v0-unversioned', 'v1-current', 'v2-protected']) {
     const original = await fixture(name), beforeItems = items(original);
     const migrated = normalizeSave(structuredClone(original));
     assert.equal(migrated.version, SAVE_VERSION);
@@ -61,7 +61,7 @@ test('legacy/current fixtures retain owned items, overflow slots, progression an
 test('older sparse saves get missing stash/defaults without losing equipment or legacy fields', () => {
   const sparse = { id:'sparse', name:'Sparse', classId:'warrior', level:1, inventory:[null], lastSeen:1700000000000 } as CharacterSave;
   const migrated = normalizeSave(sparse);
-  assert.equal(migrated.version, 1); assert.equal(migrated.inventory.length,60); assert.equal(migrated.stash.length,60);
+  assert.equal(migrated.version, SAVE_VERSION); assert.equal(migrated.inventory.length,60); assert.equal(migrated.stash.length,60);
   assert.equal(migrated.skills.primary,'cleave'); assert.equal(migrated.cube.level,1);
 });
 

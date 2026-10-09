@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
+import { itemProtectionReason } from '@shared/itemProtection';
 import {
   CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, UPGRADE_CHANCE, canAfford, canEnchantAffix, cubeXpToNext, enchantCost, extractCost, fuseCost,
   gemName, gemRemoveCost, maxSockets, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost,
@@ -42,6 +43,8 @@ function YieldChips({ y }: { y: Partial<Materials> }) {
 function invalidReason(fn: CubeOp, item: Item | null): string | null {
   if (fn === 'fuse') return null;
   if (!item) return 'Place an item in the Cube.';
+  const protection = itemProtectionReason(item, fn);
+  if (protection) return protection;
   switch (fn) {
     case 'enchant': return item.rarity === 'normal' ? 'Normal items have no properties to enchant.' : null;
     case 'upgrade': return item.upgrade >= 10 ? 'This item is already at the maximum tier.' : null;

@@ -1,0 +1,5 @@
+# Item protection — C078
+
+L92/D033 precede code. Add a persisted optional boolean, shared destructive-operation reason and authoritative set-state command for owned bag/equipped/stash items. Use an explicit boolean so retry cannot toggle twice. Block destroy/salvage/transmute/extract/reforge before spending, skip protected bulk items, preserve equipment/stash movement and ordinary targeted improvements. Update counts/previews and visible scope; use the existing small gold button/badge/tooltip style.
+
+Save version2 and protocol3 prevent old builds from silently ignoring protection. Keep legacy fixtures and add a synthetic current fixture. Test mutation-free rejection, bulk conservation, set-state replay/bad arguments, movement/stash/equip, normal upgrades and disk reload. Use isolated DATA_DIR throughout. Run focused persistence/command checks and type/content/build; one1080p local browser interaction/tooltip check, no full campaign replay. Record exact limits and rollback. Whole roadmap continues.

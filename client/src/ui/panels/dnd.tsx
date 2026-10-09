@@ -4,6 +4,7 @@
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { slotsForKind } from '@shared/items';
 import type { Item, Slot } from '@shared/types';
+import { ITEM_PROTECTION_REASON } from '@shared/itemProtection';
 import { pushNotice, ui } from '../store';
 import { invUI, setCubeItem } from './cubestate';
 import { GemIcon } from './icons';
@@ -103,7 +104,10 @@ async function handleDrop(p: DragPayload, target: string) {
     if (kind === 'bag') { const to = Number(arg); if (to !== p.index) await run('swapInv', { from: p.index, to }); }
     else if (kind === 'eq') { if (slotsForKind(p.item.kind).includes(arg as Slot)) await run('equip', { itemId: p.item.id, slot: arg }); }
     else if (kind === 'cube') setCubeItem(p.item.id);
-    else if (kind === 'trash') invUI.set({ confirm: { kind: 'destroy', item: p.item } });
+    else if (kind === 'trash') {
+      if (p.item.protected) pushNotice(ITEM_PROTECTION_REASON, 'warn');
+      else invUI.set({ confirm: { kind: 'destroy', item: p.item } });
+    }
   } else if (p.kind === 'eq') {
     if (kind === 'bag') await run('unequip', { slot: p.slot });
     else if (kind === 'cube') setCubeItem(p.item.id);

@@ -18,7 +18,7 @@ const stages = [
   ['license-notices', ['--import', 'tsx', '--test', 'scripts/license-notices.test.ts']],
   ['typecheck', ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.json', '--noEmit']],
   ['shared', ['--import', 'tsx', '--test', ...sharedTests]],
-  ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts']],
+  ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts', 'server/test/itemProtection.test.ts']],
   ['save-failures', ['--import', 'tsx', '--test', 'server/test/saveFailures.test.ts']],
   ['command-replay', ['--import', 'tsx', '--test', 'server/test/commandReplay.test.ts']],
   ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts', 'server/test/messageBudget.test.ts']],

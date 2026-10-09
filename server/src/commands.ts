@@ -7,6 +7,7 @@ import { adventureCommand } from './adventure';
 import { questCommand, creditQuestService } from './quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
+import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
 import { requireNear } from './townServices';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
@@ -141,6 +142,16 @@ function sumMats(into: Partial<Materials>, mats: Partial<Materials>): void {
 
 // ─────────────────────────── Inventory & equipment ───────────────────────────
 
+const itemProtect: Handler = (s, a) => {
+  const id = str(a, 'itemId');
+  if (typeof a.protected !== 'boolean') return fail('Choose protection on or off');
+  const owned = [...s.save.inventory, ...s.save.stash, ...Object.values(s.save.equipment)].filter(i => i?.id === id);
+  if (owned.length !== 1) return fail(owned.length ? 'Duplicate item id; protection unchanged' : 'Item not found');
+  if (!!owned[0]!.protected === a.protected) return ok();
+  if (a.protected) owned[0]!.protected = true; else delete owned[0]!.protected;
+  return done(s, false);
+};
+
 const equip: Handler = (s, a) => {
   const slot = optStr(a, 'slot');
   if (slot !== null && !SLOTS.includes(slot as Slot)) return fail('Invalid slot');
@@ -214,7 +225,7 @@ const salvageAll: Handler = (s, a) => {
   let count = 0, xp = 0;
   for (let i = 0; i < save.inventory.length; i++) {
     const item = save.inventory[i];
-    if (!item || !wanted.has(item.rarity)) continue;
+    if (!item || item.protected || !wanted.has(item.rarity)) continue;
     sumMats(mats, salvageYield(item));
     xp += salvageXp(item);
     returnGems(save, item);
@@ -672,7 +683,7 @@ const debug: Handler = (s, a) => {
 const HANDLERS: Record<CmdOp, Handler> = {
   adventure: adventureCommand,
   quest: questCommand,
-  equip, unequip, swapInv, destroy, stashDeposit, stashWithdraw,
+  equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
   skillSlot, skillRune, skillTier, skillReset,
@@ -687,6 +698,10 @@ export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdRes
   try {
     const role = SERVICE_ROLE[op];
     if (role) { const err = requireNear(s, role); if (err) return fail(err); }
+    if (PROTECTED_ITEM_OPS.has(op)) {
+      const reason = itemProtectionReason(locate(s.save, str(a, 'itemId'))?.item, op);
+      if (reason) return fail(reason);
+    }
     const result=HANDLERS[op](s,a,world);
     if(result.ok)creditQuestService(s,op);
     return result;
