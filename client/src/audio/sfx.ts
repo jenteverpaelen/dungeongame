@@ -66,6 +66,7 @@ class Sfx {
   inspect() {
     return {state:this.eng?.ctx.state??'locked',muted:this.muted,master:this.eng?.master.gain.value??0,
       categories:this.eng?{effects:this.eng.effects.gain.value,priorityEffects:this.eng.priorityEffects.gain.value,ambience:this.eng.ambience.gain.value}:null,
+      channelLoops:[...this.loops.keys()],requestedLoops:[...this.wantLoops],
       listener:[this.lx,this.ly],loops:[...this.ambient].map(([id,v])=>({id,gain:v.gain.gain.value,pan:v.pan.pan.value})),
       buffers:[...this.buffers].filter(([name])=>name.startsWith('town_')).map(([name,b])=>{
         const a=b.getChannelData(0);let sum=0,peak=0;for(const v of a){sum+=v*v;peak=Math.max(peak,Math.abs(v));}
@@ -218,6 +219,11 @@ class Sfx {
       l.gain.gain.linearRampToValueAtTime(0, t + 0.25);
       l.src.stop(t + 0.3);
     }
+  }
+
+  /** A channel belongs to its current game context, including requests made before unlock. */
+  stopLoops(): void {
+    for (const name of [...this.wantLoops]) this.loop(name, false);
   }
 
   private startLoop(name: string): void {

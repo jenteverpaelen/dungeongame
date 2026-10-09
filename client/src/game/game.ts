@@ -53,6 +53,7 @@ export class Game {
     ui.set({ screen: 'connecting', error: null, enchant: null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       ui.set({ connected: false, error: reason, screen: 'select', enchant: null });
+      this.stopChannelAudio();
       this.townSound?.destroy();this.townSound=null;
       this.scene.clearEntities();
     });
@@ -107,6 +108,7 @@ export class Game {
   }
 
   private enterZone(zone: ZoneInfo, you: number) {
+    this.stopChannelAudio();
     this.townSound?.destroy();this.townSound=null;
     this.scene.clearEntities();
     this.world.setZone(zone, you);
@@ -250,6 +252,11 @@ export class Game {
 
   // ─────────────────────────── Frame ───────────────────────────
   private townSound:TownSound|null=null;
+
+  private stopChannelAudio() {
+    sfx.stopLoops();
+    this.whirl = false;
+  }
 
   private frame(dtMs: number) {
     const st = ui.get();

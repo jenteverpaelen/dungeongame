@@ -1,0 +1,88 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-audio-lifetime-CnQCDb",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-audio-lifetime-CnQCDb\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "before": false,
+  "scope": "Installed headless Chrome1920x1080; controlled channel flags/ticker, actual Web Audio ended and local socket close. Muted synthetic profile. No listening, natural combat, dense-load or performance claim.",
+  "observations": [
+    {
+      "name": "01-channel-active",
+      "screen": "game",
+      "hidden": false,
+      "width": 1920,
+      "height": 1080,
+      "viewHeight": 620,
+      "context": "running",
+      "master": 0,
+      "loops": [
+        "whirlwind"
+      ],
+      "wanted": [
+        "whirlwind"
+      ],
+      "whirl": true,
+      "ended": false,
+      "muted": true
+    },
+    {
+      "name": "02-disconnected",
+      "screen": "select",
+      "hidden": false,
+      "width": 1920,
+      "height": 1080,
+      "viewHeight": 620,
+      "context": "running",
+      "master": 0,
+      "loops": [],
+      "wanted": [],
+      "whirl": false,
+      "ended": true,
+      "muted": true
+    },
+    {
+      "name": "zone-entry-before-next-frame",
+      "loops": [],
+      "wanted": [],
+      "whirl": false,
+      "ended": true
+    },
+    {
+      "name": "channel-restarts-and-stops",
+      "screen": "game",
+      "hidden": false,
+      "width": 1920,
+      "height": 1080,
+      "viewHeight": 620,
+      "context": "running",
+      "master": 0,
+      "loops": [],
+      "wanted": [],
+      "whirl": false,
+      "ended": true,
+      "muted": true
+    },
+    {
+      "name": "03-reconnected-town",
+      "screen": "game",
+      "hidden": false,
+      "width": 1920,
+      "height": 1080,
+      "viewHeight": 620,
+      "context": "running",
+      "master": 0,
+      "loops": [],
+      "wanted": [],
+      "whirl": false,
+      "ended": true,
+      "muted": true
+    }
+  ]
+}

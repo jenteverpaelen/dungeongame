@@ -12,4 +12,6 @@ Audit the current effects/ambience graph and voice caps before replacing it. Mea
 
 ## Unfinished
 
+C042 source audit finds the channel loop depended on an active game frame for cleanup after disconnect. Installed Chrome reproduces a live source and pending intent on the selection screen; see P03 AUDIO-LIFETIME-DESIGN.md and its before/after evidence. AUDIO-01 separates a stop request from ended/context state. This correction preserves the existing sound bank and mix; it does not complete a listening or dense-combat audio evaluation.
+
 Procedural synthesis techniques beyond current implementation, subjective mix/listening checks, autoplay guidance, categories and persistence, actual concurrency cost. No imported package licence has been inferred from an author's marketing page. Any future CC0/MIT asset needs its exact individual licence/provenance and download entry, even with standing download authorization. Current town sound/ambience changes are outside this frozen-town pass.

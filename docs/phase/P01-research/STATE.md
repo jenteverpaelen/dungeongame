@@ -53,7 +53,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
-| R-19 audio | PannerNode + category guidance | Existing graph/mix/settings audit, concurrency/listening tests |
+| R-19 audio | PannerNode/category/lifecycle guidance; actual graph audit and C042 channel teardown measurements | Dense mix, concurrency/priority, device output and listening tests |
 | R-20 narrative/quests | Authoring pattern, quest failure cases, cross-game continuity and39 repeated all-class runtime credit cases (C040/C041) | Persisted quest state, party policy, UI observations, original premise, schema and reward semantics |
 | R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration | Pinned final PC tables/client behavior; first-session footage; loot/UI |
 

@@ -1,0 +1,17 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-audio-lifetime-NoozEH",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-audio-lifetime-NoozEH\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": false,
+  "failure": "Error: {\"exceptionId\":1,\"text\":\"Uncaught\",\"lineNumber\":2,\"columnNumber\":60,\"scriptId\":\"22\",\"stackTrace\":{\"callFrames\":[{\"functionName\":\"\",\"scriptId\":\"22\",\"url\":\"\",\"lineNumber\":2,\"columnNumber\":66},{\"functionName\":\"\",\"scriptId\":\"22\",\"url\":\"\",\"lineNumber\":4,\"columnNumber\":4}]},\"exception\":{\"type\":\"object\",\"subtype\":\"error\",\"className\":\"Error\",\"description\":\"Error: Channel fixture did not start\\n    at <anonymous>:3:67\\n    at <anonymous>:5:5\",\"objectId\":\"-3417763690389863576.2.2\"}}\n    at evaluate (file:///C:/Users/LaptopJente/dungeongame/scripts/capture-audio-lifetime.mjs:66:35)\n    at async file:///C:/Users/LaptopJente/dungeongame/scripts/capture-audio-lifetime.mjs:89:3",
+  "before": true,
+  "scope": "Installed headless Chrome1920x1080; controlled channel flags/ticker, actual Web Audio ended and local socket close. Muted synthetic profile. No listening, natural combat, dense-load or performance claim.",
+  "observations": []
+}
