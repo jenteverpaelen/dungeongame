@@ -1,0 +1,180 @@
+{
+  "date": "2026-10-09T05:47:02.973Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "sqliteVersion": "3.53.3",
+  "root": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-transaction-drill-VXWJV0",
+  "passed": true,
+  "settings": {
+    "journal": "wal",
+    "synchronous": 2,
+    "foreignKeys": true,
+    "busyTimeout": 0
+  },
+  "fixtures": [
+    {
+      "id": "txnwarrior",
+      "bytes": 73167,
+      "itemCount": 125,
+      "sha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa"
+    },
+    {
+      "id": "txnranger",
+      "bytes": 73218,
+      "itemCount": 125,
+      "sha256": "b588b4a415c6d82d66b5d7a31f27325fb92fc0bf85584663f084e5ff4cbdb2e4"
+    },
+    {
+      "id": "txnmage",
+      "bytes": 73308,
+      "itemCount": 125,
+      "sha256": "e4ee53d048c870b73c895cfcb961e410d0fe34a9258e6ff40b0188e39fcb6cb1"
+    }
+  ],
+  "results": [
+    {
+      "character": "txnwarrior",
+      "point": "after-character",
+      "payloadBytes": 73167,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnwarrior",
+      "point": "before-commit",
+      "payloadBytes": 73167,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnwarrior",
+      "point": "after-commit",
+      "payloadBytes": 73167,
+      "itemCount": 125,
+      "recoveredOwner": "account-a",
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnranger",
+      "point": "after-character",
+      "payloadBytes": 73218,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "b588b4a415c6d82d66b5d7a31f27325fb92fc0bf85584663f084e5ff4cbdb2e4",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnranger",
+      "point": "before-commit",
+      "payloadBytes": 73218,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "b588b4a415c6d82d66b5d7a31f27325fb92fc0bf85584663f084e5ff4cbdb2e4",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnranger",
+      "point": "after-commit",
+      "payloadBytes": 73218,
+      "itemCount": 125,
+      "recoveredOwner": "account-a",
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "b588b4a415c6d82d66b5d7a31f27325fb92fc0bf85584663f084e5ff4cbdb2e4",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnmage",
+      "point": "after-character",
+      "payloadBytes": 73308,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "e4ee53d048c870b73c895cfcb961e410d0fe34a9258e6ff40b0188e39fcb6cb1",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnmage",
+      "point": "before-commit",
+      "payloadBytes": 73308,
+      "itemCount": 125,
+      "recoveredOwner": null,
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "e4ee53d048c870b73c895cfcb961e410d0fe34a9258e6ff40b0188e39fcb6cb1",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "character": "txnmage",
+      "point": "after-commit",
+      "payloadBytes": 73308,
+      "itemCount": 125,
+      "recoveredOwner": "account-a",
+      "retryExactlyOnce": true,
+      "changedIntentRejected": true,
+      "crossAccountRejected": true,
+      "walPresentAfterCrash": true,
+      "bodySha256": "e4ee53d048c870b73c895cfcb961e410d0fe34a9258e6ff40b0188e39fcb6cb1",
+      "restoredAllTables": true,
+      "oldBackupRestoresUnconsumedClaim": true,
+      "backupPages": 44
+    },
+    {
+      "case": "competing-writers",
+      "busyWhileOpen": true,
+      "consumedAfterCommit": true,
+      "owners": 1,
+      "receipts": 1,
+      "bodySha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa"
+    }
+  ],
+  "scope": "Synthetic candidate transaction code in owned child processes; no production imports/login/storage migration. Forced process termination, not disk/power/OS failure or throughput/load test."
+}

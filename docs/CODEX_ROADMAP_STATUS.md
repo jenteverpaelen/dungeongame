@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C037. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C038. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -23,7 +23,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SAV-02 | Golden-save fixtures per version | P3 | MISSING (map fixtures exist, not saves) | Current synthetic legacy/version1/future refusal fixtures checked, C006. No real-save migration evidence. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SAV-03 | Backup rotation + tested restore | P3 | MISSING (atomic writes only) | Partial: verified startup/daily backup and restore (C016); rotation/off-device/power-loss/scale open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SAV-04 | Storage abstraction (JSON → DB per D-31) | P3 | MISSING (direct file calls) | Implemented JSON CharacterStore boundary (C015); database migration not selected. [foundation state](phase/P03-foundations/STATE.md). |
-| F-SAV-05 | Idempotent commands (client command IDs, replay safety) | P3/P8 | PARTIAL — commands carry an `id` for replies; replay safety unaudited | Partial: connection receipts/replays tested (C017), stale enchant/reforge interleaving fixed (C022); durable transactions open. [foundation state](phase/P03-foundations/STATE.md). |
+| F-SAV-05 | Idempotent commands (client command IDs, replay safety) | P3/P8 | PARTIAL — commands carry an `id` for replies; replay safety unaudited | Connection receipts tested (C017), enchant interleaving fixed (C022); standalone durable boundary/crash experiment (C038). Production durable transactions open. [transaction drill](phase/P03-foundations/TRANSACTION-REPORT.md). |
 | F-SAV-06 | Transactional multi-entity operations (trade, mail, crafting) | P15 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-CON-01 | Registries with stable IDs + schema validation + `content:check` | P3 | PARTIAL — typed TS data; town has `town:check` | Partial: typed registries, semantic validator and mutation checks (C014/C034); class signature lookup now uses stable IDs. Localization/originality and broader graph validity open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-CON-02 | Localization keys for all player-facing text | P3 | MISSING — strings inline | Open: no newer full-scope completion evidence; original baseline retained. |

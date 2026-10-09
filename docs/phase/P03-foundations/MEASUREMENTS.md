@@ -36,4 +36,6 @@ Every mode reads back all 100 latest snapshots. Both SQLite cases pass rollback,
 
 **Not measured:** real server tick overlap, 100 browser clients, contention among processes, full inventory payloads, disk-full behavior, long-running growth, cold storage, reboot recovery, hostile login load or another host. No production database or authentication policy is selected by this report alone.
 
+**Later follow-up:** C038 TRANSACTION-REPORT.md covers full inventory/stash serialization, controlled competing writers and process termination in a synthetic ownership transaction. It does not extend these timings or resolve the other limitations above.
+
 Pilot `hf-foundation-bench-MUYLeN` is retained in [pilot report](checks/foundation-benchmark-pilot.json). It had incorrectly named byte statistics with the shared timing helper's `Ms` suffix. The harness corrected those labels and reran all cases in `hf-foundation-bench-10fALp`; the table uses only this final run. Both runs show the main-thread stall; do not select the fastest run as a capacity promise.

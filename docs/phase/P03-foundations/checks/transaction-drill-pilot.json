@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-09T05:43:28.915Z",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "sqliteVersion": "3.53.3",
+  "root": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-transaction-drill-yAyuxP",
+  "passed": false,
+  "failure": "Error: 2nd ORDER BY term out of range - should be between 1 and 1\n    at <anonymous> (C:\\Users\\LaptopJente\\dungeongame\\scripts\\drill-transactions.ts:30:59)\n    at Array.map (<anonymous>)\n    at snapshot (C:\\Users\\LaptopJente\\dungeongame\\scripts\\drill-transactions.ts:30:36)\n    at assertState (C:\\Users\\LaptopJente\\dungeongame\\scripts\\drill-transactions.ts:142:15)\n    at main (C:\\Users\\LaptopJente\\dungeongame\\scripts\\drill-transactions.ts:160:56)\n    at async <anonymous> (C:\\Users\\LaptopJente\\dungeongame\\scripts\\drill-transactions.ts:204:55)",
+  "settings": {
+    "journal": "wal",
+    "synchronous": 2,
+    "foreignKeys": true,
+    "busyTimeout": 0
+  },
+  "fixtures": [
+    {
+      "id": "txnwarrior",
+      "bytes": 73167,
+      "itemCount": 125,
+      "sha256": "4ceb2a045795bfc23c8c7878166f67b316e0d6521fce19fb554b0eac4eb403fa"
+    },
+    {
+      "id": "txnranger",
+      "bytes": 73218,
+      "itemCount": 125,
+      "sha256": "b588b4a415c6d82d66b5d7a31f27325fb92fc0bf85584663f084e5ff4cbdb2e4"
+    },
+    {
+      "id": "txnmage",
+      "bytes": 73308,
+      "itemCount": 125,
+      "sha256": "e4ee53d048c870b73c895cfcb961e410d0fe34a9258e6ff40b0188e39fcb6cb1"
+    }
+  ],
+  "results": [],
+  "scope": "Synthetic candidate transaction code in owned child processes; no production imports/login/storage migration. Forced process termination, not disk/power/OS failure or throughput/load test."
+}

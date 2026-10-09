@@ -1,0 +1,13 @@
+# Synthetic ownership transaction drill — C038
+
+2026-10-09. L49, SQLITE-TXN/WAL/SYNC/ATOMIC, NODE24-SQL and AWS-IDEMPOTENCY precede this experiment. This is **test-only candidate code**, isolated from production storage/login and not an authentication implementation.
+
+Generate three level70 synthetic characters, one per current class, using actual item generators and fixed seeds. Fill the existing60 inventory and60 stash slots; retain starter equipment and add an explicit synthetic extension. This represents a larger serialization fixture, not a representative endgame loadout or human economy. Never read real saves. Preserve each serialized body byte-for-byte through the drill; ownership lives in separate test columns.
+
+In one disposable SQLite WAL/FULL database per case, create synthetic accounts, characters, hashed one-use claims and account-scoped request receipts. One transaction conditionally assigns an unowned character, consumes the matching unused claim and records the result/fingerprint. Reuse of the same account/request/intent returns its receipt; changed intent or another account cannot use that receipt. This models the required atomic boundary, not credential verification or a production migration API. Claims contain synthetic values only; do not print raw tokens.
+
+Exercise boundaries: kill the owned child process after the character update, after all writes but before commit, and after commit before its result reaches the caller. Reopen using SQLite (never discard WAL), run integrity_check/foreign_key_check, compare exact bodies and all ownership/claim/receipt invariants, then retry. Coordinate another writer while the first transaction is open: verify busy refusal, no partial mutation, and the subsequent consumed-claim rejection. Also test a changed request payload and cross-account request-ID collision.
+
+Online-backup the final combined state to a fresh destination, reopen, compare all rows and integrity. Separately demonstrate that restoring a pre-claim snapshot restores pre-claim state; document the operational risk instead of pretending a database backup solves revocation. Preserve all input databases/reports under a newly generated temporary root. Clear BACKUP_DIR for children. No server/data access, arbitrary-path deletion, host restart, disk-full injection or power interruption. Only children created by this harness may be killed.
+
+Repeat crash boundaries with all three class bodies. Counts derive from classes and transaction cut points, not performance or gameplay targets. Report exact runtime/SQLite/version/bytes/cases, failures and scope. No game UI change; no browser/performance claim. Production remains JSON. Rollback removes only the independent harness/docs; player data is unaffected.

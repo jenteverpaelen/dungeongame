@@ -29,3 +29,5 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 Detailed evidence state: `docs/phase/P01-research/STATE.md`. Implementation state: `docs/phase/P03-foundations/STATE.md`. Every change/removal and its research: `docs/CODEX_CHANGELOG.md`. A phase entry is not completion of its individual feature list in roadmap §8.
 
 [Codex's item-by-item status](CODEX_ROADMAP_STATUS.md) now covers all147 features,86 screens and40 decisions from Claude's file. It preserves the historical snapshot separately from newer scoped evidence and remaining work; these counts are not a completion percentage.
+
+C038 adds a standalone crash/retry/restore experiment to P3 evidence. It leaves live identity, storage selection and durable game-command integration open; see P03 TRANSACTION-REPORT.md. Continue independent roadmap research while owner-population information is pending.
