@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checkpoint": "C057",
-  "research": "L67;L68",
+  "checkpoint": "C058",
+  "research": "L67;L68;L69",
   "recordings": [
     {
       "id": "D3-CAM-01",
@@ -109,6 +109,158 @@
         {"seconds": 840, "observed": "Vendor pane and pet inventory/sell-all at left; character at right. Chest modifier-action hint now says sell rather than transfer; price visible. No sale/buyback/protection guarantee."},
         {"seconds": 900, "observed": "Shop potion tooltip separates recovery amount/duration, consumption instruction, price and modifier-buy action. Empty pet grid; wand icon in character bag. Exact transaction history unknown."},
         {"seconds": 960, "observed": "Town waypoint/fishing labels and several NPC/map symbols; active next quest. No service activation or point-allocation flow sampled."}
+      ]
+    },
+    {
+      "id": "IDLE-EARLY-01",
+      "source_id": "IDLE-EARLY-VIDEO",
+      "media_id": "IDLE-V-EARLY",
+      "url": "https://www.youtube.com/watch?v=Gkwf75q4NUk",
+      "title": "So You Want To Be An IdleOn Master? | IdleOn F2P Guide Ep.1",
+      "publisher": "GriffyBit",
+      "published": "2025-11-01",
+      "publication_evidence": "Expanded YouTube description; not recording date",
+      "inspected": "2026-10-09",
+      "game": "Idleon",
+      "platform_evidence": "Description discusses Steam; no installed platform/build independently inspected",
+      "visible_build": null,
+      "mode": "Edited guided early-play presentation; advertised F2P is not independently verified",
+      "class": "Beginner level1/2/7; Warrior level8/14/16/17; another character Archer level9 in sampled frames",
+      "game_ui_language": "English",
+      "host_player_ui_language": "Dutch",
+      "account": "Creation samples and multiple characters visible; pristine account, bonuses, spending and account ownership not independently verified",
+      "difficulty": "No session difficulty or modifier configuration inspected",
+      "social": "Other named avatars and guild/title decorations visible; party/credit/trading rules untested",
+      "duration_seconds_dom": 4950.981,
+      "decoded_video_dimensions": [
+        1280,
+        720
+      ],
+      "inspection_viewport": [
+        1920,
+        1080
+      ],
+      "rendered_player_dimensions_observed": [
+        [
+          1337,
+          752
+        ],
+        [
+          1348,
+          758
+        ]
+      ],
+      "method": "21 sparse paused frames, one excluded presenter introduction. UI slider seeks; DOM currentTime/readyState4/paused; personally inspected complete video-area screenshots in Chrome on owner PC. Source crops/insets excluded where obscuring controls.",
+      "timing_eligible": false,
+      "balance_ready": false,
+      "unverified": [
+        "recording date",
+        "build",
+        "pristine account",
+        "spending/F2P compliance",
+        "source speed/cuts",
+        "minimum class promotion level",
+        "exact inputs",
+        "offline formula/cap",
+        "wall-clock away duration",
+        "full-bag/replay/error flows",
+        "durable rewards",
+        "storage conservation",
+        "preset restrictions",
+        "comprehension"
+      ],
+      "inspection_corrections": [
+        "Description/chapter labels only guided frame selection; unexpected inventory/Away Info frames recorded as actually visible.",
+        "readyState1 seek states not treated as decoded frames; inspected afterreadyState4.",
+        "Presenter overlays and source zooms leave portions unobserved.",
+        "2595s chapter-adjacent frame lacked receipt;2580s explicitly inspected it,2585s the later acquisition display."
+      ],
+      "frames": [
+        {
+          "seconds": 0,
+          "excluded": true,
+          "observed": "Presenter introduction; no game interface."
+        },
+        {
+          "seconds": 150,
+          "observed": "Creation: name, star-sign arrows with explicit effects, gender, starting hat and Create; separate Play/slot and language controls. Presenter obscures upper left. No class chooser or successful creation observed."
+        },
+        {
+          "seconds": 240,
+          "observed": "Town Beginner level1; NPC speech/exclamation marker, shop/anvil and level-signposted landmarks. Bottom item/talent/codex/map/menu controls, locked slots and talent alert; world retained behind dialogue."
+        },
+        {
+          "seconds": 300,
+          "observed": "Level2 Beginner talent panel: selected passive level0/100, current and next effect, Upgrade and4 points left. Question-mark slots; Player Stats/Assign Attacks tabs; quest helper behind. Investment input unobserved."
+        },
+        {
+          "seconds": 345,
+          "observed": "Anvil Produce pane beside bag: thread producing with progress8/100; later recipes locked with smithing-level labels. Craft/Produce, Buy/Spend Points, grey Quick Deposit. Separate quest asks craft equipment0/1. No production rate/collection/offline result measured."
+        },
+        {
+          "seconds": 510,
+          "observed": "Upgrade Vault has coin balance, per-row level/effect/cost/Upgrade, info affordance and locked rows described by remaining upgrades. Quest counters behind; account scope, actual purchase and persistence unknown."
+        },
+        {
+          "seconds": 690,
+          "observed": "Level7 Beginner Codex Cards: collection categories, selected enemy stats, card effect/copies-to-upgrade, discovered/silhouetted drops with written odds, rare-table affordance and repeat-tap equip instruction. Displayed odds are not measured rates; no equip result."
+        },
+        {
+          "seconds": 705,
+          "observed": "Same selected-card details and repeat-tap equip instruction; no equipped-panel or successful equip shown."
+        },
+        {
+          "seconds": 960,
+          "observed": "Class Promotion: Warrior/Archer/Mage cards, labeled damage/health/speed blocks, gathering specialization and separate Select Class actions. Presenter partly covers lower left; exact power and selection result unknown."
+        },
+        {
+          "seconds": 1020,
+          "observed": "Same promotion modal; enlarged presenter covers part of left option. Selection/confirmation still unobserved."
+        },
+        {
+          "seconds": 1230,
+          "observed": "Character and HUD now Warrior level8; equipment/tools/foods tabs beside bag and stat sheet including accuracy/defence. Empty gear silhouettes; Attack control unlocked. Promotion input/durability not observed."
+        },
+        {
+          "seconds": 1260,
+          "observed": "Away Info names activity; separates kills/XP/money per hour, AFK rate, survivability, hit chance, card odds and accuracy thresholds. Swap Players/AFK Info menu and prayer unlock text. Estimates are not elapsed-away receipts or measured simulation."
+        },
+        {
+          "seconds": 1695,
+          "observed": "Storage and bag side by side, distinct currency amounts/arrows; Deposit All, Split Stack, Auto Sort, Buy Space, Storage Info. Stored thread12 and bag stacks visible; bulk protection/capacity/durability untested."
+        },
+        {
+          "seconds": 1710,
+          "observed": "Another storage tab/page appears selected; bag has one visible stack13 and shown storage cells are empty. Presenter covers upper-left storage. Disappearance does not prove deposit-all success or conservation."
+        },
+        {
+          "seconds": 2220,
+          "observed": "Creation again with different filled name/star-sign effects; source digitally zooms to a partial panel. Roster count, slot requirement and successful creation not visible."
+        },
+        {
+          "seconds": 2570,
+          "observed": "Different character is Archer level9; other named avatars with guild/title decoration share scene. Cooperative mechanics/credit untested; no return receipt."
+        },
+        {
+          "seconds": 2580,
+          "observed": "Warrior level14 AFK Gains reports8min away, kills, coins, main XP and item/card totals with Claim. Distinct from1260s rate preview; wall-clock duration, derivation and grant semantics untested."
+        },
+        {
+          "seconds": 2585,
+          "observed": "Return panel absent; Warrior level16; acquisition text matches item/card totals. Collection separate from four equipped cards and four locked Buy slots/currency icons. Exact claim/pickup inputs, conservation, durability and purchase semantics unknown."
+        },
+        {
+          "seconds": 2595,
+          "observed": "Warrior level16 in field, Auto off and Players unlocked; no return receipt/collection shown despite nearby chapter label."
+        },
+        {
+          "seconds": 2970,
+          "observed": "Warrior level17 talent overview: allocations,21 available points, two presets and contextual separate-loadout explanation suggesting fighting/skill specialization. Auto on/reward text behind. Unrestricted switching and preset persistence unproven."
+        },
+        {
+          "seconds": 3000,
+          "observed": "Same level17 Warrior has all visible basic talents0,58 points left and selected efficiency passive current/next values. Previous allocations absent; switch/reset input and persistence unobserved."
+        }
       ]
     }
   ]

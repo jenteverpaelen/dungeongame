@@ -64,3 +64,25 @@ The browser viewport was 1920×1080 and decoded source video 1920×1080. Fullscr
 The useful cross-game distinction is **offer → active progress → reward choice → confirmation → owned result**. These samples reveal several presentations but do not prove the entire transaction chain. Similarly, an item disappearing from one grid could mean transfer, sale or equip; observed pane labels and later ownership evidence must resolve that ambiguity. This reinforces the existing objective/acquisition audit rather than selecting a new quest engine or pet system. Preserve Hearthfall's UI style, town and camera. No numeric values are adopted.
 
 Current cumulative scope: two recordings, 42 sampled frames including three excluded introductions; 25 media assets and 29 atlas entries. Other games/modes have publisher stills but no timestamped early-flow record yet. This is a research checkpoint, not complete timelines or G1.
+
+## C058 — Idleon decisions and away-return presentation [V]
+
+GriffyBit's [guided playthrough](https://www.youtube.com/watch?v=Gkwf75q4NUk), published November1,2025, contributes21 sparse frames through video50:00, including one excluded presenter introduction. The guide is edited and includes presenter overlays and digitally zoomed crops. Its F2P/new-start description does not independently establish account conditions, spending, exact build, uncut play or elapsed time. The source decodes1280×720, scaled in a1920×1080 Chrome viewport; it is not native1080p geometry evidence. Exact notes are in [TIMELINE-FRAMES.json](TIMELINE-FRAMES.json).
+
+| Video offsets | Observed decision context | Evidence boundary |
+|---|---|---|
+|02:30 /04:00 /05:00|Creation bonuses, level1 town dialogue, then level2 talent current/next effect and budget|Successful creation, point input and comprehension unknown|
+|05:45 /08:30|Production distinct from crafting; upgrade rows expose cost/effect and locked-row conditions|Rates, collection, purchase and account-wide ownership untested|
+|11:30 /11:45|Cards show collection, enemy details, effect/progress and displayed drop odds|Rates not measured; repeat-tap instruction does not prove equipped state|
+|16:00 /17:00 /20:30|Three class comparisons; later Warrior level8 and equipment/stat panes|Exact minimum level and promotion input unknown; contradicts a universal level10 milestone|
+|21:00|Away Info activity/hourly estimates, survival and accuracy factors|A forecast, not measured elapsed rewards|
+|28:15 /28:30|Storage beside bag with bulk/stack/sort controls; later items disappear from shown bag|Obscured cells and page change prevent conservation or successful transfer claims|
+|37:00 /42:50|Another creation sample; later Archer level9 and other avatars|Roster/ownership/party-credit rules unverified|
+|43:00 /43:05 /43:15|Return summary says8min with totals/Claim; later acquisition text matches item/card totals and level14 becomes16; later world view|No exact inputs, clock measurement, overflow, replay or durable save verification|
+|49:30 /50:00|Two talent presets and explanatory hint; later basic allocations show zero and more available points|Switch/reset mechanism, restrictions and persistence unverified|
+
+**Contradiction retained:** earlier secondary sources IDLE-W1/QUESTS describe a level10 class milestone. A visible level8 Warrior prevents treating that as universal. This is not proof that8 is the minimum or a current2026 rule. The conflicting sources remain registered with their limits; no game progression is changed.
+
+The useful distinction is **estimate → return summary → claim/collection → owned, persisted result**. The footage exposes several presentations, but does not prove every transition. Likewise collection is distinct from equipped contribution, and allocation from assignment. These extend audit questions; they do not select an alt economy, card system, unlock schedule or paid feature. The clean timeline cells remain Q.
+
+Cumulative evidence:163 sources,135 claims,26 media assets,39 atlas entries,three recordings and63 sampled frames, including four excluded introductions. TBH, PoE1/2 and D3 Adventure still need timestamped early-flow coverage; every game needs versioned behavior/error and comparable elapsed-time evidence. No G1 completion, game content change, numerical target or UI redesign.

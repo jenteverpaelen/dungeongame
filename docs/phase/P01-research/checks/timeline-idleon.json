@@ -1,0 +1,28 @@
+{
+  "checkpoint": "C058",
+  "checkedAtUtc": "2026-10-09T12:07:07.4255626Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 163,
+  "claims": 135,
+  "media": 26,
+  "atlasEntries": 39,
+  "recordings": 3,
+  "frames": 63,
+  "excludedIntroFrames": 4,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-idleon-docs-a38048b6c9e9499dab6e90658c7e390c",
+  "pilot": {
+    "isolatedDataDir": "hf-idleon-docs-52a12d0931124900a4541c01bf853208",
+    "result": "Failed checker: wrongly expected multi-part screen IDs; actual IDs are U-01 etc. Corrected regex, no ledger/data alteration to satisfy check."
+  },
+  "gameCodeImported": false,
+  "saveDataRead": false
+}

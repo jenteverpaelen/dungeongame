@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C057. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C058. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -11,6 +11,8 @@ C055 adds the first [observed reference UI atlas](research/v2/UI-ATLAS.md):23 pu
 C056 adds18 historical Campaign frames and the [timeline evidence matrix](research/v2/TIMELINES.md). Existing Paragon and changing difficulty exclude a clean pacing target. The cumulative atlas has24 media assets and23 entries; actual first-account/error/input flows remain open.
 
 C057 adds 24 Torchlight II samples, including three excluded introductions, and six atlas entries. Quest choice, item comparison, separate inventories and contextual vendor hints are observed; hidden transactions and clean timing remain open. Cumulative atlas: 25 assets / 29 entries.
+
+C058 adds21 Idleon guide samples (one intro excluded), ten atlas entries and five visual claims. Allocation, production, collection/equipped contribution, AFK estimate/return and storage/preset context are observed; exact build, inputs, formula, durable outcomes and clean timing remain open. A level8 Warrior contradicts unqualified level10 promotion guidance. Cumulative26 assets/39 entries/three recordings/63 samples. No game or UI change; documentation checks only. Continue TBH/PoE1/PoE2/D3 Adventure footage and independent foundation work.
 
 Update the affected rows when adding or removing content or systems. Reference the new change-log entry and its actual verification. Never mark a whole feature done from a subset test. Keep declined/proposed features visible until there is an explicit decision.
 

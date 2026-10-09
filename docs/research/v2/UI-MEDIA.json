@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C057",
-  "research": "L66;L67;L68",
-  "inspected_media_count": 25,
-  "scope": "23 publisher gallery assets plus two historical player recordings with42 sparse frames,3 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C058",
+  "research": "L66;L67;L68;L69",
+  "inspected_media_count": 26,
+  "scope": "23 publisher gallery assets plus three historical recordings with63 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -328,6 +328,21 @@
       "limits": "Not clean first-account timing, exact input/durable outcome or final PC rules",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "TL2-EARLY-01",
+      "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "IDLE-V-EARLY",
+      "source_id": "IDLE-EARLY-VIDEO",
+      "url": "https://www.youtube.com/watch?v=Gkwf75q4NUk",
+      "natural_width": 1280,
+      "natural_height": 720,
+      "classification": "Published edited player guide;21 sparse frames including1 excluded introduction",
+      "observed": "Creation/advancement; production and vault; collection/equipped cards; inventory/storage; AFK preview versus return summary; presets",
+      "version": "Unknown build; published2025-11-01; level8 Warrior contradicts universal level10 claim",
+      "inspection": "Chrome viewport1920x1080; source1280x720 scaled around1337x752/1348x758; presenter overlays/source crops excluded where obscuring controls",
+      "limits": "Not a controlled first account, timing target, tested transaction or verified F2P account",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "IDLE-EARLY-01",
       "retrieved": "2026-10-09"
     }
   ]
