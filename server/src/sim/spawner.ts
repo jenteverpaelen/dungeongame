@@ -17,7 +17,7 @@ export function themeMonsters(theme: Theme): MonsterDef[] {
   return Object.values(MONSTERS).filter((d) => d.weight > 0 && d.themes.includes(t));
 }
 
-interface Slot { x: number; y: number; pack: Pack | null }
+interface Slot { x: number; y: number; pack: Pack | null; respawnAt?: number }
 
 export interface PackOpts {
   kind?: Pack['kind'];
@@ -53,6 +53,7 @@ export class Spawner {
 
   private initField() {
     const inst = this.inst;
+    if (inst.map.adventure) { for (let i=0;i<this.slots.length;i++) this.populate(i,true); return; }
     const order = inst.rng.shuffle(this.slots.map((_, i) => i));
     const n = Math.min(inst.def.packTarget, order.length);
     for (let i = 0; i < n; i++) this.populate(order[i], true);
@@ -99,6 +100,19 @@ export class Spawner {
     const inst = this.inst;
     const s = this.slots[i];
     const { level, diff } = this.levelFor(s.x, s.y);
+    const authored = inst.map.adventure?.encounters[i];
+    if (authored) {
+      const pack: Pack = { id:packSeq++,kind:'custom',alive:0,slot:i };
+      for(const member of authored.members) {
+        const def=MONSTERS[member.type], x=s.x+member.dx, y=s.y+member.dy;
+        if(!def || !inst.cw.isFree(x,y,def.radius))throw new Error(`Invalid authored spawn ${authored.id}/${member.type}`);
+        const m=createMob(inst,def,level,x,y,{tier:member.tier??0,name:member.name,pack,dormant,players:playersFor(inst,x,y),difficulty:diff});
+        if(member.questTarget)m.adventureTarget=authored.id;
+        pack.alive++;
+      }
+      s.pack=pack; s.respawnAt=undefined;
+      return;
+    }
     const pack = spawnPack(inst, s.x, s.y, level, i, { dormant, rift: inst.kind === 'rift', difficulty: diff });
     s.pack = pack;
     if (inst.kind === 'field' && inst.rng.next() < GOBLIN_FIELD_CHANCE) spawnGoblin(inst, s.x + 70, s.y - 50, level, dormant, diff);
@@ -106,6 +120,11 @@ export class Spawner {
 
   onPackCleared(pack: Pack) {
     if (pack.slot >= 0 && this.slots[pack.slot]?.pack === pack) this.slots[pack.slot].pack = null;
+    if(this.inst.map.adventure) {
+      const slot=this.slots[pack.slot];
+      if(slot)slot.respawnAt=this.inst.t+this.inst.def.respawnSec*1000;
+      return;
+    }
     if (this.inst.kind === 'field' && pack.slot >= 0) this.pending.push(this.inst.t + this.inst.def.respawnSec * 1000);
   }
 
@@ -113,6 +132,13 @@ export class Spawner {
     const inst = this.inst;
     if (inst.kind !== 'field' || inst.t < this.nextCheck) return;
     this.nextCheck = inst.t + 1000;
+    if(inst.map.adventure) {
+      for(let i=0;i<this.slots.length;i++) {
+        const s=this.slots[i];
+        if(!s.pack && s.respawnAt!==undefined && inst.t>=s.respawnAt && inst.players.every(p=>Math.hypot(p.x-s.x,p.y-s.y)>=RESPAWN_MIN_DIST))this.populate(i,true);
+      }
+      return;
+    }
     this.ensureNearPlayers();
     if (!this.pending.length) return;
     this.pending.sort((a, b) => a - b);

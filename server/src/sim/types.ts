@@ -75,6 +75,8 @@ export interface Mob extends Hashed {
   def: MonsterDef;
   /** Monster type id sent to clients (def.id, or 'training_dummy'). */
   type: string;
+  /** Set only by an authored encounter; never accepted from a client/debug spawn. */
+  adventureTarget?: string;
   tier: EliteTier;
   level: number;
   /** Difficulty index (rifts: the rift's; fields: adopted from the player who found the pack). */
@@ -353,6 +355,8 @@ export interface PlayerCtx {
 export interface Known { ver: number; seen: number }
 
 export interface Player extends Hashed {
+  /** Debug-only, instance-local; never written to a character save. */
+  debugInfiniteHp?: boolean;
   kind: 'player';
   id: number;
   link: PlayerLink;

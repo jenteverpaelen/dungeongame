@@ -1,4 +1,14 @@
-import type { Point, TownData } from './townTypes';
+import type { Point } from './townTypes';
+
+/** Structural geometry shared by authored towns and adventure fields. */
+export interface GroundGeometry {
+  entry: { x: number; y: number };
+  floors: { polygon: Point[] }[];
+  buildings: { footprint: Point[]; interior?: { floors: Point[][] } }[];
+  barriers: { a: Point; b: Point; radius: number }[];
+  props: { x: number; y: number; radius: number }[];
+  npcs: { x: number; y: number; r: number }[];
+}
 
 export interface Edge { ax: number; ay: number; bx: number; by: number; nx: number; ny: number; radius: number }
 export function inPolygon(x: number, y: number, p: readonly Point[]): boolean {
@@ -9,8 +19,8 @@ export function inPolygon(x: number, y: number, p: readonly Point[]): boolean {
   }
   return inside;
 }
-export function onFloor(t: TownData, x: number, y: number): boolean { for (const f of t.floors) if (inPolygon(x, y, f.polygon)) return true; return false; }
-export function inGround(t: TownData, x: number, y: number): boolean {
+export function onFloor(t: GroundGeometry, x: number, y: number): boolean { for (const f of t.floors) if (inPolygon(x, y, f.polygon)) return true; return false; }
+export function inGround(t: GroundGeometry, x: number, y: number): boolean {
   for(const b of t.buildings)if(b.interior?.floors.some(p=>inPolygon(x,y,p)))return true;
   if (!onFloor(t, x, y)) return false;
   for (const b of t.buildings) if (inPolygon(x, y, b.footprint)) return false;
@@ -25,7 +35,7 @@ const cross = (ax: number, ay: number, bx: number, by: number) => ax * by - ay *
 
 /** Boundary of the union of authored floors minus solid footprints. Split intersections before
  * classifying both sides: internal road seams are never collision walls. Normals point to free ground. */
-export function groundBoundary(t: TownData): Edge[] {
+export function groundBoundary(t: GroundGeometry): Edge[] {
   const raw: Edge[] = [];
   for (const p of [...t.floors.map(f => f.polygon), ...t.buildings.map(b => b.footprint), ...t.buildings.flatMap(b=>b.interior?.floors??[])]) {
     p.forEach((a, i) => { const b = p[(i + 1) % p.length]; raw.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], nx: 0, ny: 0, radius: 0 }); });

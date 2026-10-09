@@ -7,6 +7,9 @@ import { DIFFICULTIES } from '@shared/progression';
 import { T_FLOOR, T_PATH, T_PLAZA, T_VOID, T_WALL, T_WATER, isBlockedTile, type MapData } from '@shared/mapgen';
 import { TILE } from '@shared/constants';
 import { clamp01, fmtClock, safeGet, safeSet } from './util';
+import { AdventureTracker } from '../panels/adventure';
+import { rillwakeObjective } from '@shared/adventure';
+import { ui } from '../store';
 
 type RGB = [number, number, number];
 interface Palette { floor: RGB; path: RGB; plaza: RGB; wall: RGB; water: RGB; void: RGB; rim: RGB }
@@ -30,6 +33,15 @@ function bake(map: MapData): Baked {
   c.width = map.w * BAKE_PX;
   c.height = map.h * BAKE_PX;
   const g = c.getContext('2d')!;
+  if(map.adventure) {
+    g.scale(BAKE_PX/TILE,BAKE_PX/TILE);
+    g.fillStyle='#243d48';g.fillRect(0,0,map.w*TILE,map.h*TILE);
+    const poly=(points:number[][],fill:string)=>{g.beginPath();points.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fillStyle=fill;g.fill();};
+    for(const f of map.adventure.geometry.floors)poly(f.polygon,'#69705a');
+    for(const p of map.adventure.paths){g.beginPath();p.points.forEach((a,i)=>i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]));g.strokeStyle='#b49d70';g.lineWidth=p.width;g.stroke();}
+    for(const b of map.adventure.geometry.buildings)poly(b.footprint,'#30383b');
+    return {map,key:mapKey(map),canvas:c};
+  }
   if (map.town) {
     g.scale(BAKE_PX / TILE, BAKE_PX / TILE);
     const poly = (points: number[][], fill: string) => {
@@ -170,6 +182,12 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   };
 
   // static map features
+  const save=ui.get().char, adventure=baked.map.adventure;
+  if(save && adventure && !save.rillwake?.claimed) {
+    const id=rillwakeObjective(save).target;
+    const point=adventure.interactions.find(i=>i.id===id)??adventure.encounters.find(e=>e.id===id);
+    if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
+  }
   for (const n of baked.map.npcs) npcIcon(g, n.role, px(n.x), py(n.y));
   for (const p of baked.map.portals) { const [x, y, off] = clampTo(px(p.x), py(p.y)); if (!off) portalIcon(g, x, y, t); }
 
@@ -328,6 +346,7 @@ export function TopRight() {
       <ZonePlate />
       <Minimap />
       <RiftBar />
+      <AdventureTracker />
     </div>
   );
 }

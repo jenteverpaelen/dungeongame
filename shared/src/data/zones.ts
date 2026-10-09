@@ -29,6 +29,11 @@ export const ZONES: Record<string, ZoneDef> = {
     packTarget: 34, respawnSec: 18,
     blurb: 'Mossy woods where slimes swarm and the mushrooms walk.',
   },
+  rillwake_crossing: {
+    id: 'rillwake_crossing', name: 'Rillwake Crossing', kind: 'field', theme: 'glade', levelBand: [1,70], size: [64,52],
+    packTarget: 5, respawnSec: 18,
+    blurb: 'Follow a flooded timber road to a silent mill. An optional adventure begins at the tender’s camp.',
+  },
   ashen_hollow: {
     id: 'ashen_hollow', name: 'Ashen Hollow', kind: 'field', theme: 'ashen', levelBand: [8, 70], size: [120, 90],
     packTarget: 38, respawnSec: 16,
@@ -41,7 +46,7 @@ export const ZONES: Record<string, ZoneDef> = {
   },
 };
 
-export const FIELD_IDS = ['whispering_glade', 'ashen_hollow'];
+export const FIELD_IDS = ['whispering_glade', 'ashen_hollow', 'rillwake_crossing'];
 
 /** Rift progress awarded per kill by elite tier (D3: trash ~1 progress orb, elites more). Total to summon guardian = 100. */
 export const RIFT_PROGRESS = [0.55, 3, 4.5, 0.6, 0, 0];

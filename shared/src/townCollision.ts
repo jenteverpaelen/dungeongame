@@ -1,17 +1,17 @@
 import { closest, groundBoundary, inGround, type Edge } from './townGeometry';
-import type { TownData } from './townTypes';
+import type { GroundGeometry } from './townGeometry';
 
 const CELL = 128, SKIN = .0001;
 interface Shape extends Edge { dynamic: boolean; stamp: number }
 
-/** Town-only continuous circle collision. The legacy field/rift solver stays unchanged. */
+/** Continuous authored-ground collision. The legacy field/rift solver stays unchanged. */
 export class TownCollision {
   readonly edges: readonly Edge[];
   private cells = new Map<number, Shape[]>();
   private scratch: Shape[] = [];
   private stamp = 0;
   private contact = { time: 1, nx: 0, ny: 0, found: false };
-  constructor(readonly data: TownData) {
+  constructor(readonly data: GroundGeometry) {
     this.edges = groundBoundary(data);
     for (const e of this.edges) this.add({ ...e, dynamic: false, stamp: 0 });
     for (const b of data.barriers) this.add({ ax: b.a[0], ay: b.a[1], bx: b.b[0], by: b.b[1], nx: 0, ny: 0, radius: b.radius, dynamic: false, stamp: 0 });

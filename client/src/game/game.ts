@@ -226,6 +226,12 @@ export class Game {
     const s = this.scene.nearestInteractable(x, y);
     const zone = this.world.zone;
     if (s?.role) {
+      if(s.role==='quest' || s.role==='clue') {
+        void this.conn?.cmd('adventure',{action:'talk',target:s.npcId}).then(r=>{
+          if(r.ok){ui.set({adventureTarget:s.npcId??'tender'});togglePanel('adventure',true);}
+        });
+        return;
+      }
       const bark=this.world.map?.town?.npcs.find(n=>n.role===s.role)?.bark;
       if(bark)pushNotice(bark,'info');
       if (Object.hasOwn(ARTISAN_FUNCTIONS, s.role)) { this.openArtisan(s.role as Artisan); return; }

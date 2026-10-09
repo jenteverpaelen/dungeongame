@@ -206,6 +206,7 @@ const TOOLS: { label: string; hint: string; op: string; n?: number }[] = [
   { label: 'Spawn Goblin', hint: 'Treasure goblin nearby', op: 'goblin' },
   { label: 'Spawn Elite', hint: 'A rare pack nearby', op: 'elite' },
   { label: 'Heal', hint: 'Full life and resource', op: 'heal' },
+  { label: 'Infinite HP', hint: 'Test only: toggle damage immunity; resets on travel or reconnect', op: 'infhp' },
   { label: 'Unlimited Resource', hint: 'Toggle: Fury / Hatred / Arcane Power stay full', op: 'infres' },
 ];
 

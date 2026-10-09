@@ -25,6 +25,7 @@ export class CollisionWorld {
     this.widthPx = map.w * TILE;
     this.heightPx = map.h * TILE;
     if (map.town) { this.town = new TownCollision(map.town); return; }
+    if (map.adventure) { this.town = new TownCollision(map.adventure.geometry); return; }
     for (const p of map.props) if (p.r > 0) this.addCollider({ x: p.x, y: p.y, r: p.r * (p.s || 1) });
     for (const n of map.npcs) this.addCollider({ x: n.x, y: n.y, r: n.r });
   }

@@ -222,7 +222,7 @@ export function defenseMult(p: Player, level: number, elite: boolean): number {
  * Returns the damage actually taken.
  */
 export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element, src: Mob | null, level: number, melee = false): number {
-  if (p.deadMs > 0 || p.invulnMs > 0 || inst.kind === 'town' || raw <= 0) return 0;
+  if (p.debugInfiniteHp || p.deadMs > 0 || p.invulnMs > 0 || inst.kind === 'town' || raw <= 0) return 0;
   const lvl = Math.max(1, src?.level ?? level);
   const amount = Math.max(1, Math.round(raw * defenseMult(p, lvl, !!src && isEliteTier(src.tier))));
   p.hp -= amount;

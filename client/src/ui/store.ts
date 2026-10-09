@@ -6,7 +6,7 @@ import type { LootView, MeState, RiftState, WorldInfo, ZoneInfo } from '@shared/
 import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from '@shared/types';
 import type { Artisan } from '@shared/townServices';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure';
 
 export interface ChatLine { id: number; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string; at: number }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -23,6 +23,7 @@ export interface TargetInfo {
 }
 
 export interface UIState {
+  adventureTarget: string;
   screen: 'select' | 'connecting' | 'game';
   connected: boolean;
   error: string | null;
@@ -67,6 +68,7 @@ class Store<T extends object> {
 }
 
 export const ui = new Store<UIState>({
+  adventureTarget: 'tender',
   screen: 'select', connected: false, error: null,
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, world: null,
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,

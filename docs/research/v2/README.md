@@ -48,3 +48,5 @@ C066 adds13 broader-game/economy digests (19 total),six sources and eight scoped
 C067 adds WoW/D2R ownership and migration examples:four sources,eight claims and two digests (21 named games total). All external balance flags remain false;177 sources/171 claims,media unchanged. Existing character stash and runtime remain unchanged. Current trade rules,economic effects,broader matrices,legacy-dossier status and download inventory remain research work; no G1 completion.
 
 C068 widens the feature matrix to22 game/mode columns and reconciles legacy/download/gate status. See [G1-AUDIT](G1-AUDIT.md); structure is complete in more places,factual coverage remains partial. No source count or runtime change.
+
+C070 adds two primary Grim Dawn guide sources and two scoped route/quest claims (179 sources/173 claims total). L81–L83 and adventure/RILLWAKE-REPORT.md in the docs root record the resulting bounded implementation, local measurements, assisted versus normal-health checks and remaining limitations. Media/atlas/timeline manifests remain at C062; G1 remains incomplete.

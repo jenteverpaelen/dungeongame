@@ -6,6 +6,8 @@ import { ZONES, type Theme } from './data/zones';
 import { Rng, hashString } from './math';
 import { loadAuthoredTown } from './town';
 import type { TownData } from './townTypes';
+import type { AdventureData } from './adventureTypes';
+import { loadRillwake, RILLWAKE_ID } from './adventure';
 
 export const T_VOID = 0;
 export const T_FLOOR = 1;
@@ -25,7 +27,7 @@ export interface Prop {
   v: number;   // variant
 }
 
-export type NpcRole = 'cube' | 'stash' | 'obelisk' | 'waypoint' | 'dummy' | 'paragon' | 'healer' | 'vendor' | 'blacksmith' | 'jeweler' | 'mystic';
+export type NpcRole = 'cube' | 'stash' | 'obelisk' | 'waypoint' | 'dummy' | 'paragon' | 'healer' | 'vendor' | 'blacksmith' | 'jeweler' | 'mystic' | 'quest' | 'clue';
 
 export interface NpcSpot { id: string; name: string; role: NpcRole; x: number; y: number; r: number }
 
@@ -44,6 +46,7 @@ export interface MapData {
   portals: Portal[];
   npcs: NpcSpot[];
   town?: TownData;
+  adventure?: AdventureData;
 }
 
 // ─────────────────────────── Noise ───────────────────────────
@@ -349,6 +352,7 @@ function genRift(seed: number, theme: Theme): MapData {
 export function generateMap(zoneId: string, seed: number, theme?: Theme): MapData {
   const def = ZONES[zoneId];
   if (!def) throw new Error(`unknown zone ${zoneId}`);
+  if (zoneId === RILLWAKE_ID) return loadRillwake(seed);
   if (def.kind === 'town') return loadAuthoredTown(seed);
   if (def.kind === 'field') return genField(zoneId, seed);
   return genRift(seed, theme ?? 'glade');

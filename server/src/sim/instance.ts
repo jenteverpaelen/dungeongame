@@ -337,6 +337,11 @@ export class Instance implements InstanceApi {
     const p = this.byLink.get(link);
     if (!p) return 'Not in this instance';
     switch (op) {
+      case 'infhp':
+        p.debugInfiniteHp=!p.debugInfiniteHp;
+        if(p.debugInfiniteHp)debugHeal(this,p);
+        link.send({t:'chat',ch:'system',text:`Infinite HP ${p.debugInfiniteHp?'ON':'OFF'} (test only; resets on travel or reconnect)`});
+        return null;
       case 'heal':
         debugHeal(this, p);
         return null;

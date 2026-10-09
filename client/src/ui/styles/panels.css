@@ -1015,3 +1015,11 @@
   .cw-stage { padding: 10px 0 8px; }
   .chamber { min-height: 270px; }
 }
+.adventure-tracker { color:var(--text, #e5d4b4); padding:10px 14px; max-width:260px; text-align:left; cursor:pointer; }
+.adventure-tracker strong, .adventure-tracker span, .adventure-tracker small { display:block; }
+.adventure-tracker strong { font-family:Cinzel, serif; color:#e7c477; margin-bottom:5px; }
+.adventure-tracker span { font-size:15px; line-height:1.25; }
+.adventure-tracker small { margin-top:5px; }
+.pn-adventure .pn-body { max-height:680px; overflow-y:auto; padding:16px; }
+.pn-adventure p, .pn-adventure li { line-height:1.5; }
+.pn-adventure .btn { margin:5px 8px 8px 0; }

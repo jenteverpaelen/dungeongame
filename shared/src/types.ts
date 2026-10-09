@@ -118,6 +118,8 @@ export interface CubeState {
 
 /** Persistent character save (server-side authority, replicated to the owning client). */
 export interface CharacterSave {
+  /** Optional adventure state; old saves require no rewrite to participate. */
+  rillwake?: import('./adventureTypes').RillwakeQuest;
   /** Absent only in legacy saves; normalized by the server before use. */
   version?: number;
   id: string;

@@ -130,6 +130,7 @@ function onDash(inst: Instance, p: Player, sx: number, sy: number) {
 // ─────────────────────────── Per-tick timers / regeneration ───────────────────────────
 
 export function playerTick(inst: Instance, p: Player, dtMs: number) {
+  if(p.debugInfiniteHp && p.deadMs<=0)p.hp=p.mhp;
   if (p.deadMs > 0) {
     p.deadMs -= dtMs;
     if (p.deadMs <= 0) respawn(inst, p);

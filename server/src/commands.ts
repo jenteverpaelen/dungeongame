@@ -3,6 +3,7 @@
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
 import type { Session } from './net/session';
+import { adventureCommand } from './adventure';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { requireNear } from './townServices';
@@ -569,7 +570,7 @@ const leave: Handler = (s, _a, world) => world.leave(s);
 
 // ─────────────────────────── Debug (prototype tools) ───────────────────────────
 
-const SIM_DEBUG_OPS = new Set(['goblin', 'elite', 'heal', 'boss', 'infres']);
+const SIM_DEBUG_OPS = new Set(['goblin', 'elite', 'heal', 'boss', 'infres', 'infhp']);
 
 /** Add items to free inventory slots; returns how many fit. */
 function giveItems(save: CharacterSave, items: Item[]): number {
@@ -668,6 +669,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
+  adventure: adventureCommand,
   equip, unequip, swapInv, destroy, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,

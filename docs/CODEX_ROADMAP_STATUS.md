@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C069. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C070. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -52,14 +52,14 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SET-03 | Accessibility options (colour-safe rarity cues, reduced motion/shake/flash, text size, damage-number options) | P3 | MISSING | Partial: shake/selected-flash, written ground quality and optional combat numbers (C052). Text scale, full motion/contrast/vision and human evaluation open. [combat-number report](phase/P03-foundations/COMBAT-NUMBERS-REPORT.md). |
 | F-SET-04 | Per-account settings sync | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-SET-05 | Language selection | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated20-stage runner passes (C069); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |
+| F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated21-stage runner passes (C070); foreground performance budgets remain separate. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-TEL-02 | Bot harness metrics (kills/min, TTK, deaths, XP/h) | P3/P4 | PARTIAL — `server/test/bot.ts`, no metrics | Partial:27 retained-inventory visits and exact reward reconciliation (C027); human pacing and broader parity open. [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
 | F-TEL-03 | Drop / economy Monte-Carlo tools | P3 | PARTIAL — `docs/design/baseline-audit.ts` | Partial: reproducible sources/sinks,60 offline cases and15 cost fixtures (C021); live economy and distribution calibration open. [change log](CODEX_CHANGELOG.md). |
 | F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | C035 inventories current fields; C036 closes the reproduced parser/quarantine source-disclosure path. Event schema/retention/complete diagnostic audit remain open. [Report](phase/P03-foundations/CORRUPT-LOG-REPORT.md). |
 | F-TEL-05 | Funnel and session analytics views | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-06 | Performance-budget checks (client fps, server tick) | P3 | PARTIAL — town PERF scripts | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-07 | Replay / determinism tests for combat | P4 | PARTIAL — movement parity tests only | Partial: repeated build/field gameplay payloads match (C023/C027); not a complete recorded-input combat replay system. [build audit](phase/P01-research/BUILD-REPORT.md); [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
-| F-ADM-01 | Debug commands off by default | P3 | **MISSING — on by default** | Implemented default denial and explicit debug opt-in; synthetic browser/server checks pass (C005). [foundation state](phase/P03-foundations/STATE.md). |
+| F-ADM-01 | Debug commands off by default | P3 | **MISSING — on by default** | Default denial retained. C070 owner-requested infinite HP is gated by explicit debug opt-in, respects DISABLE_DEBUG and resets on player recreation; no saved flag. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-ADM-02 | Admin console (ban, mute, kick, announce, restore, grant) | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ADM-03 | Audit log of sensitive actions | P3 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ADM-04 | Chat filter | P10b | PARTIAL — rate limit only | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -84,11 +84,11 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-MON-04 | Elite affix expansion and combos | P7/P9 | PARTIAL — 8 affixes | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-05 | Zone events (shrines, pylons, ambushes) | P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-06 | Bestiary data | P7/P14 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | P5 | MISSING | C051 authoring probe passes14 checks; C065 standalone durable-state probe covers eight kinds and13 tests including six crash boundaries. Production schema/state/rewards still open. [authoring report](phase/P01-research/QUEST-AUTHORING-REPORT.md). |
-| F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | C041 measures39 actual credit cases twice. C065 synthetic state/delivery/reward transactions pass13 checks; live adapters,durable IDs,party/repeat and recovery policy remain open. [credit report](phase/P01-research/OBJECTIVE-CREDIT-REPORT.md). |
-| F-QST-03 | NPC dialogue system + UI | P5 | MISSING | C051 finite-flag branching fixture detects conditional dead ends; no live dialogue command, state or UI. [authoring report](phase/P01-research/QUEST-AUTHORING-REPORT.md). |
-| F-QST-04 | Quest tracker HUD + journal panel | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | P5 | MISSING | Partial: C070 integrates one revision-pinned quest and previewed class weapon in optional character state. Generic objective registry, branching/repeat policy and broader reward authoring remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | Partial: C070 checks zone/proximity/LOS/sequence and living local kill credit; full-bag/replay/save tests pass. Party policy, durable cross-restore receipts, generic event adapters and account ownership remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| F-QST-03 | NPC dialogue system + UI | P5 | MISSING | Partial: one original NPC/clue dialogue flow using existing panel styles, verified in Chrome (C070). General branching dialogue tooling and localization remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| F-QST-04 | Quest tracker HUD + journal panel | P5 | MISSING | Partial: C070 tracker and journal for The Silent Wheel, including pending reward and completion. Multi-quest selection/filtering/lore remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Partial: C070 current-objective minimap marker and physical quest/clue interactions. General NPC quest icons and world-map pins remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-QST-06 | Campaign structure (acts/chapters) + zone gating | P5/P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-07 | Repeatable quests / bounties | P7/P12 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-08 | Lore codex + story presentation (text, camera pan) | P5/P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -96,12 +96,12 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ONB-02 | First-session script (minutes 0–15) | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-ONB-03 | Contextual hint system, progressive disclosure | P6 | MISSING | Only inaccurate auto-combat cues corrected (C019); no contextual hint engine/progressive disclosure. [change log](CODEX_CHANGELOG.md). |
 | F-ONB-04 | Tutorial quest chain with scripted first encounters | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-ONB-05 | Early loot beats (guaranteed first upgrade) | P6 | MISSING | One naturally earned equipment upgrade observed (C029); no guaranteed reward or new loot beat. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
+| F-ONB-05 | Early loot beats (guaranteed first upgrade) | P6 | MISSING | Partial: C070 guarantees one class-appropriate magic weapon at ledger-recovery level, with preview/full-bag retry. It is not guaranteed better than existing gear; first-session pacing and broader loot beats remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-ONB-06 | Funnel instrumentation + fresh-player test kit | P6 | MISSING | Scripted observations only; no consented unfamiliar-player study/funnel implementation. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | F-ONB-07 | Help / FAQ panel v2 | P6 | PARTIAL — controls help panel | Existing Help now shows live bindings/Settings entry (C024); broader FAQ/onboarding open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-WLD-01 | Zone chain with real level bands and gating | P7 | MISSING — fields use 1–70 and 8–70 | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | P7 | PARTIAL — procedural map from seed; town authored as JSON | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | P7 | PARTIAL — procedural map from seed; town authored as JSON | Partial: C070 adds typed authored field geometry/props/fixed spawns/routes, shared exact collision and original landmarks. Editor/compilation workflow, broader schemas and production art remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Partial: existing Waypoint now reaches the new authored field; its return portal retains town travel (C070). World map and campaign unlock network remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | F-WLD-04 | Objective dungeons | P7/P9 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-WLD-05 | Ambient life and zone audio | P7 | PARTIAL — rich in town, minimal in fields | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-WLD-06 | Town upgrades as systems land | ongoing | PARTIAL — Hearthmere | Frozen by owner; town follow-ups deferred, no complete acceptance claim. [Town pause](town/PAUSED.md). |
@@ -204,7 +204,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-22 | Buff / debuff row | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-23 | XP bar | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-24 | Player plate | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-25 | Minimap, zone plate, rift bar | P5 pins | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-25 | Minimap, zone plate, rift bar | P5 pins | EXISTS | Partial: one authored adventure uses the existing UI style for terrain/objective pins, tracker and journal/dialogue. Local Chrome1080p quest/reconnect checks pass; broader states remain open (C070). [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | U-26 | Target frame | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-27 | Chat | P10a channels, whispers | EXISTS (zone / world / system) | Existing chat retained; private new-character control cues corrected (C019); social channels open. [change log](CODEX_CHANGELOG.md). |
 | U-28 | Notice banners | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
@@ -214,7 +214,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-32 | Death screen | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-33 | Level-up / unlock popups | P6 | PARTIAL — notices | Existing notices retained; optional decorative burst suppression (C030); new unlock presentation open. [foundation state](phase/P03-foundations/STATE.md). |
 | U-34 | Party frames | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-35 | Quest tracker | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-35 | Quest tracker | P5 | MISSING | Partial: one authored adventure uses the existing UI style for terrain/objective pins, tracker and journal/dialogue. Local Chrome1080p quest/reconnect checks pass; broader states remain open (C070). [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | U-36 | Boss health bar | P4 | PARTIAL — target frame | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-37 | Ground loot labels / beams | P11 | verify in P11 | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-38 | Objective / compass markers | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
@@ -249,8 +249,8 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-77 | Season journey | P15 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-78 | Achievements | P14 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-79 | Bestiary / codex | P14 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-80 | Journal (quests, lore) | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-85 | Dialogue box | P5 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-80 | Journal (quests, lore) | P5 | MISSING | Partial: one authored adventure uses the existing UI style for terrain/objective pins, tracker and journal/dialogue. Local Chrome1080p quest/reconnect checks pass; broader states remain open (C070). [Rillwake report](adventure/RILLWAKE-REPORT.md). |
+| U-85 | Dialogue box | P5 | MISSING | Partial: one authored adventure uses the existing UI style for terrain/objective pins, tracker and journal/dialogue. Local Chrome1080p quest/reconnect checks pass; broader states remain open (C070). [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | U-86 | Vendor (buy / sell / buyback) | P7/P8 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-87 | Artisan panels (Blacksmith / Jeweler / Mystic as separate identities) | P8/P11 | PARTIAL — Cube panel with artisan state | Existing style/services retained; enchant transition correction (C022); separate artisan progression open. [foundation state](phase/P03-foundations/STATE.md). |
 | U-88 | Gamble vendor | P8 | DECISION | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
@@ -289,7 +289,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-12 | Respec | Existing free tier refund preserved and measured; cheap/scaled proposal not adopted. |
 | D-13 | PvP | No PvP implemented or selected. |
 | D-14 | Level cap and Paragon | Existing70/Paragon retained; no new soft cap. |
-| D-15 | Campaign shape: acts, zones, length, tone | Town/UI frozen; no act count, new story scope or journey duration selected. |
+| D-15 | Campaign shape: acts, zones, length, tone | C070 chooses one optional flooded woodland/mill route from source patterns and local measurements. No act count or human journey-duration target; town and UI style stay fixed. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | D-16 | Difficulty gating | Existing difficulty gates retained; no new progression restriction. |
 | D-17 | Adventure layer (bounties) | Bounties remain proposed, not shipped. |
 | D-18 | Dungeon formats | Existing untimed rifts retained; objective/timed formats require scoped design. |
@@ -309,7 +309,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-32 | Hosting and budget | No paid services. Local PC testing authorized; public hosting/deployment still not selected. |
 | D-33 | Integration branch and release process | Owner override: ONLY codex/new-tristram-town; no phase branches/rebase/protected-ref changes. |
 | D-34 | Telemetry and privacy | C035 inventories current data/recipients/lifetimes. Legal bases, retention and rights procedure remain unresolved; no production analytics/third-party tracking added. |
-| D-35 | Content tools | C051 compares ink/Yarn boundaries and tests an isolated typed authoring contract. Current live validator retained; no quest scripting dependency adopted. |
+| D-35 | Content tools | C051 authoring experiment informs C070 typed field data and a bounded live quest without a new dependency. Visual editor, general quest scripting and broader schema remain open. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
 | D-36 | Art pipeline at scale | Approved town/UI frozen; no new art pipeline or imported assets. |
 | D-37 | Audio approach | Procedural audio retained; no downloaded pack or commissioned work. |
 | D-38 | Languages | C047 scoped English keys only; remaining text/formatting/languages open. No launch-language decision invented. |
@@ -335,3 +335,5 @@ C067 adds WoW/D2R ownership and migration examples:four sources,eight claims and
 C068 reconciles G1 requirements,individually supersedes21 legacy dossiers without changing their bytes,and indexes known historical downloads separately from pending proposals. The147-feature matrix now covers22 game/mode columns with131 partial cells/3103 unknowns. Source/media counts unchanged. Structure is checked; research truth,owner review,current behavior and gate completion are not implied. Continue dependency-specific research and independent supported fixes;see research/v2/G1-AUDIT.md from the docs root.
 
 C069 closes a reproduced authoring-check gap:16 invalid auto-cast numeric fixtures were accepted,now all rejected. Actual Meteor/Whirlwind brain probes demonstrate the risk while unchanged authored data passes. Seven targeted tests,strict probe typecheck and all20 verification stages pass (756server/382simulation). No combat value,runtime behavior,UI,town,camera,save or dependency change. See phase/P03-foundations/AUTO-RULE-VALIDATION-REPORT.md from the docs root;continue researched item protection and other roadmap dependencies.
+
+C070 adds Rillwake Crossing, a playable authored field with an optional investigation/encounter/recovery/reward quest. Exact shared collision, local server-authoritative objectives, fixed encounter sites, journal/tracker/minimap and optional saved progress are integrated. All21 strict stages pass (25 shared/757 server/382 simulation), plus six adventure tests, normal-health all-class bots and inspected local Chrome1080p quest/reconnect checks. Owner-requested infinite HP is debug-only, runtime-only and used only for assisted walkthroughs. First-pass art, human pacing, broader campaign/party/repeat rules and field crowd performance remain open. Town/camera/UI style retained; no existing content deleted. See adventure/RILLWAKE-REPORT.md from the docs root; the whole roadmap remains active.

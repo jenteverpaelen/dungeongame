@@ -9,6 +9,7 @@ import type { Sheet } from './bake';
 import { GROUND, type GroundPalette, type ThemeKey } from './palette';
 import { clamp, hash2, mix, rgb, rgba, vnoise } from './util';
 import { viewScaleValue } from './scale';
+import { paintAdventureGround } from './adventure';
 
 export const CHUNK = 512;
 const FS = 4;                    // world units per terrain-field texel
@@ -194,6 +195,8 @@ export class GroundLayer extends Container {
     const P = this.pal;
     const ox = c * CHUNK, oy = r * CHUNK;
     const seed = this.seed;
+
+    if(this.map.adventure){paintAdventureGround(ctx,this.map.adventure,ox,oy);return canvas;}
 
     // ── 1. terrain field (half resolution)
     const small = document.createElement('canvas');

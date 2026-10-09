@@ -1,0 +1,54 @@
+{
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-rillwake-final-36a9303e0b814ef5ac1be254c7e94c86",
+  "kind": "deterministic synthetic normal-level-1 input walkthrough; not player pacing or browser performance",
+  "results": [
+    {
+      "cls": "warrior",
+      "success": true,
+      "simulationSeconds": 62.8,
+      "kills": 32,
+      "deaths": 0,
+      "level": 4,
+      "items": 7,
+      "claimed": true,
+      "rewardLevel": 3,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.033102000000005204,
+        "max": 0.16969999999997754
+      }
+    },
+    {
+      "cls": "mage",
+      "success": true,
+      "simulationSeconds": 50.95,
+      "kills": 35,
+      "deaths": 0,
+      "level": 4,
+      "items": 4,
+      "claimed": true,
+      "rewardLevel": 3,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.008754999999998745,
+        "max": 0.058100000000024465
+      }
+    },
+    {
+      "cls": "ranger",
+      "success": true,
+      "simulationSeconds": 51.55,
+      "kills": 35,
+      "deaths": 0,
+      "level": 4,
+      "items": 6,
+      "claimed": true,
+      "rewardLevel": 3,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.024356999999994286,
+        "max": 0.19470000000001164
+      }
+    }
+  ]
+}

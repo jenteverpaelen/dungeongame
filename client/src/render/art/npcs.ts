@@ -345,7 +345,19 @@ export class NpcArt implements EntityView {
 
   constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number) {
     const elite = /elite/i.test(name);
-    if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic'].includes(role)) {
+    if(role==='clue') {
+      const root=new Container(),g=new Graphics();root.addChild(g);
+      if(name.includes('cart')) {
+        g.circle(-20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3}).circle(20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3});
+        g.poly([-29,-17,19,-26,32,-10,-16,0]).fill(0x796447).stroke({color:0x342f25,width:2});
+        for(let x=-21;x<=20;x+=9)g.moveTo(x,-15).lineTo(x+12,-33).stroke({color:0xa18b5b,width:6});
+      } else {
+        g.rect(-16,-17,32,17).fill(0x565749).stroke({color:0x2b332c,width:2});
+        g.poly([-12,-19,0,-22,12,-19,12,-8,0,-11,-12,-8]).fill(0xd2c194).stroke({color:0x554a36,width:1.5});
+        g.moveTo(0,-21).lineTo(0,-11).stroke({color:0x816f4b,width:1});
+      }
+      this.inner={root,height:34,update(){},hit(){},die(_el,done){done();},destroy(){root.destroy({children:true});}};
+    } else if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic', 'quest'].includes(role)) {
       // Original artisan outfits use the same rig as the player, with role tools below.
       const jeweler:PlayerLook={classId:'ranger',slots:{chest:{shape:'cloth',primary:0x51685f,secondary:0xc0a46b,glow:0,variant:1},head:{shape:'hood',primary:0x52635a,secondary:0xb7a378,glow:0,variant:1}}};
       const mystic:PlayerLook={classId:'mage',slots:{chest:{shape:'robe',primary:0x675970,secondary:0xa69877,glow:0,variant:1},head:{shape:'hood',primary:0x63556b,secondary:0xa89a77,glow:0,variant:1}}};

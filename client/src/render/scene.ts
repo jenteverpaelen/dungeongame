@@ -20,7 +20,7 @@ import { preferences } from '../game/preferences';
 /** Original fixed world height, restored at the owner's request. */
 const VIEW_HEIGHT = 620;
 
-interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string }
+interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string }
 
 export interface LocalPlayerState { x: number; y: number; vx: number; vy: number; facingLeft: boolean; moving: boolean; dashing: boolean }
 
@@ -109,7 +109,7 @@ export class Scene {
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
-      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r });
+      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id });
     }
     for (const p of map.portals) {
       const view = createPortalView(p.label, 'town');
@@ -322,8 +322,9 @@ export class Scene {
     for (const s of this.statics) {
       const d = Math.hypot(s.x - x, s.y - y) - s.r;
       const n = this.map?.town?.npcs.find(n => n.role === s.role);
-      const margin = n ? n.interactionRadius - s.r : 70;
-      if (d <= margin && d < bd && (!this.map?.town || !this.world.collision?.segmentBlocked(x, y, s.x, s.y))) { bd = d; best = s; }
+      const a=this.map?.adventure?.interactions.find(i=>i.id===s.npcId);
+      const margin = n ? n.interactionRadius - s.r : a ? a.radius-s.r : 70;
+      if (d <= margin && d < bd && (!(this.map?.town || this.map?.adventure) || !this.world.collision?.segmentBlocked(x, y, s.x, s.y))) { bd = d; best = s; }
     }
     return best;
   }

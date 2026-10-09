@@ -15,6 +15,7 @@ import { bakeRes } from './scale';
 import { summonRigs } from './summons';
 import { buildTownBlockout } from './townBlockout';
 import { buildTownSlice } from './townSlice';
+import { adventureStructures } from './adventure';
 
 export function themeKey(map: MapData): ThemeKey {
   if (map.zone === 'rift') return map.theme === 'ashen' ? 'riftAshen' : 'riftGlade';
@@ -228,6 +229,7 @@ export function buildLayers(map: MapData): MapLayers {
     }
   }
   if (map.theme !== 'town') prewarmMonsters(map.theme, map.zone === 'rift', summonRigs());
+  if(map.adventure)sorted.push(...adventureStructures(map.adventure));
   ground.prebake(map.entry.x - 1100, map.entry.y - 700, map.entry.x + 1100, map.entry.y + 700, 24);
   return { ground, sorted, decals: glows };
 }

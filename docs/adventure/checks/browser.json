@@ -1,0 +1,104 @@
+{
+  "checkpoint": "C070",
+  "date": "2026-10-09",
+  "machine": "Owner Windows PC",
+  "browser": "Chrome",
+  "viewport": {
+    "foreground": true,
+    "height": 1080,
+    "width": 1920
+  },
+  "dataDir": "TEMP/hf-rillwake-browser-d03920b6ec0d498e8f2d16098f6a4034",
+  "infiniteHp": "Assisted Mage walkthrough; resets on travel/reconnect; separate normal-health bots",
+  "questCompleted": true,
+  "rewardMatchedAfterReconnect": true,
+  "matchingSavedRewardCount": 1,
+  "noSavedHpFlag": true,
+  "completionAfterServerRestart": true,
+  "ridgeRouteCompleted": true,
+  "returnPortal": "ordinary movement reached (477,2441), E interaction returned to Hearthmere",
+  "currentPageErrorsAndWarnings": [],
+  "performanceCertified": false,
+  "captures": [
+    {
+      "file": "completed-reconnect-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 171717,
+      "sha256": "5074dfd808472495e8665178eb8994e86bf03d7c6bbd5c434977b81c8f086c03",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": true
+    },
+    {
+      "file": "crossing-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 154478,
+      "sha256": "ccc594868c03952c99bbe48c7b96be0625adf52069fd8fa8c0e775c435392206",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": false
+    },
+    {
+      "file": "ledger-reward-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 177571,
+      "sha256": "a693a603c972a7a3ca4b5ade894d64e71c763e514ee0f190342a5b7decb90ec2",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": true
+    },
+    {
+      "file": "mill-doorway-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 153486,
+      "sha256": "b9a4a7b85348a429345045289d55d5ab44ba8bec417f62d7b675a5947d5455b2",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": true
+    },
+    {
+      "file": "mill-infinite-hp-1080.jpg",
+      "width": 1920,
+      "height": 1022,
+      "bytes": 150125,
+      "sha256": "03eb0fff2fa536a1d87cec249dafd54e19db6686d6ec36c0e0d59156c87adabd",
+      "inspected": true,
+      "eligible1080": false,
+      "committed": false
+    },
+    {
+      "file": "quest-completed-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 178403,
+      "sha256": "ee11e76c2cef55f9beb77f3feb6f3839c87d2457068a2e7fed2d68afd2a0d3c4",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": false
+    },
+    {
+      "file": "quest-preview.jpg",
+      "width": 2048,
+      "height": 1090,
+      "bytes": 185654,
+      "sha256": "35b9acecc210f264f80e017301f2827386752b2e3d17bc40b6212c1d27970c75",
+      "inspected": true,
+      "eligible1080": false,
+      "committed": false
+    },
+    {
+      "file": "reward-reconnect-1080.jpg",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 177553,
+      "sha256": "d7d91f207bfc96f0646f32f34a658407772ab8a740926ea90cc688a2baaa0a5f",
+      "inspected": true,
+      "eligible1080": true,
+      "committed": false
+    }
+  ]
+}
