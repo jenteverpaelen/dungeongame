@@ -53,6 +53,9 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     check(!!primary, `${at}.primary`, `unknown skill ${c.primary}`);
     if (primary) check(primary.classId === c.id && primary.kind === 'primary' && primary.unlock === 1,
       `${at}.primary`, 'must be this class\'s level-one primary skill');
+    const signature = Object.hasOwn(data.skills,c.signatureSkill) ? data.skills[c.signatureSkill] : undefined;
+    check(!!signature, `${at}.signatureSkill`, `unknown skill ${c.signatureSkill}`);
+    if (signature) check(signature.classId === c.id, `${at}.signatureSkill`, 'must belong to this class');
     number(c.resource.max, `${at}.resource.max`, Number.MIN_VALUE);
     number(c.attackRange, `${at}.attackRange`);
     for (const id of c.weapons) check(!!baseRef(id,`${at}.weapons`,c.id)?.weapon,`${at}.weapons`,`${id} is not a weapon`);

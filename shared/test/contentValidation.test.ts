@@ -48,3 +48,14 @@ test('missing indexed values and unresolved player text fail before release', ()
   const errors=validateContent(data);
   for(const path of ['skills.meteor.runes','skills.meteor.tiers','gems.ruby.weapon','skills.meteor.desc','sets.endless_storm.bonuses.count']) expectPath(errors,path);
 });
+
+test('signature references survive display wording changes but reject missing/inherited/wrong-class identities', () => {
+  const renamed=fixture();
+  renamed.skills.whirlwind.name='Synthetic renamed skill';
+  renamed.classes.warrior.signature='Independent synthetic display wording';
+  assert.deepEqual(validateContent(renamed), []);
+  for (const id of ['missing_skill','constructor','magic_missile']) {
+    const data=fixture(); data.classes.warrior.signatureSkill=id;
+    expectPath(validateContent(data),'classes.warrior.signatureSkill');
+  }
+});

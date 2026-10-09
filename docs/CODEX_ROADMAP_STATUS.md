@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C033. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C034. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -25,7 +25,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SAV-04 | Storage abstraction (JSON → DB per D-31) | P3 | MISSING (direct file calls) | Implemented JSON CharacterStore boundary (C015); database migration not selected. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SAV-05 | Idempotent commands (client command IDs, replay safety) | P3/P8 | PARTIAL — commands carry an `id` for replies; replay safety unaudited | Partial: connection receipts/replays tested (C017), stale enchant/reforge interleaving fixed (C022); durable transactions open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-SAV-06 | Transactional multi-entity operations (trade, mail, crafting) | P15 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-CON-01 | Registries with stable IDs + schema validation + `content:check` | P3 | PARTIAL — typed TS data; town has `town:check` | Partial: typed registries, semantic validator and mutation checks (C014); localization/originality and broader graph validity open. [foundation state](phase/P03-foundations/STATE.md). |
+| F-CON-01 | Registries with stable IDs + schema validation + `content:check` | P3 | PARTIAL — typed TS data; town has `town:check` | Partial: typed registries, semantic validator and mutation checks (C014/C034); class signature lookup now uses stable IDs. Localization/originality and broader graph validity open. [foundation state](phase/P03-foundations/STATE.md). |
 | F-CON-02 | Localization keys for all player-facing text | P3 | MISSING — strings inline | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-CON-03 | Name / IP register + originality check | P3 | MISSING | Partial:694-field naming inventory and bounded reference comparison (C033); descriptions/assets/contextual review and originality clearance remain open. [Register](originality/README.md). |
 | F-CON-04 | Placeholder registry (label + removal condition) | P3 | MISSING | Implemented current [placeholder register](PLACEHOLDERS.md), C007; new substitutes must be added as introduced. |
@@ -169,7 +169,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-01 | Title / landing / news | P3, P17 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-02 | Login / register / account | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-03 | Character select (list, slots) | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-04 | Character create (class explainer, appearance) | P6 | PARTIAL — `ClassSelect` | Existing selection captured; v2 class explanation/appearance remains open. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
+| U-04 | Character create (class explainer, appearance) | P6 | PARTIAL — `ClassSelect` | Existing selection captured; C034 preserves signature glyphs with explicit IDs. V2 class explanation/appearance remains open. [signature report](originality/SIGNATURE-REPORT.md). |
 | U-05 | Delete / rename / restore dialogs | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-06 | Server / channel status and maintenance banner | P16 | PARTIAL — channel info exists | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-07 | Loading screen with tips | P6 | PARTIAL — `Connecting` | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |

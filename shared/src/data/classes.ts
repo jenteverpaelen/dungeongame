@@ -33,6 +33,8 @@ export interface ClassDef {
   blurb: string;
   playstyle: string;
   signature: string;
+  /** Stable skill identity for the signature glyph; independent of display wording. */
+  signatureSkill: string;
   themeColor: number;
 }
 
@@ -54,6 +56,7 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     blurb: 'A melee juggernaut who wades into the thickest packs. Hits build Fury; Fury fuels a spinning storm of steel.',
     playstyle: 'Melee · Fury builder/spender · Whirlwind & bleeds',
     signature: 'Whirlwind',
+    signatureSkill: 'whirlwind',
     themeColor: 0xc0392b,
   },
   ranger: {
@@ -73,6 +76,7 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     blurb: 'A ranged tactician who fights alongside auto-firing sentries. Turrets do the killing while you reposition.',
     playstyle: 'Ranged · Sentries & projectiles · Hatred spender',
     signature: 'Sentry Turrets',
+    signatureSkill: 'sentry',
     themeColor: 0x27ae60,
   },
   mage: {
@@ -92,6 +96,7 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     blurb: 'A glass-cannon caster who calls meteors down on packs gathered by black holes. Elements stack into devastation.',
     playstyle: 'Ranged caster · Meteor & control · Arcane Power',
     signature: 'Meteor',
+    signatureSkill: 'meteor',
     themeColor: 0x2e86de,
   },
 };

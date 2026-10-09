@@ -30,7 +30,7 @@ No additional normalized-only matches occurred. Tier matching searches the whole
 ## Rename dependencies established from code
 
 - Saved skill slots/runes/tiers and runtime consumers use IDs. Preserve them during display-text work; global replacement could alter saves and behavior.
-- `client/src/ui/hud/ClassSelect.tsx` chooses its signature preview by checking whether free-text class signature contains a skill display name. Renaming text can therefore change an icon/preview even with stable IDs. Make this reference explicit before broad renaming.
+- At C033, `client/src/ui/hud/ClassSelect.tsx` chose its signature preview by checking whether free-text class signature contained a skill display name. C034 removes that dependency through an explicit validated skill ID; [report](SIGNATURE-REPORT.md) records unchanged glyphs and inspected browser captures. Other display-text dependencies still need review before broad renaming.
 - `shared/src/items.ts` derives some text through a skill-name cache, but item generation copies legendary/set names into `Item.name`. Existing item names are serialized in CharacterSave, separately from current definitions.
 - Class blurbs/signatures, rune/tier descriptions, set bonuses, item text and test/capture selectors can also name skills. They need an occurrence audit and semantic review, not blind replacement.
 

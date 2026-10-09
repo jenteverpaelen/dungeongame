@@ -31,7 +31,7 @@ function Embers() {
 
 function ClassCard(p: { def: ClassDef; selected: boolean; onPick: () => void }) {
   const { def } = p;
-  const sig = Object.values(SKILLS).find((s) => def.signature.toLowerCase().includes(s.name.toLowerCase()) && s.classId === def.id);
+  const sig = SKILLS[def.signatureSkill];
   const theme = hex(def.themeColor);
   const res = RESOURCE_STYLES[def.id];
   return (

@@ -229,3 +229,7 @@ Claude's unchanged sections5.2,8 and9.1 provide the decision/feature/screen IDs 
 ### L44 — Naming inventory before any rename, 2026-10-09
 
 Owner requires original names/text; roadmap D-07/F-CON-03 requires a register. Read the complete Wizard, Barbarian and Demon Hunter active-guide bodies, including rune labels and the level70 scope note. The local skill/item comments explicitly describe D3 analogues. Inspect actual registry name fields and saved SkillLoadout/Item structures first: skills/runes are referenced by IDs, while items persist their own display names. Compare labels as exact strings, preserving case/whitespace normalization as a separate result. A match is a review finding, not a legal determination; a non-match is not proof of originality. No names, IDs, descriptions, saved items, art, UI style or town content are changed by the inventory.
+
+### L45 — Class signature previews must reference identity, 2026-10-09
+
+C033 finds ClassSelect choosing a signature glyph by searching display text. Current class declarations and actual search resolve to whirlwind/sentry/meteor. Those existing IDs, not a new skill choice, are the source for an explicit signatureSkill reference. Read the content validator and its missing/inherited/wrong-class fixtures before design. Separate display text from identity so future original wording/localization cannot silently replace a preview. This is an application of the existing stable-registry pattern, not a new gameplay or visual design.

@@ -9,8 +9,9 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const selection = process.argv.includes('--selection');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-connection-ui-'));
-const dataDir = path.join(tmp, 'saves'), out = path.join(root, 'docs/phase/P03-foundations/checks/connections');
+const dataDir = path.join(tmp, 'saves'), out = path.join(root, selection ? 'docs/originality/checks/signatures' : 'docs/phase/P03-foundations/checks/connections');
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -71,6 +72,25 @@ try {
     if (r.exceptionDetails) throw Error(JSON.stringify(r.exceptionDetails)); return r.result.value;
   };
   for (const [name, origin, character] of [['01-built-client', directOrigin, 'DirectTrace'], ['02-vite-proxy', devOrigin, 'ProxyTrace']]) {
+    if (selection) {
+      await page.call('Page.navigate', { url: origin });
+      await until(() => evaluate('typeof __ui!=="undefined" && __ui.get().screen==="select" && document.querySelectorAll(".cs-sig-glyph").length===3'));
+      await wait(900);
+      const cards = await evaluate(`Array.from(document.querySelectorAll('.cs-card'), card => ({
+        classId: card.querySelector('canvas').dataset.preview, signature: card.querySelector('.cs-sig b').textContent,
+        glyph: card.querySelector('.cs-sig-glyph').outerHTML, visible: card.getBoundingClientRect().bottom <= innerHeight
+      }))`);
+      assert.deepEqual(cards.map(card => [card.classId, card.signature, card.visible]), [
+        ['warrior', 'Whirlwind', true], ['ranger', 'Sentry Turrets', true], ['mage', 'Meteor', true]
+      ]);
+      if (observations.length) assert.deepEqual(cards, observations.find(o => o.capture === '01-built-client-selection').cards);
+      const viewport = await evaluate('({width:innerWidth,height:innerHeight,hidden:document.hidden})');
+      assert.deepEqual(viewport, { width:1920, height:1080, hidden:false });
+      observations.push({ capture: name + '-selection', ...viewport, cards });
+      const selectionShot = await page.call('Page.captureScreenshot', { format:'png', captureBeyondViewport:false });
+      await fs.writeFile(path.join(out, name + '-selection.png'), Buffer.from(selectionShot.data, 'base64'));
+      console.log(`Captured ${name}-selection`);
+    }
     await page.call('Page.navigate', { url: `${origin}/?autostart=${character}&class=mage` });
     await until(() => evaluate('typeof __ui!=="undefined" && __ui.get().screen==="game" && !!__ui.get().char'));
     await wait(900);
@@ -100,6 +120,6 @@ finally {
   for (const child of procs) if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
   if (foreign) { foreign.closeAllConnections(); await new Promise(resolve => foreign.close(resolve)); }
   await fs.writeFile(path.join(out, 'trace.json'), JSON.stringify({ tmp, dataDir, node: process.version, browserVersion, passed, failure,
-    scope: 'Installed headless Chrome1920x1080; own local app with fresh profile/data, actual built/Vite browser handshakes and unlisted local page. No production TLS/proxy, account security, human usability or load-performance claim.', observations }, null, 2) + '\n');
+    scope: 'Installed headless Chrome1920x1080; own local app with fresh profile/data, actual built/Vite browser handshakes and unlisted local page. No production TLS/proxy, account security, human usability or load-performance claim.', selection, observations }, null, 2) + '\n');
   await fs.writeFile(path.join(tmp, 'capture.log'), logs.join('')); console.log(`Connection browser evidence: ${tmp}`);
 }
