@@ -15,13 +15,14 @@ import { SkillsPanel } from './skills';
 import { SettingsPanel } from './settings';
 import { AdventurePanel } from './adventure';
 import { WorldMapPanel } from './worldmap';
+import { RunSummaryPanel } from './runSummary';
 import { TipLayer, hideTip, installAltTracking } from './tooltip';
 
 export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHover } from './tooltip';
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary'];
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
@@ -72,6 +73,7 @@ export function PanelsRoot() {
             {panels.settings && <SettingsPanel />}
             {panels.adventure && <AdventurePanel />}
             {panels.worldmap && <WorldMapPanel />}
+            {panels.runSummary && <RunSummaryPanel />}
           </div>
           {panels.debug && <div class="pn-dock top"><DebugPanel /></div>}
         </>

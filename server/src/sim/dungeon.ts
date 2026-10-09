@@ -14,11 +14,14 @@ export class DungeonRuntime {
   private active=false;
   private initiator=0;
   private remaining=new Set<number>();
+  private startT=-1;
+  private endT=-1;
   private get stages(){return this.inst.map.adventure!.dungeon!.stages;}
   constructor(private inst:Instance){}
 
   state():DungeonState {
-    return {stage:this.stage,phase:this.stage===this.stages.length?'done':this.active?'active':'ready',remaining:this.remaining.size,target:this.stages[this.stage]?.trigger??'work_record'};
+    return {stage:this.stage,phase:this.stage===this.stages.length?'done':this.active?'active':'ready',remaining:this.remaining.size,target:this.stages[this.stage]?.trigger??'work_record',
+      totalStages:this.stages.length,elapsedMs:this.startT<0?0:(this.endT<0?this.inst.t:this.endT)-this.startT};
   }
 
   activate(link:PlayerLink,target:string):string|null {
@@ -31,6 +34,7 @@ export class DungeonRuntime {
     if(!p||!this.inst.canInteract(link,spot.x,spot.y,spot.radius))return 'Stand beside the mechanism to turn it';
     const encounter=this.inst.map.adventure!.encounters.find(e=>e.id===stage.encounter)!;
     this.active=true;this.initiator=p.id;
+    if(this.startT<0)this.startT=this.inst.t;
     for(const member of encounter.members){
       const mob=createMob(this.inst,MONSTERS[member.type],this.inst.level,encounter.x+member.dx,encounter.y+member.dy,
         {tier:member.tier??0,combat:member.combat,name:member.name,difficulty:this.inst.difficulty,players:1});
@@ -47,6 +51,7 @@ export class DungeonRuntime {
     if(!p||p.deadMs>0||p.hp<=0||!inPolygon(p.x,p.y,stage.area)){this.reset();return;}
     creditQuestWave(this.inst,p,stage.id);
     this.stage++;this.active=false;this.initiator=0;
+    if(this.stage===this.stages.length)this.endT=this.inst.t;
     this.inst.notice(questText(this.stage===this.stages.length?'quest.pump.done':'quest.pump.next'),'info');
   }
 

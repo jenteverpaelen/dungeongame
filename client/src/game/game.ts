@@ -20,6 +20,7 @@ import { openJournal } from '../ui/panels/adventure';
 import { Input } from './input';
 import { Predictor } from './prediction';
 import { ClientWorld } from './world';
+import { completedRunSummary } from './runSummary';
 
 export class Game {
   readonly audio = sfx;
@@ -54,7 +55,7 @@ export class Game {
 
   async start(name: string, classId: ClassId) {
     sfx.unlock();
-    ui.set({ screen: 'connecting', error: null, enchant: null });
+    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       ui.set({ connected: false, error: reason, screen: 'select', enchant: null });
       this.stopChannelAudio();
@@ -124,6 +125,7 @@ export class Game {
     this.predictor.reset();
     this.dmgLog = [];
     this.lastDungeonKey='';
+    this.lastRiftKey='';
     ui.set({ zone, myId: you, rift: null, dungeon:null, target: null, interact: null, panels: {} });
     const def = ZONES[zone.zone];
     if (def) pushNotice(zone.kind === 'rift' ? 'Nephalem Rift' : def.name, 'info');
@@ -150,6 +152,11 @@ export class Game {
     } else if (this.lastRiftKey) { this.lastRiftKey = ''; ui.set({ rift: null }); }
     const dungeonKey=s.dungeon?`${s.dungeon.stage}|${s.dungeon.phase}|${s.dungeon.remaining}`:'';
     if(dungeonKey!==this.lastDungeonKey){this.lastDungeonKey=dungeonKey;ui.set({dungeon:s.dungeon??null});}
+    const zone=ui.get().zone;
+    if(zone&&ui.get().lastRun?.instance!==zone.instance) {
+      const summary=completedRunSummary(zone,s.rift,s.dungeon);
+      if(summary)ui.set({lastRun:summary});
+    }
   }
 
   private onEvent(ev: GameEvent) {

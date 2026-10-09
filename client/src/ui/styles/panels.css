@@ -1021,9 +1021,9 @@
 .adventure-tracker strong { font-family:Cinzel, serif; color:#e7c477; margin-bottom:5px; }
 .adventure-tracker span { font-size:15px; line-height:1.25; }
 .adventure-tracker small { margin-top:5px; }
-.pn-adventure .pn-body { max-height:680px; overflow-y:auto; padding:16px; }
-.pn-adventure p, .pn-adventure li { line-height:1.5; }
-.pn-adventure .btn { margin:5px 8px 8px 0; }
+.pn-adventure .pn-body, .pn-runSummary .pn-body { max-height:680px; overflow-y:auto; padding:16px; }
+.pn-adventure p, .pn-adventure li, .pn-runSummary p { line-height:1.5; }
+.pn-adventure .btn, .pn-runSummary .btn { margin:5px 8px 8px 0; }
 .quest-list { display:flex; flex-wrap:wrap; gap:6px; }
 .quest-list .btn { flex:1; min-width:125px; margin:0; text-align:left; white-space:normal; }
 .quest-list strong, .quest-list small { display:block; }

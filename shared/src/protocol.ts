@@ -131,6 +131,9 @@ export interface DungeonState {
   phase: 'ready' | 'active' | 'done';
   remaining: number;
   target: string;
+  /** Optional for older clients/servers; frozen on final clear. */
+  elapsedMs?: number;
+  totalStages?: number;
 }
 
 export interface ZoneInfo {

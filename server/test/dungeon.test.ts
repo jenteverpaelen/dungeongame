@@ -33,6 +33,24 @@ function player(world:World,cls:ClassId='mage'){
   return {s,save,inst,p,at,near,cmd,travel,waypoint,unlock,accept,enter,activate,clear};
 }
 
+test('dungeon clock starts on valid activation, includes retries and freezes on final clear',async()=>{
+  const world=new World();await world.init();
+  try {
+    const a=player(world);a.unlock();a.enter();const inst=a.inst();
+    inst.t=1000;assert.equal(inst.dungeonState()!.elapsedMs,0);assert.equal(inst.dungeonState()!.totalStages,3);
+    assert(!a.activate('west_wheel').ok);assert.equal(inst.dungeonState()!.elapsedMs,0);
+    a.near('west_wheel');assert(a.activate('west_wheel').ok);
+    inst.t=1250;a.p().hp=0;a.p().deadMs=100;inst.dungeon!.tick();
+    assert.equal(inst.dungeonState()!.phase,'ready');assert.equal(inst.dungeonState()!.elapsedMs,250);
+    inst.t=1500;a.near('west_wheel');assert(a.activate('west_wheel').ok);a.clear();
+    inst.t=2000;a.near('east_wheel');assert(a.activate('east_wheel').ok);a.clear();
+    inst.t=2500;a.near('pump_crank');assert(a.activate('pump_crank').ok);a.clear();
+    assert.equal(inst.dungeonState()!.phase,'done');assert.equal(inst.dungeonState()!.elapsedMs,1500);
+    inst.t=5000;assert.equal(inst.dungeonState()!.elapsedMs,1500);
+    assert(!a.activate('pump_crank').ok);assert.equal(inst.dungeonState()!.elapsedMs,1500);
+  } finally {await world.shutdown();}
+});
+
 test('physical entry, private ownership, ordered activation, retry/leave/expiry and saved wave progress',async()=>{
   const world=new World();await world.init();
   try{

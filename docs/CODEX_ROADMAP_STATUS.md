@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C079. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C080. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -242,8 +242,8 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-70 | World map | P5 | MISSING | Partial C075: Regional/current-area maps include the gated Pumpworks hatch and current mechanism. Fog/discovery, multiple floors and wider map acceptance remain open. [Pumpworks](adventure/PUMPWORKS-REPORT.md). |
 | U-71 | Waypoint travel | P5 | EXISTS | Partial C072: Map enters existing physical travel and links existing channel panel; lock text shown. No new travel permission. [World map](adventure/WORLD-MAP-REPORT.md). |
 | U-72 | Rift obelisk (difficulty, open) | P12 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-73 | Rift / dungeon end summary | P7 | PARTIAL — notices | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-74 | Dungeon objective tracker | P7/P9 | MISSING | Partial C075: Existing-style current mechanism, active enemies remaining and cleared state implemented; runtime target overrides persistent quest target during replay. Full player comprehension and broader dungeon states remain open. [Pumpworks](adventure/PUMPWORKS-REPORT.md). |
+| U-73 | Rift / dungeon end summary | P7 | PARTIAL — notices | Partial C080: Optional Last run panel from actual completion state, difficulty and server clock; retains across travel, no automatic opening/reward grant. Labelled dungeon/rift previews inspected; live full flow, durable history and receipt totals remain open. [Run summary](adventure/RUN-SUMMARY-REPORT.md). |
+| U-74 | Dungeon objective tracker | P7/P9 | MISSING | Partial C080: Ordered mechanism/enemy tracker retained; final clear now supplies a frozen run clock and optional recap. Broader dungeon formats and human comprehension remain open. [Run summary](adventure/RUN-SUMMARY-REPORT.md). |
 | U-75 | Bounty board | P12 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-76 | Leaderboards | P12 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-77 | Season journey | P15 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |

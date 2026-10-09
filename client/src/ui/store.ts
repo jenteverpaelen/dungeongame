@@ -5,8 +5,9 @@ import type { MapData, NpcRole } from '@shared/mapgen';
 import type { DungeonState, LootView, MeState, RiftState, WorldInfo, ZoneInfo } from '@shared/protocol';
 import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from '@shared/types';
 import type { Artisan } from '@shared/townServices';
+import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary';
 
 export interface ChatLine { id: number; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string; at: number }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -36,6 +37,7 @@ export interface UIState {
   zone: ZoneInfo | null;
   rift: RiftState | null;
   dungeon: DungeonState | null;
+  lastRun: RunSummary | null;
   world: WorldInfo | null;
   panels: Partial<Record<PanelId, boolean>>;
   artisan: Artisan;
@@ -73,7 +75,7 @@ class Store<T extends object> {
 export const ui = new Store<UIState>({
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
-  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, world: null,
+  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, lastRun:null, world: null,
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });

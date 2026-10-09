@@ -44,6 +44,7 @@ import { QuestDelivery } from '../ui/panels/questDelivery';
 import { PanelFrame } from '../ui/panels/common';
 import { planQuestDelivery } from '@shared/questDelivery';
 import type { QuestStep } from '@shared/questTypes';
+import { completedRunSummary } from '../game/runSummary';
 
 const qs = new URLSearchParams(location.search);
 if (qs.has('still')) {
@@ -409,9 +410,17 @@ function Gallery() {
 }
 
 setupUI();
+if(qs.get('s')==='runSummary') {
+  // Explicit synthetic result for presentation review; never writes a save or grants loot.
+  const isRift=qs.get('run')==='rift';
+  const info={...ui.get().zone!,kind:isRift?'rift' as const:'dungeon' as const,zone:isRift?'rift':'reedvault_pumpworks',
+    name:isRift?'Rift · preview fixture':'Reedvault Pumpworks · preview fixture',instance:'summary-fixture',difficulty:1};
+  ui.set({zone:info,lastRun:completedRunSummary(info,isRift?{phase:'done',progress:100,level:10,difficulty:1,elapsedMs:245000,owner:'Fixture'}:undefined,
+    isRift?undefined:{phase:'done',stage:3,totalStages:3,remaining:0,target:'work_record',elapsedMs:245000})});
+}
 
 const scene = (qs.get('s') ?? 'inventory').split(',');
-const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug'];
+const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary'];
 for (const p of scene) if ((panelIds as string[]).includes(p)) togglePanel(p as PanelId, true);
 
 const cubeFn = qs.get('cube');
