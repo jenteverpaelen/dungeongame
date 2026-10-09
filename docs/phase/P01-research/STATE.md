@@ -54,7 +54,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |
 | R-19 audio | PannerNode + category guidance | Existing graph/mix/settings audit, concurrency/listening tests |
-| R-20 narrative/quests | Authoring pattern + quest failure cases | UI observations, original premise, schema and reward semantics |
+| R-20 narrative/quests | Authoring pattern, quest failure cases and C040 cross-game continuity/current-code integration map | Runtime credit probes, UI observations, original premise, schema and reward semantics |
 | R-21 Torchlight II PC (owner addition) | L1/L2 plus secondary PC respec corroboration | Pinned final PC tables/client behavior; first-session footage; loot/UI |
 
 The full P1/G1 package is **not complete**. This is not a claim that all 20 original charters plus R-21 are researched. The timeline and loot matrices and visual UI atlas remain mostly missing. The owner's autonomy instruction removes routine approval pauses, not the need for evidence. No new gameplay progression/economy/content system has been implemented from this packet.
@@ -70,7 +70,7 @@ The full P1/G1 package is **not complete**. This is not a claim that all 20 orig
 ## Constraints and gaps to carry forward
 
 - No subagents. Never alter protected baseline refs. Check branch before any push. Never commit real saves, `.local` or `.env`.
-- Necessary downloads and relevant PC/Chrome access have standing owner permission. Record source/size/hash/purpose/licence; no paid services or account creation implied.
+- Relevant PC/Chrome use is authorized. The latest supplied AGENTS.md repeats explicit per-download name/source/size approval; a31MB GDC2015 presentation request is pending. Record source/hash/purpose/licence after approval; no paid services or account creation implied.
 - Browser connector failed before opening public research tabs; local Chrome capture works. No reference-game visual inspection is claimed.
 - Long-range spell clipping returns with the explicitly requested original camera. Town load/performance follow-ups remain deferred, not passed.
 - Keep earlier town checkpoint and old research as historical evidence, not current instructions when contradicted by the owner's later directions.

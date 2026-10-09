@@ -62,6 +62,8 @@ Hearthfall now has a separate [local first-session atlas and trace](../../phase/
 
 ## OB-01 — How to choose the first progression improvement [P]
 
+C040 adds an [objective continuity comparison](OBJECTIVES.md) for the same five games, retaining missing current/visual/party evidence. Its integration map identifies current authoritative action boundaries; no new tutorial count or reward is inferred.
+
 **Problem established:** our remaining unlock availability after level 21 is limited in the audited skill system (HF-01). **Not established:** how new players experience that interval or which change will help most.
 
 | Option | Evidence fit | Cost/risk here | Decision now |

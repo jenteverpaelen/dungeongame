@@ -33,3 +33,5 @@ Detailed evidence state: `docs/phase/P01-research/STATE.md`. Implementation stat
 C038 adds a standalone crash/retry/restore experiment to P3 evidence. It leaves live identity, storage selection and durable game-command integration open; see P03 TRANSACTION-REPORT.md. Continue independent roadmap research while owner-population information is pending.
 
 C039 closes measured inherited/coerced class and unsupported-text budget gaps. Strict18-stage verification and two inspected local browser frames pass. No live identity policy is selected; continue the whole-roadmap research and implementation ledger.
+
+C040 maps the future P5 objective families onto actual authoritative game actions and adds cross-game continuity evidence. No quest engine or reward/cadence policy is selected. Next independent work is a synthetic runtime credit probe; preserve current behavior while identifying integration seams.

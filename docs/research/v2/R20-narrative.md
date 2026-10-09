@@ -16,4 +16,6 @@ Original writing should follow the game's existing voice: concise action/conditi
 
 ## Charter gaps
 
+C040's [objective comparison and integration map](OBJECTIVES.md) separates qualifying actions, continuity and feedback across all five requested games, with PoE1/2 distinct. Five more primary records/five scoped claims include historical changes and a Runic generation ambiguity. The actual server's kill, pickup, service and rift paths have different eligibility boundaries; the map is a source audit, not runtime evidence or chosen quest policy. No quest content or rewards implemented.
+
 Comparative quest/dialogue UI atlas, observed text lengths/flow, original world premise and content cost, authoring schema, reward idempotency, replay/abandon/party semantics. No copied quest chain or invented retention benefit. Future implementation must preserve town service behavior and approved UI style.
