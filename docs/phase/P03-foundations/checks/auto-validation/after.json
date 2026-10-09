@@ -1,0 +1,163 @@
+{
+  "checkpoint": "C069",
+  "mode": "after",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "isolatedDataDir": "hf-auto-validation-after-6f0867c831c84e228ce25ed8ce6bd6f3",
+  "authoredContentSha256": "c7bb33613d73ba5a3ee60e3a8c31373a8f2f09011f99ec28b35be4a61585e7ab",
+  "currentAuthoredContentValid": true,
+  "invalidFixtures": 16,
+  "invalidFixturesRejected": 16,
+  "validation": [
+    {
+      "field": "nearCount",
+      "value": "NaN",
+      "errors": [
+        "skills.meteor.auto.count: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearCount",
+      "value": "positive infinity",
+      "errors": [
+        "skills.meteor.auto.count: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearCount",
+      "value": "negative infinity",
+      "errors": [
+        "skills.meteor.auto.count: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearCount",
+      "value": "negative",
+      "errors": [
+        "skills.meteor.auto.count: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearDistance",
+      "value": "NaN",
+      "errors": [
+        "skills.meteor.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearDistance",
+      "value": "positive infinity",
+      "errors": [
+        "skills.meteor.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearDistance",
+      "value": "negative infinity",
+      "errors": [
+        "skills.meteor.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "nearDistance",
+      "value": "negative",
+      "errors": [
+        "skills.meteor.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelResource",
+      "value": "NaN",
+      "errors": [
+        "skills.whirlwind.auto.startAt: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelResource",
+      "value": "positive infinity",
+      "errors": [
+        "skills.whirlwind.auto.startAt: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelResource",
+      "value": "negative infinity",
+      "errors": [
+        "skills.whirlwind.auto.startAt: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelResource",
+      "value": "negative",
+      "errors": [
+        "skills.whirlwind.auto.startAt: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelDistance",
+      "value": "NaN",
+      "errors": [
+        "skills.whirlwind.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelDistance",
+      "value": "positive infinity",
+      "errors": [
+        "skills.whirlwind.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelDistance",
+      "value": "negative infinity",
+      "errors": [
+        "skills.whirlwind.auto.within: expected finite >= 0"
+      ]
+    },
+    {
+      "field": "channelDistance",
+      "value": "negative",
+      "errors": [
+        "skills.whirlwind.auto.within: expected finite >= 0"
+      ]
+    }
+  ],
+  "brain": [
+    {
+      "classId": "mage",
+      "skillId": "meteor",
+      "threshold": "unchanged authored value",
+      "initialResource": 100,
+      "castStarted": true,
+      "resourceAfter": 60
+    },
+    {
+      "classId": "mage",
+      "skillId": "meteor",
+      "threshold": "NaN synthetic fault",
+      "initialResource": 100,
+      "castStarted": false,
+      "resourceAfter": 100
+    },
+    {
+      "classId": "warrior",
+      "skillId": "whirlwind",
+      "threshold": "unchanged authored value",
+      "initialResource": 10,
+      "castStarted": false,
+      "resourceAfter": 10
+    },
+    {
+      "classId": "warrior",
+      "skillId": "whirlwind",
+      "threshold": "NaN synthetic fault",
+      "initialResource": 10,
+      "castStarted": true,
+      "resourceAfter": 10
+    }
+  ],
+  "liveDataRead": false,
+  "gameDataChanged": false,
+  "serverStarted": false,
+  "limits": "Synthetic faults exercise real single-tick brain behavior; not a current-content defect, player pacing, load, browser or full combat test."
+}

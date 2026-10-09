@@ -74,6 +74,15 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     number(s.unlock,`${at}.unlock`,1,true);
     check(s.unlock <= MAX_LEVEL,`${at}.unlock`,'exceeds the current level cap');
     for (const key of ['coef','cost','gen','cooldown','range','radius','duration','maxSummons'] as const) number(s[key],`${at}.${key}`);
+    // These feed numeric comparisons and spatial queries in the combat brain.
+    // Weighted thresholds can be fractional; base resource stats are not an upper bound.
+    if (s.auto.when === 'enemiesNear') {
+      number(s.auto.count,`${at}.auto.count`);
+      number(s.auto.within,`${at}.auto.within`);
+    } else if (s.auto.when === 'channel') {
+      number(s.auto.startAt,`${at}.auto.startAt`);
+      number(s.auto.within,`${at}.auto.within`);
+    }
     check(s.runes.length <= data.runeOffsets.length,`${at}.runes`,'missing rune unlock offsets');
     check(s.tiers.length <= data.tierCosts.length,`${at}.tiers`,'missing tier costs');
     ids(s.runes.map(r=>r.id),`${at}.runes`);

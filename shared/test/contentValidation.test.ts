@@ -59,3 +59,26 @@ test('signature references survive display wording changes but reject missing/in
     expectPath(validateContent(data),'classes.warrior.signatureSkill');
   }
 });
+
+test('automatic-cast thresholds and query distances reject nonfinite or negative authoring values', () => {
+  for (const value of [NaN, Infinity, -Infinity, -1]) {
+    const data=fixture();
+    data.skills.meteor.auto={when:'enemiesNear',count:value,within:value};
+    data.skills.whirlwind.auto={when:'channel',startAt:value,within:value};
+    const errors=validateContent(data);
+    assert.equal(errors.length,4,errors.join('\n'));
+    for(const path of ['skills.meteor.auto.count','skills.meteor.auto.within','skills.whirlwind.auto.startAt','skills.whirlwind.auto.within']) expectPath(errors,path);
+  }
+});
+
+test('automatic-cast validation preserves finite zero, fractional and above-base thresholds', () => {
+  for (const value of [0,0.5,1000]) {
+    const data=fixture();
+    data.skills.meteor.auto={when:'enemiesNear',count:value,within:value};
+    data.skills.whirlwind.auto={when:'channel',startAt:value,within:value};
+    // Signed modifiers retain their different semantics (reductions are valid).
+    data.skills.meteor.tiers[0].mods={cost:-25,duration:-10};
+    assert.deepEqual(validateContent(data),[]);
+  }
+  assert.deepEqual(validateContent(),[],'fixtures must not alter authored data');
+});
