@@ -8,7 +8,7 @@ import { T_FLOOR, T_PATH, T_PLAZA, T_VOID, T_WALL, T_WATER, isBlockedTile, type 
 import { TILE } from '@shared/constants';
 import { clamp01, fmtClock, safeGet, safeSet } from './util';
 import { AdventureTracker } from '../panels/adventure';
-import { rillwakeObjective } from '@shared/adventure';
+import { questObjective, questPoint, trackedQuest } from '@shared/quests';
 import { ui } from '../store';
 
 type RGB = [number, number, number];
@@ -183,9 +183,9 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
 
   // static map features
   const save=ui.get().char, adventure=baked.map.adventure;
-  if(save && adventure && !save.rillwake?.claimed) {
-    const id=rillwakeObjective(save).target;
-    const point=adventure.interactions.find(i=>i.id===id)??adventure.encounters.find(e=>e.id===id);
+  if(save && adventure) {
+    const quest=trackedQuest(save);
+    const point=quest&&questPoint(baked.map,questObjective(save,quest));
     if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
   }
   for (const n of baked.map.npcs) npcIcon(g, n.role, px(n.x), py(n.y));

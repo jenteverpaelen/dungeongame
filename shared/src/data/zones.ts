@@ -39,6 +39,11 @@ export const ZONES: Record<string, ZoneDef> = {
     packTarget: 38, respawnSec: 16,
     blurb: 'Cinder-choked ruins of a buried city. Imps nest in the ash.',
   },
+  bracken_sluice: {
+    id:'bracken_sluice',name:'Bracken Sluice',kind:'field',theme:'glade',levelBand:[1,70],size:[56,48],
+    packTarget:4,respawnSec:18,
+    blurb:'A maintenance causeway above the flood. Follow Orren’s survey to reach the rootbound spillway.',
+  },
   rift: {
     id: 'rift', name: 'Nephalem Rift', kind: 'rift', theme: 'glade', levelBand: [1, 70], size: [110, 110],
     packTarget: 0, respawnSec: 0,
@@ -46,7 +51,7 @@ export const ZONES: Record<string, ZoneDef> = {
   },
 };
 
-export const FIELD_IDS = ['whispering_glade', 'ashen_hollow', 'rillwake_crossing'];
+export const FIELD_IDS = ['whispering_glade', 'ashen_hollow', 'rillwake_crossing', 'bracken_sluice'];
 
 /** Rift progress awarded per kill by elite tier (D3: trash ~1 progress orb, elites more). Total to summon guardian = 100. */
 export const RIFT_PROGRESS = [0.55, 3, 4.5, 0.6, 0, 0];

@@ -2,6 +2,7 @@
 // AOI replication and events. Implements the InstanceApi contract (server/src/contracts.ts).
 
 import type { CreateInstance, InstanceApi, InstanceOptions, PlayerLink, PortalSpec } from '../contracts';
+import { creditQuestReach } from '../quests';
 import {
   CollisionWorld, DIFFICULTIES, Rng, TICK_MS, ZONES, generateMap, type C2S, type GameEvent, type MapData, type RiftState,
   type ZoneDef, type ZoneInfo, type ZoneKind,
@@ -266,7 +267,10 @@ export class Instance implements InstanceApi {
     const players = this.players;
     this.phaseT = t0;
     for (let i = 0; i < players.length; i++) processInputs(this, players[i]);
-    for (let i = 0; i < players.length; i++) playerTick(this, players[i], TICK_MS);
+    for (let i = 0; i < players.length; i++) {
+      playerTick(this, players[i], TICK_MS);
+      creditQuestReach(this, players[i]);
+    }
     this.mark(0);
     for (let i = 0; i < players.length; i++) playerBrain(this, players[i], TICK_MS);
     this.mark(1);

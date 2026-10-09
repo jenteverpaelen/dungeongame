@@ -23,6 +23,12 @@ if(import.meta.env.DEV) {
   button('Walk to ledger',()=>walk([[3340,1130],[3340,940],[3350,865]]));
   button('Walk back to camp',()=>walk([[3340,940],[3360,1130],...main().slice(0,8).reverse(),[800,2445]]));
   button('Walk ridge from camp',()=>walk([[900,2430],[1450,2010],...(game()?.world.map?.adventure?.routes[1]??[])]));
+  button('Walk to ridge survey',()=>walk([[900,2430],[1450,2010],[1450,1900],[1160,1400],[1600,1350],[2340,1120],[2440,1055]]));
+  button('Return from survey',()=>walk([[2340,1120],[1600,1350],[1160,1400],[1450,1900],[1450,2010],[900,2430],[800,2445]]));
+  button('Walk to upstream exit',()=>walk([[900,2430],...main().slice(2,8),[3070,1230],[3070,910],[3120,780]]));
+  button('Walk to spillway keeper',()=>walk(main().slice(1,8)));
+  button('Walk to floodgate',()=>walk([[2540,910]]));
+  button('Return along sluice causeway',()=>walk([...main().slice(0,8).reverse(),[670,2760]]));
   button('Interact (E)',()=>{window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyE',key:'e',bubbles:true,cancelable:true}));window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyE',key:'e',bubbles:true}));});
   button('Stop walking',()=>{route=[];keys([]);message='Stopped';});
   button('Toggle QA controls',()=>{controls.hidden=!controls.hidden;});
@@ -34,14 +40,19 @@ if(import.meta.env.DEV) {
     if(route.length && g.predictor.ready) {
       if(document.hidden || performance.now()-started>90000 || g.world.me?.dead){route=[];keys([]);message='Stopped: hidden, dead or timed out';}
       else {
-        const [x,y]=route[index],dx=x-g.predictor.x,dy=y-g.predictor.y;
-        if(Math.hypot(dx,dy)<13){index++;if(index===route.length){route=[];keys([]);message='Route finished';}}
+        // Follow the last authoritative position; render correction can lag at low frame rates.
+        const pos=ui.get().me??g.predictor;
+        const [x,y]=route[index],dx=x-pos.x,dy=y-pos.y;
+        // Snapshots arrive every 100 ms: at the base 250 u/s, a 13 u threshold can
+        // oscillate between two samples. 26 u exceeds one sample's travel and is
+        // still inside the 45 u spare interaction margin of these route endpoints.
+        if(Math.hypot(dx,dy)<26){index++;if(index===route.length){route=[];keys([]);message='Route finished';}}
         else {
           const next:string[]=[];const add=(a:'up'|'down'|'left'|'right')=>{const key=bindings.get().values[a][0];if(key)next.push(key);};
           if(Math.abs(dx)>7)add(dx>0?'right':'left');if(Math.abs(dy)>7)add(dy>0?'down':'up');keys(next);
         }
       }
     }
-    const st=ui.get();status.textContent=`${message} | ${lastZone} (${g.predictor.x.toFixed(0)},${g.predictor.y.toFixed(0)}) | ${st.fps}fps | ${st.char?.classId} level ${st.char?.level} | ${route.length?`${index}/${route.length}`:'idle'}`;
+    const st=ui.get();status.textContent=`${message} | ${lastZone} (${g.predictor.x.toFixed(0)},${g.predictor.y.toFixed(0)}) server (${st.me?.x},${st.me?.y}) | ${st.fps}fps | ${st.char?.classId} level ${st.char?.level} | ${route.length?`${index}/${route.length}`:'idle'}`;
   },50);
 }

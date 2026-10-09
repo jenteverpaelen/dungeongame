@@ -28,6 +28,8 @@ export const DUMMY_DEF: MonsterDef = {
 };
 
 export interface MobOpts {
+  /** Authored field encounter: existing ring/enrage, no reward-bearing summons. */
+  combat?: 'keeper';
   tier?: EliteTier;
   affixes?: string[];
   name?: string;
@@ -74,7 +76,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
       vortex: 2500 + inst.rng.next() * 5000, mortar: 1000 + inst.rng.next() * 2000, electrified: 0,
     },
     noticedMs: -1, goldPileMs: 0, fleeX: x, fleeY: y, fleeMs: 0,
-    boss: tier === 4 ? { ringMs: 3500, addsMs: 7000, enraged: false, slamCount: 0 } : null,
+    boss: tier === 4 || o.combat==='keeper' ? { ringMs: 3500, addsMs: o.combat==='keeper'?Infinity:7000, enraged: false, slamCount: 0 } : null,
     losMs: 0, los: true, shotLos: true, shatterBy: 0, shatterDepth: 0,
     progress: o.progress ?? 0, noReward: false,
     faceLeft: inst.rng.next() < 0.5, moving: false, descVer: 1, sepX: 0, sepY: 0, trailX: x, trailY: y,

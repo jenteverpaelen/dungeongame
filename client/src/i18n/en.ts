@@ -1,6 +1,8 @@
 // Complete context-specific English messages. Keep action sentences separate for translation.
 // {key} is the runtime physical keyboard label, not a translatable action fragment.
+import { QUEST_MESSAGES } from '@shared/data/questMessages';
 export const ENGLISH = {
+  ...QUEST_MESSAGES,
   "settings.title": "Settings",
   "settings.subtitle": "Sound, comfort & controls",
   "settings.tabSound": "Sound & comfort",
@@ -136,5 +138,13 @@ export const ENGLISH = {
   "controls.settings.changeAlternate": "Change Settings alternate key",
   "controls.settings.capture": "Press a key for Settings. Escape cancels.",
   "controls.settings.clearAlternate": "Clear Settings alternate key",
-  "controls.settings.cleared": "Settings alternate cleared."
+  "controls.settings.cleared": "Settings alternate cleared.",
+  "controls.journal.label": "Quest journal",
+  "controls.journal.assigned": "Quest journal assigned to {key}.",
+  "controls.journal.conflict": "Already assigned to Quest journal. Change that key first.",
+  "controls.journal.changePrimary": "Change Quest journal primary key",
+  "controls.journal.changeAlternate": "Change Quest journal alternate key",
+  "controls.journal.capture": "Press a key for Quest journal. Escape cancels.",
+  "controls.journal.clearAlternate": "Clear Quest journal alternate key",
+  "controls.journal.cleared": "Quest journal alternate cleared."
 } as const;

@@ -50,3 +50,5 @@ C067 adds WoW/D2R ownership and migration examples:four sources,eight claims and
 C068 widens the feature matrix to22 game/mode columns and reconciles legacy/download/gate status. See [G1-AUDIT](G1-AUDIT.md); structure is complete in more places,factual coverage remains partial. No source count or runtime change.
 
 C070 adds two primary Grim Dawn guide sources and two scoped route/quest claims (179 sources/173 claims total). L81–L83 and adventure/RILLWAKE-REPORT.md in the docs root record the resulting bounded implementation, local measurements, assisted versus normal-health checks and remaining limitations. Media/atlas/timeline manifests remain at C062; G1 remains incomplete.
+
+C071 adds one scoped monster-guide source and two quest-access/encounter claims: 180 sources/175 claims. L84–L85 record the evidence and local reuse boundaries before the connected-adventure work. Media/atlas remain at C062. This is further P5/P7 implementation, not G1 acceptance or full-roadmap completion.

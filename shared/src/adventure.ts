@@ -1,12 +1,18 @@
 import { RILLWAKE } from './data/rillwake';
+import { BRACKEN } from './data/bracken';
+import type { AdventureData } from './adventureTypes';
 import { TILE } from './constants';
 import { T_FLOOR, T_WATER, type MapData } from './mapgen';
 import { inGround } from './townGeometry';
 import type { CharacterSave } from './types';
 
 export const RILLWAKE_ID = 'rillwake_crossing';
+export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN};
 export function loadRillwake(seed: number): MapData {
-  const a = structuredClone(RILLWAKE);
+  return loadAdventure(RILLWAKE_ID,seed);
+}
+export function loadAdventure(id:string,seed:number):MapData {
+  const a = structuredClone(ADVENTURES[id]);
   a.geometry.props = a.scenery.filter(p=>p.r>0).map(p=>({x:p.x,y:p.y,radius:p.r*p.s}));
   a.geometry.props.push(a.wheel);
   a.geometry.npcs = a.npcs;

@@ -46,8 +46,8 @@ export function createSummonView(type: string): EntityView {
   return new SummonArt(type);
 }
 
-export function createNpcView(role: NpcRole, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?: number): EntityView {
-  return new NpcArt(role, name, look, radius);
+export function createNpcView(role: NpcRole, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?: number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind']): EntityView {
+  return new NpcArt(role, name, look, radius, clueKind);
 }
 
 export function createPortalView(label: string, kind: 'town' | 'rift'): EntityView {

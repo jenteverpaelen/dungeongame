@@ -3,6 +3,15 @@ import assert from 'node:assert/strict';
 import { BindingStore, DEFAULT_BINDINGS, keyLabel } from './bindings';
 import { Input } from './input';
 
+test('adding the journal retains every old custom binding even when J was already assigned',()=>{
+  const old={...DEFAULT_BINDINGS} as Record<string,readonly [string,string|null]>;
+  delete old.journal;old.dash=['KeyJ',null];
+  const keys=new BindingStore({getItem:()=>JSON.stringify({version:1,values:old}),setItem(){}});
+  for(const [action,pair] of Object.entries(old))assert.deepEqual(keys.get().values[action as keyof typeof DEFAULT_BINDINGS],pair);
+  assert.equal(keys.action('KeyJ'),'dash');assert.notEqual(keys.get().values.journal[0],'KeyJ');
+  assert.equal(keys.action(keys.get().values.journal[0]),'journal');
+});
+
 function storage() {
   const data = new Map<string, string>();
   return { data, getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => { data.set(key, value); } };
@@ -10,12 +19,12 @@ function storage() {
 test('custom keys and alternates persist; reset restores every original action without changing other storage', () => {
   const disk = storage(); disk.data.set('hearthfall.preferences.v1', 'untouched');
   const keys = new BindingStore(disk);
-  assert.equal(keys.assign('dash', 0, 'KeyJ', 'j'), null);
+  assert.equal(keys.assign('dash', 0, 'KeyY', 'y'), null);
   assert.equal(keys.assign('inventory', 1, null), null);
   assert.equal(keys.assign('interact', 1, 'KeyB', 'b'), null);
   const reloaded = new BindingStore(disk);
-  assert.equal(reloaded.action('Space'), undefined); assert.equal(reloaded.action('KeyJ'), 'dash');
-  assert.equal(reloaded.action('KeyB'), 'interact'); assert.equal(reloaded.label('dash'), 'J');
+  assert.equal(reloaded.action('Space'), undefined); assert.equal(reloaded.action('KeyY'), 'dash');
+  assert.equal(reloaded.action('KeyB'), 'interact'); assert.equal(reloaded.label('dash'), 'Y');
   reloaded.reset(); assert.deepEqual(new BindingStore(disk).get().values, DEFAULT_BINDINGS);
   assert.equal(disk.data.get('hearthfall.preferences.v1'), 'untouched');
 });
@@ -37,8 +46,8 @@ test('malformed, future, incomplete and conflicting records fall back as a whole
     assert.deepEqual(new BindingStore({ getItem: () => raw, setItem() {} }).get().values, DEFAULT_BINDINGS);
   }
   const keys = new BindingStore({ getItem() { throw Error('denied'); }, setItem() { throw Error('quota'); } });
-  assert.equal(keys.get().retained, false); assert.equal(keys.assign('dash', 0, 'KeyJ'), null);
-  assert.equal(keys.action('KeyJ'), 'dash'); assert.equal(keys.get().retained, false);
+  assert.equal(keys.get().retained, false); assert.equal(keys.assign('dash', 0, 'KeyY'), null);
+  assert.equal(keys.action('KeyY'), 'dash'); assert.equal(keys.get().retained, false);
 });
 test('layout labels do not change physical actions; captured characters and numpad identity survive', () => {
   const disk = storage(), keys = new BindingStore(disk);
@@ -81,12 +90,12 @@ test('input releases independent alternates and rejects movement repeats after c
   fire('keydown', 'KeyT'); assert.equal(input.move().y, -1); fire('focusin'); assert.equal(input.move().y, 0);
 }));
 test('remapped actions respect native forms, capture, modifiers, repeat and Tab navigation', () => inputFixture(({ keys, hits, fire }) => {
-  keys.assign('dash', 0, 'KeyJ'); fire('keydown', 'Space'); fire('keydown', 'KeyJ'); fire('keydown', 'KeyJ', { repeat: true });
+  keys.assign('dash', 0, 'KeyY'); fire('keydown', 'Space'); fire('keydown', 'KeyY'); fire('keydown', 'KeyY', { repeat: true });
   assert.deepEqual(hits, ['dash']);
   for (const extra of [{ ctrlKey: true }, { altKey: true }, { metaKey: true }, { isComposing: true }, { defaultPrevented: true },
     { target: { tagName: 'INPUT' } }, { target: { tagName: 'TEXTAREA' } }, { target: { isContentEditable: true } },
-    { target: { closest: (q: string) => q.includes('data-controls-editor') } }]) fire('keydown', 'KeyJ', extra);
-  keys.capture(true); fire('keydown', 'KeyJ'); keys.capture(false); assert.deepEqual(hits, ['dash']);
+    { target: { closest: (q: string) => q.includes('data-controls-editor') } }]) fire('keydown', 'KeyY', extra);
+  keys.capture(true); fire('keydown', 'KeyY'); keys.capture(false); assert.deepEqual(hits, ['dash']);
   assert.equal(fire('keydown', 'Tab').defaultPrevented, false);
   keys.reset(); fire('keydown', 'Space', { key: ' ', target: { closest: (q: string) => q.includes('button') } });
   assert.deepEqual(hits, ['dash']); fire('keydown', 'KeyB'); fire('keydown', 'F1'); fire('keydown', 'KeyE');

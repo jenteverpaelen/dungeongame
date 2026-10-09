@@ -172,6 +172,7 @@ export type CmdOp =
   | 'equip' | 'unequip' | 'swapInv' | 'destroy'
   | 'stashDeposit' | 'stashWithdraw'
   | 'adventure'
+  | 'quest'
   | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset'

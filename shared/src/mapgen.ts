@@ -7,7 +7,7 @@ import { Rng, hashString } from './math';
 import { loadAuthoredTown } from './town';
 import type { TownData } from './townTypes';
 import type { AdventureData } from './adventureTypes';
-import { loadRillwake, RILLWAKE_ID } from './adventure';
+import { ADVENTURES, loadAdventure } from './adventure';
 
 export const T_VOID = 0;
 export const T_FLOOR = 1;
@@ -352,7 +352,7 @@ function genRift(seed: number, theme: Theme): MapData {
 export function generateMap(zoneId: string, seed: number, theme?: Theme): MapData {
   const def = ZONES[zoneId];
   if (!def) throw new Error(`unknown zone ${zoneId}`);
-  if (zoneId === RILLWAKE_ID) return loadRillwake(seed);
+  if (Object.hasOwn(ADVENTURES,zoneId)) return loadAdventure(zoneId,seed);
   if (def.kind === 'town') return loadAuthoredTown(seed);
   if (def.kind === 'field') return genField(zoneId, seed);
   return genRift(seed, theme ?? 'glade');

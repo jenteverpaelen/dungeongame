@@ -1,0 +1,210 @@
+{
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-chain-dodge-5c6710e8222d4e4183676119a7c9b67a",
+  "kind": "deterministic synthetic normal-level-1 input walkthrough; not player pacing or browser performance",
+  "results": [
+    {
+      "cls": "warrior",
+      "success": true,
+      "chain": true,
+      "simulationSeconds": 265.1,
+      "kills": 80,
+      "deaths": 0,
+      "level": 7,
+      "items": 8,
+      "claimed": true,
+      "rewardLevel": 3,
+      "quests": {
+        "high_water": {
+          "revision": 1,
+          "step": 2,
+          "claimed": true
+        },
+        "under_spillway": {
+          "revision": 1,
+          "step": 3,
+          "claimed": true,
+          "reward": {
+            "id": "mf6dbvj",
+            "base": "sword",
+            "kind": "weapon1h",
+            "name": "Mighty Short Sword",
+            "rarity": "magic",
+            "ancient": 0,
+            "ilvl": 6,
+            "reqLevel": 6,
+            "affixes": [
+              {
+                "stat": "str",
+                "value": 5,
+                "min": 5,
+                "max": 6,
+                "primary": true
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "sword",
+              "primary": 9213084,
+              "secondary": 5930495,
+              "glow": 0,
+              "variant": 0
+            },
+            "weapon": {
+              "min": 3,
+              "max": 7,
+              "aps": 1.4,
+              "element": "physical"
+            }
+          }
+        }
+      },
+      "rings": 5,
+      "slams": 59,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.02125000000000436,
+        "max": 0.10059999999998581
+      }
+    },
+    {
+      "cls": "mage",
+      "success": true,
+      "chain": true,
+      "simulationSeconds": 145.55,
+      "kills": 80,
+      "deaths": 0,
+      "level": 7,
+      "items": 10,
+      "claimed": true,
+      "rewardLevel": 3,
+      "quests": {
+        "high_water": {
+          "revision": 1,
+          "step": 2,
+          "claimed": true
+        },
+        "under_spillway": {
+          "revision": 1,
+          "step": 3,
+          "claimed": true,
+          "reward": {
+            "id": "mf6dbv13",
+            "base": "staff",
+            "kind": "weapon2h",
+            "name": "Wise Quarterstaff",
+            "rarity": "magic",
+            "ancient": 0,
+            "ilvl": 6,
+            "reqLevel": 6,
+            "affixes": [
+              {
+                "stat": "int",
+                "value": 7,
+                "min": 7,
+                "max": 8,
+                "primary": true
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "staff",
+              "primary": 10253126,
+              "secondary": 5930495,
+              "glow": 0,
+              "variant": 0
+            },
+            "weapon": {
+              "min": 6,
+              "max": 12,
+              "aps": 1,
+              "element": "physical"
+            }
+          }
+        }
+      },
+      "rings": 1,
+      "slams": 14,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.01052500000002965,
+        "max": 0.02719999999999345
+      }
+    },
+    {
+      "cls": "ranger",
+      "success": true,
+      "chain": true,
+      "simulationSeconds": 143.2,
+      "kills": 86,
+      "deaths": 0,
+      "level": 7,
+      "items": 10,
+      "claimed": true,
+      "rewardLevel": 3,
+      "quests": {
+        "high_water": {
+          "revision": 1,
+          "step": 2,
+          "claimed": true
+        },
+        "under_spillway": {
+          "revision": 1,
+          "step": 3,
+          "claimed": true,
+          "reward": {
+            "id": "mf6dbv1n",
+            "base": "bow",
+            "kind": "weapon2h",
+            "name": "Nimble Short Bow",
+            "rarity": "magic",
+            "ancient": 0,
+            "ilvl": 7,
+            "reqLevel": 7,
+            "affixes": [
+              {
+                "stat": "dex",
+                "value": 10,
+                "min": 9,
+                "max": 11,
+                "primary": true
+              }
+            ],
+            "sockets": [],
+            "upgrade": 0,
+            "upgradeFortune": 0,
+            "enchantCount": 0,
+            "bound": false,
+            "look": {
+              "shape": "bow",
+              "primary": 10253126,
+              "secondary": 5930495,
+              "glow": 0,
+              "variant": 0
+            },
+            "weapon": {
+              "min": 5,
+              "max": 9,
+              "aps": 1.4,
+              "element": "physical"
+            }
+          }
+        }
+      },
+      "rings": 1,
+      "slams": 14,
+      "infiniteHp": false,
+      "tick": {
+        "avg": 0.009799999999974792,
+        "max": 0.031099999999923966
+      }
+    }
+  ]
+}

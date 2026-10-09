@@ -14,6 +14,7 @@ import { CollisionWorld } from '../../shared/src/movement';
 import { DIFFICULTIES } from '../../shared/src/progression';
 import type { S2C, WorldInfo } from '../../shared/src/protocol';
 import { requireNear } from './townServices';
+import { zoneUnlocked } from '../../shared/src/quests';
 
 // ─────────────────────────── Command result helpers ───────────────────────────
 
@@ -343,11 +344,12 @@ export class World {
     if (!cur) return fail('Not in a zone');
     const def = ZONES[zoneId];
     if (!def || def.kind === 'rift') return fail('Unknown destination');
+    if (!zoneUnlocked(s.save,zoneId)) return fail('Complete High Water with Orren to open this route');
     if (def.kind === 'town') {
       if (cur.kind === 'town') return fail(`You are already in ${def.name}`);
       return this.goHome(s, channel);
     }
-    if (cur.kind !== 'town') return fail('Return to Hearthmere to use the waypoint');
+    if (cur.kind !== 'town' && !cur.inst.map.adventure) return fail('Return to Hearthmere to use the waypoint');
     const waypoint = cur.inst.map.town?.npcs.find(n => n.role === 'waypoint');
     const nearWaypoint = waypoint && cur.inst.canInteract(s, waypoint.x, waypoint.y, waypoint.interactionRadius);
     const nearExit = cur.inst.map.portals.some(p => p.to === zoneId && cur.inst.canInteract(s, p.x, p.y, 110));
@@ -360,7 +362,7 @@ export class World {
     } else {
       target = this.pickChannel(zoneId);
     }
-    s.homeTown = cur.key;
+    if(cur.kind==='town')s.homeTown = cur.key;
     this.enter(s, target, undefined, this.zoneAnnounce);
     s.saveNow();
     return ok({ zone: zoneId, channel: target.channel });

@@ -1,0 +1,16 @@
+import type { QuestMessageKey } from './questMessages';
+
+export interface DialogueNode { text:QuestMessageKey; choices:{label:QuestMessageKey;to:string}[] }
+export interface DialogueDef { start:string; nodes:Record<string,DialogueNode> }
+/** Reading a branch has no quest or reward side effects. Commands remain separate. */
+export const DIALOGUES:Readonly<Record<string,DialogueDef>>={
+  'rillwake_crossing/tender':{start:'greeting',nodes:{
+    greeting:{text:'quest.dialogue.orren',choices:[{label:'quest.dialogue.workers.ask',to:'workers'},{label:'quest.dialogue.ridge.ask',to:'ridge'}]},
+    workers:{text:'quest.dialogue.workers',choices:[{label:'quest.dialogue.back',to:'greeting'}]},
+    ridge:{text:'quest.dialogue.ridge',choices:[{label:'quest.dialogue.back',to:'greeting'}]},
+  }},
+  'rillwake_crossing/cart':{start:'read',nodes:{read:{text:'quest.dialogue.cart',choices:[]}}},
+  'rillwake_crossing/ledger':{start:'read',nodes:{read:{text:'quest.dialogue.ledger',choices:[]}}},
+  'rillwake_crossing/survey':{start:'read',nodes:{read:{text:'quest.dialogue.survey',choices:[]}}},
+  'bracken_sluice/floodgate':{start:'read',nodes:{read:{text:'quest.dialogue.floodgate',choices:[]}}},
+};

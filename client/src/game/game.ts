@@ -14,6 +14,8 @@ import { Connection } from '../net/connection';
 import { Scene } from '../render/scene';
 import type { ActingView, PlayerView } from '../render/types';
 import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, type PanelId } from '../ui/store';
+import { questAtTarget } from '@shared/quests';
+import { openJournal } from '../ui/panels/adventure';
 import { Input } from './input';
 import { Predictor } from './prediction';
 import { ClientWorld } from './world';
@@ -208,6 +210,7 @@ export class Game {
     if (typing || st.screen !== 'game') return;
     if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
     if (k === 'Enter') { ui.set({ chatOpen: true }); this.input.clear(); return; }
+    if (k === 'j') { if(st.panels.adventure)togglePanel('adventure',false);else openJournal();return; }
     if (k === 'u') {
       const n = this.world.map?.town?.npcs.find(n => n.role === 'cube');
       if (n && Math.hypot(n.x - this.predictor.x, n.y - this.predictor.y) <= n.interactionRadius && !this.world.collision?.segmentBlocked(this.predictor.x, this.predictor.y, n.x, n.y)) this.openArtisan('cube');
@@ -227,8 +230,9 @@ export class Game {
     const zone = this.world.zone;
     if (s?.role) {
       if(s.role==='quest' || s.role==='clue') {
-        void this.conn?.cmd('adventure',{action:'talk',target:s.npcId}).then(r=>{
-          if(r.ok){ui.set({adventureTarget:s.npcId??'tender'});togglePanel('adventure',true);}
+        void this.conn?.cmd('quest',{action:'talk',target:s.npcId}).then(r=>{
+          const save=ui.get().char,zoneId=zone?.zone;
+          if(r.ok && save && zoneId){ui.set({adventureTarget:s.npcId??null,adventureZone:zoneId,journalQuest:questAtTarget(save,zoneId,s.npcId??'')?.id??null});togglePanel('adventure',true);}
         });
         return;
       }

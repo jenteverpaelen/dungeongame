@@ -11,9 +11,10 @@ export interface AdventureData {
   scenery: Prop[];
   npcs: NpcSpot[];
   portals: Portal[];
-  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' }[];
-  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean }[] }[];
+  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' }[];
+  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' }[] }[];
   landmarks: { name: string; x: number; y: number }[];
+  locations: { id: string; x: number; y: number; radius: number }[];
   wheel: { x: number; y: number; radius: number };
   routes: Point[][];
 }

@@ -120,6 +120,8 @@ export interface CubeState {
 export interface CharacterSave {
   /** Optional adventure state; old saves require no rewrite to participate. */
   rillwake?: import('./adventureTypes').RillwakeQuest;
+  quests?: Record<string, import('./questTypes').QuestState>;
+  trackedQuest?: string;
   /** Absent only in legacy saves; normalized by the server before use. */
   version?: number;
   id: string;

@@ -23,7 +23,9 @@ export interface TargetInfo {
 }
 
 export interface UIState {
-  adventureTarget: string;
+  adventureTarget: string | null;
+  adventureZone: string | null;
+  journalQuest: string | null;
   screen: 'select' | 'connecting' | 'game';
   connected: boolean;
   error: string | null;
@@ -68,7 +70,7 @@ class Store<T extends object> {
 }
 
 export const ui = new Store<UIState>({
-  adventureTarget: 'tender',
+  adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, world: null,
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,

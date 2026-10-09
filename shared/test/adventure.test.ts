@@ -5,9 +5,9 @@ import {CollisionWorld} from '../src/movement';
 import {PLAYER_RADIUS,BASE_MOVE_SPEED} from '../src/constants';
 import {MONSTERS} from '../src/data/monsters';
 
-test('authored adventure has deterministic layout, clear routes, reachable interactions and safe spawn bodies',()=>{
-  const map=generateMap('rillwake_crossing',1),a=map.adventure!,cw=new CollisionWorld(map);
-  assert.deepEqual(a,generateMap('rillwake_crossing',999).adventure,'seed never relocates authored content');
+for(const zone of ['rillwake_crossing','bracken_sluice'])test(`${zone}: deterministic layout, clear routes, reachable interactions and safe spawn bodies`,()=>{
+  const map=generateMap(zone,1),a=map.adventure!,cw=new CollisionWorld(map);
+  assert.deepEqual(a,generateMap(zone,999).adventure,'seed never relocates authored content');
   assert.equal(map.town,undefined,'field never masquerades as a town');
   assert(cw.isFree(map.entry.x,map.entry.y,PLAYER_RADIUS));
   for(const e of a.encounters)for(const m of e.members)assert(cw.isFree(e.x+m.dx,e.y+m.dy,MONSTERS[m.type].radius),`${e.id}/${m.type}`);
@@ -18,6 +18,7 @@ test('authored adventure has deterministic layout, clear routes, reachable inter
     const end=cw.moveCircle(x,y,PLAYER_RADIUS,dx,dy);assert(Math.hypot(end.x-route[i][0],end.y-route[i][1])<.01,'swept route matches destination');
   }
   for(const i of a.interactions)assert(Array.from({length:16},(_,n)=>{const x=i.x+70*Math.cos(n*Math.PI/8),y=i.y+70*Math.sin(n*Math.PI/8);return cw.isFree(x,y,16)&&!cw.segmentBlocked(x,y,i.x,i.y);}).some(Boolean),`${i.id} approachable`);
+  for(const loc of a.locations)assert(cw.isFree(loc.x,loc.y,16),`${loc.id} reachable body`);
   console.log(JSON.stringify({routeUnits:length,walkingSecondsWithoutCombat:length/BASE_MOVE_SPEED,encounters:a.encounters.length,members:a.encounters.reduce((s,e)=>s+e.members.length,0)}));
 });
 

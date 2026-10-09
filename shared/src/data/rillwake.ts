@@ -55,12 +55,14 @@ export const RILLWAKE: AdventureData = {
     {id:'tender',name:'Orren · Mill Tender',role:'quest',x:800,y:2380,r:18},
     {id:'cart',name:'Abandoned timber cart',role:'clue',x:2270,y:1970,r:24},
     {id:'ledger',name:'Mill ledger',role:'clue',x:3350,y:800,r:14},
+    {id:'survey',name:'Survey marker',role:'clue',x:2440,y:990,r:14},
   ],
-  portals:[{x:480,y:2440,to:'hearthmere',label:'Return to Hearthmere'}],
+  portals:[{x:480,y:2440,to:'hearthmere',label:'Return to Hearthmere'},{x:3120,y:720,to:'bracken_sluice',label:'Upstream to Bracken Sluice'}],
   interactions:[
     {id:'tender',name:'Orren',x:800,y:2380,radius:110,kind:'person'},
     {id:'cart',name:'Abandoned timber cart',x:2270,y:1970,radius:110,kind:'cart'},
     {id:'ledger',name:'Mill ledger',x:3350,y:800,radius:110,kind:'ledger'},
+    {id:'survey',name:'Survey marker',x:2440,y:990,radius:110,kind:'marker'},
   ],
   encounters:[
     {id:'road',x:1370,y:2030,members:[{type:'bog_slime',dx:0,dy:0},{type:'bog_slime',dx:90,dy:45},{type:'gloomshroom',dx:-60,dy:-90},{type:'gloomshroom',dx:100,dy:-80},{type:'bog_slime',dx:180,dy:25},{type:'thornling',dx:220,dy:-80}]},
@@ -71,8 +73,10 @@ export const RILLWAKE: AdventureData = {
   ],
   landmarks:[{name:'Tender’s Camp',x:680,y:2580},{name:'Timber Crossing',x:1900,y:2030},{name:'Abandoned Yard',x:2320,y:2230},{name:'Old Ridge',x:1100,y:1350},{name:'Rillwake Mill',x:3420,y:1130}],
   wheel:{x:3620,y:860,radius:38},
+  locations:[{id:'old_ridge',x:1160,y:1400,radius:110}],
   routes:[
     [[650,2410],[900,2430],[1450,2010],[1700,2030],[2130,2030],[2350,2040],[2660,1680],[3050,1260],[3360,1130],[3340,940],[3340,850]],
     [[1450,1900],[1160,1400],[1600,1350],[2340,1120],[2820,1070],[3070,1230]],
+    [[3070,1230],[3070,910],[3120,780]],
   ],
 };

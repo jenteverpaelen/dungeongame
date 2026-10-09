@@ -6,6 +6,7 @@ import { FIELD_CHANNEL_CAP, TOWN_CHANNEL_CAP } from '@shared/constants';
 import { ZONES, type ZoneDef } from '@shared/data/zones';
 import { fmtInt } from '@shared/format';
 import { DIFFICULTIES } from '@shared/progression';
+import { zoneUnlocked } from '@shared/quests';
 import { togglePanel } from '../store';
 import { Bar, PanelFrame } from './common';
 import { IconLock, IconStar4, IconSkull, Svg } from './icons';
@@ -86,6 +87,7 @@ export function WaypointPanel() {
           const here = zone?.zone === z.id;
           const lowest = Math.max(1, z.levelBand[0]);
           const tooLow = !!char && char.level < lowest;
+          const locked = !!char && !zoneUnlocked(char,z.id);
           return (
             <div class={cls('wp-card', here && 'here', z.kind)} key={z.id}>
               <ZoneGlyph zone={z} />
@@ -95,6 +97,7 @@ export function WaypointPanel() {
                   <span class="wp-tag">{z.kind === 'town' ? 'Safe haven' : `Level ${z.levelBand[0]}-${z.levelBand[1]}`}</span>
                 </div>
                 <p>{z.blurb}</p>
+                {locked && <p>Complete High Water with Orren to open this route.</p>}
                 <div class="wp-pop">
                   <span class="wp-total"><IconStar4 size={10} />{fmtInt(total)} {total === 1 ? 'hero' : 'heroes'}</span>
                   <div class="wp-chans">
@@ -122,8 +125,8 @@ export function WaypointPanel() {
               </div>
               <div class="wp-go">
                 {here ? <span class="wp-here">You are here</span> : (
-                  <button class="btn primary" disabled={busy !== null || tooLow} onClick={() => void travel(z.id)}>
-                    {busy === z.id ? 'Travelling...' : tooLow ? `Lv ${lowest}` : 'Travel'}
+                  <button class="btn primary" disabled={busy !== null || tooLow || locked} onClick={() => void travel(z.id)}>
+                    {busy === z.id ? 'Travelling...' : locked ? 'Undiscovered route' : tooLow ? `Lv ${lowest}` : 'Travel'}
                   </button>
                 )}
               </div>

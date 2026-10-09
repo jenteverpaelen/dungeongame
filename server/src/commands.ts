@@ -4,6 +4,7 @@
 
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
+import { questCommand } from './quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { requireNear } from './townServices';
@@ -670,6 +671,7 @@ const debug: Handler = (s, a) => {
 
 const HANDLERS: Record<CmdOp, Handler> = {
   adventure: adventureCommand,
+  quest: questCommand,
   equip, unequip, swapInv, destroy, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
