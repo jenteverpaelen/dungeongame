@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C075. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C076. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -78,8 +78,8 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SKL-02 | Rune / tier expansion | P11 | PARTIAL — 3 runes, 3 tiers | Existing54 tiers/54 runes audited; selected summary errors corrected (C025), no expansion. [build audit](phase/P01-research/BUILD-REPORT.md). |
 | F-SKL-03 | Passives content | P9 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-SKL-04 | Class identity pass (signature builds) | P4 | PARTIAL — Whirlwind, Sentries, Meteor `[O]` | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-MON-01 | Monster family expansion per zone | P7/P9 | THIN — 10 trash types | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-MON-02 | Behaviour toolkit (telegraphs, charge, summon, shield, enrage) | P4 | PARTIAL — melee, ranged, lob, explode; wind-up flag | Partial C071: Named keeper reuses rare Mossback with guardian ring/enrage, without adds. New families and broader boss/state architecture remain open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
+| F-MON-01 | Monster family expansion per zone | P7/P9 | THIN — 10 trash types | Partial C076: Original Reedclaw crab family with articulated rig in three authored placements. Existing families and procedural pools retained; broader per-zone expansion and human balance remain open. [Reedclaw](adventure/REEDCLAW-REPORT.md). |
+| F-MON-02 | Behaviour toolkit (telegraphs, charge, summon, shield, enrage) | P4 | PARTIAL — melee, ranged, lob, explode; wind-up flag | Partial C076: Fixed-position lob now resolves on the server with interrupt/death timing and exact cover; original warning/stone VFX. Rig visually inspected; live throw readability and wider toolkit remain open. [Reedclaw](adventure/REEDCLAW-REPORT.md). |
 | F-MON-03 | Boss framework (phases, adds, arenas, enrage) | P4 | PARTIAL — Rift Guardians (slam, ring, adds, enrage) | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-04 | Elite affix expansion and combos | P7/P9 | PARTIAL — 8 affixes | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-05 | Zone events (shrines, pylons, ambushes) | P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |

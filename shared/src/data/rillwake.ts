@@ -66,7 +66,7 @@ export const RILLWAKE: AdventureData = {
   ],
   encounters:[
     {id:'road',x:1370,y:2030,members:[{type:'bog_slime',dx:0,dy:0},{type:'bog_slime',dx:90,dy:45},{type:'gloomshroom',dx:-60,dy:-90},{type:'gloomshroom',dx:100,dy:-80},{type:'bog_slime',dx:180,dy:25},{type:'thornling',dx:220,dy:-80}]},
-    {id:'yard',x:2290,y:2150,members:[{type:'gloomshroom',dx:0,dy:0},{type:'bog_slime',dx:-100,dy:-10},{type:'bog_slime',dx:80,dy:50},{type:'thornling',dx:160,dy:-60},{type:'gloomshroom',dx:0,dy:100},{type:'grave_bat',dx:80,dy:-50}]},
+      {id:'yard',x:2290,y:2150,members:[{type:'gloomshroom',dx:0,dy:0},{type:'bog_slime',dx:-100,dy:-10},{type:'bog_slime',dx:80,dy:50},{type:'reedclaw',dx:160,dy:-60},{type:'gloomshroom',dx:0,dy:100},{type:'grave_bat',dx:80,dy:-50}]},
     {id:'ridge',x:1070,y:1370,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:90,dy:10},{type:'gloomshroom',dx:140,dy:80},{type:'thornling',dx:-140,dy:-30},{type:'bog_slime',dx:-50,dy:110},{type:'gloomshroom',dx:0,dy:-100}]},
     {id:'overlook',x:2370,y:1110,members:[{type:'mossback',dx:0,dy:0},{type:'thornling',dx:150,dy:-80},{type:'bog_slime',dx:0,dy:110},{type:'bog_slime',dx:-130,dy:-40},{type:'grave_bat',dx:100,dy:60},{type:'gloomshroom',dx:-60,dy:40}]},
     {id:'mill',x:3210,y:1200,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'Siltroot, the Wheelkeeper',questTarget:true},{type:'bog_slime',dx:-90,dy:-90},{type:'bog_slime',dx:110,dy:90},{type:'gloomshroom',dx:110,dy:-100},{type:'thornling',dx:230,dy:80}]},

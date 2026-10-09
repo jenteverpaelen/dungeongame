@@ -21,6 +21,7 @@ const STYLES: Record<string, Style> = {
   meteor: { color: 0xffb050, alpha: 0.55, fill: 0.07 },
   frozen_orb: { color: 0x6fd0ff, alpha: 0.95, fill: 0.28 },
   mortar: { color: 0xff6a22, alpha: 0.95, fill: 0.3 },
+  lob: { color: 0xffb050, alpha: 0.95, fill: 0.3 },
   molten_death: { color: 0xff6a10, alpha: 1, fill: 0.32 },
 };
 
@@ -60,6 +61,7 @@ export class Telegraphs {
       case 'meteor': extras.push(this.meteorFall(ev.x, ev.y, ev.r, d, el)); break;
       case 'frozen_orb': extras.push(this.frostOrb(ev.x, ev.y, d)); V.sound('warn', ev.x, ev.y, 0.6); break;
       case 'mortar': extras.push(this.mortarShell(ev.x, ev.y, d)); break;
+      case 'lob': extras.push(this.lobStone(ev.x, ev.y, d)); V.sound('warn',ev.x,ev.y,0.6); break;
       case 'molten_death': extras.push(this.moltenCore(ev.x, ev.y, ev.r, d)); break;
       case 'boss_ring': V.sound('warn', ev.x, ev.y); break;
       default: break;
@@ -280,6 +282,19 @@ export class Telegraphs {
       },
       kill: () => { s.aAdd.kill(glow); s.aAdd.kill(core); s.aAdd.kill(flake); },
     };
+  }
+
+  /** A physical stone, with impact supplied only by the authoritative aoe event. */
+  private lobStone(x:number,y:number,d:number):Effect {
+    const s=this.V.sys,stone=s.aBody.hold(s.T.chunk[0],x,y);
+    const fall=Math.min(0.6,d*0.8),start=d-fall;let age=0;
+    stone.tintTo(0x858775);
+    return {update:(dt)=>{
+      age+=dt;if(age<start){stone.setAlpha(0);return true;}
+      const t=clamp((age-start)/fall,0,1);
+      stone.place(x+40*(1-t),y,460*(1-easeIn(t)));stone.setScale(20);stone.rotation+=dt*8;stone.setAlpha(1);
+      return t<1;
+    },kill:()=>s.aBody.kill(stone)};
   }
 
   /** Mortar elite affix: a shell whistling down from above during the last moments. */

@@ -43,7 +43,7 @@ export const BRACKEN:AdventureData={
   encounters:[
     {id:'causeway',x:1510,y:2130,members:[{type:'thornling',dx:0,dy:0},{type:'bog_slime',dx:80,dy:90},{type:'gloomshroom',dx:-100,dy:-70},{type:'grave_bat',dx:120,dy:-120},{type:'bog_slime',dx:-100,dy:100}]},
     {id:'basin',x:2490,y:2160,members:[{type:'mossback',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'thornling',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
-    {id:'bank',x:1020,y:1620,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'thornling',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
+    {id:'bank',x:1020,y:1620,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'reedclaw',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
     {id:'keeper',x:2590,y:1210,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'The Rootbound Keeper',questTarget:true,combat:'keeper'}]},
   ],
   landmarks:[{name:'Maintenance Camp',x:790,y:2860},{name:'Sluice Causeway',x:1930,y:2100},{name:'Flooded Basin',x:2520,y:2300},{name:'Spillway Forecourt',x:2510,y:1590}],

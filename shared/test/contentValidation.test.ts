@@ -8,6 +8,15 @@ function fixture(): ContentData {
 }
 const expectPath = (errors: string[], path: string) => assert.ok(errors.some(e=>e.startsWith(path+':')),errors.join('\n'));
 
+test('lob definitions require a positive finite landing radius and flight time',()=>{
+  for(const key of ['aoe','flightMs'] as const)for(const value of [undefined,0,-1,NaN,Infinity]) {
+    const data=fixture();data.monsters.reedclaw.attack[key]=value;
+    expectPath(validateContent(data),`monsters.reedclaw.attack.${key}`);
+  }
+  const data=fixture();data.monsters.thornling.attack.flightMs=900;
+  expectPath(validateContent(data),'monsters.thornling.attack.flightMs');
+});
+
 test('current authored registries satisfy their consumers without changing content', () => {
   const before = JSON.stringify(CONTENT_DATA);
   assert.deepEqual(validateContent(), []);

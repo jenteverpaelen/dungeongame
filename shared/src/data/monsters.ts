@@ -8,12 +8,12 @@ export type MonsterAttackKind = 'melee' | 'ranged' | 'lob' | 'explode' | 'none';
 export interface MonsterDef {
   id: string;
   name: string;
-  family: 'slime' | 'mushroom' | 'bat' | 'sprout' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
+  family: 'slime' | 'mushroom' | 'bat' | 'sprout' | 'crab' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
   hp: number;      // multiplier on base level HP
   dmg: number;     // multiplier on base level damage
   speed: number;   // units / second
   radius: number;
-  attack: { kind: MonsterAttackKind; range: number; windupMs: number; cooldownMs: number; element: Element; projSpeed?: number; aoe?: number };
+  attack: { kind: MonsterAttackKind; range: number; windupMs: number; cooldownMs: number; element: Element; projSpeed?: number; aoe?: number; flightMs?: number };
   flying?: boolean;
   weight: number;  // spawn weight within its theme
   themes: string[];
@@ -38,6 +38,14 @@ export const MONSTERS: Record<string, MonsterDef> = {
   treasure_goblin: { id: 'treasure_goblin', name: 'Treasure Goblin', family: 'goblin', hp: 7, dmg: 0, speed: 215, radius: 18, attack: { kind: 'none', range: 0, windupMs: 0, cooldownMs: 0, element: 'physical' }, weight: 0, themes: [], colors: { body: 0x7fae4a, accent: 0xd4af37, eye: 0xffe066 }, scale: 1.1 },
   gorgemaw: { id: 'gorgemaw', name: 'Gorgemaw, the Swelling', family: 'boss_slime', hp: 1, dmg: 3, speed: 85, radius: 60, attack: { kind: 'melee', range: 90, windupMs: 800, cooldownMs: 2200, element: 'poison', aoe: 140 }, weight: 0, themes: ['glade'], colors: { body: 0x5fae3a, accent: 0x2e5a1a, eye: 0xff3b3b }, scale: 1 },
   vexis: { id: 'vexis', name: 'Vexis the Ashen', family: 'boss_imp', hp: 1, dmg: 3, speed: 110, radius: 50, attack: { kind: 'melee', range: 80, windupMs: 700, cooldownMs: 2000, element: 'fire', aoe: 130 }, weight: 0, themes: ['ashen'], colors: { body: 0xb22d1a, accent: 0x2a0d08, eye: 0xffe066 }, scale: 1 },
+};
+
+// L90/D031: retain the existing ranged budget; only authored encounters opt in.
+MONSTERS.reedclaw = {
+  ...MONSTERS.thornling, id:'reedclaw', name:'Reedclaw', family:'crab', weight:0,
+  colors:{...MONSTERS.mossback.colors},
+  attack:{kind:'lob',range:MONSTERS.thornling.attack.range,windupMs:MONSTERS.thornling.attack.windupMs,
+    cooldownMs:MONSTERS.thornling.attack.cooldownMs,element:'physical',aoe:75,flightMs:900},
 };
 
 export const RIFT_GUARDIANS: Record<string, string> = { glade: 'gorgemaw', ashen: 'vexis' };

@@ -1,0 +1,5 @@
+# Reedclaw — C076 plan
+
+L90/D031 precede code. One original crab-like family with animated jointed legs, shell, reeds and raised throwing claw. Use existing outlined/baked monster rig and reference palette; no external assets. Retain Thornling's combat budget, but use the declared lob kind with existing mortar75-unit circle and900-ms flight. Windup can be interrupted; launch locks current target position, then impact is server scheduled. Once launched it can land after the attacker dies. Recheck geometry at launch/impact; no homing or persistent pool. New warning has a falling stone and authoritative impact, using existing VFX primitives/audio.
+
+Replace one ranged member in Rillwake yard, Bracken bank and Pumpworks west. Keep all group sizes/positions, bosses, rewards, other monster definitions, procedural pools, town/UI/camera. Check fixed aim/dodge/hit/CC/death/wall behavior and content/type/build once; inspect rig and a brief real-browser encounter with infinite HP. No full campaign replay. Balance, further per-zone families, boss variety and whole P7 remain open.

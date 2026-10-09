@@ -291,9 +291,10 @@ function think(inst: Instance, m: Mob, dtMs: number) {
         m.los = !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y);
         m.shotLos = m.los || !shotBlocked(inst, m.x, m.y, p.x, p.y);
       }
-      const ranged = atk.kind === 'ranged';
-      if (d <= reach && m.atkCdMs <= 0 && (!ranged || m.shotLos)) { beginAttack(inst, m, p); return; }
-      if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !m.shotLos)) {
+      const ranged = atk.kind === 'ranged' || atk.kind === 'lob';
+      const clearShot = atk.kind === 'lob' ? m.los : m.shotLos;
+      if (d <= reach && m.atkCdMs <= 0 && (!ranged || clearShot)) { beginAttack(inst, m, p); return; }
+      if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !clearShot)) {
         step(inst, m, p.x, p.y, m.speed * slow, dtS, p);
       } else {
         m.faceLeft = dx < 0;
@@ -365,6 +366,8 @@ function beginAttack(inst: Instance, m: Mob, p: Player) {
   m.state = 'windup';
   m.stateMs = m.windupMs;
   m.faceLeft = p.x < m.x;
+  // A lob's ground warning starts on launch, after the interruptible windup.
+  if(atk.kind==='lob')return;
   if (atk.kind === 'explode') {
     m.atkX = m.x; m.atkY = m.y;
     inst.emit({ e: 'tele', v: 'slam', x: Math.round(m.x), y: Math.round(m.y), r: atk.aoe ?? 60, d: Math.round(m.windupMs) }, m.x, m.y);
@@ -389,6 +392,21 @@ function resolveAttack(inst: Instance, m: Mob) {
   m.atkCdMs = m.cooldownMs * (m.boss?.enraged ? 0.8 : 1);
   const p = targetOf(inst, m);
   switch (atk.kind) {
+    case 'lob': {
+      if(!p||inst.cw.segmentBlocked(m.x,m.y,p.x,p.y))return;
+      // Lock the landing point and damage at launch. Movement cannot redirect it;
+      // killing the caster after release does not erase an airborne stone.
+      const x=Math.round(p.x),y=Math.round(p.y),r=atk.aoe!,flight=atk.flightMs!,dmg=m.dmg,level=m.level;
+      inst.emit({e:'tele',v:'lob',x,y,r,d:flight},x,y);
+      inst.sched.schedule(inst.t+flight,()=>{
+        inst.emit({e:'aoe',v:'slam',x,y,r,d:320,el:elIdx(atk.element),s:m.id},x,y);
+        for(const q of inst.players) {
+          if(q.deadMs>0||Math.hypot(q.x-x,q.y-y)>r+PLAYER_RADIUS||inst.cw.segmentBlocked(x,y,q.x,q.y))continue;
+          damagePlayer(inst,q,dmg,atk.element,m,level,false);
+        }
+      });
+      return;
+    }
     case 'melee': {
       if (atk.aoe) {
         const r = atk.aoe;

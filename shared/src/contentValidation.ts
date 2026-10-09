@@ -159,6 +159,10 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for(const key of ['range','windupMs','cooldownMs'] as const) number(m.attack[key],`${at}.attack.${key}`);
     if(m.attack.projSpeed !== undefined) number(m.attack.projSpeed,`${at}.attack.projSpeed`,Number.MIN_VALUE);
     if(m.attack.aoe !== undefined) number(m.attack.aoe,`${at}.attack.aoe`);
+    if(m.attack.kind==='lob') {
+      number(m.attack.aoe??NaN,`${at}.attack.aoe`,Number.MIN_VALUE);
+      number(m.attack.flightMs??NaN,`${at}.attack.flightMs`,Number.MIN_VALUE);
+    } else check(m.attack.flightMs===undefined,`${at}.attack.flightMs`,'only lob attacks have a flight delay');
   }
   return errors;
 }

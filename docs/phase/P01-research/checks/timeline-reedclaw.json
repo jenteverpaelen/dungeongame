@@ -1,0 +1,23 @@
+{
+    "checkpoint":  "C076",
+    "checkedAtUtc":  "2026-10-09T16:59:17.6156873Z",
+    "scope":  "Documentation integrity only; no game/server runtime tests",
+    "sources":  182,
+    "claims":  178,
+    "media":  30,
+    "atlasEntries":  71,
+    "recordings":  7,
+    "frames":  152,
+    "allCrossReferencesResolve":  true,
+    "timestampsStrictlyIncreasing":  true,
+    "balanceAndTimingEligibility":  false,
+    "roadmapBlob":  "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+    "ledger":  {
+                   "features":  147,
+                   "screens":  86,
+                   "decisions":  40
+               },
+    "isolatedDataDir":  "hf-reedclaw-docs-7432d803ad404b369fa9945afc156bdf",
+    "gameCodeImported":  false,
+    "saveDataRead":  false
+}

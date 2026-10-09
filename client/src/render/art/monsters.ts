@@ -82,6 +82,33 @@ function crown(c: Ctx): void {
   for (const [x, y] of [[-12.6, -11], [0, -14], [12.6, -11]] as const) { c.circle(x, y, 1.6); fill(c, light(GOLD, 0.3)); c.circle(x, y, 1.6); outline(c, 1.1); }
 }
 
+// ── reedclaw ──────────────────────────────
+// L90: jointed legs, oval shell and claws, adapted to the existing chunky rig style.
+function crabBody(c:Ctx,col:C):void {
+  blob(c,[-22,-8,-25,-18,-19,-28,-8,-33,9,-31,22,-24,24,-14,18,-5,0,-3],col.body,{hl:.2,sh:.32});
+  crease(c,[-17,-22,-6,-18,11,-20,18,-25],1.4,shade(col.body,.35),.9);
+  wash(c,k=>k.ellipse(-8,-25,7,3),light(col.body,.4),.45);
+  for(const [x,h] of [[-14,9],[-9,14],[-3,10]]) {
+    seg(c,x,-28,x-2,-28-h,1.8,col.accent,1.2,false);
+    blob(c,[x-2,-28-h,x-7,-31-h,x-5,-24-h,x-1,-24-h],col.accent,{ow:1.2});
+  }
+  seg(c,7,-22,7,-28,2,light(col.body,.15),1.5,false);
+  seg(c,15,-20,15,-26,2,light(col.body,.15),1.5,false);
+  meanEyes(c,7,15,-27,col.eye,.9,true);
+  crease(c,[4,-12,10,-10,15,-12],1.6,OUT,1);
+}
+function crabLeg(c:Ctx,col:C):void {
+  seg(c,0,0,11,-5,3.2,shade(col.body,.22),2);
+  ball(c,11,-5,3.2,3.2,col.body);
+  poly(c,[10,-7,16,-5,22,9,18,7,12,0],col.body,{ow:2,hl:.2});
+}
+function crabClaw(c:Ctx,col:C):void {
+  seg(c,0,0,8,-10,3.8,shade(col.body,.2),2);
+  blob(c,[5,-10,4,-20,10,-27,18,-28,17,-20,13,-16,22,-19,25,-14,19,-8,11,-6],col.body,{ow:2.3,hl:.2});
+  poly(c,[17,-28,21,-26,17,-20,13,-16],light(col.body,.4),{ow:1.5});
+  poly(c,[22,-19,26,-17,25,-14,18,-13],light(col.body,.4),{ow:1.5});
+}
+
 // ── mushroom ──────────────────────────────
 function shroomStem(c: Ctx, col: C): void {
   blob(c, [-9, -1, -10.6, -10, -8.4, -21, 0, -23, 8.6, -21, 10.8, -10, 9.4, -1, 0, 0.6], col.body, { hl: 0.2 });
@@ -466,6 +493,28 @@ export function atkCurve(u: number, a = 0.4, b = 0.6): { wind: number; strike: n
 }
 
 const FAMILIES: Record<Fam, Family> = {
+  crab: {
+    base:1,height:46,shadow:46,atkDur:.7,eyes:['shell',11,-27],
+    parts:col=>[P('leg',c=>crabLeg(c,col)),P('shell',c=>crabBody(c,col)),P('claw',c=>crabClaw(c,col))],
+    rig:p=>{
+      const nodes:Nodes={};
+      for(let i=0;i<8;i++)nodes[`leg${i}`]=p.add('leg',null,(i<4?-1:1)*14,-10+(i%4)*3);
+      nodes.body=p.add(null);nodes.clawB=p.add('claw',nodes.body,-15,-17);nodes.clawB.scale(-.8,.8);
+      nodes.shell=p.add('shell',nodes.body);nodes.clawF=p.add('claw',nodes.body,17,-12);
+      return nodes;
+    },
+    pose:(n,s)=>{
+      const {wind,strike}=atkCurve(s.atk,.45,.6),w=Math.max(wind,s.wind);
+      for(let i=0;i<8;i++){
+        const side=i<4?-1:1,step=Math.sin(s.walk+(i%2)*Math.PI);
+        n[`leg${i}`].set(side*14,-10+(i%4)*3-Math.max(0,step)*2*s.move,side*((i%4-1.5)*.28+step*.16*s.move));
+        n[`leg${i}`].scale(side,1);
+      }
+      n.body.set(-w*2+strike*3,-Math.abs(Math.sin(s.walk))*s.move+Math.sin(s.t*2)*.4,-w*.08+strike*.1);
+      n.clawF.set(17-w*2,-12-w*7,-w*1.1+strike*.9);
+      n.clawB.set(-15,-17-w*2,Math.sin(s.t*2+.6)*.05+w*.2);
+    },
+  },
   slime: {
     base: 1, height: 36, shadow: 44, atkDur: 0.6, eyes: ['face', 9.7, -16],
     parts: (col) => [P('body', (c) => slimeBody(c, col, false)), P('face', (c) => slimeFace(c, col, false))],
