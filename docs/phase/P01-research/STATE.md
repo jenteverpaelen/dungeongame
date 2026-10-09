@@ -22,6 +22,7 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 - [x] Reproduce stale enchant/reforge transition with real handlers, preserve before/pilot/after evidence, and correct the state-safety defect (C022). Active earning rates and cross-game economic comparisons remain open.
 - [x] Inventory 54 tiers / 54 runes and 288 actual runtime-helper combinations; confirm affordability and refund conservation in repeatable synthetic probes. BUILD-REPORT.md distinguishes source mismatches and untested behavior; no balancing change.
 - [x] Probe three Hydra impacts and 32 buff casts; correct measured description mismatches without changing actual results. Two regressions, full verify and four inspected Chrome1080p frames pass (C025). Gear-aware descriptions and remaining behavior remain open.
+- [x] Deepen Idleon open-client/offline distinctions, TBH text/effect/latency failures and Torchlight II base/mod/authoring provenance from four additional primary sources and six scoped claims (C026). No reference UI observation or pacing completion claimed.
 
 ## Research depth and remaining scope
 

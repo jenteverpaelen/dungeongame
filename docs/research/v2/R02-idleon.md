@@ -12,6 +12,12 @@ The [developer site](https://www.legendsofidleon.com/) and [publisher store](htt
 
 A goal can teach an existing action and reward progress toward the next action. This suggests examining a small objective sequence around our existing combat/equipment/skill loop before creating more systems. An account-wide alt economy would be a much larger change: Hearthfall currently persists characters independently. Do not infer that Idleon's retention comes from alts or copy its monetization.
 
-## Unfinished
+## Active, offline and display distinctions — 2026-10-09
+
+[LavaFlame2's announcements](https://steamcommunity.com/app/1476970/announcements/?l=english), read through the Aug29 Cropfall post, distinguish an event reward for keeping the client open from general offline progress. The Sep5 post offers hiding pickup-status text for performance; Sep18 explains removing a combo incentive that encouraged stockpiling instead of ordinary interaction. These are developer descriptions and rationale, not measured effects. [S; IDLE-PATCH, IDLE-04/05]
+
+The rolling feed shows month/day but not a confirmed year/build in this extraction. Do not generalize an event's open-client rule to every Idleon system. Hearthfall's offline formula still needs its own active-rate comparison.
+
+## Remaining evidence
 
 No measured first 1/5/20-hour timeline, offline formula/cap, account-vs-character ownership table, class tree, full reward schedule or UI atlas. Do not accept a guide's fast-clear time as a new-player distribution. Officially linked wiki access failed through available browsing; see [gaps](CONTRADICTIONS.md). Next: versioned beginner footage and primary AFK documentation, with separate active, offline and multi-character results. An uninspected video description is only a lead.

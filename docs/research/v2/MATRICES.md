@@ -42,6 +42,8 @@ No external first-legendary distribution, drop-rate formula, pity threshold or c
 
 No pixel layout or UI restyle follows from these text sources. The owner likes the current Hearthfall UI.
 
+Further distinctions now logged: open-client event rewards versus general offline gains (IDLE-04), displayed versus applied effects (TBH-06), and unmodded PC versus modded skill refunds (TL2-08). None fills missing reference-game pixels or elapsed-time cells.
+
 Hearthfall now has a separate [local first-session atlas and trace](../../phase/P01-research/FIRST-SESSION-REPORT.md): twelve inspected 1080p frames with initial/disabled states, physical travel and first level-up. This is a scripted local baseline, not reference-game or unfamiliar-player evidence. It does not fill the external timeline cells above.
 
 ## OB-01 — How to choose the first progression improvement [P]

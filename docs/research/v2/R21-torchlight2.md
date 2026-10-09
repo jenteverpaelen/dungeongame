@@ -27,3 +27,11 @@ That wiki and [PC Gamer's Embermage guide](https://www.pcgamer.com/torchlight-2-
 [Runic's GUTS introduction](https://docs.runicgames.com/wiki/Introduction_to_the_Editor), revision dated 2012-11-19, was read fully for authoring context. It separates content domains such as units, skills, affixes, sets and spawn pools. This supports keeping authoring concerns explicit; it supplies no runtime balance values. Hearthfall's new content checker follows its own registry consumers while retaining the current TS/JSON source of truth. [S; TL2-GUTS]
 
 Final unmodded PC skill/rank tables, exact respec limits, first-session quest flow, loot and difficulty rates, and a visual UI atlas. Do not substitute a Torchlight I manual or console notes. Next: inspect a versioned PC class planner or footage and cross-check against shipped documentation. No game purchase is required for public-source research.
+
+## Base game, mod provenance and authoring — 2026-10-09
+
+[Runic's GUTS release](https://www.runicgames.com/blog/2013/04/01/guts/) separates its content editor from external art/audio creation. It describes mod history and disabling-mod effects, and explicitly limits the tool to Torchlight II content. Developer longevity expectations are not a causal outcome study. [S; TL2-GUTS-RELEASE]
+
+The [developer modding overview](https://docs.runicgames.com/wiki/Modding_Overview.html), revision1866, separates original content, edited copies and packaged metadata. Conflicting assets resolve by mod priority. This is a useful provenance model, not an authoritative MMO design. [S; TL2-MOD-OVERVIEW]
+
+A [2013 Workshop listing attributed to Runic Games](https://steamcommunity.com/sharedfiles/filedetails/?id=135164919) advertises vendor respec potions as a mod. It does not establish unrestricted respec in the base PC game. No subscription/download occurred; contradictory generic page banners and user comments do not establish current compatibility. [S; TL2-RESPEC-MOD, TL2-06–08]

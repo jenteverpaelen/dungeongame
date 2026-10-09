@@ -18,6 +18,10 @@ Item protection must remain meaningful across crafting, movement and save/reload
 
 The shared skill-data comment calling our escalating tier costs “Task Bar Hero-style” is inherited attribution, not independent evidence that current TBH uses those exact costs. Preserve Hearthfall's values until its own behavior and pacing are measured.
 
-## Still unfinished
+## Description versus simulation defects — 2026-10-09
+
+The same developer feed's 1.02.01 notes distinguish displayed stat caps from an actual healing defect. Version1.2.5 reports missing damage modifiers and adds feedback while server-dependent operations load. [S; TBH-PATCH, TBH-06] This supports separate assertions for text, applied effects and pending operations; it provides no Hearthfall balance target. Our C025 probe follows that distinction and preserves measured combat behavior.
+
+## Remaining evidence
 
 Cube functions/costs, respec and rune topology, offline/live ratios, party rules, unlock sequence, drop distribution, Marketplace outcomes and UI flows. Reviews/CCU are not causal retention evidence. Next: match an inspected current build to developer notes, trace an initial session, and test whether rewards occur with the client closed. No purchases, Marketplace trades or account creation are implied by research permission.
