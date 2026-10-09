@@ -1,0 +1,22 @@
+✔ three original fixture quests cover all eight objective shapes without mutation (2.3046ms)
+✔ mutual and self prerequisites block the dependent chain; reorder does not change acceptance (0.3476ms)
+✔ unknown prerequisites and duplicate quest/objective identities are refused (0.2531ms)
+✔ missing targets and NPC service mismatches identify the offending objective (0.1955ms)
+✔ authoring cannot claim a missing handler capability merely by naming an objective (0.1829ms)
+✔ missing inherited or empty message keys do not become authored text (0.2559ms)
+✔ quantities reject nonfinite fractional unsafe and negative values while zero difficulty is valid (0.3868ms)
+✔ empty objectives and repeated reward keys require an author correction (0.1772ms)
+✔ dangling targets, missing entry and duplicate dialogue IDs are refused (0.787ms)
+✔ an authored orphan and a terminal with outgoing content cannot hide behind an otherwise valid route (0.2614ms)
+✔ unconditional topology alone misses a conditional dead end (0.2889ms)
+✔ every reachable branch needs an exit, even when a different branch reaches the ending (0.1476ms)
+✔ an optional loop remains valid with an available exit (0.1307ms)
+✔ unknown or conflicting condition facts and incomplete state inputs are explicit failures (0.1568ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 230.4472

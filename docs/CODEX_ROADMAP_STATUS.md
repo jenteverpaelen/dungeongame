@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C050. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C051. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -68,9 +68,9 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-MON-04 | Elite affix expansion and combos | P7/P9 | PARTIAL — 8 affixes | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-05 | Zone events (shrines, pylons, ambushes) | P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-MON-06 | Bestiary data | P7/P14 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
-| F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | P5 | MISSING | C040 research/action-boundary map; no production schema or quest implementation. [objective evidence](research/v2/OBJECTIVES.md). |
+| F-QST-01 | Quest data model (objectives, triggers, rewards, prerequisites) | P5 | MISSING | C051 isolated three-quest/eight-objective authoring probe passes14 checks. Production schema/state/rewards still open. [authoring report](phase/P01-research/QUEST-AUTHORING-REPORT.md). |
 | F-QST-02 | Server quest state, party sharing, anti-exploit | P5 | MISSING | C041 measures39 existing kill/pickup/rift cases twice; no quest state or party policy selected. [credit report](phase/P01-research/OBJECTIVE-CREDIT-REPORT.md). |
-| F-QST-03 | NPC dialogue system + UI | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-QST-03 | NPC dialogue system + UI | P5 | MISSING | C051 finite-flag branching fixture detects conditional dead ends; no live dialogue command, state or UI. [authoring report](phase/P01-research/QUEST-AUTHORING-REPORT.md). |
 | F-QST-04 | Quest tracker HUD + journal panel | P5 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-05 | World markers: NPC icons, minimap pins, map pins | P5 | PARTIAL — minimap exists, no quest pins | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-QST-06 | Campaign structure (acts/chapters) + zone gating | P5/P7 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -293,7 +293,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-32 | Hosting and budget | No paid services. Local PC testing authorized; public hosting/deployment still not selected. |
 | D-33 | Integration branch and release process | Owner override: ONLY codex/new-tristram-town; no phase branches/rebase/protected-ref changes. |
 | D-34 | Telemetry and privacy | C035 inventories current data/recipients/lifetimes. Legal bases, retention and rights procedure remain unresolved; no production analytics/third-party tracking added. |
-| D-35 | Content tools | Current typed data and semantic validator retained; no quest scripting dependency adopted. |
+| D-35 | Content tools | C051 compares ink/Yarn boundaries and tests an isolated typed authoring contract. Current live validator retained; no quest scripting dependency adopted. |
 | D-36 | Art pipeline at scale | Approved town/UI frozen; no new art pipeline or imported assets. |
 | D-37 | Audio approach | Procedural audio retained; no downloaded pack or commissioned work. |
 | D-38 | Languages | C047 scoped English keys only; remaining text/formatting/languages open. No launch-language decision invented. |

@@ -39,3 +39,5 @@ Keep event credit, current possession, objective readiness, reward claim and com
 Next: controlled current-game eligibility probes; a small declarative schema comparison; explicitly chosen party/repeat/reward rules; localized original fixture text and UI states in the existing style. No bulk story, new NPC, new field layout or cadence change follows from this research. Rollback is documentation-only.
 
 C041 follow-up: [actual-handler credit report](../../phase/P01-research/OBJECTIVE-CREDIT-REPORT.md) measures39 cases across all classes twice with identical observations. It confirms the different kill/rift eligibility and distinguishes full-bag ground items from acquired ownership. No persistence/party policy or quest system is implemented by that probe.
+
+C051 follow-up: [authoring probe](../../phase/P01-research/QUEST-AUTHORING-REPORT.md) exercises typed references, capability declarations, cyclic prerequisites and finite conditional dialogue states. It covers all eight shapes with synthetic records, not authoritative runtime implementations.14 tests pass; production schema, state ownership, durable reward and party policies remain open.
