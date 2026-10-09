@@ -14,6 +14,7 @@ import { SAVE_VERSION } from '../../shared/src/saveVersion';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
+const QUARANTINE_IO_CODES = new Set(['EACCES', 'EPERM', 'ENOSPC', 'ENOENT', 'EIO', 'EROFS', 'EBUSY']);
 
 /** Characters are identified case-insensitively by name. */
 export function characterId(name: string): string {
@@ -122,11 +123,16 @@ async function loadQueuedCharacter(id: string): Promise<CharacterSave | null> {
   } catch (err) {
     // A newer format is not corrupt. Leave its original bytes and filename untouched.
     if (err instanceof UnsupportedSaveVersionError) throw err;
+    // Parser/validation messages can quote saved input. Keep original bytes in
+    // quarantine, not in logs that may have different readers and retention.
+    const category = err instanceof SyntaxError ? 'invalid JSON' : 'invalid character data';
     try {
       const backup = await store.quarantine(id);
-      console.error(`[persist] ${id}.json is corrupt (${(err as Error).message}); moved to ${backup}`);
+      console.error(`[persist] ${id}.json is corrupt (${category}); moved to ${backup}`);
     } catch (quarantineError) {
-      console.error(`[persist] ${id}.json is corrupt; could not quarantine:`, quarantineError);
+      const code = quarantineError && typeof quarantineError === 'object' ? (quarantineError as { code?: unknown }).code : undefined;
+      const failure = typeof code === 'string' && QUARANTINE_IO_CODES.has(code) ? code : 'unclassified I/O failure';
+      console.error(`[persist] ${id}.json is corrupt (${category}); could not quarantine (${failure})`);
     }
     throw new CorruptCharacterError(`character ${id} is corrupt`);
   }

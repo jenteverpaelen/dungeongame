@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C035. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C036. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -39,7 +39,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-TEL-01 | `npm run verify` (one-command gate) | P3 | MISSING — separate commands | Partial: strict isolated18-stage runner passes (C031); foreground performance budgets remain separate. [foundation state](phase/P03-foundations/STATE.md). |
 | F-TEL-02 | Bot harness metrics (kills/min, TTK, deaths, XP/h) | P3/P4 | PARTIAL — `server/test/bot.ts`, no metrics | Partial:27 retained-inventory visits and exact reward reconciliation (C027); human pacing and broader parity open. [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |
 | F-TEL-03 | Drop / economy Monte-Carlo tools | P3 | PARTIAL — `docs/design/baseline-audit.ts` | Partial: reproducible sources/sinks,60 offline cases and15 cost fixtures (C021); live economy and distribution calibration open. [change log](CODEX_CHANGELOG.md). |
-| F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | C035 inventories current console fields and reproduces parser-source disclosure; event schema/retention/complete diagnostic audit remain open. [Inventory](phase/P03-foundations/DATA-INVENTORY.md). |
+| F-TEL-04 | Local event-log schema (privacy-respecting) | P3 | MISSING | C035 inventories current fields; C036 closes the reproduced parser/quarantine source-disclosure path. Event schema/retention/complete diagnostic audit remain open. [Report](phase/P03-foundations/CORRUPT-LOG-REPORT.md). |
 | F-TEL-05 | Funnel and session analytics views | P6 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-06 | Performance-budget checks (client fps, server tick) | P3 | PARTIAL — town PERF scripts | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-TEL-07 | Replay / determinism tests for combat | P4 | PARTIAL — movement parity tests only | Partial: repeated build/field gameplay payloads match (C023/C027); not a complete recorded-input combat replay system. [build audit](phase/P01-research/BUILD-REPORT.md); [field calibration](phase/P01-research/FIELD-CALIBRATION-REPORT.md). |

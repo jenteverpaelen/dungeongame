@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { format } from 'node:util';
 import { createCharacter } from '../../shared/src/character';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
 import type { CharacterSave } from '../../shared/src/types';
@@ -10,6 +11,7 @@ import type { World } from '../src/world';
 import { runCommand } from '../src/commands';
 import { DATA_DIR } from '../src/config';
 import { CorruptCharacterError, UnsupportedSaveVersionError, ensureDataDir, loadCharacter, normalizeSave, saveCharacter, flushSaves } from '../src/persistence';
+import { JsonCharacterStore } from '../src/storage/jsonCharacterStore';
 
 assert.ok(process.env.DATA_DIR, 'Foundation tests require an explicit isolated DATA_DIR');
 ensureDataDir();
@@ -89,4 +91,43 @@ test('future schema with an unfamiliar class or renamed fields is preserved befo
   await assert.rejects(loadCharacter('futureformat'), UnsupportedSaveVersionError);
   assert.equal(await fs.readFile(file, 'utf8'), original);
   assert.deepEqual((await fs.readdir(DATA_DIR)).filter(f => f.startsWith('futureformat')), ['futureformat.json']);
+});
+
+test('corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes', async t => {
+  const lines: string[] = [];
+  t.mock.method(console, 'error', (...args: unknown[]) => lines.push(format(...args)));
+  for (const [id, text, category] of [
+    ['privateparse', 'SYNTH_X', 'invalid JSON'],
+    ['privatemulti', 'SYNTH_Y\nSYNTH_Z', 'invalid JSON'],
+    ['privateobject', JSON.stringify({ name:'SYNTH_NAME', classId:'SYNTH_CLASS' }), 'invalid character data'],
+  ]) {
+    await fs.writeFile(path.join(DATA_DIR,id+'.json'),text);
+    const before=lines.length;
+    await assert.rejects(loadCharacter(id),CorruptCharacterError);
+    assert.equal(lines.length,before+1);
+    assert.ok(lines.at(-1)!.includes(`is corrupt (${category}); moved to ${id}.json.corrupt-`));
+    assert.ok(!lines.at(-1)!.includes('SYNTH_'));
+    const matches=(await fs.readdir(DATA_DIR)).filter(f=>f.startsWith(id));
+    assert.equal(matches.length,1);
+    assert.ok(matches[0].startsWith(id+'.json.corrupt-'));
+    assert.equal(await fs.readFile(path.join(DATA_DIR,matches[0]),'utf8'),text);
+  }
+});
+
+test('quarantine failure diagnostics retain safe codes but exclude arbitrary error details', async t => {
+  const lines: string[] = [];
+  t.mock.method(console,'error',(...args: unknown[])=>lines.push(format(...args)));
+  for (const [id,code,expected] of [['qprivateknown','EPERM','EPERM'],['qprivateunknown','SYNTH_CODE','unclassified I/O failure']]) {
+    const text='SYNTH_SOURCE';
+    const mocked=t.mock.method(JsonCharacterStore.prototype,'quarantine',async()=> {
+      throw Object.assign(new Error('SYNTH_MESSAGE'),{code,path:'SYNTH_PATH',syscall:'SYNTH_CALL'});
+    });
+    try {
+      await fs.writeFile(path.join(DATA_DIR,id+'.json'),text);
+      await assert.rejects(loadCharacter(id),CorruptCharacterError);
+      assert.equal(await fs.readFile(path.join(DATA_DIR,id+'.json'),'utf8'),text);
+      assert.equal(lines.at(-1),`[persist] ${id}.json is corrupt (invalid JSON); could not quarantine (${expected})`);
+      assert.ok(!lines.at(-1)!.includes('SYNTH_'));
+    } finally {mocked.mock.restore();}
+  }
 });

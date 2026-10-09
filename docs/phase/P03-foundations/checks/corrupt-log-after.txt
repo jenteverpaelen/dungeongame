@@ -1,0 +1,17 @@
+✔ debug requires exact opt-in and explicit disable overrides it, including repeated/spoofed requests (3.7777ms)
+✔ legacy/current fixtures retain owned items, overflow slots, progression and extension fields (22.253ms)
+✔ older sparse saves get missing stash/defaults without losing equipment or legacy fields (0.3284ms)
+✔ future saves cannot load, normalize or save and are never quarantined or overwritten (5.6888ms)
+[persist] badversion.json is corrupt (invalid character data); moved to badversion.json.corrupt-1791524066186
+✔ malformed version is quarantined as corrupt; new characters use the current version (5.4388ms)
+✔ future schema with an unfamiliar class or renamed fields is preserved before legacy validation (3.6371ms)
+✔ corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes (11.6536ms)
+✔ quarantine failure diagnostics retain safe codes but exclude arbitrary error details (5.966ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 353.1416

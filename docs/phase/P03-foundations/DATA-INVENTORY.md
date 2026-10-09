@@ -32,6 +32,8 @@ Source paths: `shared/src/types.ts`, `shared/src/character.ts`; `server/src/{per
 
 [privacy-before.json](checks/privacy-before.json) records Node24.19.0, isolated root and20 top-level keys created by `createCharacter`. A fixture-only unknown object survived save/load. A separate invalid file containing only `SYNTH_X` was preserved byte-for-byte in quarantine, but its parser error also copied `SYNTH_X` into console output. The probe intercepted only its own console call; no real diagnostic log was read. This establishes an accidental diagnostic-copy path, not a leak of an actual player's data. A bounded follow-up should retain quarantine and useful fault classification while excluding source excerpts.
 
+**C036 follow-up:** [corrupt-log report](CORRUPT-LOG-REPORT.md) closes this specific parser/quarantine diagnostic path with fixed categories and safe error codes, retaining original bytes. The baseline table above remains historical; it does not imply other raw-error paths have been sanitized.
+
 ## Guidance applied [S] and decisions still needed [Q]
 
 [EDPB basics](https://www.edpb.europa.eu/sme/learn-the-basics/data-protection-basics_en) supports purpose-specific collection, security and retention limits. This table records existing behavior; it does not assign a legal basis or make an indefinite-retention policy acceptable.

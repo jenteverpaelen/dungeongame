@@ -1,0 +1,62 @@
+✔ debug requires exact opt-in and explicit disable overrides it, including repeated/spoofed requests (3.7018ms)
+✔ legacy/current fixtures retain owned items, overflow slots, progression and extension fields (26.03ms)
+✔ older sparse saves get missing stash/defaults without losing equipment or legacy fields (0.4171ms)
+✔ future saves cannot load, normalize or save and are never quarantined or overwritten (6.1352ms)
+[persist] badversion.json is corrupt (invalid save version); moved to badversion.json.corrupt-1791524033260
+✔ malformed version is quarantined as corrupt; new characters use the current version (6.6394ms)
+✔ future schema with an unfamiliar class or renamed fields is preserved before legacy validation (4.5249ms)
+✖ corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes (15.7231ms)
+✖ quarantine failure diagnostics retain safe codes but exclude arbitrary error details (9.0456ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 432.9227
+
+✖ failing tests:
+
+test at server\test\foundations.test.ts:1:5314
+✖ corrupt-save diagnostics exclude input excerpts while quarantine preserves exact bytes (15.7231ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(lines.at(-1)!.includes(`is corrupt (${category}); moved to ${id}.json.corrupt-`))
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\foundations.test.ts:108:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at server\test\foundations.test.ts:1:6279
+✖ quarantine failure diagnostics retain safe codes but exclude arbitrary error details (9.0456ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '[persist] qprivateknown.json is corrupt; could not quarantine: Error: SYNTH_MESSAGE\n' +
+  +   '    at JsonCharacterStore.<anonymous> (C:\\Users\\LaptopJente\\dungeongame\\server\\test\\foundations.test.ts:123:27)\n' +
+  +   '    at Object.apply (node:internal/test_runner/mock/mock:767:20)\n' +
+  +   '    at loadQueuedCharacter (C:\\Users\\LaptopJente\\dungeongame\\server\\src\\persistence.ts:126:34) {\n' +
+  +   "  code: 'EPERM',\n" +
+  +   "  path: 'SYNTH_PATH',\n" +
+  +   "  syscall: 'SYNTH_CALL'\n" +
+  +   '}'
+  - '[persist] qprivateknown.json is corrupt (invalid JSON); could not quarantine (EPERM)'
+  
+      at TestContext.<anonymous> (C:\Users\LaptopJente\dungeongame\server\test\foundations.test.ts:129:14)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: "[persist] qprivateknown.json is corrupt; could not quarantine: Error: SYNTH_MESSAGE\n    at JsonCharacterStore.<anonymous> (C:\\Users\\LaptopJente\\dungeongame\\server\\test\\foundations.test.ts:123:27)\n    at Object.apply (node:internal/test_runner/mock/mock:767:20)\n    at loadQueuedCharacter (C:\\Users\\LaptopJente\\dungeongame\\server\\src\\persistence.ts:126:34) {\n  code: 'EPERM',\n  path: 'SYNTH_PATH',\n  syscall: 'SYNTH_CALL'\n}",
+    expected: '[persist] qprivateknown.json is corrupt (invalid JSON); could not quarantine (EPERM)',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
