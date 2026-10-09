@@ -5,6 +5,11 @@ import type { Item } from './types';
 
 export interface AdventureData {
   id: string;
+  /** Decorative only: fixed sites, no collision or gameplay state. */
+  ambience?: {
+    motion: { id: string; kind: 'ripples' | 'reeds' | 'mist' | 'drips'; position: Point; width: number }[];
+    sounds: { id: string; kind: 'water' | 'wind' | 'fire'; position: Point; radius: number }[];
+  };
   surface?: 'masonry';
   /** Ordered, explicitly activated encounters in a private dungeon. */
   dungeon?: { stages: { id: string; trigger: string; encounter: string; area: Point[] }[] };

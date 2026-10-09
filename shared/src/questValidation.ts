@@ -11,6 +11,7 @@ import { BASES } from './data/items';
 import { SERVICE_ROLE } from './townServices';
 import town from './data/town/hearthmere.json';
 import { inPolygon } from './townGeometry';
+import { validateAdventureAmbience } from './adventureAmbience';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
@@ -74,6 +75,7 @@ export function validateAdventures():string[] {
   const check=(ok:boolean,path:string)=>{if(!ok)errors.push(path);};
   for(const id of Object.keys(ADVENTURES)) {
     const map=loadAdventure(id,1),a=map.adventure!,cw=new CollisionWorld(map);
+    errors.push(...validateAdventureAmbience(a));
     check((ZONES[id]?.kind==='dungeon')===!!a.dungeon,`${id}: dungeon runtime/kind mismatch`);
     if(a.dungeon){
       const stages=a.dungeon.stages;

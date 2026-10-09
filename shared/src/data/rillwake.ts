@@ -16,6 +16,25 @@ row('lantern', [[880,2460],[1350,1990],[1790,1970],[2730,1200],[3170,1140]], 6);
 
 export const RILLWAKE: AdventureData = {
   id: 'rillwake_crossing', size: [64,52],
+  ambience: {
+    motion: [
+      {id:'camp-water',kind:'ripples',position:[450,2160],width:40},
+      {id:'crossing-upstream',kind:'ripples',position:[1900,1800],width:70},
+      {id:'crossing-downstream',kind:'ripples',position:[1900,2300],width:70},
+      {id:'camp-reeds',kind:'reeds',position:[955,2170],width:32},
+      {id:'crossing-reeds',kind:'reeds',position:[1850,1870],width:32},
+      {id:'river-mist',kind:'mist',position:[1900,1790],width:360},
+    ],
+    sounds: [
+      {id:'camp-fire',kind:'fire',position:[750,2520],radius:430},
+      {id:'camp-water',kind:'water',position:[450,2160],radius:720},
+      {id:'crossing-water',kind:'water',position:[1900,1800],radius:720},
+      {id:'mill-water',kind:'water',position:[3680,1640],radius:720},
+      {id:'camp-wind',kind:'wind',position:[800,2360],radius:720},
+      {id:'ridge-wind',kind:'wind',position:[1500,1400],radius:720},
+      {id:'mill-wind',kind:'wind',position:[3280,1130],radius:720},
+    ],
+  },
   geometry: {
     entry: { x:650,y:2410 },
     floors: [

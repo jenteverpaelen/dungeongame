@@ -14,6 +14,7 @@ import { Vfx } from './vfx';
 import type { ClientEntity, ClientWorld } from '../game/world';
 import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
+import { AdventureLife } from './art/adventureLife';
 import { inPolygon } from '@shared/townGeometry';
 import { preferences } from '../game/preferences';
 
@@ -50,6 +51,7 @@ export class Scene {
   private collisionOverlay: Container | null = null;
   private showCollision = false;
   private townLife: TownLife | null = null;
+  private adventureLife: AdventureLife | null = null;
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
   toggleCollision() {
@@ -84,6 +86,7 @@ export class Scene {
     setViewScale(this.cam.zoom*this.app.renderer.resolution);
     this.roofAlpha.clear();
     this.townLife?.destroy();this.townLife=null;
+    this.adventureLife?.destroy();this.adventureLife=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
@@ -121,6 +124,10 @@ export class Scene {
     if(map.town?.stage==='complete') {
       this.townLife=new TownLife(map.town,this.entities);
       this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
+    }
+    if(map.adventure?.ambience) {
+      this.adventureLife=new AdventureLife(map.adventure);
+      this.groundFx.addChildAt(this.adventureLife.ground,0);
     }
     this.cam.x = map.entry.x;
     this.cam.y = map.entry.y;
@@ -232,6 +239,7 @@ export class Scene {
     const halfW = scr.width / 2 / this.cam.zoom, halfH = scr.height / 2 / this.cam.zoom;
     const townTime=this.world.serverNow()/1000;
     this.townLife?.update(viewDt,townTime,this.cam.x,this.cam.y,halfW,halfH);
+    this.adventureLife?.update(townTime,this.cam.x,this.cam.y,halfW,halfH);
     if (this.map) {
       const mw = this.map.w * 64, mh = this.map.h * 64;
       this.cam.x = mw > halfW * 2 ? Math.max(halfW, Math.min(mw - halfW, this.cam.x)) : mw / 2;

@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C076. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C077. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -103,7 +103,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-WLD-02 | Zone authoring pipeline (layout, props, spawns, landmarks) | P7 | PARTIAL — procedural map from seed; town authored as JSON | Partial C071: Two typed authored fields with swept route/prop/spawn checks and shared collision. Production art/editor pipeline remains open. [Connected adventures](adventure/QUEST-CHAIN-REPORT.md). |
 | F-WLD-03 | Waypoint network + world map screen | P5 | PARTIAL — waypoint panel, no map | Partial C072: Regional/current-area map, actual waypoint/portal connections, locks and physical travel entry implemented. Fog/discovery and wider network remain open. [World map](adventure/WORLD-MAP-REPORT.md). |
 | F-WLD-04 | Objective dungeons | P7/P9 | MISSING | Partial C075: Reedvault Pumpworks: physical entry, two activated chambers plus keeper, maintenance record, return route and optional quest. Human pacing, monster variety, production art/ambience and broader dungeon catalogue remain open. [Pumpworks](adventure/PUMPWORKS-REPORT.md). |
-| F-WLD-05 | Ambient life and zone audio | P7 | PARTIAL — rich in town, minimal in fields | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-WLD-05 | Ambient life and zone audio | P7 | PARTIAL — rich in town, minimal in fields | Partial C077: Authored ripples/reeds/mist/drips and positional water/wind/fire in three adventure areas. Camp motion and real audio travel cleanup inspected; audible mix, broader wildlife/art, other-zone visuals and sustained performance remain open. [Ambience](adventure/AMBIENCE-REPORT.md). |
 | F-WLD-06 | Town upgrades as systems land | ongoing | PARTIAL — Hearthmere | Frozen by owner; town follow-ups deferred, no complete acceptance claim. [Town pause](town/PAUSED.md). |
 | F-WLD-07 | Weather / time of day | — | MISSING (optional) | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-WLD-08 | Channel / instance management | P16 | PARTIAL — caps 100/30, `channel` command | Open: no newer full-scope completion evidence; original baseline retained. |

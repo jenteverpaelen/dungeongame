@@ -6,6 +6,21 @@ const west=rect(390,1120,640,640),east=rect(1510,1120,640,640),heart=rect(950,27
 /** Original masonry service chambers. L89: camera-scale rooms and existing Bracken passage/group sizes. */
 export const PUMPWORKS:AdventureData={
   id:'reedvault_pumpworks',surface:'masonry',size:[40,36],
+  ambience:{
+    motion:[
+      {id:'intake-water',kind:'ripples',position:[970,2110],width:38},
+      {id:'west-drip',kind:'drips',position:[320,1430],width:32},
+      {id:'east-drip',kind:'drips',position:[2220,1430],width:32},
+      {id:'central-channel',kind:'ripples',position:[1270,1400],width:70},
+      {id:'channel-mist',kind:'mist',position:[1270,1550],width:180},
+    ],
+    sounds:[
+      {id:'intake-water',kind:'water',position:[970,2110],radius:720},
+      {id:'west-water',kind:'water',position:[320,1430],radius:720},
+      {id:'east-water',kind:'water',position:[2220,1430],radius:720},
+      {id:'pump-water',kind:'water',position:[1270,180],radius:720},
+    ],
+  },
   geometry:{entry:{x:1270,y:2050},floors:[
     {polygon:rect(1050,1870,440,310)},
     {polygon:rect(600,1760,1340,230)},

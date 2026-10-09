@@ -14,6 +14,22 @@ row('lantern',[[970,2630],[1160,2310],[2230,1870],[2350,1410],[2450,940]],6);
 /** Original maintenance causeway and spillway basin; geometry is also the collision source. */
 export const BRACKEN:AdventureData={
   id:'bracken_sluice',size:[56,48],
+  ambience:{
+    motion:[
+      {id:'causeway-upstream',kind:'ripples',position:[1940,1850],width:70},
+      {id:'causeway-downstream',kind:'ripples',position:[1940,2390],width:70},
+      {id:'bank-reeds',kind:'reeds',position:[1820,2310],width:32},
+      {id:'forecourt-reeds',kind:'reeds',position:[2190,1770],width:32},
+      {id:'basin-mist',kind:'mist',position:[1940,2350],width:360},
+    ],
+    sounds:[
+      {id:'causeway-water',kind:'water',position:[1940,1850],radius:720},
+      {id:'spillway-water',kind:'water',position:[2910,650],radius:720},
+      {id:'camp-wind',kind:'wind',position:[790,2720],radius:720},
+      {id:'basin-wind',kind:'wind',position:[2450,2100],radius:720},
+      {id:'forecourt-wind',kind:'wind',position:[2590,1240],radius:720},
+    ],
+  },
   geometry:{entry:{x:790,y:2720},floors:[
     {polygon:[[450,2470],[820,2310],[1170,2510],[1090,2870],[690,2980],[430,2780]]},
     {polygon:[[890,2420],[1070,2620],[1630,2230],[1450,1980]]},

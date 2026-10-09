@@ -8,6 +8,7 @@ if(import.meta.env.DEV) {
   const panel=document.createElement('div');panel.style.cssText='position:fixed;left:8px;top:8px;z-index:99999;background:#14201fee;color:#eee;padding:8px;font:12px monospace;max-width:620px';
   const status=document.createElement('div');status.dataset.qa='status';panel.append(status);
   const controls=document.createElement('div');panel.append(controls);document.body.append(panel);
+  const audioStatus=document.createElement('pre');audioStatus.style.cssText='white-space:pre-wrap;max-height:240px;overflow:auto';panel.append(audioStatus);
   const game=()=>(window as unknown as {__game?:Game}).__game;
   let route:Point[]=[],index=0,started=0,held:string[]=[],message='Ready',lastZone='';
   // Browser focus changes clear Input's held keys. Reassert this active QA route's
@@ -39,6 +40,7 @@ if(import.meta.env.DEV) {
   button('Return along sluice causeway',()=>walk([...main().slice(0,8).reverse(),[670,2760]]));
   button('Interact (E)',()=>{window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyE',key:'e',bubbles:true,cancelable:true}));window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyE',key:'e',bubbles:true}));});
   button('Stop walking',()=>{route=[];keys([]);message='Stopped';});
+  button('Inspect ambience',()=>{audioStatus.textContent=JSON.stringify(game()?.audio.inspect(),null,2);});
   button('Toggle QA controls',()=>{controls.hidden=!controls.hidden;});
   // Keep the toggle reachable when controls are hidden.
   const toggle=document.createElement('button');toggle.textContent='Show / hide QA';toggle.onclick=()=>controls.hidden=!controls.hidden;panel.append(toggle);
