@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C046. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C047. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -26,7 +26,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SAV-05 | Idempotent commands (client command IDs, replay safety) | P3/P8 | PARTIAL — commands carry an `id` for replies; replay safety unaudited | Connection receipts tested (C017), enchant interleaving fixed (C022); standalone durable boundary/crash experiment (C038). Production durable transactions open. [transaction drill](phase/P03-foundations/TRANSACTION-REPORT.md). |
 | F-SAV-06 | Transactional multi-entity operations (trade, mail, crafting) | P15 | MISSING | Open: no newer full-scope completion evidence; original baseline retained. |
 | F-CON-01 | Registries with stable IDs + schema validation + `content:check` | P3 | PARTIAL — typed TS data; town has `town:check` | Partial: typed registries, semantic validator and mutation checks (C014/C034); class signature lookup now uses stable IDs. Localization/originality and broader graph validity open. [foundation state](phase/P03-foundations/STATE.md). |
-| F-CON-02 | Localization keys for all player-facing text | P3 | MISSING — strings inline | Open: no newer full-scope completion evidence; original baseline retained. |
+| F-CON-02 | Localization keys for all player-facing text | P3 | MISSING — strings inline | Partial: Settings/controls123 English keys, validation and exact browser comparison (C047). Remaining text and actual languages open. [report](phase/P03-foundations/TEXT-CATALOGUE-REPORT.md). |
 | F-CON-03 | Name / IP register + originality check | P3 | MISSING | Partial:694-field naming inventory and bounded reference comparison (C033); descriptions/assets/contextual review and originality clearance remain open. [Register](originality/README.md). |
 | F-CON-04 | Placeholder registry (label + removal condition) | P3 | MISSING | Implemented current [placeholder register](PLACEHOLDERS.md), C007; new substitutes must be added as introduced. |
 | F-CON-05 | Dev hot-reload and data-diff tooling | P5 | PARTIAL — Vite/tsx watch | Open: no newer full-scope completion evidence; original baseline retained. |
@@ -296,7 +296,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-35 | Content tools | Current typed data and semantic validator retained; no quest scripting dependency adopted. |
 | D-36 | Art pipeline at scale | Approved town/UI frozen; no new art pipeline or imported assets. |
 | D-37 | Audio approach | Procedural audio retained; no downloaded pack or commissioned work. |
-| D-38 | Languages | Localization keys/languages open; no launch-language decision invented. |
+| D-38 | Languages | C047 scoped English keys only; remaining text/formatting/languages open. No launch-language decision invented. |
 | D-39 | Accessibility baseline | Partial implementation with explicit limits; no full accessibility acceptance. |
 | D-40 | Controller and mobile | No controller/mobile build implemented; future priority remains open. |
 

@@ -78,3 +78,5 @@ The full P1/G1 package is **not complete**. This is not a claim that all 20 orig
 C045 adds the loot acquisition matrix, five primary source records and eight scoped claims. Local generation, guarantees, pity, class eligibility and actual acquisition are separated; external rate/timeline cells remain unresolved. A suspected boss-floor pity discrepancy is the next deterministic probe, not an assumed tuning decision.
 
 C046 reproduces48 counter mismatches in6,528 seeded loot batches and corrects the fallback boss branch. Two repeated after runs have zero mismatches and unchanged generated payload/RNG hashes. Four regressions and all19 strict verification stages pass (747server/382sim); LOOT-COUNTER-REPORT.md records future pity effects and no retroactive save reconstruction.
+
+C047 adds three primary localization sources/two scoped claims and applies complete-context message keys to Settings/controls. Exact four-state Chrome text/labels/geometry and eight inspected captures preserve the existing UI. R17's full inventory, language scope, formatting and platform review remain incomplete.

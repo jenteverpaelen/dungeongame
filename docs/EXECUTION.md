@@ -47,3 +47,5 @@ C044 emits reproducible reviewed dependency notices and verifies drift/HTTP byte
 C045 advances the required loot matrix across all five reference games and records actual local source paths. Next: reproduce the boss-floor counter discrepancy; external cadence/visual evidence remains incomplete.
 
 C046 corrects confirmed boss fallback loot history while preserving the generated reward and existing rules. Strict19-stage verification passes; the wider loot/timing matrix stays incomplete. Continue text/localization foundations and research, preserving the approved UI.
+
+C047 introduces scoped English message keys for Settings/controls. Before/after real Chrome text, accessibility labels and panel geometry match; eight captures inspected. Full text coverage and languages remain open. Continue the research and independent foundations; the checkpoint does not end the roadmap task.

@@ -1,8 +1,11 @@
 // Physical keyboard bindings. Labels are separate from key identity/layout.
+import { text } from '../i18n/messages';
 export const ACTIONS = [
-  ['up', 'Move up'], ['left', 'Move left'], ['down', 'Move down'], ['right', 'Move right'],
-  ['dash', 'Dash'], ['interact', 'Interact'], ['inventory', 'Inventory'], ['skills', 'Skills'],
-  ['paragon', 'Paragon'], ['cube', 'Cube (when nearby)'], ['settings', 'Settings'],
+  ['up', text('controls.up.label')], ['left', text('controls.left.label')],
+  ['down', text('controls.down.label')], ['right', text('controls.right.label')],
+  ['dash', text('controls.dash.label')], ['interact', text('controls.interact.label')],
+  ['inventory', text('controls.inventory.label')], ['skills', text('controls.skills.label')],
+  ['paragon', text('controls.paragon.label')], ['cube', text('controls.cube.label')], ['settings', text('controls.settings.label')],
 ] as const;
 export type Action = typeof ACTIONS[number][0];
 export type Bindings = Readonly<Record<Action, readonly [string, string | null]>>;
@@ -84,10 +87,10 @@ export class BindingStore {
   action(code: string): Action | undefined { return ACTIONS.find(([a]) => this.state.values[a].includes(code))?.[0]; }
   label(action: Action) { return keyLabel(this.state.values[action][0], this.state.labels); }
   assign(action: Action, slot: 0 | 1, code: string | null, printed?: string): string | null {
-    if (code === null && slot === 0) return 'Keep a primary key for this action.';
-    if (code !== null && !allowedCode(code)) return 'Choose a letter, number, arrow, punctuation, navigation or Space key.';
-    if (code !== null) for (const [a, title] of ACTIONS) for (const i of [0, 1] as const) {
-      if ((a !== action || i !== slot) && this.state.values[a][i] === code) return `Already assigned to ${title}. Change that key first.`;
+    if (code === null && slot === 0) return text('controls.keepPrimary');
+    if (code !== null && !allowedCode(code)) return text('controls.allowedKey');
+    if (code !== null) for (const [a] of ACTIONS) for (const i of [0, 1] as const) {
+      if ((a !== action || i !== slot) && this.state.values[a][i] === code) return text(`controls.${a}.conflict`);
     }
     const values = { ...this.state.values, [action]: [...this.state.values[action]] } as Record<Action, [string, string | null]>;
     if (slot === 0) values[action][0] = code!;

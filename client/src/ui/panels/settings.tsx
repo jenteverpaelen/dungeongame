@@ -3,6 +3,7 @@ import { preferences, type Preferences } from '../../game/preferences';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
 import { PanelFrame, SecHead, Tabs } from './common';
 import { useLocal } from './state';
+import { text } from '../../i18n/messages';
 
 export function SettingsPanel() {
   const { values, retained } = useLocal(preferences, s => s);
@@ -21,22 +22,22 @@ export function SettingsPanel() {
     <label class="settings-check"><input type="checkbox" checked={values[key]} onChange={e => preferences.set({ [key]: e.currentTarget.checked })} /><span>{label}</span></label>
   );
   return (
-    <PanelFrame id="settings" title="Settings" width={480} sub="Sound, comfort & controls">
-      <Tabs tabs={[{ id: 'sound', label: 'Sound & comfort' }, { id: 'controls', label: 'Controls' }]} value={tab} onChange={setTab} />
+    <PanelFrame id="settings" title={text('settings.title')} width={480} sub={text('settings.subtitle')}>
+      <Tabs tabs={[{ id: 'sound', label: text('settings.tabSound') }, { id: 'controls', label: text('settings.tabControls') }]} value={tab} onChange={setTab} />
       {tab === 'controls' ? <ControlsSettings /> : <div class="settings-content">
-        <SecHead>Sound</SecHead>
-        {slider('masterVolume', 'Master volume')}
-        {check('muted', 'Mute all sound')}
-        {slider('effectsVolume', 'Effects')}
-        {slider('ambienceVolume', 'Ambience')}
-        <SecHead>Camera</SecHead>
-        {check('cameraShake', 'Camera shake')}
-        <p class="settings-note">Shake from impacts can be turned off. Your view distance stays the same.</p>
-        <SecHead>Effects</SecHead>
-        {check('reduceFlashes', 'Reduce flashes')}
-        <p class="settings-note">Hide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.</p>
-        <p class="settings-note" role="status">{retained ? 'Settings are remembered in this browser.' : 'Settings apply for this session. Browser storage is unavailable.'}</p>
-        <button class="btn" onClick={() => preferences.reset()}>Restore defaults</button>
+        <SecHead>{text('settings.soundHeading')}</SecHead>
+        {slider('masterVolume', text('settings.masterVolume'))}
+        {check('muted', text('settings.muted'))}
+        {slider('effectsVolume', text('settings.effectsVolume'))}
+        {slider('ambienceVolume', text('settings.ambienceVolume'))}
+        <SecHead>{text('settings.cameraHeading')}</SecHead>
+        {check('cameraShake', text('settings.cameraShake'))}
+        <p class="settings-note">{text('settings.cameraNote')}</p>
+        <SecHead>{text('settings.effectsHeading')}</SecHead>
+        {check('reduceFlashes', text('settings.reduceFlashes'))}
+        <p class="settings-note">{text('settings.flashesNote')}</p>
+        <p class="settings-note" role="status">{text(retained ? 'settings.retained' : 'settings.sessionOnly')}</p>
+        <button class="btn" onClick={() => preferences.reset()}>{text('settings.reset')}</button>
       </div>}
     </PanelFrame>
   );
@@ -45,47 +46,47 @@ export function SettingsPanel() {
 function ControlsSettings() {
   const state = useLocal(bindings, s => s);
   const [capture, setCapture] = useState<{ action: Action; slot: 0 | 1 } | null>(null);
-  const [message, setMessage] = useState('Select a key to change it.');
+  const [message, setMessage] = useState(text('controls.initial'));
   useEffect(() => { void refreshKeyboardLayout(); }, []);
   useEffect(() => {
     if (!capture) return;
     bindings.capture(true);
-    const cancel = () => { bindings.capture(false); setCapture(null); setMessage('Key change cancelled.'); };
+    const cancel = () => { bindings.capture(false); setCapture(null); setMessage(text('controls.cancelled')); };
     const down = (e: KeyboardEvent) => {
       if (e.key === 'Tab') { cancel(); return; }
-      if (e.ctrlKey || e.altKey || e.metaKey) { setMessage('Use one key without Ctrl, Alt or the Windows/Command key.'); return; }
+      if (e.ctrlKey || e.altKey || e.metaKey) { setMessage(text('controls.noModifiers')); return; }
       e.preventDefault(); e.stopImmediatePropagation();
       if (e.key === 'Escape') { cancel(); return; }
       if (e.repeat || e.isComposing) return;
-      if (e.shiftKey) { setMessage('Use one key without Shift.'); return; }
+      if (e.shiftKey) { setMessage(text('controls.noShift')); return; }
       const error = bindings.assign(capture.action, capture.slot, e.code, e.key);
       if (error) { setMessage(error); return; }
-      setMessage(`${ACTIONS.find(([a]) => a === capture.action)![1]} assigned to ${keyLabel(e.code, bindings.get().labels)}.`);
+      setMessage(text(`controls.${capture.action}.assigned`, { key: keyLabel(e.code, bindings.get().labels) }));
       bindings.capture(false); setCapture(null);
     };
     window.addEventListener('keydown', down, true); window.addEventListener('blur', cancel);
     return () => { window.removeEventListener('keydown', down, true); window.removeEventListener('blur', cancel); bindings.capture(false); };
   }, [capture]);
   return <div class="settings-content" data-controls-editor>
-    <p class="settings-note">Choose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.</p>
+    <p class="settings-note">{text('controls.note')}</p>
     <div class="settings-bindings">
       {ACTIONS.map(([action, label]) => <div class="settings-binding" key={action}>
         <span>{label}</span>
         {([0, 1] as const).map(slot => {
           const code = state.values[action][slot];
           const active = capture?.action === action && capture.slot === slot;
-          return <button class="btn" data-bind={`${action}:${slot}`} aria-label={`Change ${label} ${slot === 0 ? 'primary' : 'alternate'} key`}
-            aria-pressed={active} title={code ?? 'No alternate key'} onClick={() => {
-              bindings.capture(true); setCapture({ action, slot }); setMessage(`Press a key for ${label}. Escape cancels.`);
-            }}>{active ? 'Press key…' : code ? keyLabel(code, state.labels) : '—'}</button>;
+          return <button class="btn" data-bind={`${action}:${slot}`} aria-label={text(`controls.${action}.${slot === 0 ? 'changePrimary' : 'changeAlternate'}`)}
+            aria-pressed={active} title={code ?? text('controls.noAlternate')} onClick={() => {
+              bindings.capture(true); setCapture({ action, slot }); setMessage(text(`controls.${action}.capture`));
+            }}>{active ? text('controls.pressKey') : code ? keyLabel(code, state.labels) : text('controls.emptyKey')}</button>;
         })}
-        <button class="btn" aria-label={`Clear ${label} alternate key`} disabled={!state.values[action][1] || !!capture}
-          onClick={() => { bindings.assign(action, 1, null); setMessage(`${label} alternate cleared.`); }}>×</button>
+        <button class="btn" aria-label={text(`controls.${action}.clearAlternate`)} disabled={!state.values[action][1] || !!capture}
+          onClick={() => { bindings.assign(action, 1, null); setMessage(text(`controls.${action}.cleared`)); }}>{text('controls.clearGlyph')}</button>
       </div>)}
     </div>
     <p class="settings-note" role="status" aria-live="polite">{message}</p>
-    <p class="settings-note">Bindings follow physical keys. {state.layoutAvailable ? 'Labels match your keyboard layout.' : 'Default labels show QWERTY positions; reassigned keys show the character you pressed.'} Enter, Escape, Tab, function keys and modifiers stay reserved.</p>
-    <p class="settings-note">{state.retained ? 'Controls are remembered in this browser.' : 'Controls apply for this session. Browser storage is unavailable.'}</p>
-    <button class="btn" disabled={!!capture} onClick={() => { bindings.reset(); setMessage('Default controls restored.'); }}>Restore default controls</button>
+    <p class="settings-note">{text(state.layoutAvailable ? 'controls.layoutKnown' : 'controls.layoutFallback')}</p>
+    <p class="settings-note">{text(state.retained ? 'controls.retained' : 'controls.sessionOnly')}</p>
+    <button class="btn" disabled={!!capture} onClick={() => { bindings.reset(); setMessage(text('controls.resetDone')); }}>{text('controls.reset')}</button>
   </div>;
 }

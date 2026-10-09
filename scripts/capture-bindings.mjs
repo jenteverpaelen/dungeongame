@@ -8,8 +8,12 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const cataloguePhase = process.argv[2];
+assert.ok(!cataloguePhase || ['--catalogue-before', '--catalogue-after'].includes(cataloguePhase), 'Unknown capture option');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-bindings-ui-'));
-const dataDir = path.join(tmp, 'saves'), out = path.join(root, 'docs/phase/P03-foundations/checks/bindings-ui');
+const dataDir = path.join(tmp, 'saves'), out = path.join(root, cataloguePhase
+  ? `docs/phase/P03-foundations/checks/text-catalogue/${cataloguePhase.slice(12)}`
+  : 'docs/phase/P03-foundations/checks/bindings-ui');
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -57,9 +61,12 @@ try {
     if (r.exceptionDetails) throw Error(JSON.stringify(r.exceptionDetails)); return r.result.value;
   };
   const record = async name => {
+    if (cataloguePhase && !['02-conflict', '03-custom-controls', '06-sound-retained', '08-reset-controls'].includes(name)) return;
     await wait(300);
     const state = await evaluate(`({width:innerWidth,height:innerHeight,hidden:document.hidden,camera:innerHeight/__game.scene.cam.zoom,
-      text:document.body.innerText,keys:JSON.parse(localStorage.getItem('hearthfall.bindings.v1')),me:__ui.get().me,
+      text:document.body.innerText,settingsText:document.querySelector('.pn-settings')?.textContent,
+      accessibleLabels:[...document.querySelectorAll('.pn-settings [aria-label]')].map(e=>e.getAttribute('aria-label')),
+      keys:JSON.parse(localStorage.getItem('hearthfall.bindings.v1')),me:__ui.get().me,
       panels:[...document.querySelectorAll('.pn,.help-panel')].map(e=>{const r=e.getBoundingClientRect();return {name:e.getAttribute('data-panel')||'help',x:r.x,y:r.y,w:r.width,h:r.height,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight}})})`);
     assert.equal(state.width, 1920); assert.equal(state.height, 1080); assert.equal(state.hidden, false); assert.equal(state.camera, 620);
     for (const panel of state.panels) { assert.ok(panel.y >= 0 && panel.y + panel.h <= 1081, JSON.stringify(panel)); }

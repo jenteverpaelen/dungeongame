@@ -26,7 +26,7 @@ const stages = [
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
   ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/audio/lifetime.test.ts']],
-  ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts']],
+  ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
   ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],

@@ -1,0 +1,650 @@
+{
+  "tmp": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bindings-ui-3KWajd",
+  "dataDir": "C:\\Users\\LAPTOP~1\\AppData\\Local\\Temp\\hf-bindings-ui-3KWajd\\saves",
+  "node": "v24.19.0",
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/154.0.8037.99",
+    "revision": "@45889d77830582727fe00dbfd614bcb7aac35caa",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "jsVersion": "15.4.80.20"
+  },
+  "passed": true,
+  "scope": "Own local game, installed Chrome, synthetic profile/saves. Real input events and game snapshots. Not a human usability or performance measurement.",
+  "observations": [
+    {
+      "name": "02-conflict",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nBindingsTrace\nLevel 1\nMage\nDPS\n0\n18 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BindingsTrace.\nAttacks and slotted skills are automatic.\nF1 shows your controls. Change key bindings in Settings.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\n\nChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.\n\nMove up\nZ\n↑\n×\nMove left\nQ\n←\n×\nMove down\nS\n↓\n×\nMove right\nD\n→\n×\nDash\nPRESS KEY…\n—\n×\nInteract\nE\n—\n×\nInventory\nI\nB\n×\nSkills\nK\n—\n×\nParagon\nP\n—\n×\nCube (when nearby)\nU\n—\n×\nSettings\nO\n—\n×\n\nAlready assigned to Move up. Change that key first.\n\nBindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.\n\nControls are remembered in this browser.\n\nRESTORE DEFAULT CONTROLS",
+      "settingsText": "SettingsSound, comfort & controlsSound & comfortControlsChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.Move upZ↑×Move leftQ←×Move downS↓×Move rightD→×DashPress key…—×InteractE—×InventoryIB×SkillsK—×ParagonP—×Cube (when nearby)U—×SettingsO—×Already assigned to Move up. Change that key first.Bindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.Controls are remembered in this browser.Restore default controls",
+      "accessibleLabels": [
+        "Close",
+        "Change Move up primary key",
+        "Change Move up alternate key",
+        "Clear Move up alternate key",
+        "Change Move left primary key",
+        "Change Move left alternate key",
+        "Clear Move left alternate key",
+        "Change Move down primary key",
+        "Change Move down alternate key",
+        "Clear Move down alternate key",
+        "Change Move right primary key",
+        "Change Move right alternate key",
+        "Clear Move right alternate key",
+        "Change Dash primary key",
+        "Change Dash alternate key",
+        "Clear Dash alternate key",
+        "Change Interact primary key",
+        "Change Interact alternate key",
+        "Clear Interact alternate key",
+        "Change Inventory primary key",
+        "Change Inventory alternate key",
+        "Clear Inventory alternate key",
+        "Change Skills primary key",
+        "Change Skills alternate key",
+        "Clear Skills alternate key",
+        "Change Paragon primary key",
+        "Change Paragon alternate key",
+        "Clear Paragon alternate key",
+        "Change Cube (when nearby) primary key",
+        "Change Cube (when nearby) alternate key",
+        "Clear Cube (when nearby) alternate key",
+        "Change Settings primary key",
+        "Change Settings alternate key",
+        "Clear Settings alternate key"
+      ],
+      "keys": null,
+      "me": {
+        "x": 2891.5,
+        "y": 2418.6,
+        "dashMs": 0,
+        "dashCd": 0,
+        "hp": 134,
+        "mhp": 134,
+        "res": 100,
+        "mres": 100,
+        "cds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ch": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "buffs": [],
+        "xp": 0,
+        "lv": 1,
+        "pxp": 0,
+        "pl": 0,
+        "gold": 0,
+        "dead": 0
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 790.5625,
+          "scrollHeight": 795,
+          "clientHeight": 789
+        }
+      ]
+    },
+    {
+      "name": "03-custom-controls",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nBindingsTrace\nLevel 1\nMage\nDPS\n0\n164 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BindingsTrace.\nAttacks and slotted skills are automatic.\nF1 shows your controls. Change key bindings in Settings.\n134\nAUTO\n1\n2\n3\n4\nJ\n100\nNum9\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\n\nChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.\n\nMove up\nT\n↑\n×\nMove left\nQ\n←\n×\nMove down\nS\n↓\n×\nMove right\nD\n→\n×\nDash\nJ\n—\n×\nInteract\nNUM9\n—\n×\nInventory\nI\nB\n×\nSkills\nL\n—\n×\nParagon\nP\n—\n×\nCube (when nearby)\nU\n—\n×\nSettings\nY\n—\n×\n\nSettings assigned to Y.\n\nBindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.\n\nControls are remembered in this browser.\n\nRESTORE DEFAULT CONTROLS",
+      "settingsText": "SettingsSound, comfort & controlsSound & comfortControlsChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.Move upT↑×Move leftQ←×Move downS↓×Move rightD→×DashJ—×InteractNum9—×InventoryIB×SkillsL—×ParagonP—×Cube (when nearby)U—×SettingsY—×Settings assigned to Y.Bindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.Controls are remembered in this browser.Restore default controls",
+      "accessibleLabels": [
+        "Close",
+        "Change Move up primary key",
+        "Change Move up alternate key",
+        "Clear Move up alternate key",
+        "Change Move left primary key",
+        "Change Move left alternate key",
+        "Clear Move left alternate key",
+        "Change Move down primary key",
+        "Change Move down alternate key",
+        "Clear Move down alternate key",
+        "Change Move right primary key",
+        "Change Move right alternate key",
+        "Clear Move right alternate key",
+        "Change Dash primary key",
+        "Change Dash alternate key",
+        "Clear Dash alternate key",
+        "Change Interact primary key",
+        "Change Interact alternate key",
+        "Clear Interact alternate key",
+        "Change Inventory primary key",
+        "Change Inventory alternate key",
+        "Clear Inventory alternate key",
+        "Change Skills primary key",
+        "Change Skills alternate key",
+        "Clear Skills alternate key",
+        "Change Paragon primary key",
+        "Change Paragon alternate key",
+        "Clear Paragon alternate key",
+        "Change Cube (when nearby) primary key",
+        "Change Cube (when nearby) alternate key",
+        "Clear Cube (when nearby) alternate key",
+        "Change Settings primary key",
+        "Change Settings alternate key",
+        "Clear Settings alternate key"
+      ],
+      "keys": {
+        "version": 1,
+        "values": {
+          "up": [
+            "KeyT",
+            "ArrowUp"
+          ],
+          "left": [
+            "KeyA",
+            "ArrowLeft"
+          ],
+          "down": [
+            "KeyS",
+            "ArrowDown"
+          ],
+          "right": [
+            "KeyD",
+            "ArrowRight"
+          ],
+          "dash": [
+            "KeyJ",
+            null
+          ],
+          "interact": [
+            "Numpad9",
+            null
+          ],
+          "inventory": [
+            "KeyI",
+            "KeyB"
+          ],
+          "skills": [
+            "KeyL",
+            null
+          ],
+          "paragon": [
+            "KeyP",
+            null
+          ],
+          "cube": [
+            "KeyU",
+            null
+          ],
+          "settings": [
+            "KeyY",
+            null
+          ]
+        },
+        "labels": {
+          "Minus": ")",
+          "Equal": "-",
+          "BracketLeft": "^",
+          "BracketRight": "$",
+          "Backslash": "µ",
+          "Semicolon": "M",
+          "Quote": "ù",
+          "Backquote": "²",
+          "Comma": ";",
+          "Period": ":",
+          "Slash": "=",
+          "IntlBackslash": "<",
+          "KeyA": "Q",
+          "KeyB": "B",
+          "KeyC": "C",
+          "KeyD": "D",
+          "KeyE": "E",
+          "KeyF": "F",
+          "KeyG": "G",
+          "KeyH": "H",
+          "KeyI": "I",
+          "KeyJ": "J",
+          "KeyK": "K",
+          "KeyL": "L",
+          "KeyM": ",",
+          "KeyN": "N",
+          "KeyO": "O",
+          "KeyP": "P",
+          "KeyQ": "A",
+          "KeyR": "R",
+          "KeyS": "S",
+          "KeyT": "T",
+          "KeyU": "U",
+          "KeyV": "V",
+          "KeyW": "Z",
+          "KeyX": "X",
+          "KeyY": "Y",
+          "KeyZ": "W",
+          "Digit0": "à",
+          "Digit1": "&",
+          "Digit2": "é",
+          "Digit3": "\"",
+          "Digit4": "'",
+          "Digit5": "(",
+          "Digit6": "§",
+          "Digit7": "è",
+          "Digit8": "!",
+          "Digit9": "ç",
+          "Numpad9": "9"
+        }
+      },
+      "me": {
+        "x": 2891.5,
+        "y": 2418.6,
+        "dashMs": 0,
+        "dashCd": 0,
+        "hp": 134,
+        "mhp": 134,
+        "res": 100,
+        "mres": 100,
+        "cds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ch": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "buffs": [],
+        "xp": 0,
+        "lv": 1,
+        "pxp": 0,
+        "pl": 0,
+        "gold": 0,
+        "dead": 0
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 773.5625,
+          "scrollHeight": 778,
+          "clientHeight": 772
+        }
+      ]
+    },
+    {
+      "name": "06-sound-retained",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nBindingsTrace\nLevel 1\nMage\nDPS\n0\n163 fps\n1 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BindingsTrace.\nAttacks and slotted skills are automatic.\nF1 shows your controls. Change key bindings in Settings.\n134\nAUTO\n1\n2\n3\n4\nJ\n100\nNum9\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\nSOUND\nMaster volume\n79%\nMute all sound\nEffects\n100%\nAmbience\n100%\nCAMERA\nCamera shake\n\nShake from impacts can be turned off. Your view distance stays the same.\n\nEFFECTS\nReduce flashes\n\nHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.\n\nSettings are remembered in this browser.\n\nRESTORE DEFAULTS",
+      "settingsText": "SettingsSound, comfort & controlsSound & comfortControlsSoundMaster volume79%Mute all soundEffects100%Ambience100%CameraCamera shakeShake from impacts can be turned off. Your view distance stays the same.EffectsReduce flashesHide hit flashes and level-up bursts. Steady particle flicker and warning pulses. Spell effects and attack warnings remain visible.Settings are remembered in this browser.Restore defaults",
+      "accessibleLabels": [
+        "Close",
+        "Master volume",
+        "Effects",
+        "Ambience"
+      ],
+      "keys": {
+        "version": 1,
+        "values": {
+          "up": [
+            "KeyT",
+            "ArrowUp"
+          ],
+          "left": [
+            "KeyA",
+            "ArrowLeft"
+          ],
+          "down": [
+            "KeyS",
+            "ArrowDown"
+          ],
+          "right": [
+            "KeyD",
+            "ArrowRight"
+          ],
+          "dash": [
+            "KeyJ",
+            null
+          ],
+          "interact": [
+            "Numpad9",
+            null
+          ],
+          "inventory": [
+            "KeyI",
+            "KeyB"
+          ],
+          "skills": [
+            "KeyL",
+            null
+          ],
+          "paragon": [
+            "KeyP",
+            null
+          ],
+          "cube": [
+            "KeyU",
+            null
+          ],
+          "settings": [
+            "KeyY",
+            null
+          ]
+        },
+        "labels": {
+          "Minus": ")",
+          "Equal": "-",
+          "BracketLeft": "^",
+          "BracketRight": "$",
+          "Backslash": "µ",
+          "Semicolon": "M",
+          "Quote": "ù",
+          "Backquote": "²",
+          "Comma": ";",
+          "Period": ":",
+          "Slash": "=",
+          "IntlBackslash": "<",
+          "KeyA": "Q",
+          "KeyB": "B",
+          "KeyC": "C",
+          "KeyD": "D",
+          "KeyE": "E",
+          "KeyF": "F",
+          "KeyG": "G",
+          "KeyH": "H",
+          "KeyI": "I",
+          "KeyJ": "J",
+          "KeyK": "K",
+          "KeyL": "L",
+          "KeyM": ",",
+          "KeyN": "N",
+          "KeyO": "O",
+          "KeyP": "P",
+          "KeyQ": "A",
+          "KeyR": "R",
+          "KeyS": "S",
+          "KeyT": "T",
+          "KeyU": "U",
+          "KeyV": "V",
+          "KeyW": "Z",
+          "KeyX": "X",
+          "KeyY": "Y",
+          "KeyZ": "W",
+          "Digit0": "à",
+          "Digit1": "&",
+          "Digit2": "é",
+          "Digit3": "\"",
+          "Digit4": "'",
+          "Digit5": "(",
+          "Digit6": "§",
+          "Digit7": "è",
+          "Digit8": "!",
+          "Digit9": "ç",
+          "Numpad9": "9"
+        }
+      },
+      "me": {
+        "x": 2891.5,
+        "y": 2410.2001,
+        "dashMs": -30,
+        "dashCd": 0,
+        "hp": 134,
+        "mhp": 134,
+        "res": 100,
+        "mres": 100,
+        "cds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ch": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "buffs": [],
+        "xp": 0,
+        "lv": 1,
+        "pxp": 0,
+        "pl": 0,
+        "gold": 0,
+        "dead": 0
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 678.875,
+          "scrollHeight": 684,
+          "clientHeight": 677
+        }
+      ]
+    },
+    {
+      "name": "08-reset-controls",
+      "width": 1920,
+      "height": 1080,
+      "hidden": false,
+      "camera": 620,
+      "text": "1\nBindingsTrace\nLevel 1\nMage\nDPS\n0\n114 fps\n4 ms\nHearthmere\nChannel 1\nNormal\nN\nWelcome to Hearthfall, BindingsTrace.\n134\nAUTO\n1\n2\n3\n4\nSPACE\n100\nE\nUse Waypoint\nSETTINGS\nSound, comfort & controls\nSOUND & COMFORT\nCONTROLS\n\nChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.\n\nMove up\nZ\n↑\n×\nMove left\nQ\n←\n×\nMove down\nS\n↓\n×\nMove right\nD\n→\n×\nDash\nSPACE\n—\n×\nInteract\nE\n—\n×\nInventory\nI\nB\n×\nSkills\nK\n—\n×\nParagon\nP\n—\n×\nCube (when nearby)\nU\n—\n×\nSettings\nO\n—\n×\n\nSelect a key to change it.\n\nBindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.\n\nControls are remembered in this browser.\n\nRESTORE DEFAULT CONTROLS",
+      "settingsText": "SettingsSound, comfort & controlsSound & comfortControlsChoose a primary key and an optional alternate. Escape cancels a key change. F1 always opens Controls.Move upZ↑×Move leftQ←×Move downS↓×Move rightD→×DashSpace—×InteractE—×InventoryIB×SkillsK—×ParagonP—×Cube (when nearby)U—×SettingsO—×Select a key to change it.Bindings follow physical keys. Labels match your keyboard layout. Enter, Escape, Tab, function keys and modifiers stay reserved.Controls are remembered in this browser.Restore default controls",
+      "accessibleLabels": [
+        "Close",
+        "Change Move up primary key",
+        "Change Move up alternate key",
+        "Clear Move up alternate key",
+        "Change Move left primary key",
+        "Change Move left alternate key",
+        "Clear Move left alternate key",
+        "Change Move down primary key",
+        "Change Move down alternate key",
+        "Clear Move down alternate key",
+        "Change Move right primary key",
+        "Change Move right alternate key",
+        "Clear Move right alternate key",
+        "Change Dash primary key",
+        "Change Dash alternate key",
+        "Clear Dash alternate key",
+        "Change Interact primary key",
+        "Change Interact alternate key",
+        "Clear Interact alternate key",
+        "Change Inventory primary key",
+        "Change Inventory alternate key",
+        "Clear Inventory alternate key",
+        "Change Skills primary key",
+        "Change Skills alternate key",
+        "Clear Skills alternate key",
+        "Change Paragon primary key",
+        "Change Paragon alternate key",
+        "Clear Paragon alternate key",
+        "Change Cube (when nearby) primary key",
+        "Change Cube (when nearby) alternate key",
+        "Clear Cube (when nearby) alternate key",
+        "Change Settings primary key",
+        "Change Settings alternate key",
+        "Clear Settings alternate key"
+      ],
+      "keys": {
+        "version": 1,
+        "values": {
+          "up": [
+            "KeyW",
+            "ArrowUp"
+          ],
+          "left": [
+            "KeyA",
+            "ArrowLeft"
+          ],
+          "down": [
+            "KeyS",
+            "ArrowDown"
+          ],
+          "right": [
+            "KeyD",
+            "ArrowRight"
+          ],
+          "dash": [
+            "Space",
+            null
+          ],
+          "interact": [
+            "KeyE",
+            null
+          ],
+          "inventory": [
+            "KeyI",
+            "KeyB"
+          ],
+          "skills": [
+            "KeyK",
+            null
+          ],
+          "paragon": [
+            "KeyP",
+            null
+          ],
+          "cube": [
+            "KeyU",
+            null
+          ],
+          "settings": [
+            "KeyO",
+            null
+          ]
+        },
+        "labels": {
+          "Minus": ")",
+          "Equal": "-",
+          "BracketLeft": "^",
+          "BracketRight": "$",
+          "Backslash": "µ",
+          "Semicolon": "M",
+          "Quote": "ù",
+          "Backquote": "²",
+          "Comma": ";",
+          "Period": ":",
+          "Slash": "=",
+          "IntlBackslash": "<",
+          "KeyA": "Q",
+          "KeyB": "B",
+          "KeyC": "C",
+          "KeyD": "D",
+          "KeyE": "E",
+          "KeyF": "F",
+          "KeyG": "G",
+          "KeyH": "H",
+          "KeyI": "I",
+          "KeyJ": "J",
+          "KeyK": "K",
+          "KeyL": "L",
+          "KeyM": ",",
+          "KeyN": "N",
+          "KeyO": "O",
+          "KeyP": "P",
+          "KeyQ": "A",
+          "KeyR": "R",
+          "KeyS": "S",
+          "KeyT": "T",
+          "KeyU": "U",
+          "KeyV": "V",
+          "KeyW": "Z",
+          "KeyX": "X",
+          "KeyY": "Y",
+          "KeyZ": "W",
+          "Digit0": "à",
+          "Digit1": "&",
+          "Digit2": "é",
+          "Digit3": "\"",
+          "Digit4": "'",
+          "Digit5": "(",
+          "Digit6": "§",
+          "Digit7": "è",
+          "Digit8": "!",
+          "Digit9": "ç",
+          "Numpad9": "9"
+        }
+      },
+      "me": {
+        "x": 2891.5,
+        "y": 2418.6,
+        "dashMs": 0,
+        "dashCd": 0,
+        "hp": 134,
+        "mhp": 134,
+        "res": 100,
+        "mres": 100,
+        "cds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "ch": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "buffs": [],
+        "xp": 0,
+        "lv": 1,
+        "pxp": 0,
+        "pl": 0,
+        "gold": 0,
+        "dead": 0
+      },
+      "panels": [
+        {
+          "name": "settings",
+          "x": 18,
+          "y": 18,
+          "w": 480,
+          "h": 773.5625,
+          "scrollHeight": 778,
+          "clientHeight": 772
+        }
+      ]
+    },
+    {
+      "name": "real-input-assertions",
+      "beforeMove": {
+        "x": 2891.5,
+        "y": 2418.6
+      },
+      "afterMove": {
+        "x": 2891.5,
+        "y": 2410.2001
+      },
+      "checks": [
+        "conflict/cancel",
+        "movement and key release",
+        "actual dash cooldown",
+        "old keys inactive",
+        "physical Waypoint interaction",
+        "skills/settings toggles",
+        "typing suppression",
+        "native volume slider",
+        "reload",
+        "reset"
+      ]
+    }
+  ]
+}
