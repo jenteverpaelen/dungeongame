@@ -1032,6 +1032,12 @@
 .quest-steps .complete { color:#99af85; }
 .quest-steps .current { color:#e7c477; }
 .quest-dialogue { border-left:2px solid #86714b; padding-left:12px; }
+.pn-character .pn-body { max-height:680px; overflow-y:auto; padding:16px; }
+.pn-character p { line-height:1.5; }
+.character-values { margin:12px 0; }
+.character-values > div { display:flex; justify-content:space-between; gap:16px; padding:6px 0; border-bottom:1px solid #2a1f14; }
+.character-values dt { color:var(--text-dim); }
+.character-values dd { margin:0; text-align:right; font-weight:700; }
 .quest-hud { display:flex; flex-direction:column; align-items:flex-end; gap:7px; }
 .wm-network { position:relative; height:285px; margin:12px 0; background:radial-gradient(ellipse at center,#30281daa,#100d0a88); border:1px solid #716044; border-radius:4px; }
 .wm-network>svg { position:absolute; inset:0; width:100%; height:100%; }

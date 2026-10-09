@@ -1,0 +1,23 @@
+{
+    "checkpoint":  "C081",
+    "checkedAtUtc":  "2026-10-09T17:53:33.6375783Z",
+    "scope":  "Documentation integrity only; no game/server runtime tests",
+    "sources":  184,
+    "claims":  180,
+    "media":  30,
+    "atlasEntries":  71,
+    "recordings":  7,
+    "frames":  152,
+    "allCrossReferencesResolve":  true,
+    "timestampsStrictlyIncreasing":  true,
+    "balanceAndTimingEligibility":  false,
+    "roadmapBlob":  "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+    "ledger":  {
+                   "features":  147,
+                   "screens":  86,
+                   "decisions":  40
+               },
+    "isolatedDataDir":  "hf-character-details-docs-18116d07258b4fa3b2b5c1fc427c875f",
+    "gameCodeImported":  false,
+    "saveDataRead":  false
+}

@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-09, solo, through C080. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-09, solo, through C081. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -225,7 +225,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-43 | Offline-gains report | P14 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-50 | Inventory (bag grid) | — | EXISTS | Earned gear C029; C053 existing bulk menu, actual service transaction/reconnect and two inspected1080p frames pass. Broader errors/inputs remain open. [bulk report](phase/P03-foundations/BULK-SALVAGE-REPORT.md). |
 | U-51 | Paper-doll / equipment | — | EXISTS | Existing wrist-slot equip/stat change verified (C029); no restyle. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
-| U-52 | Character sheet (full stats, breakdown) | P4 | PARTIAL — stats strip | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-52 | Character sheet (full stats, breakdown) | P4 | PARTIAL — stats strip | Partial C081: Optional server-derived Overview/Offense/Defense/Utility/Powers sheet, with estimate assumptions. Actual inventory entry and tabs inspected; per-item attribution, transient state and populated power/set visuals remain. [Character details](phase/P03-foundations/CHARACTER-DETAILS-REPORT.md). |
 | U-53 | Item tooltip + comparison | P11 v2 | EXISTS | One earned tooltip comparison matches actual derived stats (C029); gear-aware skill summaries open. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
 | U-54 | Gems (socket, fuse, remove) | P11 | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-55 | Salvage menu | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |

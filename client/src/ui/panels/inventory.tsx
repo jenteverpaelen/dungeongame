@@ -9,7 +9,8 @@ import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
 import { canClassUse } from '@shared/items';
 import { compareItem, computeStats } from '@shared/stats';
 import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types';
-import { pushNotice, ui } from '../store';
+import { pushNotice, togglePanel, ui } from '../store';
+import { characterText } from '@shared/data/characterMessages';
 import { Check, PanelFrame, Wealth } from './common';
 import { cubeUI, invUI, setCubeItem } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
@@ -183,10 +184,10 @@ function StatsStrip({ char }: { char: CharacterSave }) {
         <div class="sb dmg" {...textTipHandlers(() => ({ title: 'Damage', sub: 'Sheet damage per second', lines: [`Weapon ${fmtInt(d.weaponMin)}–${fmtInt(d.weaponMax)}, ${d.aps.toFixed(2)} attacks per second, ${d.chc.toFixed(1)}% crit chance for +${fmtInt(d.chd)}% damage.`] }), 'sb-dmg')}>
           <label>Damage</label><b>{big(d.sheetDps)}</b>
         </div>
-        <div class="sb tgh" {...textTipHandlers(() => ({ title: 'Toughness', sub: 'Effective life', lines: [`Life ${fmtInt(d.life)} with ${(d.armorDR * 100).toFixed(1)}% armor and ${(d.resDR * 100).toFixed(1)}% resistance damage reduction.`] }), 'sb-tgh')}>
+        <div class="sb tgh" {...textTipHandlers(() => ({ title: 'Toughness', sub: `Effective life estimate against level ${char.level}`, lines: [`Life ${fmtInt(d.life)} with ${(d.armorDR * 100).toFixed(1)}% armor and ${(d.resDR * 100).toFixed(1)}% resistance damage reduction.`] }), 'sb-tgh')}>
           <label>Toughness</label><b>{big(d.toughness)}</b>
         </div>
-        <div class="sb rec" {...textTipHandlers(() => ({ title: 'Recovery', sub: 'Healing per second', lines: [`Life regeneration plus ${fmtInt(d.lifePerHit)} life on hit at ${d.aps.toFixed(2)} attacks per second.`] }), 'sb-rec')}>
+        <div class="sb rec" {...textTipHandlers(() => ({ title: 'Recovery', sub: 'Healing estimate; actual hits and triggers vary', lines: [`Life regeneration plus ${fmtInt(d.lifePerHit)} life on hit at ${d.aps.toFixed(2)} attacks per second.`] }), 'sb-rec')}>
           <label>Recovery</label><b>{big(d.recovery)}</b>
         </div>
       </div>
@@ -415,7 +416,7 @@ export function InventoryPanel() {
   if (!char) return null;
   const used = char.inventory.filter(Boolean).length;
   return (
-    <PanelFrame id="inventory" title="Inventory" width={466} sub={<span class="pn-lv">Level {char.level} {CLASSES[char.classId].name}</span>}>
+    <PanelFrame id="inventory" title="Inventory" width={466} sub={<><span class="pn-lv">Level {char.level} {CLASSES[char.classId].name}</span> <button class="btn sm" onClick={()=>togglePanel('character',true)}>{characterText('open')}</button></>}>
       <Paperdoll char={char} />
       <StatsStrip char={char} />
       <Wealth char={char} />

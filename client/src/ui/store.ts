@@ -7,7 +7,7 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character';
 
 export interface ChatLine { id: number; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string; at: number }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
