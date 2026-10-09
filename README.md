@@ -15,6 +15,8 @@ Open http://localhost:5173 in two browser tabs to see two players in the same wo
 
 Production-style single port: `npm run build && npm start` → http://localhost:2567
 
+WebSocket connections require an allowed browser origin. Defaults allow HTTP `localhost`, `127.0.0.1` and `[::1]` on the configured `PORT` and Vite port5173. For LAN, a different development port or hosted clients, set `WS_ALLOWED_ORIGINS` to a comma-separated list of exact origins, for example `https://play.example,https://stage.example:8443`. This replaces local defaults; include local origins explicitly if needed. No paths, trailing slashes, credentials or wildcards. Missing/invalid origins are rejected. Native test clients must send their intended HTTP(S) Origin too. This is not account authentication. See [connection operations](docs/phase/P03-foundations/CONNECTION-OPERATIONS.md).
+
 ## Tests
 
 ```bash

@@ -6,7 +6,7 @@
 
 `Session.onHello` accepts name, class and protocol version; lowercased name selects the stored character. `World.reserve` excludes a second simultaneous connection for that name, but provides no ownership proof. The fresh/returning browser drills exercise this path. The short `Session.sessionId` is a log identifier, **not** an authentication token.
 
-`main.ts` checks upgrade path and total connection count, with no Origin or credential check. Its client-IP value trusts a supplied X-Forwarded-For header; the current rate limits are connection-based, so these are not proven account/IP login limits. The built client and WebSocket share an origin; Vite currently proxies `/ws` only. Introducing HTTP account endpoints therefore also requires dev-proxy and cookie tests.
+At the initial audit, `main.ts` checked upgrade path and total connection count, with no Origin or credential check; its logged IP trusted supplied X-Forwarded-For. C031 subsequently adds an explicit origin allowlist and uses only the socket peer for attribution (CONNECTION-DESIGN.md/REPORT.md). No credential check or account/IP login limits exist yet. The built client and WebSocket share an origin; Vite currently proxies `/ws` only. Introducing HTTP account endpoints therefore also requires dev-proxy and cookie tests.
 
 Character files, quarantine and backup bundles currently contain character state only. Ordered JSON operations and connection-local receipts do not atomically couple an account record, ownership assignment, recovery consumption and character write. Backups do not yet contain account ownership. These facts determine the migration boundary; they do not justify changing players' data today.
 

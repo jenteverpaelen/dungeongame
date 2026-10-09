@@ -7,6 +7,7 @@ import { WebSocketServer } from 'ws';
 import { BACKUP_DIR, CLIENT_DIR, PORT } from './config';
 import { startCharacterBackups } from './backupSchedule';
 import { Session } from './net/session';
+import { allowedWebSocketOrigin, webSocketOrigins } from './net/origin';
 import { createStaticHandler } from './net/static';
 import { ensureDataDir, flushSaves } from './persistence';
 import { World } from './world';
@@ -19,6 +20,7 @@ const SLOW_TICK_MS = 45;
 const MAX_CONNECTIONS = Number(process.env.MAX_CONNECTIONS ?? 1000);
 
 async function main(): Promise<void> {
+  const allowedOrigins = webSocketOrigins(process.env.WS_ALLOWED_ORIGINS, PORT);
   ensureDataDir();
   const world = new World();
   await world.init();
@@ -59,6 +61,10 @@ async function main(): Promise<void> {
       socket.destroy();
       return;
     }
+    if (!allowedWebSocketOrigin(req, allowedOrigins)) {
+      socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Length: 0\r\n\r\n', () => socket.destroy());
+      return;
+    }
     if (wss.clients.size >= MAX_CONNECTIONS) {
       socket.write('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
       socket.destroy();
@@ -68,8 +74,8 @@ async function main(): Promise<void> {
     wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
   });
   wss.on('connection', (ws, req) => {
-    const fwd = req.headers['x-forwarded-for'];
-    const ip = (typeof fwd === 'string' ? fwd.split(',')[0].trim() : '') || req.socket.remoteAddress || '';
+    // No trusted proxy topology is configured. Forwarding headers are client-controlled.
+    const ip = req.socket.remoteAddress || '';
     const session = new Session(ws, world, ip);
     sessions.add(session);
     ws.on('close', () => sessions.delete(session));

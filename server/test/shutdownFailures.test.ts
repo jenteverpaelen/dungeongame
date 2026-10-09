@@ -34,7 +34,7 @@ test('real child shutdown reports failed storage, exits nonzero and never claims
   await new Promise<void>((resolve, reject) => reservation.close(err => err ? reject(err) : resolve()));
   const child = spawn(process.execPath, ['--import', 'tsx', 'server/src/main.ts'], {
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    env: { ...process.env, BACKUP_DIR: '', DATA_DIR: saveDir, PORT: String(port), ENABLE_DEBUG: '1', DISABLE_DEBUG: '0' },
+    env: { ...process.env, BACKUP_DIR: '', WS_ALLOWED_ORIGINS: undefined, DATA_DIR: saveDir, PORT: String(port), ENABLE_DEBUG: '1', DISABLE_DEBUG: '0' },
   });
   let log = '', startupError: Error | undefined;
   child.on('error', err => { startupError = err; });
@@ -44,7 +44,7 @@ test('real child shutdown reports failed storage, exits nonzero and never claims
   let ws: WebSocket | undefined;
   try {
     await until(() => { if (startupError) throw startupError; return log.includes('listening on'); });
-    ws = new WebSocket(`ws://127.0.0.1:${port}/ws`);
+    ws = new WebSocket(`ws://127.0.0.1:${port}/ws`, { origin: `http://127.0.0.1:${port}` });
     await new Promise<void>((resolve, reject) => { ws!.once('open', resolve); ws!.once('error', reject); });
     const codec = new Packr({ useRecords: false }), messages: S2C[] = [];
     ws.on('message', bytes => messages.push(codec.unpack(Buffer.from(bytes as Buffer)) as S2C));

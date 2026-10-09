@@ -18,6 +18,8 @@ P03 adds explicit debug opt-in, save version refusal, synthetic migration fixtur
 
 ## Remaining work
 
+C031 applies AUTH-06/L42: exact Origin checks before upgrade and socket-peer attribution instead of untrusted forwarding headers. The local before/after and real Chrome direct/Vite checks are recorded in CONNECTION-REPORT.md. This is a browser connection boundary, not authentication; configured remote origins, production TLS/proxy topology and independent review remain prerequisites.
+
 [Local candidate measurements](../../phase/P03-foundations/MEASUREMENTS.md) now cover published Argon2id/scrypt configurations, JSON flush cost, SQLite main-thread versus worker execution, rollback and a synthetic online-backup restore. Actual SQLite is 3.53.3; the documented WAL-reset fix is included by version. A synthetic 100-write burst delayed the main loop by 51.085 ms with synchronous SQLite versus 15.696 ms with the worker. This supports asynchronous isolation if a database is adopted; it does not complete production storage, capacity or security acceptance.
 
 Measure hash latency/memory under login load; map session ownership, claim/recovery and logout invalidation; investigate existing saves without reading real player files; evaluate transactional storage and restore. Profile actual snapshot bytes, AOI and 100-player rendering. Free-host limits and DDoS protection require current provider terms; no provider or 500-player promise selected.

@@ -20,6 +20,7 @@ const stages = [
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts']],
   ['save-failures', ['--import', 'tsx', '--test', 'server/test/saveFailures.test.ts']],
   ['command-replay', ['--import', 'tsx', '--test', 'server/test/commandReplay.test.ts']],
+  ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts']],
   ['backups', ['--import', 'tsx', '--test', 'server/test/backups.test.ts']],
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
@@ -50,7 +51,7 @@ for (const [name, argv] of stages) {
   const exitCode = await new Promise(resolve => {
     child = spawn(process.execPath, argv, {
       cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, DATA_DIR: dataDir, BACKUP_DIR: '', ENABLE_DEBUG: '0', DISABLE_DEBUG: '0', FORCE_COLOR: '0' },
+      env: { ...process.env, DATA_DIR: dataDir, BACKUP_DIR: '', WS_ALLOWED_ORIGINS: undefined, ENABLE_DEBUG: '0', DISABLE_DEBUG: '0', FORCE_COLOR: '0' },
     });
     for (const stream of [child.stdout, child.stderr]) stream.on('data', data => {
       const text = data.toString(); output += text; process.stdout.write(text);

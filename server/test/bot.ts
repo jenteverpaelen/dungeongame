@@ -118,7 +118,7 @@ class Bot {
 
   open(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(this.url);
+      const ws = new WebSocket(this.url, { origin: new URL(this.url.replace(/^ws/, 'http')).origin });
       this.ws = ws;
       ws.on('open', () => resolve());
       ws.on('error', (e) => reject(e));
@@ -284,7 +284,7 @@ async function startServer(): Promise<Srv> {
   const port = 20000 + Math.floor(Math.random() * 20000);
   const child = spawn(process.execPath, ['--import', 'tsx', path.join(ROOT, 'server/src/main.ts')], {
     cwd: ROOT,
-    env: { ...process.env, BACKUP_DIR: '', ENABLE_DEBUG: '1', DISABLE_DEBUG: '0', PORT: String(port), DATA_DIR: dataDir, XP_MULT: process.env.XP_MULT ?? '3' },
+    env: { ...process.env, BACKUP_DIR: '', WS_ALLOWED_ORIGINS: undefined, ENABLE_DEBUG: '1', DISABLE_DEBUG: '0', PORT: String(port), DATA_DIR: dataDir, XP_MULT: process.env.XP_MULT ?? '3' },
     stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
     windowsHide: true,
   });

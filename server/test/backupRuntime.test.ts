@@ -25,7 +25,7 @@ async function start(saveDir: string, backupDir = '') {
   await new Promise<void>((resolve, reject) => reservation.close(err => err ? reject(err) : resolve()));
   const child = spawn(process.execPath, ['--import', 'tsx', 'server/src/main.ts'], {
     cwd: root, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: backupDir, PORT: String(port), ENABLE_DEBUG: '0' },
+    env: { ...process.env, DATA_DIR: saveDir, BACKUP_DIR: backupDir, WS_ALLOWED_ORIGINS: undefined, PORT: String(port), ENABLE_DEBUG: '0' },
   });
   let log = '', startupError: Error | undefined;
   child.on('error', error => { startupError = error; });
@@ -86,7 +86,7 @@ test('configured real server backup restores through CLI and reconnects with the
   let ws: WebSocket | undefined;
   try {
     await until(second.ready);
-    ws = new WebSocket(`ws://127.0.0.1:${second.port}/ws`);
+    ws = new WebSocket(`ws://127.0.0.1:${second.port}/ws`, { origin: `http://127.0.0.1:${second.port}` });
     await new Promise<void>((resolve, reject) => { ws!.once('open', resolve); ws!.once('error', reject); });
     const codec = new Packr({ useRecords: false }), messages: S2C[] = [];
     ws.on('message', data => messages.push(codec.unpack(Buffer.from(data as Buffer)) as S2C));

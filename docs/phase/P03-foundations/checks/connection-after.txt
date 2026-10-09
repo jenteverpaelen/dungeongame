@@ -1,0 +1,16 @@
+✔ real upgrade denies foreign/missing/opaque/duplicate origins and preserves known local browser origins (513.4445ms)
+✔ explicit origin list replaces local defaults without wildcard or suffix acceptance (535.0018ms)
+✔ real session log uses socket peer instead of forged forwarding attribution (510.7214ms)
+✔ invalid allowlist prevents listening and data initialization (308.0277ms)
+✔ local defaults enumerate only the configured game port and documented dev port (1.471ms)
+✔ explicit canonical origins replace defaults and tolerate separators whitespace (1.0833ms)
+✔ empty ambiguous or permissive configuration fails closed (1.1029ms)
+✔ one exact browser header is required even when Node discards duplicate headers (0.3246ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2157.1203
