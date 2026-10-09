@@ -29,6 +29,8 @@ Updated 2026-10-09 by Codex, solo. Branch: `codex/new-tristram-town`. Read [AGEN
 
 C028 adds VERSIONS.md, five primary source records and five scoped claims. PoE1/2 index versions are established; installed clients and full patch reconciliation remain unverified.
 
+C029 adds a naturally earned Mage item/rune/tier/refund/reconnect observation, nine inspected local Chrome1080p frames and item/stat conservation checks. FIRST-DECISIONS-REPORT.md separates assisted execution from human discovery; no new tutorial or pacing target.
+
 | Charter | State | Next evidence needed |
 |---|---|---|
 | R-01 D3 | Partial L1/L2; Campaign and Adventure included | Current PC version; both first-session traces; full slots/runes tables for two classes; loot/system/UI detail |
@@ -45,7 +47,7 @@ C028 adds VERSIONS.md, five primary source records and five scoped claims. PoE1/
 | R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
 | R-13 UI/accessibility | Basic guidelines read | Actual task/contrast/input/settings audit; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
-| R-15 onboarding | One primary study plus local scripted first-session trace; partial | Reference-game traces, first gear/skill decisions and unfamiliar Hearthfall player observations |
+| R-15 onboarding | One primary study; scripted first session and earned equipment/skill decisions; partial | Reference-game traces, broader classes/error flows and unfamiliar Hearthfall player observations |
 | R-16 legal/privacy/licences | CPC/EDPB and 23 installed production licence reviews | Distribution notices; build tooling; national rules, ages/ratings/IP |
 | R-17 platforms | Steam input/display criteria read | Packaging/review/cloud/input/localization; device tests |
 | R-18 art pipeline | Pixi8 performance guidance read | Rig/style/memory audit and real profiles; no town restyle |

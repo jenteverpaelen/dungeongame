@@ -12,7 +12,7 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P3 Foundations | Independent subset active | Strict verify passes; save failure handling, Windows shutdown, verified backup/restore, connection-local replay protection, audio/shake settings, keyboard rebinding and content integrity checks added. Auth, durable transactions, backup rotation, remaining settings and independent review stay open |
 | P4 Combat/builds | Existing game preserved; measured descriptions corrected | Repeated field calibration available; human targets and owner playtest remain open |
 | P5 Quests/dialogue | Not implemented | P3 state safety and supported objective design |
-| P6 Onboarding | Scripted baseline recorded; false mouse cue corrected; no new tutorial | P5, first gear/skill actions, reference footage and unfamiliar-player evidence |
+| P6 Onboarding | Scripted baseline and earned first gear/skill actions recorded; false mouse cue corrected; no new tutorial | P5, broader error flows, reference footage and unfamiliar-player evidence |
 | P7 Early world | Not implemented | P4–P6 and measured content cost |
 | P8 Economy | Not implemented | Sources/sinks, persistence and anti-dupe evidence |
 | P9 Mid game | Not implemented | Verified early-game content and build progression |

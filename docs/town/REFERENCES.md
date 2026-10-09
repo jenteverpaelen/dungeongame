@@ -209,3 +209,7 @@ BUILD-REPORT.md records a Frost Hydra cone/shard mismatch and static buff percen
 ### L39 — Calibrate field rewards without clearing the bag, 2026-10-09
 
 Roadmap F-TEL-02, R14's measurement method and current `sim.ts`, Instance/loot/progression code precede FIELD-CALIBRATION-PLAN.md. The old regression bot has whole-map target knowledge and silently deletes non-legendary/non-set inventory above50 entries. Its XP check uses a monotonic synthetic level marker, not actual cumulative XP. Keep those regression checks intact but do not turn them into economy telemetry. Measure actual XP, full inventory retention, spawned/picked/remaining rewards and tick-resolution kill-time samples in a separately scoped calibration. IDLE-04 reinforces distinguishing active simulation from offline grants; no imported balance values.
+
+### L40 — Observe earned first equipment and skill decisions, 2026-10-09
+
+R15/UX-CHI12 require separating scripted execution from human discovery. FIRST-SESSION-REPORT and C027 leave successful early equipment/rune decisions unobserved. Read existing inventory tooltips/equip handling, skill selection/refund controls and real movement/loot replication before FIRST-DECISIONS-PLAN.md. POE2-05 supplies a comparison-feedback question, not an instruction to copy UI. Use a fresh character, earned drops/levels, existing controls and server validation; preserve camera/style/town. No tutorial timing, reward or level target follows from one assisted trace.

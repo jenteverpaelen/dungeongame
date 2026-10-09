@@ -15,3 +15,5 @@ Completion requires versioned first-session traces for each requested game and a
 ## Local scripted baseline [M], 2026-10-09
 
 [First-session report](../../phase/P01-research/FIRST-SESSION-REPORT.md) and twelve inspected local Chrome frames establish the current class-selection, Help, Skills, inventory and Waypoint flow. A fresh Mage reaches level two and receives Meteor automatically after normal field movement. The primary mouse/LMB cue conflicts with actual automatic combat. No human discovery, retention or first successful gear/rune decision is established. The route helper did not produce a town walk: spawn already equals the Waypoint approach. Keep these limits when choosing a correction.
+
+The later [earned-decision trace](../../phase/P01-research/FIRST-DECISIONS-REPORT.md) closes the scripted equipment/rune/tier/refund/reconnect gap for one fresh Mage, with nine inspected frames. It uses natural rewards and assisted movement; human discovery and reference timelines remain open. It does not retroactively change the earlier baseline.
