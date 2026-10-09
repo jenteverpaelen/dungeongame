@@ -110,6 +110,7 @@ class Bot {
   lastAck = 0;
   seq = 0;
   private nextCmd = 1;
+  lastCommandId = 0;
   private pending = new Map<number, (r: Res) => void>();
   welcomeAt = 0;
 
@@ -212,12 +213,13 @@ class Bot {
     return this.rawCmd(op, a, timeoutMs);
   }
 
-  async rawCmd(op: CmdOp | string, a?: Record<string, unknown>, timeoutMs = 6000): Promise<Res> {
+  async rawCmd(op: CmdOp | string, a?: Record<string, unknown>, timeoutMs = 6000, retryId?: number): Promise<Res> {
     const wait = this.lastCmdAt + 25 - Date.now();
     if (wait > 0) await sleep(wait);
     this.lastCmdAt = Date.now();
     return new Promise((resolve) => {
-      const id = this.nextCmd++;
+      const id = retryId ?? this.nextCmd++;
+      this.lastCommandId = id;
       const timer = setTimeout(() => { this.pending.delete(id); resolve({ ok: false, err: 'TIMEOUT' }); }, timeoutMs);
       this.pending.set(id, (r) => { clearTimeout(timer); resolve(r); });
       this.send({ t: 'cmd', id, op: op as CmdOp, a });
@@ -725,6 +727,13 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   const r1 = b.gem('ruby:1'), r2 = b.gem('ruby:2');
   r = await b.cmd('fuseGem', { gem: 'ruby', rank: 1 });
   c('fuseGem turns 3 gems into 1 of the next rank', r.ok && b.gem('ruby:1') === r1 - 3 && b.gem('ruby:2') === r2 + 1, { r, g: b.char.gems });
+  const fusionId = b.lastCommandId, fusionReply = r;
+  const afterFusion = JSON.stringify({ gems: b.char.gems, gold: b.char.gold, cube: b.char.cube });
+  const repeatedFusion = await b.rawCmd('fuseGem', { rank: 1, gem: 'ruby' }, 6000, fusionId);
+  c('replayed fusion returns the original result', JSON.stringify(repeatedFusion) === JSON.stringify(fusionReply), repeatedFusion);
+  c('replayed fusion preserves gems, payment and Cube XP', JSON.stringify({ gems: b.char.gems, gold: b.char.gold, cube: b.char.cube }) === afterFusion);
+  const mismatchedFusion = await b.rawCmd('fuseGem', { gem: 'ruby', rank: 2 }, 6000, fusionId);
+  c('reusing fusion ID for changed parameters is refused', !mismatchedFusion.ok && mismatchedFusion.err?.includes('different'), mismatchedFusion);
   r = await b.cmd('fuseGem', { gem: 'ruby', rank: 6 });
   c('fuseGem at max rank rejected', !r.ok, r);
   r = await b.cmd('fuseGem', { gem: 'ruby', rank: 5 });

@@ -1,7 +1,7 @@
 // WebSocket transport with MessagePack framing, request/response commands and RTT measurement.
 
 import { Packr } from 'msgpackr';
-import type { C2S, CmdOp, S2C } from '@shared/protocol';
+import { COMMAND_TIMEOUT_MS, type C2S, type CmdOp, type S2C } from '@shared/protocol';
 import type { CmdResult } from './api';
 
 const packr = new Packr({ useRecords: false });
@@ -59,7 +59,7 @@ export class Connection {
     return new Promise((resolve) => {
       if (!this.open) { resolve({ ok: false, err: 'Not connected' }); return; }
       const id = this.nextCmd++;
-      const timer = window.setTimeout(() => { this.pending.delete(id); resolve({ ok: false, err: 'Server did not respond' }); }, 8000);
+      const timer = window.setTimeout(() => { this.pending.delete(id); resolve({ ok: false, err: 'Server did not respond' }); }, COMMAND_TIMEOUT_MS);
       this.pending.set(id, { resolve, timer });
       this.send({ t: 'cmd', id, op, a });
     });

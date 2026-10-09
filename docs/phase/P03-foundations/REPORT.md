@@ -62,3 +62,13 @@ Measured: a configured server writes a completed bundle; CLI verification and re
 Initial runtime test failed because it waited for `char`; the existing protocol sends the initial character inside `welcome`. Inspection confirmed successful login; the harness was corrected, then the targeted drill and entire suite passed. No server behavior was changed to appease that test.
 
 No power-loss, multiprocess, off-device, retention-rotation, large-save-volume, hostile local operator, full security or fresh visual-performance claim. Raw-byte archive validity is separate from save-schema validity. All fixtures are synthetic, all DATA_DIRs isolated, and only child processes launched by the drill are stopped.
+
+## Command replay follow-up
+
+The pre-fix fixture sends the same fusion ID twice through actual Session/MessagePack handling beside the jeweler. Gold moves from 999,998,500 after the first fusion to 999,997,000 after the repeat; rank-2 gems increase from one to two and Cube XP from eight to sixteen. The new regression assertion fails before implementation. Post-fix all three values stay at their first-action result; a new ID still performs a second paid action.
+
+Six targeted tests cover this mutation, reordered keys, changed payload/operation, failed service/debug replays after state changes, malformed IDs/arguments, independent connection histories, mutable result snapshots, handler exceptions, count/byte eviction and oversized results. Initial typecheck found an optional assertion-message overload in the test; fixed without changing game code.
+
+Strict full `npm run verify` passes at `hearthfall-verify-GEEi27`: **748 server checks, 382 simulation checks and every other stage**. The network suite repeats successful fusion and altered arguments over real WebSockets for warrior/ranger/mage. [Exact stage report](checks/command-replay-verify-report.json). Build retains the large-chunk warning. The only client code edit extracts its unchanged eight-second timeout into a shared constant; no visual change or new screenshot is claimed.
+
+Receipts are memory-only and scoped to a connection. Evicted IDs cannot mutate but cannot recover their original answer. Logical serialized cache size/count is bounded; this is not a measured heap profile or 100-player benchmark. No crash-safe ledger, automatic retry, asynchronous-handler support, transactional rollback or independent security review is claimed.

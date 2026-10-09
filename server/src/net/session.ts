@@ -13,13 +13,14 @@ import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { CLASSES } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
-import { PROTOCOL_VERSION, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
 import { decode, encode } from './codec';
+import { CommandReceipts } from './commandReceipts';
 
 /** Messages accepted per second per connection; the rest are dropped. */
-export const MAX_MSGS_PER_SEC = 60;
+export const MAX_MSGS_PER_SEC = MAX_MESSAGES_PER_SECOND;
 /** A client that keeps flooding past this many dropped messages per second is disconnected. */
 const FLOOD_KICK_DROPS = 600;
 /** Minimum spacing between `char` updates triggered by markDirty (ms). */
@@ -71,6 +72,7 @@ export class Session implements PlayerLink {
   private derivedLevel = 0;
   private playMark = 0;
   private kicking = false;
+  private commandReceipts = new CommandReceipts();
 
   constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
     this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, HELLO_TIMEOUT_MS);
@@ -233,22 +235,26 @@ export class Session implements PlayerLink {
   private onCmd(msg: Extract<C2S, { t: 'cmd' }>): void {
     const id = msg.id;
     if (typeof id !== 'number' || !Number.isFinite(id)) return;
-    let r: CmdResult;
-    if (typeof msg.op !== 'string') {
-      r = fail('Bad command');
-    } else {
-      try {
-        r = runCommand(this, this.world, msg.op as CmdOp, isRecord(msg.a) ? msg.a : {});
-      } catch (err) {
-        console.error(`[session] command ${msg.op} failed for ${this.name}:`, err);
-        r = fail('Server error');
+    const args = msg.a === undefined ? {} : msg.a;
+    const res = this.commandReceipts.execute(id, msg.op, args, () => {
+      let r: CmdResult;
+      if (typeof msg.op !== 'string' || !isRecord(args)) {
+        r = fail('Bad command');
+      } else {
+        try {
+          r = runCommand(this, this.world, msg.op as CmdOp, args);
+        } catch (err) {
+          console.error(`[session] command ${msg.op} failed for ${this.name}:`, err);
+          r = fail('Server error');
+        }
       }
-    }
+      const reply: Extract<S2C, { t: 'res' }> = { t: 'res', id, ok: r.ok };
+      if (r.err !== undefined) reply.err = r.err;
+      if (r.data !== undefined) reply.data = r.data;
+      return reply;
+    });
     // The client updates its character from `char`; deliver it before the response.
     if (this.state === 'ready') this.flushChar();
-    const res: Extract<S2C, { t: 'res' }> = { t: 'res', id, ok: r.ok };
-    if (r.err !== undefined) res.err = r.err;
-    if (r.data !== undefined) res.data = r.data;
     this.send(res);
   }
 

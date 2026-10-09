@@ -169,3 +169,7 @@ Local registry consumers and Runic's historical GUTS data-editor documentation a
 ### L29 — JSON store and verified restore, 2026-10-09
 
 Current persistence/queue audit, local storage measurements, Node exclusive creation/copy contract and the roadmap's backup requirement precede `docs/phase/P03-foundations/BACKUP-DESIGN.md`. Preserve JSON/IDs, capture through the server's queues, publish a checked manifest and restore only into a new destination. No real-save migration, deletion or town change. Retention/off-device policy and multi-process ownership remain separate.
+
+### L30 — Command replay boundary, 2026-10-09
+
+Actual client ID/timeout behavior, server dispatch/limits, AWS's request-identifier/atomicity/retention discussion and RFC6455 framing rules precede `docs/phase/P03-foundations/COMMAND-REPLAY-DESIGN.md`. Reproduce repeat effects, then protect this connection's requests without promising cross-reconnect or crash-safe transactions. No service costs, town or UI changes.

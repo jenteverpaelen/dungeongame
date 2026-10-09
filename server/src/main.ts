@@ -11,6 +11,7 @@ import { createStaticHandler } from './net/static';
 import { ensureDataDir, flushSaves } from './persistence';
 import { World } from './world';
 import { TICK_MS } from '../../shared/src/constants';
+import { MAX_MESSAGE_BYTES } from '../../shared/src/protocol';
 
 const HEARTBEAT_MS = 15_000;
 const MAX_CATCHUP_TICKS = 4;
@@ -50,7 +51,7 @@ async function main(): Promise<void> {
 
   // ─────────────────────────── WebSocket ───────────────────────────
 
-  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024, perMessageDeflate: false });
+  const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE_BYTES, perMessageDeflate: false });
   server.on('upgrade', (req, socket: Socket, head) => {
     const path = (req.url ?? '/').split('?')[0];
     if (path !== '/ws') {

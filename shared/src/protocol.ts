@@ -6,6 +6,10 @@ import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
 export const PROTOCOL_VERSION = 1;
+// Existing transport budgets, shared with the connection-local receipt window.
+export const MAX_MESSAGE_BYTES = 64 * 1024;
+export const MAX_MESSAGES_PER_SECOND = 60;
+export const COMMAND_TIMEOUT_MS = 8000;
 
 export type EntKind = 'player' | 'mob' | 'summon' | 'loot' | 'npc' | 'portal';
 
@@ -177,6 +181,8 @@ export type CmdOp =
 export type C2S =
   | { t: 'hello'; name: string; classId: ClassId; v: number }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
+  // IDs are positive safe integers, strictly increasing for new requests on a connection.
+  // Reusing an ID means retrying that request, not performing another action.
   | { t: 'cmd'; id: number; op: CmdOp; a?: Record<string, unknown> }
   | { t: 'chat'; text: string }
   | { t: 'ping'; c: number };
