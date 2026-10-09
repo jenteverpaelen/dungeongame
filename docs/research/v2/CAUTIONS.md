@@ -31,3 +31,13 @@ These rules explain scope and future consequences without removing working conte
 | Service lifetime and chronology | CASE-03/04:shutdown announcement with conflicting page/body dates | Plan export/recovery; do not infer actual shutdown or its causes from metadata alone |
 
 Developer incident reports do not quantify prevalence or retention. Consumer criticism is not a court ruling. No policy for penalties,compensation,paid currency or hosting lifetime is adopted from these cases.
+
+## Ownership transitions — C067
+
+| Case | Evidence and limit | Rule / status here |
+|---|---|---|
+| Character transfer leaves shared storage behind | D2R-04:versioned publisher recovery instructions | Future migrations must inventory every selected container and preserve recovery; no live migration selected |
+| Temporary withdrawal storage expires | D2R-05:historical seasonal policy | Do not silently introduce item deletion; Hearthfall has no selected season/reset rule |
+| Similar labels conceal different owners | WOW-01–03:documented scope distinctions | State actor,account and binding scope explicitly; current character stash remains |
+
+These are documented rules and scope hazards, not measured defect prevalence or proof that the same failures occur here.

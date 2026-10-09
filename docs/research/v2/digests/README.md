@@ -33,4 +33,4 @@ These13 digests use the same questions but have narrower source-only coverage; t
 - [Drakensang Online](drakensang-online.md)
 - [Old School RuneScape](old-school-runescape.md)
 
-There are now19 named-game digests. WoW and Diablo II Resurrected economy examples still need their own evidence/digests; unspecified survivors-likes are not silently represented by Vampire Survivors. No owner review or full G1 completion is claimed.
+C067 adds [World of Warcraft](world-of-warcraft.md) and [Diablo II Resurrected](diablo2-resurrected.md), bringing the index to21 named-game digests. Their ownership examples do not complete the economy charter. Unspecified survivors-likes are not silently represented by Vampire Survivors. No owner review or full G1 completion is claimed.

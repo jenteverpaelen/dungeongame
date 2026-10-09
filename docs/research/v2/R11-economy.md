@@ -14,10 +14,16 @@ First measure currency creation and destruction by operation; inventory transfer
 
 ## Charter gaps
 
-WoW and D2R binding/trading, public anti-dupe/RMT reports, TBH fee rules and measured binding effects remain unresolved. The initial source/sink map of Hearthfall must be based on code paths, including AFK and crafting, not a generic MMO diagram.
+C067 documents scoped WoW ownership/binding and D2R migration/visibility examples below. Their complete current trading rules, public anti-dupe/RMT reports, TBH fee rules and measured binding effects remain unresolved. The initial source/sink map of Hearthfall must be based on code paths, including AFK and crafting, not a generic MMO diagram.
 
 ## Local rules inventory and probes [M], 2026-10-09
 
 [ECONOMY-REPORT.md](../../phase/P01-research/ECONOMY-REPORT.md) now maps actual grants, consumption and transfers. Sixty deterministic offline cases, fifteen cost fixtures and a Fortune-aware upgrade expectation are recorded separately from player rates. Offline uses a fixed assumed 15 kills/minute; normal versus higher difficulty and pure weapon-DPS changes do not alter those rewards. Comments were corrected, not rewards. Enchant payment/selection semantics, action frequencies, pickup losses and active/idle fairness still need observation before tuning. The generic salvage XP field differs from the actual rarity-specific handler; future tooling must preserve that distinction.
 
 C045 adds the equal-question [loot comparison](LOOT.md), including historical/source limits and Hearthfall's actual generation/acquisition paths. External rate tables and timed first-upgrade distributions remain unresolved.
+
+## Ownership and migration examples — C067
+
+WOW-01–03 distinguish storage ownership, an equip-time binding transition and currency transfer. D2R-01–05 separate display filtering, collection history, era migration and historical seasonal expiry. Read the [WoW](digests/world-of-warcraft.md) and [D2R](digests/diablo2-resurrected.md) digests for versions and source links.
+
+Inference: an item can be hidden or inaccessible without being destroyed; an account/character/version boundary must be explicit before a transfer. Existing60-slot character stash and save ownership remain. Neither source set establishes market health, transaction implementation or safe anti-dupe behavior. WoW trade/scam support bodies were inaccessible; search snippets are leads only.

@@ -45,7 +45,7 @@ C032 adds a third complete published D3 class progression read, Runic's separate
 | R-08 survivors games | L1 publisher loop; feel unmeasured | Observed combat, evolution, other games and transfer limits |
 | R-09 Last Epoch / Grim Dawn / Infinite | Partial L1/L2 for each | Crafting/filters/first session/endgame; Infinite is not II |
 | R-10 case studies | Partial; five named games now have scoped evidence and digests (C066) | Independent causal evidence,actual outcomes,retention and current-client scope |
-| R-11 economy/trading | Partial L2; OSRS versioned sinks plus local source/sink map and deterministic cost/offline probes | Enchant transitions; active rates; WoW/D2R/binding/anti-dupe |
+| R-11 economy/trading | Partial L2; OSRS sinks,WoW/D2R ownership examples and local economic probes | Active rates,current binding/trading,anti-dupe/RMT and measured effects |
 | R-12 technology/operations | Primary Node24.19/OWASP/SQLite, code audit and local candidate measurements | Real server contention/crash recovery; accounts/recovery/free-host limits |
 | R-13 UI/accessibility | Basic/remapping/flash guidance; local keyboard and optional flash checks | Broader task/contrast/input/effects audit and human evaluation; approved style preserved |
 | R-14 balance math | Local baseline + conference companion | Full formulas/models/player observations; no target numbers adopted |
@@ -114,3 +114,5 @@ C064 adds the full147-feature comparison across seven priority game/mode columns
 C065 completes an isolated objective-state transaction experiment:13 tests cover eight kinds,acquisition versus possession,full-bag retry,pinned definitions and six owned-child crashes during delivery/claim. Online backup reproduces combined state; older restore reinstates old claim eligibility. No live quest,UI,storage migration or reward policy is added. Production identity,event authority,history bounds,party/repeat and recovery remain open. See phase/P01-research/QUEST-STATE-REPORT.md from the docs root; continue broader digests and integration evidence.
 
 C066 adds13 broader-game/economy digests (19 total),six sources and eight scoped claims,including first Immortal/Drakensang incident evidence and a Wolcen date contradiction. Cautions distinguish developer reports,consumer criticism and unverified outcomes. Cumulative173 sources/163 claims;media/atlas unchanged. No game change. WoW/D2R economy digests and broader factual/current-client evidence remain open;continue the whole roadmap.
+
+C067 adds WoW/D2R ownership and migration examples:four sources,eight claims and two digests (21 named games total). All external balance flags remain false;177 sources/171 claims,media unchanged. Existing character stash and runtime remain unchanged. Current trade rules,economic effects,broader matrices,legacy-dossier status and download inventory remain research work; no G1 completion.
