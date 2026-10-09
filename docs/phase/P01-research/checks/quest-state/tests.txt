@@ -1,0 +1,21 @@
+✔ all eight kinds retain progress across reopen; delivery consumes ownership but not collection history (81.3921ms)
+✔ wrong fields for all eight kinds and wrong kind earn no credit (19.5788ms)
+✔ pre-accept credit stays ignored on retry; receipts reject changed intent and are actor-scoped (15.1085ms)
+✔ full-bag acquisition and missing delivery leave no partial progress; same acquisition retries after delivery (15.4889ms)
+✔ reward capacity failure is atomic and retries after another quest frees space (14.6941ms)
+✔ accepted definition is pinned; prerequisite requires claim; integer overflow refuses all reward effects (13.6544ms)
+✔ delivery: crash at after-actor reopens consistently and retries once (163.2062ms)
+✔ delivery: crash at before-commit reopens consistently and retries once (153.5489ms)
+✔ delivery: crash at after-commit reopens consistently and retries once (152.5869ms)
+✔ claim: crash at after-actor reopens consistently and retries once (149.9127ms)
+✔ claim: crash at before-commit reopens consistently and retries once (152.127ms)
+✔ claim: crash at after-commit reopens consistently and retries once (151.6884ms)
+✔ online backup preserves combined state; old restore reinstates old claim eligibility (31.5182ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1675.8402

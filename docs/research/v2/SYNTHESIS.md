@@ -18,3 +18,5 @@ Evidence: D3-07/09/29/32/33/34; IDLE-04/09/11/12; TBH-03/05/06/08/11/12/14; POE-
 No campaign length, class count, XP/drop curve, quest reward, respec fee, season reset or social policy is selected. The broader roadmap remains active. The next implementation candidate is a synthetic objective-state experiment with no production save migration or reward grant; its design and acceptance must be recorded separately before code.
 
 **Removal and rollback:** no game content is removed. Current-status prose is corrected where later observations supersede missing-pixel claims; historical records remain. A stronger source can supersede an inference without changing saves or gameplay. Owner review of these digests has not been claimed.
+
+C065 follows the candidate sequence above with an [isolated objective-state experiment](../../phase/P01-research/QUEST-STATE-REPORT.md):13 passing tests,six crash boundaries and explicit restore limits. Production integration remains dependent on identity,durable event generation,party/repeat and recovery policy. No new live quest or progression rule follows.

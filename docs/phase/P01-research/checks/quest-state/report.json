@@ -1,0 +1,27 @@
+{
+  "checkpoint": "C065",
+  "checkedAtUtc": "2026-10-09T13:23:54.1892786Z",
+  "node": "v24.19.0",
+  "sqlite": "3.53.3",
+  "platform": "Windows",
+  "passed": 13,
+  "failed": 0,
+  "objectiveKinds": 8,
+  "forcedOwnedChildCrashes": 6,
+  "strictStandaloneTypecheck": "passed",
+  "testDataDir": "hf-quest-state-ac0c20cd37944b54b8adffd708205044",
+  "typecheckDataDir": "hf-quest-state-typecheck-a7c66de832ce464db3ae93948c206148",
+  "integrityDataDir": "hf-quest-state-integrity-2acdf3f7e6ba4485854df600c13590cc",
+  "backupDir": "",
+  "backupKeep": 0,
+  "productionImportsFound": 0,
+  "realSaveDataRead": false,
+  "newDependencies": 0,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "decisions": 40,
+    "features": 147,
+    "screens": 86
+  },
+  "scope": "Trusted synthetic single-actor state and SQLite transactions; no live server/UI/account/storage migration; no throughput,party,disk/power-loss or cross-restore exactly-once claim"
+}
