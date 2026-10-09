@@ -5,6 +5,9 @@ import type { Item } from './types';
 
 export interface AdventureData {
   id: string;
+  surface?: 'masonry';
+  /** Ordered, explicitly activated encounters in a private dungeon. */
+  dungeon?: { stages: { id: string; trigger: string; encounter: string; area: Point[] }[] };
   size: [number, number];
   geometry: GroundGeometry;
   paths: { points: Point[]; width: number; bridge?: boolean }[];

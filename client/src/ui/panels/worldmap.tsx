@@ -16,7 +16,7 @@ import { openJournal } from './adventure';
 import { run } from './util';
 
 // Original diagram composition only; no geographical distance claim.
-const POS:Record<string,[number,number]>={hearthmere:[19,52],whispering_glade:[49,18],ashen_hollow:[49,83],rillwake_crossing:[51,50],bracken_sluice:[83,50]};
+const POS:Record<string,[number,number]>={hearthmere:[19,52],whispering_glade:[49,18],ashen_hollow:[49,83],rillwake_crossing:[51,50],bracken_sluice:[83,50],reedvault_pumpworks:[83,83]};
 const edges=worldConnections();
 const regions=Object.values(ZONES).filter(z=>z.kind!=='rift');
 
@@ -25,7 +25,7 @@ function routeLock(save:CharacterSave,id:string) {
 }
 
 export function WorldMapPanel() {
-  const save=useUI(s=>s.char),zone=useUI(s=>s.zone),me=useUI(s=>s.me);
+  const save=useUI(s=>s.char),zone=useUI(s=>s.zone),me=useUI(s=>s.me),dungeon=useUI(s=>s.dungeon);
   const [view,setView]=useState<'routes'|'area'>('routes');
   const [selected,setSelected]=useState(zone?.zone??'hearthmere');
   const [busy,setBusy]=useState(false);
@@ -35,14 +35,14 @@ export function WorldMapPanel() {
   if(!save||!zone)return null;
   const def=ZONES[selected]??ZONES.hearthmere;
   const quest=trackedQuest(save),objective=quest&&questObjective(save,quest);
-  const point=map&&objective&&questPoint(map,objective,save);
+  const point=map&&(dungeon?questPoint(map,{zone:map.zone,target:dungeon.target},save):objective&&questPoint(map,objective,save));
   const route=objective?zoneRoute(zone.zone,objective.zone,id=>zoneUnlocked(save,id)):[];
   const locked=routeLock(save,def.id),tooLow=save.level<def.levelBand[0],here=zone.zone===def.id;
   const near=(p:{x:number;y:number},r:number)=>!!me&&!me.dead&&me.hp>0&&Math.hypot(me.x-p.x,me.y-p.y)<=r&&!cw?.segmentBlocked(me.x,me.y,p.x,p.y);
   const waypoint=map?.town?.npcs.find(n=>n.role==='waypoint');
   const besideWaypoint=!!waypoint&&near(waypoint,waypoint.interactionRadius);
   const besideExit=map?.portals.some(p=>p.to===def.id&&near(p,110));
-  const canTravel=!here&&!locked&&!tooLow&&!me?.dead&&(besideWaypoint||besideExit);
+  const canTravel=!here&&!locked&&!tooLow&&!me?.dead&&((besideWaypoint&&def.kind!=='dungeon')||besideExit);
   const travel=async()=>{setBusy(true);try{const r=await run('travel',{zone:def.id});if(r.ok)togglePanel('worldmap',false);}finally{setBusy(false);}};
   return <PanelFrame id="worldmap" title={t('map.title')} width={720} sub={zone.name}>
     <Tabs tabs={[{id:'routes',label:t('map.routes')},{id:'area',label:t('map.area')}]} value={view} onChange={setView}/>

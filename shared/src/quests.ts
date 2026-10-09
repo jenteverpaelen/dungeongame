@@ -54,7 +54,8 @@ export function questAtTarget(save:CharacterSave,zone:string,target:string):Ques
 }
 export function questPoint(map:MapData,target:QuestTarget,save?:CharacterSave):{x:number;y:number}|undefined {
   if(map.zone!==target.zone)return nextTravelPoint(map,target.zone,save?(id)=>zoneUnlocked(save,id):undefined);
-  return map.adventure?.interactions.find(i=>i.id===target.target)
+  const stage=map.adventure?.dungeon?.stages.find(s=>s.id===target.target);
+  return map.adventure?.interactions.find(i=>i.id===(stage?.trigger??target.target))
     ??map.town?.npcs.find(i=>i.id===target.target)
     ??map.adventure?.encounters.find(e=>e.id===target.target)
     ??map.adventure?.locations.find(l=>l.id===target.target);

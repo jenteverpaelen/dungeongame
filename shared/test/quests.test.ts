@@ -35,3 +35,10 @@ test('count authoring and saved partial progress reject unsafe or incompatible v
   for(const count of [0,-1,NaN,Infinity,1.5,Number.MAX_SAFE_INTEGER+1])assert(validateQuests([{...q,steps:[{...q.steps[0],count}]}]).some(e=>e.includes('count must')));
   assert(validateQuests([{...q,steps:[{...q.steps[0],monsterType:'missing'}]}]).some(e=>e.includes('invalid monster')));
 });
+
+test('wave objectives require an actual authored dungeon stage and one completion',()=>{
+  const q=structuredClone(QUESTS.find(q=>q.id==='pressure_below')!);q.requires=[];
+  assert.deepEqual(validateQuests([q]),[]);
+  q.steps[0].target='missing';assert(validateQuests([q]).some(e=>e.includes('unknown wave target')));
+  q.steps[0].target='west';q.steps[0].count=2;assert(validateQuests([q]).some(e=>e.includes('count must be one')));
+});

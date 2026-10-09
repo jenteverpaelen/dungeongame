@@ -5,7 +5,7 @@ export interface QuestTarget { zone: string; target: string }
 export interface QuestStep extends QuestTarget {
   id: string;
   text: QuestMessageKey;
-  kind: 'interact' | 'kill' | 'reach' | 'collect' | 'service';
+  kind: 'interact' | 'kill' | 'reach' | 'collect' | 'service' | 'wave';
   /** Successful server events required; omitted means one. */
   count?: number;
   monsterType?: string;

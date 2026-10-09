@@ -36,6 +36,7 @@ export class Spawner {
   init() {
     const inst = this.inst;
     if (inst.kind === 'town') { this.spawnDummies(); return; }
+    if (inst.kind === 'dungeon') return; // Authored mechanisms own this instance's finite encounters.
     this.slots = inst.map.spawns.map((s) => ({ x: s.x, y: s.y, pack: null }));
     if (inst.kind === 'field') this.initField();
     else this.initRift();

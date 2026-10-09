@@ -10,6 +10,7 @@ import { AdventureTracker } from '../panels/adventure';
 import { questObjective, questPoint, trackedQuest } from '@shared/quests';
 import { ui, togglePanel } from '../store';
 import { text } from '../../i18n/messages';
+import { questText } from '@shared/data/questMessages';
 
 const SIZE = 440;
 const ZOOMS = [520, 800, 1250];
@@ -114,7 +115,8 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   const save=ui.get().char, adventure=baked.map.adventure;
   if(save && adventure) {
     const quest=trackedQuest(save);
-    const point=quest&&questPoint(baked.map,questObjective(save,quest),save);
+    const dungeon=ui.get().dungeon;
+    const point=dungeon?questPoint(baked.map,{zone:baked.map.zone,target:dungeon.target},save):quest&&questPoint(baked.map,questObjective(save,quest),save);
     if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
   }
   for (const n of baked.map.npcs) npcIcon(g, n.role, px(n.x), py(n.y));
@@ -240,7 +242,7 @@ export function ZonePlate() {
     <div class="zone-plate">
       <div class="zp-name">{zone.name}</div>
       <div class="zp-sub">
-        {!inRift && <span>Channel {zone.channel}</span>}
+        {!inRift && <span>{zone.kind==='dungeon'?questText('quest.pump.solo'):`Channel ${zone.channel}`}</span>}
         {inRift && rift && <span class="zp-clock">{fmtClock(rift.elapsedMs)}</span>}
         {diff && <span class="zp-diff">{diff}</span>}
       </div>

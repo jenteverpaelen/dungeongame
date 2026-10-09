@@ -1,0 +1,41 @@
+# Reedvault Pumpworks — C075
+
+Implemented on the owner's PC, solo, 2026-10-09. Research L89, decision D030 and PUMPWORKS-PLAN.md preceded code. This advances Claude P7 objective dungeons and P5 wave objectives. It does not complete either phase.
+
+## Playable scope
+
+An optional hatch in Bracken Sluice opens after the existing Under the Spillway quest is claimed. Reedvault Pumpworks is an original masonry dungeon with two filter chambers, a connecting loop, a pump chamber and a return stair. Turn the west wheel, defeat its four enemies, then the east wheel and its five enemies, then activate and defeat the Sumpbound Keeper. These populations and the keeper's behavior reuse existing Bracken encounters; they are not new monster families or measured balance targets. The optional Pressure Below quest records the three clears, recovery of a maintenance record and return to Orren for the existing reserved class-appropriate magic weapon reward.
+
+The dungeon has a private solo instance per character. There is no public channel, Waypoint entry or party-sharing claim. Entry and mechanism activation require authoritative physical proximity/line of sight. Only deaths of the actual spawned members can clear the active stage. Leaving the chamber, dying, disconnecting or a member disappearing cancels the active encounter without granting clear credit. Remaining enemies and lingering attacks are removed so a retry is possible; enemies already killed retain their normal existing drops/XP. Repeated partial clears therefore remain ordinary farmable combat, not a new completion reward.
+
+Completed stages survive a short return during the existing five-minute empty-instance lifetime. Quest progress survives save/load, but the encounter instance is not a persistent world: after expiry or server restart, earlier rooms may need replaying. Replaying a previously credited room cannot advance the next quest step. A cleared instance starts a fresh run on a later visit. Completing the dungeon without accepting the optional quest does not retroactively award its objectives; accepting later requires another run. The return stair always works and places the player beside Bracken's hatch, outside its collider.
+
+The existing HUD style now shows the current mechanism, active enemies remaining and clear state. Journal and maps show the new quest/route; local guidance prioritizes the current runtime mechanism when earlier rooms need replaying. Floors, buildings, props and NPC collision use shared authored geometry. Masonry rendering is an original first pass using existing code-drawn props. No town, camera, control, skill, item or old quest reward was removed. Existing Under the Spillway progress/revision stays compatible; its claimed state also unlocks the hatch. Protocol version 2 requires client/server to update together for the new dungeon state. No dependency or download was added.
+
+## Research and limits
+
+D3-35 records Blizzard's historical PC 2.0.1 event description: inspecting an object can start a wave encounter. It supports activation/encounter structure, not current D3 runtime rules, our room dimensions or a numerical difficulty target. Room/corridor scale is an explicit local proposal derived from the retained 620-unit camera, existing 230-unit Bracken passages and reused encounter populations. Solo ownership is a bounded decision while roadmap D-26 party policy is unresolved. No reference art, names or text ships.
+
+## Verification
+
+Typecheck, authored-content validation and production build pass. Seventeen distinct focused cases cover the new dungeon, legacy/connected quests, shared quest validation and world navigation; a later seven-case shared rerun is not seven additional distinct cases. Tests cover physical/locked/remote/order entry, separate player instances, actual death versus despawn, death/leave/boundary reset, partial save/load, empty-instance expiry, replay credit, all three classes' reward paths, full-bag refusal/retry and duplicate claims. These fixtures position synthetic players and invoke real death processing; they are not human combat/pacing tests. No repeated full-game suite was run.
+
+All test saves are isolated. Main focused data directory: `hf-pumpworks-tests-1f7528fc011c47ad96f713dec6b68c19`. Browser fixture: `hf-pump-browser-da62d181bbb24ae4ae06b78ec15ae7b6`, debug enabled, backups disabled. PumpC075 is a prepared mage with prerequisite claims and the new quest accepted, not an organically earned progression trace. Infinite HP is enabled for browser field/dungeon walkthroughs and resets on travel. Two restricted content-check attempts failed to resolve the Windows user (`uv_os_get_passwd ENOMEM`); the authorized host run passed. Existing build chunk-size warning remains.
+
+### Owner-reported frozen Chrome tab
+
+The old GuideC073 tab stopped responding while still in Hearthmere; navigation to the new dungeon preview never completed. Its renderer consumed roughly one CPU core while the local HTTP server responded in 137 ms and about 4.5 GB of physical RAM remained free. This is evidence of a stuck page, not a proven root cause. No JavaScript stack was available. The owner closed that tab. A fresh Chrome tab loaded and accepted UI input, zone travel and reload without reproducing the freeze; captured browser warnings/errors were empty. HMR involvement remains an unverified hypothesis. No speculative production fix is claimed.
+
+A separate walkthrough-helper defect was identified: browser focus clears the game's held keys while the helper retained its own held-key list. The Vite-only helper now reasserts its active route's ordinary input each tick. Normal player input is unchanged. Interrupted helper routes are not collision failures or evidence of dungeon completion.
+
+Chrome walkthrough: physical Bracken hatch entry, dungeon load, ordinary keyboard movement and E activation were observed. The west encounter showed four remaining enemies, then cleared through normal automatic combat with infinite HP; both dungeon and quest trackers advanced to the east wheel. The other two stages and final turn-in were covered by server fixtures, not this browser pass. The helper still needed manual correction during the route; no uninterrupted automated route claim is made.
+
+Inspected images: [west chamber, 1920×1080](tour/c075-pumpworks-west.jpg) shows the shared masonry geometry, wheel, lantern, minimap and ready objective; [after west clear, 1920×1022](tour/c075-pumpworks-encounter.jpg) shows loot and the east objective. The latter changed viewport after native keyboard use and is not represented as 1080p. Both retain the diagnostic strip. The active four-enemy count was observed in the live UI but the second still was captured after the enemies died. The broad repeating slabs, sparse set dressing and simple wheel are visibly first-pass art. No final look acceptance is claimed. The captured private-channel label exposed an internal “Channel 0”; the final code replaces that text with “Solo dungeon”, preserving the existing zone-plate style. That final label was typechecked but not recaptured inside the dungeon.
+
+Spot FPS ranged from throttled-looking 10 to 165 during automation; these are not a controlled foreground performance benchmark. After the final label/test-assertion edit, typecheck, the four dungeon cases and build pass again. One restricted rerun failed with the same Windows-user lookup error; the first host rerun failed because the command omitted creation of its fresh temporary directory. Creating that disposable directory resolved the setup failure. These failed attempts are retained here rather than counted as game failures or additional passing cases.
+
+Full normal-health human progression, class balance, production art/ambience, long-running freeze reproduction, multiplayer/party dungeon policy and performance acceptance remain open.
+
+## Rollback
+
+Remove the dungeon entry/content, wave hooks, runtime and conditional UI together; preserve optional saved quest history and existing quest definitions. Removing the hatch removes access to the optional activity, so existing Pressure Below progress would need an explicit migration or retained dormant definition. Do not discard player quest state. A protocol rollback must keep client/server versions aligned. No production save migration occurred.

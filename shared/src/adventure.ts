@@ -1,5 +1,6 @@
 import { RILLWAKE } from './data/rillwake';
 import { BRACKEN } from './data/bracken';
+import { PUMPWORKS } from './data/pumpworks';
 import type { AdventureData } from './adventureTypes';
 import { TILE } from './constants';
 import { T_FLOOR, T_WATER, type MapData } from './mapgen';
@@ -7,7 +8,7 @@ import { inGround } from './townGeometry';
 import type { CharacterSave } from './types';
 
 export const RILLWAKE_ID = 'rillwake_crossing';
-export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN};
+export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN,reedvault_pumpworks:PUMPWORKS};
 export function loadRillwake(seed: number): MapData {
   return loadAdventure(RILLWAKE_ID,seed);
 }

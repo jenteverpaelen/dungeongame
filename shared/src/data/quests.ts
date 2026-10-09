@@ -21,11 +21,21 @@ export const QUESTS: readonly QuestDef[] = [
   },
   {
     id:'under_spillway', revision:1, title:'quest.spillway.title', offer:'quest.spillway.offer', complete:'quest.spillway.complete',
-    rewardText:'quest.reward.weapon', start:orren, finish:orren, requires:['high_water'], reward:'magic_weapon',
+    rewardText:'quest.reward.weapon', start:orren, finish:orren, requires:['high_water'], reward:'magic_weapon', unlocks:'reedvault_pumpworks',
     steps:[
       {id:'approach',kind:'reach',zone:'bracken_sluice',target:'forecourt',text:'quest.spillway.approach'},
       {id:'keeper',kind:'kill',zone:'bracken_sluice',target:'keeper',text:'quest.spillway.keeper'},
       {id:'gate',kind:'interact',zone:'bracken_sluice',target:'floodgate',text:'quest.spillway.gate'},
+    ],
+  },
+  {
+    id:'pressure_below',revision:1,title:'quest.pump.title',offer:'quest.pump.offer',complete:'quest.pump.complete',
+    rewardText:'quest.reward.weapon',start:orren,finish:orren,requires:['under_spillway'],reward:'magic_weapon',
+    steps:[
+      {id:'west',kind:'wave',zone:'reedvault_pumpworks',target:'west',text:'quest.pump.west'},
+      {id:'east',kind:'wave',zone:'reedvault_pumpworks',target:'east',text:'quest.pump.east'},
+      {id:'heart',kind:'wave',zone:'reedvault_pumpworks',target:'heart',text:'quest.pump.heart'},
+      {id:'record',kind:'interact',zone:'reedvault_pumpworks',target:'work_record',text:'quest.pump.record'},
     ],
   },
 ];

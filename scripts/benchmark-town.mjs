@@ -10,6 +10,7 @@ import {createCharacter} from '../shared/src/character.ts';
 import {generateItem} from '../shared/src/items.ts';
 import {Rng} from '../shared/src/math.ts';
 import {CollisionWorld} from '../shared/src/movement.ts';
+import {PROTOCOL_VERSION} from '../shared/src/protocol.ts';
 import {townPath} from '../server/test/townNavigation.ts';
 for (const port of [2578]) await new Promise((resolve,reject)=>{const s=net.createServer();s.once('error',reject);s.listen(port,()=>s.close(resolve));});
 const repo = process.env.TOWN_BENCH_REPO ?? 'C:/Users/LaptopJente/dungeongame';
@@ -51,7 +52,7 @@ const pack=new Packr({useRecords:false});
 for(let i=0;i<99;i++) {
  const ws=new WS('ws://localhost:2578/ws');const b={ws,seq:0,x:actual.position.x,y:actual.position.y,welcome:false,snaps:0,channel:0};clients.push(b);
  ws.on('message',bytes=>{const m=pack.unpack(bytes);if(m.t==='welcome'){b.welcome=true;b.channel=m.zone.channel;}if(m.t==='s'){b.snaps++;if(m.me){b.x=m.me.x;b.y=m.me.y;}}});
- await new Promise((r,j)=>{ws.on('open',r);ws.on('error',j)});ws.send(pack.pack({t:'hello',name:'Crowd'+String(i).padStart(3,'0'),classId:['warrior','ranger','mage'][i%3],v:1}));
+ await new Promise((r,j)=>{ws.on('open',r);ws.on('error',j)});ws.send(pack.pack({t:'hello',name:'Crowd'+String(i).padStart(3,'0'),classId:['warrior','ranger','mage'][i%3],v:PROTOCOL_VERSION}));
  if(i%10===9)await wait(100);
 }
 await until(()=>clients.every(b=>b.welcome));

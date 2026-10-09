@@ -10,6 +10,7 @@ import { QUEST_SERVICE_OPS, type QuestDef, type QuestTarget, type QuestStep } fr
 import { BASES } from './data/items';
 import { SERVICE_ROLE } from './townServices';
 import town from './data/town/hearthmere.json';
+import { inPolygon } from './townGeometry';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
@@ -21,8 +22,9 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
     const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)
       :kind==='reach'?a?.locations.some(i=>i.id===t.target)
       :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
+      :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)
       :kind==='service'?t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&step?.serviceOp&&n.role===SERVICE_ROLE[step.serviceOp])
-      :a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType?m.type===step.monsterType:m.questTarget));
+      :kind==='kill'&&a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType?m.type===step.monsterType:m.questTarget));
     check(!!found,path,`unknown ${kind} target ${t.zone}/${t.target}`);
   };
   for(const q of quests) {
@@ -37,7 +39,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       target(s,s.kind,path,s);
       check(Number.isSafeInteger(s.count??1)&&(s.count??1)>0,path,'count must be a positive safe integer');
       if(q.id==='silent_wheel')check((s.count??1)===1,path,'legacy flag adapter requires single-event steps');
-      if(s.kind==='interact'||s.kind==='reach')check((s.count??1)===1,path,'interaction/reach count must be one');
+      if(s.kind==='interact'||s.kind==='reach'||s.kind==='wave')check((s.count??1)===1,path,'interaction/reach/wave count must be one');
       if(s.monsterType!==undefined)check(s.kind==='kill'&&Object.hasOwn(MONSTERS,s.monsterType),path,'invalid monster type filter');
       if(s.itemBase!==undefined)check(s.kind==='collect'&&Object.hasOwn(BASES,s.itemBase),path,'invalid item base filter');
       if(s.kind==='service')check(!!s.serviceOp&&QUEST_SERVICE_OPS.includes(s.serviceOp),path,'unsupported service operation');
@@ -72,6 +74,19 @@ export function validateAdventures():string[] {
   const check=(ok:boolean,path:string)=>{if(!ok)errors.push(path);};
   for(const id of Object.keys(ADVENTURES)) {
     const map=loadAdventure(id,1),a=map.adventure!,cw=new CollisionWorld(map);
+    check((ZONES[id]?.kind==='dungeon')===!!a.dungeon,`${id}: dungeon runtime/kind mismatch`);
+    if(a.dungeon){
+      const stages=a.dungeon.stages;
+      check(stages.length>0&&new Set(stages.map(s=>s.id)).size===stages.length,`${id}: invalid/duplicate stages`);
+      check(new Set(stages.map(s=>s.trigger)).size===stages.length,`${id}: duplicate mechanism`);
+      check(new Set(stages.map(s=>s.encounter)).size===stages.length&&stages.length===a.encounters.length,`${id}: duplicate/unassigned encounter`);
+      for(const s of stages){
+        const trigger=a.interactions.find(i=>i.id===s.trigger),encounter=a.encounters.find(e=>e.id===s.encounter);
+        check(s.area.length>=3&&s.area.every(p=>p.every(Number.isFinite)),`${id}/${s.id}: invalid arena`);
+        check(!!trigger&&trigger.kind==='mechanism'&&inPolygon(trigger.x,trigger.y,s.area),`${id}/${s.id}: missing/outside mechanism`);
+        check(!!encounter&&encounter.members.length>0&&encounter.members.every(m=>inPolygon(encounter.x+m.dx,encounter.y+m.dy,s.area)),`${id}/${s.id}: missing/outside encounter`);
+      }
+    }
     check(cw.isFree(map.entry.x,map.entry.y,PLAYER_RADIUS),`${id}: blocked entry`);
     for(const e of a.encounters)for(const m of e.members) {
       const def=MONSTERS[m.type];

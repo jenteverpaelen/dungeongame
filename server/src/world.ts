@@ -6,7 +6,7 @@ import { EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
 import type { Session } from './net/session';
-import { FIELD_CHANNEL_CAP, PARTY_MAX, TOWN_CHANNEL_CAP } from '../../shared/src/constants';
+import { FIELD_CHANNEL_CAP, PARTY_MAX, PLAYER_RADIUS, TOWN_CHANNEL_CAP } from '../../shared/src/constants';
 import { FIELD_IDS, ZONES, type Theme, type ZoneKind } from '../../shared/src/data/zones';
 import { Rng } from '../../shared/src/math';
 import { zoneSeed, type MapData } from '../../shared/src/mapgen';
@@ -132,6 +132,8 @@ export class World {
       const idle = now - rec.emptySince;
       if (rec.rift) {
         if (idle >= EMPTY_RIFT_DESTROY_MS) this.destroyRift(rec.rift);
+      } else if (rec.kind === 'dungeon' && idle >= EMPTY_CHANNEL_DESTROY_MS) {
+        rec.inst.destroy();this.recs.delete(rec.key);this.tickErrAt.delete(rec.key);
       } else if (rec.channel > 1 && rec.hostedRifts.size === 0 && idle >= EMPTY_CHANNEL_DESTROY_MS) {
         this.destroyChannel(rec);
       }
@@ -344,7 +346,7 @@ export class World {
     if (!cur) return fail('Not in a zone');
     const def = ZONES[zoneId];
     if (!def || def.kind === 'rift') return fail('Unknown destination');
-    if (!zoneUnlocked(s.save,zoneId)) return fail('Complete High Water with Orren to open this route');
+    if (!zoneUnlocked(s.save,zoneId)) return fail('Complete the preceding adventure with Orren to open this route');
     if (def.kind === 'town') {
       if (cur.kind === 'town') return fail(`You are already in ${def.name}`);
       return this.goHome(s, channel);
@@ -353,6 +355,24 @@ export class World {
     const waypoint = cur.inst.map.town?.npcs.find(n => n.role === 'waypoint');
     const nearWaypoint = waypoint && cur.inst.canInteract(s, waypoint.x, waypoint.y, waypoint.interactionRadius);
     const nearExit = cur.inst.map.portals.some(p => p.to === zoneId && cur.inst.canInteract(s, p.x, p.y, 110));
+    if(def.kind==='dungeon') {
+      if(channel!==undefined)return fail('Solo dungeons have no public channels');
+      if(!nearExit)return fail('Enter through the physical dungeon entrance');
+      const key=`dungeon#${s.save.id}#${zoneId}`;
+      let target=this.recs.get(key);
+      if(target?.members.size===0&&target.inst.dungeonState?.()?.phase==='done'){
+        target.inst.destroy();this.recs.delete(key);this.tickErrAt.delete(key);target=undefined;
+      }
+      if(!target){
+        if([...this.recs.values()].filter(r=>r.kind==='dungeon').length>=MAX_RIFTS)return fail('All dungeon instances are busy; try again shortly');
+        const inst=this.create({zoneId,key,channel:0,seed:zoneSeed(zoneId,0),theme:def.theme,level:s.save.level,difficulty:s.save.difficulty});
+        target={key,zoneId,kind:'dungeon',channel:0,inst,members:new Set(),emptySince:Date.now(),hostedRifts:new Set()};
+        this.recs.set(key,target);
+      }
+      if(target.members.size)return fail('That character already has an active dungeon session');
+      this.enter(s,target,undefined,this.zoneAnnounce);s.saveNow();
+      return ok({zone:zoneId,channel:0});
+    }
     if (!nearWaypoint && !nearExit) return fail('Stand beside the Waypoint or the exit to that destination');
     let target: InstRec;
     if (channel !== undefined) {
@@ -363,7 +383,15 @@ export class World {
       target = this.pickChannel(zoneId);
     }
     if(cur.kind==='town')s.homeTown = cur.key;
-    this.enter(s, target, undefined, this.zoneAnnounce);
+    let arrival:{x:number;y:number}|undefined;
+    if(cur.kind==='dungeon') {
+      const back=target.inst.map.portals.find(p=>p.to===cur.zoneId),cw=new CollisionWorld(target.inst.map);
+      if(back)for(let i=0;i<16;i++){
+        const x=back.x+70*Math.cos(i*Math.PI/8),y=back.y+70*Math.sin(i*Math.PI/8);
+        if(cw.isFree(x,y,PLAYER_RADIUS)){arrival={x,y};break;}
+      }
+    }
+    this.enter(s, target, arrival, this.zoneAnnounce);
     s.saveNow();
     return ok({ zone: zoneId, channel: target.channel });
   }
@@ -378,7 +406,7 @@ export class World {
   channel(s: Session, n: number): CmdResult {
     const cur = s.rec;
     if (!cur) return fail('Not in a zone');
-    if (cur.kind === 'rift') return fail('Rifts have no channels');
+    if (cur.kind === 'rift' || cur.kind === 'dungeon') return fail('Private instances have no channels');
     if (!Number.isInteger(n) || n < 1) return fail('Invalid channel');
     if (n === cur.channel) return fail(`You are already in channel ${n}`);
     const target = this.resolveChannel(cur.zoneId, n);

@@ -10,9 +10,10 @@ function polygon(c:CanvasRenderingContext2D,p:Point[]) { c.beginPath();p.forEach
 
 /** Paint the very same ground union used for swept collision; no blurred collision shoreline. */
 export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,x0:number,y0:number) {
+  const masonry=a.surface==='masonry';
   let boundary=edges.get(a);if(!boundary){boundary=groundBoundary(a.geometry);edges.set(a,boundary);}
   c.save();c.translate(-x0,-y0);
-  c.fillStyle='#263d42';c.fillRect(x0,y0,512,512);
+  c.fillStyle=masonry?'#192a2d':'#263d42';c.fillRect(x0,y0,512,512);
   // Cold, slowly flooded water around the remaining banks. Fine detail is deterministic.
   for(let y=Math.floor(y0/24)*24;y<y0+512;y+=24)for(let x=Math.floor(x0/48)*48;x<x0+512;x+=48) {
     const h=hash2(x,y,71);c.strokeStyle=h>.6?'#354e50':'#2c4548';c.lineWidth=1;
@@ -30,12 +31,16 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
   const gc=grain.getContext('2d')!,im=gc.createImageData(128,128);
   for(let y=0;y<128;y++)for(let x=0;x<128;x++) {
     const wx=x0+x*4,wy=y0+y*4,n=field(wx/170,wy/170,11)*15+field(wx/29,wy/29,12)*8+hash2(wx,wy,17)*5,k=(y*128+x)*4;
-    im.data[k]=49+n;im.data[k+1]=60+n;im.data[k+2]=43+n*.7;im.data[k+3]=255;
+    im.data[k]=(masonry?55:49)+n;im.data[k+1]=60+n;im.data[k+2]=(masonry?57:43)+n*.7;im.data[k+3]=255;
   }
   gc.putImageData(im,0,0);c.drawImage(grain,x0,y0,512,512);
+  if(masonry)for(let y=Math.floor(y0/64)*64;y<y0+576;y+=64)for(let x=Math.floor(x0/128)*128-64;x<x0+576;x+=128){
+    const offset=(Math.floor(y/64)%2)*64;c.strokeStyle='#333e3b';c.lineWidth=3;c.strokeRect(x+offset,y,128,64);
+    c.strokeStyle='rgba(160,165,145,.14)';c.lineWidth=1;c.strokeRect(x+offset+3,y+3,122,58);
+  }
   for(let y=Math.floor(y0/27)*27;y<y0+530;y+=27)for(let x=Math.floor(x0/27)*27;x<x0+530;x+=27) {
     const h=hash2(x,y,11),xx=x+h*23,yy=y+hash2(y,x,33)*25;
-    if(h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
+    if(!masonry&&h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
   }
   for(const p of a.paths) {
     c.lineCap='round';c.lineJoin='round';c.beginPath();p.points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));

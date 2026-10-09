@@ -10,10 +10,18 @@ if(import.meta.env.DEV) {
   const controls=document.createElement('div');panel.append(controls);document.body.append(panel);
   const game=()=>(window as unknown as {__game?:Game}).__game;
   let route:Point[]=[],index=0,started=0,held:string[]=[],message='Ready',lastZone='';
-  const keys=(next:string[])=>{for(const key of held)if(!next.includes(key))window.dispatchEvent(new KeyboardEvent('keyup',{code:key,bubbles:true}));for(const key of next)if(!held.includes(key))window.dispatchEvent(new KeyboardEvent('keydown',{code:key,bubbles:true,cancelable:true}));held=next;};
+  // Browser focus changes clear Input's held keys. Reassert this active QA route's
+  // ordinary inputs each tick so the helper cannot retain a stale held-key belief.
+  const keys=(next:string[])=>{for(const key of held)if(!next.includes(key))window.dispatchEvent(new KeyboardEvent('keyup',{code:key,bubbles:true}));for(const key of next)window.dispatchEvent(new KeyboardEvent('keydown',{code:key,bubbles:true,cancelable:true}));held=next;};
   const walk=(p:Point[])=>{closeAllPanels();keys([]);route=p;index=0;started=performance.now();message='Walking ordinary inputs';};
   const button=(name:string,fn:()=>void)=>{const b=document.createElement('button');b.textContent=name;b.style.cssText='margin:3px;padding:4px';b.onclick=fn;controls.append(b);};
   const main=()=>game()?.world.map?.adventure?.routes[0]??[];
+  button('Walk to Waypoint',()=>{const wp=game()?.world.map?.town?.npcs.find(n=>n.role==='waypoint');if(wp)walk([wp.approach]);});
+  button('Travel to Bracken',()=>void cmd('travel',{zone:'bracken_sluice'}).then(r=>message=JSON.stringify(r)));
+  button('Walk to Pumpworks hatch',()=>walk([...main().slice(1,7),[2730,1590]]));
+  button('Walk to west wheel',()=>walk(main()));
+  button('Walk to east wheel',()=>walk([[740,1390],[715,1600],[715,1875],...(game()?.world.map?.adventure?.routes[1]??[])]));
+  button('Walk to main pump',()=>walk([[1780,1390],[1565,1230],[1565,915],[1330,915],[1330,780]]));
   button('Travel to Rillwake',()=>void cmd('travel',{zone:'rillwake_crossing'}).then(r=>message=JSON.stringify(r)));
   button('Toggle infinite HP',()=>void cmd('debug',{op:'infhp'}).then(r=>message=JSON.stringify(r)));
   button('Walk to Orren',()=>walk([[800,2445]]));
@@ -53,6 +61,6 @@ if(import.meta.env.DEV) {
         }
       }
     }
-    const st=ui.get();status.textContent=`${message} | ${lastZone} (${g.predictor.x.toFixed(0)},${g.predictor.y.toFixed(0)}) server (${st.me?.x},${st.me?.y}) | ${st.fps}fps | ${st.char?.classId} level ${st.char?.level} | ${route.length?`${index}/${route.length}`:'idle'}`;
+    const st=ui.get();status.textContent=`${message} | ${lastZone} (${g.predictor.x.toFixed(0)},${g.predictor.y.toFixed(0)}) server (${st.me?.x},${st.me?.y}) | ${st.fps}fps | ${st.char?.classId} level ${st.char?.level} | ${route.length?`${index}/${route.length} toward ${route[index]} keys ${held.join('+')}`:'idle'}`;
   },50);
 }

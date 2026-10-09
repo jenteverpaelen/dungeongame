@@ -1,7 +1,7 @@
 // World layout: a shared hub town, shared open training fields split into channels,
 // and instanced Nephalem-style rifts for parties.
 
-export type ZoneKind = 'town' | 'field' | 'rift';
+export type ZoneKind = 'town' | 'field' | 'rift' | 'dungeon';
 export type Theme = 'town' | 'glade' | 'ashen';
 
 export interface ZoneDef {
@@ -43,6 +43,11 @@ export const ZONES: Record<string, ZoneDef> = {
     id:'bracken_sluice',name:'Bracken Sluice',kind:'field',theme:'glade',levelBand:[1,70],size:[56,48],
     packTarget:4,respawnSec:18,
     blurb:'A maintenance causeway above the flood. Follow Orren’s survey to reach the rootbound spillway.',
+  },
+  reedvault_pumpworks: {
+    id:'reedvault_pumpworks',name:'Reedvault Pumpworks',kind:'dungeon',theme:'glade',levelBand:[1,70],size:[40,36],
+    packTarget:0,respawnSec:0,
+    blurb:'A solo descent beneath Bracken Sluice. Turn the pressure wheels, clear each chamber, and restart the buried pump. Enter through the hatch in Bracken; unfinished encounters reset when you leave.',
   },
   rift: {
     id: 'rift', name: 'Nephalem Rift', kind: 'rift', theme: 'glade', levelBand: [1, 70], size: [110, 110],

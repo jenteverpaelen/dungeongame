@@ -3,6 +3,7 @@
 
 import type { CreateInstance, InstanceApi, InstanceOptions, PlayerLink, PortalSpec } from '../contracts';
 import { creditQuestReach } from '../quests';
+import { DungeonRuntime } from './dungeon';
 import {
   CollisionWorld, DIFFICULTIES, Rng, TICK_MS, ZONES, generateMap, type C2S, type GameEvent, type MapData, type RiftState,
   type ZoneDef, type ZoneInfo, type ZoneKind,
@@ -61,6 +62,7 @@ export class Instance implements InstanceApi {
   events: EvRec[] = [];
   readonly spawner: Spawner;
   readonly rift: RiftRuntime | null;
+  readonly dungeon: DungeonRuntime | null;
   /** Diagnostics for tests / tools. */
   readonly counters = { kills: 0, eliteKills: 0, playerDeaths: 0, lootSpawned: 0, lootPicked: 0, goblins: 0 };
 
@@ -83,13 +85,14 @@ export class Instance implements InstanceApi {
     this.rng = new Rng((opts.seed ^ 0x5bd1e995) >>> 0);
     this.lootRng = new Rng(((Math.random() * 0xffffffff) >>> 0) ^ opts.seed);
     this.level = Math.max(1, Math.min(70, opts.level ?? 1));
-    const diff = this.kind === 'rift' ? opts.difficulty ?? 0 : 0;
+    const diff = this.kind === 'rift' || this.kind === 'dungeon' ? opts.difficulty ?? 0 : 0;
     this.difficulty = Math.max(0, Math.min(DIFFICULTIES.length - 1, diff));
     this.zone = {
       zone: opts.zoneId, name: this.def.name, kind: this.kind, theme, seed: opts.seed, channel: opts.channel,
       instance: opts.key, difficulty: this.difficulty,
     };
     this.rift = this.kind === 'rift' ? new RiftRuntime(this, opts.owner ?? '') : null;
+    this.dungeon = this.map.adventure?.dungeon ? new DungeonRuntime(this) : null;
     this.spawner = new Spawner(this);
     this.spawner.init();
   }
@@ -206,6 +209,12 @@ export class Instance implements InstanceApi {
     return !!p && p.deadMs <= 0 && p.hp > 0 && Math.hypot(p.x - x, p.y - y) <= radius && !this.cw.segmentBlocked(p.x, p.y, x, y);
   }
 
+  activateDungeon(link:PlayerLink,target:string):string|null {
+    return this.dungeon ? this.dungeon.activate(link,target) : 'Not in an objective dungeon';
+  }
+
+  dungeonState(){return this.dungeon?.state()??null;}
+
   addPlayer(link: PlayerLink, at?: { x: number; y: number }): number {
     const existing = this.byLink.get(link);
     if (existing) return existing.id;
@@ -220,6 +229,7 @@ export class Instance implements InstanceApi {
   removePlayer(link: PlayerLink): void {
     const p = this.byLink.get(link);
     if (!p) return;
+    this.dungeon?.leave(link);
     removePlayerEntity(this, p);
     clearPlayerLoot(p);
     this.byLink.delete(link);
@@ -283,6 +293,7 @@ export class Instance implements InstanceApi {
     updateGrounds(this, TICK_MS);
     this.mark(5);
     this.sched.run(this.t);
+    this.dungeon?.tick();
     this.compactMobs();
     this.mark(6);
     this.spawner.tick(TICK_MS);

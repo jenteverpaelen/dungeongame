@@ -71,7 +71,7 @@ export function WaypointPanel() {
   const world = useU((s) => s.world);
   const char = useU((s) => s.char);
   const [busy, setBusy] = useState<string | null>(null);
-  const zones = Object.values(ZONES).filter((z) => z.kind !== 'rift');
+  const zones = Object.values(ZONES).filter((z) => z.kind === 'town' || z.kind === 'field');
   const travel = async (id: string) => {
     setBusy(id);
     const r = await run('travel', { zone: id });

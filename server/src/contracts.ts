@@ -3,7 +3,7 @@
 
 import type { Theme } from '../../shared/src/data/zones';
 import type { MapData } from '../../shared/src/mapgen';
-import type { C2S, RiftState, S2C, ZoneInfo } from '../../shared/src/protocol';
+import type { C2S, DungeonState, RiftState, S2C, ZoneInfo } from '../../shared/src/protocol';
 import type { CharacterSave, DerivedStats } from '../../shared/src/types';
 
 /** A connected player as seen by the simulation. Implemented by the infrastructure's Session. */
@@ -62,6 +62,8 @@ export interface InstanceApi {
   playerCount(): number;
   /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
+  activateDungeon?(link: PlayerLink, target: string): string | null;
+  dungeonState?(): DungeonState | null;
   spawnPortal(spec: PortalSpec): number;
   removeEntity(id: number): void;
   /** World-side debug helpers: 'goblin' | 'elite' | 'heal' | 'boss'. Returns an error string or null. */

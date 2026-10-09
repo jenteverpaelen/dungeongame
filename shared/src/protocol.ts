@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 1;
+export const PROTOCOL_VERSION = 2;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -126,6 +126,13 @@ export interface RiftState {
   owner: string;
 }
 
+export interface DungeonState {
+  stage: number;
+  phase: 'ready' | 'active' | 'done';
+  remaining: number;
+  target: string;
+}
+
 export interface ZoneInfo {
   zone: string;
   name: string;
@@ -154,6 +161,7 @@ export interface Snapshot {
   rem?: number[];
   ev?: GameEvent[];
   rift?: RiftState;
+  dungeon?: DungeonState;
 }
 
 export type S2C =

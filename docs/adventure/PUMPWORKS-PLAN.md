@@ -1,0 +1,5 @@
+# Reedvault Pumpworks — C075 plan
+
+L89 and D030 precede code. Original optional dungeon connected to Bracken after the existing spillway quest. Two activated room encounters and a final keeper, then recover a maintenance record and return to Orren. Reuse Bracken group sizes/types, existing boss behavior and the reserved magic-weapon contract; no new balance numbers.
+
+Server-owned solo instance; no public channel or direct Waypoint entry. Mechanism proximity/LOS, ordered activation, actual death accounting, no credit for despawn/debug removal, active encounter reset on death/leave. Completed encounter stages retained until normal empty-instance expiry; persistent ordered quest prevents duplicate objective/reward credit. Always-open return route and explicit replay notice. Snapshot supplies current objective/enemies remaining to existing-style HUD. Masonry geometry shares exact collision and rendering; regional/local maps include the route. Focused negative/save/lifecycle checks, typecheck/content/build and inspected1920x1080 browser capture. Full human/class/balance/crowd acceptance remains open.

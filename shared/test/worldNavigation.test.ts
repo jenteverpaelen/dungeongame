@@ -8,6 +8,8 @@ test('routes follow authored exits or existing town waypoint and respect unavail
   assert.deepEqual(zoneRoute('hearthmere','bracken_sluice',id=>id!=='bracken_sluice'),[]);
   assert.deepEqual(zoneRoute('unknown','bracken_sluice'),[]);
   assert.equal(worldConnections().some(e=>e.from==='rillwake_crossing'&&e.to==='bracken_sluice'&&e.kind==='exit'),true);
+  assert.deepEqual(zoneRoute('hearthmere','reedvault_pumpworks'),['hearthmere','bracken_sluice','reedvault_pumpworks']);
+  assert(!worldConnections().some(e=>e.to==='reedvault_pumpworks'&&e.kind==='waypoint'));
 });
 test('objective guidance resolves physical next exit or town waypoint without inventing a portal',()=>{
   const town=generateMap('hearthmere',1),bracken=generateMap('bracken_sluice',1);

@@ -69,11 +69,16 @@ export function AdventurePanel() {
 }
 
 export function AdventureTracker() {
-  const save=useUI(s=>s.char),zone=useUI(s=>s.zone);
+  const save=useUI(s=>s.char),zone=useUI(s=>s.zone),dungeon=useUI(s=>s.dungeon);
   if(!save)return null;
   const q=trackedQuest(save),objective=q&&questObjective(save,q);
   return <div class="quest-hud interactive">
     <button class="btn" onClick={openJournal}>{t('quest.journal.title')}</button>
+    {dungeon&&<div class="frame adventure-tracker" title={t('quest.pump.replay')}>
+      <strong>{zone?.name}</strong>
+      <span>{dungeon.phase==='done'?t('quest.pump.done'):ADVENTURES[zone!.zone]?.interactions.find(i=>i.id===dungeon.target)?.name}</span>
+      {dungeon.phase!=='done'&&<small>{dungeon.phase==='active'?`${t('quest.pump.active')} · ${dungeon.remaining}`:t('quest.pump.ready')}</small>}
+    </div>}
     {q&&objective&&<button class="frame adventure-tracker" onClick={()=>{openJournal();ui.set({journalQuest:q.id});}} title={t('quest.journal.open')}>
       <strong>{t(q.title)}</strong><span>{objective.text}</span>
       {zone?.zone!==objective.zone&&<small>{ZONES[objective.zone]?.name??objective.zone}</small>}

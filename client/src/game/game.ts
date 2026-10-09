@@ -33,6 +33,7 @@ export class Game {
   private fpsFrames = 0;
   private fpsT = 0;
   private lastRiftKey = '';
+  private lastDungeonKey = '';
   private whirl = false;
 
   constructor(private app: Application) {
@@ -118,7 +119,8 @@ export class Game {
     if(this.world.map?.town)this.townSound=new TownSound(this.world.map.town);
     this.predictor.reset();
     this.dmgLog = [];
-    ui.set({ zone, myId: you, rift: null, target: null, interact: null, panels: {} });
+    this.lastDungeonKey='';
+    ui.set({ zone, myId: you, rift: null, dungeon:null, target: null, interact: null, panels: {} });
     const def = ZONES[zone.zone];
     if (def) pushNotice(zone.kind === 'rift' ? 'Nephalem Rift' : def.name, 'info');
   }
@@ -142,6 +144,8 @@ export class Game {
       const key = `${Math.floor(s.rift.progress)}|${s.rift.phase}|${s.rift.guardian ?? 0}`;
       if (key !== this.lastRiftKey) { this.lastRiftKey = key; ui.set({ rift: s.rift }); }
     } else if (this.lastRiftKey) { this.lastRiftKey = ''; ui.set({ rift: null }); }
+    const dungeonKey=s.dungeon?`${s.dungeon.stage}|${s.dungeon.phase}|${s.dungeon.remaining}`:'';
+    if(dungeonKey!==this.lastDungeonKey){this.lastDungeonKey=dungeonKey;ui.set({dungeon:s.dungeon??null});}
   }
 
   private onEvent(ev: GameEvent) {
@@ -230,6 +234,9 @@ export class Game {
     const s = this.scene.nearestInteractable(x, y);
     const zone = this.world.zone;
     if (s?.role) {
+      if(this.world.map?.adventure?.dungeon?.stages.some(stage=>stage.trigger===s.npcId)){
+        void this.conn?.cmd('quest',{action:'activate',target:s.npcId}).then(r=>{if(!r.ok&&r.err)pushNotice(r.err,'warn');});return;
+      }
       if(s.role==='quest' || s.role==='clue') {
         void this.conn?.cmd('quest',{action:'talk',target:s.npcId}).then(r=>{
           const save=ui.get().char,zoneId=zone?.zone;
