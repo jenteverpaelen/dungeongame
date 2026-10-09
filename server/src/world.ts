@@ -15,7 +15,7 @@ import { CollisionWorld } from '../../shared/src/movement';
 import { DIFFICULTIES } from '../../shared/src/progression';
 import type { S2C, WorldInfo } from '../../shared/src/protocol';
 import { requireNear } from './townServices';
-import { zoneUnlocked } from '../../shared/src/quests';
+import { zoneUnlocked, zoneLevelAllowed } from '../../shared/src/quests';
 
 // ─────────────────────────── Command result helpers ───────────────────────────
 
@@ -349,7 +349,8 @@ export class World {
     if (!cur) return fail('Not in a zone');
     const def = ZONES[zoneId];
     if (!def || def.kind === 'rift') return fail('Unknown destination');
-    if (!zoneUnlocked(s.save,zoneId)) return fail('Complete the preceding adventure with Orren to open this route');
+    if (!zoneUnlocked(s.save,zoneId)) return fail('Complete the preceding story quest to open this route');
+    if (!zoneLevelAllowed(s.save,zoneId)) return fail(`${def.name} requires level ${def.levelBand[0]}`);
     if (def.kind === 'town') {
       if (cur.kind === 'town') return fail(`You are already in ${def.name}`);
       return this.goHome(s, channel);
@@ -368,7 +369,8 @@ export class World {
       }
       if(!target){
         if([...this.recs.values()].filter(r=>r.kind==='dungeon').length>=MAX_RIFTS)return fail('All dungeon instances are busy; try again shortly');
-        const inst=this.create({zoneId,key,channel:0,seed:zoneSeed(zoneId,0),theme:def.theme,level:s.save.level,difficulty:s.save.difficulty});
+        const level=Math.max(def.levelBand[0],Math.min(def.levelBand[1],s.save.level));
+        const inst=this.create({zoneId,key,channel:0,seed:zoneSeed(zoneId,0),theme:def.theme,level,difficulty:s.save.difficulty});
         target={key,zoneId,kind:'dungeon',channel:0,inst,members:new Set(),emptySince:Date.now(),hostedRifts:new Set()};
         this.recs.set(key,target);
       }
@@ -387,7 +389,7 @@ export class World {
     }
     if(cur.kind==='town')s.homeTown = cur.key;
     let arrival:{x:number;y:number}|undefined;
-    if(cur.kind==='dungeon') {
+    if(cur.inst.map.adventure) {
       const back=target.inst.map.portals.find(p=>p.to===cur.zoneId),cw=new CollisionWorld(target.inst.map);
       if(back)for(let i=0;i<16;i++){
         const x=back.x+70*Math.cos(i*Math.PI/8),y=back.y+70*Math.sin(i*Math.PI/8);

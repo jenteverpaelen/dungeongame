@@ -6,7 +6,7 @@ import { validateDialogues, validateQuestGraph } from './questAuthoring';
 import { questRewardError } from './questRewards';
 import { questUnlocks } from './quests';
 import { ZONES } from './data/zones';
-import { MONSTERS } from './data/monsters';
+import { MONSTERS, ELITE_AFFIXES } from './data/monsters';
 import { CollisionWorld } from './movement';
 import { INVENTORY_SIZE, PLAYER_RADIUS } from './constants';
 import { QUEST_SERVICE_OPS, type QuestDef, type QuestTarget, type QuestStep } from './questTypes';
@@ -94,6 +94,9 @@ export function validateAdventures():string[] {
     errors.push(...validateAdventureAmbience(a));
     errors.push(...validateAdventureReachability(map));
     check((ZONES[id]?.kind==='dungeon')===!!a.dungeon,`${id}: dungeon runtime/kind mismatch`);
+    check(map.theme===ZONES[id]?.theme,`${id}: rendered/server theme mismatch`);
+    check(a.size.every((n,i)=>n===ZONES[id]?.size[i]),`${id}: zone dimensions mismatch`);
+    for(const k of a.kilns??[])check([k.x,k.y,k.w,k.d,k.h].every(Number.isFinite)&&k.w>0&&k.d>0&&k.h>0&&k.x>=0&&k.y>=0&&k.x+k.w<=map.w*64&&k.y+k.d<=map.h*64,`${id}: invalid kiln`);
     if(a.events?.length){
       check(ZONES[id]?.kind==='field',`${id}: events require a shared field`);
       for(const key of ['id','trigger','encounter'] as const)check(new Set(a.events.map(e=>e[key])).size===a.events.length,`${id}: duplicate event ${key}`);
@@ -118,6 +121,9 @@ export function validateAdventures():string[] {
     for(const e of a.encounters)for(const m of e.members) {
       const def=MONSTERS[m.type];
       check(!!def && cw.isFree(e.x+m.dx,e.y+m.dy,def.radius),`${id}: blocked/unknown spawn ${e.id}/${m.type}`);
+      const aff=m.affixes??[];
+      check(aff.length===new Set(aff).size&&aff.length<=2&&aff.every(id=>Object.hasOwn(ELITE_AFFIXES,id))&&(!aff.length||m.tier===2),`${id}/${e.id}: invalid authored affixes`);
+      check(!m.combat||['keeper','furnace'].includes(m.combat)&&m.tier===2,`${id}/${e.id}: invalid authored boss`);
     }
     for(const group of [a.interactions,a.encounters,a.locations])check(new Set(group.map(i=>i.id)).size===group.length,`${id}: duplicate target ID`);
     for(const loc of a.locations)check(Number.isFinite(loc.radius)&&loc.radius>0&&cw.isFree(loc.x,loc.y,PLAYER_RADIUS),`${id}: invalid reach ${loc.id}`);

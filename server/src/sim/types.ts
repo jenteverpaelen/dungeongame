@@ -63,6 +63,7 @@ export interface Pack {
 }
 
 export interface BossState {
+  furnace?: boolean;
   ringMs: number;
   addsMs: number;
   enraged: boolean;
@@ -128,7 +129,7 @@ export interface Mob extends Hashed {
   /** Fixed path and per-player contact history for one physical charge. */
   charge?: { dx: number; dy: number; left: number; hit: Set<number> };
   /** Countdown timers (ms) for elite affix abilities. */
-  aff: { molten: number; frozen: number; plagued: number; vortex: number; mortar: number; electrified: number };
+  aff: { molten: number; frozen: number; plagued: number; vortex: number; mortar: number; electrified: number; faulted: number };
   /** Treasure goblin: ms since first noticed (-1 = not yet). */
   noticedMs: number;
   goldPileMs: number;

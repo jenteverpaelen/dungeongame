@@ -37,7 +37,7 @@ export class DungeonRuntime {
     if(this.startT<0)this.startT=this.inst.t;
     for(const member of encounter.members){
       const mob=createMob(this.inst,MONSTERS[member.type],this.inst.level,encounter.x+member.dx,encounter.y+member.dy,
-        {tier:member.tier??0,combat:member.combat,name:member.name,difficulty:this.inst.difficulty,players:1});
+        {tier:member.tier??0,combat:member.combat,affixes:member.affixes,name:member.name,difficulty:this.inst.difficulty,players:1});
       mob.adventureSite=encounter.id;
       this.remaining.add(mob.id);
     }

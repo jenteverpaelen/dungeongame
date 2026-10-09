@@ -158,7 +158,7 @@ export class Spawner {
       for(const member of authored.members) {
         const def=MONSTERS[member.type], x=s.x+member.dx, y=s.y+member.dy;
         if(!def || !inst.cw.isFree(x,y,def.radius))throw new Error(`Invalid authored spawn ${authored.id}/${member.type}`);
-        const m=createMob(inst,def,level,x,y,{tier:member.tier??0,combat:member.combat,name:member.name,pack,dormant,players:playersFor(inst,x,y),difficulty:diff});
+        const m=createMob(inst,def,level,x,y,{tier:member.tier??0,combat:member.combat,affixes:member.affixes,name:member.name,pack,dormant,players:playersFor(inst,x,y),difficulty:diff});
         m.adventureSite=authored.id;
         if(member.questTarget)m.adventureTarget=authored.id;
         pack.alive++;

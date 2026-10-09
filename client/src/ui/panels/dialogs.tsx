@@ -6,7 +6,7 @@ import { FIELD_CHANNEL_CAP, TOWN_CHANNEL_CAP } from '@shared/constants';
 import { ZONES, type ZoneDef } from '@shared/data/zones';
 import { fmtInt } from '@shared/format';
 import { DIFFICULTIES } from '@shared/progression';
-import { zoneUnlocked } from '@shared/quests';
+import { zoneUnlocked, zoneLevelAllowed } from '@shared/quests';
 import { togglePanel } from '../store';
 import { Bar, PanelFrame, Paged } from './common';
 import { IconLock, IconStar4, IconSkull, Svg } from './icons';
@@ -79,16 +79,16 @@ export function WaypointPanel() {
     if (r.ok) togglePanel('waypoint', false);
   };
   return (
-    <PanelFrame id="waypoint" title="Waypoint" width={560} sub={<span class="pn-lv">{world ? `${fmtInt(world.online)} heroes online` : ''}</span>}>
+    <PanelFrame id="waypoint" title="Waypoint" width={1040} sub={<span class="pn-lv">{world ? `${fmtInt(world.online)} heroes online` : ''}</span>}>
       <button class="btn" onClick={()=>togglePanel('worldmap',true)}>{text('map.title')}</button>
-      <div class="wp-list">
+      <Paged class="wp-grid" size={8} label="Destinations">
         {zones.map((z) => {
           const chans = (world?.channels ?? []).filter((c) => c.zone === z.id).sort((a, b) => a.channel - b.channel);
           const cap = z.kind === 'town' ? TOWN_CHANNEL_CAP : FIELD_CHANNEL_CAP;
           const total = chans.reduce((a, c) => a + c.players, 0);
           const here = zone?.zone === z.id;
           const lowest = Math.max(1, z.levelBand[0]);
-          const tooLow = !!char && char.level < lowest;
+          const tooLow = !!char && !zoneLevelAllowed(char,z.id);
           const locked = !!char && !zoneUnlocked(char,z.id);
           return (
             <div class={cls('wp-card', here && 'here', z.kind)} key={z.id}>
@@ -99,12 +99,12 @@ export function WaypointPanel() {
                   <span class="wp-tag">{z.kind === 'town' ? 'Safe haven' : `Level ${z.levelBand[0]}-${z.levelBand[1]}`}</span>
                 </div>
                 <p>{z.blurb}</p>
-                {locked && <p>Complete High Water with Orren to open this route.</p>}
+                {locked && <p>Complete the preceding story quest to open this route.</p>}
                 <div class="wp-pop">
                   <span class="wp-total"><IconStar4 size={10} />{fmtInt(total)} {total === 1 ? 'hero' : 'heroes'}</span>
                   <div class="wp-chans">
                     {chans.length === 0 && <span class="wp-ch idle">No active channels</span>}
-                    {chans.map((c) => {
+                    <Paged size={3} label={`${z.name} channels`}>{chans.map((c) => {
                       const f = c.players / cap;
                       const mine = here && zone?.channel === c.channel;
                       const full = c.players >= cap;
@@ -121,7 +121,7 @@ export function WaypointPanel() {
                           <span class="ch-n">{c.players}/{cap}</span>
                         </button>
                       );
-                    })}
+                    })}</Paged>
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export function WaypointPanel() {
             </div>
           );
         })}
-      </div>
+      </Paged>
       <div class="wp-foot">Fields place you in the least crowded channel. At a waypoint you can also hop between channels of your current zone.</div>
     </PanelFrame>
   );

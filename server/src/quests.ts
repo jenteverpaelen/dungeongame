@@ -15,6 +15,7 @@ import type { Session } from './net/session';
 import type { Instance } from './sim/instance';
 import type { Mob, Player } from './sim/types';
 import { planQuestDelivery } from '../../shared/src/questDelivery';
+import { addXp } from '../../shared/src/progression';
 
 function near(s:Session, target:QuestTarget):boolean {
   const inst=s.rec?.inst;
@@ -26,8 +27,10 @@ function near(s:Session, target:QuestTarget):boolean {
 function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
   if(state.step!==q.steps.length || !questHasWeapon(q) || state.reward)return;
   if(typeof q.reward==='object'&&q.reward.item==='starter_upgrade'){state.reward=starterUpgrade(new Rng((Math.random()*0xffffffff)>>>0),save.classId);return;}
+  const projected=structuredClone(save);
+  if(typeof q.reward==='object')addXp(projected,q.reward.xp??0);
   state.reward=generateItem(new Rng((Math.random()*0xffffffff)>>>0),{
-    ilvl:save.level,classId:save.classId,rarity:'magic',smartChance:1,
+    ilvl:projected.level,classId:save.classId,rarity:'magic',smartChance:1,
     base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword',
   });
 }

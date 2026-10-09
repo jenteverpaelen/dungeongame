@@ -3,6 +3,7 @@
 import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TILE, angleDiff, type Element } from '../shared';
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
+import { adventureCover } from '../../../shared/src/adventureCover';
 
 export const elIdx = (el: Element): number => {
   const i = ELEMENT_INDEX.indexOf(el);
@@ -36,16 +37,18 @@ export function distToSegment(px: number, py: number, ax: number, ay: number, bx
 /** Projectiles and sight pass over water / lava pools; only walls (and the void) stop them. */
 export function shotBlockedAt(inst: Instance, x: number, y: number): boolean {
   const t = inst.cw.tileAt(x, y);
-  return t === T_WALL || t === T_VOID;
+  return t === T_WALL || t === T_VOID || !!inst.map.adventure&&adventureCover(inst.map.adventure,x,y,x,y);
 }
 
 /** Line of fire between two points (samples every half tile). */
 export function shotBlocked(inst: Instance, x0: number, y0: number, x1: number, y1: number): boolean {
+  if(inst.map.adventure&&adventureCover(inst.map.adventure,x0,y0,x1,y1))return true;
   const len = Math.hypot(x1 - x0, y1 - y0);
   const steps = Math.ceil(len / (TILE / 2));
   for (let i = 1; i <= steps; i++) {
     const t = i / steps;
-    if (shotBlockedAt(inst, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t)) return true;
+    const tile=inst.cw.tileAt(x0+(x1-x0)*t,y0+(y1-y0)*t);
+    if (tile===T_WALL||tile===T_VOID) return true;
   }
   return false;
 }

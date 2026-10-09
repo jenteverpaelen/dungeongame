@@ -24,9 +24,10 @@ export function bakeMapTerrain(map: MapData): Baked {
   const g = c.getContext('2d')!;
   if(map.adventure) {
     g.scale(BAKE_PX/TILE,BAKE_PX/TILE);
-    g.fillStyle='#243d48';g.fillRect(0,0,map.w*TILE,map.h*TILE);
+    const ash=map.adventure.surface==='ash';
+    g.fillStyle=ash?'#2a1a16':'#243d48';g.fillRect(0,0,map.w*TILE,map.h*TILE);
     const poly=(points:number[][],fill:string)=>{g.beginPath();points.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fillStyle=fill;g.fill();};
-    for(const f of map.adventure.geometry.floors)poly(f.polygon,map.adventure.surface==='masonry'?'#6c7770':'#69705a');
+    for(const f of map.adventure.geometry.floors)poly(f.polygon,ash?`rgb(${pal.floor.join(',')})`:map.adventure.surface==='masonry'?'#6c7770':'#69705a');
     for(const p of map.adventure.paths){g.beginPath();p.points.forEach((a,i)=>i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]));g.strokeStyle='#b49d70';g.lineWidth=p.width;g.stroke();}
     for(const b of map.adventure.geometry.buildings)poly(b.footprint,'#30383b');
     return {map,key:mapKey(map),canvas:c};

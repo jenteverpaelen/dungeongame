@@ -157,14 +157,14 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for(const key of ['dmg','speed','weight'] as const) number(m[key],`${at}.${key}`);
     for(const theme of m.themes) check(themes.has(theme as typeof data.zones[string]['theme']),`${at}.themes`,`unknown theme ${theme}`);
     for(const key of ['range','windupMs','cooldownMs'] as const) number(m.attack[key],`${at}.attack.${key}`);
-    check(['melee','ranged','lob','charge','explode','none'].includes(m.attack.kind),`${at}.attack.kind`,'unknown attack kind');
+    check(['melee','ranged','fan','fracture','lob','charge','explode','none'].includes(m.attack.kind),`${at}.attack.kind`,'unknown attack kind');
     if(m.attack.kind==='charge') {
       number(m.attack.range,`${at}.attack.range`,Number.MIN_VALUE);
       number(m.attack.chargeMs??NaN,`${at}.attack.chargeMs`,Number.MIN_VALUE);
     } else check(m.attack.chargeMs===undefined,`${at}.attack.chargeMs`,'only charge attacks have a charge duration');
     if(m.attack.projSpeed !== undefined) number(m.attack.projSpeed,`${at}.attack.projSpeed`,Number.MIN_VALUE);
     if(m.attack.aoe !== undefined) number(m.attack.aoe,`${at}.attack.aoe`);
-    if(m.attack.kind==='lob') {
+    if(m.attack.kind==='lob'||m.attack.kind==='fracture') {
       number(m.attack.aoe??NaN,`${at}.attack.aoe`,Number.MIN_VALUE);
       number(m.attack.flightMs??NaN,`${at}.attack.flightMs`,Number.MIN_VALUE);
     } else check(m.attack.flightMs===undefined,`${at}.attack.flightMs`,'only lob attacks have a flight delay');

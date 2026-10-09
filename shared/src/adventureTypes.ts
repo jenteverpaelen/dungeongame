@@ -5,12 +5,15 @@ import type { Item } from './types';
 
 export interface AdventureData {
   id: string;
+  theme?: 'glade' | 'ashen';
+  /** Solid footprint and render dimensions are one authored source. */
+  kilns?: {x:number;y:number;w:number;d:number;h:number}[];
   /** Decorative only: fixed sites, no collision or gameplay state. */
   ambience?: {
     motion: { id: string; kind: 'ripples' | 'reeds' | 'mist' | 'drips'; position: Point; width: number }[];
     sounds: { id: string; kind: 'water' | 'wind' | 'fire'; position: Point; radius: number }[];
   };
-  surface?: 'masonry';
+  surface?: 'masonry' | 'ash';
   /** Ordered, explicitly activated encounters in a private dungeon. */
   dungeon?: { stages: { id: string; trigger: string; encounter: string; area: Point[] }[] };
   /** Optional channel-shared packs armed by physical interaction. */
@@ -22,10 +25,10 @@ export interface AdventureData {
   npcs: NpcSpot[];
   portals: Portal[];
   interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' }[];
-  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' }[] }[];
+  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace'; affixes?: string[] }[] }[];
   landmarks: { name: string; x: number; y: number }[];
   locations: { id: string; x: number; y: number; radius: number }[];
-  wheel: { x: number; y: number; radius: number };
+  wheel?: { x: number; y: number; radius: number };
   routes: Point[][];
 }
 

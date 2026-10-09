@@ -8,6 +8,8 @@ import { Paged, SecHead, Tabs } from './common';
 
 const behavior: Record<MonsterAttackKind, string> = {
   melee: 'Closes the distance and strikes after winding up. Heavy attackers can catch nearby allies in the same hit.',
+  fan: 'Locks its aim during the windup, then releases three spreading projectiles. Move between the lanes or break the shot with cover.',
+  fracture: 'Marks three ground impacts along its fixed aim. Move sideways before the marks erupt; solid cover stops the line.',
   ranged: 'Fires a projectile after winding up. Move across its line of fire or break the line with solid cover.',
   lob: 'Lobs a shell at a marked landing point. Leave the marked circle before the shell lands.',
   charge: 'Commits to a straight charge after winding up. Step aside; solid scenery stops its path.',

@@ -10,6 +10,7 @@ import { touchChar } from './players';
 import { spawnProj } from './projectiles';
 import { nearPlayer, playerZoneLevel, themeMonsters, zoneDifficulty } from './spawner';
 import { BOSS_ADDS_MS, BOSS_RING_COUNT, BOSS_RING_MS, RIFT_KILL_FRACTION } from './tuning';
+import { fractureLine } from './fracture';
 import type { Mob, Pack, Player } from './types';
 import { creditQuestRift } from '../quests';
 
@@ -124,6 +125,10 @@ export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   b.ringMs -= dtMs;
   if (b.ringMs <= 0 && dist < 900) {
     b.ringMs = BOSS_RING_MS * (b.enraged ? 0.75 : 1);
+    if(b.furnace&&b.slamCount++%2===0){
+      fractureLine(inst,m,p.x,p.y,650,m.dmg*.7,m.def.attack.element);
+      return;
+    }
     inst.emit({ e: 'tele', v: 'boss_ring', x: Math.round(m.x), y: Math.round(m.y), r: 360, d: 800 }, m.x, m.y);
     inst.sched.schedule(inst.t + 800, () => {
       if (m.dead) return;

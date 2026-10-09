@@ -56,7 +56,7 @@ export const PUMPWORKS:AdventureData={
   locations:[],
   encounters:[
     {id:'west_chamber',x:740,y:1390,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'reedclaw',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
-    {id:'east_chamber',x:1780,y:1390,members:[{type:'mossback',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'thornling',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
+    {id:'east_chamber',x:1780,y:1390,members:[{type:'mossback',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'vault_moth',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
     {id:'pump_heart',x:1270,y:520,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'The Sumpbound Keeper',combat:'keeper'}]},
   ],
   dungeon:{stages:[

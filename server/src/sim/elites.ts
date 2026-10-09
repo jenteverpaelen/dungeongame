@@ -7,8 +7,10 @@ import { addGround, newGround } from './grounds';
 import type { Instance } from './instance';
 import { spawnProj } from './projectiles';
 import type { Mob, Player } from './types';
+import { fractureLine } from './fracture';
 
-export const AFFIX_IDS = Object.keys(ELITE_AFFIXES);
+// New traits are authored first; adding one must not silently alter old random pools.
+export const AFFIX_IDS = Object.keys(ELITE_AFFIXES).filter(id=>id!=='faulted');
 
 export function rollEliteAffixes(rng: Rng, n: number): string[] {
   const pool = [...AFFIX_IDS];
@@ -36,6 +38,10 @@ export function eliteTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   if (dist > 950) return;
   for (const id of m.affixes) {
     switch (id) {
+      case 'faulted':
+        a.faulted-=dtMs;
+        if(a.faulted<=0){a.faulted=3000;fractureLine(inst,m,p.x,p.y,650,m.dmg*.7,'fire');}
+        break;
       case 'molten':
         a.molten -= dtMs;
         if (a.molten <= 0) {

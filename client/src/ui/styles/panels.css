@@ -1107,3 +1107,10 @@
 .merchant-preview .tt { width:100%; max-width:none; }
 .merchant-preview .tt-body { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:18px; align-items:start; }
 .merchant-preview .tt-foot { grid-column:1 / -1; }
+
+.wp-grid>.page-items { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.wp-grid .wp-card { flex-wrap:wrap; align-content:start; }
+.wp-grid .wp-info { min-width:240px; }
+.wp-grid .wp-go { margin-left:auto; }
+.wp-grid .wp-tag { flex-shrink:0; white-space:nowrap; }
+.wp-grid .wp-chans .page-items { display:flex; flex-wrap:wrap; gap:4px; }

@@ -4,7 +4,7 @@ import { ZONES } from '@shared/data/zones';
 import { QUESTS } from '@shared/data/quests';
 import { questText } from '@shared/data/questMessages';
 import { CollisionWorld } from '@shared/movement';
-import { questCompleted, questMarker, questObjective, questPoint, questUnlocks, trackedQuest, zoneUnlocked } from '@shared/quests';
+import { questCompleted, questMarker, questObjective, questPoint, questUnlocks, trackedQuest, zoneLevelAllowed, zoneUnlocked } from '@shared/quests';
 import { worldConnections, zoneRoute } from '@shared/worldNavigation';
 import type { MapData } from '@shared/mapgen';
 import type { CharacterSave } from '@shared/types';
@@ -16,7 +16,7 @@ import { openJournal } from './adventure';
 import { run } from './util';
 
 // Original diagram composition only; no geographical distance claim.
-const POS:Record<string,[number,number]>={hearthmere:[19,52],whispering_glade:[49,18],ashen_hollow:[49,83],rillwake_crossing:[51,50],bracken_sluice:[83,50],reedvault_pumpworks:[83,83]};
+const POS:Record<string,[number,number]>={hearthmere:[17,18],whispering_glade:[17,50],ashen_hollow:[17,82],rillwake_crossing:[50,18],bracken_sluice:[83,18],reedvault_pumpworks:[83,50],cairnspill_terraces:[50,50],cinderwash_kilns:[50,82],kilnwatch_crown:[83,82]};
 const edges=worldConnections();
 const regions=Object.values(ZONES).filter(z=>z.kind!=='rift');
 
@@ -37,14 +37,14 @@ export function WorldMapPanel() {
   const quest=trackedQuest(save),objective=quest&&questObjective(save,quest);
   const point=map&&(dungeon?questPoint(map,{zone:map.zone,target:dungeon.target},save):objective&&questPoint(map,objective,save));
   const route=objective?zoneRoute(zone.zone,objective.zone,id=>zoneUnlocked(save,id)):[];
-  const locked=routeLock(save,def.id),tooLow=save.level<def.levelBand[0],here=zone.zone===def.id;
+  const locked=routeLock(save,def.id),tooLow=!zoneLevelAllowed(save,def.id),here=zone.zone===def.id;
   const near=(p:{x:number;y:number},r:number)=>!!me&&!me.dead&&me.hp>0&&Math.hypot(me.x-p.x,me.y-p.y)<=r&&!cw?.segmentBlocked(me.x,me.y,p.x,p.y);
   const waypoint=map?.town?.npcs.find(n=>n.role==='waypoint');
   const besideWaypoint=!!waypoint&&near(waypoint,waypoint.interactionRadius);
   const besideExit=map?.portals.some(p=>p.to===def.id&&near(p,110));
   const canTravel=!here&&!locked&&!tooLow&&!me?.dead&&((besideWaypoint&&def.kind!=='dungeon')||besideExit);
   const travel=async()=>{setBusy(true);try{const r=await run('travel',{zone:def.id});if(r.ok)togglePanel('worldmap',false);}finally{setBusy(false);}};
-  return <PanelFrame id="worldmap" title={t('map.title')} width={720} sub={zone.name}>
+  return <PanelFrame id="worldmap" title={t('map.title')} width={1040} sub={zone.name}>
     <Tabs tabs={[{id:'routes',label:t('map.routes')},{id:'area',label:t('map.area')}]} value={view} onChange={setView}/>
     {view==='routes'?<>
       <p class="pn-note">{t('map.scale')}</p>
@@ -57,14 +57,14 @@ export function WorldMapPanel() {
           })}
         </svg>
         {regions.map(z=>{const p=POS[z.id];if(!p)return null;const lock=routeLock(save,z.id),current=zone.zone===z.id;
-          const label=current?t('map.here'):lock?t('map.locked'):save.level<z.levelBand[0]?t('map.level',{level:String(z.levelBand[0])}):t('map.available');
+          const label=current?t('map.here'):lock?t('map.locked'):!zoneLevelAllowed(save,z.id)?t('map.level',{level:String(z.levelBand[0])}):t('map.available');
           return <button key={z.id} class={`wm-node btn ${selected===z.id?'primary':''} ${current?'current':''}`} style={{left:`${p[0]}%`,top:`${p[1]}%`}} onClick={()=>setSelected(z.id)} aria-pressed={selected===z.id}>
             <strong>{z.name}</strong><small>{objective?.zone===z.id?'◆ ':''}{label}</small>
           </button>;
         })}
       </div>
       <p class="pn-note">{t('map.legend')}</p>
-      <SecHead>{def.name}</SecHead><p>{def.blurb}</p>
+      <SecHead>{def.name}</SecHead><p>{def.kind!=='town'&&`Level ${def.levelBand[0]}–${def.levelBand[1]} · `}{def.blurb}</p>
       {locked&&<p class="wm-status">{t('map.requires',{quest:questText(locked.title)})}</p>}
       {tooLow&&<p class="wm-status">{t('map.level',{level:String(def.levelBand[0])})}</p>}
       <div class="wm-actions">

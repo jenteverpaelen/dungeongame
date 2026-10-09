@@ -8,6 +8,7 @@ import { createCharacter, playerLook } from '@shared/character';
 import { CLASSES, CLASS_IDS } from '@shared/data/classes';
 import { BASES, LEGENDARIES, SETS } from '@shared/data/items';
 import { MONSTERS } from '@shared/data/monsters';
+import { ADVENTURES } from '@shared/adventure';
 import { generateItem, type EliteTier } from '@shared/items';
 import { generateMap, type MapData, type NpcRole } from '@shared/mapgen';
 import { Rng } from '@shared/math';
@@ -177,9 +178,10 @@ function closeupView() {
 
 function monstersView() {
   const which = qs.get('which') ?? 'trash';
-  const ids = Object.keys(MONSTERS).filter((id) => (which === 'boss') === MONSTERS[id].family.startsWith('boss'));
+  const selected=qs.get('ids')?.split(',');
+  const ids = Object.keys(MONSTERS).filter((id) => selected?selected.includes(id):(which === 'boss') === MONSTERS[id].family.startsWith('boss'));
   const tiers: [string, EliteTier][] = which === 'boss' ? [['boss', 4]] : [['normal', 0], ['champion', 1], ['rare', 2], ['minion', 3]];
-  let y = which === 'boss' ? 200 : 60;
+  let y = which === 'boss' ? 200 : selected ? 130 : 60;
   ids.forEach((id) => {
     const def = MONSTERS[id];
     const big = def.scale > 1.2 || which === 'boss';
@@ -259,7 +261,9 @@ let mapInfo = '';
 function mapView() {
   const which = qs.get('theme') ?? 'town';
   let map: MapData;
-  if (which === 'town') map = generateMap('hearthmere', 1234);
+  const authored=qs.get('zone');
+  if(authored&&Object.hasOwn(ADVENTURES,authored))map=generateMap(authored,1234);
+  else if (which === 'town') map = generateMap('hearthmere', 1234);
   else if (which === 'glade') map = generateMap('whispering_glade', 99);
   else if (which === 'ashen') map = generateMap('ashen_hollow', 77);
   else if (which === 'riftGlade') map = generateMap('rift', 4242, 'glade');
@@ -318,7 +322,7 @@ function mapView() {
   const scr = app.screen;
   world.scale.set(ZOOM);
   world.position.set(Math.round(scr.width / 2 - fx * ZOOM), Math.round(scr.height / 2 - fy * ZOOM));
-  mapInfo = `map ${which} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
+  mapInfo = `map ${map.zone} ${map.w}x${map.h} props=${map.props.length} sorted=${layers.sorted.length} build=${(t1 - t0).toFixed(1)}ms`;
 }
 
 function sheetsView() {

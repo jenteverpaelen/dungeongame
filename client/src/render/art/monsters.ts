@@ -521,6 +521,44 @@ export function atkCurve(u: number, a = 0.4, b = 0.6): { wind: number; strike: n
 }
 
 const FAMILIES: Record<Fam, Family> = {
+  moth: {
+    base:1,height:52,shadow:30,fly:30,atkDur:.7,eyes:['body',5,-9],
+    parts:col=>[
+      P('wing',c=>{
+        blob(c,[0,0,-12,-21,-32,-31,-40,-21,-34,-9,-25,-4,-34,8,-27,17,-12,12],col.body,{ow:2.5,hl:.2});
+        blob(c,[-10,-6,-26,-21,-32,-19,-23,-10,-17,-4,-26,6,-22,10,-12,6],col.accent,{ow:1.4,hl:.2});
+        ball(c,-25,-15,4,5,col.eye,{ow:1.4,hl:.1});
+        crease(c,[-4,0,-20,-5,-32,-24],1.2,shade(col.body,.4),.8);
+      }),
+      P('body',c=>{
+        ball(c,0,0,7,15,col.body,{ow:2.5,hl:.25});
+        for(let y=-1;y<=9;y+=5)crease(c,[-5,y,5,y+1],1.1,shade(col.body,.4),.8);
+        ball(c,2,-11,8,7,col.body,{ow:2.2,hl:.2});meanEyes(c,1,7,-11,col.eye,.85,true,true);
+        for(const side of [-1,1]){seg(c,side*3,-16,side*12,-25,1.4,col.accent,1.2,false);for(let i=0;i<3;i++)seg(c,side*(6+i*2),-19-i*2,side*(11+i*2),-18-i*2,1,col.accent,1,false);}
+      }),
+    ],
+    rig:p=>{const root=p.add(null,null,0,-30),left=p.add('wing',root,-2,-8),right=p.add('wing',root,2,-8),body=p.add('body',root);return {root,left,right,body};},
+    pose:(n,s)=>{
+      const flap=Math.sin(s.t*18),{wind,strike}=atkCurve(s.atk,.4,.6),w=Math.max(wind,s.wind);
+      n.root.set(strike*3,-30+Math.sin(s.t*4)*3-w*4,w*.08);
+      n.left.set(-2,-8,-.1-flap*.2);n.left.scale(.65+flap*.25+w*.15,1);
+      n.right.set(2,-8,.1+flap*.2);n.right.scale(-(.65+flap*.25+w*.15),1);
+    },
+  },
+  beetle: {
+    base:1,height:46,shadow:42,atkDur:.7,eyes:['head',7,-7],
+    parts:col=>[
+      P('leg',c=>{seg(c,0,0,10,3,2.4,shade(col.body,.2),1.8,false);seg(c,10,3,15,11,2,col.accent,1.8,false);}),
+      P('shell',c=>{ball(c,-3,-16,18,17,col.body,{ow:2.6,hl:.24});crease(c,[-7,-32,-2,-21,0,-1],2,shade(col.body,.5),1);for(const side of [-1,1]){crease(c,[side*9-3,-28,side*13-3,-15,side*8-3,-6],1.4,light(col.body,.2),.8);}}),
+      P('head',c=>{ball(c,0,-5,11,9,col.accent,{ow:2.4,hl:.2});meanEyes(c,1,8,-7,col.eye,.8,true,true);
+        for(const side of [-1,1])poly(c,[side*5,0,side*16,4,side*17,11,side*10,7,side*6,5],col.body,{ow:2,hl:.15});}),
+    ],
+    rig:p=>{const n:Nodes={};for(let i=0;i<6;i++)n['leg'+i]=p.add('leg',null,(i<3?-1:1)*12,-20+(i%3)*8);n.shell=p.add('shell');n.head=p.add('head',null,7,-8);return n;},
+    pose:(n,s)=>{const {wind,strike}=atkCurve(s.atk,.4,.6),w=Math.max(wind,s.wind);
+      for(let i=0;i<6;i++){const side=i<3?-1:1,step=Math.sin(s.walk+(i%2)*Math.PI);n['leg'+i].set(side*12,-20+(i%3)*8,side*((i%3-1)*.3+step*.22*s.move));n['leg'+i].scale(side,1);}
+      n.shell.set(-w*2+strike*2,Math.abs(Math.sin(s.walk))*s.move+w*2,-w*.08);n.head.set(7+w*2,-8-w*4+strike*3,-w*.16+strike*.2);
+    },
+  },
   boar: {
     base:1,height:50,shadow:44,atkDur:.6,eyes:['head',4,-8],
     parts:col=>[P('body',c=>boarBody(c,col)),P('head',c=>boarHead(c,col)),P('legB',c=>boarLeg(c,col,true)),P('legF',c=>boarLeg(c,col,false)),P('tail',c=>boarTail(c,col))],

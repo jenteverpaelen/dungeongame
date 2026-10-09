@@ -10,13 +10,13 @@ function polygon(c:CanvasRenderingContext2D,p:Point[]) { c.beginPath();p.forEach
 
 /** Paint the very same ground union used for swept collision; no blurred collision shoreline. */
 export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,x0:number,y0:number) {
-  const masonry=a.surface==='masonry';
+  const masonry=a.surface==='masonry',ash=a.surface==='ash';
   let boundary=edges.get(a);if(!boundary){boundary=groundBoundary(a.geometry);edges.set(a,boundary);}
   c.save();c.translate(-x0,-y0);
-  c.fillStyle=masonry?'#192a2d':'#263d42';c.fillRect(x0,y0,512,512);
+  c.fillStyle=ash?'#2a1a16':masonry?'#192a2d':'#263d42';c.fillRect(x0,y0,512,512);
   // Cold, slowly flooded water around the remaining banks. Fine detail is deterministic.
   for(let y=Math.floor(y0/24)*24;y<y0+512;y+=24)for(let x=Math.floor(x0/48)*48;x<x0+512;x+=48) {
-    const h=hash2(x,y,71);c.strokeStyle=h>.6?'#354e50':'#2c4548';c.lineWidth=1;
+    const h=hash2(x,y,71);c.strokeStyle=ash?(h>.6?'#4a3a35':'#302521'):h>.6?'#354e50':'#2c4548';c.lineWidth=1;
     c.beginPath();c.moveTo(x,y+h*18);c.lineTo(x+10+h*22,y+h*18);c.stroke();
   }
   // One clip path for the union avoids internal seams between adjacent authored areas.
@@ -31,7 +31,7 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
   const gc=grain.getContext('2d')!,im=gc.createImageData(128,128);
   for(let y=0;y<128;y++)for(let x=0;x<128;x++) {
     const wx=x0+x*4,wy=y0+y*4,n=field(wx/170,wy/170,11)*15+field(wx/29,wy/29,12)*8+hash2(wx,wy,17)*5,k=(y*128+x)*4;
-    im.data[k]=(masonry?55:49)+n;im.data[k+1]=60+n;im.data[k+2]=(masonry?57:43)+n*.7;im.data[k+3]=255;
+    im.data[k]=(ash?74:masonry?55:49)+n;im.data[k+1]=(ash?58:60)+n;im.data[k+2]=(ash?53:masonry?57:43)+n*.7;im.data[k+3]=255;
   }
   gc.putImageData(im,0,0);c.drawImage(grain,x0,y0,512,512);
   if(masonry)for(let y=Math.floor(y0/64)*64;y<y0+576;y+=64)for(let x=Math.floor(x0/128)*128-64;x<x0+576;x+=128){
@@ -40,7 +40,8 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
   }
   for(let y=Math.floor(y0/27)*27;y<y0+530;y+=27)for(let x=Math.floor(x0/27)*27;x<x0+530;x+=27) {
     const h=hash2(x,y,11),xx=x+h*23,yy=y+hash2(y,x,33)*25;
-    if(!masonry&&h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
+    if(!masonry&&!ash&&h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
+    if(ash&&h>.88){c.save();c.translate(xx,yy);c.rotate(h*37);c.strokeStyle='rgba(42,26,22,.28)';c.lineWidth=1;c.beginPath();c.moveTo(-8,0);c.lineTo(0,-4);c.lineTo(6,2);c.stroke();c.restore();}
   }
   for(const p of a.paths) {
     c.lineCap='round';c.lineJoin='round';c.beginPath();p.points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));
@@ -70,12 +71,39 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
   const out:{view:Container;y:number}[]=[];
   for(const b of a.geometry.buildings) {
     const xs=b.footprint.map(p=>p[0]),ys=b.footprint.map(p=>p[1]);
-    const x=Math.min(...xs),y=Math.max(...ys),w=Math.max(...xs)-x,d=y-Math.min(...ys),h=54;
+    const x=Math.min(...xs),y=Math.max(...ys),w=Math.max(...xs)-x,d=y-Math.min(...ys);
+    const kiln=a.kilns?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),h=kiln?.h??54;
     const g=new Graphics();g.position.set(x,y);
     g.rect(0,-h,w,h).fill(0x45483f).stroke({color:0x242e29,width:2});
     g.rect(0,-h-d,w,d).fill(0x858775).stroke({color:0x343e35,width:2});
-    for(let row=0;row<3;row++)for(let xx=-16+(row%2)*26;xx<w;xx+=48)g.moveTo(Math.max(0,xx),-row*18).lineTo(Math.min(w,xx+46),-row*18).stroke({color:0x2b352f,width:2});
+    for(let row=0;row<Math.ceil(h/18);row++)for(let xx=-16+(row%2)*26;xx<w;xx+=48)g.moveTo(Math.max(0,xx),-row*18).lineTo(Math.min(w,xx+46),-row*18).stroke({color:0x2b352f,width:2});
     for(let xx=14;xx<w;xx+=49)g.moveTo(xx,-h).lineTo(xx+4,-h-d).stroke({color:0xa0a08a,width:1});
+    if(kiln){
+      // Staggered, weathered stone courses; the footprint and front baseline stay exact.
+      g.rect(0,-h,w,h).fill(0x302c23);
+      for(let row=0;row<Math.ceil(h/24);row++)for(let xx=-24+(row%2)*28;xx<w;xx+=56){
+        const left=Math.max(2,xx+2),right=Math.min(w-2,xx+53),top=Math.max(-h+2,-(row+1)*24+2),bottom=-row*24-2;
+        if(right<=left||bottom<=top)continue;
+        const tone=[0x45483f,0x505047,0x59584b,0x4b4b40][Math.floor(hash2(xx,row,91)*4)];
+        g.rect(left,top,right-left,bottom-top).fill(tone);
+        g.moveTo(left+2,top+2).lineTo(right-2,top+2).stroke({color:0x858775,alpha:.25,width:1});
+      }
+      g.rect(0,-h-d,w,d).fill(0x655e4d);
+      for(let row=0;row<Math.ceil(d/32);row++)for(let xx=-28+(row%2)*32;xx<w;xx+=64){
+        const left=Math.max(2,xx+2),right=Math.min(w-2,xx+61),top=-h-d+row*32+2,bottom=Math.min(-h-2,top+28);
+        if(right>left&&bottom>top)g.rect(left,top,right-left,bottom-top).fill(hash2(xx,row,19)>.5?0x777260:0x6c6959);
+      }
+      g.rect(w*.3,-h,w*.4,h).fill({color:0x2a1a16,alpha:.15});
+      // Sealed firing mouth, not a walkable doorway. Its entire footprint is solid.
+      const mw=w*.4,mh=h*.6,cx=w/2;
+      g.roundRect(cx-mw/2,-mh,mw,mh,18).fill(0x2a1a16).stroke({color:0x6b5a48,width:8});
+      g.roundRect(cx-mw*.4,-mh*.8,mw*.8,mh*.7,10).fill(0xb24e27);
+      g.ellipse(cx,-mh*.3,mw*.22,mh*.2).fill(0xff7a1a);
+      for(let xx=cx-mw*.35;xx<cx+mw*.4;xx+=16)g.rect(xx,-mh*.82,5,mh*.82).fill(0x302c23);
+      g.rect(cx-mw*.45,-mh*.36,mw*.9,7).fill(0x302c23);
+      g.ellipse(cx,-h-d*.5,w*.25,d*.3).fill(0x2a1a16).stroke({color:0x6b5a48,width:9});
+      g.ellipse(cx,-h-d*.5,w*.15,d*.16).fill(0x5a1a10);
+    }
     out.push({view:g,y});
   }
   for(const b of a.geometry.barriers) {
@@ -84,7 +112,8 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
     for(let x=0;x<=b.b[0]-b.a[0];x+=76)g.rect(x-5,-28,10,28).fill(0x8c7550).stroke({color:0x302c23,width:1});
     out.push({view:g,y});
   }
-  const w=a.wheel,root=new Container();root.position.set(w.x,w.y);
+  const w=a.wheel;if(!w)return out;
+  const root=new Container();root.position.set(w.x,w.y);
   const wheel=new Graphics().ellipse(0,-48,w.radius,62).stroke({color:0x332d23,width:14}).ellipse(0,-48,w.radius,62).stroke({color:0x9a8054,width:5});
   for(let i=0;i<10;i++){const a=i*Math.PI/5;wheel.moveTo(0,-48).lineTo(Math.cos(a)*w.radius,-48+Math.sin(a)*62).stroke({color:0x786545,width:6});}
   wheel.circle(0,-48,8).fill(0x303b35);root.addChild(wheel);out.push({view:root,y:w.y});

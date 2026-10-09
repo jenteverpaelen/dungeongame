@@ -15,6 +15,7 @@ import { killMob, packMemberGone } from './kills';
 import { dropGoldPile } from './loot';
 import { spawnProj } from './projectiles';
 import { bossTick } from './rift';
+import { fractureLine } from './fracture';
 import {
   AGGRO_RANGE, DORMANT_RANGE, GOBLIN_ESCAPE_MS, eliteToughness, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
   PACK_ALERT_RANGE, WINDUP_MULT,
@@ -29,7 +30,7 @@ export const DUMMY_DEF: MonsterDef = {
 
 export interface MobOpts {
   /** Authored field encounter: existing ring/enrage, no reward-bearing summons. */
-  combat?: 'keeper';
+  combat?: 'keeper' | 'furnace';
   tier?: EliteTier;
   affixes?: string[];
   name?: string;
@@ -73,10 +74,10 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     atkX: x, atkY: y,
     aff: {
       molten: 500, frozen: 1500 + inst.rng.next() * 3000, plagued: 1000 + inst.rng.next() * 3000,
-      vortex: 2500 + inst.rng.next() * 5000, mortar: 1000 + inst.rng.next() * 2000, electrified: 0,
+      vortex: 2500 + inst.rng.next() * 5000, mortar: 1000 + inst.rng.next() * 2000, electrified: 0, faulted: 1500,
     },
     noticedMs: -1, goldPileMs: 0, fleeX: x, fleeY: y, fleeMs: 0,
-    boss: tier === 4 || o.combat==='keeper' ? { ringMs: 3500, addsMs: o.combat==='keeper'?Infinity:7000, enraged: false, slamCount: 0 } : null,
+    boss: tier === 4 || o.combat ? { ringMs: 3500, addsMs: o.combat?Infinity:7000, enraged: false, slamCount: 0, ...(o.combat==='furnace'?{furnace:true}:{}) } : null,
     losMs: 0, los: true, shotLos: true, shatterBy: 0, shatterDepth: 0,
     progress: o.progress ?? 0, noReward: false,
     faceLeft: inst.rng.next() < 0.5, moving: false, descVer: 1, sepX: 0, sepY: 0, trailX: x, trailY: y,
@@ -294,8 +295,8 @@ function think(inst: Instance, m: Mob, dtMs: number) {
         m.los = !inst.cw.segmentBlocked(m.x, m.y, p.x, p.y);
         m.shotLos = m.los || !shotBlocked(inst, m.x, m.y, p.x, p.y);
       }
-      const ranged = atk.kind === 'ranged' || atk.kind === 'lob' || atk.kind === 'charge';
-      const clearShot = atk.kind === 'lob' || atk.kind === 'charge' ? m.los : m.shotLos;
+      const ranged = ['ranged','fan','fracture','lob','charge'].includes(atk.kind);
+      const clearShot = atk.kind === 'lob' || atk.kind === 'charge' || atk.kind==='fracture' ? m.los : m.shotLos;
       if (d <= reach && m.atkCdMs <= 0 && (!ranged || clearShot)) { beginAttack(inst, m, p); return; }
       if (d > reach * (ranged ? 0.9 : 0.8) || (ranged && !clearShot)) {
         step(inst, m, p.x, p.y, m.speed * slow, dtS, p);
@@ -371,6 +372,7 @@ function beginAttack(inst: Instance, m: Mob, p: Player) {
   m.faceLeft = p.x < m.x;
   // A lob's ground warning starts on launch, after the interruptible windup.
   if(atk.kind==='lob')return;
+  if(atk.kind==='fan'||atk.kind==='fracture') {m.atkX=p.x;m.atkY=p.y;return;}
   if (atk.kind === 'charge') {
     const distance = Math.hypot(p.x - m.x, p.y - m.y), length = Math.min(distance, atk.range);
     const angle = Math.atan2(p.y - m.y, p.x - m.x);
@@ -402,6 +404,16 @@ function resolveAttack(inst: Instance, m: Mob) {
   m.atkCdMs = m.cooldownMs * (m.boss?.enraged ? 0.8 : 1);
   const p = targetOf(inst, m);
   switch (atk.kind) {
+    case 'fracture':
+      fractureLine(inst,m,m.atkX,m.atkY,atk.range,m.dmg/3,atk.element);
+      return;
+    case 'fan': {
+      const angle=Math.atan2(m.atkY-m.y,m.atkX-m.x),speed=atk.projSpeed??330;
+      // Same 70-degree spread as the ranger fan; total raw damage is one inherited hit.
+      for(let i=0;i<3;i++)spawnProj(inst,{kind:'mob',v:'orb',mob:m,src:m.id,x:m.x,y:m.y-10,
+        angle:angle+(i-1)*35*Math.PI/180,speed,lifeMs:(atk.range+220)/speed*1000,r:11,el:atk.element,dmg:m.dmg/3,mobLevel:m.level});
+      return;
+    }
     case 'charge': {
       const dx = m.atkX - m.x, dy = m.atkY - m.y, distance = Math.hypot(dx, dy);
       if (distance <= 0) return;

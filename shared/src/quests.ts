@@ -7,6 +7,7 @@ import type { MapData } from './mapgen';
 import { nextTravelPoint } from './worldNavigation';
 import town from './data/town/hearthmere.json';
 import { ADVENTURES } from './adventure';
+import { ZONES } from './data/zones';
 import type { LoreEntry } from './data/story';
 
 /** C070 remains the sole owner of this quest's save shape; never duplicate its reward. */
@@ -45,6 +46,11 @@ export const questUnlocks=(q:QuestDef):string[]=>[...(q.unlocks?[q.unlocks]:[]),
 export const questHasWeapon=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&(q.reward.item==='magic_weapon'||q.reward.item==='starter_upgrade');
 export function zoneUnlocked(save:CharacterSave,zone:string):boolean {
   return QUESTS.filter(q=>questUnlocks(q).includes(zone)).every(q=>questCompleted(save,q.id));
+}
+/** Existing completed-route records keep access even when their old reward carried no XP. */
+export function zoneLevelAllowed(save:CharacterSave,zone:string):boolean {
+  const gates=QUESTS.filter(q=>questUnlocks(q).includes(zone));
+  return save.level>=(ZONES[zone]?.levelBand[0]??Infinity)||gates.length>0&&gates.every(q=>questCompleted(save,q.id));
 }
 export function questContact(target:QuestTarget):string {
   return ADVENTURES[target.zone]?.interactions.find(i=>i.id===target.target)?.name

@@ -31,7 +31,7 @@ export class AdventureLife {
         }
       } else {
         for (let i = 0; i < 3; i++) {
-          const mist = glowSprite(0xaebcb3, site.width, .065, true);
+          const mist = glowSprite(area.theme==='ashen'?0x858775:0xaebcb3, site.width, .065, true);
           mist.height = site.width * .2; mist.blendMode = 'normal'; add(mist);
         }
       }

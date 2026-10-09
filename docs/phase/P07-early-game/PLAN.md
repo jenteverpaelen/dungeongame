@@ -1,4 +1,4 @@
-# P7 early-game chapter — active C090
+# P7 early-game chapter — implementation inventory through C091
 
 2026-10-10. Complete the remaining chapter implementation in sequence, keeping its human/economy acceptance separate. Solo; minimal necessary checks, owner does full playtesting later. Town,620/90ms camera and approved UI materials stay. Menus use columns/tabs/pages, never vertical scrolling.
 
@@ -29,3 +29,6 @@ No new numbers are treated as researched facts. Candidate ranges/prices/rewards 
 Repeated contracts use saved cycle identity and explicit physical accept/claim. An action that happened before acceptance cannot count. An event cannot grant credit for despawns or client-declared kills. Bestiary counts only eligible actual deaths and preserves unknown future records. Selling is an intentional item transfer, not a shortcut to silently deleting a bag: protect marked items, show exact gold and preserve buyback if implemented. No arbitrary gamble/durability/travel/respec sink added as a side effect of P7.
 
 Every addition/replacement records why/evidence/future effect/rollback in the Codex log. Source counts remain188/184 because this step reuses registered evidence. Finish the chapter checklist rather than declaring the roadmap complete from one quest or one new panel.
+
+## C091 implementation closure
+The inventory above is now implemented for the early slice: six authored destinations with real bands and compatible server gates; seven story quests/two chapters; two new rigs and distinguishing mechanics; two boss-mechanic patterns; authored trait combinations; ambient motion/audio, contracts/event/bestiary/minimal seller; reusable content-unit checklist. See CHAPTER-REPORT.md. Acceptance remains explicit: all-class input/human campaign checks, economy/drop/death bands, foreground performance, style and G6. Continue P8 stock/economy rather than repeatedly replaying P7. The owner chose no required story repeats.

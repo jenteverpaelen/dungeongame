@@ -30,7 +30,7 @@ export const ZONES: Record<string, ZoneDef> = {
     blurb: 'Mossy woods where slimes swarm and the mushrooms walk.',
   },
   rillwake_crossing: {
-    id: 'rillwake_crossing', name: 'Rillwake Crossing', kind: 'field', theme: 'glade', levelBand: [1,70], size: [64,52],
+    id: 'rillwake_crossing', name: 'Rillwake Crossing', kind: 'field', theme: 'glade', levelBand: [1,4], size: [64,52],
     packTarget: 5, respawnSec: 18,
     blurb: 'Follow a flooded timber road to a silent mill. An optional adventure begins at the tender’s camp.',
   },
@@ -40,14 +40,26 @@ export const ZONES: Record<string, ZoneDef> = {
     blurb: 'Cinder-choked ruins of a buried city. Imps nest in the ash.',
   },
   bracken_sluice: {
-    id:'bracken_sluice',name:'Bracken Sluice',kind:'field',theme:'glade',levelBand:[1,70],size:[56,48],
+    id:'bracken_sluice',name:'Bracken Sluice',kind:'field',theme:'glade',levelBand:[4,7],size:[56,48],
     packTarget:4,respawnSec:18,
     blurb:'A maintenance causeway above the flood. Follow Orren’s survey to reach the rootbound spillway.',
   },
   reedvault_pumpworks: {
-    id:'reedvault_pumpworks',name:'Reedvault Pumpworks',kind:'dungeon',theme:'glade',levelBand:[1,70],size:[40,36],
+    id:'reedvault_pumpworks',name:'Reedvault Pumpworks',kind:'dungeon',theme:'glade',levelBand:[7,9],size:[40,36],
     packTarget:0,respawnSec:0,
     blurb:'A solo descent beneath Bracken Sluice. Turn the pressure wheels, clear each chamber, and restart the buried pump. Enter through the hatch in Bracken; unfinished encounters reset when you leave.',
+  },
+  cairnspill_terraces: {
+    id:'cairnspill_terraces',name:'Cairnspill Terraces',kind:'field',theme:'glade',levelBand:[9,12],size:[56,48],packTarget:4,respawnSec:18,
+    blurb:'Climb the old quarry road above the sluice. Fractured benches and an abandoned haulage track lead toward the kiln country.',
+  },
+  cinderwash_kilns: {
+    id:'cinderwash_kilns',name:'Cinderwash Kilns',kind:'field',theme:'ashen',levelBand:[12,16],size:[56,48],packTarget:4,respawnSec:18,
+    blurb:'The stone road ends in firing yards that burn without their keepers. Find the draught controls and stop the heat reaching the crown.',
+  },
+  kilnwatch_crown: {
+    id:'kilnwatch_crown',name:'Kilnwatch Crown',kind:'field',theme:'ashen',levelBand:[16,20],size:[48,48],packTarget:3,respawnSec:18,
+    blurb:'The last furnace overlooks the water road. Break its guardian, close the cold draw, and bring the surviving watchkeepers home.',
   },
   rift: {
     id: 'rift', name: 'Nephalem Rift', kind: 'rift', theme: 'glade', levelBand: [1, 70], size: [110, 110],
@@ -56,7 +68,7 @@ export const ZONES: Record<string, ZoneDef> = {
   },
 };
 
-export const FIELD_IDS = ['whispering_glade', 'ashen_hollow', 'rillwake_crossing', 'bracken_sluice'];
+export const FIELD_IDS = ['whispering_glade', 'ashen_hollow', 'rillwake_crossing', 'bracken_sluice', 'cairnspill_terraces', 'cinderwash_kilns', 'kilnwatch_crown'];
 
 /** Rift progress awarded per kill by elite tier (D3: trash ~1 progress orb, elites more). Total to summon guardian = 100. */
 export const RIFT_PROGRESS = [0.55, 3, 4.5, 0.6, 0, 0];

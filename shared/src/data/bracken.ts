@@ -54,7 +54,7 @@ export const BRACKEN:AdventureData={
   ],scenery,
   npcs:[{id:'floodgate',name:'Floodgate mechanism',role:'clue',x:2540,y:840,r:18}],
   interactions:[{id:'floodgate',name:'Floodgate mechanism',x:2540,y:840,radius:110,kind:'mechanism'}],
-  portals:[{x:630,y:2760,to:'rillwake_crossing',label:'Back to Rillwake Crossing'},{x:2790,y:1590,to:'reedvault_pumpworks',label:'Reedvault Pumpworks · solo dungeon'}],
+  portals:[{x:630,y:2760,to:'rillwake_crossing',label:'Back to Rillwake Crossing'},{x:2790,y:1590,to:'reedvault_pumpworks',label:'Reedvault Pumpworks · solo dungeon'},{x:2850,y:1150,to:'cairnspill_terraces',label:'Cairnspill Terraces'}],
   locations:[{id:'forecourt',x:2540,y:1650,radius:110}],
   encounters:[
     {id:'causeway',x:1510,y:2130,members:[{type:'thornling',dx:0,dy:0},{type:'bog_slime',dx:80,dy:90},{type:'gloomshroom',dx:-100,dy:-70},{type:'grave_bat',dx:120,dy:-120},{type:'bog_slime',dx:-100,dy:100}]},
@@ -69,5 +69,6 @@ export const BRACKEN:AdventureData={
     [[1310,2070],[1150,1620],[1660,1500],[2190,1330],[2520,1310]],
     [[790,2720],[670,2760]],
     [[2540,1650],[2730,1590]],
+    [[2590,1240],[2850,1150]],
   ],
 };

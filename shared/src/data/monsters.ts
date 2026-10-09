@@ -4,12 +4,12 @@
 import type { Element } from '../types';
 import { DASH } from '../constants';
 
-export type MonsterAttackKind = 'melee' | 'ranged' | 'lob' | 'charge' | 'explode' | 'none';
+export type MonsterAttackKind = 'melee' | 'ranged' | 'fan' | 'fracture' | 'lob' | 'charge' | 'explode' | 'none';
 
 export interface MonsterDef {
   id: string;
   name: string;
-  family: 'slime' | 'mushroom' | 'bat' | 'sprout' | 'crab' | 'boar' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
+  family: 'slime' | 'mushroom' | 'bat' | 'moth' | 'beetle' | 'sprout' | 'crab' | 'boar' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
   hp: number;      // multiplier on base level HP
   dmg: number;     // multiplier on base level damage
   speed: number;   // units / second
@@ -58,6 +58,13 @@ MONSTERS.siltusk = {
 
 export const RIFT_GUARDIANS: Record<string, string> = { glade: 'gorgemaw', ashen: 'vexis' };
 
+// L109: authored-only variants. No changes to procedural spawn weights or old budgets.
+MONSTERS.vault_moth={...MONSTERS.thornling,id:'vault_moth',name:'Vault Moth',family:'moth',weight:0,flying:true,
+  colors:{...MONSTERS.grave_bat.colors},attack:{...MONSTERS.thornling.attack,kind:'fan',element:'arcane'}};
+MONSTERS.flint_beetle={...MONSTERS.thornling,id:'flint_beetle',name:'Flint Beetle',family:'beetle',weight:0,
+  colors:{...MONSTERS.mossback.colors},attack:{...MONSTERS.reedclaw.attack,kind:'fracture'}};
+MONSTERS.kiln_heart={...MONSTERS.magma_brute,id:'kiln_heart',name:'Kiln Heart',weight:0};
+
 // Elite affixes (Diablo 3 names where generic; behaviour implemented in server/src/sim/elites.ts).
 export interface EliteAffixDef { id: string; name: string; color: number; desc: string }
 export const ELITE_AFFIXES: Record<string, EliteAffixDef> = {
@@ -69,6 +76,7 @@ export const ELITE_AFFIXES: Record<string, EliteAffixDef> = {
   electrified: { id: 'electrified', name: 'Electrified', color: 0xd6c2ff, desc: 'Releases sparks when hit.' },
   vortex: { id: 'vortex', name: 'Vortex', color: 0xc39bff, desc: 'Pulls you towards them.' },
   mortar: { id: 'mortar', name: 'Mortar', color: 0xff9a3c, desc: 'Lobs explosive shells at range.' },
+  faulted: { id:'faulted',name:'Faulted',color:0xff9a3c,desc:'Marks three ground fractures in a fixed line. Step sideways before they erupt; solid cover blocks the line.' },
 };
 
 export const ELITE_PREFIX = ['Grim', 'Rot', 'Vile', 'Dread', 'Ashen', 'Blight', 'Gore', 'Hollow', 'Plague', 'Sorrow', 'Rage', 'Bone', 'Cinder', 'Gloom'];
