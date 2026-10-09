@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "checkpoint": "C060",
-  "research": "L67;L68;L69;L70;L71",
+  "checkpoint": "C061",
+  "research": "L67;L68;L69;L70;L71;L72",
   "recordings": [
     {
       "id": "D3-CAM-01",
@@ -579,6 +579,164 @@
         {
           "seconds": 1200,
           "observed": "Field objective now travel/find item. Action-bar hover shows Burning Arrow summary with damage,arrow count,ignite chance,DPS,mana and attack time,distinct from earlier gem-item tooltip; a second active icon and two right-side gem progress bars are visible. No formula correctness or skill acquisition input verified."
+        }
+      ]
+    },
+    {
+      "id": "POE2-EARLY-01",
+      "source_id": "POE2-EARLY-VIDEO",
+      "media_id": "POE2-V-EARLY",
+      "url": "https://www.youtube.com/watch?v=qN7wlatdCYg",
+      "title": "Path of Exile 2 Gameplay Campaign Act 1: Mercenary Class (Let's Play)",
+      "publisher": "WolfheartFPS",
+      "published": "2024-12-07",
+      "publication_evidence": "Expanded YouTube page says live streamed on date;not independently verified recording history",
+      "inspected": "2026-10-09",
+      "game": "Path of Exile 2",
+      "platform_evidence": "WASD/Alt/Shift instructions and mouse interface;description lists multiple supported platforms,not capture platform proof",
+      "visible_build": null,
+      "mode": "Act1 campaign;Standard at creation;full configuration unverified",
+      "class": "Mercenary selected atcreation540s;crossbow play follows",
+      "game_ui_language": "English",
+      "host_player_ui_language": "Dutch",
+      "account": "Prior account,entitlements and experience unknown",
+      "difficulty": "Complete configuration not inspected",
+      "social": "Other town avatars;party membership and cooperative credit unknown",
+      "duration_seconds_dom": 26956.621,
+      "decoded_video_dimensions": [
+        1280,
+        720
+      ],
+      "initial_player_dimensions_metadata": [
+        1920,
+        1080
+      ],
+      "dimension_limit": "Initial metadata differs from final decoded check;resolution not established for every sampled frame",
+      "inspection_viewport": [
+        1920,
+        1080
+      ],
+      "rendered_player_dimensions_observed": [
+        [
+          1337,
+          752
+        ],
+        [
+          1348,
+          758
+        ]
+      ],
+      "method": "22 sparse paused frames540-4800s;UI slider seeks,read-only currentTime/readyState and personally inspected screenshots. Not continuous viewing/live play. Presenter covers lower-right;chat sometimes overlaps dialogue.",
+      "timing_eligible": false,
+      "balance_ready": false,
+      "unverified": [
+        "exact build",
+        "source speed/edits",
+        "pristine account",
+        "complete configuration",
+        "gemcutting/insertion inputs",
+        "invalid-support recovery",
+        "computed effects",
+        "currency/item conservation",
+        "durable quest/reward state",
+        "current support rules",
+        "human comprehension"
+      ],
+      "inspection_corrections": [
+        "Chapter gameplay begins at540s still shows creation;not an elapsed-play origin.",
+        "2400s initial stale presenter image excluded;decoded frame re-inspected.",
+        "Initial1920x1080 metadata/final1280x720 decode differ;no native1080p measurements.",
+        "2024 one-copy tooltip predates0.3 removal,0.4 compatibility changes and0.5.5 previews.",
+        "Public chat/account details excluded."
+      ],
+      "frames": [
+        {
+          "seconds": 540,
+          "observed": "Creation screen:Mercenary selected with lore and three preview-like icons;name filled,Standard dropdown,Continue and Coming Soon panel. Presenter obscures lower-right details. Source chapter says gameplay begins but this is still creation;configuration/creation input unknown."
+        },
+        {
+          "seconds": 600,
+          "observed": "Area loading artwork/name with one-sentence stun tip and loading gears. Not a measured load duration or verified stun rule;presenter covers lower-right."
+        },
+        {
+          "seconds": 660,
+          "observed": "Passive Skills graph open with0 Skill Points,search and zoom control. Starting portrait;graph extends beyond view. Bottom world objective says find safety,WASD movement. Two flasks lower-left;presenter obscures lower-right;public chat excluded. No node input or exact graph count."
+        },
+        {
+          "seconds": 720,
+          "observed": "Shop open instead of world:category navigation,search/filter,stash-tab product cards with currency prices and cart count0;character preview. No purchase or price conversion verified;no monetization adopted. Public handle/currency balance excluded from notes."
+        },
+        {
+          "seconds": 840,
+          "observed": "Mercenary in riverbank field with crossbow,minimap,quest tracker search-for-boss/find-safety,two lower-left flasks and an I prompt. Fine lower-right action controls obscured by presenter. No first-equip input measured."
+        },
+        {
+          "seconds": 900,
+          "observed": "Crossbow combat with top target name/health and red enemy outline;quest tracker/minimap persist. Public chat excluded. No skill/support panel here."
+        },
+        {
+          "seconds": 1020,
+          "observed": "Field camera close to character;partly visible Basic Bolt label near lower-right,mostly obscured by presenter. Same objective/minimap;no acquisition or changed zoom setting inferred."
+        },
+        {
+          "seconds": 1200,
+          "observed": "Riverbank traversal with unchanged search/find-safety objective;minimap expands. No new skill panel or reward state. Sparse source offsets cannot measure active progression time."
+        },
+        {
+          "seconds": 1440,
+          "observed": "Field now shows enter-encampment objective and checkpoint label on minimap. Boss kill and reward event itself not sampled;no death/recovery inference."
+        },
+        {
+          "seconds": 1560,
+          "observed": "Town NPC quest offer with portrait,prose,two reward icons and Accept Quest;large world quest marker,NPC name,stash label and minimap. Public chat overlaps prose;reward values not inferred. Actual acceptance,persistence and quest-credit rules unknown."
+        },
+        {
+          "seconds": 1800,
+          "observed": "Town vendor stock/search beside inventory and equipped gear. Staff tooltip explicitly grants a level1 skill and shows price,Alt Inspect and Shift Compare. Price red;bag balance18 versus price55,but purchase refusal untested. Weapon-set representations visible;equipment switching/currency outcome unknown."
+        },
+        {
+          "seconds": 2100,
+          "observed": "Gemcutting Skill Gems panel in field;weapon/theme categories and All Gems,search,crossbow grid with first row level1 options and dim later numbered rows,Coming Soon cells. Quest tracker stays visible. No chosen gem,exact unlock predicate or complete current catalogue inferred."
+        },
+        {
+          "seconds": 2110,
+          "observed": "Skills/inventory already open with Explosive Grenade detail and empty support circles;transition from Gemcutting happened between sampled2100/2110 frames. No explicit engraving input captured."
+        },
+        {
+          "seconds": 2120,
+          "observed": "Separate Skills pane beside inventory shows Explosive Grenade in skill row,empty support circles and unused rows. Header labels attribute-specific Support Gem Capacity;tooltip separates tags,level,mana,cooldown/uses,attack modifiers,crossbow requirement and effect details. Exact cut/equip input,capacity enforcement and current rules unverified."
+        },
+        {
+          "seconds": 2400,
+          "observed": "Clearfell combat with target outline/health,minimap and two quest groups. No gem/refund panel here. Initial undecoded capture was stale presenter scene and is excluded."
+        },
+        {
+          "seconds": 3600,
+          "observed": "Boss encounter:large named top health bar,kill objective,minimap checkpoint and visible small enemies near player. Presenter obscures skill area. No attack timings,difficulty,deaths or reward distribution measured."
+        },
+        {
+          "seconds": 3900,
+          "observed": "Inventory open in dungeon;additional equipment/bag items and crossbow tooltip damage,crit,attack/reload speed with Inspect/Compare hints. Red/green cell backgrounds visible but exact restriction meaning untested. Boss reward identities or successful equip not reconciled."
+        },
+        {
+          "seconds": 4200,
+          "observed": "Dungeon combat now tracks talk-to-NPC reward;ground gold/flask labels,target status badges with percentages and upper-left timed buff. Percent/timer meanings and drop ownership untested. No elapsed combat or reward-rate inference."
+        },
+        {
+          "seconds": 4740,
+          "observed": "Gemcutting Support Gems with existing-skill list,All Gems,search and Show Recommended Gems control. First row available,lower rows dim. Pin tooltip explains supported skill condition,attribute requirement and trade-off:pinning physical damage/no stun buildup. It explicitly says same support cannot be socketed multiple times;historical rule superseded by0.3. Actual compatibility enforcement unknown."
+        },
+        {
+          "seconds": 4755,
+          "observed": "Explosive Grenade selected in support picker;available suggestions change. Scattershot tooltip describes extra projectiles with damage and attack/cast-speed penalties plus attribute requirement;lower tier options dim. Historical one-copy restriction still written. Recommendations/tooltip are not measured damage or compatibility enforcement."
+        },
+        {
+          "seconds": 4770,
+          "observed": "Skills pane support hover identifies Scattershot on occupied green icon beside grenade icon;Dex usage1/4,tooltip repeats benefits/penalties and historical uniqueness text. Attribute parenthesis differs from picker. Exact insertion input,damage result,invalid state and save unverified. Final decoded video1280x720 despite initial metadata1920x1080."
+        },
+        {
+          "seconds": 4800,
+          "observed": "Town Skills pane lists several active rows with distinct gem levels and DMG/DPS fields. Explosive Grenade has one green support icon;header Dex support usage1/4 versus earlier0/3. Other support circles empty. This is visible association,not verified bonus/attribute formula or persistence;other town avatars not a party claim."
         }
       ]
     }

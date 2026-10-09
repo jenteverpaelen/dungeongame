@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "checkpoint": "C060",
-  "research": "L66;L67;L68;L69;L70;L71",
-  "inspected_media_count": 28,
-  "scope": "23 publisher gallery assets plus five historical recordings with110 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
+  "checkpoint": "C061",
+  "research": "L66;L67;L68;L69;L70;L71;L72",
+  "inspected_media_count": 29,
+  "scope": "23 publisher gallery assets plus six historical recordings with132 sparse frames,4 intro frames excluded. Not installed-game tests. URLs are provenance, not licences. No binary copies, current-build claim, private account data or inferred play times.",
   "assets": [
     {
       "media_id": "TBH-V00",
@@ -373,6 +373,22 @@
       "limits": "No current-rule,comparable timing,actual input or durable transaction guarantee",
       "frame_manifest": "TIMELINE-FRAMES.json",
       "recording_id": "POE1-EARLY-01",
+      "retrieved": "2026-10-09"
+    },
+    {
+      "media_id": "POE2-V-EARLY",
+      "source_id": "POE2-EARLY-VIDEO",
+      "url": "https://www.youtube.com/watch?v=qN7wlatdCYg",
+      "natural_width": 1280,
+      "natural_height": 720,
+      "dimension_limit": "Final decoded dimensions;initial player metadata1920x1080,per-frame resolution unknown",
+      "classification": "Published player recording;22 sparse early-flow frames",
+      "observed": "Creation/loading;passive graph;store;quest offer;vendor;skill gemcutting;Skills rows;support choices/trade-offs and occupied support slot",
+      "version": "Build unknown;publication2024-12-07;historical support uniqueness",
+      "inspection": "Chrome1920x1080,scaled player;presenter/chat obstruction;decoded frames inspected;no media file retained",
+      "limits": "No current support rule,input/error/persistence or comparable-time guarantee",
+      "frame_manifest": "TIMELINE-FRAMES.json",
+      "recording_id": "POE2-EARLY-01",
       "retrieved": "2026-10-09"
     }
   ]

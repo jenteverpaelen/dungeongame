@@ -126,3 +126,25 @@ DutchSideQuest's [Act1 recording](https://www.youtube.com/watch?v=RlQ_Gi6xg9s), 
 The matching-colour gem instruction predates3.29 (POE-05). Preserve both versions instead of importing a stale constraint. A passive point explicitly labelled unconfirmed is strong evidence of a preview state; a later closed panel cannot prove acceptance. Reward selection is likewise distinct from a later bag gem and equipped action. No support-gem acquisition or invalid-support recovery was observed in these samples; this remains open, not absent from the game.
 
 Cumulative165 sources/146 claims/28 media/55 atlas entries/five recordings/110 samples,including four earlier intro exclusions. Comparable elapsed-time matrix remains unknown. PoE2 and D3 Adventure timestamped early-flow observations remain next; no new gameplay,UI style,town,camera or numerical target follows.
+
+## C061 — PoE2 skill and support decisions [V]
+
+WolfheartFPS's [Act1 Mercenary recording](https://www.youtube.com/watch?v=qN7wlatdCYg) was live-stream published December7,2024. Twenty-two sparse frames between09:00 and80:00 are personally inspected;exact build,account history,source speed/edits and configuration remain unknown. The09:00 chapter labelled gameplay begins still shows creation. Optional store browsing and other interruptions further prevent treating offsets as comparable progression time. [Exact samples](TIMELINE-FRAMES.json).
+
+Chrome viewport1920×1080;initial player metadata1920×1080 but final decoded frame1280×720. The page player is scaled and per-frame source resolution is not established. Presenter covers much of the action bar;chat sometimes overlaps dialogue. A stale2400-second presenter image was excluded before inspecting the decoded gameplay frame. No source files/assets retained.
+
+| Video offsets | Observed state | Boundary |
+|---|---|---|
+|09:00 /10:00 /11:00|Mercenary/Standard creation,loading tip,zero-budget passive tree with movement cue|No exact creation input,load duration or point spending|
+|12:00|Store product/category/cart interface|No purchase,price conversion or monetization proposal|
+|14:00–24:00 sampled|Field objectives,target feedback and eventual enter-town instruction|No clean active-play timer or first-skill onset|
+|26:00|NPC quest offer with reward icons/Accept Quest|Acceptance and durable credit not observed|
+|30:00 /65:00|Vendor skill-granting weapon/price/inspect cues;later bag/gear tooltip|Red price exceeds balance,but no rejected transaction tested|
+|35:00 /35:10 /35:20|Gemcutting catalogue then separate skill row/detail with empty support circles|Transition sampled;exact cut/equip action unknown|
+|60:00 /70:00|Boss bar/kill objective,then later return-to-NPC objective and ground loot|No rate,kill-credit,ownership or recovery guarantee|
+|79:00 /79:15|Support suggestions change by selected skill;tooltips state applicability,attribute cost and benefit/penalty|Recommendations are not enforced compatibility or measured power|
+|79:30 /80:00|Named support in grenade row and changed attribute support usage|Visible association,not formula,invalid-state or persistence proof|
+
+The support's written one-copy restriction is historical and removed in0.3 (POE2-01). These pixels also predate0.4 compatibility-hover and0.5.5 before/after gem additions. Preserve those differences;neither game shares the other's socket architecture by inference. The transferable question is whether the current modifier screen makes applicability,benefit,penalty and equipped contribution understandable,within Hearthfall's existing style.
+
+Cumulative166 sources/151 claims/29 media/64 atlas entries/six recordings/132 samples,four earlier introductions excluded. No numerical target,gem/tree system,store or UI restyle adopted. D3 Adventure remains the missing requested mode for this scoped video pass;all comparable time and current-client/error/durable-state gaps remain explicit.

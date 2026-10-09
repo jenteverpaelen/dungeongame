@@ -1,6 +1,6 @@
 # Path of Exile 1 and 2 — R-04, first evidence pass
 
-Read 2026-10-09. Separate games and version histories. Overview L1 and patch details L2; newer indexed versions and rule changes are recorded in [VERSIONS.md](VERSIONS.md), claims POE-05/06 and POE2-03/04/05. Installed builds remain Q; C060 adds scoped historical PoE1 onboarding pixels, with PoE2 observation still separate and incomplete.
+Read 2026-10-09. Separate games and version histories. Overview L1 and patch details L2; newer indexed versions and rule changes are recorded in [VERSIONS.md](VERSIONS.md), claims POE-05/06 and POE2-03/04/05. Installed builds remain Q; C060/C061 add separate historical PoE1/PoE2 onboarding pixels;current behavior and comparable timing remain incomplete.
 
 ## Findings
 
@@ -39,3 +39,9 @@ See the [UI atlas](UI-ATLAS.md), structured entries and exact media provenance. 
 [DutchSideQuest's Act1 recording](https://www.youtube.com/watch?v=RlQ_Gi6xg9s), published March3,2026, adds21 sampled frames,seven atlas entries and claims POE-10–14. It exposes equipment/gem versus action details,contextual passive/stash help,an explicitly unconfirmed point,quest/map continuity,reward choice and vendor preview. Final class,build,account history and claimed unedited/first-ever conditions remain unknown; tab entitlement and source timing cannot be inferred. Current-rule and support-error coverage remain unfinished.
 
 The passive selection says it is unconfirmed and offers Apply Points/Cancel. Reward choice beside inventory and later bag/action icons are different states. Neither closing a pane nor a later icon proves a saved transaction. March matching-colour instructions predate3.29 and must not replace POE-05. No numerical or gem-system design follows. See TIMELINES.md and TIMELINE-FRAMES.json; PoE2 remains a separate research row.
+
+## C061 — separate PoE2 modifier evidence
+
+[WolfheartFPS's Mercenary recording](https://www.youtube.com/watch?v=qN7wlatdCYg),live-stream publication December7,2024,adds22 sparse frames,nine atlas entries and claims POE2-10–14. Skill gemcutting,skill rows and support selection/association are separate screens. Selecting a different existing skill changes suggestions;tooltips show applicability,attribute requirements and both benefit and penalty. A later Skills row identifies the support and changed capacity usage. No actual insertion,computed effect,invalid-support recovery or persistence is verified.
+
+The written duplicate-support prohibition predates0.3 removal,0.4 compatibility-hover and0.5.5 gem previews. Creation/chapter mismatch,store browsing,presenter obstruction and changing decoded resolution limit timing/geometry claims. Quest offer/vendor affordability are additional observations,not tested operations. No gem system,giant tree,monetization or numerical target is imported. See TIMELINES.md;current-client support recovery and first-ten-level traces remain unfinished.

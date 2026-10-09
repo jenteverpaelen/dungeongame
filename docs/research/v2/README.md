@@ -32,3 +32,5 @@ C058 extends observed flow research to Idleon:21 frames (one introduction exclud
 C059 adds26 Task Bar Hero frames, nine atlas entries and six visual claims. Cumulative164 sources/141 claims/27 media/48 entries/four recordings/89 samples. Skill investment is distinguished from character level, and Cube input/preview from result. June footage cannot certify September fixes. Remaining current rules, negative/durable flows and comparable time cells stay open.
 
 C060:21 PoE1 frames,seven atlas entries,five visual claims; cumulative165 sources/146 claims/28 media/55 entries/five recordings/110 samples. Pending passive investment is explicit; gem reward and vendor preview are distinct from committed outcomes. Historical colour rule predates3.29. No gameplay change; comparable time and current input/error/durable flows remain open.
+
+C061:22 separate PoE2 samples,nine atlas entries,five visual claims;166 sources/151 claims/29 media/64 entries/six recordings/132 samples. Support choice exposes applicability/trade-offs before visible association;2024 uniqueness text predates0.3 removal. Current error/durable flows and all comparable time cells remain open.
