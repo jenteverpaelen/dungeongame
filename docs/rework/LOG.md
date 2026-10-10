@@ -51,3 +51,22 @@
   process is reading (here the test; in the wild antivirus/backup tools); `JsonCharacterStore.write` now retries that
   rename up to 7 times (15 ms → 1.9 s total, Windows only, same atomic temp+rename). Result: 755 pass / 1 known failure,
   identical to baseline. Gate towers rebuilt in stone; harbour crane lowered so it no longer crosses the Obelisk.
+
+## Lead log, 2026-10-10 evening (UI rounds 2–3, balance, accounts)
+
+- **Balance pass** (`BALANCE.md`): kill XP ×0.2, story XP ×0.5, per-level toughness/damage curves fitted to an "engaged
+  bot", field drops ×1/6 on top of ×2/3 (boss and goblin batches untouched). Master/Hard stay open from level 1.
+- **Panels, round 2** (commit `c1a0ece`): Paragon, Stash (drag between bag and stash, filter chips), Cube stage with
+  eligible-item strip, Collection, Social, Party and the HUD party frames, on one rail/card language
+  (`panels-more.css`, `panels-collection.css`, `panels-social.css`).
+- **Panels, round 3** (commit `56b8d46`, `panels-services.css`): Merchant (offer grid, hover compare, upgrade arrow,
+  exact-offer pane), Waypoint (destination list + detail + channel switcher), Rift Obelisk (14-step ladder, no paging;
+  the legendary chance shown is `+30 % per difficulty index`, which is what `rollRarity` does), Guild & reports, Inspect
+  (paperdoll-shaped grid), Run summary. The lock icon's shackle was a dark stroke that vanished on dark rows; it is now
+  part of the silhouette. Removed superseded rules from `panels.css` and the unused `passives.tsx`.
+- **Accounts, client** (commit `6d88ce5`): see `ACCOUNTS.md` → "Client screens". `GET /api/config` exposes the mode;
+  `off` is byte-for-byte the old flow. Walkthrough on spare ports with an isolated `DATA_DIR`: register → one-time codes
+  → play → reload resumes → log out → guest refused for a linked name → wrong password → recover with a code → code is
+  single-use → new password → play. Accounts suite 11/11 (including a parity test for the client input rules).
+- **Known gaps:** Settings panel redesign waits for the gear agent's toggles; the owner's :2577 playtest server was not
+  listening when checked at 23:30 (saves present; not touched); `hud.css` in the main working tree is an untracked stray.
