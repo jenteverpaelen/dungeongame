@@ -757,6 +757,62 @@ function gearIconsView() {
   }
 }
 
+/** ?view=gear-measure: extents in screen px at the default game camera (docs/rework/gear/LOG.md). For every class and
+ *  stage: pixel bounding boxes (visible: alpha > 0.16, solid: alpha > 0.6) after 1.5 s of animation, and the sprite
+ *  spans of the body (torso / arms / head / legs / pads) and of the wings. ?legacy=1 measures the old look. */
+async function gearMeasureView() {
+  const zoom = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  const yaws = (qs.get('yaws') ?? '65,25').split(',').map(Number);
+  const stages = (qs.get('stages')?.split(',') as ShowcaseStage[] | undefined) ?? ['starter', 'L40', 'L70', 'set', 'ancient', 'primal'];
+  const rows: Record<string, unknown>[] = [];
+  const bodyParts = ['torso', 'armR', 'armL', 'handR', 'handL', 'head', 'padR', 'padL', 'legR', 'legL'];
+  const span = (art: PlayerArt, names: string[]) => {
+    const parts = (art as unknown as { parts: Record<string, Container> }).parts;
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const n of names) { const o = parts[n]; if (!o || !o.visible) continue; const b = o.getBounds(); x0 = Math.min(x0, b.minX); x1 = Math.max(x1, b.maxX); y0 = Math.min(y0, b.minY); y1 = Math.max(y1, b.maxY); }
+    return x1 > x0 ? { w: Math.round(x1 - x0), h: Math.round(y1 - y0) } : { w: 0, h: 0 };
+  };
+  for (const cls of CLASS_IDS) for (const stg of stages) for (const yaw of yaws) {
+    const look = stageLook(cls, stg);
+    bakePlayerLook(look);
+    const art = new PlayerArt(look);
+    const holder = new Container();
+    holder.scale.set(zoom);
+    holder.addChild(art.root);
+    art.setYaw(yaw);
+    for (let i = 0; i < 90; i++) art.update(1 / 60, { x: 0, y: 0, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: i / 60, aps: 1.2 });
+    art.setYaw(yaw);
+    art.update(1 / 60, { x: 0, y: 0, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: 1.5, aps: 1.2 });
+    const frame = new Container();
+    frame.addChild(holder);
+    const box = (thr: number) => {
+      const { pixels, width, height } = app.renderer.extract.pixels({ target: frame, resolution: 1 });
+      let x0 = width, x1 = -1, y0 = height, y1 = -1;
+      for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+        if (pixels[(y * width + x) * 4 + 3] > thr) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      }
+      return x1 >= 0 ? { w: x1 - x0 + 1, h: y1 - y0 + 1 } : { w: 0, h: 0 };
+    };
+    const visible = box(40), solid = box(153);
+    // body only: no effects, weapon, off-hand or back pieces
+    const A = art as unknown as { parts: Record<string, Container>; glowBack: Container; over: Container; fxAdd: Container; shadow: Container };
+    const extra = ['weapon', 'shield', 'orb', 'quiver', 'back', 'cape', 'wingR', 'wingL'];
+    const hideAll = (keep: (n: string) => boolean) => { for (const [n, o] of Object.entries(A.parts)) o.visible = keep(n); A.glowBack.visible = A.over.visible = A.fxAdd.visible = A.shadow.visible = false; };
+    hideAll((n) => !extra.includes(n));
+    const body = box(153);
+    hideAll((n) => n === 'wingR' || n === 'wingL');
+    const wings = box(153);
+    const p = gearProfile(look);
+    rows.push({ cls, stage: stg, yaw, rank: p.rank, visible, solid, body, wings, ratio: body.w ? +(wings.w / body.w).toFixed(2) : 0 });
+    frame.destroy({ children: false });
+    holder.destroy({ children: false }); art.destroy();
+  }
+  (window as unknown as { __measure: unknown }).__measure = rows;
+  const pre = document.getElementById('icons')!;
+  pre.style.display = 'block';
+  pre.innerHTML = '<pre style="color:#e8d9b5;font:12px monospace;padding:12px">' + rows.map((r) => JSON.stringify(r)).join(String.fromCharCode(10)) + '</pre>';
+}
+
 let drawCalls = 0, drawCallsShown = 0;
 function perfView() {
   mapView();
@@ -860,6 +916,7 @@ switch (VIEW) {
   case 'gear-vs': gearVsView(); break;
   case 'gear-sets': gearSetsView(); break;
   case 'gear-icons': gearIconsView(); break;
+  case 'gear-measure': void gearMeasureView(); break;
 }
 
 let time = 0;

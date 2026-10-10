@@ -102,10 +102,15 @@ function backOf(look: PlayerLook) {
   return {
     kind, tier: p?.rank ?? 0, accent, motif: motif === 'primal' ? 'ember' as const : motif,
     primary: chest?.primary ?? 0x6a4a3a, metal: cs?.metal ?? GEAR_TIER_COLORS[p?.rank ?? 0],
-    deep: set?.deep ?? (p?.primals ? 0x5a1010 : 0x3a2a1c),
-    wing: (p?.primals ? 'primal' : set && p!.topSetCount >= 6 ? set.motif : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
+    deep: p?.primals ? 0x6a1410 : set?.deep ?? 0x3a2a1c,
+    primal: (p?.primals ?? 0) > 0,
+    // a full Set keeps its wing silhouette even when Primal (recoloured crimson); Primal without a Set gets flame wings
+    wing: (set && p!.topSetCount >= 6 ? set.motif : p?.primals ? 'primal' : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
     // Ancient heroes get amber-edged wings (the deep tone of the wing gradient)
     ancient: (p?.ancients ?? 0) >= 2,
+    /** Wing drawing scale (span ≥ 2.2× body width at rank 8, ≥ 2.6× with a Primal; measured in LOG.md). */
+    wingK: !p ? 1.5 : p.primals ? 1.5 * 1.72 : p.rank >= 8 ? 1.5 * 1.32 : 1.5 * 1.08,
+    backK: !p ? 1 : 1 + 0.14 * Math.max(0, p.rank - 6),
   };
 }
 
@@ -130,8 +135,9 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
     add('pad', (c) => drawShoulder(c, sl.shoulders!, false));
     if (sl.shoulders.shape === 'mantle' && back.kind !== 'cape' && back.kind !== 'mantle') add('cape', (c) => drawCapeBack(c, sl.shoulders!));
   }
-  if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier));
-  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.ancient && !look.slots.chest?.fx ? back.deep : back.ancient ? 0xb8661a : back.deep));
+  // presence by rank (spectacle pass): baked at their final size so they stay crisp
+  if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier, back.backK));
+  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.primal ? back.deep : back.ancient ? 0xb8661a : back.deep, back.wingK));
   const probe = new Graphics();
   if (drawHairTail(probe.context, body, sl.head)) add('tail', (c) => { drawHairTail(c, body, sl.head); });
   if (drawHairCurtain(probe.context, body, sl.head)) add('curtain', (c) => { drawHairCurtain(c, body, sl.head); });
@@ -419,6 +425,13 @@ export class PlayerArt implements PlayerView {
   private padK = 1;
   private wpnK = 1;
   private wingFlap = 0;
+  /** Presence by gear rank (spectacle pass): wing span, cloth back-piece size, weapon-trail brightness. */
+  private wingK = 1;
+  private backK = 1;
+  private trailBoost = 1;
+  /** Rank-up celebration start (view time, s; < 0 none) and whether it is the big one (full Set / rank 8+). */
+  private celebrateAt = -1;
+  private celebrateBig = false;
 
   // animation state
   private t = 0;
@@ -508,8 +521,12 @@ export class PlayerArt implements PlayerView {
     this.wpnK = weaponScale(sl.mainhand);
     { const r = reachOf(sl.mainhand?.shape); this.reach = { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
     const glow = sl.mainhand?.glow ?? 0;
-    this.trailColor = glow ? light(glow, 0.25) : 0xfff4dc;
-    this.trailAdd = !!glow;
+    const wst = itemStyle(sl.mainhand);
+    this.trailColor = wst && wst.tier >= 6 ? light(wst.accent, 0.12) : glow ? light(glow, 0.25) : 0xfff4dc;
+    this.trailAdd = !!glow || (!!wst && wst.tier >= 6);
+    this.trailBoost = !wst ? 1 : wst.tier >= 8 ? 1.6 : wst.tier >= 6 ? 1.35 : 1;
+    { const pr = Object.values(sl).some((l) => typeof l?.fx === 'number') ? gearProfile(this.look) : null;
+      void pr; this.wingK = 1; this.backK = 1; }
 
     const mk = (key: string, part: string): Sprite | Graphics => {
       const o = sheet.make(part, 'n');
@@ -657,11 +674,19 @@ export class PlayerArt implements PlayerView {
         if (q === 'full') { const tip = sparkleSprite(light(w.accent, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
       }
     }
-    this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR);
+    this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR, this.mode === 'scene');
     if (this.parts.wingR) this.parts.wingR.visible = this.parts.wingL.visible = q !== 'off';
   }
 
   private npcLook(): boolean { return !!(this.look as NpcBodyLook).npc; }
+
+  /** Rank-up / first full Set moment (~1.5 s): rings, a column of light, a fountain of the hero's motif, wings flare.
+   *  Survives the look rebuild that the same equip triggers (the start time lives on the view). */
+  celebrateGear(big: boolean): void {
+    if (this.destroyed) return;
+    this.celebrateAt = this.t; this.celebrateBig = big;
+    this.gear?.flare();
+  }
 
   /** The scene tells views which hero is the local player (own vs other players' gear-effect setting). */
   setIsLocal(v: boolean): void {
@@ -905,6 +930,8 @@ export class PlayerArt implements PlayerView {
         sB: Math.sin(this.yawB * D2R), cB: Math.cos(this.yawB * D2R),
         head: { x: n0.head.x, y: n0.head.y, d: 0 }, chest: { x: 0, y: -24, d: 0 }, hR: this.hR, hL: this.hL, wTip: this.wTip, wBase: this.wBase,
         hasWeapon: !!n0.weapon && this.kit.wk !== 'bow', bow: this.kit.wk === 'bow',
+        swing: act ? P.trail : this.chan * 0.6,
+        celebrate: this.celebrateAt >= 0 ? t - this.celebrateAt : -1, celebrateBig: this.celebrateBig,
       });
     }
     this.updateStatus(t, flags, stunned);
@@ -1118,7 +1145,7 @@ export class PlayerArt implements PlayerView {
       this.pt(-6, -33 + drop, 0, this.tmp);
       n.back.position.set(this.tmp.x, this.tmp.y);
       const sway = this.gearQ === 'full' ? Math.sin(t * 1.8) * 0.025 + Math.sin(this.walk) * 0.03 * this.moveBlend : 0;
-      n.back.scale.set((0.5 + 0.5 * Math.abs(cB)) * (1 + fly * 0.3), 1 - fly * 0.18 - 0.05 * this.moveBlend);
+      n.back.scale.set((0.5 + 0.5 * Math.abs(cB)) * (1 + fly * 0.3) * this.backK, (1 - fly * 0.18 - 0.05 * this.moveBlend) * this.backK);
       // in profile the cloth flares out behind the hero so the silhouette shows it
       n.back.rotation = side * (0.2 * Math.abs(sB) + (0.12 * this.moveBlend + 0.5 * fly) * Math.abs(sB)) + sway;
       n.back.zIndex = clamp(this.tmp.d, -8.5, 0.55);
@@ -1133,12 +1160,14 @@ export class PlayerArt implements PlayerView {
       // Wings read like the top-down ARPG convention: always spread to both sides behind the hero, with a yaw-driven
       // asymmetry (the far wing narrows and the pair drifts to the back side in profile).
       const facing = cB >= 0 ? 1 : -1;
+      const cel = this.celebrateAt >= 0 ? clamp(1 - (t - this.celebrateAt) / 1.6) : 0;
+      const K = this.wingK * (1 + 0.16 * Math.sin(cel * Math.PI));
       for (const sz of [1, -1] as const) {
         const w = sz === 1 ? n.wingR : n.wingL;
-        const X = -sz * facing * (0.72 + 0.28 * Math.abs(cB)) - 0.38 * sB;
+        const X = -sz * facing * (0.8 + 0.2 * Math.abs(cB)) - 0.3 * sB;
         w.position.set(ax - sB * 2, ay);
-        w.scale.set(Math.sign(X) * clamp(Math.abs(X), 0.34, 1.05), 1 + flap * 0.05);
-        w.rotation = Math.sign(X) * (-0.05 - flap * 0.1);
+        w.scale.set(Math.sign(X) * clamp(Math.abs(X), 0.62, 1.05) * K, (1 + flap * 0.05) * K);
+        w.rotation = Math.sign(X) * (-0.05 - flap * 0.1 - 0.12 * cel);
         w.zIndex = clamp(ad, -8.6, 0.5) - 0.01;
       }
     }
@@ -1327,14 +1356,14 @@ export class PlayerArt implements PlayerView {
         const ph = this.spinPhase - (back / 1000) * TAU * SPIN_RATE;
         spinPose(Q, this.kit, ph, this.chan);
         this.solveArms(Q, baseYaw + Q.spin / D2R);
-        a = this.chan * Math.pow(1 - j / (N - 1), 1.3);
+        a = Math.min(1, this.chan * Math.pow(1 - j / (N - 1), 1.3) * this.trailBoost);
       } else {
         const tt = c!.t - back;
         if (tt < -5) break;
         copyPose(Q, this.baseCache);
         actionPose(Q, { ...c!, t: tt });
         this.solveArms(Q, yawB);
-        a = Q.trail * Math.pow(1 - j / (N - 1), 1.2);
+        a = Math.min(1, Q.trail * Math.pow(1 - j / (N - 1), 1.2) * this.trailBoost);
       }
       const d = this.wTip.d;
       const fa = a * clamp((d + 3) / 6), ba = a * clamp((3 - d) / 6);

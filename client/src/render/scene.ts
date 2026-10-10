@@ -13,6 +13,7 @@ import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
 import { F_LEFT, F_MOVING, type EntDesc, type PlayerLook } from '@shared/protocol';
 import { gearProfile } from '@shared/gearVisual';
+import { setGearUnderlay, sweepGearUnderlay } from './art/gearFx';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, setViewScale,
 } from './art';
@@ -41,6 +42,7 @@ export class Scene {
   readonly ground = new Container();
   readonly decals = new Container();
   readonly groundFx = new Container();
+  private readonly gearUnder = new Container({ label: 'gear-underlay' });
   readonly entities = new Container();
   readonly aboveFx = new Container();
   readonly text = new Container();
@@ -84,6 +86,9 @@ export class Scene {
     this.text.addChild(this.barks.root);
     app.stage.addChild(this.root);
     this.groundFx.addChild(this.questGuide.root);
+    // gear ground effects (sigils, light columns, movement ribbons, footprints) sit beneath every telegraph
+    this.groundFx.addChildAt(this.gearUnder, 0);
+    setGearUnderlay(this.gearUnder);
     this.vfx = new Vfx({ groundFx: this.groundFx, aboveFx: this.aboveFx, text: this.text }, {
       myId: () => this.world.myId,
       entityPos: (id) => {
@@ -401,6 +406,7 @@ export class Scene {
     }
     this.hoverId = hover;
     this.barks.update(now, me, this.speakers);
+    sweepGearUnderlay();
     this.vfx.update(dtMs);
   }
 

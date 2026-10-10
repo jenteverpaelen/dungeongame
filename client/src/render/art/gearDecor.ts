@@ -397,7 +397,13 @@ export function weaponScale(l: ItemLook | undefined): number {
 
 /** Cloth back piece seen from behind (pivot at the nape, hangs +y): a short cape (Storied), a long trimmed mantle
  *  (Heroic+). Colours from the chest, trim in tier metal, a motif medallion and an emissive hem on Ancient+. */
-export function drawBackPiece(c: Ctx, kind: 'cape' | 'mantle', primary: number, metal: number, accent: number, motif: Motif | null, tier: number): void {
+export function drawBackPiece(c: Ctx, kind: 'cape' | 'mantle', primary: number, metal: number, accent: number, motif: Motif | null, tier: number, k = 1): void {
+  c.save?.(); c.scale(k, k);
+  drawBackShape(c, kind, primary, metal, accent, motif, tier);
+  c.restore?.();
+}
+
+function drawBackShape(c: Ctx, kind: 'cape' | 'mantle', primary: number, metal: number, accent: number, motif: Motif | null, tier: number): void {
   const p = shade(primary, 0.1);
   const L = kind === 'mantle' ? 44 : 33, W = kind === 'mantle' ? 16 : 13.6;
   const pts = [-9, 0, 0, -2, 9, 0, W - 1, L * 0.45, W + 1.2, L * 0.86, W * 0.45, L, 0, L - 3, -W * 0.45, L, -W - 1.2, L * 0.86, -W + 1, L * 0.45];
@@ -417,8 +423,8 @@ export function drawBackPiece(c: Ctx, kind: 'cape' | 'mantle', primary: number, 
 }
 
 /** One wing (attach point at the origin, spreading towards +x and up). Motif-specific silhouettes. */
-export function drawWing(c: Ctx, motif: Motif | 'light' | 'primal', main: number, deep: number): void {
-  c.save?.(); c.scale(1.5, 1.5);
+export function drawWing(c: Ctx, motif: Motif | 'light' | 'primal', main: number, deep: number, k = 1.5): void {
+  c.save?.(); c.scale(k, k);
   drawWingShape(c, motif, main, deep);
   c.restore?.();
 }
@@ -441,9 +447,11 @@ function drawWingShape(c: Ctx, motif: Motif | 'light' | 'primal', main: number, 
       break;
     }
     case 'ember': case 'flame': case 'primal': {
+      // flame tongues swept out sideways (wide silhouette), the top ones rising
       const col = motif === 'primal' ? 0xff3a2a : m;
-      for (let i = 0; i < 4; i++) {
-        const a = -0.35 - i * 0.32, L = 34 - i * 4;
+      const n = motif === 'primal' ? 5 : 4;
+      for (let i = 0; i < n; i++) {
+        const a = -0.1 - i * (motif === 'primal' ? 0.24 : 0.28), L = 41 - i * 3.6;
         const tx = Math.cos(a) * L, ty = Math.sin(a) * L - 6;
         blob(c, [0, 0, tx * 0.45 - 3, ty * 0.45, tx, ty, tx * 0.55 + 4, ty * 0.5 + 3], i % 2 ? mix(col, 0xffd27a, 0.3) : col, { ow: 1.5, hl: 0.35 });
       }
