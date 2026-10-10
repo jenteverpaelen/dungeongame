@@ -5,8 +5,9 @@
 import { recordIntro } from '../../shared/src/onboarding';
 import { Parties } from './party';
 import { Social } from './social';
+import { AccountStore } from './accounts';
 import { Community } from './community';
-import { EMPTY_RIFT_DESTROY_MS } from './config';
+import { ACCOUNT_MODE, EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
 import type { Session } from './net/session';
@@ -104,6 +105,8 @@ export class World {
   private players = new Set<Session>();
   readonly parties:Parties=new Parties(()=>this.players,undefined,(a,b):boolean=>this.social.canInvite(a,b));
   readonly social:Social=new Social(()=>this.players,this.parties);
+  /** Username/password accounts; only loaded when ACCOUNTS is `optional` or `required`. */
+  readonly accounts = new AccountStore();
   readonly community:Community=new Community(()=>this.players,(a,b)=>this.social.blocked(a,b),s=>this.social.isEnabled(s),undefined,(a,b)=>this.social.presenceVisible(a,b));
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
@@ -112,6 +115,7 @@ export class World {
   // ─────────────────────────── Lifecycle ───────────────────────────
 
   async init(): Promise<void> {
+    if (ACCOUNT_MODE !== 'off') await this.accounts.init();
     await this.community.init();
     this.social.community=this.community;
     this.create = await loadCreateInstance();

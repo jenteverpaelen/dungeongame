@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
 import { applyAfkGains } from '../afk';
-import { AUTOSAVE_MS } from '../config';
+import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
 import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
@@ -18,7 +18,8 @@ import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
-import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
 import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
 import { decode, encode } from './codec';
@@ -35,6 +36,7 @@ const CHAR_THROTTLE_MS = 1000; // XP, gold and level also ride in every snapshot
 /** Close connections whose send buffer grows beyond this (the client cannot keep up). */
 const MAX_BUFFERED_BYTES = 4 * 1024 * 1024;
 const HELLO_TIMEOUT_MS = 10_000;
+const ACCOUNT_IDLE_MS = 5 * 60_000;
 
 export type SessionState = 'new' | 'loading' | 'ready' | 'closed';
 
@@ -60,6 +62,9 @@ export class Session implements PlayerLink {
   pendingEnchant: PendingEnchant | null = null;
 
   private charId = '';
+  /** Username once `auth` succeeded on this connection (before `hello`). */
+  private account: string | null = null;
+  private authBusy = false;
   private alive = true;
   private winStart = 0;
   private winCount = 0;
@@ -82,11 +87,13 @@ export class Session implements PlayerLink {
   private queuedCommands=0;
 
   constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
-    this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, HELLO_TIMEOUT_MS);
+    // With accounts there is a login screen to fill in before `hello`, so the idle allowance is longer.
+    this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, ACCOUNT_MODE === 'off' ? HELLO_TIMEOUT_MS : ACCOUNT_IDLE_MS);
     ws.on('message', (data, isBinary) => this.onData(data, isBinary));
     ws.on('pong', () => { this.alive = true; });
     ws.on('close', () => this.cleanup());
     ws.on('error', () => { /* the close event follows */ });
+    if (ACCOUNT_MODE !== 'off') this.send({ t: 'auth', op: 'status', ok: true, mode: ACCOUNT_MODE });
   }
 
   get name(): string { return this.save?.name ?? ''; }
@@ -222,6 +229,9 @@ export class Session implements PlayerLink {
       case 'ping':
         if (typeof msg.c === 'number') this.send({ t: 'pong', c: msg.c, s: Date.now() });
         return;
+      case 'auth':
+        void this.onAuth(msg);
+        return;
       case 'hello':
         void this.onHello(msg);
         return;
@@ -324,6 +334,86 @@ export class Session implements PlayerLink {
     }
   }
 
+  // ─────────────────────────── Accounts ───────────────────────────
+
+  private async onAuth(msg: Extract<C2S, { t: 'auth' }>): Promise<void> {
+    const op = msg.op as AuthOp;
+    const reply = (ok: boolean, extra: Partial<Extract<S2C, { t: 'auth' }>> = {}) => this.send({ t: 'auth', op, ok, mode: ACCOUNT_MODE, ...extra });
+    if (ACCOUNT_MODE === 'off') { reply(false, { err: 'Accounts are not enabled on this server.' }); return; }
+    if (this.state !== 'new') { reply(false, { err: 'Finish this login before changing accounts.' }); return; }
+    if (this.authBusy) { reply(false, { err: 'One moment, still working on your last request.' }); return; }
+    this.authBusy = true;
+    const store = this.world.accounts;
+    try {
+      switch (op) {
+        case 'register': {
+          const r = await store.register(msg.username, msg.password, this.ip);
+          if (!r.ok) { reply(false, { err: r.err }); break; }
+          this.account = r.username;
+          reply(true, { username: r.username, token: store.issueToken(r.username), recoveryCodes: r.recoveryCodes, characters: [] });
+          break;
+        }
+        case 'login': {
+          const r = await store.login(msg.username, msg.password, this.ip);
+          if (!r.ok) { reply(false, { err: r.err }); break; }
+          this.account = r.username;
+          reply(true, { username: r.username, token: store.issueToken(r.username), characters: await this.accountCharacters(r.username) });
+          break;
+        }
+        case 'resume': {
+          const username = store.resume(msg.token);
+          if (!username) { reply(false, { err: 'Your session expired. Please log in again.' }); break; }
+          this.account = username;
+          reply(true, { username, characters: await this.accountCharacters(username) });
+          break;
+        }
+        case 'logout':
+          store.revoke(msg.token);
+          this.account = null;
+          reply(true);
+          break;
+        case 'recover': {
+          const r = await store.recover(msg.username, msg.code, msg.newPassword, this.ip);
+          if (!r.ok) { reply(false, { err: r.err }); break; }
+          this.account = r.username;
+          reply(true, { username: r.username, token: store.issueToken(r.username), characters: await this.accountCharacters(r.username) });
+          break;
+        }
+        case 'password': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          const r = await store.changePassword(this.account, msg.password, msg.newPassword);
+          if (!r.ok) { reply(false, { err: r.err }); break; }
+          reply(true, { username: this.account, token: store.issueToken(this.account) });
+          break;
+        }
+        case 'codes': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          const r = await store.newRecoveryCodes(this.account, msg.password);
+          reply(r.ok, r.ok ? { username: this.account, recoveryCodes: r.recoveryCodes } : { err: r.err });
+          break;
+        }
+        default:
+          reply(false, { err: 'Unknown account request.' });
+      }
+    } catch (err) {
+      console.error('[session] account request failed:', err);
+      reply(false, { err: 'The account service had a problem. Please try again.' });
+    } finally {
+      this.authBusy = false;
+    }
+  }
+
+  private async accountCharacters(username: string): Promise<AuthCharacter[]> {
+    const out: AuthCharacter[] = [];
+    for (const id of this.world.accounts.charactersOf(username)) {
+      try {
+        const c = await loadCharacter(id);
+        if (c) out.push({ name: c.name, classId: c.classId, level: c.level });
+      } catch { /* an unreadable character is simply not listed */ }
+    }
+    return out;
+  }
+
   // ─────────────────────────── Login ───────────────────────────
 
   private async onHello(msg: Extract<C2S, { t: 'hello' }>): Promise<void> {
@@ -337,6 +427,9 @@ export class Session implements PlayerLink {
     if(msg.tutorial!==undefined&&typeof msg.tutorial!=='boolean'){this.kick('Invalid introduction choice');return;}
     const id = characterId(name);
     if(this.world.community.banned(id)){this.kick('This character is suspended. Contact the owner.');return;}
+    const accounts = this.world.accounts, owner = ACCOUNT_MODE === 'off' ? undefined : accounts.ownerOf(id);
+    if (ACCOUNT_MODE === 'required' && !this.account) { this.kick('Log in to your account first.'); return; }
+    if (owner && owner !== this.account) { this.kick(this.account ? 'That name is taken.' : 'This character belongs to an account. Log in first.'); return; }
     if (!this.world.reserve(id, this)) { this.kick('That character is already online.'); return; }
     this.charId = id;
     this.state = 'loading';
@@ -351,6 +444,15 @@ export class Session implements PlayerLink {
         : err instanceof CorruptCharacterError ? 'Your character data is damaged. Please contact the server admin.'
         : err instanceof SaveWriteError ? 'Your latest progress could not be saved. Please try again after the server storage recovers.' : 'Could not load your character.');
       return;
+    }
+    if (this.isClosed) return;
+
+    // Account rules once we know whether the character already exists. A character nobody owns can be taken by the
+    // logged-in account when it is brand new, or when the owner has opened the legacy migration window.
+    if (ACCOUNT_MODE !== 'off' && this.account && !owner) {
+      if (save !== null && !ALLOW_LEGACY_LOGIN) { this.kick('This character is not linked to an account. Ask the server owner to link it.'); return; }
+      const linked = await accounts.link(this.account, id, MAX_CHARACTERS_PER_ACCOUNT);
+      if (!linked.ok) { this.kick(linked.err); return; }
     }
     if (this.isClosed) return;
 

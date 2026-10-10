@@ -16,6 +16,15 @@ export const BACKUP_KEEP = parseBackupKeep(process.env.BACKUP_KEEP);
 if (BACKUP_KEEP > 0 && !BACKUP_DIR) throw new Error('BACKUP_KEEP requires an explicit BACKUP_DIR');
 export const CLIENT_DIR = path.join(ROOT_DIR, 'dist', 'client');
 
+/**
+ * Accounts: `off` keeps name-only login (today's default); `optional` lets players register and protects any character
+ * that is linked to an account; `required` demands an account for every login. In `required` mode characters that no
+ * account owns yet stay closed unless ALLOW_LEGACY_LOGIN=1 (a migration window while the owner links them).
+ */
+const accountEnv = (process.env.ACCOUNTS ?? 'off').toLowerCase();
+export const ACCOUNT_MODE: 'off' | 'optional' | 'required' = accountEnv === 'required' ? 'required' : accountEnv === 'optional' || accountEnv === '1' ? 'optional' : 'off';
+export const ALLOW_LEGACY_LOGIN = process.env.ALLOW_LEGACY_LOGIN === '1';
+
 export const AUTOSAVE_MS = 30_000;
 export const EMPTY_RIFT_DESTROY_MS = 60_000;
 export const RIFT_PORTAL_MS = 60_000;

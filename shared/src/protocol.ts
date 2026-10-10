@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 20;
+export const PROTOCOL_VERSION = 21;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -172,6 +172,7 @@ export interface Snapshot {
 }
 
 export type S2C =
+  | { t: 'auth'; op: AuthOp; ok: boolean; mode: AccountMode; err?: string; username?: string; token?: string; recoveryCodes?: string[]; characters?: AuthCharacter[] }
   | { t: 'welcome'; you: number; char: CharacterSave; derived: DerivedStats; zone: ZoneInfo; time: number; world: WorldInfo }
   | { t: 'zone'; you: number; zone: ZoneInfo }
   | Snapshot
@@ -203,7 +204,13 @@ export type CmdOp = 'onboarding'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';
 
+/** Account operations, sent before `hello`. `status` is only ever a server notice. */
+export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 'recover' | 'password' | 'codes';
+export type AccountMode = 'off' | 'optional' | 'required';
+export interface AuthCharacter { name: string; classId: ClassId; level: number }
+
 export type C2S =
+  | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string }
   | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
