@@ -963,6 +963,69 @@ function levelingScenario(cls: ClassId, minutes: number) {
   inst.destroy();
 }
 
+/** Play the engaged bot (build, points, organic gear, fields only) until `target` is reached; returns a frozen copy. */
+function playEngagedTo(cls: ClassId, target: number, maxMinutes: number): { save: CharacterSave; minutes: number } {
+  let inst = newField('whispering_glade');
+  const save = createCharacter(`Eng${cls}`, cls, seedCounter++);
+  const link = new FakeLink(save);
+  link.myId = inst.addPlayer(link);
+  let bot = new Bot(inst, link, cls === 'warrior');
+  let t = 0;
+  for (; t < maxMinutes * 1200 && save.level < target; t++) {
+    bot.step();
+    inst.tick();
+    if (t % 40 === 0) {
+      let changed = false;
+      for (const it of save.inventory) {
+        if (!it || it.reqLevel > save.level || !BASES[it.base] || (BASES[it.base].classes && !BASES[it.base].classes!.includes(cls))) continue;
+        for (const slot of slotsForKind(it.kind)) {
+          const nd = computeStats(save, { swap: { slot, item: it } });
+          const od = computeStats(save);
+          if (nd.sheetDps * Math.sqrt(nd.toughness) > od.sheetDps * Math.sqrt(od.toughness) * 1.01 && equipItemSafe(save, it.id, slot)) { changed = true; break; }
+        }
+      }
+      if (save.inventory.filter(Boolean).length > 50) for (let i = 0; i < save.inventory.length; i++) if (save.inventory[i] && save.inventory[i]!.rarity !== 'legendary' && save.inventory[i]!.rarity !== 'set') save.inventory[i] = null;
+      if (spendSkillPoints(save, BUILDS[cls])) changed = true;
+      if (changed) inst.refreshPlayer(link);
+    }
+    if (save.level >= 12 && inst.zone.zone === 'whispering_glade') {
+      inst.removePlayer(link); inst.destroy();
+      inst = newField('ashen_hollow');
+      link.ents.clear(); link.myId = inst.addPlayer(link);
+      bot = new Bot(inst, link, cls === 'warrior');
+    }
+  }
+  inst.destroy();
+  return { save: structuredClone(save), minutes: t / 1200 };
+}
+
+/** `masterprobe [level] [difficulties]` — what a typical (organically geared) character of that level meets on each
+ *  difficulty: five simulated minutes in the fields, real life (deaths happen), plus the same with a lucky kit. */
+function masterProbe(level: number, diffs: number[]) {
+  console.log(`
+== Typical L${level} character on each difficulty (engaged bot, organic gear; 5 min each, mortal) ==`);
+  console.log('  class   gear      diff     TTK trash  champ   kills/min  lvls/min  deaths  taken %life/min');
+  for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
+    const played = playEngagedTo(cls, level, 240);
+    for (const gear of ['organic', 'rare kit']) for (const d of diffs) {
+      const save = gear === 'organic' ? structuredClone(played.save) : makeChar(cls, level);
+      save.difficulty = d;
+      save.stats.deaths = 0;
+      const inst = newField(level >= 12 ? 'ashen_hollow' : 'whispering_glade', 9100 + level);
+      const link = new FakeLink(save);
+      link.myId = inst.addPlayer(link);
+      const bot = new Bot(inst, link, cls === 'warrior');
+      const lvl0 = save.level + save.xp / xpToNext(save.level);
+      run(inst, 5 * 1200, [bot]);
+      const p = inst.players[0];
+      const lvl1 = save.level + save.xp / xpToNext(save.level);
+      const sec = (a?: number[]) => { const m = median(a); return Number.isNaN(m) ? '  —  ' : fmt(m / 1000, 2) + 's'; };
+      console.log(`  ${cls.padEnd(7)} ${gear.padEnd(9)} ${DIFFICULTIES[d].name.padEnd(8)} ${sec(link.ttk[0]).padStart(9)} ${sec(link.ttk[1]).padStart(7)} ${fmt(p.kills / 5, 0).padStart(10)} ${fmt((lvl1 - lvl0) / 5, 2).padStart(9)} ${String(save.stats.deaths).padStart(7)} ${fmt((p.taken / Math.max(1, p.mhp)) * 100 / 5, 0).padStart(14)}%`);
+      inst.destroy();
+    }
+  }
+}
+
 /** `fit`: play the engaged bot through the levels, freeze a copy of the character at every fifth level and find, for
  *  each copy, the monster-life factor at which its median trash time-to-kill equals `target` seconds. */
 function fitScenario(cls: ClassId, minutes: number, target: number, marks: number[]) {
@@ -1462,6 +1525,7 @@ if (only === 'calibrate') calibrateToughness(Number(process.argv[3] ?? 1), (proc
 if (only === 'curve') toughnessCurve(Number(process.argv[3] ?? 20), (process.argv[4] ?? '1,2,4,8,16,32,64').split(',').map(Number));
 if (only === 'fit') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) fitScenario(cls, Number(process.argv[3] ?? 90), Number(process.argv[4] ?? 1), (process.argv[5] ?? '3,5,8,10,13,15,18,20,25,30,35,40,45,50,55,60,65,70').split(',').map(Number));
 if (only === 'riftstall') riftStallHunt((process.argv[3] ?? 'mage') as ClassId, Number(process.argv[4] ?? 1), Number(process.argv[5] ?? 12));
+if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
 if (only === 'leveling') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) levelingScenario(cls, Number(process.argv[3] ?? 25));
 
 console.log('\n== Summary ==');

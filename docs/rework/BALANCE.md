@@ -96,6 +96,23 @@ Same kit and cap as §1:
 | Ranger | 4:14, 13→14 | 7:46, 13→15 | 73 % done, 13→15 |
 | Mage | 7:16, 13→14 | 5:54, 13→15 | 69 % done, 13→15 |
 
+What a level-13 character meets on each difficulty in the fields (`masterprobe 13`, five simulated minutes per cell, real
+life; ranges are over the three classes). *Typical* is the engaged bot with the gear it found; *lucky* is a full
+ilvl-13 rare kit, i.e. "got so lucky early":
+
+| Level 13 | Normal | Hard | Expert | Master |
+|---|---|---|---|---|
+| typical: median trash kill | 0.9–1.7 s | 1.8–5.0 s | 4.6–7.8 s | 8–13 s |
+| typical: deaths in 5 min / life taken per min | 0 / 55–115 % | 0 / 76–240 % | 0–2 / 130–310 % | 0–4 / 240–340 % |
+| typical: levels per minute | 0.13–0.18 | 0.14–0.16 | 0.10–0.17 | 0.08–0.18 |
+| lucky kit: median trash kill | 0.10–0.15 s | 0.6–0.75 s | 1.7–2.2 s | 2.6–3.7 s |
+| lucky kit: deaths / life taken per min | 0 / 17–36 % | 0 / 23–50 % | 0 / 25–101 % | 0 / 51–94 % |
+| lucky kit: levels per minute | 0.27–0.31 | 0.28–0.42 | 0.27–0.42 | 0.25–0.37 |
+
+Reading: Master at level 13 is *possible* for everyone, punishing with typical gear (a death every minute or two in
+the worst class) and comfortable with a full decent kit. For a lucky kit the best XP per minute is Hard or Expert;
+Master pays in loot (Legendary chance ×1.9, +9 rare weight, +24 % item count) rather than XP.
+
 Engaged bot, fields only, Normal, minutes of play to reach each level (ranger / mage; `leveling 240`):
 
 | L5 | L10 | L15 | L20 | L25 | L30 | L35 | L40 | L45 | L50 |
