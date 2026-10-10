@@ -21,6 +21,7 @@ import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
 import { AdventureLife } from './art/adventureLife';
 import { inPolygon } from '@shared/townGeometry';
+import { baselineY } from '@shared/townDepth';
 import { preferences } from '../game/preferences';
 import { QuestGuide } from './questGuide';
 import { BarkBubbles, type Speaker } from './barks';
@@ -62,6 +63,8 @@ export class Scene {
   private adventureLife: AdventureLife | null = null;
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
+  /** Screen-space extent of each building's baked sprites (for the walk-behind fade). */
+  private buildingBounds=new Map<string,{x0:number;y0:number;x1:number;y1:number}>();
   private questStamp:CharacterSave|null=null;
   private questGuide=new QuestGuide();
   private barks=new BarkBubbles();
@@ -111,7 +114,7 @@ export class Scene {
   setMap(map: MapData) {
     this.cam.zoom=this.app.screen.height/VIEW_HEIGHT*preferences.get().values.cameraZoom;
     setViewScale(this.cam.zoom*this.app.renderer.resolution);
-    this.roofAlpha.clear();
+    this.roofAlpha.clear();this.buildingBounds.clear();
     this.townLife?.destroy();this.townLife=null;
     this.adventureLife?.destroy();this.adventureLife=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
@@ -136,6 +139,7 @@ export class Scene {
       p.view.zIndex = p.y;
       this.entities.addChild(p.view);
       this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds, building:p.building });
+      if(p.building&&p.bounds){const b=this.buildingBounds.get(p.building);this.buildingBounds.set(p.building,b?{x0:Math.min(b.x0,p.bounds.x0),y0:Math.min(b.y0,p.bounds.y0),x1:Math.max(b.x1,p.bounds.x1),y1:Math.max(b.y1,p.bounds.y1)}:{...p.bounds});}
     }
     for (const n of map.npcs) {
       if (n.role === 'dummy') continue; // dummies are server-side monsters so they can be hit
@@ -303,14 +307,22 @@ export class Scene {
 
     const x0 = this.cam.x - halfW - 220, x1 = this.cam.x + halfW + 220;
     const y0 = this.cam.y - halfH - 160, y1 = this.cam.y + halfH + 320;
-    for(const b of this.map?.town?.buildings??[])if(b.interior&&me){
-      const target=b.interior.floors.some(p=>inPolygon(me.x,me.y,p))?.08:1;
+    for(const b of this.map?.town?.buildings??[])if(me&&this.buildingBounds.has(b.id)){
+      // Inside an enterable house the shell fades away; standing behind any house fades it to a ghost so the hero stays visible.
+      const sb=this.buildingBounds.get(b.id)!;
+      const behind=me.x>sb.x0+6&&me.x<sb.x1-6&&me.y-56<sb.y1&&me.y-56>sb.y0&&me.y<baselineY(b.baseline,me.x)-4;
+      const target=b.interior?.floors.some(p=>inPolygon(me.x,me.y,p))?.08:behind?.38:1;
       const a=this.roofAlpha.get(b.id)??1;this.roofAlpha.set(b.id,a+(target-a)*Math.min(1,dtMs/100));
     }
     for (const p of this.props) {
       p.view.visible = p.bounds
         ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
         : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+      if(p.building?.startsWith('fade:')&&p.bounds&&p.view.visible&&me){
+        // tall scenery (trees, the harbour crane) ghosts while the hero stands behind its canopy
+        const b=p.bounds,behind=me.y<p.y-4&&me.x>b.x0+12&&me.x<b.x1-12&&me.y-40>b.y0&&me.y-40<b.y1;
+        const a=this.roofAlpha.get(p.building)??1,t=behind?.42:1;this.roofAlpha.set(p.building,a+(t-a)*Math.min(1,dtMs/100));
+      }
       if(p.building)p.view.alpha=this.roofAlpha.get(p.building)??1;
     }
     const questSave=ui.get().char;

@@ -383,7 +383,8 @@ export class NpcArt implements EntityView {
   private beat = -1;
   private phase = 0;
 
-  constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind'], where?: { zone?: string; id?: string; title?: string }) {
+  private facing = 20;
+  constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind'], where?: { zone?: string; id?: string; title?: string; facing?: number }) {
     const elite = /elite/i.test(name);
     if(role==='clue') {
       const root=new Container(),g=new Graphics();root.addChild(g);
@@ -412,7 +413,8 @@ export class NpcArt implements EntityView {
       const preset = npcPreset(where?.zone, where?.id, role, name);
       const v = new PlayerArt(preset.look, true);
       v.root.scale.set(preset.scale ?? 1);
-      v.setYaw(preset.facing ?? 20);
+      this.facing = where?.facing ?? preset.facing ?? 20;
+      v.setYaw(this.facing);
       this.preset = preset; this.person = v;
       this.phase = (hashId(`${where?.zone}/${where?.id}/${name}`) % 997) / 997;
       this.inner = v;
@@ -448,14 +450,16 @@ export class NpcArt implements EntityView {
         const first = this.beat < 0;
         this.beat = beat;
         if (!first) {
-          const yaw = (p.facing ?? 20) * Math.PI / 180, dx = Math.sin(yaw) * 60, dy = Math.cos(yaw) * 30;
+          const yaw = this.facing * Math.PI / 180, dx = Math.sin(yaw) * 60, dy = Math.cos(yaw) * 30;
           const skill = p.idle === 'hammer' ? 'seismic_slam' : p.idle === 'call' ? 'companion' : p.idle === 'pray' ? 'magic_weapon'
             : p.idle === 'craft' ? (p.look.slots.mainhand?.shape === 'hammer' ? 'sentry' : 'magic_weapon') : 'magic_missile';
           person.playAction({ skill, tx: s.x + dx, ty: s.y + dy, cycleMs: 900 });
         }
-      } else if (person.idleFor() > 0.4) person.face(p.facing ?? 20);
+      } else if (person.idleFor() > 0.4) person.face(this.facing);
     }
   }
+  /** Ambient townsfolk only show their plate when the hero is close. */
+  showPlate(visible: boolean): void { if (this.label) this.label.visible = visible; }
   hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
   die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }
   destroy(): void { if (this.destroyed) return; this.destroyed = true; this.inner.destroy(); this.root.destroy({ children: true }); }
