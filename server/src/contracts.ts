@@ -60,6 +60,8 @@ export interface InstanceApi {
   /** Advance one 50 ms tick and send snapshots. Called by the infrastructure's world loop at 20 Hz. */
   tick(): void;
   playerCount(): number;
+  /** Minimal private party-frame state; no location coordinates or inventory. */
+  partyStatus?(link:PlayerLink):{hp:number;mhp:number;dead:boolean}|null;
   /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
   requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;

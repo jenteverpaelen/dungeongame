@@ -62,10 +62,10 @@ export class Game {
 
   async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
-    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null });
+    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       funnel.stop();
-      ui.set({ connected: false, error: reason, screen: 'select', enchant: null });
+      ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null });
       this.stopChannelAudio();
       this.townSound?.destroy();this.townSound=null;
       this.adventureSound?.destroy();this.adventureSound=null;
@@ -112,6 +112,9 @@ export class Game {
         break;
       case 'world':
         ui.set({ world: m.world });
+        break;
+      case 'party':
+        ui.set({party:m.party});
         break;
       case 'pong':
         ui.set({ ping: Math.round(this.conn?.rtt ?? 0) });

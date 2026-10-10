@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 15;
+export const PROTOCOL_VERSION = 16;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -179,10 +179,12 @@ export type S2C =
   | { t: 'chat'; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
   | { t: 'world'; world: WorldInfo }
+  | { t: 'party'; party: import('./party').PartyView }
   | { t: 'pong'; c: number; s: number }
   | { t: 'err'; msg: string };
 
 export type CmdOp = 'onboarding'
+  | 'party'
   | 'merchant'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
   | 'stashDeposit' | 'stashWithdraw'

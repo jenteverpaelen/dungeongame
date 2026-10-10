@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C101. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C102. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -131,7 +131,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ITM-08 | Item compare, tooltips v2, item links in chat | P11 | Partial / research | One earned comparison/equip flow verified (C029); no item links or full v2. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). | PARTIAL — compare and tooltip exist |
 | F-ITM-09 | Collection codex (legendaries, sets) | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-ITM-10 | Item-level and base-tier curve review | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL |
-| F-SOC-01 | Party (invite, leave, kick, leader) + party frames | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-01 | Party (invite, leave, kick, leader) + party frames | P10a | Implemented scope | C102 complete character/session party flow and frames; five checks/two real clients. Authentication and chapter acceptance remain explicit. | MISSING |
 | F-SOC-02 | Friends list + presence | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — zone/world/system chat |
 | F-SOC-04 | Block / mute / report | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
@@ -371,3 +371,5 @@ C099 completes authored-route Cube pacing and the D-16 difficulty scope. Feature
 
 
 C100 closes selected P7/P9 regional family expansion; current147 features:39 implemented scope,35 partial,70 open,3 decided/excluded. This is not a completion percentage. P9 band/party/human evidence remains.
+
+C102 implements F-SOC-01 selected character/session party scope. Current147 features:40 implemented scope,35 partial,69 open,3 decided/excluded. Not a completion percentage. P10 friends/channels/moderation and real-client disconnect acceptance continue. [Party report](phase/P10-social/PARTY-REPORT.md)

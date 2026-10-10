@@ -16,7 +16,7 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P7 Early world | Rillwake, Bracken Sluice and first private objective dungeon; Reedclaw, Siltusk and authored ambience through C083; phase partial | Further monster variety, production art/ambience, human pacing, party dungeons and field-load evidence remain open |
 | P8 Economy | Selected v1 implementation complete C090–C095; see P08 CHAPTER-REPORT | G6 human economy/long-soak/independent acceptance remains; P14 account stash/P15 trading later |
 | P9 Mid game | C096–C100 passives, authored20–50 route, set gifts/vendors, Cube lessons, difficulty and regional families | C101 solo band report complete; party2–4 depends on P10, human balance/G7 open |
-| P10 Social | Next active implementation: character/session party identity | Complete party flow and frames, then friends/presence/channels/privacy/moderation; account ownership remains explicit |
+| P10 Social | C102 explicit party flow and frames implemented | Active: friends/presence/channels/privacy/moderation; account ownership and G8 acceptance remain explicit |
 | P11 Itemization | Existing system preserved | Balance/loot research and save compatibility |
 | P12 Endgame | Existing untimed rifts preserved | Reward/rank design and server validation |
 | P13 Extra modes | Not selected | Research-backed per-mode fit; not automatic feature approval |

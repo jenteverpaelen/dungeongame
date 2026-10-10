@@ -10,12 +10,14 @@ import { Chat, Notices, PickupLog } from './Feed';
 import { PlayerPlate } from './PlayerPlate';
 import { AfkModal, DeathScreen, HelpPanel, InteractPrompt } from './Overlays';
 import { ContextualGuidance } from './Guidance';
+import {PartyFrames} from '../panels/party';
 
 function GameHud() {
   const ready = useUI((s) => !!(s.char && s.me));
   return (
     <>
       {ready && <PlayerPlate />}
+      {ready && <PartyFrames />}
       <TargetFrame />
       <TopRight />
       <Notices />

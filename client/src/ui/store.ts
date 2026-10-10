@@ -9,7 +9,7 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party';
 
 export interface ChatLine { id: number; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string; at: number }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -43,6 +43,7 @@ export interface UIState {
   fieldEvents: FieldEventState[];
   lastRun: RunSummary | null;
   world: WorldInfo | null;
+  party: import('@shared/party').PartyView|null;
   panels: Partial<Record<PanelId, boolean>>;
   artisan: Artisan;
   chat: ChatLine[];
@@ -80,7 +81,7 @@ export const ui = new Store<UIState>({
   helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
-  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,
+  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });

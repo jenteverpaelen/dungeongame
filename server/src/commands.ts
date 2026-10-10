@@ -733,6 +733,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
+  party:(s,a,world)=>world.parties.command(s,a),
   merchant:merchantCommand,
   onboarding: onboardingCommand,
   adventure: adventureCommand,
