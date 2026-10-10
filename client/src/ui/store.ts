@@ -9,7 +9,7 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect';
 
 export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -45,6 +45,7 @@ export interface UIState {
   world: WorldInfo | null;
   party: import('@shared/party').PartyView|null;
   social: import('@shared/social').SocialView|null;
+  inspectionName:string;
   chatChannel:import('@shared/social').ChatChannel;
   chatTarget:string;
   panels: Partial<Record<PanelId, boolean>>;
@@ -84,7 +85,7 @@ export const ui = new Store<UIState>({
   helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
-  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,chatChannel:'zone',chatTarget:'',
+  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });

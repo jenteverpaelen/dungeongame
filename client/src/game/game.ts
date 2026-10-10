@@ -62,10 +62,10 @@ export class Game {
 
   async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
-    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       funnel.stop();
-      ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null,social:null,chat:[],chatOpen:false,chatTarget:'' });
+      ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null,social:null,inspectionName:'',chat:[],chatOpen:false,chatTarget:'' });
       this.stopChannelAudio();
       this.townSound?.destroy();this.townSound=null;
       this.adventureSound?.destroy();this.adventureSound=null;

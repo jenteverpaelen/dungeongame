@@ -735,6 +735,7 @@ const debug: Handler = (s, a) => {
 const HANDLERS: Record<CmdOp, Handler> = {
   party:(s,a,world)=>world.parties.command(s,a),
   social:(s,a,world)=>world.social.command(s,a),
+  inspect:(s,a,world)=>world.social.inspect(s,a),
   merchant:merchantCommand,
   onboarding: onboardingCommand,
   adventure: adventureCommand,

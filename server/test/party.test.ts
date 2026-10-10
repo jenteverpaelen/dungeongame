@@ -84,3 +84,14 @@ test('actual World login, command routing, zone transfer, private health frames 
     world.logout(a);assert.equal(world.parties.view(b).leader,world.parties.view(b).you);
   }finally{for(const s of peers)if(s.rec)world.logout(s);await world.shutdown();}
 });
+
+test('public directory joins revalidate capacity and disappear on leadership changes or unlisting',()=>{
+  const f=fixture(),[a,b,c,d,e]=f.peers;
+  assert(f.cmd(a,'list',{activity:'story'}).ok);const group=f.parties.directory(b).entries[0].id;
+  assert(f.cmd(b,'join',{group}).ok);assert(f.cmd(c,'join',{group}).ok);assert(f.cmd(d,'join',{group}).ok);
+  assert.equal(f.parties.directory(e).total,0);assert(!f.cmd(e,'join',{group}).ok);
+  assert(!f.cmd(b,'list',{activity:'rifts'}).ok);assert(f.cmd(d,'leave').ok);assert.equal(f.parties.directory(e).total,1);
+  assert(f.cmd(a,'leader',{member:f.parties.view(b).you}).ok);assert.equal(f.parties.directory(e).total,0);assert(!f.cmd(e,'join',{group}).ok);
+  assert(f.cmd(b,'list',{activity:'rifts'}).ok);f.live.delete(b);f.parties.disconnected(b,f.now());assert.equal(f.parties.directory(e).total,0);
+  assert(f.cmd(a,'list',{activity:'exploration'}).ok);assert(f.cmd(a,'unlist').ok);assert.equal(f.parties.directory(e).total,0);
+});

@@ -1,4 +1,5 @@
-import {useState} from 'preact/hooks';
+import {useEffect,useState} from 'preact/hooks';
+import {PARTY_ACTIVITIES,type PartyDirectory} from '@shared/party';
 import {PARTY_MAX} from '@shared/constants';
 import {ZONES} from '@shared/data/zones';
 import {togglePanel,useUI} from '../store';
@@ -7,12 +8,14 @@ import {run} from './util';
 import {ClassEmblem} from '../hud/Glyphs';
 
 export function PartyPanel(){
-  const party=useUI(s=>s.party),[tab,setTab]=useState<'members'|'invitations'>(()=>party?.incoming.length?'invitations':'members'),[name,setName]=useState(''),[busy,setBusy]=useState(false);
+  const party=useUI(s=>s.party),[tab,setTab]=useState<'members'|'invitations'|'directory'>(()=>party?.incoming.length?'invitations':'members'),[name,setName]=useState(''),[busy,setBusy]=useState(false),[directory,setDirectory]=useState<PartyDirectory|null>(null);
+  const browse=async(page=0)=>{setBusy(true);try{const r=await run('party',{action:'browse',page});if(r.ok)setDirectory(r.data as PartyDirectory);}finally{setBusy(false);}};
+  useEffect(()=>{if(tab==='directory')void browse();},[tab]);
   if(!party)return <PanelFrame id="party" title="Party" width={760}><p>Waiting for party information…</p></PanelFrame>;
   const lead=party.you===party.leader&&!!party.id;
-  const act=async(action:string,args:Record<string,unknown>={})=>{setBusy(true);try{const result=await run('party',{action,...args});if(result.ok&&action==='invite')setName('');}finally{setBusy(false);}};
+  const act=async(action:string,args:Record<string,unknown>={})=>{setBusy(true);try{const result=await run('party',{action,...args});if(result.ok&&action==='invite')setName('');if(result.ok&&action==='join')setTab('members');}finally{setBusy(false);}};
   return <PanelFrame id="party" title="Party" width={760} sub={`${party.members.length} / ${PARTY_MAX} members`}>
-    <Tabs tabs={[{id:'members',label:'Members'},{id:'invitations',label:'Invitations',badge:party.incoming.length}]} value={tab} onChange={setTab}/>
+    <Tabs tabs={[{id:'members',label:'Members'},{id:'invitations',label:'Invitations',badge:party.incoming.length},{id:'directory',label:'Find group'}]} value={tab} onChange={setTab}/>
     {!party.enabled&&<p class="pn-note">New party actions are disabled in this channel. You can still leave or decline an invitation.</p>}
     {tab==='members'?<>
       {!party.id&&<p>Invite an online character to travel as a group. Each player chooses whether to join.</p>}
@@ -28,12 +31,20 @@ export function PartyPanel(){
         <button class="btn primary" disabled={busy||!party.enabled||!name.trim()||party.members.length>=PARTY_MAX}>Invite</button>
       </form>}
       {party.id&&<button class="btn" disabled={busy} onClick={()=>void act('leave')}>Leave party</button>}
+      {(!party.id||lead)&&<><h3>Public group listing</h3><p class="pn-note">Listing shares your name, level, zone and channel. Anyone you have not blocked can join while a place is free. Players still travel themselves.</p><div class="social-options">{PARTY_ACTIVITIES.map(activity=><button class={`btn tiny${party.listing===activity?' primary':''}`} disabled={busy||!party.enabled} onClick={()=>void act('list',{activity})}>List for {activity}</button>)}{party.listing&&<button class="btn tiny" disabled={busy} onClick={()=>void act('unlist')}>Unlist</button>}</div></>}
       <p class="pn-note">Invitations and disconnected places last 60 seconds. If the leader disconnects, an online member takes over. Party membership does not move anyone or bypass story gates. Personal loot and nearby experience rules remain in effect.</p>
-    </>:<>
+    </>:tab==='invitations'?<>
       <p class="pn-note">Invitations expire after 60 seconds. Accepting requires an available place; leave your current party first.</p>
       {!party.incoming.length&&!party.outgoing.length&&<p>No pending invitations.</p>}
       {party.incoming.map(i=><div class="party-invitation" key={i.id}><span><strong>{i.from}</strong> invited you</span><button class="btn primary" disabled={busy||!!party.id||!party.enabled} onClick={()=>void act('accept',{invite:i.id})}>Accept</button><button class="btn" disabled={busy} onClick={()=>void act('decline',{invite:i.id})}>Decline</button></div>)}
       {party.outgoing.map(i=><div class="party-invitation" key={i.id}><span>Waiting for <strong>{i.name}</strong></span><button class="btn" disabled={busy} onClick={()=>void act('cancel',{invite:i.id})}>Cancel</button></div>)}
+    </>:<>
+      <p class="pn-note">Join an openly listed group. Joining does not teleport you or unlock story routes. Full, unavailable and blocked groups are hidden.</p>
+      <button class="btn" disabled={busy||!party.enabled} onClick={()=>void browse(directory?.page)}>Refresh groups</button>
+      <div class="social-list">{directory?.entries.map(entry=><div class="social-row" key={entry.id}><div><strong>{entry.leader} · {entry.activity}</strong><span>Level {entry.level} · {entry.members}/{PARTY_MAX} · {ZONES[entry.zone]?.name??entry.zone} · Channel {entry.channel}</span></div><button class="btn" disabled={busy||!!party.id||!party.enabled} onClick={()=>void act('join',{group:entry.id})}>Join</button></div>)}</div>
+      {directory&&!directory.entries.length&&<p>No open groups. List your own from Members.</p>}
+      {party.id&&<p class="pn-note">Leave your current party before joining another.</p>}
+      {directory&&<div class="social-pages"><button class="btn tiny" disabled={busy||directory.page===0} onClick={()=>void browse(directory.page-1)}>Previous</button><span>{directory.page+1} / {directory.pages} · {directory.total} groups</span><button class="btn tiny" disabled={busy||directory.page===directory.pages-1} onClick={()=>void browse(directory.page+1)}>Next</button></div>}
     </>}
   </PanelFrame>;
 }

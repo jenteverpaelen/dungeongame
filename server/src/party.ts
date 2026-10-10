@@ -1,13 +1,15 @@
 import {randomUUID} from 'node:crypto';
 import {PARTY_MAX} from '../../shared/src/constants';
 import type {PartyView,PartyMemberView} from '../../shared/src/party';
+import {PARTY_ACTIVITIES,type PartyActivity,type PartyDirectory} from '../../shared/src/party';
+import {SOCIAL_PAGE_SIZE} from '../../shared/src/social';
 import {EMPTY_RIFT_DESTROY_MS} from './config';
 import type {Session} from './net/session';
 import type {CmdResult} from './world';
 
 const DURATION=EMPTY_RIFT_DESTROY_MS; // Existing sixty-second transient-instance budget.
 type Member={id:string;key:string;name:string;classId:Session['save']['classId'];level:number;offlineUntil?:number};
-type Group={id:string;leader:string;members:Member[]};
+type Group={id:string;leader:string;members:Member[];listing?:PartyActivity};
 type Invite={id:string;group:string;from:string;to:string;fromName:string;toName:string;expiresAt:number};
 const fail=(err:string):CmdResult=>({ok:false,err});
 /** Ephemeral membership only. It never writes character data, grants rewards or performs travel. */
@@ -22,12 +24,17 @@ export class Parties {
   pruneInvites(){for(const [id,i] of this.invites){const a=this.online(i.from),b=this.online(i.to);if(a&&b&&!this.canInvite(a,b))this.invites.delete(id);}}
   private online(id:string){return [...this.sessions()].find(s=>s.save.id===id);}
   private group(id:string){const key=this.membership.get(id);return key?this.groups.get(key):undefined;}
+  private ensure(s:Session):Group {
+    const existing=this.group(s.save.id);if(existing)return existing;
+    const group:Group={id:randomUUID(),leader:s.save.id,members:[{id:s.save.id,key:randomUUID(),name:s.save.name,classId:s.save.classId,level:s.save.level}]};
+    this.groups.set(group.id,group);this.membership.set(s.save.id,group.id);return group;
+  }
   private enabled(s:Session){return !!s.rec&&!this.disabled.has(`${s.rec.zoneId}#${s.rec.channel}`);}
   private cancelInvites(group:string){for(const [key,i] of this.invites)if(i.group===group)this.invites.delete(key);}
   private remove(g:Group,id:string){
     g.members=g.members.filter(m=>m.id!==id);this.membership.delete(id);
     if(!g.members.length){this.groups.delete(g.id);this.cancelInvites(g.id);return;}
-    if(g.leader===id){g.leader=(g.members.find(m=>this.online(m.id))??g.members[0]).id;this.cancelInvites(g.id);}
+    if(g.leader===id){g.leader=(g.members.find(m=>this.online(m.id))??g.members[0]).id;delete g.listing;this.cancelInvites(g.id);}
   }
   connected(s:Session,now=Date.now()){
     this.expire(now);const member=this.group(s.save.id)?.members.find(m=>m.id===s.save.id);if(member)delete member.offlineUntil;
@@ -35,7 +42,7 @@ export class Parties {
   }
   disconnected(s:Session,now=Date.now()){
     const id=s.save.id,g=this.group(id),member=g?.members.find(m=>m.id===id);
-    if(member){member.level=s.save.level;member.offlineUntil=now+DURATION;if(g!.leader===id){const next=g!.members.find(m=>m.id!==id&&this.online(m.id));if(next){g!.leader=next.id;this.cancelInvites(g!.id);}}}
+    if(member){member.level=s.save.level;member.offlineUntil=now+DURATION;if(g!.leader===id){delete g!.listing;const next=g!.members.find(m=>m.id!==id&&this.online(m.id));if(next){g!.leader=next.id;this.cancelInvites(g!.id);}}}
     for(const [key,i] of this.invites)if(i.from===id||i.to===id)this.invites.delete(key);
     this.sent.delete(id);this.inviteAt.delete(id);this.broadcast(now);
   }
@@ -52,7 +59,7 @@ export class Parties {
         zone:rec?.zoneId??null,channel:rec?.channel??null,hp:p?Math.round(Math.max(0,Math.min(1,p.hp/Math.max(1,p.mhp)))*100)/100:null,dead:p?.dead??false};
     })??[];
     const invites=[...this.invites.values()];
-    return {id:g?.id??null,you:g?.members.find(m=>m.id===id)?.key??null,leader:g?.members.find(m=>m.id===g.leader)?.key??null,members,
+    return {id:g?.id??null,listing:g?.listing??null,you:g?.members.find(m=>m.id===id)?.key??null,leader:g?.members.find(m=>m.id===g.leader)?.key??null,members,
       incoming:invites.filter(i=>i.to===id).map(i=>({id:i.id,from:i.fromName,expiresAt:i.expiresAt})),
       outgoing:invites.filter(i=>i.from===id).map(i=>({id:i.id,name:i.toName,expiresAt:i.expiresAt})),enabled:this.enabled(s),now};
   }
@@ -63,11 +70,32 @@ export class Parties {
       this.sent.set(s.save.id,fingerprint);s.send({t:'party',party});
     }
   }
+  private available(s:Session,g:Group){const leader=this.online(g.leader);return !!g.listing&&g.members.length<PARTY_MAX&&!!leader&&this.enabled(leader)&&g.members.every(m=>{const peer=this.online(m.id);return !peer||this.canInvite(s,peer);});}
+  directory(s:Session,page=0):PartyDirectory{
+    const entries=this.enabled(s)?[...this.groups.values()].filter(g=>this.available(s,g)).map(g=>{
+      const leader=this.online(g.leader)!;return {id:g.id,leader:leader.save.name,level:leader.save.level,activity:g.listing!,members:g.members.length,zone:leader.rec!.zoneId,channel:leader.rec!.channel};
+    }).sort((a,b)=>a.leader.localeCompare(b.leader)):[];
+    const pages=Math.max(1,Math.ceil(entries.length/SOCIAL_PAGE_SIZE)),current=Math.min(Math.max(0,Number.isSafeInteger(page)?page:0),pages-1);
+    return {entries:entries.slice(current*SOCIAL_PAGE_SIZE,(current+1)*SOCIAL_PAGE_SIZE),page:current,pages,total:entries.length};
+  }
   command(s:Session,a:Record<string,unknown>,now=Date.now()):CmdResult{
     this.expire(now);this.pruneInvites();const id=s.save.id,action=a.action,g=this.group(id);
     if(this.online(id)!==s)return fail('Join the world before managing a party');
-    if(!['leave','decline','cancel'].includes(String(action))&&!this.enabled(s))return fail('Party invitations are disabled in this channel');
-    if(action==='invite'){
+    if(!['leave','decline','cancel','unlist'].includes(String(action))&&!this.enabled(s))return fail('Party invitations are disabled in this channel');
+    if(action==='browse')return {ok:true,data:this.directory(s,typeof a.page==='number'?a.page:0)};
+    if(action==='list'){
+      if(g&&g.leader!==id)return fail('Only the leader can list a party');
+      if(!PARTY_ACTIVITIES.includes(a.activity as PartyActivity))return fail('Choose an activity');
+      this.ensure(s).listing=a.activity as PartyActivity;
+    }else if(action==='unlist'){
+      if(!g||g.leader!==id)return fail('Only the leader can unlist a party');delete g.listing;
+    }else if(action==='join'){
+      if(g)return fail('Leave your current party before joining another');
+      const target=typeof a.group==='string'?this.groups.get(a.group):undefined;
+      if(!target||!this.available(s,target))return fail('That listing is no longer available');
+      target.members.push({id,key:randomUUID(),name:s.save.name,classId:s.save.classId,level:s.save.level});this.membership.set(id,target.id);
+      for(const [key,i] of this.invites)if(i.to===id)this.invites.delete(key);
+    }else if(action==='invite'){
       if(g&&g.leader!==id)return fail('Only the party leader can invite');
       if(g&&g.members.length>=PARTY_MAX)return fail('The party is full');
       if(typeof a.name!=='string'||!a.name.trim()||a.name.length>16)return fail('Enter an online character name');
@@ -79,8 +107,7 @@ export class Parties {
       const all=[...this.invites.values()];
       if(all.some(i=>i.from===id&&i.to===target.save.id))return fail('An invitation is already pending');
       if(all.filter(i=>i.to===target.save.id).length>=PARTY_MAX||all.filter(i=>i.from===id).length>=PARTY_MAX)return fail('Too many pending invitations');
-      const group=g??{id:randomUUID(),leader:id,members:[{id,key:randomUUID(),name:s.save.name,classId:s.save.classId,level:s.save.level}]};
-      if(!g){this.groups.set(group.id,group);this.membership.set(id,group.id);}
+      const group=this.ensure(s);
       const invite:Invite={id:randomUUID(),group:group.id,from:id,to:target.save.id,fromName:s.save.name,toName:target.save.name,expiresAt:now+DURATION};
       this.invites.set(invite.id,invite);this.inviteAt.set(id,now);
     }else if(action==='accept'||action==='decline'||action==='cancel'){
@@ -100,7 +127,7 @@ export class Parties {
       if(!g||g.leader!==id)return fail('Only the party leader can do that');
       const member=g.members.find(m=>m.key===a.member);if(!member||member.id===id)return fail('Choose another party member');
       if(action==='kick')this.remove(g,member.id);
-      else {if(!this.online(member.id))return fail('The new leader must be online');g.leader=member.id;this.cancelInvites(g.id);}
+      else {if(!this.online(member.id))return fail('The new leader must be online');g.leader=member.id;delete g.listing;this.cancelInvites(g.id);}
     }else return fail('Unknown party action');
     this.broadcast(now);return {ok:true};
   }

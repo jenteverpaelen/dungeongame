@@ -71,3 +71,20 @@ test('actual Session chat limiter shares its five-message budget across direct c
   for(let i=0;i<6;i++)call.call(context,i%2?'/p hello':'hello','whisper','SocialB');
   assert.equal(sent,5);assert.equal(limited,1);
 });
+
+test('inspection is consent checked, copies only equipped gear, and blocks/flags also protect public listings',()=>{
+  const f=fixture(),[a,b,c]=f.peers;
+  assert(!f.social.inspect(a,{name:b.save.name}).ok);f.cmd(a,'add',b.save.name);f.cmd(b,'add',a.save.name);
+  const result=f.social.inspect(a,{name:b.save.name});assert(result.ok);
+  const profile=result.data as import('../../shared/src/social').Inspection;
+  assert.deepEqual(Object.keys(profile).sort(),['classId','equipment','level','name']);
+  for(const [slot,item] of Object.entries(profile.equipment)){
+    assert.equal(item.id,`inspection-${slot}`);assert(!('protected' in item));assert(!('vendorStock' in item));
+    assert.notEqual(item,b.save.equipment[slot as import('../../shared/src/types').Slot]);
+  }
+  assert(f.social.command(b,{action:'privacy',presence:'contacts',whispers:'contacts',inspect:'off'}).ok);assert(!f.social.inspect(a,{name:b.save.name}).ok);
+  assert(f.social.command(b,{action:'privacy',presence:'contacts',whispers:'contacts',inspect:'all'}).ok);assert(f.social.inspect(c,{name:b.save.name}).ok);
+  assert(f.parties.command(b,{action:'list',activity:'story'}).ok);const id=f.parties.directory(c).entries[0].id;
+  f.cmd(c,'block',b.save.name);assert(!f.social.inspect(c,{name:b.save.name}).ok);assert.equal(f.parties.directory(c).total,0);assert(!f.parties.command(c,{action:'join',group:id}).ok);
+  f.disabled.add('hearthmere#1');assert(!f.social.inspect(a,{name:b.save.name}).ok);
+});

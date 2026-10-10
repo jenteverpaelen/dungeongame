@@ -2,6 +2,7 @@ import {CHAT_CHANNELS,CHAT_MAX_LEN,emptySocial,SOCIAL_LIMIT,validSocial,type Cha
 import type {Session} from './net/session';
 import type {Parties} from './party';
 import type {CmdResult} from './world';
+import {SLOTS,type Item} from '../../shared/src/types';
 
 const has=(names:string[],name:string)=>names.some(n=>n.toLowerCase()===name.toLowerCase());
 const fail=(err:string):CmdResult=>({ok:false,err});
@@ -20,7 +21,7 @@ export class Social {
     return {friends:state.friends.map(name=>{
       const peer=this.online(name),visible=peer&&this.enabled(peer)&&!this.blocked(s,peer)&&this.mutual(s,peer)&&this.state(peer).presence==='contacts';
       return visible?{name:peer.save.name,online:true,classId:peer.save.classId,level:peer.save.level,zone:peer.rec?.zoneId,channel:peer.rec?.channel}:{name,online:false};
-    }),blocked:state.blocked,muted:state.muted,presence:state.presence,whispers:state.whispers,enabled:this.enabled(s),supported:this.supported(s)};
+    }),blocked:state.blocked,muted:state.muted,presence:state.presence,whispers:state.whispers,inspect:state.inspect??'contacts',enabled:this.enabled(s),supported:this.supported(s)};
   }
   tick(){for(const s of this.sessions()){const social=this.view(s),key=JSON.stringify(social);if(key!==this.sent.get(s.save.id)){this.sent.set(s.save.id,key);s.send({t:'social',social});}}}
   disconnected(s:Session){this.sent.delete(s.save.id);this.tick();}
@@ -33,6 +34,7 @@ export class Social {
     if(action==='privacy'){
       if(!['contacts','hidden'].includes(String(a.presence))||!['all','contacts','off'].includes(String(a.whispers)))return fail('Choose valid privacy settings');
       state.presence=a.presence as SocialState['presence'];state.whispers=a.whispers as SocialState['whispers'];
+      if(a.inspect!==undefined){if(!['all','contacts','off'].includes(String(a.inspect)))return fail('Choose a valid inspection setting');state.inspect=a.inspect as SocialState['inspect'];}
     }else{
       if(typeof a.name!=='string'||!/^[A-Za-z0-9]{2,16}$/.test(a.name)||a.name.toLowerCase()===s.save.name.toLowerCase())return fail('Enter another character name (2–16 letters or numbers)');
       const name=this.online(a.name)?.save.name??a.name;
@@ -45,6 +47,15 @@ export class Social {
       }else state[list]=state[list].filter(n=>n.toLowerCase()!==name.toLowerCase());
     }
     s.save.social=state;s.changed(false);this.parties.pruneInvites();return {ok:true};
+  }
+  inspect(s:Session,a:Record<string,unknown>):CmdResult{
+    const peer=typeof a.name==='string'?this.online(a.name):undefined,policy=peer&&(this.state(peer).inspect??'contacts');
+    if(this.online(s.save.name)!==s||!peer||!this.enabled(s)||!this.enabled(peer)||this.blocked(s,peer)||policy==='off'||(policy==='contacts'&&peer!==s&&!this.mutual(s,peer)&&!this.parties.together(s,peer)))return fail('That character is not available for inspection');
+    const equipment:Partial<Record<typeof SLOTS[number],Item>>={};
+    for(const slot of SLOTS){const item=peer.save.equipment[slot];if(!item)continue;
+      equipment[slot]=structuredClone({id:`inspection-${slot}`,base:item.base,kind:item.kind,name:item.name,rarity:item.rarity,ancient:item.ancient,ilvl:item.ilvl,reqLevel:item.reqLevel,affixes:item.affixes,legendary:item.legendary,set:item.set,weapon:item.weapon,armor:item.armor,sockets:item.sockets,upgrade:item.upgrade,upgradeFortune:item.upgradeFortune,enchanted:item.enchanted,enchantCount:item.enchantCount,bound:item.bound,look:item.look,flavor:item.flavor});
+    }
+    return {ok:true,data:{name:peer.save.name,classId:peer.save.classId,level:peer.save.level,equipment}};
   }
   chat(s:Session,text:string,ch:unknown='zone',to?:unknown):CmdResult{
     if(!s.rec||this.online(s.save.name)!==s)return fail('Join the world before chatting');

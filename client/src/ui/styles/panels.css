@@ -1162,3 +1162,12 @@
 .social-options,.social-pages { display:flex; align-items:center; gap:10px; margin:14px 0; }
 .social-pages { justify-content:space-between; }
 .social-chat-links { flex-wrap:wrap; border-top:1px solid #665335; padding-top:14px; }
+.inspection-body { display:grid; grid-template-columns:300px 1fr; gap:24px; margin:12px 0; }
+.inspection-slots { display:grid; gap:4px; }
+.inspection-slot { display:flex; align-items:center; gap:10px; padding:5px 8px; border:1px solid #665335; background:rgba(0,0,0,.2); color:var(--text); font:inherit; text-align:left; cursor:pointer; }
+.inspection-slot.selected { border-color:var(--gold); background:#31291b; }
+.inspection-slot>span:first-child { width:30px; flex:none; }
+.inspection-slot>span:last-child { display:grid; }
+.inspection-slot>span>span { font-size:12px; color:#b8aa8e; }
+.inspection-item { min-width:0; }
+.inspection-item .tt { width:100%; }

@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C103. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C104. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -136,9 +136,9 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Partial | C103 complete10a whisper/party/world/trade/LFG routes, server privacy and UI. Guild channel remains10b. | PARTIAL — zone/world/system chat |
 | F-SOC-04 | Block / mute / report | P10a | Partial | C103 persistent block/mute and invitation/chat enforcement, real reconnect checked. Report queue/staff policy pending owner answer. | MISSING |
 | F-SOC-05 | Emotes, titles, nameplates | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — nameplates for remote players exist in town |
-| F-SOC-06 | Inspect / armory | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-06 | Inspect / armory | P10b | Implemented scope | C104 permission-checked online equipped-item snapshot and original item-card UI. Inventory/stash/currency/history excluded; no offline web armory. | MISSING |
 | F-SOC-07 | Guilds / clans | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
-| F-SOC-08 | Group finder | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-08 | Group finder | P10b | Implemented scope | C104 complete opt-in activity directory, explicit joining, capacity/block/leadership checks and paged UI. No matchmaking/travel bypass. | MISSING |
 | F-SOC-09 | Party scaling and loot-rule review | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — +50 % life per extra player, personal loot, shared XP |
 | F-SOC-10 | Mail | P15 (if trading) | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-END-01 | Timed rifts with ranks and keystones | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING — rifts have no timer or rank |
@@ -375,3 +375,5 @@ C100 closes selected P7/P9 regional family expansion; current147 features:39 imp
 C102 implements F-SOC-01 selected character/session party scope. Current147 features:40 implemented scope,35 partial,69 open,3 decided/excluded. Not a completion percentage. P10 friends/channels/moderation and real-client disconnect acceptance continue. [Party report](phase/P10-social/PARTY-REPORT.md)
 
 C103 closes selected character friends/presence and10a chat routes; block/mute implemented, report and guild scope explicit. Current147 features:41 implemented scope,37 partial,66 open,3 decided/excluded. Not completion percentage. [Social report](phase/P10-social/SOCIAL-REPORT.md)
+
+C104 adds scoped online inspection and full explicit group discovery. Current147 features:43 implemented scope,37 partial,64 open,3 decided/excluded. Not a completion percentage. Owner requested pause for shutdown; resume remaining social chapter next. [Report](phase/P10-social/DISCOVERY-INSPECT-REPORT.md)
