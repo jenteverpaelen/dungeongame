@@ -18,8 +18,8 @@ import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, initArt, itemIconUrl,
 } from '../render/art';
 import type { EntityView, ViewState } from '../render/types';
-import { bakedPages } from '../render/art/bake';
-import { PlayerArt, artDebug, bakePlayerLook } from '../render/art/player';
+import { bakedPages, bakeTimes } from '../render/art/bake';
+import { PlayerArt, artDebug, bakePlayerLook, bakeStats } from '../render/art/player';
 import { ACTIONS, type ActionSpec } from '../render/actions';
 import { NPC_PRESETS, RESIDENT_PRESETS } from '../render/art/npcLooks';
 import { F_WINDUP } from '@shared/protocol';
@@ -778,7 +778,7 @@ function perfView() {
     const c = CLASS_IDS[i % 3];
     const gearStage = qs.get('gear') as ShowcaseStage | 'mix' | null;
     const mixStages: ShowcaseStage[] = ['starter', 'L30', 'L60', 'L70', 'set', 'ancient', 'primal'];
-    const v = createPlayerView(gearStage ? stageLook(c, gearStage === 'mix' ? mixStages[i % mixStages.length] : gearStage, i) : i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
+    const v = createPlayerView(gearStage ? stageLook(c, gearStage === 'mix' ? mixStages[i % mixStages.length] : gearStage, i) : i % 2 ? randomLook(c, 'rare', i) : legendLook(c), qs.get('portable') ? 'portable' : 'scene');
     const spread = NPLAY > 40 ? 1.9 : 1;
     const x = cx + (Math.random() - 0.5) * 900 * spread, y = cy + (Math.random() - 0.5) * 500 * spread;
     const mode = i % 4;
@@ -891,8 +891,12 @@ app.ticker.add((tk) => {
   const med = (a: number[]) => [...a].sort((x, y) => x - y)[a.length >> 1] ?? 0;
   updMs = med(updWin); heroUpdMs = med(heroWin);
   hud.textContent = qs.get('nohud') ? '' : `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms)  gearfx ${gearFxStats.heroes}/${gearFxStats.sprites}  ${mapInfo}`;
-  (window as unknown as { __info: string }).__info = `${fps} fps, draws/frame ${drawCallsShown}, actors ${actors.length}, update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms) ${mapInfo}`;
+  frameWin.push(tk.deltaMS); if (frameWin.length > 120) frameWin.shift();
+  const sorted = [...frameWin].sort((x, y) => x - y);
+  const p95 = sorted[Math.floor(sorted.length * 0.95)] ?? 0, worst = sorted[sorted.length - 1] ?? 0;
+  (window as unknown as { __info: string }).__info = `${fps} fps, frame p95 ${p95.toFixed(1)} worst ${worst.toFixed(1)} ms, draws/frame ${drawCallsShown}, actors ${actors.length}, update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms), gearfx ${gearFxStats.heroes}/${gearFxStats.sprites}, bake acquire ${bakeStats.acquires}x ${bakeStats.acquireMs.toFixed(0)} ms, pump ${bakeStats.chunks}x ${bakeStats.pumpMs.toFixed(0)} ms (max ${bakeStats.maxPumpMs.toFixed(1)}), pending ${bakeStats.pending}, build ${bakeTimes.build.toFixed(0)} render ${bakeTimes.render.toFixed(0)} pages ${bakeTimes.pages}`;
 });
+const frameWin: number[] = [];
 (window as unknown as { __pages: unknown }).__pages = bakedPages;
 (window as unknown as { __ready: boolean; __info: string }).__ready = true;
 (window as unknown as { __info: string }).__info = mapInfo;

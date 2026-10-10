@@ -49,8 +49,24 @@ const HIP = -12;
 
 // ─────────────────────────── sheet cache ───────────────────────────
 
-const sheets = new Map<string, Sheet>();
+/** How a view's sheet is produced:
+ *  - 'portable': canvas-backed pages usable from any Pixi renderer (class-select / showcase previews, galleries);
+ *  - 'scene':    GPU render-target pages of the main renderer (in-game heroes: no GPU→CPU readback);
+ *  - 'npc':      like 'scene' at a lower density without hit-flash versions, baked at once (town residents). */
+export type BakeMode = 'portable' | 'scene' | 'npc';
+
+/** One look at one density: its finished sheet (or the live vector fallback) and the remaining bake work. */
+interface Entry {
+  key: string; look: PlayerLook; mode: BakeMode; res: number; refs: number;
+  /** Finished (or live-fallback) sheet; null while a 'scene' look is still baking (views show an interim sheet). */
+  sheet: Sheet | null;
+  /** Remaining bake work; specs are created when the bake starts (cheap acquire for a crowd walking in). */
+  work: { specs: PartSpec[] | null; next: number; acc: Sheet } | null;
+}
+const entries = new Map<string, Entry>();
 const idle: string[] = [];
+/** Looks waiting to be baked, front first. */
+const queue: Entry[] = [];
 
 /** Townsfolk looks carry their own body (hair, skin, beard, face accessory); heroes derive it from class + appearance. */
 export type NpcBodyLook = PlayerLook & { npc?: Omit<Body, 'cls'> };
@@ -153,83 +169,143 @@ function heroFx(): Sheet {
 export function bakePlayerLook(look: PlayerLook): void {
   const res = bakeRes(3, 6);
   const key = `${lookKey(look)}@${res}`;
-  const cur = sheets.get(key);
-  if (cur && !cur.destroyed && !cur.live) return;
-  const baked = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`);
-  if (cur) { baked.refs = cur.refs; setTimeout(() => cur.destroy(), 4000); }
-  sheets.set(key, baked);
-  pendingBakes.delete(key);
+  const e = entries.get(key) ?? newEntry(key, look, 'portable', res);
+  if (e.sheet && !e.sheet.destroyed && !e.sheet.live && !e.work) return;
+  const old = e.sheet;
+  e.sheet = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`);
+  dropWork(e);
+  if (old && old !== e.sheet) setTimeout(() => old.destroy(), 4000);
 }
+
+/** Bake cost counters (dev HUD / perf notes). */
+export const bakeStats = { acquireMs: 0, acquires: 0, pumpMs: 0, chunks: 0, maxPumpMs: 0, maxFrameMs: 0, pending: 0 };
 
 /** Dev gallery: no random blinks / glances (contact sheets must be reproducible). */
 export const artDebug = { deterministic: false };
 
-const pendingBakes = new Map<string, PlayerLook>();
-let lastPump = 0;
-/** The look being baked, a chunk of parts per frame (heads are the expensive part: 32 views). */
-let baking: { key: string; look: PlayerLook; sheet: Sheet; specs: PartSpec[]; next: number } | null = null;
-const CHUNK_WEIGHT = 10;
+const prefixOf = (m: BakeMode) => (m === 'npc' ? 'gpu:' : m === 'scene' ? 'scn:' : '');
+const resOf = (m: BakeMode) => bakeRes(m === 'npc' ? 2 : 3, 6);
 const weightOf = (s: PartSpec) => (s.name.startsWith('head@') ? (s.flash ? 2 : 1) : 0.25);
+/** Per-frame bake budget (ms): a crowd walking into view spreads its bakes over frames instead of stalling. */
+export const BAKE_BUDGET_MS = 4;
+/** Measured cost per weight unit (EMA), so chunks are sized to fit the budget. */
+let msPerWeight = 1.5;
+let lastPump = 0;
 
-/** Bake queued looks incrementally (≤ ~10 head views per frame); views swap from the live vector parts to
- *  the baked sheet once a look is complete, so a hero walking into view never stalls a frame. */
-function pumpBakes(): void {
-  const now = performance.now();
-  if (now - lastPump < 14 || !getRenderer()) return;
-  if (!baking) {
-    if (!pendingBakes.size) return;
-    const [key, look] = pendingBakes.entries().next().value as [string, PlayerLook];
-    pendingBakes.delete(key);
-    const cur = sheets.get(key);
-    // looks nobody wears any more (a hero walked out of view, gear swapped) are not worth a bake
-    if (!cur || cur.destroyed || !cur.live || cur.refs <= 0) return;
-    baking = { key, look, sheet: new Sheet(), specs: playerParts(look), next: 0 };
-  }
-  lastPump = now;
-  const b = baking;
-  const cur = sheets.get(b.key);
-  if (!cur || cur.destroyed || !cur.live) { b.sheet.destroy(); baking = null; return; }
-  const res = Number(b.key.slice(b.key.lastIndexOf('@') + 1)) || 3;
-  const chunk: PartSpec[] = [];
-  let w = 0;
-  while (b.next < b.specs.length && (w < CHUNK_WEIGHT || !chunk.length)) { const sp = b.specs[b.next++]; chunk.push(sp); w += weightOf(sp); }
-  b.sheet.absorb(bakeSheet(chunk, res, 2048, `player:${b.look.classId}`,false,b.key.startsWith('gpu:')));
-  if (b.next < b.specs.length) return;
-  baking = null;
-  b.sheet.refs = cur.refs;
-  sheets.set(b.key, b.sheet);
-  setTimeout(() => cur.destroy(), 4000);
+function newEntry(key: string, look: PlayerLook, mode: BakeMode, res: number): Entry {
+  const e: Entry = { key, look, mode, res, refs: 0, sheet: null, work: null };
+  entries.set(key, e);
+  return e;
+}
+function dropWork(e: Entry): void {
+  if (e.work) { e.work.acc.destroy(); e.work = null; }
+  const i = queue.indexOf(e);
+  if (i >= 0) queue.splice(i, 1);
+}
+function specsFor(look: PlayerLook, mode: BakeMode): PartSpec[] {
+  const specs = playerParts(look);
+  if (mode === 'npc') for (const spec of specs) { spec.flash = false; spec.rim = false; }
+  return specs;
 }
 
-function acquireSheet(look: PlayerLook,gpuOnly=false): { key: string; sheet: Sheet; res: number } {
-  const res = bakeRes(gpuOnly?2:3, 6);
-  const key = `${gpuOnly?'gpu:':''}${lookKey(look)}@${res}`;
-  let sheet = sheets.get(key);
-  if (!sheet || sheet.destroyed) {
-    const specs=playerParts(look);
-    if(gpuOnly)for(const spec of specs){spec.flash=false;spec.rim=false;}
-    sheet = bakeSheet(specs, res, 2048, `player:${look.classId}`, !gpuOnly,gpuOnly);
-    sheets.set(key, sheet);
-    if(sheet.live)pendingBakes.set(key, look);
+/** Bake queued looks within BAKE_BUDGET_MS per frame. Chunks are sized from the measured cost per part weight;
+ *  every finished look swaps in on the next update of the views that wear it. */
+function pumpBakes(): void {
+  // once per rendered frame: every view calls this from update(); the frame's timestamp is shared by all of them
+  const frame = (typeof document !== 'undefined' ? Number(document.timeline?.currentTime ?? 0) : 0) || performance.now();
+  if (frame === lastPump || !getRenderer()) return;
+  lastPump = frame;
+  let frameMs = 0;
+  while (queue.length) {
+    const e = queue[0];
+    if (!e.work || e.refs <= 0) { queue.shift(); if (e.refs <= 0) { dropWork(e); if (!e.sheet) entries.delete(e.key); } continue; }
+    // class placeholders unblock every waiting hero: they get a larger budget (once per class per session)
+    const left = (e.key.startsWith('ph:') ? BAKE_BUDGET_MS * 3 : BAKE_BUDGET_MS) - frameMs;
+    if (left <= 0.3) break;
+    const w = e.work, chunk: PartSpec[] = [];
+    const specs = w.specs ??= specsFor(e.look, e.mode);
+    let weight = 0;
+    while (w.next < specs.length) {
+      const sp = specs[w.next], sw = weightOf(sp);
+      if (chunk.length && (weight + sw) * msPerWeight > left) break;
+      chunk.push(sp); weight += sw; w.next++;
+    }
+    const t0 = performance.now();
+    w.acc.absorb(bakeSheet(chunk, e.res, 2048, `player:${e.look.classId}`, false, e.mode !== 'portable'));
+    const dt = performance.now() - t0;
+    frameMs += dt;
+    // EMA of the cost per weight unit; one-off outliers (first shader compile) are clamped
+    msPerWeight = Math.max(0.05, msPerWeight * 0.7 + Math.min(4, dt / Math.max(0.25, weight)) * 0.3);
+    bakeStats.pumpMs += dt; bakeStats.chunks++; bakeStats.maxPumpMs = Math.max(bakeStats.maxPumpMs, dt);
+    if (w.next >= specs.length) {
+      queue.shift();
+      const old = e.sheet;
+      e.sheet = w.acc; e.work = null;
+      if (old && old !== e.sheet) setTimeout(() => old.destroy(), 4000);
+    }
   }
-  else if (sheet.live) pendingBakes.set(key, look); // its bake may have been skipped while nobody wore it
+  bakeStats.maxFrameMs = Math.max(bakeStats.maxFrameMs, frameMs);
+  bakeStats.pending = queue.length;
+}
+
+function acquireEntry(look: PlayerLook, mode: BakeMode, urgent = false): Entry {
+  const res = resOf(mode);
+  const key = `${prefixOf(mode)}${lookKey(look)}@${res}`;
+  let e = entries.get(key);
+  if (!e || (e.sheet?.destroyed && !e.work)) {
+    const t0 = performance.now();
+    e = newEntry(key, look, mode, res);
+    if (mode === 'npc' || !getRenderer()) {
+      // town residents bake at once (town load); without a renderer (tests, early boot) parts are live vectors
+      e.sheet = bakeSheet(specsFor(look, mode), res, 2048, `player:${look.classId}`, mode !== 'npc', mode === 'npc');
+      if (e.sheet.live) { e.work = { specs: null, next: 0, acc: new Sheet() }; queue.push(e); }
+    } else {
+      // portable views (previews, galleries) show live vector parts until baked; scene views show an interim sheet
+      if (mode === 'portable') e.sheet = bakeSheet(specsFor(look, mode), res, 2048, `player:${look.classId}`, true, false);
+      e.work = { specs: null, next: 0, acc: new Sheet() };
+      if (urgent) queue.unshift(e); else queue.push(e);
+    }
+    bakeStats.acquireMs += performance.now() - t0; bakeStats.acquires++;
+  } else if (e.work && urgent) { const i = queue.indexOf(e); if (i > 0) { queue.splice(i, 1); queue.unshift(e); } }
   const i = idle.indexOf(key);
   if (i >= 0) idle.splice(i, 1);
-  sheet.refs++;
-  return { key, sheet, res };
+  e.refs++;
+  return e;
 }
 
-function releaseSheet(key: string): void {
-  const sheet = sheets.get(key);
-  if (!sheet) return;
-  sheet.refs--;
-  if (sheet.refs > 0) return;
+function releaseEntry(key: string): void {
+  const e = entries.get(key);
+  if (!e) return;
+  e.refs--;
+  if (e.refs > 0) return;
+  if (!e.sheet) { dropWork(e); entries.delete(key); return; }   // never finished: nothing worth keeping
   idle.push(key);
   while (idle.length > 10) {
     const k = idle.shift()!;
-    const s = sheets.get(k);
-    if (s && s.refs <= 0) { s.destroy(); sheets.delete(k); pendingBakes.delete(k); }
+    const x = entries.get(k);
+    if (x && x.refs <= 0) { dropWork(x); x.sheet?.destroy(); entries.delete(k); }
   }
+}
+
+/** A class's bare look (no gear, default appearance): what a brand-new scene view shows for the few frames
+ *  before its own sheet is baked. Live vector parts shared by every waiting hero, then baked like any look. */
+function placeholderSheet(classId: PlayerLook['classId'], mode: BakeMode): Sheet {
+  const e = acquirePlaceholder(classId, mode);
+  return e.sheet!;
+}
+const placeholders = new Map<string, Entry>();
+function acquirePlaceholder(classId: PlayerLook['classId'], mode: BakeMode): Entry {
+  const res = resOf(mode);
+  const key = `ph:${mode}:${classId}@${res}`;
+  let e = placeholders.get(key);
+  if (!e || !e.sheet || e.sheet.destroyed) {
+    const look: PlayerLook = { classId, slots: {} };
+    e = { key, look, mode, res, refs: 1e9, sheet: bakeSheet(specsFor(look, mode), res, 2048, `player:${classId}`, true, false), work: null };
+    e.work = { specs: null, next: 0, acc: new Sheet() };
+    queue.unshift(e);
+    placeholders.set(key, e);
+  }
+  return e;
 }
 
 // ─────────────────────────── helpers ───────────────────────────
@@ -296,6 +372,8 @@ export class PlayerArt implements PlayerView {
   private key = '';
   private res = 3;
   private sheet!: Sheet;
+  private entry: Entry | null = null;
+  private mode: BakeMode;
   private kit: Kit = { wk: 'none', shield: false, orb: false, shape: '' };
   private reach = reachOf(undefined);
 
@@ -386,7 +464,8 @@ export class PlayerArt implements PlayerView {
   private baseCache: Pose = newPose();
   private sn = 1; private cs = 0;
 
-  constructor(look: PlayerLook,private gpuOnly=false) {
+  constructor(look: PlayerLook, mode: boolean | BakeMode = 'portable') {
+    this.mode = mode === true ? 'npc' : mode === false ? 'portable' : mode;
     this.root.addChild(this.rig);
     this.rig.addChild(this.glowBack, this.shadow, this.under, this.body, this.over);
     this.body.sortableChildren = true;
@@ -394,13 +473,16 @@ export class PlayerArt implements PlayerView {
   }
 
   setLook(look: PlayerLook): void {
-    const prevKey = this.key;
+    const prev = this.entry;
     this.look = look;
-    const acq = acquireSheet(look,this.gpuOnly);
-    this.key = acq.key;
-    this.res = acq.res;
-    if (prevKey) releaseSheet(prevKey);
-    this.build(acq.sheet);
+    this.entry = acquireEntry(look, this.mode, this.isLocal);
+    this.key = this.entry.key;
+    this.res = this.entry.res;
+    // until the new sheet is baked, keep showing what we had (old gear / lower density), else the class placeholder
+    const sheet = this.entry.sheet && !this.entry.sheet.destroyed ? this.entry.sheet
+      : this.sheet && !this.sheet.destroyed ? this.sheet : placeholderSheet(look.classId, this.mode);
+    this.build(sheet);
+    if (prev) releaseEntry(prev.key);
   }
 
   // ─────────────────────────── build ───────────────────────────
@@ -673,10 +755,10 @@ export class PlayerArt implements PlayerView {
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
     pumpBakes();
-    const cur = sheets.get(this.key);
+    const cur = this.entry?.sheet;
     if (cur && !cur.destroyed && cur !== this.sheet) this.build(cur);
-    else if (this.sheet.destroyed) { if (cur && !cur.destroyed) this.build(cur); else return; }
-    if (this.res < bakeRes(this.gpuOnly?2:3, 6) && !this.dying) { this.setLook(this.look); }
+    else if (this.sheet.destroyed) this.build(cur && !cur.destroyed ? cur : placeholderSheet(this.look.classId, this.mode));
+    if (this.res < resOf(this.mode) && !this.dying) { this.setLook(this.look); }
     this.sx = s.x; this.sy = s.y;
 
     const flags = s.flags;
@@ -1452,7 +1534,8 @@ export class PlayerArt implements PlayerView {
     this.ribbonF.destroy(); this.ribbonB.destroy();
     this.gear?.destroy(); this.gear = null;
     this.root.destroy({ children: true });
-    releaseSheet(this.key);
+    if (this.entry) releaseEntry(this.entry.key);
+    this.entry = null;
   }
 }
 

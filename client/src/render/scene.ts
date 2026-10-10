@@ -177,7 +177,7 @@ export class Scene {
 
   private createView(d: EntDesc): EntityView {
     switch (d.k) {
-      case 'player': return createPlayerView(d.look ?? { classId: 'warrior', slots: {} });
+      case 'player': return createPlayerView(d.look ?? { classId: 'warrior', slots: {} }, 'scene');
       case 'mob': {
         const def = MONSTERS[d.t];
         if (!def) return createNpcView('dummy', d.n ?? 'Training Dummy');

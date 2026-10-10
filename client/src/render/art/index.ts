@@ -16,7 +16,7 @@ import { iconTexture, iconUrl } from './icons';
 import { buildLayers } from './map';
 import { MonsterArt } from './monsters';
 import { NpcArt, PortalArt } from './npcs';
-import { PlayerArt } from './player';
+import { PlayerArt, type BakeMode } from './player';
 import { setScaleValue } from './scale';
 import { SummonArt } from './summons';
 
@@ -33,8 +33,10 @@ export function initArt(renderer: Renderer): void {
   setRenderer(renderer);
 }
 
-export function createPlayerView(look: PlayerLook): PlayerView {
-  return new PlayerArt(look);
+/** `scene` views (the game world) bake on the GPU within a per-frame budget and show an interim sheet meanwhile;
+ *  the default `portable` views (previews in their own renderer, galleries) use canvas-backed sheets. */
+export function createPlayerView(look: PlayerLook, mode: BakeMode = 'portable'): PlayerView {
+  return new PlayerArt(look, mode);
 }
 
 export function createMonsterView(defId: string, elite: EliteTier, affixes: string[], scale: number): EntityView {
