@@ -164,7 +164,9 @@ export class Game {
         ui.set((s) => {
           const a = s.account;
           if (m.op === 'status') return { account: { ...a, mode: m.mode, open: a.open || (m.mode === 'required' && !a.username) } };
-          if (!m.ok) return { account: { ...a, mode: m.mode, error: m.op === 'resume' ? null : m.err ?? 'That did not work. Please try again.' } };
+          // A refused resume means the stored session is gone (server restart, expiry): drop the signed-in view with it.
+          if (!m.ok) return { account: { ...a, mode: m.mode, error: m.op === 'resume' ? null : m.err ?? 'That did not work. Please try again.',
+            ...(m.op === 'resume' ? { username: null, characters: [] as typeof a.characters } : {}) } };
           const codes = m.recoveryCodes ?? a.codes;
           return { account: { ...a, mode: m.mode, error: null, codes,
             username: m.op === 'logout' ? null : m.username ?? a.username,

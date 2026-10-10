@@ -100,11 +100,11 @@ export function InteractPrompt() {
 
 // ───────────────────────── Help (F1) ─────────────────────────
 
+// F2 and F3 are developer tools: listed only in dev builds so players are not told about keys that do nothing for them.
 const FIXED_BINDS: [string, string][] = [
   ['Enter', 'Chat'],
   ['F1', 'This help'],
-  ['F2', 'Prototype tools'],
-  ['F3', 'Town collision overlay'],
+  ...(import.meta.env.DEV ? [['F2', 'Prototype tools'], ['F3', 'Town collision overlay']] as [string, string][] : []),
   ['Esc', 'Close windows'],
 ];
 
