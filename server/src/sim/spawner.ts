@@ -4,7 +4,7 @@
 import { MONSTERS, RIFT_PROGRESS, type EliteTier, type MonsterDef, type Theme } from '../shared';
 import { eliteName, rollEliteAffixes } from './elites';
 import type { Instance } from './instance';
-import { DUMMY_DEF, createMob, playerDifficulty } from './monsters';
+import { DUMMY_DEF, createMob, encounterDifficulty } from './monsters';
 import {
   CHAMPION_CHANCE, FIELD_NEAR_DIST, FIELD_NEAR_PACKS, FIELD_VISIBLE_DIST, FIELD_VISIBLE_PACKS, GOBLIN_FIELD_CHANCE, GOBLIN_RIFT_CHANCE, RARE_CHANCE, RESPAWN_MIN_DIST, RESPAWN_PREF_DIST, RIFT_PACKS,
 } from './tuning';
@@ -145,7 +145,7 @@ export class Spawner {
       const d = Math.hypot(p.x - x, p.y - y);
       if (d < bd) { bd = d; best = p; }
     }
-    return { level: Math.max(lo, Math.min(hi, best ? best.save.level : lo)), diff: best ? playerDifficulty(best) : 0 };
+    return { level: Math.max(lo, Math.min(hi, best ? best.save.level : lo)), diff: best ? encounterDifficulty(inst,best) : 0 };
   }
 
   private populate(i: number, dormant: boolean) {
@@ -363,7 +363,7 @@ function playerZoneLevel(inst: Instance, p: Player): number {
 }
 
 function zoneDifficulty(inst: Instance, p: Player): number {
-  return inst.kind === 'rift' ? inst.difficulty : playerDifficulty(p);
+  return encounterDifficulty(inst,p);
 }
 
 export function debugSpawnGoblin(inst: Instance, p: Player) {

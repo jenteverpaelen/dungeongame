@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C099. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C100. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -82,7 +82,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-SKL-02 | Rune / tier expansion | P11 | Partial / research | Existing54 tiers/54 runes audited; selected summary errors corrected (C025), no expansion. [build audit](phase/P01-research/BUILD-REPORT.md). | PARTIAL — 3 runes, 3 tiers |
 | F-SKL-03 | Passives content | P9 | Implemented scope | C09618 original passives/six per class, finite slots and level-scaled existing-affix budgets. Further proc/tree depth is not claimed. [Report](phase/P09-mid-game/PASSIVES-REPORT.md) | MISSING |
 | F-SKL-04 | Class identity pass (signature builds) | P4 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — Whirlwind, Sentries, Meteor `[O]` |
-| F-MON-01 | Monster family expansion per zone | P7/P9 | Partial / implementation | C097 adds six authored-only variants for24 total types, cold lob/fan and lightning fracture combinations. These are not six new body families; additional family breadth remains. [Report](phase/P09-mid-game/CAMPAIGN-REPORT.md) | THIN — 10 trash types |
+| F-MON-01 | Monster family expansion per zone | P7/P9 | Implemented scope | C100:26 types/19 body families; original skimmer/goat rigs and habitat-specific authored placements complete P7/P9 regional roster expansion. All old types retained; P12 expansion/human balance remain separate. [Report](phase/P09-mid-game/REGIONAL-FAMILIES-REPORT.md) | THIN — 10 trash types |
 | F-MON-02 | Behaviour toolkit (telegraphs, charge, summon, shield, enrage) | P4 | Partial / research | Partial C083: Fixed-position lob plus bounded physical charge, continuous authored collision, fixed warning/aim and interrupt/death rules. Focused cases and existing simulation pass; broader shield/summon/encounter toolkit remains. [Siltusk](adventure/SILTUSK-REPORT.md). | PARTIAL — melee, ranged, lob, explode; wind-up flag |
 | F-MON-03 | Boss framework (phases, adds, arenas, enrage) | P4 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — Rift Guardians (slam, ring, adds, enrage) |
 | F-MON-04 | Elite affix expansion and combos | P7/P9 | Implemented scope | C091 adds authored-only Faulted fracture trait and specific mixed-trait packs. Existing eight-trait random pool unchanged; broader balance acceptance remains. [C091 report](phase/P07-early-game/CHAPTER-REPORT.md). | PARTIAL — 8 affixes |
@@ -368,3 +368,6 @@ C098 completes P9 first set acquisition and supported vendor bands. Current147 f
 
 
 C099 completes authored-route Cube pacing and the D-16 difficulty scope. Feature counts unchanged:38 implemented scope,36 partial,70 open,3 decided/excluded. P9 family/band combat, party and human acceptance remain; advanced recipes/sets remain P11.
+
+
+C100 closes selected P7/P9 regional family expansion; current147 features:39 implemented scope,35 partial,70 open,3 decided/excluded. This is not a completion percentage. P9 band/party/human evidence remains.

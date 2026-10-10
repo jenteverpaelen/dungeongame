@@ -19,3 +19,6 @@ C098 first earned two-piece class-set tranche and supported vendor bands complet
 
 
 C099 Cube pacing and D-16 complete for the authored route; WORKSHOP-REPORT/CUBE-ROUTE-MODEL record the reason, scope and eight focused checks. Next family breadth and per-band combat evidence; then P10 identity for party acceptance. No repeat broad playtesting.
+
+
+C100 regional families complete; REGIONAL-FAMILIES-REPORT records original art, retained content and corrected dynamic field difficulty. Next per-band combat/stall evidence, then P10 party identity. Six focused cases/type/build/local1080p passed; do not redo without a new finding.

@@ -22,7 +22,7 @@ The artisan panel links directly to the relevant journal lesson and shows availa
 
 ## Difficulty decision
 
-Public story fields were already Normal. Private story dungeons now also use Normal, instead of silently inheriting the last Obelisk choice. Existing active instances retain their original setting. Rift preference, Normal–Master access and level60 Torment gates remain unchanged. The Obelisk describes the scope beside its selected multipliers. No save migration or new mandatory restriction.
+Private story dungeons now use Normal, instead of silently inheriting the last Obelisk choice. The initial C099 audit inferred that public story fields were already Normal from their instance setting; C100 found dynamic monster-level adoption of the player's saved difficulty at spawn and wake-up. C100 corrects those paths too; the instance-only baseline conclusion was incomplete. Existing active private instances retain their original setting. Procedural training fields, rift preference, Normal–Master access and level60 Torment gates remain unchanged. The Obelisk describes the story scope beside its selected multipliers. No save migration or new mandatory progression restriction.
 
 ## Validation and limits
 

@@ -104,6 +104,12 @@ export function playerDifficulty(p: Player): number {
   return d;
 }
 
+/** D057: story fields are Normal; private instances keep their creation setting. */
+export function encounterDifficulty(inst:Instance,p:Player):number {
+  if(inst.kind==='rift'||inst.kind==='dungeon')return inst.difficulty;
+  return inst.map.adventure?0:playerDifficulty(p);
+}
+
 function playersAround(inst: Instance, x: number, y: number): number {
   let n = 0;
   for (const p of inst.players) if (Math.hypot(p.x - x, p.y - y) < 2400) n++;
@@ -143,7 +149,7 @@ function wakeFromDormant(inst: Instance, m: Mob, by: Player | null) {
     if (p) {
       const [lo, hi] = inst.def.levelBand;
       const lvl = Math.max(lo, Math.min(hi, p.save.level));
-      const diff = playerDifficulty(p);
+      const diff = encounterDifficulty(inst,p);
       if (lvl !== m.level || diff !== m.diff) relevel(m, lvl, diff, playersAround(inst, m.x, m.y));
     }
   }

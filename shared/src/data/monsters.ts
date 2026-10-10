@@ -9,7 +9,7 @@ export type MonsterAttackKind = 'melee' | 'ranged' | 'fan' | 'fracture' | 'lob' 
 export interface MonsterDef {
   id: string;
   name: string;
-  family: 'slime' | 'mushroom' | 'bat' | 'moth' | 'beetle' | 'sprout' | 'crab' | 'boar' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
+  family: 'slime' | 'mushroom' | 'bat' | 'moth' | 'beetle' | 'sprout' | 'crab' | 'boar' | 'shrimp' | 'goat' | 'golem' | 'imp' | 'skeleton' | 'cultist' | 'brute' | 'wisp' | 'goblin' | 'boss_slime' | 'boss_imp';
   hp: number;      // multiplier on base level HP
   dmg: number;     // multiplier on base level damage
   speed: number;   // units / second
@@ -72,6 +72,10 @@ MONSTERS.ridge_harrier={...MONSTERS.vault_moth,id:'ridge_harrier',name:'Ridge Ha
 MONSTERS.signal_adept={...MONSTERS.cinder_cultist,id:'signal_adept',name:'Signal Adept',weight:0,colors:{...MONSTERS.ash_wisp.colors},attack:{...MONSTERS.cinder_cultist.attack,kind:'fracture',element:'lightning'}};
 MONSTERS.cistern_heart={...MONSTERS.kiln_heart,id:'cistern_heart',name:'Cistern Heart',colors:{...MONSTERS.bonewalker.colors},attack:{...MONSTERS.kiln_heart.attack,element:'cold'}};
 MONSTERS.signal_heart={...MONSTERS.kiln_heart,id:'signal_heart',name:'Signal Heart',colors:{...MONSTERS.ash_wisp.colors},attack:{...MONSTERS.kiln_heart.attack,element:'lightning'}};
+
+// L120/D058: original regional bodies, inherited combat/footprint budgets; authored sites only.
+MONSTERS.saltglass_skimmer={...MONSTERS.brine_crab,id:'saltglass_skimmer',name:'Saltglass Skimmer',family:'shrimp',weight:0};
+MONSTERS.rimehorn={...MONSTERS.siltusk,id:'rimehorn',name:'Rimehorn',family:'goat',weight:0,colors:{...MONSTERS.bonewalker.colors}};
 
 // Elite affixes (Diablo 3 names where generic; behaviour implemented in server/src/sim/elites.ts).
 export interface EliteAffixDef { id: string; name: string; color: number; desc: string }

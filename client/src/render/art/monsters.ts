@@ -217,6 +217,45 @@ function boarTail(c: Ctx, col: C): void {
   line(c,k=>k.moveTo(0,0).quadraticCurveTo(-9,-6,-5,-11).quadraticCurveTo(0,-14,0,-8),2.5,col.body,1.5);
 }
 
+// L120: original regional silhouettes, fitted to the existing crab/boar part-sheet scale.
+function shrimpBody(c:Ctx,col:C):void {
+  blob(c,[-29,-9,-25,-21,-13,-29,1,-30,14,-25,22,-17,19,-8,5,-4,-12,-5],col.body,{hl:.28,sh:.28});
+  for(let i=0;i<5;i++){
+    const x=-22+i*8;
+    crease(c,[x,-17,x+2,-23,x+6,-26],1.5,shade(col.accent,.35),.9);
+    wash(c,k=>k.ellipse(x+3,-17,3,6),light(col.body,.55),.3);
+  }
+  poly(c,[-28,-13,-38,-23,-42,-13,-37,-3,-26,-7],col.accent,{ow:2,hl:.18});
+  crease(c,[-38,-20,-32,-12,-37,-5],1,light(col.body,.4),.8);
+}
+function shrimpHead(c:Ctx,col:C):void {
+  blob(c,[-7,-9,-6,-20,3,-25,13,-21,20,-12,11,-3,1,-2],col.body,{hl:.3,sh:.3});
+  poly(c,[10,-19,29,-17,17,-12,12,-10],col.accent,{ow:1.8,hl:.2});
+  for(const [x,y] of [[4,-22],[13,-20]]){seg(c,x,y,x+1,y-7,1.6,col.accent,1,false);eye(c,x+1,y-8,2,2.4,col.eye);}
+  line(c,k=>k.moveTo(17,-18).quadraticCurveTo(37,-26,29,-38),1.5,col.accent,1);
+  line(c,k=>k.moveTo(15,-21).quadraticCurveTo(18,-42,8,-39),1.5,col.accent,1);
+}
+function shrimpLeg(c:Ctx,col:C):void {
+  seg(c,0,0,5,7,1.9,shade(col.body,.15),1.4,false);
+  poly(c,[4,5,10,8,13,14,7,12,3,8],col.accent,{ow:1.3,hl:.15});
+}
+function goatBody(c:Ctx,col:C):void {
+  blob(c,[-24,-8,-23,-25,-14,-32,2,-31,12,-41,24,-38,25,-17,18,-6,3,-7,-12,-3],col.body,{hl:.2,sh:.3});
+  poly(c,[0,-29,8,-38,20,-36,25,-24,20,-17,24,-11,16,-13,11,-7,7,-17,1,-14,4,-23],light(col.body,.18),{ow:1.8,hl:.12});
+  crease(c,[-16,-26,-13,-19,-8,-16],1.2,shade(col.accent,.3),.8);
+}
+function goatHead(c:Ctx,col:C):void {
+  blob(c,[-7,-15,-5,-25,4,-26,12,-18,19,-11,18,-2,9,2,1,-7],col.body,{ow:2.2,hl:.22});
+  for(const x of [-3,6]){
+    poly(c,[x,-23,x-4,-31,x-3,-44,x+1,-49,x,-35,x+5,-27],shade(col.accent,.5),{ow:1.7,hl:.18});
+    crease(c,[x-3,-34,x,-33],.9,light(col.accent,.2),.9);
+  }
+  poly(c,[-5,-22,-17,-24,-14,-15,-5,-16],col.body,{ow:1.6});
+  poly(c,[7,0,16,1,12,15,9,9,5,10],shade(col.body,.15),{ow:1.6,hl:.15});
+  eye(c,9,-16,2,2.2,col.eye);crease(c,[6,-20,13,-18],1.6,OUT);
+  rbox(c,14,-7,7,7,2,shade(col.body,.45),{ow:1.5});
+}
+
 // ── golem ──────────────────────────────
 function golemBody(c: Ctx, col: C): void {
   const pts = [-17, -4, -20, -18, -14, -32, 0, -37, 14, -33, 20, -20, 17, -5, 0, -1];
@@ -557,6 +596,30 @@ const FAMILIES: Record<Fam, Family> = {
     pose:(n,s)=>{const {wind,strike}=atkCurve(s.atk,.4,.6),w=Math.max(wind,s.wind);
       for(let i=0;i<6;i++){const side=i<3?-1:1,step=Math.sin(s.walk+(i%2)*Math.PI);n['leg'+i].set(side*12,-20+(i%3)*8,side*((i%3-1)*.3+step*.22*s.move));n['leg'+i].scale(side,1);}
       n.shell.set(-w*2+strike*2,Math.abs(Math.sin(s.walk))*s.move+w*2,-w*.08);n.head.set(7+w*2,-8-w*4+strike*3,-w*.16+strike*.2);
+    },
+  },
+  shrimp: {
+    base:1,height:46,shadow:46,atkDur:.7,eyes:['head',9,-29],
+    parts:col=>[P('body',c=>shrimpBody(c,col)),P('head',c=>shrimpHead(c,col)),P('leg',c=>shrimpLeg(c,col))],
+    rig:p=>{const n:Nodes={};for(let i=0;i<10;i++)n['leg'+i]=p.add('leg',null,-22+(i%5)*8,i<5?-13:-6);n.body=p.add('body');n.head=p.add('head',null,14,-7);return n;},
+    pose:(n,s)=>{
+      const {wind,strike}=atkCurve(s.atk,.45,.6),w=Math.max(wind,s.wind),bob=Math.sin(s.walk*2)*s.move;
+      for(let i=0;i<10;i++){const side=i<5?-1:1,step=Math.sin(s.walk+i*.8);n['leg'+i].set(-22+(i%5)*8,(i<5?-13:-6)+step*s.move,(step*.25*s.move+side*.2));n['leg'+i].scale(side,1);}
+      n.body.set(-w*3+strike*3,bob+w*2,-w*.07+strike*.04);
+      n.head.set(14-w*2+strike*4,-7-w*5+bob,-w*.22+strike*.24);
+    },
+  },
+  goat: {
+    base:1,height:62,shadow:44,atkDur:.6,eyes:['head',9,-16],
+    parts:col=>[P('body',c=>goatBody(c,col)),P('head',c=>goatHead(c,col)),P('legB',c=>boarLeg(c,col,true)),P('legF',c=>boarLeg(c,col,false)),
+      P('tail',c=>poly(c,[0,0,-9,-2,-12,-11,-7,-8,-3,-7,2,-3],col.body,{ow:1.8,hl:.15}))],
+    rig:p=>{const rearB=p.add('legB',null,-17,-13),foreB=p.add('legB',null,14,-13),body=p.add('body'),tail=p.add('tail',null,-22,-21),rearF=p.add('legF',null,-12,-9),foreF=p.add('legF',null,20,-9),head=p.add('head',null,18,-28);return {rearB,foreB,body,tail,rearF,foreF,head};},
+    pose:(n,s)=>{
+      const {wind,strike}=atkCurve(s.atk,.35,.6),w=Math.max(wind,s.wind),sw=Math.sin(s.walk),bob=Math.abs(sw)*2*s.move;
+      n.rearB.set(-17,-13-bob,-sw*.4*s.move);n.foreB.set(14,-13-bob,sw*.4*s.move);
+      n.rearF.set(-12,-9-bob,sw*.4*s.move);n.foreF.set(20,-9-bob,-sw*.4*s.move);
+      n.body.set(-w*2+strike*3,-bob+w*2,w*.06-strike*.04);n.tail.set(-22,-21-bob,Math.sin(s.t*3)*.12);
+      n.head.set(18+w*4,-28+w*11-bob,w*.45-strike*.15);
     },
   },
   boar: {

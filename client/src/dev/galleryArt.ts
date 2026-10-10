@@ -189,14 +189,14 @@ function monstersView() {
     label(def.name, 60, y - 30, 11, 0xc9b98f);
     tiers.forEach(([tn, el], i) => {
       for (let k = 0; k < 3; k++) {
-        const x = 150 + i * 250 + k * (which === 'boss' ? 260 : 72);
+        const x = 150 + i * (selected ? 350 : 250) + k * (which === 'boss' ? 260 : selected ? 104 : 72);
         const v = createMonsterView(id, el, el === 1 || el === 2 ? ['molten', 'frozen'] : [], def.scale);
         const fl = k === 1 ? F_MOVING : 0;
         addActor(v, x, y, st({ moving: k === 1, vx: 120, flags: fl | (k === 2 ? F_ATTACK : 0) }), 0.8, world, k === 0 ? 1.4 : 0);
         if (k === 0) label(tn, x + 72, y + 6, 9, 0x9a8a6a);
       }
     });
-    y += which === 'boss' ? 260 : big ? 96 : 74;
+    y += which === 'boss' ? 260 : selected ? 165 : big ? 96 : 74;
   });
   world.scale.set(ZOOM * (which === 'boss' ? 0.45 : 0.52));
 }
