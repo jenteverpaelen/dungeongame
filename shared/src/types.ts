@@ -128,6 +128,7 @@ export interface CubeState {
 
 /** Persistent character save (server-side authority, replicated to the owning client). */
 export interface CharacterSave {
+  passives?: import('./passives').PassiveState;
   commands?: import('./commandState').CommandState;
   economy?: import('./economy').EconomyState;
   bestiary?: import('./bestiary').BestiaryState;

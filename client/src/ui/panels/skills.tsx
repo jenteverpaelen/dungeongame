@@ -16,6 +16,7 @@ import { Local, useLocal, useU } from './state';
 import { textTipHandlers } from './tooltip';
 import { cls, run } from './util';
 import { AutoRuleEditor } from './autoRules';
+import {PassiveChoices} from './passives';
 
 const skillsUI = new Local<{ selected: string | null; assign: number | null }>({ selected: null, assign: null });
 
@@ -256,6 +257,7 @@ export function SkillsPanel() {
   const char = useU((s) => s.char);
   const selected = useLocal(skillsUI, (s) => s.selected);
   const [confirm, setConfirm] = useState(false);
+  const [mainTab,setMainTab]=useState<'active'|'passives'>('active');
   const [listTab,setListTab]=useState<'skills'|'target'|'guide'>('skills');
   if (!char) return null;
   const list = skillsForClass(char.classId);
@@ -264,6 +266,8 @@ export function SkillsPanel() {
   const preference = normalizeTargetPriority(char.skills.targetPriority);
   return (
     <PanelFrame id="skills" title="Skills" width={940} sub={<span class="pn-lv">{CLASSES[char.classId].name}</span>}>
+      <Tabs tabs={[{id:'active',label:'Active skills'},{id:'passives',label:'Passives'}]} value={mainTab} onChange={setMainTab}/>
+      {mainTab==='passives'?<PassiveChoices char={char}/>:<>
       <div class="sk-top">
         <SlotStrip char={char} />
         <div class="sk-points">
@@ -307,6 +311,7 @@ export function SkillsPanel() {
           <Detail key={sel.id} skill={sel} char={char} />
         </div>
       </div>
+      </>}
     </PanelFrame>
   );
 }

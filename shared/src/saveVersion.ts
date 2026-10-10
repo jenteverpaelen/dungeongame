@@ -1,2 +1,2 @@
-/** v11 saves command identity/results and paid pending enchant choices with character mutations. */
-export const SAVE_VERSION = 11;
+/** v12 preserves optional slotted passive selections; absent legacy selections grant no stats. */
+export const SAVE_VERSION = 12;

@@ -3,6 +3,7 @@
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
 import { onboardingCommand, introCommandResult } from './onboarding';
+import {setPassive} from '../../shared/src/passives';
 import { merchantCommand } from './merchant';
 import { economyCommandAction, economySnapshot, recordEconomy } from '../../shared/src/economy';
 import { ownedItems, VENDOR_SALVAGE_REASON } from '../../shared/src/merchant';
@@ -583,6 +584,11 @@ const skillReset: Handler = (s) => {
   return done(s, true);
 };
 
+const passive:Handler=(s,a)=>{
+  const err=setPassive(s.save,a.slot,a.passive);
+  return err?fail(err):done(s,true);
+};
+
 // ─────────────────────────── Paragon ───────────────────────────
 
 const paragon: Handler = (s, a) => {
@@ -734,7 +740,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast, skillAutoRule,
+  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

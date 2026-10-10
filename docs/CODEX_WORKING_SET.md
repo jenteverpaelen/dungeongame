@@ -1,16 +1,14 @@
 # Current working set — 2026-10-10
 
-- Branch codex/new-tristram-town. C094 pushed7d4010a; C095 economy model/report ready. Use git log for latest hash.
-- Continue whole roadmap solo. P8 selected implementation complete; see P08 CHAPTER-REPORT.md. Human/long-soak/independent G6 acceptance remains, owner full playtests later. Next P9 mid-game20–50.
-- Owner: savings allowed, prevent exploit loops, no cap; stock weak-slot gear after a few packs; story without repeats. Keep town, UI materials, camera620/90ms; no scrolling menus.
-- No subagents. Every runtime test fresh isolated DATA_DIR, backups disabled. Never real saves/private files. Infinite HP only for assisted field checks.
+- Only codex/new-tristram-town. C0947d4010a and C095543af41 pushed; C096 passives ready. Use git log for latest hash.
+- Continue full roadmap solo, do not stop at checkpoints. P8 selected implementation complete; human/soak/independent G6 remains. C096 passive system/catalogue/UI complete; next authored P9 ActsII–III20–50, sets/bosses/dungeon and band reports.
+- Owner allows savings/prevents exploits; no cap. Vendor weak-slot gear after a few packs; no story repeat grind. Town/UI materials/camera620/90ms frozen; no scroll menus. No subagents.
+- Every runtime check fresh isolated DATA_DIR, backups disabled; no real saves/private files. Owner full playtests later. Infinite HP for assisted field tests.
 
-## Active next reads
+## Active references and files
 
-Claude roadmap P9 lines1039–1048; scoped research synthesis/loot/build evidence. Existing authored campaign/data quest engine, stats/skills/passive extension and sets are likely dependencies. Read only needed ranges. Log evidence/decisions before designing.
+P09 PLAN/PASSIVES-REPORT, L116/D054. Passive data shared/passives.ts and shared/stats.ts, server command, Skills/PassiveChoices UI. Save12/protocol15.14 focused checks/type/build/1080p done; do not repeat. C095 model/report and C091 campaign budget parked but can supply P9 budgets.
 
-Completed P8 reports and checks are parked; do not rerun. Save11/protocol14. C095 actual model1,809,600 generated kills/2,100 offers/28 offlinecases; no changed rates. High offline XP is explicit P14 issue, not silently nerfed.
+Next inspect authored adventure map/content/quest route data narrowly. Read research per-game world/encounter evidence and environment references before design. Need fixed no-repeat XP through20–50 plus varied encounter/route mechanics, not just unconnected placeholders. Co-op depends on P10; do not falsely claim party proof.
 
-Owned preview server62923 on2567 protocol14 fresh synthetic FrontierC091; Vite47406 on5173. Old36066 stopped. No owned Chrome preview tabs, viewport reset. No owner saves used.
-
-Update own change log/ledger on additions/removals. No moving/deleting source to reduce context; search narrow paths/symbols and avoid whole logs/archives. Compaction is not a reason to repeat work.
+Owned preview62923 on2567 still protocol14; restart on disposable data before live preview. Vite47406 on5173. C096 preview closed/viewport reset. Keep paths in place; park context by limiting reads. Do not rerun ignored append helpers.

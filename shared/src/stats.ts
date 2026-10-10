@@ -6,6 +6,7 @@ import { upgradeMult } from './items';
 import { PARAGON_STATS } from './progression';
 import type { CharacterSave, DerivedStats, Element, Item, Slot, StatId } from './types';
 import { ELEMENTS } from './types';
+import {activePassives,passiveValue} from './passives';
 
 /** Life per point of Vitality: 10 until level 35, then rising to ~97 at 70 (D3 curve shape). */
 export function lifePerVit(level: number): number {
@@ -63,6 +64,11 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
   const level = save.level;
   const acc: Acc = {};
   const mults: Record<'cdr' | 'rcr', number[]> = { cdr: [], rcr: [] };
+  for(const passive of activePassives(save)){
+    const value=passiveValue(passive,level);
+    if(passive.stat==='cdr')mults.cdr.push(value);
+    else add(acc,passive.stat==='skillDmg'?`skill:${passive.skill}`:passive.stat,value);
+  }
   const equipment: Partial<Record<Slot, Item>> = { ...save.equipment };
   if (opts.swap) {
     if (opts.swap.item) equipment[opts.swap.slot] = opts.swap.item;

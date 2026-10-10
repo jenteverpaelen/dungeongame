@@ -13,3 +13,5 @@ C093 test server restarted after protocol13 update: owned session36066 on2567 wi
 C094 transaction boundary implemented (save11/protocol14); see CODEX_WORKING_SET.md and P08 TRANSACTION-REPORT.md for focused evidence/limits. C095 owner policy: savings allowed, prevent exploit loops, no cap. Proceed to distributions and later roadmap; no need for a full replay. Old owned server36066 still needs protocol14 restart before another live preview. Browser preview closed/viewport reset.
 
 C095 selected P8 implementation scope complete; human/soak/independent acceptance pending. Read P08 CHAPTER-REPORT.md or CODEX_WORKING_SET.md, then continue P9. No new prices/rewards/cap. Owned preview server62923 now protocol14/disposable data; old36066 stopped. Vite47406 unchanged.
+
+C096 passives complete; P09 PASSIVES-REPORT and CODEX_WORKING_SET have evidence. Save12/protocol15; next P9 authored mid-game world. Existing owned server62923 still protocol14 needs restart before live preview. Browser tab closed/viewport reset.

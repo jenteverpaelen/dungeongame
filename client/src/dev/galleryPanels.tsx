@@ -27,6 +27,7 @@ import { generateItem, type GenOptions } from '@shared/items';
 import { Rng } from '@shared/math';
 import { PARAGON_STATS, addXp, paragonPoints, paragonSpent, paragonXpToNext, xpToNext } from '@shared/progression';
 import { computeStats } from '@shared/stats';
+import {setPassive} from '@shared/passives';
 import { economySnapshot, recordEconomy } from '@shared/economy';
 import { INVENTORY_SIZE } from '@shared/constants';
 import type { CmdOp } from '@shared/protocol';
@@ -298,6 +299,7 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
     case 'skillRune': { const e = setSkillRune(char, a.skill as string, (a.rune as string | null) ?? null); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillTier': { const e = buySkillTier(char, a.skill as string); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillReset': { resetSkillTiers(char); sync(); return { ok: true }; }
+    case 'passive': {const err=setPassive(char,a.slot,a.passive);if(err)return fail(err);sync();return {ok:true};}
     case 'paragon': {
       const def = PARAGON_STATS.find((d) => d.id === a.stat); if (!def) return fail('Unknown stat');
       const cur = char.paragon.spent[def.id] ?? 0; const n = a.n as number;
@@ -410,7 +412,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
-      {(s === 'adventure'||s==='merchant'||s==='character'||qs.has('savedEnchant')) && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
+      {(s === 'adventure'||s==='merchant'||s==='character'||s==='skills'||qs.has('savedEnchant')) && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
