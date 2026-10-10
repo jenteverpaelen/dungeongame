@@ -15,7 +15,7 @@ export const ONBOARDING_MESSAGES={
   'intro.move.title':'Choose your footing',
   'intro.move.body':'Move with {move}. Your hero attacks nearby enemies automatically. You decide where to stand, when to retreat and which equipment and skills to use.',
   'intro.dash.title':'Make room to breathe',
-  'intro.dash.body':'Move, then press {dash} to dash in that direction. Try it here in the safety of Hearthmere. Watch its icon recover before using it again.',
+  'intro.dash.body':'Move, then press {dash} to dash in that direction. Try it now, in a quiet spot away from enemies. Watch its icon recover before using it again.',
   'intro.field.title':'Take the road to Rillwake',
   'intro.field.body':'Stand beside the Waypoint and press {interact}. Choose Rillwake Crossing. The world map ({map}) shows physical routes and services; it does not teleport you from anywhere.',
   'intro.talk.title':'Speak with Orren',
