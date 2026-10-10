@@ -158,7 +158,7 @@ export function AdventureTracker() {
     {lastRun&&<button class="btn" onClick={()=>togglePanel('runSummary',true)}>{t('run.summary.open')}</button>}
     {dungeon&&<div class="frame adventure-tracker" title={t('quest.pump.replay')}>
       <strong>{zone?.name}</strong>
-      <span>{dungeon.phase==='done'?t('quest.pump.done'):ADVENTURES[zone!.zone]?.interactions.find(i=>i.id===dungeon.target)?.name}</span>
+      <span>{dungeon.phase==='done'?t(ADVENTURES[zone!.zone]?.dungeon?.endTarget?'mid.dungeon.done':'quest.pump.done'):ADVENTURES[zone!.zone]?.interactions.find(i=>i.id===dungeon.target)?.name}</span>
       {dungeon.phase!=='done'&&<small>{dungeon.phase==='active'?`${t('quest.pump.active')} · ${dungeon.remaining}`:t('quest.pump.ready')}</small>}
     </div>}
     {q&&objective&&<button class="frame adventure-tracker" onClick={()=>{openJournal();ui.set({journalQuest:q.id});}} title={t('quest.journal.open')}>

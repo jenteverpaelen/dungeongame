@@ -65,6 +65,14 @@ MONSTERS.flint_beetle={...MONSTERS.thornling,id:'flint_beetle',name:'Flint Beetl
   colors:{...MONSTERS.mossback.colors},attack:{...MONSTERS.reedclaw.attack,kind:'fracture'}};
 MONSTERS.kiln_heart={...MONSTERS.magma_brute,id:'kiln_heart',name:'Kiln Heart',weight:0};
 
+// L117: authored-only combinations inherit existing body/attack budgets and palettes.
+MONSTERS.brine_crab={...MONSTERS.reedclaw,id:'brine_crab',name:'Brineclaw',colors:{...MONSTERS.bonewalker.colors},attack:{...MONSTERS.reedclaw.attack,element:'cold'}};
+MONSTERS.salt_guard={...MONSTERS.bonewalker,id:'salt_guard',name:'Saltbound Guard',weight:0,attack:{...MONSTERS.bonewalker.attack,element:'cold'}};
+MONSTERS.ridge_harrier={...MONSTERS.vault_moth,id:'ridge_harrier',name:'Ridge Harrier',colors:{...MONSTERS.ash_wisp.colors},attack:{...MONSTERS.vault_moth.attack,element:'cold'}};
+MONSTERS.signal_adept={...MONSTERS.cinder_cultist,id:'signal_adept',name:'Signal Adept',weight:0,colors:{...MONSTERS.ash_wisp.colors},attack:{...MONSTERS.cinder_cultist.attack,kind:'fracture',element:'lightning'}};
+MONSTERS.cistern_heart={...MONSTERS.kiln_heart,id:'cistern_heart',name:'Cistern Heart',colors:{...MONSTERS.bonewalker.colors},attack:{...MONSTERS.kiln_heart.attack,element:'cold'}};
+MONSTERS.signal_heart={...MONSTERS.kiln_heart,id:'signal_heart',name:'Signal Heart',colors:{...MONSTERS.ash_wisp.colors},attack:{...MONSTERS.kiln_heart.attack,element:'lightning'}};
+
 // Elite affixes (Diablo 3 names where generic; behaviour implemented in server/src/sim/elites.ts).
 export interface EliteAffixDef { id: string; name: string; color: number; desc: string }
 export const ELITE_AFFIXES: Record<string, EliteAffixDef> = {

@@ -2,6 +2,7 @@ import { RILLWAKE } from './data/rillwake';
 import { BRACKEN } from './data/bracken';
 import { PUMPWORKS } from './data/pumpworks';
 import { CAIRNSPILL, CINDERWASH, KILNWATCH } from './data/frontier';
+import { MIDGAME_ADVENTURES } from './data/midgame';
 import type { AdventureData } from './adventureTypes';
 import { TILE } from './constants';
 import { T_FLOOR, T_WATER, type MapData } from './mapgen';
@@ -9,7 +10,8 @@ import { inGround } from './townGeometry';
 import type { CharacterSave } from './types';
 
 export const RILLWAKE_ID = 'rillwake_crossing';
-export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN,reedvault_pumpworks:PUMPWORKS,cairnspill_terraces:CAIRNSPILL,cinderwash_kilns:CINDERWASH,kilnwatch_crown:KILNWATCH};
+export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN,reedvault_pumpworks:PUMPWORKS,cairnspill_terraces:CAIRNSPILL,cinderwash_kilns:CINDERWASH,kilnwatch_crown:KILNWATCH,
+  ...Object.fromEntries(MIDGAME_ADVENTURES.map(a=>[a.id,a]))};
 export function loadRillwake(seed: number): MapData {
   return loadAdventure(RILLWAKE_ID,seed);
 }
@@ -17,7 +19,7 @@ export function loadAdventure(id:string,seed:number):MapData {
   const a = structuredClone(ADVENTURES[id]);
   a.geometry.props = a.scenery.filter(p=>p.r>0).map(p=>({x:p.x,y:p.y,radius:p.r*p.s}));
   if(a.wheel)a.geometry.props.push(a.wheel);
-  for(const k of a.kilns??[])a.geometry.buildings.push({footprint:[[k.x,k.y],[k.x+k.w,k.y],[k.x+k.w,k.y+k.d],[k.x,k.y+k.d]]});
+  for(const k of [...a.kilns??[],...a.works??[]])a.geometry.buildings.push({footprint:[[k.x,k.y],[k.x+k.w,k.y],[k.x+k.w,k.y+k.d],[k.x,k.y+k.d]]});
   a.geometry.npcs = a.npcs;
   const [w,h]=a.size, tiles=new Uint8Array(w*h);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)tiles[y*w+x]=inGround(a.geometry,(x+.5)*TILE,(y+.5)*TILE)?T_FLOOR:T_WATER;

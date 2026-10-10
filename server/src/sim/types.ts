@@ -64,6 +64,7 @@ export interface Pack {
 
 export interface BossState {
   furnace?: boolean;
+  pattern?: 'cistern' | 'relay';
   ringMs: number;
   addsMs: number;
   enraged: boolean;

@@ -1,11 +1,8 @@
 import type { QuestDef } from '../questTypes';
 
-import { xpToNext } from '../progression';
-
-/** L108: fixed story awards sum to the unchanged curve; kills remain additional. */
-export function storyXp(from:number,to:number):number {
-  let xp=0;for(let level=from;level<to;level++)xp+=xpToNext(level);return xp;
-}
+import { storyXp } from '../storyBudget';
+import { MIDGAME_QUESTS } from './midgameQuests';
+export { storyXp } from '../storyBudget';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
   {
@@ -68,7 +65,7 @@ export const QUESTS: readonly QuestDef[] = [
   {
     id:'last_draw',chapter:'upper_road',revision:1,title:'quest.draw.title',offer:'quest.draw.offer',complete:'quest.draw.complete',
     rewardText:'quest.reward.weapon',start:{zone:'cinderwash_kilns',target:'firekeeper'},finish:{zone:'kilnwatch_crown',target:'watchkeeper'},requires:['untended_fires'],
-    reward:{item:'magic_weapon',xp:storyXp(16,20)},grantsFlags:['frontier_reopened'],
+    reward:{item:'magic_weapon',xp:storyXp(16,20)},grantsFlags:['frontier_reopened'],unlocks:'sablefen_causeway',
     steps:[{id:'watch',kind:'interact',zone:'kilnwatch_crown',target:'watchlog',text:'quest.draw.watch'},
       {id:'heart',kind:'kill',zone:'kilnwatch_crown',target:'heart',text:'quest.draw.heart'},
       {id:'seal',kind:'interact',zone:'kilnwatch_crown',target:'seal',text:'quest.draw.seal'}],
@@ -88,5 +85,6 @@ export const QUESTS: readonly QuestDef[] = [
     rewardText:'quest.contract.gold',start:orren,finish:orren,requires:['high_water'],repeat:'on_return',reward:{gold:108},
     steps:[{id:'alarm',kind:'wave',zone:orren.zone,target:'survey_alarm',text:'quest.contract.alarm.clear'}],
   },
+  ...MIDGAME_QUESTS,
 ];
 export const questById = (id: string) => QUESTS.find(q => q.id === id);

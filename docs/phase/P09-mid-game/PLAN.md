@@ -10,3 +10,6 @@ Continue the whole chapter. P8 selected implementation complete; owner defers fu
 No town/camera/UI style change, scrolling menus, paid assets or downloads. No subagents. Checks stay targeted and isolated. Updating a checkpoint is not a request to stop.
 
 C096 passive implementation complete; PASSIVES-REPORT.md records14 focused checks/type/build/1080p inspection. Continue step2; do not rework completed passives without a concrete finding.
+
+
+C097 connected ActsII–III20–50 route complete; CAMPAIGN-REPORT has measured checks and visual evidence. Next first set tranche/acquisition, supported vendor stock, Cube/difficulty and band combat/family breadth. Do not repeat completed walkthrough/checks without a new finding.

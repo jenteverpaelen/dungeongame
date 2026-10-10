@@ -276,7 +276,7 @@ function mapView() {
   world.addChild(layers.ground, layers.decals, ents);
   for (const p of layers.sorted) { p.view.zIndex = p.y; ents.addChild(p.view); }
   for (const n of map.npcs) {
-    const v = n.role === 'dummy' ? createNpcView('dummy', n.name) : createNpcView(n.role, n.name);
+    const v = createNpcView(n.role,n.name,map.town?.npcs.find(a=>a.id===n.id)?.look,map.town?n.r:undefined,map.adventure?.interactions.find(i=>i.id===n.id)?.kind);
     addActor(v, n.x, n.y, st({}), 1, ents, n.role === 'dummy' ? 1.1 : 0);
     v.root.zIndex = n.y;
   }

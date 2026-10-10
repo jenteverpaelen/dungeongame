@@ -27,16 +27,16 @@ import { loadCharacter, saveCharacter, flushSaves, ensureDataDir } from '../src/
 assert(process.env.DATA_DIR,'isolated DATA_DIR required');
 ensureDataDir();
 
-test('all six authored destinations have reachable objectives, real bands, legal spawns and matching rendered collision themes',()=>{
+test('authored destinations have reachable objectives, real bands, legal spawns and matching rendered collision themes',()=>{
   assert.deepEqual(validateAdventures(),[]);assert.deepEqual(validateQuests(),[]);
-  assert.equal(Object.keys(ADVENTURES).length,6);
+  assert(Object.keys(ADVENTURES).length>=6);
   for(const id of ['cinderwash_kilns','kilnwatch_crown'])assert.equal(loadAdventure(id,1).theme,'ashen');
 });
 
 test('each class reaches level20 on story awards alone; full bags do not partially award XP and claimed history survives reload',async()=>{
   for(const classId of ['warrior','ranger','mage'] as const){
     const save=createCharacter('Frontier'+classId,classId,11),rng=new Rng(11);
-    for(const q of QUESTS.filter(q=>q.chapter)){
+    for(const q of QUESTS.filter(q=>q.chapter==='water_road'||q.chapter==='upper_road')){
       const state={revision:q.revision,step:q.steps.length,claimed:false,
         ...(typeof q.reward==='object'&&q.reward.item?{reward:generateItem(rng,{ilvl:save.level,classId,rarity:'magic',base:classId==='mage'?'staff':classId==='ranger'?'bow':'sword'})}:{})};
       writeQuestState(save,q.id,state);

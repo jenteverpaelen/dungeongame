@@ -15,3 +15,6 @@ C094 transaction boundary implemented (save11/protocol14); see CODEX_WORKING_SET
 C095 selected P8 implementation scope complete; human/soak/independent acceptance pending. Read P08 CHAPTER-REPORT.md or CODEX_WORKING_SET.md, then continue P9. No new prices/rewards/cap. Owned preview server62923 now protocol14/disposable data; old36066 stopped. Vite47406 unchanged.
 
 C096 passives complete; P09 PASSIVES-REPORT and CODEX_WORKING_SET have evidence. Save12/protocol15; next P9 authored mid-game world. Existing owned server62923 still protocol14 needs restart before live preview. Browser tab closed/viewport reset.
+
+
+C097 mid-game content route complete; P09 CAMPAIGN-REPORT and CODEX_WORKING_SET list evidence and next set/Cube/difficulty/band tasks. Owned server74297 current on disposable MidgameC097 level50 fixture; Vite47406. Continue full roadmap solo, not a stop request.

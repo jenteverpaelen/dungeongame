@@ -8,14 +8,16 @@ export interface AdventureData {
   theme?: 'glade' | 'ashen';
   /** Solid footprint and render dimensions are one authored source. */
   kilns?: {x:number;y:number;w:number;d:number;h:number}[];
+  /** Original production trays and signal pedestals; render and collision share footprints. */
+  works?: {kind:'pan'|'relay';x:number;y:number;w:number;d:number;h:number}[];
   /** Decorative only: fixed sites, no collision or gameplay state. */
   ambience?: {
     motion: { id: string; kind: 'ripples' | 'reeds' | 'mist' | 'drips'; position: Point; width: number }[];
     sounds: { id: string; kind: 'water' | 'wind' | 'fire'; position: Point; radius: number }[];
   };
-  surface?: 'masonry' | 'ash';
+  surface?: 'masonry' | 'ash' | 'salt' | 'slate';
   /** Ordered, explicitly activated encounters in a private dungeon. */
-  dungeon?: { stages: { id: string; trigger: string; encounter: string; area: Point[] }[] };
+  dungeon?: { endTarget?: string; requireStory?: boolean; stages: { id: string; trigger: string; encounter: string; area: Point[] }[] };
   /** Optional channel-shared packs armed by physical interaction. */
   events?: { id: string; name: string; trigger: string; encounter: string }[];
   size: [number, number];
@@ -25,7 +27,7 @@ export interface AdventureData {
   npcs: NpcSpot[];
   portals: Portal[];
   interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' }[];
-  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace'; affixes?: string[] }[] }[];
+  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace' | 'cistern' | 'relay'; affixes?: string[] }[] }[];
   landmarks: { name: string; x: number; y: number }[];
   locations: { id: string; x: number; y: number; radius: number }[];
   wheel?: { x: number; y: number; radius: number };

@@ -10,7 +10,7 @@ function polygon(c:CanvasRenderingContext2D,p:Point[]) { c.beginPath();p.forEach
 
 /** Paint the very same ground union used for swept collision; no blurred collision shoreline. */
 export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,x0:number,y0:number) {
-  const masonry=a.surface==='masonry',ash=a.surface==='ash';
+  const salt=a.surface==='salt',slate=a.surface==='slate',masonry=a.surface==='masonry'||slate,ash=a.surface==='ash';
   let boundary=edges.get(a);if(!boundary){boundary=groundBoundary(a.geometry);edges.set(a,boundary);}
   c.save();c.translate(-x0,-y0);
   c.fillStyle=ash?'#2a1a16':masonry?'#192a2d':'#263d42';c.fillRect(x0,y0,512,512);
@@ -31,7 +31,7 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
   const gc=grain.getContext('2d')!,im=gc.createImageData(128,128);
   for(let y=0;y<128;y++)for(let x=0;x<128;x++) {
     const wx=x0+x*4,wy=y0+y*4,n=field(wx/170,wy/170,11)*15+field(wx/29,wy/29,12)*8+hash2(wx,wy,17)*5,k=(y*128+x)*4;
-    im.data[k]=(ash?74:masonry?55:49)+n;im.data[k+1]=(ash?58:60)+n;im.data[k+2]=(ash?53:masonry?57:43)+n*.7;im.data[k+3]=255;
+    im.data[k]=(salt?120:ash?74:masonry?55:49)+n;im.data[k+1]=(salt?123:ash?58:60)+n;im.data[k+2]=(salt?105:slate?72:ash?53:masonry?57:43)+n*.7;im.data[k+3]=255;
   }
   gc.putImageData(im,0,0);c.drawImage(grain,x0,y0,512,512);
   if(masonry)for(let y=Math.floor(y0/64)*64;y<y0+576;y+=64)for(let x=Math.floor(x0/128)*128-64;x<x0+576;x+=128){
@@ -40,7 +40,8 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
   }
   for(let y=Math.floor(y0/27)*27;y<y0+530;y+=27)for(let x=Math.floor(x0/27)*27;x<x0+530;x+=27) {
     const h=hash2(x,y,11),xx=x+h*23,yy=y+hash2(y,x,33)*25;
-    if(!masonry&&!ash&&h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
+    if(!masonry&&!ash&&!salt&&h>.64){c.strokeStyle='rgba(155,157,111,.2)';c.lineWidth=.8;c.beginPath();c.moveTo(xx,yy);c.lineTo(xx-2,yy-5);c.moveTo(xx,yy);c.lineTo(xx+3,yy-7);c.stroke();}
+    if(salt&&h>.64){c.strokeStyle='rgba(232,226,208,.45)';c.lineWidth=1;c.beginPath();c.moveTo(xx-7,yy);c.lineTo(xx,yy-4);c.lineTo(xx+7,yy+2);c.stroke();}
     if(ash&&h>.88){c.save();c.translate(xx,yy);c.rotate(h*37);c.strokeStyle='rgba(42,26,22,.28)';c.lineWidth=1;c.beginPath();c.moveTo(-8,0);c.lineTo(0,-4);c.lineTo(6,2);c.stroke();c.restore();}
   }
   for(const p of a.paths) {
@@ -72,12 +73,30 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
   for(const b of a.geometry.buildings) {
     const xs=b.footprint.map(p=>p[0]),ys=b.footprint.map(p=>p[1]);
     const x=Math.min(...xs),y=Math.max(...ys),w=Math.max(...xs)-x,d=y-Math.min(...ys);
-    const kiln=a.kilns?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),h=kiln?.h??54;
+    const kiln=a.kilns?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),work=a.works?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),h=kiln?.h??work?.h??54;
     const g=new Graphics();g.position.set(x,y);
     g.rect(0,-h,w,h).fill(0x45483f).stroke({color:0x242e29,width:2});
     g.rect(0,-h-d,w,d).fill(0x858775).stroke({color:0x343e35,width:2});
     for(let row=0;row<Math.ceil(h/18);row++)for(let xx=-16+(row%2)*26;xx<w;xx+=48)g.moveTo(Math.max(0,xx),-row*18).lineTo(Math.min(w,xx+46),-row*18).stroke({color:0x2b352f,width:2});
     for(let xx=14;xx<w;xx+=49)g.moveTo(xx,-h).lineTo(xx+4,-h-d).stroke({color:0xa0a08a,width:1});
+    if(work?.kind==='pan'){
+      // Open evaporation tray: low solid brick support, iron lip and original salt crust.
+      g.rect(0,-h-d,w,d).fill(0x4a3a35).stroke({color:0x242e29,width:5});
+      g.rect(7,-h-d+7,w-14,d-14).fill(0x85856a);
+      for(let yy=12;yy<d-10;yy+=16)for(let xx=12;xx<w-10;xx+=19){
+        g.ellipse(xx,-h-d+yy,5+hash2(xx,yy,13)*5,3).fill(hash2(xx,yy,14)>.5?0xe8e2d0:0xa0a08a);
+      }
+      g.moveTo(w*.2,-h*.5).lineTo(w*.8,-h*.5).stroke({color:0x242e29,width:5});
+    }
+    if(work?.kind==='relay'){
+      // Stone pedestal, braced mast and shutter. The full base remains solid.
+      g.rect(0,-h,w,h).fill(0x45483f);
+      for(let yy=0;yy<h;yy+=24)g.moveTo(0,-yy).lineTo(w,-yy).stroke({color:0x242e29,width:2});
+      g.rect(w*.43,-h-80,w*.14,80).fill(0x65533b).stroke({color:0x302c23,width:2});
+      g.moveTo(w*.14,-h).lineTo(w*.5,-h-55).lineTo(w*.86,-h).stroke({color:0x8c7550,width:5});
+      g.rect(w*.2,-h-70,w*.6,42).fill(0x2a1a16).stroke({color:0x9a8054,width:4});
+      for(let xx=w*.24;xx<w*.78;xx+=13)g.rect(xx,-h-66,6,34).fill(0xd4af37);
+    }
     if(kiln){
       // Staggered, weathered stone courses; the footprint and front baseline stay exact.
       g.rect(0,-h,w,h).fill(0x302c23);

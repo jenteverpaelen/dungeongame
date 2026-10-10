@@ -125,7 +125,9 @@ export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   b.ringMs -= dtMs;
   if (b.ringMs <= 0 && dist < 900) {
     b.ringMs = BOSS_RING_MS * (b.enraged ? 0.75 : 1);
-    if(b.furnace&&b.slamCount++%2===0){
+    // Opposite phase progressions reuse the furnace's warning/damage budget.
+    const fracture=b.pattern==='cistern'?b.enraged:b.pattern==='relay'?!b.enraged:b.furnace&&b.slamCount++%2===0;
+    if(fracture){
       fractureLine(inst,m,p.x,p.y,650,m.dmg*.7,m.def.attack.element);
       return;
     }

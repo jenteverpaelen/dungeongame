@@ -17,6 +17,12 @@ import { run } from './util';
 
 // Original diagram composition only; no geographical distance claim.
 const POS:Record<string,[number,number]>={hearthmere:[17,18],whispering_glade:[17,50],ashen_hollow:[17,82],rillwake_crossing:[50,18],bracken_sluice:[83,18],reedvault_pumpworks:[83,50],cairnspill_terraces:[50,50],cinderwash_kilns:[50,82],kilnwatch_crown:[83,82]};
+const ROUTE_PAGES:Record<string,typeof POS>={
+  one:POS,
+  two:{hearthmere:[17,18],kilnwatch_crown:[50,18],sablefen_causeway:[83,18],saltwind_pans:[83,70],lockglass_cistern:[50,44],shiverline_escarpment:[17,70]},
+  three:{hearthmere:[17,18],shiverline_escarpment:[50,18],beaconbreak_ward:[83,18],hollowstar_array:[83,70]},
+};
+const routePage=(id:string)=>id==='hollowstar_array'||id==='beaconbreak_ward'?'three':['sablefen_causeway','saltwind_pans','lockglass_cistern','shiverline_escarpment'].includes(id)?'two':'one';
 const edges=worldConnections();
 const regions=Object.values(ZONES).filter(z=>z.kind!=='rift');
 
@@ -28,12 +34,14 @@ export function WorldMapPanel() {
   const save=useUI(s=>s.char),zone=useUI(s=>s.zone),me=useUI(s=>s.me),dungeon=useUI(s=>s.dungeon);
   const [view,setView]=useState<'routes'|'area'>('routes');
   const [selected,setSelected]=useState(zone?.zone??'hearthmere');
+  const [page,setPage]=useState(routePage(zone?.zone??'hearthmere'));
   const [busy,setBusy]=useState(false);
   const map=worldReader.current?.map()??null;
   const terrain=useMemo(()=>map?bakeMapTerrain(map).canvas.toDataURL():null,[map]);
   const cw=useMemo(()=>map?new CollisionWorld(map):null,[map]);
   if(!save||!zone)return null;
   const def=ZONES[selected]??ZONES.hearthmere;
+  const positions=ROUTE_PAGES[page];
   const quest=trackedQuest(save),objective=quest&&questObjective(save,quest);
   const point=map&&(dungeon?questPoint(map,{zone:map.zone,target:dungeon.target},save):objective&&questPoint(map,objective,save));
   const route=objective?zoneRoute(zone.zone,objective.zone,id=>zoneUnlocked(save,id)):[];
@@ -47,16 +55,17 @@ export function WorldMapPanel() {
   return <PanelFrame id="worldmap" title={t('map.title')} width={1040} sub={zone.name}>
     <Tabs tabs={[{id:'routes',label:t('map.routes')},{id:'area',label:t('map.area')}]} value={view} onChange={setView}/>
     {view==='routes'?<>
+      <Tabs tabs={[{id:'one',label:'Act I · Water Road'},{id:'two',label:'Act II · Salt Road'},{id:'three',label:'Act III · Broken Signal'}]} value={page} onChange={id=>{setPage(id);setSelected(id==='one'?'rillwake_crossing':id==='two'?'sablefen_causeway':'beaconbreak_ward');}}/>
       <p class="pn-note">{t('map.scale')}</p>
       <div class="wm-network">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {edges.filter(e=>e.kind==='waypoint'||!edges.some(other=>other.from===e.to&&other.to===e.from&&other.from<e.from&&other.kind===e.kind)).map(e=>{
-            const a=POS[e.from],b=POS[e.to];if(!a||!b)return null;
+            const a=positions[e.from],b=positions[e.to];if(!a||!b)return null;
             const offset=e.kind==='waypoint'?(Math.abs(a[0]-b[0])>50?-32:6):0;
             return <path key={`${e.from}-${e.to}-${e.kind}`} d={`M${a[0]},${a[1]} Q${(a[0]+b[0])/2},${(a[1]+b[1])/2+offset} ${b[0]},${b[1]}`} class={e.kind}/>;
           })}
         </svg>
-        {regions.map(z=>{const p=POS[z.id];if(!p)return null;const lock=routeLock(save,z.id),current=zone.zone===z.id;
+        {regions.map(z=>{const p=positions[z.id];if(!p)return null;const lock=routeLock(save,z.id),current=zone.zone===z.id;
           const label=current?t('map.here'):lock?t('map.locked'):!zoneLevelAllowed(save,z.id)?t('map.level',{level:String(z.levelBand[0])}):t('map.available');
           return <button key={z.id} class={`wm-node btn ${selected===z.id?'primary':''} ${current?'current':''}`} style={{left:`${p[0]}%`,top:`${p[1]}%`}} onClick={()=>setSelected(z.id)} aria-pressed={selected===z.id}>
             <strong>{z.name}</strong><small>{objective?.zone===z.id?'◆ ':''}{label}</small>
@@ -75,7 +84,7 @@ export function WorldMapPanel() {
       <LocalMap map={map} save={save} terrain={terrain} me={me} point={point||undefined} objectiveLabel={objective?.text}/>
       <p class="pn-note">{t('map.groundNote')}</p>
       <div class="wm-key"><span>▲ {t('map.here')}</span><span>◆ {t('map.objective')}</span><span>○ {t('map.services')}</span><span>↗ {t('map.exits')}</span></div>
-      <div class="wm-locations">{map.portals.map((p,i)=><button class="btn" key={i} onClick={()=>{setSelected(p.to);setView('routes');}}>↗ {p.label}</button>)}</div>
+      <div class="wm-locations">{map.portals.map((p,i)=><button class="btn" key={i} onClick={()=>{setSelected(p.to);setPage(routePage(p.to));setView('routes');}}>↗ {p.label}</button>)}</div>
     </>:<p>{t('map.noArea')}</p>}
     <SecHead>{t('map.objective')}</SecHead>
     {quest&&objective?<div class="wm-objective"><strong>{questText(quest.title)}</strong><p>{objective.text} · {ZONES[objective.zone]?.name}</p>

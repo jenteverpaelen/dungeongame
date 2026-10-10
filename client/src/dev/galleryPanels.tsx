@@ -456,7 +456,8 @@ if(qs.get('s')==='runSummary') {
 }
 
 const scene = (qs.get('s') ?? 'inventory').split(',');
-const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary', 'adventure', 'merchant', 'character'];
+const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary', 'adventure', 'merchant', 'character', 'worldmap'];
+if(scene.includes('worldmap'))ui.set({zone:{...ui.get().zone!,name:'Hearthmere · Presentation fixture (no live server)'}});
 for (const p of scene) if ((panelIds as string[]).includes(p)) togglePanel(p as PanelId, true);
 
 const cubeFn = qs.get('cube');

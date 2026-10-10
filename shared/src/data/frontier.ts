@@ -106,7 +106,7 @@ export const KILNWATCH:AdventureData={
   interactions:[{id:'watchkeeper',name:'Venn',x:820,y:2740,radius:110,kind:'person'},
     {id:'seal',name:'Cold draw seal',x:2310,y:740,radius:110,kind:'mechanism'},
     {id:'watchlog',name:'Watch log',x:710,y:950,radius:110,kind:'ledger'}],
-  portals:[{x:470,y:2750,to:'cinderwash_kilns',label:'Cinderwash Kilns'}],
+  portals:[{x:470,y:2750,to:'cinderwash_kilns',label:'Cinderwash Kilns'},{x:2590,y:1070,to:'sablefen_causeway',label:'Sablefen Causeway'}],
   locations:[{id:'crown',x:2220,y:1300,radius:110}],
   encounters:[
     {id:'gantry',x:1480,y:1950,members:[{type:'flint_beetle',dx:0,dy:0},{type:'cinder_cultist',dx:100,dy:-110},{type:'bonewalker',dx:-100,dy:80},{type:'ember_imp',dx:100,dy:100}]},

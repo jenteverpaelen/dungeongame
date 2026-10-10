@@ -1,5 +1,7 @@
 import { MONSTERS } from '../../../shared/src/data/monsters';
 import { questText } from '../../../shared/src/data/questMessages';
+import { QUESTS } from '../../../shared/src/data/quests';
+import { questState, questContact } from '../../../shared/src/quests';
 import { inPolygon } from '../../../shared/src/townGeometry';
 import type { DungeonState } from '../../../shared/src/protocol';
 import type { PlayerLink } from '../contracts';
@@ -20,15 +22,21 @@ export class DungeonRuntime {
   constructor(private inst:Instance){}
 
   state():DungeonState {
-    return {stage:this.stage,phase:this.stage===this.stages.length?'done':this.active?'active':'ready',remaining:this.remaining.size,target:this.stages[this.stage]?.trigger??'work_record',
+    return {stage:this.stage,phase:this.stage===this.stages.length?'done':this.active?'active':'ready',remaining:this.remaining.size,target:this.stages[this.stage]?.trigger??this.inst.map.adventure!.dungeon!.endTarget??'work_record',
       totalStages:this.stages.length,elapsedMs:this.startT<0?0:(this.endT<0?this.inst.t:this.endT)-this.startT};
   }
 
   activate(link:PlayerLink,target:string):string|null {
     const stage=this.stages[this.stage];
-    if(!stage)return 'The pumpworks is already cleared';
+    if(!stage)return 'This dungeon is already cleared';
     if(this.active)return 'Clear the current chamber first';
     if(target!==stage.trigger)return 'Follow the current dungeon mechanism';
+    if(this.inst.map.adventure!.dungeon!.requireStory){
+      const q=QUESTS.find(q=>q.steps.some(s=>s.kind==='wave'&&s.zone===this.inst.map.zone&&s.target===stage.id));
+      const state=q&&questState(link.save,q.id);
+      if(q&&!state?.claimed&&(!state||q.steps[state.step]?.target!==stage.id))
+        return `Continue ${questText(q.title)} with ${questContact(q.start)} before starting this chamber`;
+    }
     const spot=this.inst.map.adventure!.interactions.find(i=>i.id===target)!;
     const p=this.inst.players.find(p=>p.link===link);
     if(!p||!this.inst.canInteract(link,spot.x,spot.y,spot.radius))return 'Stand beside the mechanism to turn it';
@@ -52,7 +60,7 @@ export class DungeonRuntime {
     creditQuestWave(this.inst,p,stage.id);
     this.stage++;this.active=false;this.initiator=0;
     if(this.stage===this.stages.length)this.endT=this.inst.t;
-    this.inst.notice(questText(this.stage===this.stages.length?'quest.pump.done':'quest.pump.next'),'info');
+    this.inst.notice(questText(this.stage===this.stages.length?(this.inst.map.adventure!.dungeon!.endTarget?'mid.dungeon.done':'quest.pump.done'):'quest.pump.next'),'info');
   }
 
   tick() {
