@@ -35,7 +35,7 @@ hygiene*, not new rules.
 | 4 | **Quest interaction**: pressing E on a person opens the Quest Journal; only Orren could be talked to | New original conversations for the ten other contacts (`castDialogues.ts`), barks, cast bible; dialogue window in the UI pass |
 | 5 | **Quest structure**: of the 20 main-chain quests, 13 are "read/reach → kill one named keeper (→ use a mechanism)", 6 are chamber-clear waves, 1 is reach+interact. Across all 31 quests the steps are interact 27, kill 16, wave 10, talk 7, reach 3 — no deliver, collect or rift step is authored although the engine supports them | Recorded; needs authored variety — see Recommendations |
 | 6 | **Regression net red**: `npm test` 8 failing shared tests, `verify` failing in 5 stages (stale expectations after a starter quest was inserted, the 2/3 drop model, durable receipts, the social ledger folder) | Fixed: shared 47/47, bot 756 pass + 1 known Windows shutdown probe, sim 382/382 (commit `604a62b`) |
-| 7 | **Set bonus almost dead**: Fallen Star 2pc "second meteor" fires in 0 of 14 casts in the sim after the C107 reach cuts (packs close into one blob inside the first impact) | Recorded; test now only guards "never fewer telegraphs than casts". Needs a design decision, not a silent buff |
+| 7 | **Set bonus almost dead**: Fallen Star 2pc "second meteor" fired in 0 of 14 casts in the sim after the C107 reach cuts (packs close into one blob inside the first impact; the second target had to be 0.9 radius away) | **Fixed**: the second target only has to be 0.5 radius from the first impact (`server/src/sim/skills.ts`). Codex's nine-build audit before/after: mage/fallen_star 235 s → 206 s, 1.146 → 1.017 of the class median; every build stays inside the 1.25 window (max 1.149). Sim check restored to ≥ 1.25 telegraphs per cast |
 | 8 | **Copy bug**: dash lesson said "safety of Hearthmere" while standing in Rillwake | Fixed (`2051d68`) |
 | 9 | **Bark banner**: the single `bark` per service NPC is shown as a huge top banner that collides with the open panel | Speech bubbles in the UI pass; richer lines in `barks.ts` |
 | 10 | **No accounts**: identity is still the character name; `P3` remains the release blocker | Not started (owner decision on credential model, hosting) |
@@ -46,7 +46,6 @@ hygiene*, not new rules.
 
 1. **Author variety into the main chain**: one defend/escort, one timed collection, one choice with a consequence,
    one optional hard elite per zone. The engine can express most of it today.
-2. **Decide the Fallen Star 2pc** (fix the trigger or change the bonus) before more set work.
-3. **Accounts (P3)** before any non-friends test; then social backup operations.
-4. **Trim the repo**: keep reports, drop bulk PNG/JSON evidence from history in a future clean branch.
-5. **Measure the real kill rate** with the bot harness; the 60 kills/min offline assumption is still unmeasured.
+2. **Accounts (P3)** before any non-friends test; then social backup operations.
+3. **Trim the repo**: keep reports, drop bulk PNG/JSON evidence from history in a future clean branch.
+4. **Measure real player timing** (see `PACING.md`).

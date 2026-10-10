@@ -456,7 +456,9 @@ function meteor(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       if (m.dead) continue;
       if (Math.hypot(m.x-p.x,m.y-p.y)>rt.def.range)continue;
       const d = Math.hypot(m.x - bp.x, m.y - bp.y);
-      if (d < radius * 0.9) continue;
+      // Spread the second impact (never exactly on the first) but stay reliable: after the C107 reach cuts packs close
+      // into one blob, and a 0.9x exclusion left the set bonus firing in 0 of 14 casts in the simulation.
+      if (d < radius * 0.5) continue;
       if (d < bd) { bd = d; best = m; }
     }
     if (best) dropMeteor(inst, p, rt, best.x, best.y, radius);

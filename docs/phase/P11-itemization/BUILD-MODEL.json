@@ -31,7 +31,7 @@
     {
       "classId": "ranger",
       "build": "siegebreaker",
-      "totalMs": 272400,
+      "totalMs": 271650,
       "stalls": 0,
       "maxHit": 126680731,
       "relativeToMedian": 1,
@@ -43,7 +43,7 @@
       "totalMs": 312200,
       "stalls": 0,
       "maxHit": 155660299,
-      "relativeToMedian": 1.146108663729809,
+      "relativeToMedian": 1.1492729615313824,
       "passes": true
     },
     {
@@ -52,22 +52,22 @@
       "totalMs": 252150,
       "stalls": 0,
       "maxHit": 314265496,
-      "relativeToMedian": 0.9256607929515418,
+      "relativeToMedian": 0.9282164549972391,
       "passes": true
     },
     {
       "classId": "mage",
       "build": "fallen_star",
-      "totalMs": 235350,
+      "totalMs": 206050,
       "stalls": 0,
       "maxHit": 706983896,
-      "relativeToMedian": 1.14609203798393,
+      "relativeToMedian": 1.0167776955341723,
       "passes": true
     },
     {
       "classId": "mage",
       "build": "glass_concord",
-      "totalMs": 205350,
+      "totalMs": 202650,
       "stalls": 0,
       "maxHit": 167156635,
       "relativeToMedian": 1,
@@ -76,10 +76,10 @@
     {
       "classId": "mage",
       "build": "lantern_garden",
-      "totalMs": 175300,
+      "totalMs": 174750,
       "stalls": 0,
       "maxHit": 98124726,
-      "relativeToMedian": 0.8536644752860969,
+      "relativeToMedian": 0.8623242042931162,
       "passes": true
     }
   ],
@@ -747,9 +747,9 @@
       "seed": 101,
       "encounter": 2,
       "hp": 17166871871,
-      "ms": 67600,
+      "ms": 66850,
       "cleared": true,
-      "maxHit": 62527499,
+      "maxHit": 62498215,
       "slots": [
         "sentry",
         "multishot",
@@ -758,10 +758,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "hungering_arrow": 152588155,
-        "multishot": 20627537283,
-        "sentry": 3861928947,
-        "companion": 36558153
+        "hungering_arrow": 152563044,
+        "multishot": 19381753234,
+        "sentry": 3827519194,
+        "companion": 38127062
       }
     },
     {
@@ -1314,7 +1314,7 @@
       "seed": 101,
       "encounter": 0,
       "hp": 1226205133,
-      "ms": 1100,
+      "ms": 1050,
       "cleared": true,
       "maxHit": 355592231,
       "slots": [
@@ -1337,9 +1337,9 @@
       "seed": 101,
       "encounter": 1,
       "hp": 6621507723,
-      "ms": 6300,
+      "ms": 1200,
       "cleared": true,
-      "maxHit": 386511498,
+      "maxHit": 363933215,
       "slots": [
         "meteor",
         "black_hole",
@@ -1348,10 +1348,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 41103944,
+        "magic_missile": 5809142,
         "frost_nova": 8577198,
-        "black_hole": 41335288,
-        "meteor": 7041883464
+        "black_hole": 2559185,
+        "meteor": 6905257354
       }
     },
     {
@@ -1360,9 +1360,9 @@
       "seed": 101,
       "encounter": 2,
       "hp": 17166871871,
-      "ms": 57750,
+      "ms": 52250,
       "cleared": true,
-      "maxHit": 402321163,
+      "maxHit": 402036896,
       "slots": [
         "meteor",
         "black_hole",
@@ -1371,10 +1371,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 459585012,
-        "frost_nova": 43094704,
-        "black_hole": 149351783,
-        "meteor": 23530960059
+        "magic_missile": 405040874,
+        "frost_nova": 21570396,
+        "black_hole": 82708575,
+        "meteor": 21412422750
       }
     },
     {
@@ -1406,9 +1406,9 @@
       "seed": 202,
       "encounter": 1,
       "hp": 6621507723,
-      "ms": 7750,
+      "ms": 4100,
       "cleared": true,
-      "maxHit": 688361855,
+      "maxHit": 642712632,
       "slots": [
         "meteor",
         "black_hole",
@@ -1417,10 +1417,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 63519923,
+        "magic_missile": 21411601,
         "frost_nova": 6948676,
-        "black_hole": 60653086,
-        "meteor": 6954563902
+        "black_hole": 24486542,
+        "meteor": 7153936533
       }
     },
     {
@@ -1429,7 +1429,7 @@
       "seed": 202,
       "encounter": 2,
       "hp": 17166871871,
-      "ms": 66250,
+      "ms": 60450,
       "cleared": true,
       "maxHit": 706983896,
       "slots": [
@@ -1440,10 +1440,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 718357181,
-        "frost_nova": 46208174,
-        "black_hole": 147333794,
-        "meteor": 24144189047
+        "magic_missile": 660938684,
+        "frost_nova": 43316285,
+        "black_hole": 151441376,
+        "meteor": 24287703178
       }
     },
     {
@@ -1452,7 +1452,7 @@
       "seed": 303,
       "encounter": 0,
       "hp": 1226205133,
-      "ms": 1100,
+      "ms": 1050,
       "cleared": true,
       "maxHit": 312210667,
       "slots": [
@@ -1474,9 +1474,9 @@
       "seed": 303,
       "encounter": 1,
       "hp": 6621507723,
-      "ms": 9000,
+      "ms": 4100,
       "cleared": true,
-      "maxHit": 173889485,
+      "maxHit": 312210667,
       "slots": [
         "meteor",
         "black_hole",
@@ -1485,10 +1485,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 49624734,
-        "frost_nova": 15537768,
-        "meteor": 6548930308,
-        "black_hole": 36786015
+        "magic_missile": 22601364,
+        "frost_nova": 6542217,
+        "meteor": 6573698187,
+        "black_hole": 30129425
       }
     },
     {
@@ -1497,7 +1497,7 @@
       "seed": 303,
       "encounter": 2,
       "hp": 17166871871,
-      "ms": 85050,
+      "ms": 80800,
       "cleared": true,
       "maxHit": 343431734,
       "slots": [
@@ -1508,10 +1508,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 534307296,
-        "frost_nova": 61926187,
-        "meteor": 23801496180,
-        "black_hole": 174670590
+        "magic_missile": 517823038,
+        "frost_nova": 65074632,
+        "meteor": 24491600733,
+        "black_hole": 165284193
       }
     },
     {
@@ -1542,7 +1542,7 @@
       "seed": 101,
       "encounter": 1,
       "hp": 6621507723,
-      "ms": 21700,
+      "ms": 19000,
       "cleared": true,
       "maxHit": 74938305,
       "slots": [
@@ -1553,9 +1553,9 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "frost_nova": 6006415,
-        "magic_missile": 5718622091,
-        "black_hole": 980952825
+        "frost_nova": 5998156,
+        "magic_missile": 5752104170,
+        "black_hole": 960346159
       }
     },
     {
@@ -1676,7 +1676,7 @@
       "hp": 6621507723,
       "ms": 23850,
       "cleared": true,
-      "maxHit": 69077176,
+      "maxHit": 68989505,
       "slots": [
         "black_hole",
         "frost_nova",
@@ -1685,9 +1685,9 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "frost_nova": 7047657,
-        "magic_missile": 5567632570,
-        "black_hole": 1134031919
+        "frost_nova": 7268252,
+        "magic_missile": 5781635616,
+        "black_hole": 905645458
       }
     },
     {
@@ -1718,7 +1718,7 @@
       "seed": 101,
       "encounter": 0,
       "hp": 1226205133,
-      "ms": 1350,
+      "ms": 1050,
       "cleared": true,
       "maxHit": 51433202,
       "slots": [
@@ -1729,10 +1729,10 @@
       ],
       "points": 48,
       "damageBySkill": {
-        "magic_missile": 4870107,
+        "magic_missile": 4857663,
         "frost_nova": 209914627,
-        "hydra": 1123035935,
-        "black_hole": 6983081
+        "hydra": 1121034810,
+        "black_hole": 7026813
       }
     },
     {
@@ -1810,7 +1810,7 @@
       "seed": 202,
       "encounter": 1,
       "hp": 6621507723,
-      "ms": 5950,
+      "ms": 5700,
       "cleared": true,
       "maxHit": 98124726,
       "slots": [
@@ -1823,7 +1823,7 @@
       "damageBySkill": {
         "magic_missile": 26525843,
         "frost_nova": 112232098,
-        "hydra": 6603874564,
+        "hydra": 6548582214,
         "black_hole": 25666415
       }
     },
