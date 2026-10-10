@@ -24,7 +24,7 @@ import {
 import { OUT } from './draw';
 import { fx, getRenderer, glowSprite, ringSprite, shadowSprite, sparkleSprite } from './fx';
 import {
-  classBody, drawArm, drawHand, drawOrb, drawQuiver, drawShield, drawShoulder, drawWeapon, isTwoHandedMelee, type Body,
+  classBody, drawArm, drawHand, drawNpcOffhand, drawOrb, drawQuiver, drawShield, drawShoulder, drawWeapon, isTwoHandedMelee, type Body,
 } from './gear';
 import {
   HEAD_FLASH_VIEWS, HEAD_R, HEAD_VIEWS, LEG_VIEWS, drawArrow, drawBeltFront, drawBrow, drawCapeBack, drawEye, drawHairCurtain,
@@ -46,8 +46,19 @@ const HIP = -12;
 const sheets = new Map<string, Sheet>();
 const idle: string[] = [];
 
+/** Townsfolk looks carry their own body (hair, skin, beard, face accessory); heroes derive it from class + appearance. */
+export type NpcBodyLook = PlayerLook & { npc?: Omit<Body, 'cls'> };
+/** Off-hand props townsfolk hold in the left hand (drawn by drawNpcOffhand, placed like an orb). */
+export const NPC_OFFHAND = new Set(['book', 'mug', 'lantern', 'lute', 'flag', 'slate', 'basket', 'gem', 'tin', 'scroll']);
+const POLE_TOOLS = new Set(['spear', 'broom', 'rod', 'pole', 'poker', 'rake']);
+
+function bodyOf(look: PlayerLook): Body {
+  const npc = (look as NpcBodyLook).npc;
+  return npc ? { cls: look.classId, ...npc } : classBody(look.classId, look.appearance);
+}
+
 function lookKey(look: PlayerLook): string {
-  const parts: string[] = [look.classId,JSON.stringify(look.appearance??null)];
+  const parts: string[] = [look.classId,JSON.stringify(look.appearance??null),JSON.stringify((look as NpcBodyLook).npc??null)];
   for (const k of Object.keys(look.slots).sort()) {
     const l = look.slots[k as LookSlot]!;
     parts.push(`${k}:${l.shape}:${l.primary}:${l.secondary}:${l.glow}:${l.variant}`);
@@ -56,7 +67,7 @@ function lookKey(look: PlayerLook): string {
 }
 
 /** Every part a look needs (names must match the rig below). */
-export function playerParts(look: PlayerLook, body: Body = classBody(look.classId,look.appearance)): PartSpec[] {
+export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSpec[] {
   const sl = look.slots;
   const specs: PartSpec[] = [];
   const add = (name: string, draw: PartSpec['draw'], flash = true) => specs.push({ name, draw, flash });
@@ -81,6 +92,7 @@ export function playerParts(look: PlayerLook, body: Body = classBody(look.classI
   if (off) {
     if (off.shape === 'quiver') add('quiver', (c) => drawQuiver(c, off));
     else if (off.shape === 'orb') add('orb', (c) => drawOrb(c, off));
+    else if (NPC_OFFHAND.has(off.shape)) add('orb', (c) => drawNpcOffhand(c, off));
     else { add('shield', (c) => drawShield(c, off)); add('shieldBack', (c) => drawShieldBack(c, off)); }
   }
   add('eye', (c) => drawEye(c, body.eyes));
@@ -195,7 +207,7 @@ function weaponKind(shape: string | undefined): WeaponKind {
   if (shape === 'bow') return 'bow';
   if (shape === 'crossbow') return 'xbow';
   if (shape === 'handxbow') return 'hxbow';
-  if (shape === 'staff') return 'staff';
+  if (shape === 'staff' || POLE_TOOLS.has(shape)) return 'staff';
   if (shape === 'wand') return 'wand';
   return '1h';
 }
@@ -367,7 +379,8 @@ export class PlayerArt implements PlayerView {
     this.flashing = false; this.lastHeadView = '';
     const sl = this.look.slots;
     const wk = weaponKind(sl.mainhand?.shape);
-    this.kit = { wk, shield: sl.offhand?.shape === 'shield' || (!!sl.offhand && !['quiver', 'orb'].includes(sl.offhand.shape)), orb: sl.offhand?.shape === 'orb', shape: sl.mainhand?.shape ?? '' };
+    const npcHeld = !!sl.offhand && NPC_OFFHAND.has(sl.offhand.shape);
+    this.kit = { wk, shield: sl.offhand?.shape === 'shield' || (!!sl.offhand && !npcHeld && !['quiver', 'orb'].includes(sl.offhand.shape)), orb: sl.offhand?.shape === 'orb' || npcHeld, shape: sl.mainhand?.shape ?? '' };
     this.reach = reachOf(sl.mainhand?.shape);
     const glow = sl.mainhand?.glow ?? 0;
     this.trailColor = glow ? light(glow, 0.25) : 0xfff4dc;
@@ -533,6 +546,16 @@ export class PlayerArt implements PlayerView {
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
+  }
+
+  /** Townsfolk: ease back to a resting yaw (degrees) when not performing an action. */
+  face(deg: number): void { if (!this.act) this.setYawTarget(wrapDeg(deg)); }
+
+  /** Seconds since the last action finished (0 while one is playing). */
+  idleFor(): number {
+    if (this.act) return 0;
+    const a = this.lastAct;
+    return a ? this.t - (a.start + actionLife({ def: a.def, primary: a.primary, cycle: a.cycle })) / 1000 : this.t;
   }
 
   /** Dev gallery: snap the hero to a yaw (degrees). */
@@ -976,9 +999,16 @@ export class PlayerArt implements PlayerView {
       n.armL.zIndex = Math.min(n.armL.zIndex, sh.zIndex - 0.03);
     }
     if (n.orb) {
-      const bob = Math.sin(t * 2.4) * 1.6;
-      n.orb.position.set(hL.x + 3 * side, hL.y - 8 + bob);
-      n.orb.zIndex = hL.d + 0.3;
+      if (this.look.slots.offhand && NPC_OFFHAND.has(this.look.slots.offhand.shape)) {
+        // A held prop sits in the hand (grip at its origin), swinging slightly with the arm instead of floating.
+        n.orb.position.set(hL.x + 1 * side, hL.y + 1);
+        n.orb.scale.x = side;
+        n.orb.zIndex = hL.d - 0.05;
+      } else {
+        const bob = Math.sin(t * 2.4) * 1.6;
+        n.orb.position.set(hL.x + 3 * side, hL.y - 8 + bob);
+        n.orb.zIndex = hL.d + 0.3;
+      }
     }
 
     // ── trails (sampled along the real tip path)

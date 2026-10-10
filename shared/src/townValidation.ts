@@ -25,10 +25,11 @@ export function validateTown(t: TownData): string[] {
     id(b.id); polygon(b.footprint, b.id); b.baseline.forEach(p => point(p, b.id));
     if(b.interior){b.interior.floors.forEach(p=>polygon(p,b.id+' interior'));point(b.interior.target,b.id);}
     if (b.look) {
-      if (!(b.look.eaveHeight > 0 && b.look.eaveHeight <= 320)) errors.push(`${b.id}: invalid eave height`);
+      // Landmarks (the beacon, the leaning tower) may rise to ~9 hero heights; these bounds only stop absurd data.
+      if (!(b.look.eaveHeight > 0 && b.look.eaveHeight <= 440)) errors.push(`${b.id}: invalid eave height`);
       for (const v of b.look.roof.vertices) {
         point([v[0],v[1]], b.id);
-        if (!(v[2] >= b.look.eaveHeight && v[2] <= 384)) errors.push(`${b.id}: invalid roof elevation`);
+        if (!(v[2] >= b.look.eaveHeight && v[2] <= 560)) errors.push(`${b.id}: invalid roof elevation`);
       }
       for (const face of b.look.roof.faces) if (face.length < 3 || face.some(i => !Number.isInteger(i) || !b.look!.roof.vertices[i])) errors.push(`${b.id}: invalid roof face`);
       const xs=b.footprint.map(p=>p[0]), bx=b.baseline.map(p=>p[0]);
@@ -60,6 +61,10 @@ export function validateTown(t: TownData): string[] {
   for(const r of t.landscape??[]){id("landscape:"+r.id);polygon(r.polygon,r.id);}
   for(const d of t.details??[]){id("details:"+d.id);point(d.position,d.id);if(!(d.width>0&&Number.isFinite(d.width)))errors.push(`${d.id}: invalid detail width`);}
   for(const v of t.villagers??[]){id("villagers:"+v.id);v.path.forEach(p=>point(p,v.id));if(v.path.length<2||!(v.speed>0&&Number.isFinite(v.speed))||!(v.pause>=0&&Number.isFinite(v.pause)))errors.push(`${v.id}: invalid patrol`);}
+  // Visual-only layers: ids unique, coordinates inside the map (they never take part in collision).
+  for(const d of t.decor??[]){id("decor:"+d.id);point([d.x,d.y],d.id);if(d.to)point(d.to,d.id);}
+  for(const r of t.residents??[]){id("residents:"+r.id);point([r.x,r.y],r.id);if(!inGround(t,r.x,r.y))errors.push(`${r.id}: resident stands outside walkable ground`);}
+  for(const g of t.ground??[]){id("ground:"+g.id);if(g.polygon)polygon(g.polygon,g.id);for(const p of g.path??[])point(p,g.id);if(!g.polygon&&!(g.path&&g.path.length>1&&(g.width??0)>0))errors.push(`${g.id}: ground needs a polygon or a path with width`);}
   if (errors.length) return errors;
   const world = new TownCollision(t), r = PLAYER_RADIUS;
   if (!world.isFree(t.entry.x, t.entry.y, r)) errors.push('entry blocked');

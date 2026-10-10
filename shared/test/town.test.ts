@@ -30,9 +30,10 @@ test('authored town is seed-independent; schema, doorway, routes and service rea
   assert.deepEqual(validateTown(m.town!), []);
   const bad = structuredClone(m.town!); bad.npcs[0].approach = [0, 0];
   assert.ok(validateTown(bad).some(s => s.includes('approach blocked')));
-  const narrow = structuredClone(m.town!), cellar = narrow.buildings.find(b => b.id === 'cellar')!;
-  for (const p of cellar.footprint) p[1] -= 42;
-  assert.ok(validateTown(narrow).some(s => s.includes('narrower than two player diameters')), 'reject the measured 27 u slit');
+  // Rework layout: the inn and the lamplighter's cottage stand 70 u apart; pushing the cottage 40 u west leaves a 30 u slit.
+  const narrow = structuredClone(m.town!), cottage = narrow.buildings.find(b => b.id === 'cottage-a')!;
+  for (const p of cottage.footprint) p[0] -= 40;
+  assert.ok(validateTown(narrow).some(s => s.includes('narrower than two player diameters')), 'reject a 30 u slit between houses');
 });
 
 test('continuous dash hits a thin fence; full doorway passes; road union has no internal seams', () => {
@@ -60,7 +61,8 @@ test('concave doorway recess admits a hero; back wall and diagonal impact stay s
 test('every exposed town edge resists randomized walking/dashes without leaks', () => {
   const w = new CollisionWorld(map()), rng = new Rng(773), edges = w.town!.edges;
   let checked = 0;
-  for (const e of edges) for (let k = 0; k < 30; k++) {
+  // Rework layout has fewer, simpler edges (163); sample each more densely so coverage stays above the same floor.
+  for (const e of edges) for (let k = 0; k < 48; k++) {
     const t = rng.range(.1, .9), x = e.ax + (e.bx - e.ax) * t + e.nx * 17, y = e.ay + (e.by - e.ay) * t + e.ny * 17;
     if (!w.isFree(x, y, 16)) continue;
     const a = rng.range(-1.2, 1.2), dx = -e.nx * Math.cos(a) + e.ny * Math.sin(a), dy = -e.ny * Math.cos(a) - e.nx * Math.sin(a);

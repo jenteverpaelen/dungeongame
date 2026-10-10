@@ -1,33 +1,68 @@
-/* Design tokens. Dark, ornate, bronze-and-parchment frame language taken from Diablo 3's UI
-   (dark panels, gold-trimmed frames, rarity colours) around Idleon-style cute characters. */
+/* Hearthfall design tokens (docs/rework/DESIGN.md §1). Warm ink, bronze frames, dark-fantasy calm.
+   New names (--s-*, --line-*, --t-*, --sp-*) are the system; the older names below stay as aliases so every
+   existing rule inherits the readable values. Body text 15px, secondary ≥13px, caps labels 12px at 1080p. */
 :root {
   /* Surfaces */
+  --s-0: #0b0907;
+  --s-1: #15110d;
+  --s-2: #1e1813;
+  --s-3: #2b2219;
+  --s-well: #0d0a08;
+  /* Lines + metal */
+  --line-1: #33281c;
+  --line-2: #5a4429;
+  --line-3: #7d6038;
+  --gold: #d2ae68;
+  --gold-hi: #f3dc9d;
+  --gold-dim: #9a7c45;
+  /* Text (contrast measured against --s-1) */
+  --t-1: #f2e8d5;
+  --t-2: #cdbd9f;
+  --t-3: #a39276;
+  --t-off: #6d6253;
+  /* Accents: always paired with an icon or a word, never colour alone */
+  --ember: #e0783a;
+  --ember-hi: #ffb06a;
+  --points: #ffcf5a;
+  --good: #71d18c;
+  --bad: #ef6b5b;
+  --info: #7fb8ff;
+  --arcane: #b38cff;
+  /* Type scale */
+  --fs-xs: 12px;
+  --fs-s: 13px;
+  --fs-m: 15px;
+  --fs-l: 17px;
+  --fs-xl: 21px;
+  --fs-xxl: 28px;
+  /* Spacing + radius */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;
+  --r-1: 3px; --r-2: 6px; --r-3: 8px;
+  /* Motion */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ── aliases kept for existing components ── */
   --bg-0: #07060a;
-  --panel: rgba(16, 12, 9, 0.96);
-  --panel-2: #1b1510;
-  --panel-3: #251c14;
-  --inset: #0c0907;
-  /* Frame metals */
+  --panel: rgba(18, 14, 11, 0.97);
+  --panel-2: var(--s-2);
+  --panel-3: var(--s-3);
+  --inset: var(--s-well);
   --frame-dark: #2a1f14;
   --frame: #4a3720;
   --frame-hi: #8c6a38;
-  --gold: #c9a45c;
-  --gold-hi: #f2d58c;
-  --gold-dim: #7a6236;
-  /* Text */
-  --text: #d9ccb2;
-  --text-dim: #8f8270;
-  --text-faint: #5f5548;
+  --text: #e9dfcb;
+  --text-dim: #b9aa8f;
+  --text-faint: #8e7f68;
   --text-bright: #f6eddb;
-  --affix: #6969ff;          /* D3 affix blue */
-  --affix-text: #8a8aff;
-  --power: #bf642f;           /* legendary power orange */
+  --affix: #6969ff;
+  --affix-text: #9a9aff;
+  --power: #bf642f;
   --set-on: #00ff00;
   --set-off: #6e6e6e;
   --enchanted: #d4a8ff;
-  --good: #3cd070;
-  --bad: #e04848;
-  /* Rarities (Diablo 3) */
+  /* Rarities (kept) */
   --r-normal: #ffffff;
   --r-magic: #6969ff;
   --r-rare: #ffff00;
@@ -40,23 +75,16 @@
   --life-hi: #ff5a46;
   --fury: #d23a22;
   --hatred: #b0204a;
-  --arcane: #3d6dff;
+  --arcane-res: #3d6dff;
   --xp: #e8c35a;
   /* Typography */
   --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;
   --font-body: 'Alegreya Sans', 'Segoe UI', sans-serif;
   --font-num: 'Lilita One', 'Arial Black', sans-serif;
-  --fs-xs: 11px;
-  --fs-s: 12.5px;
-  --fs-m: 14px;
-  --fs-l: 17px;
-  --fs-xl: 22px;
-  --fs-xxl: 30px;
   /* Effects */
-  --shadow-panel: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.9);
+  --shadow-panel: 0 18px 48px rgba(0, 0, 0, 0.66), 0 0 0 1px rgba(0, 0, 0, 0.9);
   --frame-border: 1px solid var(--frame-hi);
   --radius: 3px;
-  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 html, body {
@@ -75,58 +103,82 @@ html, body {
 
 #game, #ui { position: fixed; inset: 0; }
 #ui { pointer-events: none; }
-#ui .interactive, #ui button, #ui input, #ui [data-interactive] { pointer-events: auto; }
+#ui .interactive, #ui button, #ui input, #ui select, #ui textarea, #ui [data-interactive] { pointer-events: auto; }
 canvas { display: block; }
 
-/* Ornate frame used by every panel: dark body, double gold hairline, corner studs. */
+/* Ornate frame (HUD cards, help, AFK). Panels use .pn in panels.css with the same language. */
 .frame {
   position: relative;
   background:
-    radial-gradient(ellipse at 50% -20%, rgba(140, 106, 56, 0.16), transparent 60%),
-    linear-gradient(180deg, #1c150f 0%, #110d09 100%);
+    radial-gradient(ellipse at 50% -20%, rgba(140, 106, 56, 0.14), transparent 60%),
+    linear-gradient(180deg, #1b1611 0%, #120e0b 100%);
   border: 1px solid #000;
-  box-shadow: inset 0 0 0 1px var(--frame-hi), inset 0 0 0 3px #0a0806, inset 0 0 0 4px var(--frame), var(--shadow-panel);
-  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--line-2), inset 0 0 0 2px rgba(0, 0, 0, 0.55), var(--shadow-panel);
+  border-radius: var(--r-3);
 }
-.frame::before, .frame::after {
-  content: '';
-  position: absolute;
-  width: 9px; height: 9px;
-  background: radial-gradient(circle at 35% 35%, var(--gold-hi), var(--gold-dim) 70%);
-  border: 1px solid #000;
-  transform: rotate(45deg);
-  top: -5px;
-}
-.frame::before { left: -5px; }
-.frame::after { right: -5px; }
 
 .title-plate {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--gold-hi);
-  text-shadow: 0 1px 0 #000, 0 0 12px rgba(242, 213, 140, 0.25);
-}
-
-.btn {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--fs-s);
   letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--gold-hi);
-  background: linear-gradient(180deg, #3a2a18 0%, #22180e 55%, #1a120a 100%);
-  border: 1px solid #000;
-  box-shadow: inset 0 0 0 1px var(--frame-hi), inset 0 1px 0 rgba(255, 230, 170, 0.25);
-  padding: 7px 14px;
-  cursor: pointer;
-  border-radius: 2px;
-  transition: filter 120ms, transform 80ms;
+  text-shadow: 0 1px 0 #000, 0 0 14px rgba(242, 213, 140, 0.2);
 }
-.btn:hover { filter: brightness(1.25); }
-.btn:active { transform: translateY(1px); }
-.btn:disabled { filter: grayscale(1) brightness(0.6); cursor: default; }
-.btn.primary { background: linear-gradient(180deg, #7a3a12 0%, #4a1f08 60%, #331404 100%); }
 
-.scroll { overflow-y: visible; scrollbar-width: thin; scrollbar-color: var(--frame-hi) transparent; }
+/* Buttons: default (bronze), .primary (ember), .quiet (text). Sizes: .sm 28px, default 34px, .lg 40px. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 14px;
+  font: 700 14px/1.1 var(--font-body);
+  letter-spacing: 0.03em;
+  color: var(--t-1);
+  background: linear-gradient(180deg, #3a2d1f 0%, #2a2017 55%, #211912 100%);
+  border: 1px solid #000;
+  border-radius: var(--r-1);
+  box-shadow: inset 0 0 0 1px var(--line-3), inset 0 1px 0 rgba(255, 230, 170, 0.16), 0 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: filter var(--dur-1), transform 80ms, box-shadow var(--dur-1);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.18); box-shadow: inset 0 0 0 1px var(--gold), inset 0 1px 0 rgba(255, 230, 170, 0.22), 0 1px 2px rgba(0, 0, 0, 0.5); }
+.btn:active:not(:disabled) { transform: translateY(1px); filter: brightness(0.95); }
+.btn:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.btn:disabled { color: var(--t-off); filter: saturate(0.3) brightness(0.8); cursor: not-allowed; }
+.btn.primary {
+  color: #fff3dc;
+  background: linear-gradient(180deg, #b4592a 0%, #8a3f1a 55%, #6e3012 100%);
+  box-shadow: inset 0 0 0 1px #e0954f, inset 0 1px 0 rgba(255, 214, 160, 0.4), 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+.btn.primary:hover:not(:disabled) { box-shadow: inset 0 0 0 1px #ffc07a, inset 0 1px 0 rgba(255, 214, 160, 0.5), 0 0 12px rgba(224, 120, 58, 0.35); }
+.btn.quiet { background: transparent; box-shadow: none; color: var(--t-2); }
+.btn.quiet:hover:not(:disabled) { color: var(--t-1); box-shadow: inset 0 0 0 1px var(--line-2); }
+.btn.sm { min-height: 28px; padding: 0 10px; font-size: 13px; }
+.btn.lg { min-height: 40px; padding: 0 20px; font-size: 15px; }
+.btn.tiny { min-height: 24px; padding: 0 8px; font-size: 12px; }
+
+kbd, .kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  font: 400 12px/1 var(--font-num);
+  letter-spacing: 0.02em;
+  color: var(--gold-hi);
+  background: linear-gradient(180deg, #2b2219, #16110d);
+  border: 1px solid #000;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--line-2), inset 0 -2px 0 rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 0 #000;
+}
+
+.scroll { overflow-y: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}

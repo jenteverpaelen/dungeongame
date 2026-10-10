@@ -16,7 +16,7 @@ import { Connection } from '../net/connection';
 import { Scene } from '../render/scene';
 import type { ActingView, PlayerView } from '../render/types';
 import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, type PanelId } from '../ui/store';
-import { questAtTarget } from '@shared/quests';
+import { questAtTarget, questMarker } from '@shared/quests';
 import { openJournal } from '../ui/panels/adventure';
 import { Input } from './input';
 import { preferences } from './preferences';
@@ -288,15 +288,25 @@ export class Game {
         void this.conn?.cmd('quest',{action:'activate',target:s.npcId}).then(r=>{if(!r.ok&&r.err)pushNotice(r.err,'warn');});return;
       }
       if(s.role==='quest' || s.role==='clue') {
+        if(s.role==='clue')this.scene.pulseStatic(s);
         void this.conn?.cmd('quest',{action:'talk',target:s.npcId}).then(r=>{
           const save=ui.get().char,zoneId=zone?.zone;
-          if(r.ok && save && zoneId){ui.set({adventureTarget:s.npcId??null,adventureZone:zoneId,journalQuest:questAtTarget(save,zoneId,s.npcId??'')?.id??null});togglePanel('adventure',true);}
+          if(r.ok && save && zoneId){
+            ui.set({adventureTarget:s.npcId??null,adventureZone:zoneId,journalQuest:questAtTarget(save,zoneId,s.npcId??'')?.id??null,
+              dialogue:{zone:zoneId,target:s.npcId??'',name:s.name,role:s.role??'quest'}});
+            togglePanel('dialogue',true);
+          }
         });
         return;
       }
-      const bark=this.world.map?.town?.npcs.find(n=>n.role===s.role)?.bark;
-      if(bark)pushNotice(bark,'info');
-      if (Object.hasOwn(ARTISAN_FUNCTIONS, s.role)) { this.openArtisan(s.role as Artisan); return; }
+      // Service people speak a short line in a bubble above their head (never a screen banner).
+      this.scene.bark(s, true);
+      if (Object.hasOwn(ARTISAN_FUNCTIONS, s.role)) {
+        const save=ui.get().char,zoneId=zone?.zone;
+        // An artisan with business for this hero (offer or turn-in) opens the conversation first; it links to the workshop.
+        if(save&&zoneId&&s.npcId&&questMarker(save,zoneId,s.npcId)){ui.set({dialogue:{zone:zoneId,target:s.npcId,name:s.name,role:s.role}});togglePanel('dialogue',true);return;}
+        this.openArtisan(s.role as Artisan); return;
+      }
       const map: Partial<Record<string, PanelId>> = { waypoint: 'waypoint', obelisk: 'obelisk', paragon: 'paragon', stash: 'stash' };
       const p = map[s.role];
       if (p) togglePanel(p, true);

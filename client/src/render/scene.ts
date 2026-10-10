@@ -3,7 +3,8 @@
 
 import { Application, Container, type Text } from 'pixi.js';
 import type { CharacterSave } from '@shared/types';
-import { questMarker } from '@shared/quests';
+import { questMarker, questState, trackedQuest } from '@shared/quests';
+import { QUESTS } from '@shared/data/quests';
 import { ui } from '../ui/store';
 import { ordinarySelected } from '@shared/itemCollection';
 import { nameLabel } from './art/npcs';
@@ -21,8 +22,11 @@ import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
 import { AdventureLife } from './art/adventureLife';
 import { inPolygon } from '@shared/townGeometry';
+import { baselineY } from '@shared/townDepth';
 import { preferences } from '../game/preferences';
 import { QuestGuide } from './questGuide';
+import { BarkBubbles, type Speaker } from './barks';
+import { BARKS } from '@shared/data/barks';
 
 /** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
@@ -60,8 +64,13 @@ export class Scene {
   private adventureLife: AdventureLife | null = null;
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
+  /** Screen-space extent of each building's baked sprites (for the walk-behind fade). */
+  private buildingBounds=new Map<string,{x0:number;y0:number;x1:number;y1:number}>();
   private questStamp:CharacterSave|null=null;
   private questGuide=new QuestGuide();
+  private barks=new BarkBubbles();
+  /** Ambient speakers: statics with lines plus visual-only residents (filled by setMap / TownLife). */
+  private speakers:Speaker[]=[];
   toggleCollision() {
     this.showCollision = !this.showCollision;
     if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
@@ -71,6 +80,7 @@ export class Scene {
     window.addEventListener('wheel', this.onWheel, { passive: false, capture: true });
     this.entities.sortableChildren = true;
     this.root.addChild(this.ground, this.decals, this.groundFx, this.entities, this.aboveFx, this.text);
+    this.text.addChild(this.barks.root);
     app.stage.addChild(this.root);
     this.groundFx.addChild(this.questGuide.root);
     this.vfx = new Vfx({ groundFx: this.groundFx, aboveFx: this.aboveFx, text: this.text }, {
@@ -105,7 +115,7 @@ export class Scene {
   setMap(map: MapData) {
     this.cam.zoom=this.app.screen.height/VIEW_HEIGHT*preferences.get().values.cameraZoom;
     setViewScale(this.cam.zoom*this.app.renderer.resolution);
-    this.roofAlpha.clear();
+    this.roofAlpha.clear();this.buildingBounds.clear();
     this.townLife?.destroy();this.townLife=null;
     this.adventureLife?.destroy();this.adventureLife=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
@@ -116,6 +126,8 @@ export class Scene {
     this.statics = [];
     this.questStamp=null;
     this.vfx.clear();
+    this.barks.clear();
+    this.speakers=[];
     this.map = map;
     this.questGuide.refresh(map,ui.get().char,this.world.collision);
     this.collisionOverlay?.destroy({ children: true });
@@ -128,14 +140,15 @@ export class Scene {
       p.view.zIndex = p.y;
       this.entities.addChild(p.view);
       this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds, building:p.building });
+      if(p.building&&p.bounds){const b=this.buildingBounds.get(p.building);this.buildingBounds.set(p.building,b?{x0:Math.min(b.x0,p.bounds.x0),y0:Math.min(b.y0,p.bounds.y0),x1:Math.max(b.x1,p.bounds.x1),y1:Math.max(b.y1,p.bounds.y1)}:{...p.bounds});}
     }
     for (const n of map.npcs) {
       if (n.role === 'dummy') continue; // dummies are server-side monsters so they can be hit
-      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look, map.town?n.r:undefined, map.adventure?.interactions.find(i=>i.id===n.id)?.kind);
+      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look, map.town?n.r:undefined, map.adventure?.interactions.find(i=>i.id===n.id)?.kind, { zone: map.zone, id: n.id });
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
-      const questLabel=nameLabel('',-90,0xffdb83);questLabel.style.fontSize=18;questLabel.visible=false;view.root.addChild(questLabel);
+      const questLabel=nameLabel('',-view.height-40,0xffdb83);questLabel.style.fontSize=24;questLabel.style.stroke={color:0x140e0a,width:5,join:'round'};questLabel.visible=false;view.root.addChild(questLabel);
       this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id,questLabel });
     }
     for (const p of map.portals) {
@@ -145,9 +158,11 @@ export class Scene {
       this.entities.addChild(view.root);
       this.statics.push({ view, x: p.x, y: p.y, name: p.label, r: 40, portalTo: p.to });
     }
+    for(const s of this.statics){const lines=s.role?BARKS[s.role]:undefined;if(lines)this.speakers.push({key:s.npcId??s.name,x:s.x,y:s.y,height:s.view.height,lines});}
     if(map.town?.stage==='complete') {
       this.townLife=new TownLife(map.town,this.entities);
       this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
+      this.speakers.push(...this.townLife.speakers);
     }
     if(map.adventure?.ambience) {
       this.adventureLife=new AdventureLife(map.adventure);
@@ -293,14 +308,22 @@ export class Scene {
 
     const x0 = this.cam.x - halfW - 220, x1 = this.cam.x + halfW + 220;
     const y0 = this.cam.y - halfH - 160, y1 = this.cam.y + halfH + 320;
-    for(const b of this.map?.town?.buildings??[])if(b.interior&&me){
-      const target=b.interior.floors.some(p=>inPolygon(me.x,me.y,p))?.08:1;
+    for(const b of this.map?.town?.buildings??[])if(me&&this.buildingBounds.has(b.id)){
+      // Inside an enterable house the shell fades away; standing behind any house fades it to a ghost so the hero stays visible.
+      const sb=this.buildingBounds.get(b.id)!;
+      const behind=me.x>sb.x0+6&&me.x<sb.x1-6&&me.y-56<sb.y1&&me.y-56>sb.y0&&me.y<baselineY(b.baseline,me.x)-4;
+      const target=b.interior?.floors.some(p=>inPolygon(me.x,me.y,p))?.08:behind?.38:1;
       const a=this.roofAlpha.get(b.id)??1;this.roofAlpha.set(b.id,a+(target-a)*Math.min(1,dtMs/100));
     }
     for (const p of this.props) {
       p.view.visible = p.bounds
         ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
         : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+      if(p.building?.startsWith('fade:')&&p.bounds&&p.view.visible&&me){
+        // tall scenery (trees, the harbour crane) ghosts while the hero stands behind its canopy
+        const b=p.bounds,behind=me.y<p.y-4&&me.x>b.x0+12&&me.x<b.x1-12&&me.y-40>b.y0&&me.y-40<b.y1;
+        const a=this.roofAlpha.get(p.building)??1,t=behind?.42:1;this.roofAlpha.set(p.building,a+(t-a)*Math.min(1,dtMs/100));
+      }
       if(p.building)p.view.alpha=this.roofAlpha.get(p.building)??1;
     }
     const questSave=ui.get().char;
@@ -309,6 +332,13 @@ export class Scene {
       for(const s of this.statics)if(s.questLabel&&s.npcId&&this.map) {
         const marker=questSave&&questMarker(questSave,this.map.zone,s.npcId);
         s.questLabel.text=marker??'';s.questLabel.visible=!!marker;
+        if(s.role==='clue'&&questSave&&'setClueState' in s.view) {
+          // Tracked: the tracked quest's current step is this object. Used: any quest already finished a step here.
+          const zone=this.map.zone,id=s.npcId,tq=trackedQuest(questSave),ts=tq&&questState(questSave,tq.id),step=tq&&ts&&!ts.claimed?tq.steps[ts.step]:undefined;
+          const tracked=!!step&&step.zone===zone&&step.target===id;
+          const used=QUESTS.some(q=>{const st=questState(questSave,q.id);return !!st&&q.steps.some((x,i)=>x.zone===zone&&x.target===id&&(i<st.step||st.claimed));});
+          (s.view as unknown as { setClueState(t:boolean,u:boolean):void }).setClueState(tracked,used);
+        }
       }
       this.questStamp=questSave;
     }
@@ -368,7 +398,19 @@ export class Scene {
       }
     }
     this.hoverId = hover;
+    this.barks.update(now, me, this.speakers);
     this.vfx.update(dtMs);
+  }
+
+  /** A service person's short line in a bubble above their head (force = on interaction). */
+  bark(s: StaticView, force = false): void {
+    const lines = s.role ? BARKS[s.role] : undefined;
+    if (lines) this.barks.say({ key: s.npcId ?? s.name, x: s.x, y: s.y, height: s.view.height, lines }, performance.now(), force);
+  }
+
+  /** Short interaction animation on a static (quest objects bounce/spin when inspected). */
+  pulseStatic(s: StaticView): void {
+    if ('pulse' in s.view) (s.view as unknown as { pulse(): void }).pulse();
   }
 
   /** Nearest static NPC / map portal within interaction range of (x, y). */

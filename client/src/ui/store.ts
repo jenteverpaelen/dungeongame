@@ -9,7 +9,7 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection' | 'dialogue';
 
 export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string; item?:import('@shared/types').Item }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -60,6 +60,8 @@ export interface UIState {
   target: TargetInfo | null;
   /** NPC the player stands next to ("E" to interact). */
   interact: { role: NpcRole; name: string } | null;
+  /** Person the dialogue window is talking to (opened by E on a quest contact). */
+  dialogue: { zone: string; target: string; name: string; role: string } | null;
   /** Pending enchant choice (D3 Mystic: keep original or pick one of two). */
   enchant: { itemId: string; affix: number; options: AffixRoll[] } | null;
   fps: number;
@@ -88,7 +90,7 @@ export const ui = new Store<UIState>({
   screen: 'select', connected: false, error: null,
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
-  target: null, interact: null, enchant: null, fps: 0, ping: 0, dps: 0,
+  target: null, interact: null, dialogue: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });
 
 /** Subscribe a component to a slice of UI state. Re-renders only when the selected value changes (shallow). */
@@ -118,12 +120,15 @@ function shallowEqual(a: unknown, b: unknown): boolean {
 let seq = 1;
 export const nextId = () => seq++;
 
-export function togglePanel(id: PanelId, open?: boolean) {
+/** First-open guidance for a panel during onboarding (shown as a card inside the panel, never as a screen banner). */
+export function panelIntro(id: PanelId): string | null {
   const current=ui.get();
-  if((open??!current.panels[id])&&!introduced(current.char,id)) {
-    const key=id==='inventory'||id==='character'?'intro.faq.loot.body':id==='skills'?'intro.faq.points.body':id==='adventure'?'intro.faq.map.body':undefined;
-    if(key)pushNotice(text(key),'info');
-  }
+  if(introduced(current.char,id))return null;
+  const key=id==='inventory'||id==='character'?'intro.faq.loot.body':id==='skills'?'intro.faq.points.body':id==='adventure'?'intro.faq.map.body':undefined;
+  return key?text(key):null;
+}
+
+export function togglePanel(id: PanelId, open?: boolean) {
   ui.set((s) => ({ panels: { ...s.panels, [id]: open ?? !s.panels[id] } }));
 }
 

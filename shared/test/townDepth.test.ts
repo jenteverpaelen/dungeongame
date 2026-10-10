@@ -14,9 +14,10 @@ test('sloping frontage gives independent front/back order at both corners, not c
   assert.equal(baselineY([[100,200],[100,300]],100),300);
 });
 
-test('inn recess rear wall sorts before a hero inside, while its front jamb sorts after', () => {
+test('inn back wall sorts before a hero inside, while its front shell sorts after', () => {
   const t=generateMap('hearthmere',42).town!,b=t.buildings.find(b=>b.id==='inn')!,p=b.doors[0].inside;
-  const rear=baselineY([b.footprint[5],b.footprint[6]],p[0]);
+  // Rework layout: the cutaway inn's back wall is the north edge of its interior floor (its own depth card).
+  const rear=Math.min(...b.interior!.floors[0].map(q=>q[1]));
   assert.ok(p[1]>rear+16,'hero is clear of the rear wall');
   assert.ok(p[1]<baselineY(b.baseline,p[0]),'front roof uses its own depth');
   const bad=structuredClone(t);bad.buildings.find(b=>b.id==='inn')!.look!.roof.faces[0][0]=999;

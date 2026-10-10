@@ -6,10 +6,13 @@ import { useState } from 'preact/hooks';
 import { fmtInt } from '@shared/format';
 import type { Cost } from '@shared/cube';
 import type { CharacterSave, Materials, MaterialId } from '@shared/types';
-import { togglePanel, type PanelId } from '../store';
+import { panelIntro, togglePanel, useUI, type PanelId } from '../store';
 import { GoldIcon, IconCheck, IconClose, MatIcon, MATERIAL_INFO, MATERIAL_ORDER } from './icons';
 import { hideTip, textTipHandlers } from './tooltip';
 import { cls } from './util';
+import { useLocal } from './state';
+import { bindings, type Action } from '../../game/bindings';
+import { UiIcon, type UiIconName } from '../hud/UiIcons';
 
 /** Bounded visible lists. All entries stay reachable without a scrolling menu. */
 export function Paged({children,size=6,initial=0,label='Pages',class:c}:{children:ComponentChildren;size?:number;initial?:number;label?:string;class?:string}) {
@@ -25,6 +28,16 @@ export function Paged({children,size=6,initial=0,label='Pages',class:c}:{childre
   </div>;
 }
 
+/** Default title medallion per panel (original icon set). */
+const PANEL_ICON: Partial<Record<PanelId, UiIconName>> = {
+  inventory: 'bag', skills: 'skills', paragon: 'paragon', cube: 'cube', waypoint: 'waypoint', obelisk: 'obelisk', help: 'help',
+  debug: 'wrench', stash: 'stash', settings: 'settings', adventure: 'journal', worldmap: 'map', runSummary: 'hourglass',
+  character: 'character', merchant: 'merchant', party: 'party', social: 'social', inspect: 'inspect', community: 'shield',
+  collection: 'collection', dialogue: 'chat',
+};
+/** Panels with a keyboard shortcut show it in the title bar (labels follow the player's bindings). */
+const PANEL_KEY: Partial<Record<PanelId, Action>> = { inventory: 'inventory', skills: 'skills', paragon: 'paragon', settings: 'settings', adventure: 'journal', worldmap: 'map', cube: 'cube' };
+
 export function PanelFrame(p: {
   id: PanelId;
   title: string;
@@ -33,24 +46,43 @@ export function PanelFrame(p: {
   icon?: ComponentChildren;
   sub?: ComponentChildren;
   class?: string;
+  footer?: ComponentChildren;
   onClose?: () => void;
 }) {
+  const action = PANEL_KEY[p.id];
+  const key = useLocal(bindings, () => (action ? bindings.label(action) : ''));
+  const iconName = PANEL_ICON[p.id];
+  useUI((s) => s.char);
+  const intro = panelIntro(p.id);
+  const [hideIntro, setHideIntro] = useState(false);
   return (
-    <section class={cls('pn frame interactive', `pn-${p.id}`, p.class)} style={p.width ? { width: p.width } : undefined} data-panel={p.id} onPointerDown={hideTip} onContextMenu={(e) => e.preventDefault()}>
+    <section class={cls('pn frame interactive', `pn-${p.id}`, p.class)} style={p.width ? { width: p.width } : undefined} data-panel={p.id} role="dialog" aria-label={p.title} onPointerDown={hideTip} onContextMenu={(e) => e.preventDefault()}>
       <header class="pn-head">
-        <span class="pn-orn" />
-        {p.icon && <span class="pn-icon">{p.icon}</span>}
+        <span class="pn-icon">{p.icon ?? (iconName ? <UiIcon name={iconName} size={22} /> : null)}</span>
         <div class="pn-titles">
           <h2 class="title-plate">{p.title}</h2>
           {p.sub && <span class="pn-sub">{p.sub}</span>}
         </div>
-        <span class="pn-orn r" />
-        <button class="pn-close" aria-label="Close" onClick={() => { p.onClose?.(); togglePanel(p.id, false); }}>
-          <IconClose size={11} />
+        {key && <kbd class="pn-key" title={`Shortcut: ${key}`}>{key}</kbd>}
+        <button class="pn-close" aria-label="Close" title="Close (Esc)" onClick={() => { p.onClose?.(); togglePanel(p.id, false); }}>
+          <IconClose size={12} />
         </button>
       </header>
-      <div class="pn-body">{p.children}</div>
-      <i class="stud bl" /><i class="stud br" />
+      <div class="pn-body">
+        {intro && !hideIntro && <div class="pn-intro" role="note"><UiIcon name="help" size={16} /><p>{intro}</p><button class="btn sm quiet" onClick={() => setHideIntro(true)}>Got it</button></div>}
+        {p.children}
+      </div>
+      {p.footer && <footer class="pn-foot">{p.footer}</footer>}
+    </section>
+  );
+}
+
+/** Inset section with a caps header and optional right-aligned meta. */
+export function Card({ title, meta, children, class: c }: { title?: ComponentChildren; meta?: ComponentChildren; children: ComponentChildren; class?: string }) {
+  return (
+    <section class={cls('card', c)}>
+      {(title || meta) && <header class="card-h"><span>{title}</span>{meta && <em>{meta}</em>}</header>}
+      {children}
     </section>
   );
 }

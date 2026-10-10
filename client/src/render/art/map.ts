@@ -15,6 +15,7 @@ import { bakeRes } from './scale';
 import { summonRigs } from './summons';
 import { buildTownBlockout } from './townBlockout';
 import { buildTownSlice } from './townSlice';
+import { buildHearthmere } from './townHearth';
 import { adventureStructures } from './adventure';
 
 export function themeKey(map: MapData): ThemeKey {
@@ -190,7 +191,7 @@ class GlowDecals extends Container {
 // ─────────────────────────── build ───────────────────────────
 
 export function buildLayers(map: MapData): MapLayers {
-  if (map.town) return map.town.lookSlice ? buildTownSlice(map.town) : buildTownBlockout(map.town);
+  if (map.town) return map.town.ground ? buildHearthmere(map.town) : map.town.lookSlice ? buildTownSlice(map.town) : buildTownBlockout(map.town);
   const theme = themeKey(map);
   const ground = new GroundLayer(map, theme);
   const glows = new GlowDecals(map.w * 64);

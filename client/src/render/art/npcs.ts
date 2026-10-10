@@ -10,9 +10,46 @@ import { fx, glowSprite, ringSprite, sparkleSprite } from './fx';
 import { P, RigArt, type C, type Family } from './monsters';
 import { GOLD, INK } from './palette';
 import { PlayerArt } from './player';
+import { npcPreset, RESIDENT_PRESETS, type NpcPreset } from './npcLooks';
+import { QuestObjectView } from './questObjects';
 import { TAU, clamp, light, mix, shade } from './util';
 
 // ─────────────────────────── labels ───────────────────────────
+
+function hashId(s: string): number { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; }
+
+const PLATE_COLOR: Record<string, number> = { obelisk: 0xf0b8ff, waypoint: 0xbfe0ff, quest: 0xffe3a0, cube: 0xbff5ea, paragon: 0xfff0b8 };
+/** Small role glyphs drawn beside a name (12 world units). */
+function roleGlyph(role: string): Graphics | null {
+  const g = new Graphics(), ink = 0x140e0a;
+  switch (role) {
+    case 'blacksmith': g.poly([-6, -3, 3, -3, 6, -1, 2, 0, 2, 2, 4, 4, -4, 4, -2, 2, -2, 0, -6, -1]).fill(0xc9cdd0).stroke({ color: ink, width: 1.4 }); break;
+    case 'jeweler': g.poly([-3, -5, 3, -5, 6, -1.5, 0, 6, -6, -1.5]).fill(0x7fe6d4).stroke({ color: ink, width: 1.4 }); break;
+    case 'mystic': g.circle(0, 0, 5).fill(0xc4a8ff).stroke({ color: ink, width: 1.4 }).circle(-1.6, -1.6, 1.4).fill(0xffffff); break;
+    case 'stash': g.roundRect(-6, -3, 12, 8, 1.5).fill(0xc99a50).stroke({ color: ink, width: 1.4 }).rect(-6, -1, 12, 1.6).fill(0x5a3a14); break;
+    default: return null;
+  }
+  return g;
+}
+
+/** World nameplate: role glyph + name, with an optional role title underneath (CAST "name on plate"). */
+export function npcPlate(name: string, title: string | undefined, role: string, y: number): Container {
+  const root = new Container();
+  const n = new Text({ text: name, style: { fontFamily: 'Alegreya Sans, sans-serif', fontWeight: '700', fontSize: 13, fill: PLATE_COLOR[role] ?? 0xf6ead0, stroke: { color: 0x140e0a, width: 3.6, join: 'round' }, letterSpacing: 0.3 }, resolution: 2 });
+  n.anchor.set(0.5, 1);
+  root.addChild(n);
+  if (title) {
+    const t = new Text({ text: title, style: { fontFamily: 'Alegreya Sans, sans-serif', fontWeight: '700', fontSize: 10.5, fill: 0xd8bf86, stroke: { color: 0x140e0a, width: 3, join: 'round' }, letterSpacing: 0.4 }, resolution: 2 });
+    t.anchor.set(0.5, 1);
+    root.addChild(t);
+    n.y = -12;
+  }
+  const g = roleGlyph(role);
+  if (g) { g.position.set(-n.width / 2 - 9, n.y - 7.5); root.addChild(g); }
+  root.y = y;
+  root.alpha = 0.95;
+  return root;
+}
 
 export function nameLabel(text: string, y: number, color = 0xf2e6c8): Text {
   const t = new Text({
@@ -339,60 +376,47 @@ export class NpcArt implements EntityView {
   readonly root = new Container();
   readonly height: number;
   private inner: EntityView;
-  private label: Text | null = null;
+  private label: Container | null = null;
   private apron: Graphics | null = null;
   private tool: Graphics | null = null;
+  private preset: NpcPreset | null = null;
+  private person: PlayerArt | null = null;
+  private beat = -1;
+  private phase = 0;
 
-  constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind']) {
+  private facing = 20;
+  constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind'], where?: { zone?: string; id?: string; title?: string; facing?: number }) {
     const elite = /elite/i.test(name);
     if(role==='clue') {
-      const root=new Container(),g=new Graphics();root.addChild(g);
-      if(clueKind==='marker') {
-        g.poly([-15,0,-13,-38,-3,-46,14,-39,16,0]).fill(0x777d69).stroke({color:0x303a30,width:2});
-        g.moveTo(-9,-26).lineTo(8,-26).moveTo(0,-36).lineTo(0,-17).stroke({color:0xd2c194,width:2});
-        g.rect(-10,-12,20,12).fill(0xb4a074).stroke({color:0x5a503a,width:1});
-      } else if(clueKind==='mechanism') {
-        g.rect(-19,-16,38,16).fill(0x656b61).stroke({color:0x303a34,width:2});
-        g.rect(-7,-36,14,25).fill(0x4b514a).stroke({color:0x9a9173,width:2});
-        g.circle(0,-34,15).stroke({color:0xad9567,width:4});
-        g.moveTo(-12,-34).lineTo(12,-34).moveTo(0,-47).lineTo(0,-21).stroke({color:0x756444,width:3});
-        g.moveTo(0,-34).lineTo(19,-42).stroke({color:0xb6a27a,width:4});
-      } else if(clueKind==='cart' || (!clueKind&&name.includes('cart'))) {
-        g.circle(-20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3}).circle(20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3});
-        g.poly([-29,-17,19,-26,32,-10,-16,0]).fill(0x796447).stroke({color:0x342f25,width:2});
-        for(let x=-21;x<=20;x+=9)g.moveTo(x,-15).lineTo(x+12,-33).stroke({color:0xa18b5b,width:6});
-      } else {
-        g.rect(-16,-17,32,17).fill(0x565749).stroke({color:0x2b332c,width:2});
-        g.poly([-12,-19,0,-22,12,-19,12,-8,0,-11,-12,-8]).fill(0xd2c194).stroke({color:0x554a36,width:1.5});
-        g.moveTo(0,-21).lineTo(0,-11).stroke({color:0x816f4b,width:1});
-      }
-      this.inner={root,height:34,update(){},hit(){},die(_el,done){done();},destroy(){root.destroy({children:true});}};
-    } else if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic', 'quest'].includes(role)) {
-      // Original artisan outfits use the same rig as the player, with role tools below.
-      const jeweler:PlayerLook={classId:'ranger',slots:{chest:{shape:'cloth',primary:0x51685f,secondary:0xc0a46b,glow:0,variant:1},head:{shape:'hood',primary:0x52635a,secondary:0xb7a378,glow:0,variant:1}}};
-      const mystic:PlayerLook={classId:'mage',slots:{chest:{shape:'robe',primary:0x675970,secondary:0xa69877,glow:0,variant:1},head:{shape:'hood',primary:0x63556b,secondary:0xa89a77,glow:0,variant:1}}};
-      const v = new PlayerArt(look === 'smith-slice' ? SMITH : look==='jeweler'?jeweler:look==='mystic'?mystic:role === 'healer' || role === 'mystic' ? HEALER : VENDOR,Boolean(look));
-      if (role === 'vendor') v.root.addChildAt(backpack(), 1);
+      // Quest objects: painted silhouettes with tracked/used states (questObjects.ts, CAST.md).
+      const kind=clueKind??(name.toLowerCase().includes('cart')?'cart':/ledger|book|record|log/i.test(name)?'ledger':undefined);
+      this.clue=new QuestObjectView(kind,(hashId(`${where?.zone}/${where?.id}`)%997)/97);
+      this.inner=this.clue;
+    } else if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic', 'quest', 'resident'].includes(role) || RESIDENT_PRESETS[role]) {
+      // Townsfolk use the hero rig with their own body, outfit and role prop (npcLooks.ts / docs/rework/CAST.md).
+      const preset = npcPreset(where?.zone, where?.id, role, name);
+      const v = new PlayerArt(preset.look, true);
+      v.root.scale.set(preset.scale ?? 1);
+      this.facing = where?.facing ?? preset.facing ?? 20;
+      v.setYaw(this.facing);
+      this.preset = preset; this.person = v;
+      this.phase = (hashId(`${where?.zone}/${where?.id}/${name}`) % 997) / 997;
       this.inner = v;
+      void look;
     } else {
       const fam = role === 'dummy' && elite ? DUMMY_ELITE : FAMS[role as NpcRole] ?? DUMMY;
       this.inner = new ObjectRig({ key: `npc:${role}${elite ? ':elite' : ''}`, fam, colors: NONE, scale: 1, shadowAlpha: role === 'waypoint' ? 0 : 0.7 });
     }
     const object=radius&&['waypoint','cube','stash','obelisk','paragon'].includes(role);
     if(object&&role==='waypoint')this.inner.root.scale.set(radius/46);
-    this.height = this.inner.height*(object&&role==='waypoint'?radius/46:1);
-    if(object)this.root.addChild(new Graphics().circle(0,0,radius).fill(0x494c43).stroke({color:0x777965,width:2}));
+    this.height = this.inner.height*(object&&role==='waypoint'?radius/46:1)*(this.preset?.scale??1);
     this.root.addChild(this.inner.root);
-    if (look === 'smith-slice') { this.apron = smithApron(); this.root.addChild(this.apron); }
-    if(look) {
-      this.tool=new Graphics();
-      if(look==='smith-slice')this.tool.moveTo(0,0).lineTo(17,-15).stroke({color:0xa98b5c,width:3}).roundRect(12,-23,17,8,2).fill(0x87918b).stroke({color:0x241f1b,width:2});
-      else if(look==='jeweler')this.tool.circle(10,-4,6).fill(0xa4d9c0).stroke({color:0xc1a46a,width:2}).moveTo(5,0).lineTo(0,6).stroke({color:0x8b744c,width:3});
-      else this.tool.circle(8,-3,7).fill({color:0xc9b4e1,alpha:.8}).circle(8,-3,10).stroke({color:0x857694,width:1});
-      this.tool.position.set(14,-28);this.root.addChild(this.tool);
-    }
+    void smithApron;
     if (name && role !== 'dummy') {
-      this.label = nameLabel(name, -this.height - 10, role === 'obelisk' ? 0xf0b8ff : role === 'waypoint' ? 0xbfe0ff : 0xf2e6c8);
+      // "Orren · Mill Tender" in data becomes a name line and a role line; services keep their single role name.
+      const [base, suffix] = name.split(' · ');
+      const title = suffix ?? where?.title ?? this.preset?.title;
+      this.label = npcPlate(base, title && title !== base ? title : undefined, role, -this.height - 10);
       this.root.addChild(this.label);
     }
   }
@@ -401,9 +425,30 @@ export class NpcArt implements EntityView {
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
     this.inner.update(dt, s);
-    if (this.apron) this.apron.y = Math.sin(s.time * 2.2) * .35;
-    if(this.tool){this.tool.rotation=this.role==='blacksmith'?-.8+Math.pow((s.time%2.4)/2.4,3)*2.1:Math.sin(s.time*1.7)*.15;this.tool.y=-28+(this.role==='mystic'?Math.sin(s.time*1.8)*3:0);}
+    const p = this.preset, person = this.person;
+    if (p && person && p.idle && p.idle !== 'none') {
+      // Work loops run on the shared town clock so every client sees the same swing (the anvil sound uses 2.4 s).
+      const period = p.idle === 'hammer' ? 2.4 : p.idle === 'call' ? 4.6 : p.idle === 'flourish' ? 5.2 : p.idle === 'pray' ? 8.5 : 6.8;
+      const beat = Math.floor(s.time / period + (p.idle === 'hammer' ? 0 : this.phase));
+      if (beat !== this.beat) {
+        const first = this.beat < 0;
+        this.beat = beat;
+        if (!first) {
+          const yaw = this.facing * Math.PI / 180, dx = Math.sin(yaw) * 60, dy = Math.cos(yaw) * 30;
+          const skill = p.idle === 'hammer' ? 'seismic_slam' : p.idle === 'call' ? 'companion' : p.idle === 'pray' ? 'magic_weapon'
+            : p.idle === 'craft' ? (p.look.slots.mainhand?.shape === 'hammer' ? 'sentry' : 'magic_weapon') : 'magic_missile';
+          person.playAction({ skill, tx: s.x + dx, ty: s.y + dy, cycleMs: 900 });
+        }
+      } else if (person.idleFor() > 0.4) person.face(this.facing);
+    }
   }
+  /** Ambient townsfolk only show their plate when the hero is close. */
+  showPlate(visible: boolean): void { if (this.label) this.label.visible = visible; }
+  private clue: QuestObjectView | null = null;
+  /** Quest objects: pulsing highlight while the tracked objective, distinct look once their step is done. */
+  setClueState(tracked: boolean, used: boolean): void { this.clue?.setState(tracked, used); }
+  /** Short interaction animation for quest objects. */
+  pulse(): void { this.clue?.pulse(); }
   hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
   die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }
   destroy(): void { if (this.destroyed) return; this.destroyed = true; this.inner.destroy(); this.root.destroy({ children: true }); }

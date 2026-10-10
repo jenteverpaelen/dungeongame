@@ -11,6 +11,7 @@ import { PlayerPlate } from './PlayerPlate';
 import { AfkModal, DeathScreen, HelpPanel, InteractPrompt } from './Overlays';
 import { ContextualGuidance } from './Guidance';
 import {PartyFrames} from '../panels/party';
+import { MenuBar } from './MenuBar';
 
 function GameHud() {
   const ready = useUI((s) => !!(s.char && s.me));
@@ -26,6 +27,7 @@ function GameHud() {
         <Chat />
       </div>
       {ready && <BottomBar />}
+      {ready && <MenuBar />}
       <InteractPrompt />
       <ContextualGuidance />
       <DeathScreen />

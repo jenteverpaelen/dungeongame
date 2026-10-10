@@ -38,14 +38,22 @@ export function bakeMapTerrain(map: MapData): Baked {
       g.beginPath(); points.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
       g.fillStyle = fill; g.fill();
     };
-    g.fillStyle='#2a3933';g.fillRect(0,0,map.w*TILE,map.h*TILE);
-    for(const r of map.town.landscape??[])poly(r.polygon,r.kind==='water'?'#2e4a56':r.kind==='ash'?'#504b44':'#26382b');
-    for (const f of map.town.floors) poly(f.polygon, '#777b6b');
-    for (const b of map.town.buildings) poly(b.footprint, '#323b44');
+    g.fillStyle='#24342a';g.fillRect(0,0,map.w*TILE,map.h*TILE);
+    const LAND:Record<string,string>={water:'#2f5662',deep:'#22404c',cliff:'#2e3b2e',woods:'#22362a',ash:'#504b44',meadow:'#3c5232'};
+    for(const r of map.town.landscape??[])poly(r.polygon,LAND[r.kind]??'#26382b');
+    for (const f of map.town.floors) poly(f.polygon, '#6f6450');
+    // painted ground materials (roads read lighter than yards, grass greener) — same data the world renderer uses
+    const MAT:Record<string,string>={cobble:'#a19580',flag:'#aaa08a',dirt:'#6f6450',grass:'#536c3c',garden:'#4d6a36',moss:'#56653e',sand:'#a8946e',planks:'#8a6a46',stone:'#8e887a'};
+    for(const r of map.town.ground??[]){
+      const col=MAT[r.kind]??'#6f6450';
+      if(r.polygon)poly(r.polygon,col);
+      else if(r.path&&r.width){g.beginPath();r.path.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.strokeStyle=col;g.lineWidth=r.width;g.lineCap='round';g.lineJoin='round';g.stroke();}
+    }
+    for (const b of map.town.buildings) { poly(b.footprint, '#3b3238'); g.strokeStyle='#cdb88a'; g.lineWidth=8; g.stroke(); }
     for(const b of map.town.buildings)for(const p of b.interior?.floors??[])poly(p,'#8c7a60');
-    g.strokeStyle = '#b1bbc4';
-    for (const b of map.town.barriers) { g.lineWidth = b.radius * 2; g.beginPath(); g.moveTo(...b.a); g.lineTo(...b.b); g.stroke(); }
-    for (const p of map.town.props) { g.fillStyle = '#323b44'; g.beginPath(); g.arc(p.x, p.y, p.radius, 0, Math.PI * 2); g.fill(); }
+    g.strokeStyle = '#9a8a66';
+    for (const b of map.town.barriers) { g.lineWidth = Math.max(8, b.radius * 2); g.beginPath(); g.moveTo(...b.a); g.lineTo(...b.b); g.stroke(); }
+    for (const p of map.town.props) { if(p.kind==='lamp')continue; g.fillStyle = '#3b3238'; g.beginPath(); g.arc(p.x, p.y, p.radius, 0, Math.PI * 2); g.fill(); }
     return { map, key: mapKey(map), canvas: c };
   }
   const colorOf = (t: number): RGB => (t === T_FLOOR ? pal.floor : t === T_PATH ? pal.path : t === T_PLAZA ? pal.plaza : t === T_WALL ? pal.wall : t === T_WATER ? pal.water : pal.void);
