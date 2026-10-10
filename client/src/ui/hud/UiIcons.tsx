@@ -13,9 +13,11 @@ const INK = '#120b06';
 /** Shapes: `f` = filled silhouette (outlined), `d` = dark detail strokes drawn on top, `l` = light detail strokes. */
 const ICONS: Record<UiIconName, { f: string[]; d?: string[]; l?: string[] }> = {
   lock: {
-    f: ['M6 10.6h12a1.4 1.4 0 0 1 1.4 1.4v7.6a1.4 1.4 0 0 1-1.4 1.4H6a1.4 1.4 0 0 1-1.4-1.4V12A1.4 1.4 0 0 1 6 10.6z'],
-    d: ['M8.4 10.6V8a3.6 3.6 0 0 1 7.2 0v2.6', 'M12 14.2v3'],
-    l: ['M6.6 12.6v5.4'],
+    // The shackle is part of the filled silhouette (a dark stroke vanished on dark rows at 14-16 px).
+    f: ['M6 10.6h12a1.4 1.4 0 0 1 1.4 1.4v7.6a1.4 1.4 0 0 1-1.4 1.4H6a1.4 1.4 0 0 1-1.4-1.4V12A1.4 1.4 0 0 1 6 10.6z',
+      'M7.2 11V8a4.8 4.8 0 0 1 9.6 0v3h-2.2V8a2.6 2.6 0 0 0-5.2 0v3z'],
+    d: ['M12 14.2v3'],
+    l: ['M6.6 12.8v5'],
   },
   gate: {
     f: ['M4 21V9.4L12 3l8 6.4V21h-5.2v-6a2.8 2.8 0 0 0-5.6 0v6z'],
