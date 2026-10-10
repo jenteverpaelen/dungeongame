@@ -1,6 +1,7 @@
 // HUD root. Mounted once into #ui by main.ts; switches between the class select, the connecting screen and the in-game HUD.
 
 import '../styles/hud.css';
+import '../styles/account.css';
 import { useUI } from '../store';
 import { ClassSelect, Connecting } from './ClassSelect';
 import { BottomBar } from './SkillBar';

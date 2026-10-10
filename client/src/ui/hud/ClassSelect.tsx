@@ -2,7 +2,7 @@
 
 import { text } from '../../i18n/messages';
 import type { HeroAppearance } from '@shared/appearance';
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import { ui, useUI } from '../store';
 import { session } from '../../net/api';
 import { CLASSES, CLASS_IDS, type ClassDef } from '@shared/data/classes';
@@ -10,6 +10,7 @@ import { SKILLS } from '@shared/data/skills';
 import type { ClassId } from '@shared/types';
 import { ClassEmblem, Divider, SkillGlyph } from './Glyphs';
 import { RESOURCE_STYLES, hex, safeGet, safeSet } from './util';
+import { AccountBar, AccountDialog, HeroPicker } from './Account';
 
 const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const MAIN_STAT = { str: 'Strength', dex: 'Dexterity', int: 'Intelligence' } as const;
@@ -81,10 +82,20 @@ export function ClassSelect() {
   const [tutorial,setTutorial]=useState(true);
   const [touched, setTouched] = useState(false);
   const valid = NAME_RE.test(name);
+  const account = useUI((s) => s.account);
+  const needsLogin = account.mode === 'required' && !account.username;
+  // A hero chosen from the account dialog or the quick-pick row fills the name and class.
+  useEffect(() => {
+    const hero = account.picked;
+    if (!hero) return;
+    setName(hero.name); setCls(hero.classId); setTouched(true);
+    ui.set((s) => ({ account: { ...s.account, picked: null } }));
+  }, [account.picked]);
 
   const enter = () => {
     setTouched(true);
     if (!valid) return;
+    if (needsLogin) { ui.set((s) => ({ account: { ...s.account, open: true } })); return; }
     safeSet('hearthfall.name', name);
     safeSet('hearthfall.class', cls);
     ui.set({ error: null });
@@ -95,6 +106,8 @@ export function ClassSelect() {
     <div class="cs-root">
       <Embers />
       <div class="cs-vignette" />
+      <AccountBar />
+      <AccountDialog />
       <header class="cs-header">
         <div class="cs-eyebrow">The last hearth on the frontier</div>
         <h1 class="cs-logo">Hearthfall</h1>
@@ -111,6 +124,7 @@ export function ClassSelect() {
         <label class="settings-check"><input type="checkbox" checked={tutorial} onChange={e=>setTutorial(e.currentTarget.checked)}/>{text('intro.newChoice')}</label>
       </fieldset>
       <footer class="cs-enter">
+        <HeroPicker />
         <label class="cs-name interactive">
           <span>Name your hero</span>
           <input
@@ -123,8 +137,8 @@ export function ClassSelect() {
             onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') enter(); }}
           />
         </label>
-        <button type="button" class="btn primary cs-go interactive" disabled={!valid} onClick={enter}>Enter World</button>
-        <div class={`cs-hint${touched && !valid ? ' bad' : ''}`}>
+        <button type="button" class="btn primary cs-go interactive" disabled={!valid} onClick={enter}>{needsLogin ? 'Log in to play' : 'Enter World'}</button>
+        <div class={`cs-hint${error || (touched && !valid) ? ' bad' : ''}`}>
           {error ? error : touched && !valid ? 'Names use 2 to 16 letters or numbers.' : '2 to 16 letters or numbers'}
         </div>
       </footer>

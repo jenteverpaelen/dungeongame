@@ -34,4 +34,8 @@ export function sendChat(text: string,ch?:import('@shared/social').ChatChannel,t
 export const session = {
   interact: () => {},
   start: (_name: string, _classId: 'warrior' | 'ranger' | 'mage', _options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) => {},
+  /** Account request before `hello` (register, login, resume, recover, password, codes, logout). Installed by main.ts. */
+  auth: async (_op: Exclude<import('@shared/protocol').AuthOp, 'status'>, _fields?: { username?: string; password?: string; newPassword?: string; code?: string }): Promise<{ ok: boolean; err?: string }> => ({ ok: false, err: 'Not connected' }),
+  /** Reads the server's account mode and resumes a remembered session. Installed by main.ts. */
+  initAccount: async (): Promise<void> => {},
 };

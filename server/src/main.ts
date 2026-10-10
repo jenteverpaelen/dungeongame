@@ -1,10 +1,10 @@
-// Hearthfall game server: HTTP (static client + /healthz) and WebSocket (/ws, MessagePack) on one port,
+// Hearthfall game server: HTTP (static client, /healthz, /api/config) and WebSocket (/ws, MessagePack) on one port,
 // a global 20 Hz world loop, periodic maintenance, and graceful shutdown that saves every character.
 
 import http from 'node:http';
 import type { Socket } from 'node:net';
 import { WebSocketServer } from 'ws';
-import { BACKUP_DIR, BACKUP_KEEP, CLIENT_DIR, PORT } from './config';
+import { ACCOUNT_MODE, BACKUP_DIR, BACKUP_KEEP, CLIENT_DIR, PORT } from './config';
 import { startCharacterBackups } from './backupSchedule';
 import { Session } from './net/session';
 import { allowedWebSocketOrigin, webSocketOrigins } from './net/origin';
@@ -36,6 +36,11 @@ async function main(): Promise<void> {
     if (path === '/healthz') {
       const body = JSON.stringify({ ok: true, uptimeSec: Math.round((Date.now() - startedAt) / 1000), ...world.stats() });
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
+      return;
+    }
+    if (path === '/api/config') {
+      // Public, non-secret settings the client needs before it opens a socket (whether to show the account screens).
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify({ accounts: ACCOUNT_MODE }));
       return;
     }
     serveStatic(req, res)

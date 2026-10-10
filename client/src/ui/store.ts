@@ -4,7 +4,7 @@ import { introduced } from '@shared/onboarding';
 import { text } from '../i18n/messages';
 import { useEffect, useState } from 'preact/hooks';
 import type { MapData, NpcRole } from '@shared/mapgen';
-import type { FieldEventState, DungeonState, LootView, MeState, RiftState, WorldInfo, ZoneInfo } from '@shared/protocol';
+import type { AccountMode, AuthCharacter, FieldEventState, DungeonState, LootView, MeState, RiftState, WorldInfo, ZoneInfo } from '@shared/protocol';
 import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from '@shared/types';
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
@@ -25,12 +25,28 @@ export interface TargetInfo {
   hpFrac: number;
 }
 
+/** Account screens (select screen only). `mode` is what the server enforces; `off` hides everything. */
+export interface AccountView {
+  mode: AccountMode;
+  username: string | null;
+  characters: AuthCharacter[];
+  busy: boolean;
+  error: string | null;
+  /** One-time recovery codes waiting to be acknowledged (after registering or asking for new ones). */
+  codes: string[] | null;
+  /** Account dialog visible. Forced open by the screen while a required login is missing. */
+  open: boolean;
+  /** Hero the player chose from their account; the select screen copies it into the name and class fields. */
+  picked: AuthCharacter | null;
+}
+
 export interface UIState {
   helpTab:'controls'|'guide'|'intro'|'faq'|'timings';
   adventureTarget: string | null;
   adventureZone: string | null;
   journalQuest: string | null;
   screen: 'select' | 'connecting' | 'game';
+  account: AccountView;
   connected: boolean;
   error: string | null;
   char: CharacterSave | null;
@@ -88,6 +104,7 @@ export const ui = new Store<UIState>({
   helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
+  account: { mode: 'off', username: null, characters: [], busy: false, error: null, codes: null, open: false, picked: null },
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, dialogue: null, enchant: null, fps: 0, ping: 0, dps: 0,

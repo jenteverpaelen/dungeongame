@@ -1,8 +1,8 @@
 # Accounts (roadmap P3 / F-ACC) — server side, off by default
 
 Until now a character was identified by its name only: anyone who typed a name opened that character. This adds real
-accounts on the server **without changing today's behaviour unless you switch it on**. The client login screen is a UI
-task that follows the world/UI merge (the server and protocol are ready for it).
+accounts on the server **without changing today's behaviour unless you switch it on**. The client login, register,
+recovery and account screens are on the select screen (see "Client screens" below).
 
 ## Modes (`ACCOUNTS` environment variable)
 
@@ -38,6 +38,28 @@ legacy window; finally switch to `required` without the legacy flag.
 the server sends `op:'status'` with the mode right after the socket opens, and allows five minutes (instead of ten
 seconds) for the login screen. Details: `shared/src/protocol.ts`.
 
+## Client screens (select screen)
+
+The client reads `GET /api/config` (`{"accounts":"off"|"optional"|"required"}`, no secrets) before it connects, so a
+server in `off` mode shows nothing new and opens no extra socket. With accounts on:
+
+- **Top-right chip**: "Log in" (optional: "or play as a guest") or the logged-in username. Opens the account dialog.
+- **Dialog, signed out**: Log in / Register / Recover. Register asks for the password twice and shows the eight
+  one-time recovery codes once (copy, download as text, and a "I stored these" box before it can be closed; Escape does
+  not dismiss it). Recover takes username + one code + a new password. In `required` mode the dialog cannot be dismissed
+  and the Enter button reads "Log in to play".
+- **Dialog, signed in**: Heroes (the account's characters; Choose fills the name and class), Security (change
+  password, new recovery codes; both re-ask the password) and Log out. A "Your heroes" row also sits above the name field.
+- **Session**: the token is kept in `localStorage` (`hearthfall.token`, 30-day sliding on the server). On load the
+  client resumes it; a server restart ends sessions, so the player simply sees the login form with the username prefilled.
+  Passwords are never stored client side. The login socket is reused for `hello` and re-resumes when it was idle past the
+  server's five-minute pre-login window.
+- Account management is only reachable before entering the world (the server refuses account changes once `hello` is
+  done); leaving the world returns to the select screen.
+
+Input rules (`USERNAME_RE`, 10–128 character passwords) are mirrored in `client/src/net/account.ts` for quick feedback;
+`server/test/accounts.test.ts` fails if they drift from `server/src/accounts.ts`.
+
 ## Operator tool
 
 ```
@@ -56,7 +78,6 @@ files, plus two real-server runs (`required` and `optional`) over WebSocket.
 
 ## Not done — needs an owner decision or an independent review before any public test
 
-- The **client login/register/character screen** (UI; waits for the UI merge).
 - Email verification and email-based recovery (no mail service, no paid services); passkeys; third-party sign-in.
 - Persisting sessions across restarts; device list; account deletion and data export (GDPR flow, roadmap F-ACC-06).
 - A second pair of eyes on this file and `session.ts` (the roadmap requires independent review for auth). A self-review

@@ -21,7 +21,7 @@ export default defineConfig({
     strictPort: Boolean(process.env.HF_CLIENT_PORT),
     host: true,
     fs: { strict: process.env.HF_FS_STRICT !== '0' },
-    proxy: { '/ws': { target: `ws://localhost:${serverPort}`, ws: true } },
+    proxy: { '/ws': { target: `ws://localhost:${serverPort}`, ws: true }, '/api': { target: `http://localhost:${serverPort}` } },
   },
   build: { outDir: r('../dist/client'), emptyOutDir: true, target: 'es2022' },
 });

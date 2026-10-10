@@ -6,13 +6,14 @@ import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
 import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
 import { cubeUI } from '../ui/panels/cubestate';
-import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
+import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
 import type { ClassId, DerivedStats } from '@shared/types';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
 import { installApi, session } from '../net/api';
 import { Connection } from '../net/connection';
+import { clearToken, fetchAccountMode, loadToken, rememberUsername, saveToken } from '../net/account';
 import { Scene } from '../render/scene';
 import type { ActingView, PlayerView } from '../render/types';
 import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, type PanelId } from '../ui/store';
@@ -31,6 +32,9 @@ export class Game {
   readonly predictor = new Predictor();
   readonly input: Input;
   private conn: Connection | null = null;
+  /** True once the live socket is logged in to an account (accounts mode). Reset whenever a new socket opens. */
+  private connAuthed = false;
+  private authWaiter: { op: AuthOp; resolve: (m: Extract<S2C, { t: 'auth' }>) => void } | null = null;
   private snapCount = 0;
   private dmgLog: { t: number; a: number }[] = [];
   private lastUi = 0;
@@ -61,10 +65,16 @@ export class Game {
     window.addEventListener('pagehide',()=>funnel.stop());
   }
 
-  async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
-    sfx.unlock();
-    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+  /** One socket serves the select screen, the account screens and then the game itself. */
+  private async openConnection(): Promise<Connection | null> {
+    if (this.conn?.open) return this.conn;
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
+      if (this.conn === conn) { this.conn = null; this.connAuthed = false; }
+      if (ui.get().screen === 'select') {
+        // An idle login socket ended (server timeout or restart). The next action reconnects and resumes quietly.
+        ui.set((s) => ({ connected: false, account: { ...s.account, busy: false } }));
+        return;
+      }
       funnel.stop();
       ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatTarget:'' });
       this.stopChannelAudio();
@@ -74,20 +84,98 @@ export class Game {
     });
     try {
       await conn.connect();
-    } catch (err) {
-      ui.set({ screen: 'select', error: (err as Error).message });
-      return;
+    } catch {
+      return null;
     }
     this.conn = conn;
+    this.connAuthed = false;
     installApi((op, a) => conn.cmd(op, a), (text,ch,to) => conn.send({ t: 'chat', text,ch,to }));
     ui.set({ connected: true });
+    return conn;
+  }
+
+  async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
+    sfx.unlock();
+    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+    const conn = await this.openConnection();
+    if (!conn) {
+      ui.set({ screen: 'select', error: 'Could not reach the game server' });
+      return;
+    }
+    // Accounts: a socket must be logged in before `hello` (the login just done, or the session kept from last time).
+    const mode = ui.get().account.mode;
+    if (mode !== 'off' && !this.connAuthed && loadToken()) await this.authRequest(conn, 'resume');
+    if (mode === 'required' && !this.connAuthed) {
+      ui.set((s) => ({ screen: 'select', error: 'Log in to your account first.', account: { ...s.account, username: null, characters: [], open: true } }));
+      return;
+    }
     conn.send({ t: 'hello', name, classId, v: PROTOCOL_VERSION, ...options });
+  }
+
+  // ─────────────────────────── Accounts (before `hello`) ───────────────────────────
+
+  private authRequest(conn: Connection, op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<Extract<S2C, { t: 'auth' }> | null> {
+    return new Promise((resolve) => {
+      const done = (m: Extract<S2C, { t: 'auth' }>) => { window.clearTimeout(timer); resolve(m); };
+      const timer = window.setTimeout(() => { if (this.authWaiter?.resolve === done) this.authWaiter = null; resolve(null); }, 15_000);
+      this.authWaiter = { op, resolve: done };
+      conn.send({ t: 'auth', op, ...fields, ...(op === 'resume' || op === 'logout' ? { token: loadToken() ?? undefined } : {}) });
+    });
+  }
+
+  /** Account request from the select screen. The reply also updates `ui.account` (see the `auth` message case). */
+  async auth(op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<{ ok: boolean; err?: string }> {
+    if (ui.get().account.busy) return { ok: false, err: 'One moment, still working on your last request.' };
+    const fail = (err: string) => { ui.set((s) => ({ account: { ...s.account, busy: false, error: err } })); return { ok: false, err }; };
+    ui.set((s) => ({ account: { ...s.account, busy: true, error: null } }));
+    const conn = await this.openConnection();
+    if (!conn) return fail('Could not reach the game server');
+    // Changing a password or asking for codes needs a session on this very socket; a server restart or the login
+    // timeout may have ended it, so pick it up again from the stored token first.
+    if ((op === 'password' || op === 'codes') && !this.connAuthed) {
+      await this.authRequest(conn, 'resume');
+      if (!this.connAuthed) return fail('Your session ended. Please log in again.');
+    }
+    const reply = await this.authRequest(conn, op, fields);
+    ui.set((s) => ({ account: { ...s.account, busy: false } }));
+    if (!reply) return fail('The server did not answer. Please try again.');
+    return { ok: reply.ok, err: reply.err };
+  }
+
+  /** At startup: read the server's mode and, when accounts exist and a session token is stored, resume it. */
+  async initAccount(): Promise<void> {
+    const mode = await fetchAccountMode();
+    ui.set((s) => ({ account: { ...s.account, mode, open: mode === 'required' && !s.account.username } }));
+    if (mode === 'off' || ui.get().account.username || !loadToken()) return;
+    await this.auth('resume');
+    ui.set((s) => ({ account: { ...s.account, open: s.account.mode === 'required' && !s.account.username } }));
   }
 
   // ─────────────────────────── Messages ───────────────────────────
 
   private onMessage(m: S2C) {
     switch (m.t) {
+      case 'auth': {
+        if (m.ok && (m.op === 'register' || m.op === 'login' || m.op === 'resume' || m.op === 'recover')) this.connAuthed = true;
+        if (m.ok && m.op === 'logout') this.connAuthed = false;
+        if (m.token) saveToken(m.token);
+        if ((m.ok && m.op === 'logout') || (!m.ok && m.op === 'resume')) clearToken();
+        if (m.ok && m.username) rememberUsername(m.username);
+        ui.set((s) => {
+          const a = s.account;
+          if (m.op === 'status') return { account: { ...a, mode: m.mode, open: a.open || (m.mode === 'required' && !a.username) } };
+          if (!m.ok) return { account: { ...a, mode: m.mode, error: m.op === 'resume' ? null : m.err ?? 'That did not work. Please try again.' } };
+          const codes = m.recoveryCodes ?? a.codes;
+          return { account: { ...a, mode: m.mode, error: null, codes,
+            username: m.op === 'logout' ? null : m.username ?? a.username,
+            characters: m.op === 'logout' ? [] : m.characters ?? a.characters,
+            // The dialog stays open while recovery codes wait to be acknowledged; otherwise a login closes it.
+            open: m.op === 'logout' ? m.mode === 'required' : codes ? true : (m.op === 'password' || m.op === 'codes') ? a.open : false } };
+        });
+        const w = this.authWaiter;
+        if (w && m.op !== 'status' && w.op === m.op) { this.authWaiter = null; w.resolve(m); }
+        break;
+      }
       case 'welcome':
         funnel.observe(m.char);
         this.enterZone(m.zone, m.you);

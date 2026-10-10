@@ -7,7 +7,8 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { Packr } from 'msgpackr';
-import { AccountStore, MAX_CHARACTERS_PER_ACCOUNT, kdfStats } from '../src/accounts';
+import { AccountStore, MAX_CHARACTERS_PER_ACCOUNT, PASSWORD_MAX, PASSWORD_MIN, USERNAME_RE, kdfStats } from '../src/accounts';
+import * as clientRules from '../../client/src/net/account';
 import { createCharacter } from '../../shared/src/character';
 import { PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
 
@@ -21,6 +22,17 @@ async function store(now?: () => number) {
   await s.init();
   return { s, dir };
 }
+
+test('the login screens validate with the same rules as the server', () => {
+  assert.equal(clientRules.USERNAME_RE.source, USERNAME_RE.source);
+  assert.equal(clientRules.PASSWORD_MIN, PASSWORD_MIN);
+  assert.equal(clientRules.PASSWORD_MAX, PASSWORD_MAX);
+  assert.equal(clientRules.usernameProblem('Alice_01'), null, 'case is folded like the server does');
+  assert.notEqual(clientRules.usernameProblem('ab'), null);
+  assert.notEqual(clientRules.passwordProblem('x'.repeat(PASSWORD_MIN - 1)), null);
+  assert.equal(clientRules.passwordProblem('x'.repeat(PASSWORD_MIN)), null);
+  assert.notEqual(clientRules.passwordProblem('x'.repeat(PASSWORD_MAX + 1)), null);
+});
 
 test('registration validates names and passwords, is case-insensitive and refuses reserved or path-like names', async () => {
   const { s } = await store();
@@ -218,6 +230,10 @@ test('required mode: no hello without an account, characters belong to their acc
     await fs.writeFile(path.join(saves, 'legacyhero.json'), JSON.stringify(legacy));
   });
   try {
+    // The login screens read the mode over plain HTTP before opening a socket.
+    const config = await fetch(`http://127.0.0.1:${server.port}/api/config`);
+    assert.equal(config.status, 200);
+    assert.deepEqual(await config.json(), { accounts: 'required' });
     const status = await client(server.port);
     await status.until(() => status.messages.some(m => m.t === 'auth' && m.op === 'status'), 'status notice');
     assert.equal((status.messages.find(m => m.t === 'auth') as Extract<S2C, { t: 'auth' }>).mode, 'required');
