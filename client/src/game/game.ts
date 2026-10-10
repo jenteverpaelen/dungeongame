@@ -6,7 +6,7 @@ import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
 import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
 import { cubeUI } from '../ui/panels/cubestate';
-import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
+import { CLIENT_OUTDATED_MESSAGE, F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
 import type { ClassId, DerivedStats } from '@shared/types';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
@@ -65,10 +65,22 @@ export class Game {
     window.addEventListener('pagehide',()=>funnel.stop());
   }
 
+  /** The server runs another protocol: this page is a stale build. Reload it once (a loop guard keeps a newer client
+   *  talking to an older server from reloading forever; the message stays visible then). */
+  private reloadOnce() {
+    try {
+      const last = Number(sessionStorage.getItem('hearthfall.reloaded') ?? 0);
+      if (Date.now() - last < 60_000) return;
+      sessionStorage.setItem('hearthfall.reloaded', String(Date.now()));
+    } catch { return; }
+    location.reload();
+  }
+
   /** One socket serves the select screen, the account screens and then the game itself. */
   private async openConnection(): Promise<Connection | null> {
     if (this.conn?.open) return this.conn;
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
+      if (reason === CLIENT_OUTDATED_MESSAGE) this.reloadOnce();
       if (this.conn === conn) { this.conn = null; this.connAuthed = false; }
       if (ui.get().screen === 'select') {
         // An idle login socket ended (server timeout or restart). The next action reconnects and resumes quietly.
@@ -222,6 +234,7 @@ export class Game {
         ui.set({ ping: Math.round(this.conn?.rtt ?? 0) });
         break;
       case 'err':
+        if (m.msg === CLIENT_OUTDATED_MESSAGE) this.reloadOnce();
         ui.set({ error: m.msg });
         pushNotice(m.msg, 'warn');
         break;
