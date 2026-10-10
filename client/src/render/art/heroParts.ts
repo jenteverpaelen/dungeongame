@@ -19,6 +19,7 @@ import {
   star, stitch, wash, type Ctx,
 } from './draw';
 import { rarityOf, trim, type Body } from './gear';
+import { decorBelt, decorHead, decorLeg, decorTorsoFront } from './gearDecor';
 import { BLUSH, BONE, GOLD, OUTFIT } from './palette';
 import { clamp, lerp, light, mix, shade } from './util';
 
@@ -460,6 +461,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
   if (shape === 'cap' && head!.variant % 2 === 1) capFeather(c, head!, yaw, true);
   const bunVisible = b.hairStyle === 'bun' && (!shape || shape === 'circlet');
   if (bunVisible) drawBun(c, b, yaw, true);
+  decorHead(c, head, yaw, true, sph, vec, HEAD_R);
 
   // ── skull
   ball(c, 0, 0, R, RY, b.skin, { hl: 0.2, inset: 0.9, sh: 0.22 });
@@ -589,6 +591,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
     default:
       drawHairCap(c, b, yaw, false);
   }
+  decorHead(c, head, yaw, false, sph, vec, HEAD_R);
   drawFace(c, b, yaw);
 }
 
@@ -764,7 +767,12 @@ export function drawTorsoBase(c: Ctx, b: Body, chest: ItemLook | undefined, wais
 }
 
 /** Front details, centred on the chest's front line (the rig slides + foreshortens them). */
-export function drawTorsoFront(c: Ctx, b: Body, chest: ItemLook | undefined): void {
+export function drawTorsoFront(c: Ctx, b: Body, chest: ItemLook | undefined, neck?: number, neckColor = 0xe8c66a): void {
+  drawTorsoFrontBase(c, b, chest);
+  decorTorsoFront(c, chest, neck, neckColor);
+}
+
+function drawTorsoFrontBase(c: Ctx, b: Body, chest: ItemLook | undefined): void {
   const o = OUTFIT[b.cls];
   const shape = chest?.shape ?? 'base';
   const p = chest?.primary ?? o.shirt;
@@ -853,6 +861,7 @@ export function drawBeltFront(c: Ctx, w: ItemLook, robe: boolean): void {
     c.roundRect(-1.2, y - 0.8, 2.4, 2.6, 0.5); fill(c, shade(s, 0.5));
     if (w.glow) gem(c, 0, y + 0.5, 1.5, light(w.glow, 0.3), 0.9);
   }
+  decorBelt(c, w, y);
 }
 
 // ═══════════════════════════════ LEGS (view-baked) ═══════════════════════════════
@@ -938,6 +947,7 @@ export function drawLegView(c: Ctx, b: Body, legs: ItemLook | undefined, feet: I
   }
   // toe cap highlight when the toe points at the camera
   if (cs > 0.5 && !inSilhouette()) wash(c, (k) => k.ellipse(0, 9.6, 2.6 * cs, 1.2), light(fp, 0.5), 0.35 * cs);
+  decorLeg(c, legs, feet, sn, cs);
 }
 
 // ═══════════════════════════════ BACK PIECES ═══════════════════════════════

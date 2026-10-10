@@ -13,7 +13,7 @@ import { generateItem, type EliteTier } from '@shared/items';
 import { generateMap, type MapData, type NpcRole } from '@shared/mapgen';
 import { Rng } from '@shared/math';
 import { F_ATTACK, F_CAST, F_CHANNEL, F_DASH, F_FROZEN, F_MOVING, F_STUN, LOOK_SLOTS, type LookSlot, type PlayerLook } from '@shared/protocol';
-import type { ClassId, ItemKind, Rarity } from '@shared/types';
+import type { ClassId, Item, ItemKind, Rarity, Slot } from '@shared/types';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, initArt, itemIconUrl,
 } from '../render/art';
@@ -23,6 +23,10 @@ import { PlayerArt, artDebug, bakePlayerLook } from '../render/art/player';
 import { ACTIONS, type ActionSpec } from '../render/actions';
 import { NPC_PRESETS, RESIDENT_PRESETS } from '../render/art/npcLooks';
 import { F_WINDUP } from '@shared/protocol';
+import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/gearShowcase';
+import { gearFxStats } from '../render/art/gearFx';
+import { SET_STYLE } from '../render/art/gearStyle';
 
 const qs = new URLSearchParams(location.search);
 // baked pages are only retained for the sheet viewer (keeping every page alive would leak in ?view=stress)
@@ -618,6 +622,98 @@ function mon2View() {
   world.scale.set(ZOOM * Number(qs.get('k') ?? 1));
 }
 
+// ─────────────────────────── gear progression (docs/rework/gear) ───────────────────────────
+
+/** A hero's network look at a showcase stage (real items → playerLook, exactly what other clients receive). */
+function stageLook(cls: ClassId, stage: ShowcaseStage, seedN = 3): PlayerLook {
+  const save = createCharacter('Gear', cls, 5);
+  save.equipment = showcaseEquipment(cls, stage, seedN);
+  return playerLook(save);
+}
+const STAGE_LABEL: Record<ShowcaseStage, string> = { starter: 'Starter', L10: 'Level 10', L20: 'Level 20', L30: 'Level 30', L40: 'Level 40', L50: 'Level 50', L60: 'Level 60', L70: 'Level 70', set: 'Full set', ancient: 'Ancient set', primal: 'Primal set' };
+
+/** ?view=gear-ladder: each class from starter rags to a Primal set (the contact sheet of DESIGN.md §1). */
+function gearLadderView() {
+  const stages = (qs.get('stages')?.split(',') as ShowcaseStage[] | undefined) ?? [...SHOWCASE_STAGES];
+  const colW = Number(qs.get("colw") ?? 98), rowH = Number(qs.get("rowh") ?? 186), gx = 64, gy = 140;
+  const anim = qs.get('anim') ?? 'idle';
+  stages.forEach((stg, ci) => label(STAGE_LABEL[stg], gx + ci * colW, 6, 12));
+  CLASS_IDS.forEach((cls, ri) => {
+    const y = gy + ri * rowH;
+    label(CLASSES[cls].name, 18, y - 90, 12, 0xc9b98f);
+    ground(gx - 52, y - 10, stages.length * colW, 20, 0x6f8f4c);
+    stages.forEach((stg, ci) => {
+      const look = stageLook(cls, stg);
+      const p = gearProfile(look);
+      const x = gx + ci * colW;
+      const v = createPlayerView(look);
+      addActor(v, x, y, anim === 'walk' ? st({ moving: true, vx: 220, flags: F_MOVING }) : st({}), 1.2);
+      label(GEAR_TIER_NAMES[p.rank] + ' ' + p.rank, x, y + 14, 10, GEAR_TIER_COLORS[p.rank]);
+    });
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 1.06));
+}
+
+/** ?view=gear-vs: the newcomer next to the veteran, on the town ground at the game camera (or ?zoom=). */
+function gearVsView() {
+  const cls = (qs.get('cls') ?? 'warrior') as ClassId;
+  const vet = (qs.get('vet') ?? 'primal') as ShowcaseStage;
+  const map = generateMap('hearthmere', 1234);
+  const layers = buildMapLayers(map);
+  const ents = new Container(); ents.sortableChildren = true;
+  world.addChild(layers.ground, layers.decals, ents);
+  for (const pr of layers.sorted) { pr.view.zIndex = pr.y; ents.addChild(pr.view); }
+  const fx0 = map.entry.x + Number(qs.get('dx') ?? 0), fy0 = map.entry.y + Number(qs.get('dy') ?? 0);
+  const classes = qs.get('all') ? CLASS_IDS : [cls];
+  const moving = !!qs.get('walk');
+  classes.forEach((c, i) => {
+    const x = fx0 - (classes.length - 1) * 80 + i * 160;
+    ([['starter', 0], [vet, 1]] as const).forEach(([stg, k]) => {
+      const v = createPlayerView(stageLook(c, stg));
+      const hx = x - 30 + k * 60, hy = fy0 + 30 + k * 4;
+      addActor(v, hx, hy, moving ? st({ moving: true, vx: 220, flags: F_MOVING }) : st({}), 1.2, ents);
+      const yaw = qs.get('yaw');
+      if (yaw !== null && !moving) (v as PlayerArt).setYaw(Number(yaw) * (k === 0 ? -1 : 1));
+      v.root.zIndex = hy;
+      if (qs.get('labels')) { const p = gearProfile(stageLook(c, stg)); label(GEAR_TIER_NAMES[p.rank], hx, hy + 12, 9, GEAR_TIER_COLORS[p.rank], ents).zIndex = 1e6; }
+    });
+  });
+  const scr = app.screen;
+  const z = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  world.scale.set(z);
+  world.position.set(Math.round(scr.width / 2 - fx0 * z), Math.round(scr.height / 2 - (fy0 + 10) * z));
+}
+
+/** ?view=gear-sets: the nine Sets at 2 / 4 / 6 pieces (set identity + layering). */
+function gearSetsView() {
+  const ids = Object.keys(SET_STYLE);
+  const colW = 150, rowH = 150;
+  ids.forEach((id, i) => {
+    const set = SETS[id];
+    const save = createCharacter('Set', set.classId, 5);
+    const eq = showcaseEquipment(set.classId, 'set', 7 + i);
+    const x0 = 120 + (i % 3) * colW * 3.1, y0 = 150 + Math.floor(i / 3) * rowH * 1.25;
+    label(set.name, x0 + colW, y0 - 118, 12, 0xe8d9b5);
+    [2, 4, 6].forEach((n, k) => {
+      const e: Partial<Record<Slot, Item>> = {};
+      let placed = 0;
+      for (const piece of set.pieces) {
+        const slot = BASES[piece.base].kind as Slot;
+        if (placed < n) { e[slot] = generateItem(new Rng(i * 97 + k * 13 + placed), { ilvl: 70, classId: set.classId, rarity: 'set', set: id, base: piece.base }); placed++; }
+        else e[slot] = generateItem(new Rng(i * 31 + k * 7 + placed), { ilvl: 70, classId: set.classId, rarity: 'rare', base: piece.base });
+      }
+      for (const s2 of ['mainhand', 'offhand', 'neck', 'ring1', 'ring2', 'waist', 'wrists'] as const) if (eq[s2] && !e[s2]) e[s2] = eq[s2];
+      save.equipment = e;
+      const look = playerLook(save);
+      const x = x0 + k * colW;
+      ground(x - 50, y0 - 9, 100, 18, 0x6f8f4c);
+      addActor(createPlayerView(look), x, y0, st({}), 1.2);
+      label(n + ' pieces', x, y0 + 12, 10, 0xc9b98f);
+    });
+  });
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 0.62));
+}
+
 let drawCalls = 0, drawCallsShown = 0;
 function perfView() {
   mapView();
@@ -637,7 +733,9 @@ function perfView() {
   }
   for (let i = 0; i < NPLAY; i++) {
     const c = CLASS_IDS[i % 3];
-    const v = createPlayerView(i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
+    const gearStage = qs.get('gear') as ShowcaseStage | 'mix' | null;
+    const mixStages: ShowcaseStage[] = ['starter', 'L30', 'L60', 'L70', 'set', 'ancient', 'primal'];
+    const v = createPlayerView(gearStage ? stageLook(c, gearStage === 'mix' ? mixStages[i % mixStages.length] : gearStage, i) : i % 2 ? randomLook(c, 'rare', i) : legendLook(c));
     const spread = NPLAY > 40 ? 1.9 : 1;
     const x = cx + (Math.random() - 0.5) * 900 * spread, y = cy + (Math.random() - 0.5) * 500 * spread;
     const mode = i % 4;
@@ -715,6 +813,9 @@ switch (VIEW) {
   case 'skills': skillsView(); break;
   case 'rapid': rapidView(); break;
   case 'mon2': mon2View(); break;
+  case 'gear-ladder': gearLadderView(); break;
+  case 'gear-vs': gearVsView(); break;
+  case 'gear-sets': gearSetsView(); break;
 }
 
 let time = 0;
@@ -745,7 +846,7 @@ app.ticker.add((tk) => {
   if (updWin.length > 60) { updWin.shift(); heroWin.shift(); }
   const med = (a: number[]) => [...a].sort((x, y) => x - y)[a.length >> 1] ?? 0;
   updMs = med(updWin); heroUpdMs = med(heroWin);
-  hud.textContent = `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms)  ${mapInfo}`;
+  hud.textContent = qs.get('nohud') ? '' : `${VIEW}  ${fps} fps  draws/frame ${drawCallsShown}  actors ${actors.length}  update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms)  gearfx ${gearFxStats.heroes}/${gearFxStats.sprites}  ${mapInfo}`;
   (window as unknown as { __info: string }).__info = `${fps} fps, draws/frame ${drawCallsShown}, actors ${actors.length}, update ${updMs.toFixed(2)} ms (heroes ${heroUpdMs.toFixed(2)} ms) ${mapInfo}`;
 });
 (window as unknown as { __pages: unknown }).__pages = bakedPages;

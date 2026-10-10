@@ -11,7 +11,8 @@ import { nameLabel } from './art/npcs';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
 import type { MapData, NpcRole } from '@shared/mapgen';
-import { F_LEFT, F_MOVING, type EntDesc } from '@shared/protocol';
+import { F_LEFT, F_MOVING, type EntDesc, type PlayerLook } from '@shared/protocol';
+import { gearProfile } from '@shared/gearVisual';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, setViewScale,
 } from './art';
@@ -197,7 +198,7 @@ export class Scene {
         const previous=this.looks.get(e.id);
         if (previous !== key) {
           (e.view as PlayerView).setLook(e.desc.look);this.looks.set(e.id,key);
-          if((previous?JSON.parse(previous).title:undefined)!==e.desc.look.title){
+          if(plateKey(previous?JSON.parse(previous):undefined)!==plateKey(e.desc.look)){
             e.nameplate?.destroy();
             e.nameplate=this.vfx.createNameplate(e.desc,e.id===this.world.myId);
             if(e.nameplate)this.text.addChild(e.nameplate.root);
@@ -208,6 +209,7 @@ export class Scene {
     }
     e.view = this.createView(e.desc);
     if (e.kind === 'player' && e.desc.look) this.looks.set(e.id, JSON.stringify(e.desc.look));
+    if (e.kind === 'player') (e.view as PlayerView & { setIsLocal?(v: boolean): void }).setIsLocal?.(e.id === this.world.myId);
     this.entities.addChild(e.view.root);
     if (e.kind === 'player' || e.kind === 'mob') {
       e.nameplate = this.vfx.createNameplate(e.desc, e.id === this.world.myId);
@@ -425,4 +427,11 @@ export class Scene {
     }
     return best;
   }
+}
+
+/** What a player's nameplate shows besides level: title, gear rank and a completed Set (rebuilt when it changes). */
+function plateKey(look: PlayerLook | undefined): string {
+  if (!look) return '';
+  const p = gearProfile(look);
+  return `${look.title ?? ''}|${p.rank}|${p.topSetCount >= 6 ? p.topSet : ''}`;
 }
