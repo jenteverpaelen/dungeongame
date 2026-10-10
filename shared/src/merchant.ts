@@ -10,11 +10,15 @@ export const MERCHANTS = [
   { id:'iven', zone:'cairnspill_terraces', target:'surveyor', name:'Iven' },
   { id:'kessa', zone:'cinderwash_kilns', target:'firekeeper', name:'Kessa' },
   { id:'venn', zone:'kilnwatch_crown', target:'watchkeeper', name:'Venn' },
+  { id:'sera', zone:'sablefen_causeway', target:'ferrier', name:'Sera' },
+  { id:'neris', zone:'saltwind_pans', target:'briner', name:'Neris' },
+  { id:'tallis', zone:'shiverline_escarpment', target:'lookout', name:'Tallis' },
+  { id:'mera', zone:'beaconbreak_ward', target:'quartermaster', name:'Mera' },
 ] as const;
-export const STOCK_LEVEL_CAP = 20;
+export const STOCK_LEVEL_CAP = 50;
 /** L112: candidate three ordinary four-member packs, not a promised elapsed time. */
 export const STOCK_GOLD_KILLS = 12;
-export const STOCK_REVISION = 1;
+export const STOCK_REVISION = 2;
 export const VENDOR_SALVAGE_REASON = 'Merchant stock cannot be salvaged. Equip it, store it or sell it back instead.';
 export function stockPrice(level:number):number {
   return Math.max(Math.round(baseGoldAmount(level))+1,Math.ceil(baseGoldAmount(level)*NORMAL_GOLD_DROP_CHANCE*STOCK_GOLD_KILLS));

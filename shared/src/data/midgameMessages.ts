@@ -1,5 +1,15 @@
 /** Original Acts II–III prose; L117. No reference-game names or text. */
 export const MIDGAME_MESSAGES={
+  'mid.giftShoulders.title':'The Keepers’ Mantle',
+  'mid.giftShoulders.offer':'You have given the keepers their water back. We kept a sealed kit for the crews who would reopen the ridge. Take the mantle fitted to your calling; Aven holds the matching treads below.',
+  'mid.giftShoulders.talk':'Speak with Neris about the crew kit',
+  'mid.giftShoulders.complete':'Keep this piece with the matching treads from Lockglass. Together they change how one of your class skills works. They are yours to equip, not a condition of taking the road.',
+  'mid.giftShoulders.reward':'One bound class-set shoulder piece at your current level. Non-Ancient; a different matching slot awaits after Lockglass.',
+  'mid.giftFeet.title':'Treads for the Open Road',
+  'mid.giftFeet.offer':'The governor is quiet and the inspection stores are open. Neris kept the mantle; I kept the matching treads. Speak with me when you are ready to take them. Both pieces together complete the first set bonus.',
+  'mid.giftFeet.talk':'Speak with Aven about the matching treads',
+  'mid.giftFeet.complete':'Two pieces, one purpose. Inspect the set bonus and choose whether its skill belongs in your build. The rest of the kit is still out on the frontier; this is a beginning, not the whole arsenal.',
+  'mid.giftFeet.reward':'One bound class-set foot piece at your current level. Non-Ancient; combines with Neris’s shoulder reward for the existing two-piece bonus.',
   'story.actTwo':'Act II · The Salt Road',
   'story.actThree':'Act III · The Broken Signal',
   'story.saltRoad':'The Salt Road',

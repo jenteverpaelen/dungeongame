@@ -1,6 +1,7 @@
 import { QUESTS, questById } from '../../shared/src/data/quests';
 import { questText } from '../../shared/src/data/questMessages';
-import { questAvailable, questHasWeapon, questObjective, questState, validQuestState, writeQuestState } from '../../shared/src/quests';
+import { questAvailable, questHasItem, questObjective, questState, validQuestState, writeQuestState } from '../../shared/src/quests';
+import { campaignSetReward } from '../../shared/src/campaignSets';
 import { QUEST_SERVICE_OPS, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import type { CmdOp } from '../../shared/src/protocol';
@@ -25,10 +26,13 @@ function near(s:Session, target:QuestTarget):boolean {
   return spot?inst.canInteract(s,spot.x,spot.y,spot.radius):!!npc&&inst.canInteract(s,npc.x,npc.y,npc.interactionRadius);
 }
 function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
-  if(state.step!==q.steps.length || !questHasWeapon(q) || state.reward)return;
+  if(state.step!==q.steps.length || !questHasItem(q) || state.reward)return;
   if(typeof q.reward==='object'&&q.reward.item==='starter_upgrade'){state.reward=starterUpgrade(new Rng((Math.random()*0xffffffff)>>>0),save.classId);return;}
   const projected=structuredClone(save);
   if(typeof q.reward==='object')addXp(projected,q.reward.xp??0);
+  if(typeof q.reward==='object'&&(q.reward.item==='class_set_shoulders'||q.reward.item==='class_set_feet')){
+    state.reward=campaignSetReward(new Rng((Math.random()*0xffffffff)>>>0),save.classId,q.reward.item,projected.level);return;
+  }
   state.reward=generateItem(new Rng((Math.random()*0xffffffff)>>>0),{
     ilvl:projected.level,classId:save.classId,rarity:'magic',smartChance:1,
     base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword',

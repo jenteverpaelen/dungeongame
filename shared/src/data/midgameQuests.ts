@@ -29,3 +29,13 @@ export const MIDGAME_QUESTS:readonly QuestDef[]=[
   quest('two_voices',47,49,eris,daro,'first_answer','hollowstar',[['east','wave','east'],['strip','interact','contradiction']]),
   {...quest('last_transmission',49,50,daro,daro,'two_voices','hollowstar',[['conductor','wave','conductor'],['record','interact','final_record']],undefined,true),grantsFlags:['relay_network_restored']},
 ];
+
+/** Optional gifts preserve all mandatory story XP/weapon rewards and old claimed histories. */
+export const MIDGAME_GIFTS:readonly QuestDef[]=[
+  {id:'keepers_mantle',revision:1,title:'mid.giftShoulders.title',offer:'mid.giftShoulders.offer',complete:'mid.giftShoulders.complete',rewardText:'mid.giftShoulders.reward',
+    start:neris,finish:neris,requires:['sealed_brine'],reward:{item:'class_set_shoulders'},
+    steps:[{id:'kit',kind:'talk',...neris,text:'mid.giftShoulders.talk'}]},
+  {id:'ridgeward_treads',revision:1,title:'mid.giftFeet.title',offer:'mid.giftFeet.offer',complete:'mid.giftFeet.complete',rewardText:'mid.giftFeet.reward',
+    start:aven,finish:aven,requires:['lockglass_heart'],reward:{item:'class_set_feet'},
+    steps:[{id:'kit',kind:'talk',...aven,text:'mid.giftFeet.talk'}]},
+];

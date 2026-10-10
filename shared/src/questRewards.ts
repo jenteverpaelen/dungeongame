@@ -1,6 +1,7 @@
 import type { CharacterSave } from './types';
 import type { QuestDef, QuestState } from './questTypes';
-import { questHasWeapon, writeQuestState } from './quests';
+import { questHasItem, writeQuestState } from './quests';
+import { SET_REWARD_SLOTS } from './campaignSets';
 import { addToInventory } from './character';
 import { addXp, xpToNext } from './progression';
 import { MAX_LEVEL } from './constants';
@@ -16,7 +17,7 @@ export function questRewardError(q:QuestDef):string|undefined {
   for(const [key,max] of [['xp',MAX_QUEST_XP],['gold',Number.MAX_SAFE_INTEGER]] as const) {
     if(r[key]!==undefined&&(!Number.isSafeInteger(r[key])||r[key]!<0||r[key]!>max))return `Invalid ${key} award`;
   }
-  if(r.item!==undefined&&r.item!=='magic_weapon'&&r.item!=='starter_upgrade')return 'Unsupported item reward';
+  if(r.item!==undefined&&r.item!=='magic_weapon'&&r.item!=='starter_upgrade'&&!Object.hasOwn(SET_REWARD_SLOTS,r.item))return 'Unsupported item reward';
   if(r.unlocks!==undefined&&(!Array.isArray(r.unlocks)||r.unlocks.some(id=>typeof id!=='string')))return 'Invalid unlock reward';
 }
 
@@ -30,7 +31,7 @@ export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState):
   const gold=save.gold+(reward.gold??0);
   if(!Number.isSafeInteger(gold)||gold<0)return {error:'This reward would exceed your gold capacity'};
   const next=structuredClone(save);
-  if(questHasWeapon(q)) {
+  if(questHasItem(q)) {
     if(!state.reward)return {error:'Your reserved reward could not be read'};
     if(ownedItems(next).some(i=>i?.id===state.reward!.id))return {error:'This reward is already owned'};
     if(addToInventory(next,structuredClone(state.reward))<0)return {error:'Make room in your inventory, then speak with the quest giver again'};

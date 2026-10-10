@@ -25,7 +25,7 @@ export type QuestServiceOp=typeof QUEST_SERVICE_OPS[number];
 export interface QuestReward {
   xp?: number;
   gold?: number;
-  item?: 'magic_weapon' | 'starter_upgrade';
+  item?: 'magic_weapon' | 'starter_upgrade' | import('./campaignSets').SetReward;
   unlocks?: string[];
 }
 export interface QuestDef {

@@ -1,15 +1,15 @@
 # Current working set — 2026-10-10
 
-- Only codex/new-tristram-town; solo, no subagents. C096 ff2b095 pushed; C097 ready, use git log for hash. Continue the whole roadmap after checkpoints.
-- P8 selected implementation complete; owner allows savings/prevents exploit loops, no cap. User full playtests later. Town/UI/camera620/90ms frozen; no scrolling menus.
+- Only codex/new-tristram-town; solo, no subagents. C097 ee4e3ba pushed; C098 ready, use git log for hash. Continue whole roadmap after checkpoints.
+- P8 selected implementation complete; owner allows savings/prevents exploit loops, no cap. Full human playtests later. Town/UI style/camera620/90ms frozen; no scrolling menus.
 - Every runtime check fresh isolated DATA_DIR, backups disabled; never real saves/private files. Infinite HP for assisted field play.
 
-## Active P9 work
+## Active P9
 
-C096 passives complete. C097 adds six authored areas and13quests for exact no-kill20–50 XP, two private dungeons, boss phase patterns, six variants and map Act pages. L117/D055; P09 CAMPAIGN-PLAN/REPORT. Four new +12 old focused checks/type/build/local1080p passed. Save12/protocol15 unchanged. Do not redo completed checks or read full historical logs/large JSON models.
+C096 passives; C097 six authored areas/13quests for no-kill20–50 XP, two private dungeons/phased bosses/six variants/map pages; C098 earned two-piece gifts and vendor bands through50. Reports in P09. Six C098 focused checks/type/build/local1080p passed. Save12/protocol15 unchanged. Do not repeat completed checks or read full historical logs/large JSON models.
 
-Next: first original mid-game set tranche and real acquisition; expand supported vendor bands, measure Cube contributions, difficulty policy and per-five-level TTK/stall. More variants are not new body families. Party2–4 requires P10 identity. Human/independent gates remain explicit.
+Next: Cube progression and contribution, difficulty policy, family breadth, per-five-level TTK/stall. Party2–4 requires P10 identity. Human/independent gates remain explicit; no invented acceptance X.
 
-Relevant code: shared/data/midgame{,Quests,Messages}.ts, storyBudget.ts, quests/questRewards, items/sets/stats and server sim. Work one targeted file set; no folder moving/deletion. Original Claude roadmap unchanged.
+Relevant files: shared/campaignSets, questRewards, data/midgameQuests, merchant; next cube/difficulty/combat fixtures. Work a narrow file set; no folder moving/deletion. Original Claude roadmap unchanged.
 
-Owned preview server74297 on2567 uses fresh hearthfall-c097-browser data: synthetic MidgameC097 warrior50, current story claimed for route access. Old54754 stopped. Vite47406 on5173. Close owned gallery tabs/reset viewport after captures. C097 helper finished once; do not rerun append helpers.
+Owned server74297 on2567 still C097 code with disposable MidgameC097 warrior50 fixture. Vite47406 on5173. C098 gallery closed/viewport reset. Restart only owned server with fresh DATA_DIR if needed. C097/C098 append helpers are one-shot; never rerun.

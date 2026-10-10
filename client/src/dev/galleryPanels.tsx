@@ -48,6 +48,9 @@ import { planQuestDelivery } from '@shared/questDelivery';
 import type { QuestStep } from '@shared/questTypes';
 import { completedRunSummary } from '../game/runSummary';
 import { QUESTS } from '@shared/data/quests';
+import { campaignSetReward } from '@shared/campaignSets';
+import { MIDGAME_GIFTS } from '@shared/data/midgameQuests';
+import { ADVENTURES } from '@shared/adventure';
 import { QUEST_MESSAGES, type QuestMessageKey } from '@shared/data/questMessages';
 import { writeQuestState } from '@shared/quests';
 import type { QuestDef } from '@shared/questTypes';
@@ -445,6 +448,15 @@ if(qs.get('s')==='adventure') {
     ui.set({journalQuest:mode==='unavailable'?'high_water':'silent_wheel',adventureTarget:'tender',adventureZone:'rillwake_crossing',
       zone:{...ui.get().zone!,zone:'rillwake_crossing',name:'Rillwake Crossing',kind:'field'},interact:{name:'Orren · Mill Tender',role:'quest'}});
   }
+}
+if(qs.get('s')==='adventure'&&qs.has('gift')){
+  const q=MIDGAME_GIFTS[qs.get('gift')==='feet'?1:0],npc=ADVENTURES[q.finish.zone].npcs.find(n=>n.id===q.finish.target)!;
+  for(const id of q.requires){const required=QUESTS.find(q=>q.id===id)!;writeQuestState(char,id,{revision:required.revision,step:required.steps.length,claimed:true});}
+  writeQuestState(char,q.id,{revision:q.revision,step:q.steps.length,claimed:false,
+    reward:campaignSetReward(rng,classId,qs.get('gift')==='feet'?'class_set_feet':'class_set_shoulders',char.level)});
+  ui.set({char,journalQuest:q.id,adventureTarget:q.finish.target,adventureZone:q.finish.zone,
+    zone:{...ui.get().zone!,zone:q.finish.zone,name:'Set gift · Presentation fixture (no live server)',kind:q.finish.zone==='lockglass_cistern'?'dungeon':'field'},
+    interact:{name:npc.name,role:'quest'}});
 }
 if(qs.get('s')==='runSummary') {
   // Explicit synthetic result for presentation review; never writes a save or grants loot.

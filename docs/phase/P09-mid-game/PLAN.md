@@ -13,3 +13,6 @@ C096 passive implementation complete; PASSIVES-REPORT.md records14 focused check
 
 
 C097 connected ActsII–III20–50 route complete; CAMPAIGN-REPORT has measured checks and visual evidence. Next first set tranche/acquisition, supported vendor stock, Cube/difficulty and band combat/family breadth. Do not repeat completed walkthrough/checks without a new finding.
+
+
+C098 first earned two-piece class-set tranche and supported vendor bands complete; SET-ACQUISITION-REPORT records six focused checks/type/build and1080p no-scroll inspection. Continue Cube pacing, difficulty, family breadth and band combat evidence. Alternative new sets remain P11.

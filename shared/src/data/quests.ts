@@ -1,7 +1,7 @@
 import type { QuestDef } from '../questTypes';
 
 import { storyXp } from '../storyBudget';
-import { MIDGAME_QUESTS } from './midgameQuests';
+import { MIDGAME_QUESTS, MIDGAME_GIFTS } from './midgameQuests';
 export { storyXp } from '../storyBudget';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
@@ -86,5 +86,6 @@ export const QUESTS: readonly QuestDef[] = [
     steps:[{id:'alarm',kind:'wave',zone:orren.zone,target:'survey_alarm',text:'quest.contract.alarm.clear'}],
   },
   ...MIDGAME_QUESTS,
+  ...MIDGAME_GIFTS,
 ];
 export const questById = (id: string) => QUESTS.find(q => q.id === id);

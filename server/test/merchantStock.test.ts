@@ -32,7 +32,7 @@ test('stock is stable, class-usable and within existing normal stat budgets; the
   for(const classId of ['warrior','ranger','mage'] as const)for(let level=1;level<=70;level++){
     const a=merchantStock({classId,level}),b=merchantStock({classId,level});assert.deepEqual(a,b);assert.equal(a.length,10);
     assert.equal(new Set(a.map(e=>e.item.kind)).size,10);
-    for(const e of a){assert(canClassUse(classId,e.item));assert(e.item.reqLevel<=level);assert(e.item.ilvl<=20);assert(e.item.vendorStock);assert.equal(e.item.affixes.length,0);
+    for(const e of a){assert(canClassUse(classId,e.item));assert(e.item.reqLevel<=level);assert.equal(e.item.ilvl,Math.min(level,50));assert(e.item.vendorStock);assert.equal(e.item.affixes.length,0);
       assert(e.price>salePrice(e.item)!);assert.deepEqual(salvageYield(e.item),{});assert.equal(salvageXp(e.item),0);
       if(e.item.armor!==undefined)assert.equal(e.item.armor,baseArmor(e.item.ilvl,BASES[e.item.base]));
     }

@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C097. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C098. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -123,7 +123,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ECO-10 | Economy dashboards | P8 | Implemented scope | C093 live paged balances/sources/spending and C092/C095 reproducible simulation dashboards. No global telemetry or human rate claim. [Chapter](phase/P08-economy/CHAPTER-REPORT.md) | MISSING |
 | F-ITM-01 | Affix pool expansion / per-slot rules | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — 32 affixes |
 | F-ITM-02 | Legendary powers per class and build | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — 19 (13 class-specific) |
-| F-ITM-03 | Set catalogue (2/4/6) per class | P9/P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — 3 six-piece sets |
+| F-ITM-03 | Set catalogue (2/4/6) per class | P9/P11 | Partial / implementation | C098 completes first earned two-piece class-set access at authored mid-game milestones, preserving existing 2/4/6 effects. Broader alternative set catalogue remains P11. [Report](phase/P09-mid-game/SET-ACQUISITION-REPORT.md) | PARTIAL — 3 six-piece sets |
 | F-ITM-04 | Crafting recipes + materials | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — Cube ops, 5 materials |
 | F-ITM-05 | Transmog / appearance slots | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING — look slots exist (9) |
 | F-ITM-06 | Gems / socketables expansion | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — 5 gems × 6 ranks |
@@ -362,3 +362,6 @@ C096 closes the selected passive system/catalogue and UI scope. Current147 featu
 
 
 C097 completes the authored20–50 route and selected objective-dungeon catalogue. Current147 features:38 implemented scope,35 partial,71 open,3 decided/excluded. Counts are not a completion percentage. P9 sets/Cube/difficulty/band combat/family breadth and human/party acceptance remain.
+
+
+C098 completes P9 first set acquisition and supported vendor bands. Current147 features:38 implemented scope,36 partial,70 open,3 decided/excluded. Counts are not a completion percentage. P9 Cube/difficulty/family/band combat and human/party acceptance remain.

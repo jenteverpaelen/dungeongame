@@ -1092,6 +1092,12 @@
 .journal-columns { display:grid; grid-template-columns:270px minmax(0,1fr); gap:24px; align-items:start; }
 .journal-columns>.quest-list { display:block; }
 .journal-detail .quest-actions { margin-top:14px; border-top:1px solid var(--frame-hi); padding-top:8px; }
+/* A reserved set reward uses the journal's available width; keep claim controls visible. */
+.journal-detail .tt:has(.tt-set) { width:100%; max-width:none; }
+.journal-detail .tt:has(.tt-set) .tt-body { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:20px; }
+.journal-detail .tt:has(.tt-set) .tt-big,.journal-detail .tt:has(.tt-set) .tt-sec { grid-column:1; }
+.journal-detail .tt:has(.tt-set) .tt-set { grid-column:2; grid-row:1 / span 3; align-self:start; }
+.journal-detail .tt:has(.tt-set) .tt-foot,.journal-detail .tt:has(.tt-set) .tt-flavor { grid-column:1 / -1; }
 .quest-steps .page-items { line-height:1.5; gap:14px; }
 .quest-list>.paged { width:100%; }
 .quest-list .page-items>.btn { width:100%; }

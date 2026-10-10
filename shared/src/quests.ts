@@ -43,7 +43,7 @@ export function questAvailable(save:CharacterSave,q:QuestDef):boolean {
   return (!q.tutorial||validIntro(save.onboarding))&&q.requires.every(id=>questCompleted(save,id))&&(q.requiresFlags??[]).every(f=>storyFlag(save,f));
 }
 export const questUnlocks=(q:QuestDef):string[]=>[...(q.unlocks?[q.unlocks]:[]),...(q.reward&&typeof q.reward==='object'&&Array.isArray(q.reward.unlocks)?q.reward.unlocks:[])];
-export const questHasWeapon=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&(q.reward.item==='magic_weapon'||q.reward.item==='starter_upgrade');
+export const questHasItem=(q:QuestDef):boolean=>q.reward==='magic_weapon'||!!q.reward&&typeof q.reward==='object'&&q.reward.item!==undefined;
 export function zoneUnlocked(save:CharacterSave,zone:string):boolean {
   return QUESTS.filter(q=>questUnlocks(q).includes(zone)).every(q=>questCompleted(save,q.id));
 }
