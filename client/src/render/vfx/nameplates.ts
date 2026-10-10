@@ -13,6 +13,7 @@ import { PLATE_FONT, ensureFonts } from './fonts';
 import { clamp, lerpColor } from './util';
 import { GEAR_TIER_COLORS, gearProfile } from '@shared/gearVisual';
 import { SET_STYLE } from '../art/gearStyle';
+import { gearEffectLevel } from '../../game/preferences';
 
 /** Gear-rank medal left of the level badge (rank 2+), escalating in shape: disc → shield → winged shield → Ancient
  *  jewels → Primal flame tips (docs/rework/gear/DESIGN.md §5; D3 portrait frames / MapleStory medals as principle). */
@@ -147,7 +148,12 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
       fade(hovered);
       if (isMe) root.alpha *= 0.85;
       if (glow) {
-        const t = V.real;
+        // the plate ornaments follow the gear-effect setting: off hides them, reduced keeps them still
+        const level = gearEffectLevel(isMe);
+        const show = level !== 'off';
+        glow.visible = pill!.visible = show;
+        if (crown) { crown.visible = show; twinkle!.visible = show && level === 'full'; for (const f of licks) f.visible = show && level === 'full'; }
+        const t = level === 'full' ? V.real : 0;
         glow.alpha = prof!.rank >= 8 ? 0.42 + 0.14 * Math.sin(t * 2.2) : 0.34;
         if (crown) {
           const cx = crown.x, cy = crown.y;

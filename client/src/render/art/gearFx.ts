@@ -521,7 +521,8 @@ export class GearFx {
       if (full && this.pulseT % 1.3 < dt) for (let i = 0; i < 4; i++) this.spawn('primal', 'burst', a, i % 2 ? PRIMAL_CORE : PRIMAL_RED);
     }
     if (rich) this.updateRibbon(a, calm); else this.ribbon?.hide();
-    this.updateCelebration(a, full);
+    // the burst is motion: 'reduced' (and reduced-motion) keep only the aura / sigil flare above
+    if (full) this.updateCelebration(a, full);
     if (!full) return;
     // ambient particles (+ an amber ember stream for Ancients worn under a Set identity)
     this.spawnAcc += dt * this.rate * k;
