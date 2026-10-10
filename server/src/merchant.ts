@@ -1,4 +1,5 @@
-import { MERCHANTS, BUYBACK_CAPACITY, ownedItems, salePrice, validMerchant } from '../../shared/src/merchant';
+import { randomUUID } from 'node:crypto';
+import { MERCHANTS, BUYBACK_CAPACITY, merchantStock, ownedItems, salePrice, validMerchant } from '../../shared/src/merchant';
 import { itemProtectionReason } from '../../shared/src/itemProtection';
 import { fail, ok } from './world';
 import type { Session } from './net/session';
@@ -6,15 +7,26 @@ import type { Session } from './net/session';
 /** Validate every input and ownership transfer before modifying the character snapshot. */
 export function merchantCommand(s:Session,a:Record<string,unknown>){
   const def=MERCHANTS.find(m=>m.id===a.merchant),inst=s.rec?.inst;
-  if(!def||inst?.map.zone!==def.zone)return fail('Visit Orren at the Rillwake camp');
+  if(!def||inst?.map.zone!==def.zone)return fail('Visit the merchant at their camp');
   const spot=inst.map.adventure?.interactions.find(i=>i.id===def.target);
-  if(!spot||!inst.canInteract(s,spot.x,spot.y,spot.radius))return fail('Stand beside Orren while alive to trade');
+  if(!spot||!inst.canInteract(s,spot.x,spot.y,spot.radius))return fail(`Stand beside ${def.name} while alive to trade`);
   const save=s.save;
   if(!Number.isSafeInteger(save.gold)||save.gold<0)return fail('Your gold balance could not be verified');
   if(save.merchant&&!validMerchant(save.merchant))return fail('Your retained merchant records need a supported version; nothing was changed');
   const record=save.merchant??{revision:1 as const,sequence:0,items:[]};
   if(a.sequence!==record.sequence||!Number.isSafeInteger(record.sequence+1))return fail('This offer changed; select the item again');
-  if(typeof a.itemId!=='string'||!['sell','buyback','release'].includes(String(a.action)))return fail('Select a trade action and item');
+  if(typeof a.itemId!=='string'||!['buy','sell','buyback','release'].includes(String(a.action)))return fail('Select a trade action and item');
+  if(a.action==='buy'){
+    const offer=merchantStock(save).find(e=>e.item.id===a.itemId);
+    if(!offer||a.price!==offer.price)return fail('This stock offer changed; review the current item and price');
+    const slot=save.inventory.indexOf(null);
+    if(slot<0)return fail('Make room in your inventory before buying gear');
+    if(save.gold<offer.price)return fail('Not enough gold for this purchase');
+    const id=randomUUID();
+    if(ownedItems(save).some(i=>i?.id===id))return fail('Could not assign an item identity; nothing changed');
+    save.inventory[slot]={...offer.item,id};save.gold-=offer.price;
+    record.sequence++;save.merchant=record;s.changed(false);return ok();
+  }
   const matches=ownedItems(save).filter(i=>i?.id===a.itemId);
   if(matches.length!==1)return fail('Item custody could not be verified; nothing changed');
   if(a.action==='sell'){

@@ -4,7 +4,7 @@
 
 import { onboardingCommand, introCommandResult } from './onboarding';
 import { merchantCommand } from './merchant';
-import { ownedItems } from '../../shared/src/merchant';
+import { ownedItems, VENDOR_SALVAGE_REASON } from '../../shared/src/merchant';
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
 import { questCommand, creditQuestService } from './quests';
@@ -207,6 +207,7 @@ const salvage: Handler = (s, a) => {
   if (cubeErr) return fail(cubeErr);
   const loc = inInventory(save, str(a, 'itemId'));
   if (!loc) return fail('Item not in inventory');
+  if(loc.item.vendorStock)return fail(VENDOR_SALVAGE_REASON);
   const mats = salvageYield(loc.item);
   const xp = salvageXp(loc.item);
   returnGems(save, loc.item);
@@ -231,7 +232,7 @@ const salvageAll: Handler = (s, a) => {
   let count = 0, xp = 0;
   for (let i = 0; i < save.inventory.length; i++) {
     const item = save.inventory[i];
-    if (!item || item.protected || !wanted.has(item.rarity)) continue;
+    if (!item || item.protected || item.vendorStock || !wanted.has(item.rarity)) continue;
     sumMats(mats, salvageYield(item));
     xp += salvageXp(item);
     returnGems(save, item);

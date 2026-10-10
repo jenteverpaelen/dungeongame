@@ -41,6 +41,7 @@ export const CUBE_XP: Record<CubeOp, number> = {
 };
 
 export function salvageYield(item: Item): Partial<Materials> {
+  if(item.vendorStock)return {};
   switch (item.rarity) {
     case 'normal': return { scrap: 1 + Math.floor(item.ilvl / 25) };
     case 'magic': return { dust: 1 + Math.floor(item.ilvl / 25) };
@@ -50,6 +51,7 @@ export function salvageYield(item: Item): Partial<Materials> {
 }
 
 export function salvageXp(item: Item): number {
+  if(item.vendorStock)return 0;
   return { normal: 2, magic: 4, rare: 9, legendary: 30, set: 30 }[item.rarity];
 }
 

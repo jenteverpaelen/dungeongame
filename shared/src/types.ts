@@ -75,6 +75,8 @@ export interface Item {
   bound: boolean;
   /** Player-selected protection from destruction, consumption and full reforge. */
   protected?: boolean;
+  /** Purchased basic equipment: sale/buyback allowed, salvage must never create materials or Cube XP. */
+  vendorStock?: boolean;
   look: ItemLook;
   flavor?: string;
 }

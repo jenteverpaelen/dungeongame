@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { itemProtectionReason } from '@shared/itemProtection';
+import { VENDOR_SALVAGE_REASON } from '@shared/merchant';
 import {
   CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, UPGRADE_CHANCE, canAfford, canEnchantAffix, cubeXpToNext, enchantCost, extractCost, fuseCost,
   gemName, gemRemoveCost, maxSockets, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost,
@@ -46,6 +47,7 @@ function invalidReason(fn: CubeOp, item: Item | null): string | null {
   const protection = itemProtectionReason(item, fn);
   if (protection) return protection;
   switch (fn) {
+    case 'salvage': return item.vendorStock ? VENDOR_SALVAGE_REASON : null;
     case 'enchant': return item.rarity === 'normal' ? 'Normal items have no properties to enchant.' : null;
     case 'upgrade': return item.upgrade >= 10 ? 'This item is already at the maximum tier.' : null;
     case 'transmute': return item.rarity !== 'rare' ? 'Only Rare items can be transmuted.' : null;

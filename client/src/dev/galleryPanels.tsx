@@ -193,6 +193,7 @@ const find = (id: string): Item | null => char.inventory.find((i) => i?.id === i
 const fail = (err: string): CmdResult => ({ ok: false, err });
 
 async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResult> {
+  if(op==='merchant')return fail('Presentation fixture only. Trading runs against the local server.');
   if(op==='quest')return fail('Presentation fixture only. Quest commands are checked against the local server.');
   await new Promise((r) => setTimeout(r, 120));
   const id = a.itemId as string;
@@ -408,7 +409,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
-      {s === 'adventure' && <div style={{position:'fixed',top:8,left:8,color:'#ffdb83',zIndex:1000}}>P5 presentation fixture · no server or saved character</div>}
+      {(s === 'adventure'||s==='merchant') && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
@@ -416,6 +417,7 @@ function Gallery() {
 }
 
 setupUI();
+if(qs.get('s')==='merchant')ui.set({zone:{...ui.get().zone!,zone:'rillwake_crossing',name:'Rillwake Crossing',kind:'field'},interact:{name:'Orren · Mill Tender',role:'quest'}});
 if(qs.get('s')==='adventure') {
   // Stress the real journal using disposable in-page data only. Never imported by the game entry.
   const mode=qs.get('quests')??'active',catalogue=QUESTS as QuestDef[];

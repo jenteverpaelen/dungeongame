@@ -1,2 +1,2 @@
-/** v8 adds optional early-game creature records and retained merchant custody. */
-export const SAVE_VERSION = 8;
+/** v9 adds optional purchased-stock provenance; legacy items remain ordinary loot. */
+export const SAVE_VERSION = 9;

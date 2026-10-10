@@ -362,8 +362,10 @@ export function rollRarity(rng: Rng, ctx: DropContext): Rarity {
   return rng.weighted([['normal', normalW], ['magic', magicW], ['rare', rareW]] as const);
 }
 
+export const NORMAL_GOLD_DROP_CHANCE = 0.22;
+export const baseGoldAmount = (level:number) => (4 + level * 2.5) * Math.pow(1.06, level);
 export function goldAmount(rng: Rng, level: number, goldFind: number): number {
-  return Math.max(1, Math.round((4 + level * 2.5) * Math.pow(1.06, level) * rng.range(0.6, 1.4) * (1 + goldFind / 100)));
+  return Math.max(1, Math.round(baseGoldAmount(level) * rng.range(0.6, 1.4) * (1 + goldFind / 100)));
 }
 
 /** Roll everything a monster drops for one player (personal loot). */
@@ -396,7 +398,7 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops
       pity = 0;
     }
   }
-  const goldPiles = ctx.elite === 5 ? 18 : ctx.elite === 4 ? 8 : ctx.elite === 2 ? 3 : ctx.elite === 1 ? 2 : rng.chance(0.22) ? 1 : 0;
+  const goldPiles = ctx.elite === 5 ? 18 : ctx.elite === 4 ? 8 : ctx.elite === 2 ? 3 : ctx.elite === 1 ? 2 : rng.chance(NORMAL_GOLD_DROP_CHANCE) ? 1 : 0;
   for (let i = 0; i < goldPiles; i++) drops.push({ type: 'gold', amount: goldAmount(rng, ctx.level, goldFind) * (ctx.elite ? 2 : 1) });
   if (rng.chance(ctx.elite ? 0.25 : 0.012)) {
     const rank = Math.min(5, Math.max(1, 1 + Math.floor(ctx.level / 15) + (ctx.difficulty >= 4 ? 1 : 0)));

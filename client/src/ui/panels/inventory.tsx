@@ -98,6 +98,7 @@ function usableBy(char: CharacterSave, item: Item): boolean {
 
 /** Shift + right-click: valuable items ask first, plain gear is broken down immediately. */
 function quickSalvage(item: Item) {
+  if (item.vendorStock) { pushNotice('Merchant stock cannot be salvaged. Equip it, store it or sell it back instead.', 'warn'); return; }
   if (item.protected) { pushNotice(ITEM_PROTECTION_REASON, 'warn'); return; }
   const char = ui.get().char;
   if (!char || char.cube.level < (CUBE_FUNCTIONS.find((f) => f.op === 'salvage')?.unlock ?? 1)) { pushNotice('The Cube cannot salvage yet', 'warn'); return; }
@@ -342,12 +343,12 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
   const [, rerender] = useForce();
   if (!open) return null;
   const rarities = BULK_SALVAGE_RARITIES.filter((r) => sel.current[r]);
-  const items = char.inventory.filter((i): i is Item => !!i && !i.protected && rarities.includes(i.rarity));
+  const items = char.inventory.filter((i): i is Item => !!i && !i.protected && !i.vendorStock && rarities.includes(i.rarity));
   return (
     <div class="menu salvage-menu">
       <div class="menu-t">Salvage All</div>
       {BULK_SALVAGE_RARITIES.map((r) => {
-        const n = char.inventory.filter((i) => i && !i.protected && i.rarity === r).length;
+        const n = char.inventory.filter((i) => i && !i.protected && !i.vendorStock && i.rarity === r).length;
         return (
           <div class="menu-row" key={r}>
             <Check on={!!sel.current[r]} onChange={(v) => { sel.current[r] = v; rerender(); }}>
@@ -358,7 +359,7 @@ function SalvageMenu({ char }: { char: CharacterSave }) {
         );
       })}
       <div class="menu-sum">You will receive <YieldChips y={sumYield(items)} /></div>
-      <div class="menu-note">Protected, Legendary and Set items are never salvaged in bulk.</div>
+      <div class="menu-note">Protected, merchant stock, Legendary and Set items are never salvaged in bulk.</div>
       <div class="menu-act">
         <button class="btn sm" onClick={() => invUI.set({ salvageMenu: false })}>Cancel</button>
         <button class="btn sm primary" disabled={!items.length} onClick={() => { invUI.set({ salvageMenu: false }); void run('salvageAll', { rarities }); }}>

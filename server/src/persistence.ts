@@ -173,6 +173,8 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   // the player can explicitly remove protection after loading.
   for (const item of ownedItems(save)) {
     if (item && typeof item === 'object' && item.protected !== undefined && typeof item.protected !== 'boolean') item.protected = true;
+    // Preserve unknown/malformed present provenance conservatively; absence on old loot stays absent.
+    if (item && typeof item === 'object' && item.vendorStock !== undefined && typeof item.vendorStock !== 'boolean') item.vendorStock = true;
   }
 
   const sk = (save.skills ??= { slots: [null, null, null, null], runes: {}, tiers: {}, primary: CLASSES[save.classId].primary });
