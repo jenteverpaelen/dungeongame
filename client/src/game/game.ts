@@ -7,7 +7,11 @@ import { ZONES } from '@shared/data/zones';
 import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
 import { cubeUI } from '../ui/panels/cubestate';
 import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
-import type { ClassId, DerivedStats } from '@shared/types';
+import type { CharacterSave, ClassId, DerivedStats } from '@shared/types';
+import { playerLook } from '@shared/character';
+import { SETS } from '@shared/data/items';
+import { GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { text } from '../i18n/messages';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
@@ -190,11 +194,14 @@ export class Game {
       case 's':
         this.onSnapshot(m);
         break;
-      case 'char':
+      case 'char': {
+        const prev = ui.get().char;
         funnel.observe(m.char);
         this.applyDerived(m.derived);
         ui.set({ char: m.char, derived: m.derived });
+        this.gearMoment(prev, m.char);
         break;
+      }
       case 'chat':
         pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item });
         break;
@@ -323,6 +330,31 @@ export class Game {
       }
     }
     this.scene.vfx.handle(ev);
+  }
+
+  /** Highest gear rank and the Sets completed this session, per character (celebrate the first time only). */
+  private gearBest = new Map<string, { rank: number; sets: Set<string> }>();
+
+  /** An equip that raises the gear rank (or completes a Set for the first time) gets its moment: a notice, a chime
+   *  and a burst on the hero (docs/rework/gear/DESIGN.md §2). */
+  private gearMoment(prev: CharacterSave | null, next: CharacterSave) {
+    const now = gearProfile(playerLook(next));
+    let best = this.gearBest.get(next.id);
+    if (!best || !prev || prev.id !== next.id) {
+      if (!best) { best = { rank: now.rank, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
+      return;
+    }
+    const setDone = now.topSetCount >= 6 && !!now.topSet && !best.sets.has(now.topSet);
+    const rankUp = now.rank > best.rank;
+    if (!rankUp && !setDone) return;
+    if (rankUp) best.rank = now.rank;
+    if (setDone) best.sets.add(now.topSet!);
+    const big = setDone || now.rank >= 8;
+    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'legendary');
+    if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'legendary');
+    sfx.play(big ? 'gear_rank_big' : 'gear_rank');
+    const view = this.world.entities.get(this.world.myId)?.view as (PlayerView & { celebrateGear?(big: boolean): void }) | null | undefined;
+    view?.celebrateGear?.(big);
   }
 
   private isMine(id: number | undefined) {

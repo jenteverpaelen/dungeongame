@@ -200,7 +200,7 @@ class Sfx {
     this.voices++;
     src.onended = () => { this.voices--; src.disconnect(); g.disconnect(); if (node !== g) node.disconnect(); };
     src.start();
-    if (def.pri && (name === 'legendary' || name === 'set' || name === 'level' || name === 'paragon')) this.duck(0.55, 1.1);
+    if (def.pri && (name === 'legendary' || name === 'set' || name === 'level' || name === 'paragon' || name === 'primal' || name === 'gear_rank' || name === 'gear_rank_big')) this.duck(0.55, 1.1);
   }
 
   /** Start/stop a looping sound (e.g. 'whirlwind' while channelling). */
