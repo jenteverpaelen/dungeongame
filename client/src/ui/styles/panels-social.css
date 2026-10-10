@@ -1,0 +1,86 @@
+/* Social + Party panels and the HUD party frames (second UI round). Reuses the .co-* rail/bar/seg/chip rules. */
+.pn-social .pn-body, .pn-party .pn-body { padding: 14px 16px 16px; }
+.so { grid-template-columns: 200px 1fr; min-height: 540px; }
+.so-guild { margin-top: 8px; justify-content: center; display: inline-flex; align-items: center; gap: 8px; }
+.so-warn { margin: 0; padding: 8px 12px; border-radius: var(--r-2); font-size: var(--fs-s); color: var(--ember-hi); background: rgba(224, 120, 58, 0.1); box-shadow: inset 0 0 0 1px rgba(224, 120, 58, 0.4); }
+.so-add { display: flex; gap: 8px; }
+.so-add input { flex: 1; min-width: 0; padding: 9px 12px; font: 500 15px/1.2 var(--font-body); color: var(--t-1); background: var(--s-well);
+  border: 0; border-radius: var(--r-2); box-shadow: inset 0 0 0 1px #3a2c1c, inset 0 2px 5px rgba(0, 0, 0, 0.7); }
+.so-add input::placeholder { color: var(--t-off); }
+.so-add input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.so-list { display: flex; flex-direction: column; gap: 6px; }
+.so-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--r-2); background: linear-gradient(180deg, var(--s-3), var(--s-2) 75%);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px #3a2c1c; }
+.so-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: #4a4034; box-shadow: inset 0 0 0 1px #000; }
+.so-row.online .so-dot { background: var(--good); box-shadow: 0 0 8px rgba(113, 209, 140, 0.7), inset 0 0 0 1px #0d2514; }
+.so-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.so-who b { font: 700 16px/1.1 var(--font-display); color: var(--t-1); letter-spacing: 0.02em; }
+.so-who span { font-size: var(--fs-s); color: var(--t-3); }
+.so-row:not(.online) .so-who b { color: var(--t-2); }
+.so-act { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; min-width: 62px; padding: 5px 8px; cursor: pointer; border: 0; border-radius: var(--r-2);
+  background: #0f0b08; color: var(--t-2); box-shadow: inset 0 0 0 1px #3a2c1c; font: 700 11px/1 var(--font-display); letter-spacing: 0.04em; text-transform: uppercase; }
+.so-act:hover:not(:disabled) { background: var(--s-3); color: var(--t-1); }
+.so-act:disabled { opacity: 0.4; cursor: default; }
+.so-remove:hover:not(:disabled) { color: var(--bad); }
+.so-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 26px 12px; text-align: center; color: var(--t-3); border-radius: var(--r-2); background: var(--s-well); box-shadow: inset 0 0 0 1px #2b2118; }
+.so-empty b { font: 700 16px/1.2 var(--font-display); color: var(--t-2); }
+.so-empty span { font-size: var(--fs-s); }
+.so-pages { display: flex; align-items: center; justify-content: center; gap: 14px; color: var(--t-3); font-size: var(--fs-s); }
+.so-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.so-card { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: var(--r-2); background: linear-gradient(180deg, var(--s-3), var(--s-2) 70%);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px #3a2c1c; }
+.so-card h4 { margin: 0; font: 700 14px/1.1 var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-hi); }
+.so-card p { margin: 0; font-size: var(--fs-s); line-height: 1.4; color: var(--t-3); }
+.so-seg { align-self: flex-start; flex-wrap: wrap; }
+.so-titles, .pt-list-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.so-titles .co-slot, .pt-list-row .co-slot { flex-direction: row; min-width: 0; padding: 7px 12px; font-size: 12.5px; }
+.so-chat { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid #000; box-shadow: 0 -1px 0 rgba(140, 106, 56, 0.25); }
+.so-chat-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.so-chat-l { width: 58px; font: 700 12px/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-3); }
+.so-chip { cursor: pointer; border: 0; padding: 5px 11px; font-size: 12px; text-transform: capitalize; }
+.so-chip:hover { color: var(--t-1); background: var(--s-3); }
+.so-chat-tip { margin-left: auto; font-size: var(--fs-s); color: var(--t-3); }
+
+.pt-members { display: flex; flex-direction: column; gap: 8px; }
+.pt-member { --cls: var(--gold); display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: var(--r-2);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cls) 18%, var(--s-2)), var(--s-2) 55%); box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px color-mix(in srgb, var(--cls) 40%, #3a2c1c); }
+.pt-member.off { opacity: 0.6; }
+.pt-emblem { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--cls) 35%, #1a130c), #0a0705 80%);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 3px color-mix(in srgb, var(--cls) 55%, #2a1f14); }
+.pt-emblem svg { width: 36px; height: 36px; }
+.pt-main { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.pt-main header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.pt-main header b { font: 700 18px/1.1 var(--font-display); color: var(--t-1); }
+.pt-main header em { font-style: normal; font-size: var(--fs-s); color: var(--t-3); }
+.pt-main .chip.lead { display: inline-flex; align-items: center; gap: 4px; color: var(--gold-hi); }
+.pt-where { font-size: var(--fs-s); color: var(--t-3); }
+.pt-life { position: relative; height: 16px; border-radius: 3px; background: #070504; box-shadow: inset 0 1px 3px #000, 0 0 0 1px #2e2216; overflow: hidden; }
+.pt-life i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(180deg, #d84a38, #8e1f14); }
+.pt-life span { position: absolute; inset: 0; display: grid; place-items: center; font: 700 11.5px/1 var(--font-body); color: #fff; text-shadow: 0 1px 1px #000; }
+.pt-ctl { display: flex; flex-direction: column; gap: 5px; }
+
+/* HUD party frames */
+.party-frames { position: absolute; top: 124px; left: 18px; width: 252px; display: grid; gap: 6px; }
+.pf { display: grid; grid-template-columns: 38px 1fr; gap: 9px; align-items: center; padding: 6px 9px 6px 6px; border: 0; border-radius: var(--r-2); color: var(--t-1); font: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--cls, #8c6a38) 22%, rgba(18, 14, 11, 0.94)), rgba(18, 14, 11, 0.94) 60%);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px color-mix(in srgb, var(--cls, #8c6a38) 45%, #3a2c1c), 0 6px 14px rgba(0, 0, 0, 0.45); }
+.pf:hover { filter: brightness(1.12); }
+.pf.off { opacity: 0.6; }
+.pf.dead .pf-name { color: var(--bad); }
+.pf-emblem { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--cls) 35%, #1a130c), #0a0705 80%);
+  box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px color-mix(in srgb, var(--cls) 55%, #2a1f14); }
+.pf-emblem svg { width: 24px; height: 24px; }
+.pf-main { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.pf-name { display: flex; align-items: center; gap: 5px; font: 700 14px/1 var(--font-display); letter-spacing: 0.02em; text-shadow: 0 1px 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pf-name em { margin-left: auto; font: 400 14px/1 var(--font-num); font-style: normal; color: var(--gold-hi); }
+.pf-name .ui-ic { color: var(--gold-hi); flex: none; }
+.pf-bar { position: relative; height: 14px; border-radius: 3px; background: #070504; box-shadow: inset 0 1px 3px #000, 0 0 0 1px #2e2216; overflow: hidden; }
+.pf-bar i { position: absolute; left: 0; top: 0; bottom: 0; transition: width var(--dur-2) var(--ease-out); background: linear-gradient(180deg, #5fcf7b, #2c7f45); }
+.pf-bar.mid i { background: linear-gradient(180deg, #e8c35a, #a07a1c); }
+.pf-bar.low i { background: linear-gradient(180deg, #ef6b5b, #a02214); }
+.pf-bar.dead i { width: 0 !important; }
+.pf-bar b { position: absolute; inset: 0; display: grid; place-items: center; font: 700 11px/1 var(--font-body); color: #fff; text-shadow: 0 1px 1px #000; }
+.pf-invite { display: inline-flex; align-items: center; gap: 8px; justify-content: center; padding: 8px 10px; cursor: pointer; border: 0; border-radius: var(--r-2);
+  font: 700 13px/1 var(--font-display); letter-spacing: 0.04em; color: #1a1006; background: linear-gradient(180deg, #f6dd9c, #c99a38); box-shadow: inset 0 0 0 1px #000, 0 0 16px rgba(214, 170, 90, 0.35); animation: pf-pulse 1.8s ease-in-out infinite; }
+@keyframes pf-pulse { 50% { box-shadow: inset 0 0 0 1px #000, 0 0 24px rgba(246, 221, 156, 0.7); } }
+@media (prefers-reduced-motion: reduce) { .pf-invite { animation: none; } }

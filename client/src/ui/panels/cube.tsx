@@ -442,6 +442,39 @@ const ACTION_LABEL: Record<CubeOp, string> = {
   salvage: 'Salvage', fuse: 'Fuse 3 into 1', enchant: 'Enchant', upgrade: 'Empower', transmute: 'Transmute', extract: 'Extract Power', reforge: 'Reforge', socket: 'Add Socket',
 };
 
+/** Items that can go into the chamber for this function, shown right in the stage so nobody has to open the bag first. */
+function CandidateStrip({ fn, char }: { fn: CubeOp; char: CharacterSave }) {
+  const withEquipped = fn === 'upgrade' || fn === 'enchant' || fn === 'socket' || fn === 'reforge';
+  const pool: Item[] = [
+    ...(withEquipped ? (Object.values(char.equipment).filter(Boolean) as Item[]) : []),
+    ...(char.inventory.filter(Boolean) as Item[]),
+  ];
+  const eligible = pool.filter((it) => invalidReason(fn, it) === null);
+  const shown = eligible.slice(0, 14);
+  if (!eligible.length) {
+    const why: Partial<Record<CubeOp, string>> = {
+      transmute: 'You have no Rare items to transmute.', extract: 'You carry no Legendary items to extract.',
+      reforge: 'You carry no Legendary or Set items to reforge.', enchant: 'You have no Magic, Rare or Legendary items to enchant.',
+      upgrade: 'Nothing here can be empowered further.', socket: 'Nothing here can take another socket.', salvage: 'Your bag has nothing to salvage.',
+    };
+    return <div class="cand cand-none"><b>Nothing to work with yet</b><span>{why[fn] ?? 'You have no eligible items.'}</span></div>;
+  }
+  return (
+    <div class="cand">
+      <div class="cand-h"><b>Choose an item</b><span>{eligible.length} can be used here{withEquipped ? ' (bag and worn gear)' : ''}</span></div>
+      <div class="cand-grid">
+        {shown.map((it) => (
+          <button key={it.id} class={cls('cell', rarityClass(it))} aria-label={`Use ${it.name}`} onClick={() => setCubeItem(it.id)} {...itemHover(() => itemById(ui.get().char, it.id))}>
+            <ItemVisual item={it} size={32} />
+            {it.upgrade > 0 && <span class="cell-up">+{it.upgrade}</span>}
+          </button>
+        ))}
+      </div>
+      {eligible.length > shown.length && <small>…and {eligible.length - shown.length} more in your bag. Drag one in from the inventory to use it.</small>}
+    </div>
+  );
+}
+
 function costFor(fn: CubeOp, item: Item | null, fuseRank: number | null): Cost | null {
   switch (fn) {
     case 'salvage': return { gold: 0, mats: {} };
@@ -565,7 +598,6 @@ export function CubePanel() {
 
   return (
     <PanelFrame id="cube" title={ARTISAN_NAMES[artisan]} width={840} icon={<CubeEmblem size={22} glow={false} />}>
-      <button class="btn sm" onClick={()=>{togglePanel('cube',false);togglePanel('collection',true);}}>Collection · recipes · appearances</button>
       <div class="cube-top">
         <div class="cube-lv">
           <CubeEmblem size={54} class="cube-em" />
@@ -576,6 +608,7 @@ export function CubePanel() {
           <small>Artisan and Cube operations share Cube experience and unlock levels.</small>
           {lesson&&<button class="btn tiny" onClick={()=>{ui.set({adventureTarget:lesson.start.target,adventureZone:lesson.start.zone,journalQuest:lesson.id});togglePanel('cube',false);togglePanel('adventure',true);}}>Workshop lessons · {questAvailable(char,lesson)?'Available':'Story progress required'}</button>}
         </div>
+        <button class="btn sm quiet cube-coll" onClick={()=>{togglePanel('cube',false);togglePanel('collection',true);}}>Collection, recipes<br />&amp; appearances</button>
       </div>
       <div class="cube-main">
         <nav class="cube-nav">
@@ -601,7 +634,16 @@ export function CubePanel() {
           <div class="cw-stage">
             <Chamber item={fn === 'fuse' ? null : item} gems={fn === 'fuse' ? fuseGem : null} />
             <div class="cw-content">
-              {locked && <Hint><IconLock size={14} /> Reach Cube level <b>{def.unlock}</b> to unlock {def.name}.</Hint>}
+              {locked && <div class="cw-locked">
+                <IconLock size={22} />
+                <div>
+                  <b>{def.name} unlocks at Cube level {def.unlock}</b>
+                  <span>{def.desc}</span>
+                  <div class="cw-locked-bar"><i style={{ width: `${Math.min(100, (level / def.unlock) * 100)}%` }} /></div>
+                  <small>You are level {level}. Salvaging, fusing and other work earns Cube experience.</small>
+                </div>
+              </div>}
+              {!locked && !item && fn !== 'fuse' && <CandidateStrip fn={fn} char={char} />}
               {(!locked || fn === 'socket') && (
                 <>
                   {fn === 'salvage' && <SalvageView item={item} />}

@@ -16,6 +16,7 @@ import { SKILLS } from '@shared/data/skills';
 
 export type DragPayload =
   | { kind: 'bag'; index: number; item: Item }
+  | { kind: 'stash'; index: number; item: Item }
   | { kind: 'eq'; slot: Slot; item: Item }
   | { kind: 'gem'; gem: string; rank: number }
   | { kind: 'skill'; skillId: string };
@@ -86,7 +87,9 @@ export function canDropOn(payload: DragPayload | null, target: string): boolean 
     case 'bag':
       if (kind === 'bag') return Number(arg) !== payload.index;
       if (kind === 'eq') return slotsForKind(payload.item.kind).includes(arg as Slot);
-      return kind === 'cube' || kind === 'trash';
+      return kind === 'cube' || kind === 'trash' || kind === 'stash';
+    case 'stash':
+      return kind === 'bag';
     case 'eq':
       return kind === 'bag' || kind === 'cube';
     case 'gem':
@@ -104,10 +107,13 @@ async function handleDrop(p: DragPayload, target: string) {
     if (kind === 'bag') { const to = Number(arg); if (to !== p.index) await run('swapInv', { from: p.index, to }); }
     else if (kind === 'eq') { if (slotsForKind(p.item.kind).includes(arg as Slot)) await run('equip', { itemId: p.item.id, slot: arg }); }
     else if (kind === 'cube') setCubeItem(p.item.id);
+    else if (kind === 'stash') await run('stashDeposit', { itemId: p.item.id });
     else if (kind === 'trash') {
       if (p.item.protected) pushNotice(ITEM_PROTECTION_REASON, 'warn');
       else invUI.set({ confirm: { kind: 'destroy', item: p.item } });
     }
+  } else if (p.kind === 'stash') {
+    if (kind === 'bag') await run('stashWithdraw', { itemId: p.item.id });
   } else if (p.kind === 'eq') {
     if (kind === 'bag') await run('unequip', { slot: p.slot });
     else if (kind === 'cube') setCubeItem(p.item.id);
@@ -132,7 +138,7 @@ export function DragLayer() {
   if (!drag) return null;
   return (
     <div class="drag-ghost" ref={ref}>
-      {drag.kind === 'bag' || drag.kind === 'eq' ? <ItemVisual item={drag.item} size={44} /> : null}
+      {drag.kind === 'bag' || drag.kind === 'eq' || drag.kind === 'stash' ? <ItemVisual item={drag.item} size={44} /> : null}
       {drag.kind === 'gem' && <GemIcon gem={drag.gem} size={40} />}
       {drag.kind === 'skill' && <SkillGlyph glyph={SKILLS[drag.skillId].icon.glyph} color={SKILLS[drag.skillId].icon.color} size={44} />}
     </div>

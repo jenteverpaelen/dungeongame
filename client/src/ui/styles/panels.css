@@ -1227,9 +1227,6 @@
 .party-invite label { display:grid; gap:6px; flex:1; }
 .party-invitation { display:flex; align-items:center; gap:10px; margin:12px 0; padding:10px; border-bottom:1px solid #665335; }
 .party-invitation>span { flex:1; }
-.party-frames { position:absolute; top:118px; left:18px; width:238px; display:grid; gap:6px; }
-.party-frame { text-align:left; padding:8px; border:1px solid #665335; background:linear-gradient(#31291b,#17130d); color:#d7c49b; font:inherit; cursor:pointer; }
-.party-frame>span { display:block; margin-bottom:5px; }
 .social-list { display:grid; gap:6px; }
 .social-row { display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid #665335; background:rgba(0,0,0,.2); min-height:50px; }
 .social-row>div { flex:1; display:grid; gap:3px; }
