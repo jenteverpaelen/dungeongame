@@ -44,12 +44,10 @@ async function boot() {
   const game = new Game(app);
   session.start = (name, classId, options) => { void game.start(name, classId, options); };
   render(h(App, null), document.getElementById('ui')!);
-  const syncPreviews = () => {
-    if (ui.get().screen === 'select') startPreviews();
-    else stopPreviews();
-  };
-  syncPreviews();
-  ui.subscribe(syncPreviews);
+  // Animated hero canvases: class select, and in game the gear showcase (character panel, inspect). The observer
+  // destroys previews whose canvas left the DOM, so it can stay on for the whole session.
+  startPreviews();
+  void stopPreviews;
 
   // Dev convenience: ?autostart=Name&class=mage jumps straight into the world.
   const qs = new URLSearchParams(location.search);

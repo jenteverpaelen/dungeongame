@@ -27,8 +27,11 @@ import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearLook, gearProfile } from '@share
 import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/gearShowcase';
 import { gearFxStats } from '../render/art/gearFx';
 import { SET_STYLE } from '../render/art/gearStyle';
+import { preferences } from '../game/preferences';
 
 const qs = new URLSearchParams(location.search);
+// ?q=full|reduced|off: gear-effect level for the gallery heroes (they count as other players)
+{ const q = qs.get('q'); if (q === 'full' || q === 'reduced' || q === 'off') preferences.set({ otherGearEffects: q, gearEffects: q }); }
 // baked pages are only retained for the sheet viewer (keeping every page alive would leak in ?view=stress)
 (globalThis as { __artDebug?: boolean }).__artDebug = (qs.get('view') ?? 'chars') === 'sheets';
 const VIEW = qs.get('view') ?? 'chars';
