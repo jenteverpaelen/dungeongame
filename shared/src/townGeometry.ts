@@ -26,6 +26,29 @@ export function inGround(t: GroundGeometry, x: number, y: number): boolean {
   for (const b of t.buildings) if (inPolygon(x, y, b.footprint)) return false;
   return true;
 }
+/** Same answer as `inGround`, but each polygon is only tested where its bounding box can contain the point (a 256 u
+ *  grid of candidate lists). Large authored zones call this for every movement and validation sample. */
+export function groundTester(t: GroundGeometry): (x: number, y: number) => boolean {
+  const CELL = 256, cells = new Map<number, { floors: number[]; solids: number[]; interiors: [number, number][] }>();
+  const at = (cx: number, cy: number) => { const k = cy * 65536 + cx; let c = cells.get(k); if (!c) cells.set(k, c = { floors: [], solids: [], interiors: [] }); return c; };
+  const each = (p: readonly Point[], add: (c: { floors: number[]; solids: number[]; interiors: [number, number][] }) => void) => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const [x, y] of p) { if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; }
+    for (let cy = Math.floor(y0 / CELL); cy <= Math.floor(y1 / CELL); cy++) for (let cx = Math.floor(x0 / CELL); cx <= Math.floor(x1 / CELL); cx++) add(at(cx, cy));
+  };
+  t.floors.forEach((f, i) => each(f.polygon, (c) => c.floors.push(i)));
+  t.buildings.forEach((b, i) => { each(b.footprint, (c) => c.solids.push(i)); b.interior?.floors.forEach((p, j) => each(p, (c) => c.interiors.push([i, j]))); });
+  return (x, y) => {
+    const c = cells.get(Math.floor(y / CELL) * 65536 + Math.floor(x / CELL));
+    if (!c) return false;
+    for (const [i, j] of c.interiors) if (inPolygon(x, y, t.buildings[i].interior!.floors[j])) return true;
+    let floor = false;
+    for (const i of c.floors) if (inPolygon(x, y, t.floors[i].polygon)) { floor = true; break; }
+    if (!floor) return false;
+    for (const i of c.solids) if (inPolygon(x, y, t.buildings[i].footprint)) return false;
+    return true;
+  };
+}
 export function closest(x: number, y: number, e: Edge): Point {
   const dx = e.bx - e.ax, dy = e.by - e.ay;
   const t = Math.max(0, Math.min(1, ((x - e.ax) * dx + (y - e.ay) * dy) / (dx * dx + dy * dy || 1)));
@@ -40,12 +63,16 @@ export function groundBoundary(t: GroundGeometry): Edge[] {
   for (const p of [...t.floors.map(f => f.polygon), ...t.buildings.map(b => b.footprint), ...t.buildings.flatMap(b=>b.interior?.floors??[])]) {
     p.forEach((a, i) => { const b = p[(i + 1) % p.length]; raw.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], nx: 0, ny: 0, radius: 0 }); });
   }
-  const result: Edge[] = [], seen = new Set<string>();
-  for (const e of raw) {
+  const result: Edge[] = [], seen = new Set<string>(), ground = groundTester(t), inGround = (_: GroundGeometry, x: number, y: number) => ground(x, y);
+  // Only edges whose boxes touch can cut each other (cheap rejection; identical cuts).
+  const box = raw.map((e) => [Math.min(e.ax, e.bx) - 1e-6, Math.min(e.ay, e.by) - 1e-6, Math.max(e.ax, e.bx) + 1e-6, Math.max(e.ay, e.by) + 1e-6]);
+  for (const [ei, e] of raw.entries()) {
     const dx = e.bx - e.ax, dy = e.by - e.ay, l = Math.hypot(dx, dy);
     if (l < 1e-7) continue;
-    const cuts = [0, 1];
-    for (const o of raw) {
+    const cuts = [0, 1], eb = box[ei];
+    for (const [oi, o] of raw.entries()) {
+      const ob = box[oi];
+      if (ob[0] > eb[2] || ob[2] < eb[0] || ob[1] > eb[3] || ob[3] < eb[1]) continue;
       const ox = o.bx - o.ax, oy = o.by - o.ay, qx = o.ax - e.ax, qy = o.ay - e.ay;
       const den = cross(dx, dy, ox, oy);
       if (Math.abs(den) > 1e-7) {

@@ -25,6 +25,18 @@ import { updateSummons } from './summons';
 import type { EvRec, Ground, Mob, Player, PortalEnt, Proj, Summon } from './types';
 
 import { boundedCombat } from '../../../shared/src/combatBounds';
+import { addBuff } from './effects';
+import { dropFor } from './loot';
+import { encounterDifficulty } from './monsters';
+/** Shrine and cache cooldowns per character, zone and object (wall clock), shared by every channel of a zone so hopping
+ *  channels cannot reopen a cache. Shrines: D3's 120 s buffs (docs/rework/worlds/REFERENCES W1), combat effects only. */
+const POI_READY = new Map<string, number>();
+const SHRINE = {
+  empowered: { buff: { dmg: 25 }, text: 'Empowered Shrine: +25% damage for 2 minutes' },
+  frenzied: { buff: { ias: 25 }, text: 'Frenzied Shrine: +25% attack speed for 2 minutes' },
+  keen: { buff: { chc: 10 }, text: 'Keen Shrine: +10% critical hit chance for 2 minutes' },
+} as const;
+export const SHRINE_COOLDOWN_MS = 180_000, CACHE_COOLDOWN_MS = 600_000;
 const TICK_HISTORY = 100; // ~5 s at 20 Hz
 
 interface DmgAgg { owner: number; src: number; a: number; best: number; crit: boolean; dot: boolean; el: number; k: boolean; x: number; y: number }
@@ -396,6 +408,34 @@ export class Instance implements InstanceApi {
         return debugBoss(this, p);
     }
     return `Unknown debug op ${op}`;
+  }
+
+  /** Shrines and caches (docs/rework/worlds/DESIGN.md §1). A cache rolls exactly one rare elite's drop at the zone level. */
+  usePoi(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string } {
+    const poi = this.map.adventure?.pois?.find((q) => q.id === id), p = this.byLink.get(link);
+    if (!poi) return { ok: false, err: 'Nothing to use here' };
+    if (!p || !this.canInteract(link, poi.x, poi.y, poi.radius)) return { ok: false, err: 'Stand beside it while alive' };
+    const key = p.save.id + '|' + this.map.zone + '|' + poi.id, now = Date.now(), ready = POI_READY.get(key) ?? 0;
+    if (now < ready) return { ok: false, err: poi.name + ' is spent; it recovers in ' + Math.ceil((ready - now) / 1000) + ' s' };
+    if (POI_READY.size > 50_000) for (const [k, v] of POI_READY) if (v <= now) POI_READY.delete(k);
+    if (poi.kind === 'shrine') {
+      const s = SHRINE[poi.shrine ?? 'empowered'];
+      addBuff(p, { id: 'shrine_' + (poi.shrine ?? 'empowered'), ms: 120_000, ...s.buff });
+      POI_READY.set(key, now + SHRINE_COOLDOWN_MS);
+      return { ok: true, data: { text: s.text, readyIn: SHRINE_COOLDOWN_MS } };
+    }
+    const [lo, hi] = this.def.levelBand, level = Math.max(lo, Math.min(hi, p.save.level));
+    dropFor(this, p, poi.x, poi.y + 40, level, 2, encounterDifficulty(this, p));
+    POI_READY.set(key, now + CACHE_COOLDOWN_MS);
+    return { ok: true, data: { text: poi.name + ': opened', readyIn: CACHE_COOLDOWN_MS } };
+  }
+
+  debugWarp(link: PlayerLink, x: number, y: number): string | null {
+    const p = this.byLink.get(link);
+    if (!p) return 'Not in this instance';
+    if (!this.cw.isFree(x, y, 18)) return 'That spot is blocked';
+    p.x = p.mv.x = x; p.y = p.mv.y = y; p.ff = null;
+    return null;
   }
 
   riftState(): RiftState | null {

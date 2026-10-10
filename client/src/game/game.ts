@@ -373,6 +373,15 @@ export class Game {
     const { x, y } = this.predictor;
     const s = this.scene.nearestInteractable(x, y);
     const zone = this.world.zone;
+    if (s?.poiId) {
+      // Shrines and caches: the server checks distance, line of sight and the per-character cooldown.
+      const view = s.view as unknown as { setUsed?(ms: number): void };
+      void this.conn?.cmd('quest', { action: 'poi', target: s.poiId }).then((r) => {
+        const data = r.data as { text?: string; readyIn?: number } | undefined;
+        if (r.ok) { view.setUsed?.(data?.readyIn ?? 0); if (data?.text) pushNotice(data.text, 'info'); } else if (r.err) pushNotice(r.err, 'warn');
+      });
+      return;
+    }
     if (s?.role) {
       if(this.world.map?.adventure?.dungeon?.stages.some(stage=>stage.trigger===s.npcId)){
         void this.conn?.cmd('quest',{action:'activate',target:s.npcId}).then(r=>{if(!r.ok&&r.err)pushNotice(r.err,'warn');});return;
@@ -485,7 +494,8 @@ export class Game {
     let interact = null as typeof st.interact;
     if (this.predictor.ready) {
       const s = this.scene.nearestInteractable(px, py);
-      if (s?.role) interact = { role: s.role, name: s.name };
+      if (s?.poiId) interact = { role: 'clue', name: s.name };
+      else if (s?.role) interact = { role: s.role, name: s.name };
       else if (s?.portalTo) interact = { role: 'waypoint', name: s.name };
       else if (this.nearestPortalEntity(px, py)) interact = { role: 'obelisk', name: this.world.zone?.kind === 'town' ? 'Enter the Rift' : 'Return to Hearthmere' };
     }

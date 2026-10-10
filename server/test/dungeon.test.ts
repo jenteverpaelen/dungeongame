@@ -27,10 +27,13 @@ function player(world:World,cls:ClassId='mage'){
   const waypoint=()=>{const n=inst().map.town!.npcs.find(n=>n.role==='waypoint')!;at(...n.approach);};
   const unlock=()=>{writeQuestState(save,'silent_wheel',{revision:1,step:3,claimed:true});writeQuestState(save,'high_water',{revision:1,step:2,claimed:true});writeQuestState(save,'under_spillway',{revision:1,step:3,claimed:true});};
   const accept=()=>{waypoint();assert(travel('rillwake_crossing').ok);near('tender');assert(cmd('quest',{action:'accept',quest:'pressure_below',target:'tender'}).ok);assert(travel('hearthmere').ok);};
-  const enter=()=>{waypoint();assert(travel('bracken_sluice').ok);at(2730,1590);assert(travel('reedvault_pumpworks').ok);};
+  // Positions come from the zone data since the worlds rebuild (docs/rework/worlds/DECISIONS.md D-W07).
+  const hatch=():[number,number]=>{const q=inst().map.portals.find(q=>q.to==='reedvault_pumpworks')!;return [q.x,q.y];};
+  const outside=():[number,number]=>{const q=inst().map.portals.find(q=>q.to==='bracken_sluice')!;return [q.x,q.y];};
+  const enter=()=>{waypoint();assert(travel('bracken_sluice').ok);at(...hatch());assert(travel('reedvault_pumpworks').ok);};
   const activate=(target:string)=>cmd('quest',{action:'activate',target});
   const clear=()=>{for(const mob of [...inst().mobs])if(!mob.dead)killMob(inst(),mob,p(),'physical','dungeon-fixture');};
-  return {s,save,inst,p,at,near,cmd,travel,waypoint,unlock,accept,enter,activate,clear};
+  return {s,save,inst,p,at,near,cmd,travel,waypoint,unlock,accept,enter,activate,clear,hatch,outside};
 }
 
 test('story dungeon uses Normal independently of the last rift selection',async()=>{
@@ -81,15 +84,17 @@ test('physical entry, private ownership, ordered activation, retry/leave/expiry 
     const a=player(world),b=player(world);
     a.waypoint();assert(!a.travel('reedvault_pumpworks').ok);a.unlock();a.accept();a.waypoint();
     assert(!a.travel('reedvault_pumpworks').ok,'waypoint cannot bypass the hatch');
-    a.enter();const first=a.inst();assert.equal(first.mobs.length,0,'mechanisms own spawns');
+    a.enter();const first=a.inst(),stageIds=new Set(first.map.adventure!.dungeon!.stages.map(st=>st.encounter));
+    // D-W06: pre-placed packs are allowed; the mechanisms still own every stage encounter.
+    assert(first.mobs.every(m=>!stageIds.has(m.adventureSite??'')),'mechanisms own stage spawns');
     assert(!a.cmd('channel',{channel:1}).ok);assert(!a.activate('west_wheel').ok,'remote');
     a.near('east_wheel');assert(!a.activate('east_wheel').ok,'ordered');
     a.near('west_wheel');a.p().deadMs=1;assert(!a.activate('west_wheel').ok,'dead');a.p().deadMs=0;
-    assert(a.activate('west_wheel').ok);assert(!a.activate('west_wheel').ok,'duplicate activation');assert.equal(first.dungeonState()!.remaining,4);
+    assert(a.activate('west_wheel').ok);assert(!a.activate('west_wheel').ok,'duplicate activation');assert.equal(first.dungeonState()!.remaining,first.map.adventure!.encounters.find(e=>e.id==='west_chamber')!.members.length);
     b.unlock();b.enter();assert.notEqual(b.inst().key,first.key,'another character cannot join this run');
     a.p().hp=0;a.p().deadMs=100;first.dungeon!.tick();assert.equal(first.dungeonState()!.phase,'ready');assert.equal(questState(a.save,'pressure_below')!.step,0);
-    a.near('west_wheel');assert(a.activate('west_wheel').ok);first.removeEntity(first.mobs.find(m=>!m.dead)!.id);first.dungeon!.tick();assert.equal(first.dungeonState()!.phase,'ready','despawn cannot clear');
-    a.near('west_wheel');assert(a.activate('west_wheel').ok);a.at(1270,2050);first.dungeon!.tick();assert.equal(first.dungeonState()!.phase,'ready','leaving chamber cancels');
+    a.near('west_wheel');assert(a.activate('west_wheel').ok);first.removeEntity(first.mobs.find(m=>!m.dead&&m.adventureSite==='west_chamber')!.id);first.dungeon!.tick();assert.equal(first.dungeonState()!.phase,'ready','despawn cannot clear');
+    a.near('west_wheel');assert(a.activate('west_wheel').ok);a.at(...a.outside());first.dungeon!.tick();assert.equal(first.dungeonState()!.phase,'ready','leaving chamber cancels');
     a.near('west_wheel');assert(a.activate('west_wheel').ok);a.clear();assert.equal(questState(a.save,'pressure_below')!.step,1);
     await saveCharacter(a.save);await flushSaves();assert.equal((await loadCharacter(a.save.id))!.quests!.pressure_below.step,1);
     a.near('east_wheel');assert(a.activate('east_wheel').ok);assert(a.travel('hearthmere').ok);assert.equal(first.dungeonState()!.stage,1);assert.equal(first.dungeonState()!.phase,'ready');
@@ -109,9 +114,9 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: complete aut
     assert.equal(a.inst().dungeonState()!.phase,'done');assert(!a.activate('pump_crank').ok);
     a.near('work_record');assert(a.cmd('quest',{quest:'pressure_below',action:'inspect',target:'work_record'}).ok);
     const reward=questState(a.save,'pressure_below')!.reward!;assert(reward);
-    const completedRun=a.inst();a.at(1270,2050);assert(a.travel('bracken_sluice').ok);assert(Math.hypot(a.p().x-2790,a.p().y-1590)<110,'return beside the hatch');
-    a.at(2730,1590);assert(a.travel('reedvault_pumpworks').ok);assert.equal(a.inst().dungeonState()!.stage,0,'completed run starts fresh');assert.notEqual(a.inst(),completedRun);
-    assert(a.travel('hearthmere').ok);a.waypoint();assert(a.travel('rillwake_crossing').ok);a.near('tender');
+    const completedRun=a.inst();a.at(...a.outside());assert(a.travel('bracken_sluice').ok);assert(Math.hypot(a.p().x-a.hatch()[0],a.p().y-a.hatch()[1])<110,'return beside the hatch');
+    a.at(...a.hatch());assert(a.travel('reedvault_pumpworks').ok);assert.equal(a.inst().dungeonState()!.stage,0,'completed run starts fresh');assert.notEqual(a.inst(),completedRun);
+    assert(a.travel('hearthmere').ok);a.waypoint();{const r=a.travel('rillwake_crossing');assert(r.ok,JSON.stringify(r));}a.near('tender');
     a.save.inventory=a.save.inventory.map((_,i)=>({...structuredClone(a.save.equipment.mainhand!),id:`full-${i}`}));
     const claim=()=>a.cmd('quest',{quest:'pressure_below',action:'claim',target:'tender'});
     assert(!claim().ok);assert(!questState(a.save,'pressure_below')!.claimed);a.save.inventory[0]=null;assert(claim().ok);assert(!claim().ok);

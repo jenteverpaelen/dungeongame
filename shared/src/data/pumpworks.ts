@@ -1,76 +1,63 @@
-import type { AdventureData } from '../adventureTypes';
 import type { Point } from '../townTypes';
+import { ZoneBuilder, rect, room } from '../zoneKit';
 
-const rect=(x:number,y:number,w:number,h:number):Point[]=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
-const west=rect(390,1120,640,640),east=rect(1510,1120,640,640),heart=rect(950,270,640,640);
-/** Original masonry service chambers. L89: camera-scale rooms and existing Bracken passage/group sizes. */
-export const PUMPWORKS:AdventureData={
-  id:'reedvault_pumpworks',surface:'masonry',size:[40,36],
-  ambience:{
-    motion:[
-      {id:'intake-water',kind:'ripples',position:[970,2110],width:38},
-      {id:'west-drip',kind:'drips',position:[320,1430],width:32},
-      {id:'east-drip',kind:'drips',position:[2220,1430],width:32},
-      {id:'central-channel',kind:'ripples',position:[1270,1400],width:70},
-      {id:'channel-mist',kind:'mist',position:[1270,1550],width:180},
-    ],
-    sounds:[
-      {id:'intake-water',kind:'water',position:[970,2110],radius:720},
-      {id:'west-water',kind:'water',position:[320,1430],radius:720},
-      {id:'east-water',kind:'water',position:[2220,1430],radius:720},
-      {id:'pump-water',kind:'water',position:[1270,180],radius:720},
-    ],
-  },
-  geometry:{entry:{x:1270,y:2050},floors:[
-    {polygon:rect(1050,1870,440,310)},
-    {polygon:rect(600,1760,1340,230)},
-    {polygon:rect(600,1590,230,320)},{polygon:rect(1710,1590,230,320)},
-    {polygon:west},{polygon:east},
-    {polygon:rect(850,860,230,470)},{polygon:rect(1450,860,230,470)},
-    {polygon:rect(850,800,830,230)},{polygon:heart},
-  ],buildings:[
-    {footprint:rect(390,1120,180,36)},{footprint:rect(390,1156,36,300)},
-    {footprint:rect(1970,1120,180,36)},{footprint:rect(2114,1156,36,300)},
-    {footprint:rect(950,270,640,36)},
-  ],barriers:[],props:[],npcs:[]},
-  paths:[],
-  scenery:[
-    {k:'crate',x:1080,y:2070,r:17,s:1,v:0},{k:'crate',x:1115,y:2100,r:17,s:1,v:1},
-    {k:'lantern',x:1100,y:1950,r:6,s:1,v:0},{k:'lantern',x:470,y:1560,r:6,s:1,v:0},
-    {k:'lantern',x:2070,y:1560,r:6,s:1,v:0},{k:'lantern',x:1020,y:690,r:6,s:1,v:0},
-    {k:'lantern',x:1520,y:690,r:6,s:1,v:0},
-  ],
-  npcs:[
-    {id:'west_wheel',name:'West pressure wheel',role:'clue',x:520,y:1470,r:18},
-    {id:'east_wheel',name:'East pressure wheel',role:'clue',x:2020,y:1470,r:18},
-    {id:'pump_crank',name:'Main pump crank',role:'clue',x:1270,y:780,r:18},
-    {id:'work_record',name:'Maintenance record',role:'clue',x:1460,y:420,r:18},
-  ],
-  interactions:[
-    {id:'west_wheel',name:'West pressure wheel',x:520,y:1470,radius:110,kind:'mechanism'},
-    {id:'east_wheel',name:'East pressure wheel',x:2020,y:1470,radius:110,kind:'mechanism'},
-    {id:'pump_crank',name:'Main pump crank',x:1270,y:780,radius:110,kind:'mechanism'},
-    {id:'work_record',name:'Maintenance record',x:1460,y:420,radius:110,kind:'ledger'},
-  ],
-  portals:[{x:1270,y:2120,to:'bracken_sluice',label:'Return to Bracken Sluice'}],
-  locations:[],
-  encounters:[
-    {id:'west_chamber',x:740,y:1390,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'reedclaw',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
-    {id:'east_chamber',x:1780,y:1390,members:[{type:'mossback',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'vault_moth',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
-    {id:'pump_heart',x:1270,y:520,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'The Sumpbound Keeper',combat:'keeper'}]},
-  ],
-  dungeon:{stages:[
-    {id:'west',trigger:'west_wheel',encounter:'west_chamber',area:west},
-    {id:'east',trigger:'east_wheel',encounter:'east_chamber',area:east},
-    {id:'heart',trigger:'pump_crank',encounter:'pump_heart',area:heart},
-  ]},
-  landmarks:[{name:'Intake Stairs',x:1270,y:2000},{name:'West Filter',x:740,y:1550},{name:'East Filter',x:1780,y:1550},{name:'Pump Heart',x:1270,y:600}],
-  wheel:{x:1100,y:420,radius:38},
-  routes:[
-    [[1270,2050],[1270,1875],[715,1875],[715,1600],[740,1390],[590,1470]],
-    [[715,1875],[1825,1875],[1825,1600],[1780,1390],[1950,1470]],
-    [[740,1390],[965,1230],[965,915],[1330,915],[1330,720],[1270,650],[1270,520],[1410,470]],
-    [[1780,1390],[1565,1230],[1565,915],[1270,915]],
-    [[1270,2050],[1270,2080]],
-  ],
-};
+// Reedvault Pumpworks (L7–9, private dungeon) — rooms on a loop instead of three boxes (DESIGN.md §1, §2).
+// Ids kept: west_wheel, east_wheel, pump_crank, work_record; west_chamber, east_chamber, pump_heart; stages west/east/heart.
+const S = 56.32, P = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
+const z = new ZoneBuilder('reedvault_pumpworks', [88, 80], 'pump', P(50, 84), { theme: 'glade', surface: 'masonry' });
+const vermin = ['grave_bat', 'reedclaw', 'bog_slime', 'grave_bat'], works = ['mossback', 'gloomshroom', 'vault_moth', 'bog_slime'];
+const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<typeof z.region>[3] = {}) => z.region(id, P(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'flag', poly: room(cx * S, cy * S, w * S, h * S, 2.2 * S), dress: 0.5, ...o });
+
+R('stairs', 50, 83, 22, 11);
+R('hall', 50, 64, 36, 17, { roster: vermin, packs: 2 });
+const west = R('west', 17, 54, 26, 22, { dress: 0.3 }), east = R('east', 83, 54, 26, 22, { dress: 0.3 });
+R('valves', 17, 28, 24, 16, { roster: vermin, packs: 1 });
+R('tanks', 83, 28, 24, 16, { roster: works, packs: 1 });
+const heart = R('heart', 50, 22, 34, 24, { dress: 0 });
+R('records', 50, 5.5, 20, 9, { ground: 'planks', dress: 0 });
+
+z.road([P(50, 83), P(50, 64)], 200, 'flag');
+z.road([P(50, 64), P(30, 60), P(17, 54)], 200, 'flag');
+z.road([P(50, 64), P(70, 60), P(83, 54)], 200, 'flag');
+z.road([P(17, 54), P(17, 28)], 190, 'flag');
+z.road([P(83, 54), P(83, 28)], 190, 'flag');
+z.road([P(17, 28), P(33, 24), P(50, 22)], 190, 'flag');
+z.road([P(83, 28), P(67, 24), P(50, 22)], 190, 'flag');
+z.road([P(50, 22), P(50, 5.5)], 170, 'flag');
+
+z.portal(...P(50, 87), 'bracken_sluice', 'Return to Bracken Sluice');
+z.shrine('shrine_stairs', ...P(42, 82), 'empowered');
+z.decor('crates', ...P(57.5, 81)); z.decor('lamppost', ...P(41, 79.5)); z.decor('lamppost', ...P(59, 79.5));
+z.landmark('Intake Stairs', ...P(50, 86));
+z.decor('barrels', ...P(36, 60)); z.decor('crates', ...P(64, 69)); z.decor('pillar', ...P(36, 68)); z.decor('pillar', ...P(64, 59), 1, 1);
+z.landmark('Filter Hall', ...P(50, 70));
+
+// West and east filters: each wheel starts its chamber encounter (stages keep their order and ids).
+z.contact('west_wheel', 'West pressure wheel', ...P(10.5, 50), 'mechanism');
+z.pack('west_chamber', ...P(19, 55), ['grave_bat', 'grave_bat', 'reedclaw', 'bog_slime', 'reedclaw', 'grave_bat']);
+z.contact('east_wheel', 'East pressure wheel', ...P(89.5, 50), 'mechanism');
+z.pack('east_chamber', ...P(81, 55), ['mossback', 'gloomshroom', 'vault_moth', 'bog_slime', 'grave_bat', 'vault_moth']);
+z.decor('pillar', ...P(8, 59)); z.decor('pillar', ...P(92, 59), 1, 1);
+z.landmark('West Filter', ...P(17, 60)); z.landmark('East Filter', ...P(83, 60));
+z.decor('barrels', ...P(11, 31)); z.decor('crates', ...P(23, 32)); z.landmark('Valve Gallery', ...P(17, 33));
+z.cache('cache_tanks', ...P(89, 31), 'Settling-tank locker'); z.land('water', rect(78 * S, 22 * S, 10 * S, 2 * S)); z.landmark('Settling Tanks', ...P(83, 33));
+
+// Pump heart (keeper arena) and the record room behind it.
+z.contact('pump_crank', 'Main pump crank', ...P(50, 31.5), 'mechanism');
+z.pack('pump_heart', ...P(50, 20), [{ type: 'mossback', dx: 0, dy: 0, tier: 2, name: 'The Sumpbound Keeper', combat: 'keeper' }]);
+z.wheel = { x: Math.round(39 * S), y: Math.round(14 * S), radius: 38 };
+z.decor('pillar', ...P(36, 30)); z.decor('pillar', ...P(64, 30)); z.light(...P(50, 24), 0x9ad8ff, 220);
+z.landmark('Pump Heart', ...P(50, 28));
+z.contact('work_record', 'Maintenance record', ...P(54.5, 4.5), 'ledger');
+z.decor('table', ...P(46, 5.5)); z.light(...P(50, 5), 0xffc070, 150);
+z.landmark('Record Room', ...P(50, 9));
+
+z.dungeon = { stages: [
+  { id: 'west', trigger: 'west_wheel', encounter: 'west_chamber', area: west },
+  { id: 'east', trigger: 'east_wheel', encounter: 'east_chamber', area: east },
+  { id: 'heart', trigger: 'pump_crank', encounter: 'pump_heart', area: heart },
+] };
+for (const [x, y] of [P(50, 74), P(10, 54), P(90, 54), P(50, 14)]) z.sound('water', x, y);
+z.emit('fog', ...P(50, 70), 3); z.emit('motes', ...P(50, 22), 8);
+
+export const PUMPWORKS = z.build();

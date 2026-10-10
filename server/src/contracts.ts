@@ -72,6 +72,10 @@ export interface InstanceApi {
   removeEntity(id: number): void;
   /** World-side debug helpers: 'goblin' | 'elite' | 'heal' | 'boss'. Returns an error string or null. */
   debug(link: PlayerLink, op: string): string | null;
+  /** QA teleport inside this instance (debug servers only); refuses blocked ground. */
+  debugWarp?(link: PlayerLink, x: number, y: number): string | null;
+  /** Optional world object (shrine, cache) used in person; validated by the instance. */
+  usePoi?(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string };
   riftState(): RiftState | null;
   /** Broadcast an event/notice to every player in the instance. */
   notice(text: string, kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn'): void;

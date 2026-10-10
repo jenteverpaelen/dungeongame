@@ -12,6 +12,8 @@ import { ownedItems, VENDOR_SALVAGE_REASON } from '../../shared/src/merchant';
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
 import { questCommand, creditQuestService } from './quests';
+import { QUESTS } from '../../shared/src/data/quests';
+import { questState, writeQuestState } from '../../shared/src/quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
@@ -726,6 +728,20 @@ const debug: Handler = (s, a) => {
       const added = giveItems(save, items);
       if (!added) return fail('Your inventory is full');
       return done(s, false, { added, skipped: items.length - added });
+    }
+    case 'story': {
+      // QA only (screenshots, walk-throughs): every one-time story quest claimed so every route opens, then levels.
+      for (const q of QUESTS) if (!q.repeat && !q.tutorial && !questState(save, q.id)?.claimed) writeQuestState(save, q.id, { revision: q.revision, step: q.steps.length, claimed: true });
+      const target = int(a, 'level', 1, MAX_LEVEL, 50);
+      while (save.level < target) addXp(save, xpToNext(save.level) - save.xp);
+      return done(s, true, { level: save.level });
+    }
+    case 'warp': {
+      if (!s.rec) return fail('Not in a zone');
+      const inst = s.rec.inst;
+      if (!inst.debugWarp) return fail('Teleport is unavailable here');
+      const err = inst.debugWarp(s, int(a, 'x', 0, 1_000_000), int(a, 'y', 0, 1_000_000));
+      return err ? fail(err) : ok();
     }
     default:
       return fail('Unknown debug op');

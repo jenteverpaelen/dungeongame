@@ -1,102 +1,123 @@
-import type { AdventureData } from '../adventureTypes';
 import type { Point } from '../townTypes';
-import type { Prop } from '../mapgen';
+import { ZoneBuilder, riverPoly, rect } from '../zoneKit';
 
-// Authored composition in world units. No random layout or encounter placement.
-const rect = (x: number, y: number, w: number, h: number): Point[] => [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
-const scenery: Prop[] = [];
-const row = (kind: string, points: Point[], radius: number, scale = 1) => points.forEach(([x,y],v) => scenery.push({ k:kind,x,y,r:radius,s:scale,v }));
-row('pine', [[350,2570],[390,2250],[680,2240],[950,2690],[1100,2360],[1210,2650],[1160,2120],[1420,1740],[1150,1600],[930,1460],[580,1730],[660,1280],[1200,1200],[1550,1110],[1740,1610],[2080,2430],[2400,2420],[2570,2140],[2650,1560],[2890,1340],[2810,860],[3020,550],[3620,520],[3810,990],[3640,1570]], 20, 1.35);
-row('tree', [[490,2670],[810,2780],[1550,2360],[1700,2530],[1910,2370],[1980,1760],[2530,1760],[1810,1100],[2300,970],[2650,660],[3400,510],[3790,1270]], 22, 1.2);
-row('boulder', [[990,2440],[1220,2330],[1520,2170],[1770,2210],[1940,1480],[2140,1290],[2600,1350],[3150,1430],[3650,720]], 29);
-row('stump', [[1510,1880],[2130,2240],[2390,1900],[3020,1090]], 17);
-row('crate', [[650,2500],[695,2510],[2140,1960],[2165,1965],[3460,880]], 17);
-row('campfire', [[750,2520]], 21);
-row('lantern', [[880,2460],[1350,1990],[1790,1970],[2730,1200],[3170,1140]], 6);
+// Rillwake Crossing (L1–4) — docs/rework/worlds/DESIGN.md §2. Plan units: the map is 100 × 80 plan units (S u each).
+// Ids kept: tender, cart, ledger, survey (contacts); road, yard, ridge, overlook, mill (encounters); old_ridge; survey_alarm.
+const S = 102.4, P = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
+const z = new ZoneBuilder('rillwake_crossing', [160, 128], 'meadow', P(10, 71.5), { theme: 'glade' });
+const slimes = ['bog_slime', 'gloomshroom', 'bog_slime', 'thornling'], wood = ['gloomshroom', 'thornling', 'grave_bat', 'bog_slime'], bank = ['bog_slime', 'reedclaw', 'gloomshroom', 'bog_slime'];
 
-export const RILLWAKE: AdventureData = {
-  id: 'rillwake_crossing', size: [64,52],
-  events:[{id:'survey_alarm',name:'The Overlook Alarm',trigger:'survey',encounter:'overlook'}],
-  ambience: {
-    motion: [
-      {id:'camp-water',kind:'ripples',position:[450,2160],width:40},
-      {id:'crossing-upstream',kind:'ripples',position:[1900,1800],width:70},
-      {id:'crossing-downstream',kind:'ripples',position:[1900,2300],width:70},
-      {id:'camp-reeds',kind:'reeds',position:[955,2170],width:32},
-      {id:'crossing-reeds',kind:'reeds',position:[1850,1870],width:32},
-      {id:'river-mist',kind:'mist',position:[1900,1790],width:360},
-    ],
-    sounds: [
-      {id:'camp-fire',kind:'fire',position:[750,2520],radius:430},
-      {id:'camp-water',kind:'water',position:[450,2160],radius:720},
-      {id:'crossing-water',kind:'water',position:[1900,1800],radius:720},
-      {id:'mill-water',kind:'water',position:[3680,1640],radius:720},
-      {id:'camp-wind',kind:'wind',position:[800,2360],radius:720},
-      {id:'ridge-wind',kind:'wind',position:[1500,1400],radius:720},
-      {id:'mill-wind',kind:'wind',position:[3280,1130],radius:720},
-    ],
-  },
-  geometry: {
-    entry: { x:650,y:2410 },
-    floors: [
-      { polygon:[[320,2310],[550,2150],[920,2170],[1140,2390],[1050,2700],[590,2810],[320,2600]] },
-      { polygon:[[920,2370],[1120,2450],[1620,2100],[1490,1850]] },
-      { polygon:[[1250,1800],[1500,1640],[1810,1750],[1830,2170],[1570,2300],[1320,2150]] },
-      { polygon:rect(1700,1920,480,220) }, // timber crossing over the watercourse
-      { polygon:[[2100,1700],[2400,1680],[2660,1890],[2600,2260],[2300,2400],[2020,2200],[1990,1950]] },
-      { polygon:[[2400,1790],[2560,1940],[3220,1320],[3010,1120]] },
-      { polygon:[[2880,750],[3180,570],[3630,640],[3850,980],[3740,1410],[3390,1600],[2960,1430],[2770,1120]] },
-      // Optional ridge rejoins the mill approach; no forced quest gate.
-      { polygon:[[1290,1850],[1520,1740],[1210,1260],[970,1360]] },
-      { polygon:[[700,1230],[1020,1110],[1420,1190],[1500,1430],[1230,1640],[820,1580],[630,1400]] },
-      { polygon:[[1280,1300],[1310,1500],[2380,1270],[2330,1030]] },
-      { polygon:[[2100,890],[2480,790],[2750,1010],[2660,1300],[2270,1420],[2030,1170]] },
-      { polygon:[[2580,1030],[2600,1220],[2960,1160],[2920,920]] },
-    ],
-    // Open mill shell: low walls are independent footprints; gaps are real doorways.
-    buildings: [
-      { footprint:rect(3250,700,330,38) }, { footprint:rect(3250,700,38,215) },
-      { footprint:rect(3542,700,38,330) }, { footprint:rect(3390,992,190,38) },
-      { footprint:rect(3250,972,38,58) },
-    ],
-    barriers: [
-      {a:[1720,1920],b:[2100,1920],radius:7}, {a:[1720,2140],b:[2100,2140],radius:7},
-    ],
-    props: [], npcs: [],
-  },
-  paths: [
-    {points:[[650,2410],[980,2430],[1450,2010],[1730,2030]],width:120},
-    {points:[[1700,2030],[2140,2030]],width:220,bridge:true},
-    {points:[[2100,2030],[2370,2020],[2650,1690],[3080,1220],[3360,1130],[3360,890]],width:120},
-    {points:[[1450,1900],[1160,1400],[1600,1350],[2340,1120],[2830,1060],[3080,1220]],width:85},
-  ],
-  scenery,
-  npcs: [
-    {id:'tender',name:'Orren · Mill Tender',role:'quest',x:800,y:2380,r:18},
-    {id:'cart',name:'Abandoned timber cart',role:'clue',x:2270,y:1970,r:24},
-    {id:'ledger',name:'Mill ledger',role:'clue',x:3350,y:800,r:14},
-    {id:'survey',name:'Survey marker',role:'clue',x:2440,y:990,r:14},
-  ],
-  portals:[{x:480,y:2440,to:'hearthmere',label:'Return to Hearthmere'},{x:3120,y:720,to:'bracken_sluice',label:'Upstream to Bracken Sluice'}],
-  interactions:[
-    {id:'tender',name:'Orren',x:800,y:2380,radius:110,kind:'person'},
-    {id:'cart',name:'Abandoned timber cart',x:2270,y:1970,radius:110,kind:'cart'},
-    {id:'ledger',name:'Mill ledger',x:3350,y:800,radius:110,kind:'ledger'},
-    {id:'survey',name:'Survey marker',x:2440,y:990,radius:110,kind:'marker'},
-  ],
-  encounters:[
-    {id:'road',x:1370,y:2030,members:[{type:'bog_slime',dx:0,dy:0},{type:'bog_slime',dx:90,dy:45},{type:'gloomshroom',dx:-60,dy:-90},{type:'gloomshroom',dx:100,dy:-80},{type:'bog_slime',dx:180,dy:25},{type:'thornling',dx:220,dy:-80}]},
-      {id:'yard',x:2290,y:2150,members:[{type:'gloomshroom',dx:0,dy:0},{type:'bog_slime',dx:-100,dy:-10},{type:'bog_slime',dx:80,dy:50},{type:'reedclaw',dx:160,dy:-60},{type:'gloomshroom',dx:0,dy:100},{type:'grave_bat',dx:80,dy:-50}]},
-    {id:'ridge',x:1070,y:1370,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:90,dy:10},{type:'gloomshroom',dx:140,dy:80},{type:'thornling',dx:-140,dy:-30},{type:'bog_slime',dx:-50,dy:110},{type:'gloomshroom',dx:0,dy:-100}]},
-    {id:'overlook',x:2370,y:1110,members:[{type:'mossback',dx:0,dy:0},{type:'thornling',dx:150,dy:-80},{type:'bog_slime',dx:0,dy:110},{type:'bog_slime',dx:-130,dy:-40},{type:'grave_bat',dx:100,dy:60},{type:'gloomshroom',dx:-60,dy:40}]},
-    {id:'mill',x:3210,y:1200,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'Siltroot, the Wheelkeeper',questTarget:true},{type:'bog_slime',dx:-90,dy:-90},{type:'bog_slime',dx:110,dy:90},{type:'gloomshroom',dx:110,dy:-100},{type:'thornling',dx:230,dy:80}]},
-  ],
-  landmarks:[{name:'Tender’s Camp',x:680,y:2580},{name:'Timber Crossing',x:1900,y:2030},{name:'Abandoned Yard',x:2320,y:2230},{name:'Old Ridge',x:1100,y:1350},{name:'Rillwake Mill',x:3420,y:1130}],
-  wheel:{x:3620,y:860,radius:38},
-  locations:[{id:'old_ridge',x:1160,y:1400,radius:110}],
-  routes:[
-    [[650,2410],[900,2430],[1450,2010],[1700,2030],[2130,2030],[2350,2040],[2660,1680],[3050,1260],[3360,1130],[3340,940],[3340,850]],
-    [[1450,1900],[1160,1400],[1600,1350],[2340,1120],[2820,1070],[3070,1230]],
-    [[3070,1230],[3070,910],[3120,780]],
-  ],
-};
+// The Rill runs north–south through the middle; a millrace feeds the mill in the north-east.
+const rill = [P(45, -2), P(43, 15), P(46, 30), P(42.5, 44), P(44, 58), P(41, 70), P(43, 82)];
+z.land('water', riverPoly(rill, 4.2 * S));
+z.land('reeds', riverPoly([P(37.5, 60), P(38.5, 66), P(38, 71)], 2.2 * S));
+z.land('water', rect(68 * S, 4.5 * S, 22 * S, 2.6 * S));
+z.land('mud', riverPoly([P(48, 60), P(48.5, 66)], 1.5 * S));
+
+// Regions (route order) — outposts have no packs.
+z.region('camp', P(12.5, 69.5), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
+z.region('road_meadow', P(24.5, 63), [4.2 * S, 3 * S], { ground: 'meadow' });
+z.region('shallows', P(34, 64), [5.6 * S, 4.6 * S], { roster: bank, packs: 2, ground: 'meadow' });
+z.region('charcoal', P(22, 52), [6 * S, 4.4 * S], { roster: slimes, packs: 2 });
+z.region('hollow_oak', P(8, 49.5), [3.6 * S, 3 * S], { role: 'secret', ground: 'moss' });
+z.region('ridge', P(19.5, 34), [7.2 * S, 5.2 * S], { roster: wood, packs: 2 });
+z.region('overlook', P(33, 23.5), [5.2 * S, 4 * S], { ground: 'meadow' });
+z.region('north_bank', P(57.5, 24.5), [8.5 * S, 5.6 * S], { roster: wood, packs: 3 });
+z.region('yard', P(57.5, 48), [6.2 * S, 4.6 * S], { role: 'yard', ground: 'dirt', roster: slimes, packs: 1 });
+z.region('bramble', P(66, 57), [6 * S, 4.4 * S], { roster: slimes, packs: 2 });
+z.region('bend', P(50.5, 64), [4.6 * S, 3.8 * S], { role: 'outpost', ground: 'meadow' });
+z.region('chapel', P(82, 61), [5.6 * S, 4.6 * S], { role: 'ruin', ground: 'moss', roster: wood, packs: 1 });
+z.region('millrace', P(68.5, 35.5), [6.6 * S, 4.8 * S], { roster: wood, packs: 2 });
+z.region('mill_yard', P(75, 26), [5.6 * S, 4 * S], { role: 'arena', ground: 'dirt' });
+z.region('mill', P(79, 15.5), [5 * S, 3.4 * S], { role: 'room', ground: 'planks', poly: rect(74 * S, 12 * S, 10 * S, 7.5 * S), dress: 0 });
+z.region('upstream', P(91, 11), [4 * S, 3.4 * S], { ground: 'grass' });
+
+// Roads: the Timber Road (main), the ridge loop, side tracks. Bridges cross the painted river.
+z.road([P(12.5, 69.5), P(20, 67), P(28, 64.6), P(33, 59), P(35, 52), P(34.2, 46.5), P(38.5, 44)], 170, 'dirt');
+z.road([P(38.5, 44), P(46.8, 44)], 200, 'planks', { bridge: true });
+z.road([P(46.8, 44), P(52, 46), P(57.5, 47.5), P(63, 42), P(66.5, 36.5), P(70.5, 31), P(75, 26.5), P(78.8, 20.5), P(78.8, 17.5)], 170, 'dirt');
+z.road([P(34.6, 50.5), P(28, 45), P(22.5, 38.5), P(20, 33.5), P(26, 27.5), P(33, 23.5), P(40.6, 22)], 140, 'dirt');
+z.road([P(40.6, 22), P(48.6, 22)], 170, 'planks', { bridge: true });
+z.road([P(48.6, 22), P(57.5, 24.5), P(64, 27.5), P(70.5, 31)], 140, 'dirt');
+z.road([P(52, 46), P(51, 53), P(50.5, 62)], 140, 'dirt');
+z.road([P(57.5, 47.5), P(62, 53), P(66, 57), P(74.5, 59.5), P(82, 61)], 140, 'dirt');
+z.road([P(22, 52), P(15, 50.5), P(8.5, 49.5)], 130, 'moss');
+z.road([P(27, 64.6), P(24.5, 58), P(22, 52)], 140, 'dirt');
+z.road([P(75, 26.5), P(83, 24), P(89, 17), P(91, 11)], 150, 'dirt');
+
+// Camp: Orren, the people who keep the road, and the way home.
+z.camp(P(12.5, 70.5)[0], P(12.5, 70.5)[1], { tents: 2 });
+z.contact('tender', 'Orren', ...P(14, 68.4), 'person');
+z.portal(...P(8, 72), 'hearthmere', 'Return to Hearthmere');
+z.resident('rw_porter', 'porter', 'Camp porter', ...P(9.5, 67.5), 20);
+z.resident('rw_worker', 'worker', 'Timber hand', ...P(16.5, 72.5), -30);
+z.walker('rw_haul', 'carpenter', [P(15, 69), P(20, 66.6), P(22, 56), P(20.5, 53)], 50, 5);
+z.light(...P(14, 67.5), 0xffc070, 180);
+z.landmark('Tender’s Camp', ...P(12.5, 72));
+
+// The road above camp: the first fight, a short way from Orren.
+z.pack('road', ...P(24, 62.6), ['bog_slime', 'bog_slime', 'gloomshroom', 'gloomshroom', 'bog_slime', 'thornling']);
+z.contact('reed_nest', 'Trampled reed nest', ...P(35.2, 66.5), 'marker');
+z.pack('shallows', ...P(36.5, 62.5), ['bog_slime', 'reedclaw', 'bog_slime', 'reedclaw', 'bog_slime', 'gloomshroom', 'bog_slime']);
+z.event('shallows_swarm', 'Swarm at the Shallows', 'reed_nest', 'shallows', 'Something has been nesting in the reeds. Stamp the nest flat and the whole bank will come for you.', 'Disturb the nest');
+z.landmark('Reed Shallows', ...P(34, 64));
+z.lumber(...P(24, 53.5)); z.resident('rw_burner', 'worker', 'Charcoal burner', ...P(19.5, 50.5), 0);
+z.emit('smoke', ...P(21, 50), 6); z.decor('coalpile', ...P(21.5, 51.2)); z.light(...P(21, 50.5), 0xff9a50, 150, 0.3);
+z.landmark('Charcoal Clearing', ...P(22, 54));
+
+// Hollow Oak (secret): a shrine and a cache behind the charcoal track.
+z.decor('oak', ...P(7, 47.5), 1.5, 2); z.shrine('shrine_oak', ...P(9.5, 48.6), 'keen'); z.cache('cache_oak', ...P(6.5, 51), 'Root-wrapped cache');
+z.landmark('Hollow Oak', ...P(8, 52));
+
+// Old Ridge: the high-water survey and the lost party's camp.
+z.location('old_ridge', ...P(20, 33));
+z.pack('ridge', ...P(23.5, 37), ['grave_bat', 'grave_bat', 'gloomshroom', 'thornling', 'bog_slime', 'gloomshroom']);
+z.contact('party_camp', 'Abandoned survey camp', ...P(14, 36.5), 'cart');
+z.solid('tent', ...P(12.2, 34.6), 0.9, 2); z.decor('banner', ...P(16, 34)); z.decor('crate', ...P(15.5, 38.2)); z.graves(...P(25, 31.5), 3);
+z.shrine('shrine_ridge', ...P(17.5, 30.5), 'empowered');
+z.landmark('Old Ridge', ...P(19.5, 36));
+
+// The overlook: survey marker and its alarm.
+z.contact('survey', 'Survey marker', ...P(33.5, 21.6), 'marker');
+z.pack('overlook', ...P(32, 25), ['mossback', 'thornling', 'bog_slime', 'bog_slime', 'grave_bat', 'gloomshroom']);
+z.event('survey_alarm', 'The Overlook Alarm', 'survey', 'overlook', 'Raise the alarm at the survey marker to draw out the creatures nesting around the overlook.', 'Raise the alarm');
+z.decor('signpost', ...P(30.5, 22)); z.landmark('The Overlook', ...P(33, 26));
+
+// East bank: the cart, the yard, the bend where Orren's fisher works.
+z.contact('cart', 'Abandoned timber cart', ...P(56.5, 45.6), 'cart');
+z.wreck(...P(59.5, 45.2));
+z.pack('yard', ...P(59.5, 50.5), ['gloomshroom', 'bog_slime', 'bog_slime', 'reedclaw', 'gloomshroom', 'grave_bat']);
+z.decor('logpile', ...P(54, 50.2)); z.decor('crate', ...P(61.5, 47.5)); z.decor('crate', ...P(62, 48.3), 0.9, 1);
+z.shrine('shrine_yard', ...P(53.4, 51.5), 'frenzied');
+z.landmark('Abandoned Yard', ...P(57.5, 51));
+z.fishery(...P(51.5, 65.5)); z.resident('rw_fisher', 'fisher', 'Bend fisher', ...P(48.6, 63.6), 40); z.cache('cache_bend', ...P(53.4, 62.2), 'Fisher’s tackle chest');
+z.decor('rowboat', ...P(46.4, 66.5), 1, 1); z.landmark('Fisher’s Bend', ...P(50.5, 67));
+
+// Drowned Chapel: ruins, graves, the lost party's journal and an old guardian.
+z.ruins(...P(83.5, 59), 420, 300); z.graves(...P(79.5, 63.5), 6);
+z.contact('party_journal', 'Waterlogged field journal', ...P(81, 58.5), 'ledger');
+z.elite('chapel_rare', ...P(84, 63), 'mossback', 'Hollowbell', ['fast'], ['grave_bat', 'grave_bat', 'gloomshroom']);
+z.cache('cache_chapel', ...P(86.5, 57.6), 'Chapel offering box');
+z.landmark('Drowned Chapel', ...P(82, 64.5));
+
+// North bank and the millrace wood; Brackjaw hunts here.
+z.elite('brackjaw', ...P(60.5, 20.5), 'mossback', 'Brackjaw', ['fast'], ['thornling', 'bog_slime', 'bog_slime'], { questTarget: true });
+z.landmark('North Bank', ...P(57.5, 27)); z.landmark('Millrace Wood', ...P(68.5, 38));
+
+// Mill yard, Siltroot, the open mill shell with the ledger and the wheel on the race.
+z.pack('mill', ...P(75, 27.2), [{ type: 'mossback', dx: 0, dy: 0, tier: 2, name: 'Siltroot, the Wheelkeeper', questTarget: true }, 'bog_slime', 'bog_slime', 'gloomshroom', 'thornling']);
+z.wall(rect(74 * S, 12 * S, 10 * S, 0.4 * S)); z.wall(rect(74 * S, 12 * S, 0.4 * S, 7.5 * S)); z.wall(rect(83.6 * S, 12 * S, 0.4 * S, 7.5 * S));
+z.wall(rect(74 * S, 19.1 * S, 3 * S, 0.4 * S)); z.wall(rect(80.6 * S, 19.1 * S, 3.4 * S, 0.4 * S));
+z.contact('ledger', 'Mill ledger', ...P(76.5, 14), 'ledger');
+z.wheel = { x: Math.round(84.8 * S), y: Math.round(9.6 * S), radius: 38 };
+z.decor('barrels', ...P(81.5, 14)); z.decor('crates', ...P(82, 17)); z.light(...P(78.5, 13.5), 0xffc070, 160);
+z.landmark('Rillwake Mill', ...P(79, 21.5));
+z.portal(...P(93.5, 9.5), 'bracken_sluice', 'Upstream to Bracken Sluice');
+z.landmark('Upstream Path', ...P(91, 14));
+
+// Sound and mist.
+for (const [x, y] of [P(44, 40), P(43, 60), P(45, 20)]) { z.sound('water', x, y); z.mist(x, y + 120, 420); }
+for (const [x, y] of [P(20, 35), P(60, 25), P(80, 60)]) z.sound('wind', x, y);
+z.emit('birds', ...P(30, 40), 4); z.emit('leaves', ...P(57, 25), 6); z.emit('fireflies', ...P(9, 49), 10); z.emit('fireflies', ...P(82, 60), 8);
+
+export const RILLWAKE = z.build();

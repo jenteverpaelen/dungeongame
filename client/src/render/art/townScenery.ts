@@ -579,3 +579,7 @@ export function paintGroundDecor(c: Paint, t: TownData, x0: number, y0: number, 
 export function decorShadow(kind: string, scale = 1): number {
   return ({ oak: 46, pine: 34, birch: 30, willow: 50, tent: 46, hay: 30, logpile: 32, fishingboat: 0, rowboat: 0, buoy: 0 } as Record<string, number>)[kind] ?? 18 * scale;
 }
+
+/** Shared with the zone renderer (docs/rework/worlds/DECISIONS.md D-W05): the same painters, no behaviour change here. */
+export { PROPS as TOWN_PROP_ART, DECOR as TOWN_DECOR_ART, pine as townPineArt, oak as townOakArt, birch as townBirchArt, willow as townWillowArt };
+export type { Art as TownArt };

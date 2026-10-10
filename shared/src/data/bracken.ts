@@ -1,74 +1,93 @@
-import type { AdventureData } from '../adventureTypes';
 import type { Point } from '../townTypes';
-import type { Prop } from '../mapgen';
+import { ZoneBuilder, riverPoly, rect } from '../zoneKit';
 
-const rect=(x:number,y:number,w:number,h:number):Point[]=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
-const scenery:Prop[]=[];
-const row=(k:string,points:Point[],r:number,s=1)=>points.forEach(([x,y],v)=>scenery.push({k,x,y,r,s,v}));
-row('pine',[[490,2550],[600,2860],[1040,2850],[1120,2550],[1420,2440],[1670,2490],[1940,2340],[2150,2400],[2350,2370],[2500,2390],[2780,2230],[3070,1830],[3200,1530],[3180,980],[2660,570],[2080,650],[1750,1090],[1490,1290],[1210,1410],[560,1670]],20,1.35);
-row('boulder',[[690,2310],[1310,2520],[1620,2170],[1970,2230],[2900,1860],[1880,1310],[2180,890],[2860,730]],29);
-row('stump',[[1130,2110],[2870,1420],[1870,1810]],17);
-row('crate',[[830,2600],[870,2550],[1630,1810],[1650,1850]],17);
-row('lantern',[[970,2630],[1160,2310],[2230,1870],[2350,1410],[2450,940]],6);
+// Bracken Sluice (L4–7) — docs/rework/worlds/DESIGN.md §2. Plan units: 100 wide (S u each).
+// Ids kept: floodgate; causeway, basin, bank, keeper; forecourt; portals to rillwake, pumpworks, cairnspill.
+const S = 92.16, P = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
+const z = new ZoneBuilder('bracken_sluice', [144, 120], 'sluice', P(10, 70), { theme: 'glade' });
+const marsh = ['bog_slime', 'reedclaw', 'thornling', 'gloomshroom'], bats = ['grave_bat', 'grave_bat', 'reedclaw', 'bog_slime'], works = ['siltusk', 'gloomshroom', 'thornling', 'bog_slime'];
 
-/** Original maintenance causeway and spillway basin; geometry is also the collision source. */
-export const BRACKEN:AdventureData={
-  id:'bracken_sluice',size:[56,48],
-  ambience:{
-    motion:[
-      {id:'causeway-upstream',kind:'ripples',position:[1940,1850],width:70},
-      {id:'causeway-downstream',kind:'ripples',position:[1940,2390],width:70},
-      {id:'bank-reeds',kind:'reeds',position:[1820,2310],width:32},
-      {id:'forecourt-reeds',kind:'reeds',position:[2190,1770],width:32},
-      {id:'basin-mist',kind:'mist',position:[1940,2350],width:360},
-    ],
-    sounds:[
-      {id:'causeway-water',kind:'water',position:[1940,1850],radius:720},
-      {id:'spillway-water',kind:'water',position:[2910,650],radius:720},
-      {id:'camp-wind',kind:'wind',position:[790,2720],radius:720},
-      {id:'basin-wind',kind:'wind',position:[2450,2100],radius:720},
-      {id:'forecourt-wind',kind:'wind',position:[2590,1240],radius:720},
-    ],
-  },
-  geometry:{entry:{x:790,y:2720},floors:[
-    {polygon:[[450,2470],[820,2310],[1170,2510],[1090,2870],[690,2980],[430,2780]]},
-    {polygon:[[890,2420],[1070,2620],[1630,2230],[1450,1980]]},
-    {polygon:[[1240,1900],[1540,1720],[1830,1910],[1780,2370],[1400,2530],[1110,2250]]},
-    {polygon:rect(1670,1990,550,230)},
-    {polygon:[[2100,1790],[2440,1660],[2810,1850],[2850,2240],[2480,2490],[2080,2290]]},
-    {polygon:[[2300,1800],[2530,1950],[2740,1350],[2500,1160]]},
-    {polygon:[[1990,940],[2260,650],[2770,650],[3180,1000],[3210,1530],[2960,1820],[2280,1690],[1830,1380]]},
-    // An optional bank route loops back into the forecourt.
-    {polygon:[[1190,1940],[1380,2090],[1230,1560],[960,1550]]},
-    {polygon:[[650,1430],[1020,1320],[1370,1490],[1400,1740],[1080,1930],[660,1740]]},
-    {polygon:[[1280,1510],[1350,1730],[2220,1460],[2130,1190]]},
-  ],buildings:[
-    {footprint:rect(2330,730,50,330)},{footprint:rect(2760,730,50,330)},
-    {footprint:rect(2330,730,480,45)},
-  ],barriers:[{a:[1720,1990],b:[2150,1990],radius:7},{a:[1720,2220],b:[2150,2220],radius:7}],props:[],npcs:[]},
-  paths:[
-    {points:[[790,2720],[1050,2500],[1500,2110],[1680,2100]],width:120},
-    {points:[[1670,2100],[2210,2100]],width:230,bridge:true},
-    {points:[[2180,2100],[2490,2090],[2540,1650],[2590,1240],[2560,910]],width:125},
-    {points:[[1310,2070],[1150,1620],[1660,1500],[2190,1330],[2520,1310]],width:85},
-  ],scenery,
-  npcs:[{id:'floodgate',name:'Floodgate mechanism',role:'clue',x:2540,y:840,r:18}],
-  interactions:[{id:'floodgate',name:'Floodgate mechanism',x:2540,y:840,radius:110,kind:'mechanism'}],
-  portals:[{x:630,y:2760,to:'rillwake_crossing',label:'Back to Rillwake Crossing'},{x:2790,y:1590,to:'reedvault_pumpworks',label:'Reedvault Pumpworks · solo dungeon'},{x:2850,y:1150,to:'cairnspill_terraces',label:'Cairnspill Terraces'}],
-  locations:[{id:'forecourt',x:2540,y:1650,radius:110}],
-  encounters:[
-    {id:'causeway',x:1510,y:2130,members:[{type:'thornling',dx:0,dy:0},{type:'bog_slime',dx:80,dy:90},{type:'gloomshroom',dx:-100,dy:-70},{type:'grave_bat',dx:120,dy:-120},{type:'bog_slime',dx:-100,dy:100}]},
-    {id:'basin',x:2490,y:2160,members:[{type:'siltusk',dx:0,dy:0},{type:'gloomshroom',dx:-130,dy:-30},{type:'thornling',dx:110,dy:100},{type:'bog_slime',dx:100,dy:-100},{type:'grave_bat',dx:-160,dy:60}]},
-    {id:'bank',x:1020,y:1620,members:[{type:'grave_bat',dx:0,dy:0},{type:'grave_bat',dx:100,dy:-40},{type:'reedclaw',dx:-120,dy:50},{type:'bog_slime',dx:70,dy:110}]},
-    {id:'keeper',x:2590,y:1210,members:[{type:'mossback',dx:0,dy:0,tier:2,name:'The Rootbound Keeper',questTarget:true,combat:'keeper'}]},
-  ],
-  landmarks:[{name:'Maintenance Camp',x:790,y:2860},{name:'Sluice Causeway',x:1930,y:2100},{name:'Flooded Basin',x:2520,y:2300},{name:'Spillway Forecourt',x:2510,y:1590}],
-  wheel:{x:2840,y:920,radius:38},
-  routes:[
-    [[790,2720],[1050,2500],[1500,2110],[1680,2100],[2210,2100],[2490,2090],[2540,1650],[2590,1240],[2540,910]],
-    [[1310,2070],[1150,1620],[1660,1500],[2190,1330],[2520,1310]],
-    [[790,2720],[670,2760]],
-    [[2540,1650],[2730,1590]],
-    [[2590,1240],[2850,1150]],
-  ],
-};
+// The flood runs north–south; the spillway pours in from the north-east.
+z.land('water', riverPoly([P(41, -2), P(42, 18), P(40.5, 38), P(42, 56), P(39, 70), P(41, 86)], 6.2 * S));
+z.land('water', riverPoly([P(56, 3), P(66, 6), P(78, 5), P(92, 7)], 3.2 * S));
+z.land('reeds', riverPoly([P(35, 62), P(34.5, 70), P(35.5, 78)], 2 * S));
+z.land('mud', riverPoly([P(48, 66), P(52, 71), P(56, 70)], 2.4 * S));
+
+z.region('camp', P(10.5, 70), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
+z.region('lower_road', P(22, 63), [5.2 * S, 3.6 * S], { roster: marsh, packs: 1, ground: 'meadow' });
+z.region('basin', P(56, 59), [7.4 * S, 5.6 * S], { roster: marsh, packs: 2, ground: 'mud' });
+z.region('weir', P(50, 72), [4.6 * S, 3.4 * S], { roster: marsh, packs: 1, ground: 'mud' });
+z.region('steps', P(63, 44), [5.6 * S, 4.2 * S], { role: 'yard', ground: 'stone', roster: works, packs: 1 });
+z.region('forecourt', P(64.5, 31), [6.6 * S, 4.4 * S], { role: 'arena', ground: 'flag' });
+z.region('floodgate', P(67, 15.5), [7.5 * S, 4.6 * S], { role: 'arena', ground: 'stone', dress: 0 });
+z.region('bank_path', P(19, 44), [6 * S, 4.8 * S], { roster: bats, packs: 1 });
+z.region('orchard', P(10.5, 30), [6.4 * S, 5 * S], { role: 'secret', ground: 'moss', roster: marsh, packs: 1 });
+z.region('far_bank', P(29, 25), [5 * S, 4 * S], { roster: bats, packs: 1 });
+z.region('hatch', P(80, 42), [6 * S, 4.6 * S], { role: 'yard', ground: 'dirt', roster: works, packs: 1 });
+z.region('reedbed', P(76, 62), [6.4 * S, 4.8 * S], { roster: marsh, packs: 2, ground: 'meadow' });
+z.region('upper_track', P(85, 20), [5 * S, 4 * S], { roster: works, packs: 1 });
+
+z.road([P(10.5, 70), P(18, 66), P(24, 62.5), P(31, 58), P(35.5, 56)], 170, 'dirt');
+z.road([P(35.5, 56), P(48, 56)], 210, 'planks', { bridge: true });
+z.road([P(48, 56), P(56, 58), P(60.5, 51), P(63, 44), P(64.5, 36), P(64.5, 31), P(66, 24), P(67, 19)], 170, 'flag');
+z.road([P(24, 62.5), P(20, 54), P(19, 44), P(21, 35), P(29, 27), P(35.5, 27)], 140, 'dirt');
+z.road([P(35.5, 27), P(47, 27)], 170, 'planks', { bridge: true });
+z.road([P(47, 27), P(55, 29), P(64.5, 31)], 140, 'flag');
+z.road([P(21, 35), P(14, 31), P(10.5, 30)], 130, 'moss');
+z.road([P(63, 44), P(72, 43), P(80, 42)], 150, 'dirt');
+z.road([P(56, 58), P(50.5, 66), P(50, 72)], 140, 'dirt');
+z.road([P(60.5, 51), P(68, 57), P(76, 62)], 140, 'dirt');
+z.road([P(66, 24), P(76, 22), P(85, 20), P(89, 12)], 150, 'dirt');
+
+// Maintenance camp: Orren's crew keeps a foothold above the flood.
+z.camp(...P(11, 71), { tents: 2 });
+z.portal(...P(6.5, 72.5), 'rillwake_crossing', 'Back to Rillwake Crossing');
+z.resident('br_foreman', 'worker', 'Sluice foreman', ...P(14.5, 67.5), -20);
+z.resident('br_guard', 'guard', 'Causeway watch', ...P(17.5, 70.5), 30);
+z.decor('noticeboard', ...P(8, 66.5)); z.decor('cart', ...P(5.5, 68.6));
+z.landmark('Maintenance Camp', ...P(10.5, 74));
+
+z.pack('causeway', ...P(28.5, 60), ['thornling', 'bog_slime', 'gloomshroom', 'grave_bat', 'bog_slime']);
+z.landmark('Sluice Causeway', ...P(41.5, 58.5));
+z.pack('basin', ...P(57, 61), ['siltusk', 'gloomshroom', 'thornling', 'bog_slime', 'grave_bat']);
+z.decor('rowboat', ...P(46.4, 63), 1, 2); z.decor('barrels', ...P(60.5, 55)); z.landmark('Flooded Basin', ...P(56, 64));
+z.contact('weir_valve', 'Jammed weir valve', ...P(47.5, 74), 'mechanism');
+z.pack('weir', ...P(51.5, 70.5), ['reedclaw', 'bog_slime', 'reedclaw', 'siltusk', 'bog_slime', 'reedclaw']);
+z.event('bursting_weir', 'The Bursting Weir', 'weir_valve', 'weir', 'The weir valve is jammed with silt and something has made a nest of the overflow. Free it and they come out of the water.', 'Force the valve');
+z.landmark('Old Weir', ...P(50, 75.5));
+z.shrine('shrine_steps', ...P(59.6, 45), 'frenzied');
+z.decor('lamppost', ...P(61, 40.5)); z.decor('lamppost', ...P(67, 40.5)); z.landmark('Gatehouse Steps', ...P(63, 47.5));
+
+// The forecourt (reach), the keeper, and the floodgate with its wheel against the spillway wall.
+z.location('forecourt', ...P(64.5, 32));
+z.pack('keeper', ...P(66, 24.5), [{ type: 'mossback', dx: 0, dy: 0, tier: 2, name: 'The Rootbound Keeper', questTarget: true, combat: 'keeper' }]);
+z.wall(rect(58 * S, 11 * S, 3.4 * S, 0.5 * S)); z.wall(rect(73 * S, 11 * S, 3.4 * S, 0.5 * S));
+z.contact('floodgate', 'Floodgate mechanism', ...P(65, 14), 'mechanism');
+z.wheel = { x: Math.round(71 * S), y: Math.round(13 * S), radius: 38 };
+z.decor('pillar', ...P(60, 18.5), 1, 1); z.decor('pillar', ...P(74, 18.5)); z.light(...P(65, 13.5), 0xffc070, 170);
+z.landmark('Spillway Forecourt', ...P(64.5, 35)); z.landmark('Floodgate', ...P(67, 19.5));
+
+// Bank path (contract bats), the sunken orchard secret, the far bank.
+z.pack('bank', ...P(18.5, 45), ['grave_bat', 'grave_bat', 'reedclaw', 'bog_slime', 'grave_bat']);
+z.landmark('Bank Path', ...P(19, 48));
+for (const [x, y] of [P(7, 28), P(12, 26.5), P(14.5, 32.5), P(8, 33.5)]) z.decor('deadtree', x, y, 1.1);
+z.cache('cache_orchard', ...P(9, 30.5), 'Drowned orchard crate'); z.shrine('shrine_orchard', ...P(13.5, 28.5), 'keen');
+z.landmark('Sunken Orchard', ...P(10.5, 34.5));
+z.elite('grindle', ...P(29.5, 23.5), 'siltusk', 'Old Grindle', ['fast'], ['grave_bat', 'reedclaw', 'bog_slime']);
+z.landmark('Far Bank', ...P(29, 28.5));
+
+// Pumpworks hatch yard and the reed bed; the stair road north to Cairnspill.
+z.portal(...P(82.5, 39.5), 'reedvault_pumpworks', 'Reedvault Pumpworks · solo dungeon');
+z.decor('crates', ...P(77, 39.5)); z.decor('barrels', ...P(84.5, 45)); z.decor('anvil', ...P(78, 45.5)); z.light(...P(82.5, 38.5), 0x9ad8ff, 160);
+z.cache('cache_hatch', ...P(85.5, 43), 'Maintenance locker');
+z.landmark('Pumpworks Hatch', ...P(80, 46));
+z.fishery(...P(73, 64)); z.resident('br_fisher', 'fisher', 'Reed cutter', ...P(78.5, 60), 10); z.landmark('Reed Bed', ...P(76, 66));
+z.portal(...P(88.6, 12.8), 'cairnspill_terraces', 'Cairnspill Terraces');
+z.landmark('Stair Road', ...P(85, 23.5));
+
+for (const [x, y] of [P(41, 50), P(41, 30), P(70, 6)]) { z.sound('water', x, y); z.mist(x, y + 100, 420); }
+for (const [x, y] of [P(10, 70), P(63, 40), P(85, 20)]) z.sound('wind', x, y);
+z.emit('birds', ...P(56, 50), 4); z.emit('fireflies', ...P(10, 30), 10); z.emit('fog', ...P(42, 64), 3); z.emit('leaves', ...P(19, 44), 5);
+z.critters('frogs', ...P(52, 70), 120, 4); z.critters('birds', ...P(76, 62), 200, 5);
+
+export const BRACKEN = z.build();

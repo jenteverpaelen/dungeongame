@@ -11,10 +11,13 @@ test('authored water footprints avoid ground; invalid edits fail before shipping
     assert.deepEqual(validateAdventureAmbience(a), []);
     for (const e of a.ambience!.sounds) assert(SOUNDS[`town_${e.kind}`]?.loop);
   }
-  const a = structuredClone(RILLWAKE), water = a.ambience!.motion[0];
-  water.position = [1900, 2030];
+  // Positions come from the zone data since the worlds rebuild (docs/rework/worlds/DECISIONS.md D-W07).
+  const a = structuredClone(RILLWAKE), bridge = a.paths.find(p => p.bridge)!, b0 = bridge.points[0], b1 = bridge.points[bridge.points.length - 1];
+  const mid: [number, number] = [(b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2];
+  const water: NonNullable<typeof a.ambience>['motion'][number] = { id: 'probe', kind: 'ripples', position: mid, width: 40 };
+  a.ambience!.motion.unshift(water);
   assert(validateAdventureAmbience(a).some(e => e.includes('water footprint overlaps ground')), 'bridge must not ripple');
-  water.position = [1900, 1800]; water.width = 180;
+  water.position = [mid[0], mid[1] - 260]; water.width = 180;
   assert(validateAdventureAmbience(a).some(e => e.includes('water footprint overlaps ground')), 'water center alone is insufficient');
   water.width = NaN;
   a.ambience!.sounds[0].radius = Infinity;

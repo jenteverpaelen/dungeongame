@@ -63,6 +63,10 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
     if(typeof a.target!=='string'||!inst?.activateDungeon)return fail('Not in an objective dungeon');
     const error=inst.activateDungeon(s,a.target);return error?fail(error):ok();
   }
+  if(a.action==='poi') {
+    if(typeof a.target!=='string'||!inst?.usePoi)return fail('Nothing to use here');
+    const r=inst.usePoi(s,a.target);return r.ok?ok(r.data):fail(r.err);
+  }
   if(a.action==='activateField') {
     if(typeof a.target!=='string'||!inst?.activateFieldEvent)return fail('Not beside a field event');
     const error=inst.activateFieldEvent(s,a.target);return error?fail(error):ok();

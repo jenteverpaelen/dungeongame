@@ -116,8 +116,8 @@ export function FieldEventBlock({ zone, target, present }: { zone: string; targe
   const state = states.find(s => s.id === event.id);
   return <div class="dlg-quest field">
     <div class="dlg-q-head"><span class="dlg-q-mark">!</span><b>{event.name}</b><span class="chip warn">Optional encounter</span></div>
-    <p>{state?.phase === 'active' ? `Encounter active · ${state.remaining} remaining` : state?.phase === 'recovering' ? 'The overlook is settling. Leave the area before another alarm.' : 'Raise the alarm to draw out the creatures at the overlook.'}</p>
-    <div class="dlg-q-act"><button class="btn primary" disabled={busy || !present || state?.joined || state?.phase === 'recovering'} onClick={async () => { setBusy(true); try { await run('quest', { action: 'activateField', target: event.trigger }); } finally { setBusy(false); } }}>{state?.joined ? 'Joined' : state?.phase === 'active' ? 'Join the alarm' : 'Raise the alarm'}</button></div>
+    <p>{state?.phase === 'active' ? `Encounter active · ${state.remaining} remaining` : state?.phase === 'recovering' ? 'The area is settling. Leave it before starting this again.' : (event.blurb ?? 'Raise the alarm to draw out the creatures here.')}</p>
+    <div class="dlg-q-act"><button class="btn primary" disabled={busy || !present || state?.joined || state?.phase === 'recovering'} onClick={async () => { setBusy(true); try { await run('quest', { action: 'activateField', target: event.trigger }); } finally { setBusy(false); } }}>{state?.joined ? 'Joined' : state?.phase === 'active' ? 'Join the fight' : (event.action ?? 'Raise the alarm')}</button></div>
   </div>;
 }
 

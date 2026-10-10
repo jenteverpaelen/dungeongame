@@ -16,6 +16,8 @@ function fixture() {
   const save=createCharacter('ChargeProbe','mage',41);save.level=5;
   const link:PlayerLink={save,derived:computeStats(save),sessionId:'charge',send(){},markDirty(){}};
   const inst=new Instance({zoneId:'reedvault_pumpworks',key:'charge',channel:0,seed:41,theme:'glade',level:5,difficulty:0});
+  // Pre-placed dungeon packs (DECISIONS D-W06) are cleared: these probes measure one monster in isolation.
+  for(const pre of [...inst.mobs])inst.removeMob(pre);inst.mobs.length=0;
   inst.addPlayer(link);const p=inst.players[0];p.invulnMs=0;
   const at=(x:number,y:number)=>{p.x=p.mv.x=x;p.y=p.mv.y=y;};at(900,1390);
   const m=createMob(inst,MONSTERS.siltusk,5,680,1390);m.state='chase';m.target=p.id;m.atkCdMs=0;

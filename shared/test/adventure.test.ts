@@ -22,14 +22,19 @@ for(const zone of ['rillwake_crossing','bracken_sluice'])test(`${zone}: determin
   console.log(JSON.stringify({routeUnits:length,walkingSecondsWithoutCombat:length/BASE_MOVE_SPEED,encounters:a.encounters.length,members:a.encounters.reduce((s,e)=>s+e.members.length,0)}));
 });
 
-test('exact shore, mill walls and bridge rails stop movement and rays; doorway remains open',()=>{
-  const map=generateMap('rillwake_crossing',1),cw=new CollisionWorld(map);
-  assert(!cw.isFree(1900,1800,16),'water');
-  assert(cw.isFree(1900,2030,16),'bridge');
-  const rail=cw.moveCircle(1900,2030,16,0,-600);assert(rail.y>=1943-1e-3,'no dash through bridge rail');
-  assert(cw.segmentBlocked(1900,2030,1900,1800));
-  const wall=cw.moveCircle(3360,850,16,0,-600);assert(wall.y>=754-1e-3,'no tunnel through mill wall');
-  assert(cw.segmentBlocked(3360,850,3360,660));
-  assert(!cw.segmentBlocked(3340,1130,3340,850),'open doorway');
-  assert(cw.isFree(3340,1000,16));
+// Layout moved in the worlds rebuild (docs/rework/worlds/DECISIONS.md D-W07): positions now come from the zone data.
+test('exact shore, mill walls and bridge edges stop movement and rays; doorway remains open',()=>{
+  const map=generateMap('rillwake_crossing',1),cw=new CollisionWorld(map),a=map.adventure!;
+  const bridge=a.paths.find(p=>p.bridge)!,b0=bridge.points[0],b1=bridge.points[bridge.points.length-1],mid=[(b0[0]+b1[0])/2,(b0[1]+b1[1])/2];
+  const water=[mid[0],mid[1]-260];
+  assert(!cw.isFree(water[0],water[1],16),'water');
+  assert(cw.isFree(mid[0],mid[1],16),'bridge');
+  const edge=cw.moveCircle(mid[0],mid[1],16,0,-600);assert(edge.y>=mid[1]-bridge.width/2-1e-3,'no dash off the bridge');
+  assert(cw.segmentBlocked(mid[0],mid[1],water[0],water[1]));
+  const ledger=a.interactions.find(i=>i.id==='ledger')!,north=Math.min(...a.geometry.buildings.map(b=>Math.max(...b.footprint.map(p=>p[1]))).filter(y=>y<ledger.y));
+  const wall=cw.moveCircle(ledger.x,ledger.y+60,16,0,-600);assert(wall.y>=north+16-1e-3,'no tunnel through mill wall');
+  assert(cw.segmentBlocked(ledger.x,ledger.y+60,ledger.x,north-120));
+  const door=a.routes[2],inside=door[door.length-1],outside=door[door.length-2];
+  assert(!cw.segmentBlocked(outside[0],outside[1],inside[0],inside[1]),'open doorway');
+  assert(cw.isFree(inside[0],inside[1],16));
 });
