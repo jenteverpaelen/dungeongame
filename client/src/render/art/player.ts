@@ -432,6 +432,8 @@ export class PlayerArt implements PlayerView {
   /** Rank-up celebration start (view time, s; < 0 none) and whether it is the big one (full Set / rank 8+). */
   private celebrateAt = -1;
   private celebrateBig = false;
+  /** Seconds of "in combat" left (attacks, casts, hits): gear ground effects step back meanwhile. */
+  private combatT = 0;
 
   // animation state
   private t = 0;
@@ -746,6 +748,7 @@ export class PlayerArt implements PlayerView {
     if (this.act) this.lastAct = this.act;
     this.act = { def, skill: a.skill, start: now, cycle: Math.max(180, a.cycleMs || 800), alt, tx: a.tx, ty: a.ty, primary, shots, fired: 0, notes };
     if (a.skill === 'level_up') { this.lvl = now; this.gear?.flare(); }
+    else this.combatT = 2.5;
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
@@ -814,6 +817,7 @@ export class PlayerArt implements PlayerView {
     this.dashB += (((flags & F_DASH) ? 1 : 0) - this.dashB) * damp(20, dt);
     this.stunB += ((stunned ? 1 : 0) - this.stunB) * damp(10, dt);
     this.hitK = Math.max(0, this.hitK - dt * 5);
+    this.combatT = Math.max(0, this.combatT - dt);
 
     // fallback swing when the server bumps attackSeq without a cast event reaching us
     if (s.attackSeq !== this.lastSeq) {
@@ -932,6 +936,7 @@ export class PlayerArt implements PlayerView {
         hasWeapon: !!n0.weapon && this.kit.wk !== 'bow', bow: this.kit.wk === 'bow',
         swing: act ? P.trail : this.chan * 0.6,
         celebrate: this.celebrateAt >= 0 ? t - this.celebrateAt : -1, celebrateBig: this.celebrateBig,
+        combat: clamp(this.combatT / 0.6), local: this.isLocal,
       });
     }
     this.updateStatus(t, flags, stunned);
@@ -1545,6 +1550,7 @@ export class PlayerArt implements PlayerView {
 
   hit(intensity: number, crit: boolean): void {
     if (this.destroyed) return;
+    this.combatT = 2.5;
     if (!preferences.get().values.reduceFlashes) this.flashUntil = Math.max(this.flashUntil, performance.now() + (crit ? 90 : 70));
     this.hitK = Math.max(this.hitK, 0.6 + 0.4 * clamp(intensity));
   }

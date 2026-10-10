@@ -174,6 +174,36 @@ const api = {
   async boxes(selector) {
     return api.eval(`[...document.querySelectorAll(${JSON.stringify(selector)})].filter(e => e.offsetParent || getComputedStyle(e).position === 'fixed').map(e => { const r = e.getBoundingClientRect(); return { cls: e.className, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; })`);
   },
+  /** A second game client in its own (headless) window, so its render loop keeps running: two-player scenes.
+   *  Returns a small API: eval, goto, open (autostart a character), cmd, debug, walk. */
+  async newClient() {
+    const { targetId } = await browser.call('Target.createTarget', { url: 'about:blank', newWindow: true });
+    const targets = await (await fetch(`http://127.0.0.1:${api.port}/json/list`)).json();
+    const t = targets.find(x => x.id === targetId);
+    const pg = await cdp(t.webSocketDebuggerUrl);
+    await pg.call('Page.enable'); await pg.call('Runtime.enable');
+    await pg.call('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
+    const c = {
+      page: pg,
+      async eval(expression, awaitPromise = true) {
+        const r = await pg.call('Runtime.evaluate', { expression, returnByValue: true, awaitPromise });
+        if (r.exceptionDetails) throw Error(r.exceptionDetails.exception?.description ?? JSON.stringify(r.exceptionDetails));
+        return r.result.value;
+      },
+      async goto(url) { await pg.call('Page.navigate', { url }); await wait(300); },
+      async open({ name = 'Two' + Math.floor(Math.random() * 1e6), cls = 'ranger', query = '' } = {}) {
+        await c.goto(`${base}/?autostart=${encodeURIComponent(name)}&class=${cls}${query}`);
+        await until(() => c.eval('Boolean(window.__game?.world?.map && window.__ui?.get().screen === "game" && __ui.get().char && __ui.get().me)'), 45000, 'second client');
+        await c.eval(PAGE_HELPERS);
+        return name;
+      },
+      async cmd(op, a = {}) { return c.eval(`__cmd(${JSON.stringify(op)}, ${JSON.stringify(a)})`); },
+      async debug(op, a = {}) { const r = await c.cmd('debug', { op, ...a }); if (!r?.ok) console.warn(`client2 debug ${op}:`, r?.err); return r; },
+      async walk(dx, dy, ms) { await c.eval(`__shoot.move = { x: ${dx}, y: ${dy} }; true`); await wait(ms); await c.eval('__shoot.move = null; true'); },
+      async close() { await browser.call('Target.closeTarget', { targetId }).catch(() => {}); },
+    };
+    return c;
+  },
   /** Elements that scroll (overflow with scrollHeight > clientHeight) inside panels: the no-scroll rule. */
   async scrollers(selector = '.pn-root *') {
     return api.eval(`[...document.querySelectorAll(${JSON.stringify(selector)})].filter(e => { const s = getComputedStyle(e); return /(auto|scroll)/.test(s.overflowY + s.overflowX) && (e.scrollHeight > e.clientHeight + 2 || e.scrollWidth > e.clientWidth + 2); }).map(e => e.className + ' ' + e.scrollHeight + '/' + e.clientHeight)`);
@@ -220,6 +250,7 @@ try {
   const active = await until(async () => { try { return await fs.readFile(path.join(tmp, 'chrome', 'DevToolsActivePort'), 'utf8'); } catch { return false; } }, 20000, 'Chrome DevTools port');
   const [port, browserPath] = active.trim().split('\n');
   browser = await cdp(`ws://127.0.0.1:${port}${browserPath}`);
+  api.port = port;
   const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
   page = await cdp(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
   api.page = page;

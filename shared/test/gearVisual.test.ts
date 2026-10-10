@@ -125,3 +125,26 @@ test('descriptor bytes stay small (sent on enter / change, never per tick)', () 
   assert.ok(size({ lk: 'item', name: loot.name, rarity: loot.rarity, ancient: 0, look: gearLook(loot), kind: loot.kind }) < 160);
   void ({} as Slot);
 });
+
+test('next-step hints come from what is worn (never "complete a Set" while wearing one)', async () => {
+  const { gearNextSteps } = await import('../src/gearVisual');
+  const hints = (stage: typeof SHOWCASE_STAGES[number], cls: 'warrior' | 'ranger' | 'mage' = 'mage') => {
+    const save = createCharacter('Hint', cls, 2);
+    save.equipment = showcaseEquipment(cls, stage, 3);
+    return gearNextSteps(gearProfile(playerLook(save)));
+  };
+  const starter = hints('starter');
+  assert.equal(starter[0].key, 'empty', 'a starter first fills empty slots');
+  assert.ok(starter[0].key === 'empty' && starter[0].slots.includes('head'));
+  for (const cls of ['warrior', 'ranger', 'mage'] as const) {
+    const set = hints('set', cls);
+    assert.ok(!set.some((h) => h.key === 'set'), `${cls}: full Set worn, no Set hint`);
+    assert.ok(set.some((h) => h.key === 'ancient'), `${cls}: next rung after a full Set is Ancient`);
+    const anc = hints('ancient', cls);
+    assert.ok(anc.some((h) => h.key === 'temper' || h.key === 'primal'));
+    assert.deepEqual(hints('primal', cls), [{ key: 'top' }]);
+  }
+  const l70 = hints('L70');
+  assert.ok(l70.some((h) => h.key === 'set' && h.count === 2), 'L70 wears two Set pieces: hint names the count');
+  assert.ok(hints('L40').length <= 2);
+});

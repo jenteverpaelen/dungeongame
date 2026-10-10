@@ -32,6 +32,10 @@ export interface GearAnchors {
   swing: number;
   /** Seconds since a rank-up celebration started (< 0: none), and whether it is the big one (Set / rank 8+). */
   celebrate: number; celebrateBig: boolean;
+  /** 0..1: fighting right now (attacking / being hit). The ground layer steps back so enemy warnings dominate. */
+  combat: number;
+  /** The local player's hero (always gets the full presence budget). */
+  local: boolean;
 }
 
 // ─────────────────────────── shared token sheet (canvas, tinted at runtime) ───────────────────────────
@@ -89,7 +93,9 @@ function tok(): Tokens {
     const img = g.createImageData(W, H);
     for (let y = 0; y < H; y++) {
       const v = 1 - y / (H - 1);                       // 0 = bottom, 1 = top
-      const along = Math.pow(1 - v, 0.9) * (0.35 + 0.65 * Math.min(1, (1 - v) * 4)) * Math.min(1, v * 14 + 0.25);
+      // full strength from the feet to ~62 % of the height (well above the wings), then a smooth fade to the top
+      const fade = v < 0.62 ? 1 : 1 - (((v - 0.62) / 0.38) ** 2) * (3 - 2 * ((v - 0.62) / 0.38));
+      const along = fade * (v < 0.04 ? 0.5 + v / 0.04 * 0.5 : 1);
       for (let x = 0; x < W; x++) {
         const u = (x - (W - 1) / 2) / ((W - 1) / 2);
         const a = Math.exp(-u * u * 3.2) * along;
@@ -168,6 +174,17 @@ function crowdFactor(): number {
 }
 /** Live-effect sprite counter (perf HUD / tests). */
 export const gearFxStats = { heroes: 0, sprites: 0 };
+
+/** The costliest moving parts (movement ribbon, swing sparks, column embers, footprints) run for at most this many
+ *  heroes per frame (the local hero always); a crowd beyond it keeps sigils, wings, auras and particles. */
+export const PRESENCE_SLOTS = 16;
+const slots = { frame: -1, used: 0 };
+function presenceSlot(local: boolean): boolean {
+  const f = (typeof document !== 'undefined' ? Number(document.timeline?.currentTime ?? 0) : 0) || performance.now();
+  if (f !== slots.frame) { slots.frame = f; slots.used = 0; }
+  if (local) return true;
+  return slots.used++ < PRESENCE_SLOTS;
+}
 
 // ─────────────────────────── particles ───────────────────────────
 
@@ -311,12 +328,13 @@ export class GearFx {
     }
     // light column: rank 8+ (spottable at the screen edge); Primal adds rising embers
     if (p.rank >= 8) {
-      this.column = this.add(this.ground, T.column, col, 0);
+      // the outer column is a saturated normal-blend tint (reads on bright stone and dark ground alike), the core adds
+      this.column = this.add(this.ground, T.column, col, 0, false);
       this.column.anchor.set(0.5, 1);
-      this.column.width = p.primals ? 26 : 20; this.column.height = 140;
-      this.columnCore = this.add(this.ground, T.column, light(col, 0.55), 0);
+      this.column.width = p.primals ? 40 : 32; this.column.height = 230;
+      this.columnCore = this.add(this.ground, T.column, light(col, 0.7), 0);
       this.columnCore.anchor.set(0.5, 1);
-      this.columnCore.width = p.primals ? 9 : 7; this.columnCore.height = 120;
+      this.columnCore.width = p.primals ? 12 : 10; this.columnCore.height = 210;
     }
     // movement ribbon (afterimage band) behind a moving hero: Heroic+
     if (p.rank >= 7 && full) {
@@ -409,14 +427,16 @@ export class GearFx {
     if (this.hidden) { this.hidden = false; this.ground.visible = true; }
     const t = a.t, dt = a.dt, full = this.quality === 'full';
     const k = full ? crowdFactor() : 0;
+    const rich = full && presenceSlot(a.local);
     this.flareT = Math.max(0, this.flareT - dt / 1.2);
     const cel = a.celebrate >= 0 && a.celebrate < 1.6 ? 1 - a.celebrate / 1.6 : 0;
     const fl = 1 + this.flareT * 1.6 + cel * 1.4;
     const breath = full ? 0.85 + 0.15 * Math.sin(t * 2.2) : 1;
     const prim = this.p.primals > 0;
-    // sigil + set sockets (ground layer, beneath telegraphs)
+    const calm = 1 - 0.45 * clamp(a.combat);
+    // sigil + set sockets (ground layer, beneath telegraphs; dimmed while fighting)
     if (this.sigil) {
-      const base = (0.24 + Math.max(0, this.p.rank - 5) * 0.05) * (prim ? 1.35 : 1) * fl;
+      const base = (0.24 + Math.max(0, this.p.rank - 5) * 0.05) * (prim ? 1.35 : 1) * fl * calm;
       this.sigil.alpha = clamp(base * breath, 0, 0.85);
       if (full) this.sigil.rotation = t * (prim ? 0.32 : 0.22);
       this.sigilWrap!.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 1));
@@ -433,10 +453,10 @@ export class GearFx {
     if (this.column) {
       const pulse = full ? 0.85 + 0.15 * Math.sin(t * 1.7) : 1;
       this.column.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.column.alpha = clamp((prim ? 0.24 : 0.18) * pulse * fl, 0, 0.7);
+      this.column.alpha = clamp((prim ? 0.46 : 0.38) * pulse * fl * calm, 0, 0.8);
       this.columnCore!.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.columnCore!.alpha = clamp((prim ? 0.3 : 0.22) * pulse * fl, 0, 0.8);
-      if (full && prim) {
+      this.columnCore!.alpha = clamp((prim ? 0.7 : 0.58) * pulse * fl * calm, 0, 0.95);
+      if (rich && prim) {
         this.columnAcc += dt * 7 * k;
         while (this.columnAcc >= 1) { this.columnAcc -= 1; this.spawnColumnEmber(a); }
       }
@@ -487,7 +507,7 @@ export class GearFx {
       });
       if (this.tipStar) { this.tipStar.position.set(tx + Math.cos(t * 3) * 4, ty + Math.sin(t * 3) * 4); this.tipStar.alpha = 0.6 + 0.4 * Math.sin(t * 5); this.tipStar.rotation = t * 2; }
       // brighter swings: sparks shed from the blade tip while a Storied+ weapon swings (visual only)
-      if (full && this.weaponTier >= 6 && a.swing > 0.25) {
+      if (rich && this.weaponTier >= 6 && a.swing > 0.25) {
         this.sparkAcc += dt * 40 * a.swing;
         while (this.sparkAcc >= 1) { this.sparkAcc -= 1; this.spawnSpark(a); }
       }
@@ -497,10 +517,10 @@ export class GearFx {
       this.pulseT += dt;
       const u = (this.pulseT % 1.3) / 0.7;
       this.pulse.visible = u < 1 && full;
-      if (u < 1) { const w = 24 + 66 * u; this.pulse.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 1)); this.pulse.width = w; this.pulse.height = w * 0.42; this.pulse.alpha = 0.6 * (1 - u); }
+      if (u < 1) { const w = 24 + 66 * u; this.pulse.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 1)); this.pulse.width = w; this.pulse.height = w * 0.42; this.pulse.alpha = 0.6 * (1 - u) * calm; }
       if (full && this.pulseT % 1.3 < dt) for (let i = 0; i < 4; i++) this.spawn('primal', 'burst', a, i % 2 ? PRIMAL_CORE : PRIMAL_RED);
     }
-    this.updateRibbon(a);
+    if (rich) this.updateRibbon(a, calm); else this.ribbon?.hide();
     this.updateCelebration(a, full);
     if (!full) return;
     // ambient particles (+ an amber ember stream for Ancients worn under a Set identity)
@@ -512,7 +532,7 @@ export class GearFx {
       else this.spawn(this.motif, motifKind(this.motif), a, this.color);
     }
     // footprints on each step
-    if (this.printKind && a.moving) {
+    if (rich && this.printKind && a.moving) {
       const ph = Math.floor(a.walk / Math.PI);
       if (ph !== this.stepPhase) { this.stepPhase = ph; this.footprint(a, ph); }
     }
@@ -527,7 +547,7 @@ export class GearFx {
   }
 
   /** Afterimage band: world-space samples of the last ~0.3 s while moving, drawn on the ground layer. */
-  private updateRibbon(a: GearAnchors): void {
+  private updateRibbon(a: GearAnchors, calm: number): void {
     const r = this.ribbon;
     if (!r) return;
     const now = a.t;
@@ -540,7 +560,7 @@ export class GearFx {
     for (let i = 0; i < pts.length; i++) {
       const q = pts[i];
       const age = clamp((now - q.t) / 0.32);
-      const al = (1 - age) * 0.55 * (i === 0 ? 0.6 : 1);
+      const al = (1 - age) * 0.55 * (i === 0 ? 0.6 : 1) * calm;
       r.push(this.gx(a, q.x), this.gy(a, q.y - 6), this.gx(a, q.x), this.gy(a, q.y - 54), al);
     }
     r.end();

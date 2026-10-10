@@ -350,8 +350,8 @@ export class Game {
     if (rankUp) best.rank = now.rank;
     if (setDone) best.sets.add(now.topSet!);
     const big = setDone || now.rank >= 8;
-    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'legendary');
-    if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'legendary');
+    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'level');
+    if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'level');
     sfx.play(big ? 'gear_rank_big' : 'gear_rank');
     const view = this.world.entities.get(this.world.myId)?.view as (PlayerView & { celebrateGear?(big: boolean): void }) | null | undefined;
     view?.celebrateGear?.(big);

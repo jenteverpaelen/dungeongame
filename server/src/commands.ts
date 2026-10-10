@@ -21,6 +21,7 @@ import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
 import { isTargetPriority } from '../../shared/src/targetPriority';
 import { isAutoCastRule } from '../../shared/src/autoCastRules';
 import { requireNear } from './townServices';
+import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '../../shared/src/gearShowcase';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
@@ -718,6 +719,16 @@ const debug: Handler = (s, a) => {
       const rng = newRng();
       const n = int(a, 'n', 1, 60, 8);
       const items = Array.from({ length: n }, () => generateItem(rng, { ilvl: 70, classId: save.classId, rarity: 'rare', smartChance: 1 }));
+      const added = giveItems(save, items);
+      if (!added) return fail('Your inventory is full');
+      return done(s, false, { added, skipped: items.length - added });
+    }
+    case 'showcase': {
+      // Debug only (ENABLE_DEBUG): a gear-ladder stage loadout for this class into the bag (docs/rework/gear), so
+      // showcase characters can wear Ancient / Primal / upgraded gear without farming. Not a game rule.
+      const stage = str(a, 'stage');
+      if (!(SHOWCASE_STAGES as readonly string[]).includes(stage)) return fail('Unknown showcase stage');
+      const items = Object.values(showcaseEquipment(save.classId, stage as ShowcaseStage, 1 + (Date.now() % 997))).filter((it): it is Item => !!it);
       const added = giveItems(save, items);
       if (!added) return fail('Your inventory is full');
       return done(s, false, { added, skipped: items.length - added });
