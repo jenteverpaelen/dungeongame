@@ -921,7 +921,7 @@ function levelingScenario(cls: ClassId, minutes: number) {
       lastKills = 0; lastT = t;
       bot = new Bot(inst, link, cls === 'warrior');
     }
-    if (!marks.has(save.level) && [2, 5, 10, 15, 20, 25, 30].includes(save.level)) {
+    if (!marks.has(save.level) && [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70].includes(save.level)) {
       const p = inst.players[0];
       const d = p.ctx.d;
       const kpm = ((p.kills - lastKills) / Math.max(1, t - lastT)) * 1200;
