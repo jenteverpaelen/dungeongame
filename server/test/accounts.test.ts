@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { Packr } from 'msgpackr';
-import { AccountStore, MAX_CHARACTERS_PER_ACCOUNT } from '../src/accounts';
+import { AccountStore, MAX_CHARACTERS_PER_ACCOUNT, kdfStats } from '../src/accounts';
 import { createCharacter } from '../../shared/src/character';
 import { PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
 
@@ -49,6 +49,32 @@ test('login answers identically for a wrong password and an unknown user, and lo
   assert.ok(!locked.ok && /Too many attempts/.test(locked.err), 'even the right password waits out the lock');
   clock += 16 * 60_000;
   assert.ok((await s.login('bob_the_b', GOOD)).ok, 'the lock expires');
+});
+
+test('re-asking for the password counts wrong answers, so a stolen session cannot guess it online', async () => {
+  let clock = 5_000_000;
+  const { s } = await store(() => clock);
+  assert.ok((await s.register('carol_c', GOOD)).ok);
+  for (let i = 0; i < 5; i++) {
+    const r = await s.changePassword('carol_c', 'not the password', 'another long password');
+    assert.ok(!r.ok && /current password/.test(r.err), 'wrong answers are refused');
+  }
+  const locked = await s.changePassword('carol_c', GOOD, 'another long password');
+  assert.ok(!locked.ok && /Too many attempts/.test(locked.err), 'the right answer waits out the lock too');
+  const codes = await s.newRecoveryCodes('carol_c', GOOD);
+  assert.ok(!codes.ok && /Too many attempts/.test(codes.err), 'the same counter protects recovery-code regeneration');
+  clock += 16 * 60_000;
+  assert.ok((await s.changePassword('carol_c', GOOD, 'another long password')).ok, 'the lock expires and the change works');
+});
+
+test('password hashing never occupies more than two worker threads, however many attempts arrive at once', async () => {
+  const { s } = await store();
+  assert.ok((await s.register('dora_d', GOOD)).ok);
+  const results = await Promise.all(Array.from({ length: 12 }, (_, i) => s.login('dora_d', i % 2 ? GOOD : 'nope nope nope', `10.0.0.${i}`)));
+  assert.equal(results.filter(r => r.ok).length, 6, 'every attempt is answered correctly');
+  assert.ok(kdfStats().maxActive <= 2, `at most two at once (saw ${kdfStats().maxActive})`);
+  assert.equal(kdfStats().active, 0);
+  assert.equal(kdfStats().queued, 0);
 });
 
 test('racing registrations for one name produce exactly one account', async () => {

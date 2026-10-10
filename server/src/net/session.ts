@@ -19,7 +19,7 @@ import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
 import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
-import { MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
+import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
 import { diffEvents, observe, type Observed } from '../telemetry';
 import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
@@ -409,8 +409,11 @@ export class Session implements PlayerLink {
           reply(false, { err: 'Unknown account request.' });
       }
     } catch (err) {
-      console.error('[session] account request failed:', err);
-      reply(false, { err: 'The account service had a problem. Please try again.' });
+      if (err instanceof AccountsBusyError) { reply(false, { err: err.message }); }
+      else {
+        console.error('[session] account request failed:', err);
+        reply(false, { err: 'The account service had a problem. Please try again.' });
+      }
     } finally {
       this.authBusy = false;
     }

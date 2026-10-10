@@ -1,3 +1,4 @@
+import { createAuxBackup, rotateAuxBackups } from './backupAux';
 import { createCharacterBackup, rotateCharacterBackups } from './backups';
 import { flushSaves } from './persistence';
 
@@ -23,6 +24,16 @@ export function startCharacterBackups(root: string, saveLive: () => void, keepCo
         } catch (error) {
           console.error('[backup] rotation failed; new verified backup remains available:', error);
         }
+      }
+      // Accounts and the community ledger are not part of the character backup format; copy them beside it.
+      try {
+        const aux = await createAuxBackup(root);
+        if (aux) {
+          console.log(`[backup] verified ${aux.files} account/ledger file(s): ${aux.directory}`);
+          if (keepCount > 0) await rotateAuxBackups(root, keepCount);
+        }
+      } catch (error) {
+        console.error('[backup] account/ledger snapshot failed; the character backup is unaffected:', error);
       }
     })().catch(error => {
       console.error('[backup] failed; no completed backup reported:', error);

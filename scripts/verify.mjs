@@ -27,6 +27,7 @@ const stages = [
   ['backups', ['--import', 'tsx', '--test', 'server/test/backups.test.ts']],
   ['backup-rotation', ['--import', 'tsx', '--test', 'server/test/backupRotation.test.ts']],
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],
+  ['backup-aux', ['--import', 'tsx', '--test', 'server/test/backupAux.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
   ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],

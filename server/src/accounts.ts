@@ -43,9 +43,32 @@ export interface AccountRecord {
 export type AuthResult<T = object> = ({ ok: true } & T) | { ok: false; err: string };
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
-const derive = (password: string, salt: Buffer, kdf: { N: number; r: number; p: number; keylen: number } = KDF) =>
-  new Promise<Buffer>((resolve, reject) => nodeScrypt(password, salt, kdf.keylen,
-    { N: kdf.N, r: kdf.r, p: kdf.p, maxmem: 128 * kdf.N * kdf.r * 2 }, (error, key) => (error ? reject(error) : resolve(key))));
+
+/** scrypt runs on libuv's four-thread pool, the same pool that writes character saves. A flood of login attempts
+ *  must not be able to occupy all of it: at most `KDF_CONCURRENCY` hashes run at once, a bounded queue waits, and
+ *  anything beyond that is refused with a retryable error. */
+const KDF_CONCURRENCY = 2;
+const KDF_QUEUE_MAX = 32;
+export class AccountsBusyError extends Error {
+  constructor() { super('The server is busy. Try again in a moment.'); }
+}
+const kdf = { active: 0, maxActive: 0, waiting: [] as (() => void)[] };
+export const kdfStats = () => ({ active: kdf.active, maxActive: kdf.maxActive, queued: kdf.waiting.length });
+async function withKdfSlot<T>(work: () => Promise<T>): Promise<T> {
+  if (kdf.active < KDF_CONCURRENCY) kdf.active++;
+  else {
+    if (kdf.waiting.length >= KDF_QUEUE_MAX) throw new AccountsBusyError();
+    await new Promise<void>((resolve) => kdf.waiting.push(resolve)); // the finishing hash hands its slot over
+  }
+  kdf.maxActive = Math.max(kdf.maxActive, kdf.active);
+  try { return await work(); } finally {
+    const next = kdf.waiting.shift();
+    if (next) next(); else kdf.active--;
+  }
+}
+const derive = (password: string, salt: Buffer, params: { N: number; r: number; p: number; keylen: number } = KDF) =>
+  withKdfSlot(() => new Promise<Buffer>((resolve, reject) => nodeScrypt(password, salt, params.keylen,
+    { N: params.N, r: params.r, p: params.p, maxmem: 128 * params.N * params.r * 2 }, (error, key) => (error ? reject(error) : resolve(key)))));
 
 const BASE32 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function newRecoveryCode(): string {
@@ -254,11 +277,23 @@ export class AccountStore {
     return { ok: true, username: record.username, remaining: done.record.recovery.length };
   }
 
-  async changePassword(username: string, current: unknown, next: unknown): Promise<AuthResult> {
+  /** Operations that re-ask for the password count wrong answers like a login does, so a stolen session token cannot
+   *  be used to guess the password online without limit. */
+  private async proveOwnPassword(username: string, password: unknown, message: string): Promise<AuthResult> {
+    const wait = this.waitFor(username, '');
+    if (wait > 0) return { ok: false, err: this.lockMessage(wait) };
     const record = this.accounts.get(username);
-    if (!record || typeof current !== 'string' || current.length > PASSWORD_MAX || !(await this.verify(record, current))) {
-      return { ok: false, err: 'Your current password is not correct.' };
+    if (!record || typeof password !== 'string' || password.length > PASSWORD_MAX || !(await this.verify(record, password))) {
+      this.failBoth(username, '');
+      return { ok: false, err: message };
     }
+    this.failures.delete(`u:${username}`);
+    return { ok: true };
+  }
+
+  async changePassword(username: string, current: unknown, next: unknown): Promise<AuthResult> {
+    const proof = await this.proveOwnPassword(username, current, 'Your current password is not correct.');
+    if (!proof.ok) return proof;
     const problem = this.passwordError(next, username);
     if (problem) return { ok: false, err: problem };
     const secret = await this.hashNew(next as string);
@@ -270,10 +305,8 @@ export class AccountStore {
 
   /** Replaces the whole set of recovery codes after proving the password; the old codes stop working. */
   async newRecoveryCodes(username: string, password: unknown): Promise<AuthResult<{ recoveryCodes: string[] }>> {
-    const record = this.accounts.get(username);
-    if (!record || typeof password !== 'string' || password.length > PASSWORD_MAX || !(await this.verify(record, password))) {
-      return { ok: false, err: 'Your password is not correct.' };
-    }
+    const proof = await this.proveOwnPassword(username, password, 'Your password is not correct.');
+    if (!proof.ok) return proof;
     const codes = Array.from({ length: RECOVERY_CODES }, newRecoveryCode);
     const done = await this.mutate(username, (c) => ({ ...c, recovery: codes.map((x) => sha256(normaliseCode(x))) }));
     return done.ok ? { ok: true, recoveryCodes: codes } : done;

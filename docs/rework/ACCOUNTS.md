@@ -59,5 +59,31 @@ files, plus two real-server runs (`required` and `optional`) over WebSocket.
 - The **client login/register/character screen** (UI; waits for the UI merge).
 - Email verification and email-based recovery (no mail service, no paid services); passkeys; third-party sign-in.
 - Persisting sessions across restarts; device list; account deletion and data export (GDPR flow, roadmap F-ACC-06).
-- Social ledger backups still do not include `DATA_DIR/accounts/` — **include it in any backup you rely on.**
-- A second pair of eyes on this file and `session.ts` (the roadmap requires independent review for auth).
+- A second pair of eyes on this file and `session.ts` (the roadmap requires independent review for auth). A self-review
+  on 2026-10-10 found and fixed two things (below); it is not the independent review.
+
+## Backups
+
+The character backup format (`server/src/backups.ts`) is strict and unchanged. Accounts and the community ledger are
+copied by `server/src/backupAux.ts` into sibling `aux-<time>-<uuid>` directories of the same `BACKUP_DIR` on the same
+schedule (startup and every 24 h), with their own manifest and checksums, the same exclusive-create / re-read /
+"incomplete" marker discipline, and retention by `BACKUP_KEEP` (newest N verified; anything it cannot verify is left
+alone). Restore is explicit and never touches the live directory:
+
+```
+npm run saves:backup -- aux-verify  <BACKUP_DIR>ux-…
+npm run saves:backup -- aux-restore <BACKUP_DIR>ux-… <NEW-destination-directory>   # then copy accounts\ and social\ in, server stopped
+```
+
+## Self-review notes (2026-10-10)
+
+* **Fixed — hashing could starve saves.** scrypt runs on libuv's four-thread pool, the pool that also writes character
+  files. At most two hashes now run at once, up to 32 wait, and the rest get a retryable "server is busy"
+  (`AccountsBusyError`). Test: 12 simultaneous logins never exceed two active hashes.
+* **Fixed — a stolen session token could guess the password online.** Changing the password or regenerating recovery codes
+  re-asks for the password; wrong answers now count like login failures (5 in 15 minutes lock the account for 15).
+* **By design, document before exposing:** the client IP is the socket address (never `X-Forwarded-For`), so behind a
+  reverse proxy every player shares one IP and the 25-failure IP lock applies to them together — add a trusted-proxy
+  setting before putting this behind one. Anyone can lock a *username* for 15 minutes with five wrong guesses (the IP
+  limit stops one source, not many). Usernames can be enumerated through registration ("taken").
+* **Not done:** email-based recovery, session persistence across restarts, account deletion/export, passkeys.
