@@ -3,7 +3,8 @@
 
 import { Application, Container, type Text } from 'pixi.js';
 import type { CharacterSave } from '@shared/types';
-import { questMarker } from '@shared/quests';
+import { questMarker, questState, trackedQuest } from '@shared/quests';
+import { QUESTS } from '@shared/data/quests';
 import { ui } from '../ui/store';
 import { ordinarySelected } from '@shared/itemCollection';
 import { nameLabel } from './art/npcs';
@@ -331,6 +332,13 @@ export class Scene {
       for(const s of this.statics)if(s.questLabel&&s.npcId&&this.map) {
         const marker=questSave&&questMarker(questSave,this.map.zone,s.npcId);
         s.questLabel.text=marker??'';s.questLabel.visible=!!marker;
+        if(s.role==='clue'&&questSave&&'setClueState' in s.view) {
+          // Tracked: the tracked quest's current step is this object. Used: any quest already finished a step here.
+          const zone=this.map.zone,id=s.npcId,tq=trackedQuest(questSave),ts=tq&&questState(questSave,tq.id),step=tq&&ts&&!ts.claimed?tq.steps[ts.step]:undefined;
+          const tracked=!!step&&step.zone===zone&&step.target===id;
+          const used=QUESTS.some(q=>{const st=questState(questSave,q.id);return !!st&&q.steps.some((x,i)=>x.zone===zone&&x.target===id&&(i<st.step||st.claimed));});
+          (s.view as unknown as { setClueState(t:boolean,u:boolean):void }).setClueState(tracked,used);
+        }
       }
       this.questStamp=questSave;
     }
@@ -398,6 +406,11 @@ export class Scene {
   bark(s: StaticView, force = false): void {
     const lines = s.role ? BARKS[s.role] : undefined;
     if (lines) this.barks.say({ key: s.npcId ?? s.name, x: s.x, y: s.y, height: s.view.height, lines }, performance.now(), force);
+  }
+
+  /** Short interaction animation on a static (quest objects bounce/spin when inspected). */
+  pulseStatic(s: StaticView): void {
+    if ('pulse' in s.view) (s.view as unknown as { pulse(): void }).pulse();
   }
 
   /** Nearest static NPC / map portal within interaction range of (x, y). */

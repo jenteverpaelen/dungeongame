@@ -19,4 +19,5 @@ export const JOURNAL_MESSAGES = {
   'journal.opens':'Opens {zone}',
   'journal.noMatch':'No quests match this filter.',
   'journal.howItWorks':'How this quest works',
+  'character.howEstimated':'How these numbers are estimated',
 } as const;

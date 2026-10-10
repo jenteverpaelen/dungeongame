@@ -138,17 +138,31 @@ function ChatInput() {
   );
 }
 
+// Channel view tabs (MMO convention): filter what the log shows; a channel tab also becomes the send channel.
+const CHAT_VIEWS = ['all', ...CHAT_CHANNELS, 'system'] as const;
+type ChatView = (typeof CHAT_VIEWS)[number];
+const VIEW_LABEL = (v: ChatView) => v === 'lfg' ? 'LFG' : v[0].toUpperCase() + v.slice(1);
+let rememberedView: ChatView = 'all';
+
 export function Chat() {
-  const lines = useUI((s) => s.chat.slice(-8));
+  const all = useUI((s) => s.chat);
   const open = useUI((s) => s.chatOpen);
+  const [view, setView] = useState<ChatView>(rememberedView);
+  const shown = view === 'all' ? all : all.filter((l) => l.ch === view);
+  const lines = shown.slice(open ? -14 : -8);
   const now = useNow(1000, lines.length > 0 && !open);
   const newest = lines.length ? lines[lines.length - 1].at : 0;
   const idle = !open && now - newest > IDLE_FADE_MS;
   if (!lines.length && !open) return null;
+  const pick = (v: ChatView) => { rememberedView = v; setView(v); if ((CHAT_CHANNELS as readonly string[]).includes(v)) ui.set({ chatChannel: v as (typeof CHAT_CHANNELS)[number] }); };
   return (
     <div class={`hud-chat${open ? ' is-open' : ''}${idle ? ' is-idle' : ''}`}>
+      {open && <div class="chat-tabs interactive" role="tablist" aria-label="Chat channels">
+        {CHAT_VIEWS.map((v) => <button key={v} role="tab" aria-selected={view === v} class={`chat-tab${view === v ? ' on' : ''}`} onClick={() => pick(v)}>{VIEW_LABEL(v)}</button>)}
+      </div>}
       <div class="chat-lines">
         {lines.map((l) => <ChatRow key={l.id} l={l} idle={!open && now - l.at > IDLE_FADE_MS} />)}
+        {open && !lines.length && <div class="chat-line sys">No messages in {VIEW_LABEL(view)} yet.</div>}
       </div>
       {open && <ChatInput />}
     </div>

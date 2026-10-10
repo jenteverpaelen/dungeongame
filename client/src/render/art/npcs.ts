@@ -11,6 +11,7 @@ import { P, RigArt, type C, type Family } from './monsters';
 import { GOLD, INK } from './palette';
 import { PlayerArt } from './player';
 import { npcPreset, RESIDENT_PRESETS, type NpcPreset } from './npcLooks';
+import { QuestObjectView } from './questObjects';
 import { TAU, clamp, light, mix, shade } from './util';
 
 // ─────────────────────────── labels ───────────────────────────
@@ -387,27 +388,10 @@ export class NpcArt implements EntityView {
   constructor(private role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?:number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind'], where?: { zone?: string; id?: string; title?: string; facing?: number }) {
     const elite = /elite/i.test(name);
     if(role==='clue') {
-      const root=new Container(),g=new Graphics();root.addChild(g);
-      if(clueKind==='marker') {
-        g.poly([-15,0,-13,-38,-3,-46,14,-39,16,0]).fill(0x777d69).stroke({color:0x303a30,width:2});
-        g.moveTo(-9,-26).lineTo(8,-26).moveTo(0,-36).lineTo(0,-17).stroke({color:0xd2c194,width:2});
-        g.rect(-10,-12,20,12).fill(0xb4a074).stroke({color:0x5a503a,width:1});
-      } else if(clueKind==='mechanism') {
-        g.rect(-19,-16,38,16).fill(0x656b61).stroke({color:0x303a34,width:2});
-        g.rect(-7,-36,14,25).fill(0x4b514a).stroke({color:0x9a9173,width:2});
-        g.circle(0,-34,15).stroke({color:0xad9567,width:4});
-        g.moveTo(-12,-34).lineTo(12,-34).moveTo(0,-47).lineTo(0,-21).stroke({color:0x756444,width:3});
-        g.moveTo(0,-34).lineTo(19,-42).stroke({color:0xb6a27a,width:4});
-      } else if(clueKind==='cart' || (!clueKind&&name.includes('cart'))) {
-        g.circle(-20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3}).circle(20,-7,11).fill(0x312d25).stroke({color:0x9c845b,width:3});
-        g.poly([-29,-17,19,-26,32,-10,-16,0]).fill(0x796447).stroke({color:0x342f25,width:2});
-        for(let x=-21;x<=20;x+=9)g.moveTo(x,-15).lineTo(x+12,-33).stroke({color:0xa18b5b,width:6});
-      } else {
-        g.rect(-16,-17,32,17).fill(0x565749).stroke({color:0x2b332c,width:2});
-        g.poly([-12,-19,0,-22,12,-19,12,-8,0,-11,-12,-8]).fill(0xd2c194).stroke({color:0x554a36,width:1.5});
-        g.moveTo(0,-21).lineTo(0,-11).stroke({color:0x816f4b,width:1});
-      }
-      this.inner={root,height:34,update(){},hit(){},die(_el,done){done();},destroy(){root.destroy({children:true});}};
+      // Quest objects: painted silhouettes with tracked/used states (questObjects.ts, CAST.md).
+      const kind=clueKind??(name.toLowerCase().includes('cart')?'cart':/ledger|book|record|log/i.test(name)?'ledger':undefined);
+      this.clue=new QuestObjectView(kind,(hashId(`${where?.zone}/${where?.id}`)%997)/97);
+      this.inner=this.clue;
     } else if (['healer', 'vendor', 'blacksmith', 'jeweler', 'mystic', 'quest', 'resident'].includes(role) || RESIDENT_PRESETS[role]) {
       // Townsfolk use the hero rig with their own body, outfit and role prop (npcLooks.ts / docs/rework/CAST.md).
       const preset = npcPreset(where?.zone, where?.id, role, name);
@@ -460,6 +444,11 @@ export class NpcArt implements EntityView {
   }
   /** Ambient townsfolk only show their plate when the hero is close. */
   showPlate(visible: boolean): void { if (this.label) this.label.visible = visible; }
+  private clue: QuestObjectView | null = null;
+  /** Quest objects: pulsing highlight while the tracked objective, distinct look once their step is done. */
+  setClueState(tracked: boolean, used: boolean): void { this.clue?.setState(tracked, used); }
+  /** Short interaction animation for quest objects. */
+  pulse(): void { this.clue?.pulse(); }
   hit(i: number, c: boolean): void { if (!this.destroyed) this.inner.hit(i, c); }
   die(e: number, done: () => void): void { if (!this.destroyed) this.inner.die(e, done); }
   destroy(): void { if (this.destroyed) return; this.destroyed = true; this.inner.destroy(); this.root.destroy({ children: true }); }

@@ -1258,3 +1258,9 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 .notice-long .notice-text { white-space: normal; max-width: min(640px, 60vw); text-transform: none; letter-spacing: 0.01em; font-family: var(--font-body); }
 .notice-long .notice-text span { font-size: max(15px, calc(var(--u) * 18)) !important; line-height: 1.35; }
 .notice-long .notice-wing { width: calc(var(--u) * 48); }
+
+/* Chat channel view tabs (shown while chat is open). */
+.chat-tabs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 4px; }
+.chat-tab { min-height: 24px; padding: 0 9px; font: 700 var(--f-xs)/1 var(--font-body); color: var(--t-2); background: rgba(8, 6, 4, 0.78); border: 1px solid var(--line-1); border-radius: 3px; cursor: pointer; }
+.chat-tab:hover { color: var(--t-1); border-color: var(--line-2); }
+.chat-tab.on { color: var(--gold-hi); background: linear-gradient(180deg, #3a2c1c, #241a11); border-color: var(--line-3); }

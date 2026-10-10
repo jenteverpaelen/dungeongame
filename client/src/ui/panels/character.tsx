@@ -9,6 +9,8 @@ import { useUI } from '../store';
 import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { fmtPowerValue } from './util';
 import { EconomySection } from './economy';
+import { UiIcon } from '../hud/UiIcons';
+import { text as ut } from '../../i18n/messages';
 
 type Section='overview'|'offense'|'defense'|'utility'|'powers'|'economy';
 function Values({rows}:{rows:[string,string][]}) {
@@ -25,10 +27,16 @@ export function CharacterPanel() {
     <Tabs tabs={(['overview','offense','defense','utility','powers','economy'] as Section[]).map(id=>({id,label:id==='economy'?'Economy':t(id)}))} value={section} onChange={setSection}/>
     {section==='economy'&&<EconomySection save={save}/>}
     {section==='overview'&&<>
-      <Values rows={[[t(d.mainStatId),n(d.mainStat)],[t('vit'),n(d.vit)],[t('damage'),n(d.sheetDps)],[t('toughness'),n(d.toughness)],[t('recovery'),n(d.recovery)]]}/>
-      <SecHead>{t('damage')}</SecHead><p>{t('damageNote')}</p>
-      <SecHead>{t('toughness')}</SecHead><p>{t('toughnessNote')}</p>
-      <SecHead>{t('recovery')}</SecHead><p>{t('recoveryNote')}</p>
+      <div class="ch-hero">
+        {([['damage',d.sheetDps,'skills'],['toughness',d.toughness,'shield'],['recovery',d.recovery,'star']] as const).map(([k,v,icon])=><div key={k} class={`ch-big ${k}`} title={t(`${k}Note`)}>
+          <UiIcon name={icon} size={26}/><span>{t(k)}</span><b>{n(v)}</b></div>)}
+      </div>
+      <div class="ch-tiles">
+        {([[t(d.mainStatId),n(d.mainStat)],[t('vit'),n(d.vit)],[t('life'),n(d.life)],[t('armor'),n(d.armor)],[t('allRes'),n(d.allRes)],[t('chc'),p(d.chc)],[t('chd'),p(d.chd)],[t('aps'),fmtNum(d.aps,2)]] as [string,string][]).map(([k,v])=><div key={k} class="ch-tile"><span>{k}</span><b>{v}</b></div>)}
+      </div>
+      <details class="ch-how"><summary>{ut('character.howEstimated')}</summary>
+        <p><b>{t('damage')}.</b> {t('damageNote')}</p><p><b>{t('toughness')}.</b> {t('toughnessNote')}</p><p><b>{t('recovery')}.</b> {t('recoveryNote')}</p>
+      </details>
     </>}
     {section==='offense'&&<>
       <Values rows={[[t('weapon'),`${n(d.weaponMin)}–${n(d.weaponMax)}`],[t('weaponElement'),t(d.weaponElement)],[t('aps'),fmtNum(d.aps,2)],

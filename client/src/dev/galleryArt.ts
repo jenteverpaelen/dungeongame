@@ -173,6 +173,23 @@ function npcsView() {
   world.scale.set(ZOOM * 0.92);
 }
 
+/** Quest objects (docs/rework/CAST.md): each kind idle, tracked (pulsing ring) and used. */
+function questObjectsView() {
+  const kinds = ['cart', 'ledger', 'marker', 'mechanism'] as const;
+  kinds.forEach((k, row) => {
+    label(k, 40, 110 + row * 150, 12);
+    (['idle', 'tracked', 'used'] as const).forEach((state, col) => {
+      const x = 200 + col * 220, y = 130 + row * 150;
+      if (row === 0) label(state, x - 20, 40, 12);
+      ground(x - 80, y - 12, 160, 24, 0x6a7a4c);
+      const v = createNpcView('clue', k, undefined, undefined, k, { zone: 'gallery', id: `${k}-${state}` }) as unknown as EntityView & { setClueState(t: boolean, u: boolean): void };
+      v.setClueState(state === 'tracked', state === 'used');
+      addActor(v, x, y, st({}), 1);
+    });
+  });
+  world.scale.set(ZOOM * 0.9);
+}
+
 function closeupView() {
   const all = [
     playerLook(createCharacter('g', 'warrior', 7)), playerLook(createCharacter('g', 'ranger', 7)), playerLook(createCharacter('g', 'mage', 7)),
@@ -685,6 +702,7 @@ switch (VIEW) {
   case 'sheets': sheetsView(); break;
   case 'chars': charsView(); break;
   case 'npcs': npcsView(); break;
+  case 'quest-objects': questObjectsView(); break;
   case 'closeup': closeupView(); break;
   case 'monsters': monstersView(); break;
   case 'objects': objectsView(); break;

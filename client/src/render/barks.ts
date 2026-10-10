@@ -47,7 +47,8 @@ export class BarkBubbles {
     for (const l of [...this.live]) {
       const age = now - l.born, left = l.until - now;
       l.c.alpha = Math.min(1, age / 160, Math.max(0, left / 260));
-      l.c.position.set(l.sp.x, l.sp.y - l.sp.height - 18 - Math.min(1, age / 200) * 4);
+      // Clear of a two-line name plate (name + role line sit just above the head).
+      l.c.position.set(l.sp.x, l.sp.y - l.sp.height - 44 - Math.min(1, age / 200) * 4);
       if (left <= 0) this.drop(l);
     }
   }

@@ -288,6 +288,7 @@ export class Game {
         void this.conn?.cmd('quest',{action:'activate',target:s.npcId}).then(r=>{if(!r.ok&&r.err)pushNotice(r.err,'warn');});return;
       }
       if(s.role==='quest' || s.role==='clue') {
+        if(s.role==='clue')this.scene.pulseStatic(s);
         void this.conn?.cmd('quest',{action:'talk',target:s.npcId}).then(r=>{
           const save=ui.get().char,zoneId=zone?.zone;
           if(r.ok && save && zoneId){
