@@ -9,7 +9,8 @@ import '../styles/panels-services.css';
 import '../styles/gear.css';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { togglePanel, type PanelId } from '../store';
-import { useU } from './state';
+import { useLocal, useU } from './state';
+import { preferences } from '../../game/preferences';
 import { CubePanel } from './cube';
 import { DebugPanel, ObeliskPanel, WaypointPanel } from './dialogs';
 import { DragLayer } from './dnd';
@@ -37,16 +38,24 @@ export type { ItemTooltipProps } from './tooltip';
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
 const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue'];
 
-/** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
+/** Tallest window at scale 1 (the quest journal, 909 px, measured at 1080p) plus the dock's margins. */
+const TALLEST_PANEL = 915;
+
+/** Panel scale from the viewport height (1.0 at 1080p, 0.6 floor so 720p panels never cover the bottom bar), times the
+ *  player's interface size, but never so large that the tallest window stops fitting the screen (no scrolling windows). */
 function useScale(): number {
-  // Proportional to 1080p (where docks clear the HUD globes) down to 0.6, so 720p panels never cover the bottom bar.
-  const calc = () => Math.max(0.6, Math.min(1.1, window.innerHeight / 1080));
+  const k = useLocal(preferences, (s) => s.values.uiScale);
+  const calc = () => {
+    const base = Math.max(0.6, Math.min(1.1, window.innerHeight / 1080));
+    return Math.min(base * k, Math.max(base, (window.innerHeight - 24) / TALLEST_PANEL));
+  };
   const [s, set] = useState(calc);
   useEffect(() => {
+    set(calc());
     const on = () => set(calc());
     window.addEventListener('resize', on);
     return () => window.removeEventListener('resize', on);
-  }, []);
+  }, [k]);
   return s;
 }
 

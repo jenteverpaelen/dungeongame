@@ -17,6 +17,7 @@ import { GEAR_TIER_NAMES, gearLook, itemVisualTier, temperOf } from '@shared/gea
 import { tierText } from '../../render/art/gearStyle';
 import { text } from '../../i18n/messages';
 import { Local, useLocal, useU } from './state';
+import { preferences } from '../../game/preferences';
 import {
   affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemTypeLine, rarityClass, rollFraction,
   scaledAffix, slotName, targetSlot, weaponStats,
@@ -397,7 +398,7 @@ function place() {
   const vw = window.innerWidth, vh = window.innerHeight;
   const w = el.offsetWidth, h = el.offsetHeight;
   if (!w || !h) return;
-  const s = Math.min(1, (vw - 16) / w, (vh - 16) / h);
+  const s = Math.min(preferences.get().values.uiScale, (vw - 16) / w, (vh - 16) / h);
   const sw = w * s, sh = h * s;
   let x = ptr.x + 24;
   if (x + sw > vw - 8) x = ptr.x - 24 - sw;

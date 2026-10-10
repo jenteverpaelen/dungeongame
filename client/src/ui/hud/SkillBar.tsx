@@ -139,6 +139,10 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   eternal_gyre: { name: 'Eternal Gyre', shape: 'shield', color: '#e0e0f0' },
   shield: { name: 'Shield', shape: 'shield', color: '#7fb4ff' },
   haste: { name: 'Haste', shape: 'bolt', color: '#ffe36a' },
+  // Field shrines (server/src/sim/instance.ts SHRINE): two minutes, combat only.
+  shrine_empowered: { name: 'Empowered Shrine', shape: 'flame', color: '#ff7a4a' },
+  shrine_frenzied: { name: 'Frenzied Shrine', shape: 'bolt', color: '#ffe36a' },
+  shrine_keen: { name: 'Keen Shrine', shape: 'crit', color: '#7fd3ff' },
 };
 
 function buffMeta(id: string): BuffMeta {

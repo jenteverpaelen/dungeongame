@@ -41,7 +41,13 @@ export class Spawner {
   init() {
     const inst = this.inst;
     if (inst.kind === 'town') { this.spawnDummies(); return; }
-    if (inst.kind === 'dungeon') return; // Authored mechanisms own this instance's finite encounters.
+    if (inst.kind === 'dungeon') {
+      // Mechanisms own their stage encounters; every other authored pack is placed once, finite (DECISIONS D-W06).
+      const stages = new Set(inst.map.adventure?.dungeon?.stages.map((st) => st.encounter) ?? []);
+      this.slots = inst.map.spawns.map((sp) => ({ x: sp.x, y: sp.y, pack: null }));
+      inst.map.adventure?.encounters.forEach((e, i) => { if (!stages.has(e.id)) this.populate(i, true); });
+      return;
+    }
     this.slots = inst.map.spawns.map((s) => ({ x: s.x, y: s.y, pack: null }));
     if (inst.kind === 'field') this.initField();
     else this.initRift();
@@ -104,18 +110,18 @@ export class Spawner {
     if(!event)return 'No field event at this object';
     const spot=this.inst.map.adventure!.interactions.find(i=>i.id===target)!;
     const player=this.inst.players.find(p=>p.link===link);
-    if(!player||!this.inst.canInteract(link,spot.x,spot.y,spot.radius))return 'Stand beside the survey marker while alive';
+    if(!player||!this.inst.canInteract(link,spot.x,spot.y,spot.radius))return `Stand beside the ${spot.name.toLowerCase()} while alive`;
     const index=this.inst.map.adventure!.encounters.findIndex(e=>e.id===event.encounter),slot=this.slots[index];
     if(!slot)return 'This encounter is unavailable';
     if(!slot.pack){
-      if(slot.respawnAt!==undefined)return 'The overlook must settle; leave the area before sounding another alarm';
+      if(slot.respawnAt!==undefined)return `${event.name}: the area must settle; leave it before starting it again`;
       this.populate(index,false);
       this.events.set(index,{remaining:new Set(this.inst.mobs.filter(m=>!m.dead&&m.pack===slot.pack).map(m=>m.id)),members:new Set(),valid:true});
     }
     const run=this.events.get(index);
-    if(!run?.valid)return 'This interrupted encounter must be cleared before another alarm';
+    if(!run?.valid)return 'This interrupted encounter must be cleared before it can start again';
     run.members.add(player.id);
-    this.inst.emitTo(player.id,{e:'notice',kind:'info',text:`${event.name}: joined. Clear the overlook and remain alive nearby.`});
+    this.inst.emitTo(player.id,{e:'notice',kind:'info',text:`${event.name}: joined. Defeat every creature and remain alive nearby.`});
     return null;
   }
 
@@ -129,7 +135,7 @@ export class Spawner {
     if(run.valid)for(const p of this.inst.players){
       if(run.members.has(p.id)&&p.deadMs<=0&&p.hp>0&&Math.hypot(p.x-mob.x,p.y-mob.y)<=XP_SHARE_RANGE){
         creditQuestWave(this.inst,p,event.id);
-        this.inst.emitTo(p.id,{e:'notice',kind:'info',text:`${event.name}: cleared. Return to Orren if your contract is ready.`});
+        this.inst.emitTo(p.id,{e:'notice',kind:'info',text:`${event.name}: cleared.`});
       }
     }
     this.events.delete(index);
@@ -138,7 +144,7 @@ export class Spawner {
   /** Level and difficulty for a new pack: the rift's, or (fields) those of the nearest player. */
   private levelFor(x: number, y: number): { level: number; diff: number } {
     const inst = this.inst;
-    if (inst.kind === 'rift') return { level: inst.level, diff: inst.difficulty };
+    if (inst.kind === 'rift' || inst.kind === 'dungeon') return { level: inst.level, diff: inst.difficulty };
     const [lo, hi] = inst.def.levelBand;
     let best: Player | null = null, bd = Infinity;
     for (const p of inst.players) {

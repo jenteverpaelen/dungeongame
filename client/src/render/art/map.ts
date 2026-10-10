@@ -17,6 +17,7 @@ import { buildTownBlockout } from './townBlockout';
 import { buildTownSlice } from './townSlice';
 import { buildHearthmere } from './townHearth';
 import { adventureStructures } from './adventure';
+import { buildZone } from './zoneBuild';
 
 export function themeKey(map: MapData): ThemeKey {
   if (map.zone === 'rift') return map.theme === 'ashen' ? 'riftAshen' : 'riftGlade';
@@ -192,6 +193,7 @@ class GlowDecals extends Container {
 
 export function buildLayers(map: MapData): MapLayers {
   if (map.town) return map.town.ground ? buildHearthmere(map.town) : map.town.lookSlice ? buildTownSlice(map.town) : buildTownBlockout(map.town);
+  if (map.adventure?.paint) return buildZone(map);
   const theme = themeKey(map);
   const ground = new GroundLayer(map, theme);
   const glows = new GlowDecals(map.w * 64);

@@ -6,7 +6,7 @@ import { MIDGAME_ADVENTURES } from './data/midgame';
 import type { AdventureData } from './adventureTypes';
 import { TILE } from './constants';
 import { T_FLOOR, T_WATER, type MapData } from './mapgen';
-import { inGround } from './townGeometry';
+import { groundTester } from './townGeometry';
 import type { CharacterSave } from './types';
 
 export const RILLWAKE_ID = 'rillwake_crossing';
@@ -16,13 +16,15 @@ export function loadRillwake(seed: number): MapData {
   return loadAdventure(RILLWAKE_ID,seed);
 }
 export function loadAdventure(id:string,seed:number):MapData {
-  const a = structuredClone(ADVENTURES[id]);
+  // The visual-only paint block is shared read-only (it can hold thousands of decor entries); the rest is per instance.
+  const {paint,...rest}=ADVENTURES[id];
+  const a:AdventureData = {...structuredClone(rest),...(paint?{paint}:{})};
   a.geometry.props = a.scenery.filter(p=>p.r>0).map(p=>({x:p.x,y:p.y,radius:p.r*p.s}));
   if(a.wheel)a.geometry.props.push(a.wheel);
   for(const k of [...a.kilns??[],...a.works??[]])a.geometry.buildings.push({footprint:[[k.x,k.y],[k.x+k.w,k.y],[k.x+k.w,k.y+k.d],[k.x,k.y+k.d]]});
   a.geometry.npcs = a.npcs;
-  const [w,h]=a.size, tiles=new Uint8Array(w*h);
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++)tiles[y*w+x]=inGround(a.geometry,(x+.5)*TILE,(y+.5)*TILE)?T_FLOOR:T_WATER;
+  const [w,h]=a.size, tiles=new Uint8Array(w*h), ground=groundTester(a.geometry);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)tiles[y*w+x]=ground((x+.5)*TILE,(y+.5)*TILE)?T_FLOOR:T_WATER;
   return {zone:a.id,theme:a.theme??'glade',seed,w,h,tiles,props:a.scenery,spawns:a.encounters,entry:a.geometry.entry,portals:a.portals,npcs:a.npcs,adventure:a};
 }
 

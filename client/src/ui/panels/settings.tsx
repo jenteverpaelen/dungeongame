@@ -4,7 +4,7 @@
 // data-gear, data-controls-editor).
 
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { preferences, DEFAULT_CAMERA_ZOOM, GEAR_EFFECT_LEVELS, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM, type Preferences } from '../../game/preferences';
+import { preferences, DEFAULT_CAMERA_ZOOM, DEFAULT_UI_SCALE, GEAR_EFFECT_LEVELS, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM, MIN_UI_SCALE, MAX_UI_SCALE, type Preferences } from '../../game/preferences';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
 import { PanelFrame } from './common';
 import { useLocal } from './state';
@@ -83,6 +83,7 @@ export function SettingsPanel() {
           {section === 'display' && <>
             <div class="co-bar"><h3>Display</h3><span class="co-sub">Nothing here changes what happens in combat.</span></div>
             <div class="so-cards">
+              <InterfaceSize />
               <section class="so-card">
                 <h4>{text('settings.cameraHeading')}</h4>
                 <label class="st-slider" style={{ '--v': `${((values.cameraZoom - MIN_CAMERA_ZOOM) / (MAX_CAMERA_ZOOM - MIN_CAMERA_ZOOM)) * 100}%` }}>
@@ -117,6 +118,27 @@ export function SettingsPanel() {
         </div>
       </div>
     </PanelFrame>
+  );
+}
+
+/** Interface size. The value is applied when the slider is released: the window itself grows, and a thumb that moves
+ *  away under the pointer while dragging would be unusable. */
+function InterfaceSize() {
+  const stored = useLocal(preferences, s => s.values.uiScale);
+  const [draft, setDraft] = useState<number | null>(null);
+  const shown = draft ?? stored;
+  const commit = () => { if (draft !== null) { preferences.set({ uiScale: draft }); setDraft(null); } };
+  return (
+    <section class="so-card">
+      <h4>Interface size</h4>
+      <label class="st-slider" style={{ '--v': `${((shown - MIN_UI_SCALE) / (MAX_UI_SCALE - MIN_UI_SCALE)) * 100}%` }}>
+        <span>Text and windows</span><output>{Math.round(shown * 100)}%</output>
+        <input type="range" min={Math.round(MIN_UI_SCALE * 100)} max={Math.round(MAX_UI_SCALE * 100)} step="5" aria-label="Interface size" value={Math.round(shown * 100)}
+          onInput={e => setDraft(Number(e.currentTarget.value) / 100)} onChange={commit} onPointerUp={commit} onKeyUp={commit} />
+      </label>
+      <p class="settings-note">Makes the HUD, windows and tooltips larger or smaller. Windows never grow past what fits your screen height; on a 1080p screen a large size can make an open window cover part of the bottom bar.</p>
+      <div><button class="btn sm" onClick={() => { setDraft(null); preferences.set({ uiScale: DEFAULT_UI_SCALE }); }}>Default size</button></div>
+    </section>
   );
 }
 

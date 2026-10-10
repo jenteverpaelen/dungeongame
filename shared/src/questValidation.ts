@@ -112,7 +112,8 @@ export function validateAdventures():string[] {
       if(a.dungeon.endTarget)check(a.interactions.some(i=>i.id===a.dungeon!.endTarget),`${id}: missing dungeon end target`);
       check(stages.length>0&&new Set(stages.map(s=>s.id)).size===stages.length,`${id}: invalid/duplicate stages`);
       check(new Set(stages.map(s=>s.trigger)).size===stages.length,`${id}: duplicate mechanism`);
-      check(new Set(stages.map(s=>s.encounter)).size===stages.length&&stages.length===a.encounters.length,`${id}: duplicate/unassigned encounter`);
+      // D-W06: stage encounters are unique and authored; other dungeon packs are pre-placed (finite, no respawn).
+      check(new Set(stages.map(s=>s.encounter)).size===stages.length&&stages.every(st=>a.encounters.some(e=>e.id===st.encounter)),`${id}: duplicate/unassigned encounter`);
       for(const s of stages){
         const trigger=a.interactions.find(i=>i.id===s.trigger),encounter=a.encounters.find(e=>e.id===s.encounter);
         check(s.area.length>=3&&s.area.every(p=>p.every(Number.isFinite)),`${id}/${s.id}: invalid arena`);

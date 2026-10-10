@@ -1,4 +1,4 @@
-import { closest, groundBoundary, inGround, type Edge } from './townGeometry';
+import { closest, groundBoundary, groundTester, type Edge } from './townGeometry';
 import type { GroundGeometry } from './townGeometry';
 
 const CELL = 128, SKIN = .0001;
@@ -11,7 +11,9 @@ export class TownCollision {
   private scratch: Shape[] = [];
   private stamp = 0;
   private contact = { time: 1, nx: 0, ny: 0, found: false };
+  private readonly ground: (x: number, y: number) => boolean;
   constructor(readonly data: GroundGeometry) {
+    this.ground = groundTester(data);
     this.edges = groundBoundary(data);
     for (const e of this.edges) this.add({ ...e, dynamic: false, stamp: 0 });
     for (const b of data.barriers) this.add({ ax: b.a[0], ay: b.a[1], bx: b.b[0], by: b.b[1], nx: 0, ny: 0, radius: b.radius, dynamic: false, stamp: 0 });
@@ -37,7 +39,7 @@ export class TownCollision {
     return this.scratch;
   }
   isFree(x: number, y: number, r: number, ignoreNpcs = false): boolean {
-    if (!inGround(this.data, x, y)) return false;
+    if (!this.ground(x, y)) return false;
     for (const e of this.query(x - r, y - r, x + r, y + r)) {
       if (ignoreNpcs && e.dynamic) continue;
       const dx = e.bx - e.ax, dy = e.by - e.ay;

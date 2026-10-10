@@ -4,6 +4,7 @@ import { storyXp } from '../storyBudget';
 import { MIDGAME_QUESTS, MIDGAME_GIFTS } from './midgameQuests';
 import { WORKSHOP_QUESTS } from './workshopQuests';
 import { CAMP_CONTRACTS } from './campContracts';
+import { WORLD_QUESTS } from './worldQuests';
 export { storyXp } from '../storyBudget';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
@@ -91,5 +92,6 @@ export const QUESTS: readonly QuestDef[] = [
   ...MIDGAME_GIFTS,
   ...WORKSHOP_QUESTS,
   ...CAMP_CONTRACTS,
+  ...WORLD_QUESTS,
 ];
 export const questById = (id: string) => QUESTS.find(q => q.id === id);

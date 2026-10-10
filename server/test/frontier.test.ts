@@ -83,6 +83,8 @@ test('physical route travel enforces story locks, retains old low-level earned a
 function combat(type='vault_moth'){
   const save=createCharacter('PatternProbe','mage',41);save.level=20;
   const inst=new Instance({zoneId:'reedvault_pumpworks',key:'pattern',channel:0,seed:41,theme:'glade',level:9,difficulty:0});
+  // Pre-placed dungeon packs (DECISIONS D-W06) are cleared: this probe measures one monster in isolation.
+  for(const pre of [...inst.mobs])inst.removeMob(pre);inst.mobs.length=0;
   inst.addPlayer({save,derived:computeStats(save),sessionId:'pattern',send(){},markDirty(){}});
   const p=inst.players[0];p.invulnMs=0;
   const at=(x:number,y:number)=>{p.x=p.mv.x=x;p.y=p.mv.y=y;};at(900,1390);

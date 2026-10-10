@@ -40,7 +40,7 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: actual quest
     f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,false,'sequence');
     f.near('cart');assert.equal(f.cmd('inspect','cart').ok,true);assert.equal(f.cmd('inspect','cart').ok,true,'repeat harmless');
     f.kill();assert.equal(f.save.rillwake!.warden,true);
-    f.at(3340,665);assert.equal(f.cmd('inspect','ledger').ok,false,'mill wall');
+    {const l=f.inst.map.adventure!.interactions.find(i=>i.id==='ledger')!,north=Math.min(...f.inst.map.adventure!.geometry.buildings.map(b=>Math.max(...b.footprint.map(p=>p[1]))).filter(y=>y<l.y));f.at(l.x,north-70);}assert.equal(f.cmd('inspect','ledger').ok,false,'mill wall');
     f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);
     const reward=structuredClone(f.save.rillwake!.reward!);
     assert.equal(reward.ilvl,levelReachedBy(storyXp(1,3)),'the weapon is generated for the level the XP of this reward reaches (storyXp(1,3)), not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
@@ -63,7 +63,7 @@ test('remote and reward-suppressed kills cannot finish the quest; cleared sites 
     f.near('tender');killMob(f.inst,target,f.p,'physical','remote');assert.equal(f.save.rillwake!.warden,false);
     const oldMobs=[...f.inst.mobs];for(const m of oldMobs)if(!m.dead)killMob(f.inst,m,null,'physical','cleanup');
     assert.equal(f.inst.spawner.livePacks(),0);
-    f.at(3210,1200);f.inst.t=30000;f.inst.spawner.tick(50);
+    {const mill=f.inst.map.adventure!.encounters.find(e=>e.id==='mill')!;f.at(mill.x,mill.y);}f.inst.t=30000;f.inst.spawner.tick(50);
     assert(!f.inst.mobs.some(m=>!m.dead&&m.adventureTarget==='mill'),'no visible respawn');
     f.near('tender');f.inst.t=60000;f.inst.spawner.tick(50);
     const respawn=f.inst.mobs.find(m=>!m.dead&&m.adventureTarget==='mill')!;assert(respawn);

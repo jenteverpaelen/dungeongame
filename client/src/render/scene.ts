@@ -23,6 +23,7 @@ import type { ClientEntity, ClientWorld } from '../game/world';
 import { townCollisionOverlay } from './art/townBlockout';
 import { TownLife } from './art/townLife';
 import { AdventureLife } from './art/adventureLife';
+import { PoiView, ZoneCritters, zoneAsTown } from './art/zoneLife';
 import { inPolygon } from '@shared/townGeometry';
 import { baselineY } from '@shared/townDepth';
 import { preferences } from '../game/preferences';
@@ -33,7 +34,7 @@ import { BARKS } from '@shared/data/barks';
 /** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
 
-interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questLabel?:Text }
+interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questLabel?:Text; poiId?: string }
 
 export interface LocalPlayerState { x: number; y: number; vx: number; vy: number; facingLeft: boolean; moving: boolean; dashing: boolean }
 
@@ -65,6 +66,8 @@ export class Scene {
   private showCollision = false;
   private townLife: TownLife | null = null;
   private adventureLife: AdventureLife | null = null;
+  private critters: ZoneCritters | null = null;
+  private heroAt = { x: 0, y: 0 };
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
   /** Screen-space extent of each building's baked sprites (for the walk-behind fade). */
@@ -124,6 +127,7 @@ export class Scene {
     this.roofAlpha.clear();this.buildingBounds.clear();
     this.townLife?.destroy();this.townLife=null;
     this.adventureLife?.destroy();this.adventureLife=null;
+    this.critters?.destroy();this.critters=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
@@ -164,11 +168,23 @@ export class Scene {
       this.entities.addChild(view.root);
       this.statics.push({ view, x: p.x, y: p.y, name: p.label, r: 40, portalTo: p.to });
     }
+    for (const poi of map.adventure?.pois ?? []) {
+      const view = new PoiView(poi);
+      view.root.position.set(poi.x, poi.y); view.root.zIndex = poi.y; this.entities.addChild(view.root);
+      this.statics.push({ view, x: poi.x, y: poi.y, name: poi.name, r: 30, poiId: poi.id });
+    }
     for(const s of this.statics){const lines=s.role?BARKS[s.role]:undefined;if(lines)this.speakers.push({key:s.npcId??s.name,x:s.x,y:s.y,height:s.view.height,lines});}
     if(map.town?.stage==='complete') {
       this.townLife=new TownLife(map.town,this.entities);
       this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
       this.speakers.push(...this.townLife.speakers);
+    }
+    if(map.adventure?.paint) {
+      this.townLife=new TownLife(zoneAsTown(map.adventure),this.entities);
+      this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
+      this.speakers.push(...this.townLife.speakers);
+      this.critters=new ZoneCritters(map.adventure);
+      this.groundFx.addChild(this.critters.ground);this.aboveFx.addChild(this.critters.above);
     }
     if(map.adventure?.ambience) {
       this.adventureLife=new AdventureLife(map.adventure);
@@ -297,6 +313,8 @@ export class Scene {
     const townTime=this.world.serverNow()/1000;
     this.townLife?.update(viewDt,townTime,this.cam.x,this.cam.y,halfW,halfH);
     this.adventureLife?.update(townTime,this.cam.x,this.cam.y,halfW,halfH);
+    if (me) { this.heroAt.x = me.x; this.heroAt.y = me.y; }
+    this.critters?.update(dtMs,townTime,this.cam.x,this.cam.y,halfW,halfH,this.heroAt.x,this.heroAt.y);
     if (this.map) {
       const mw = this.map.w * 64, mh = this.map.h * 64;
       this.cam.x = mw > halfW * 2 ? Math.max(halfW, Math.min(mw - halfW, this.cam.x)) : mw / 2;
@@ -428,7 +446,8 @@ export class Scene {
       const d = Math.hypot(s.x - x, s.y - y) - s.r;
       const n = this.map?.town?.npcs.find(n => n.role === s.role);
       const a=this.map?.adventure?.interactions.find(i=>i.id===s.npcId);
-      const margin = n ? n.interactionRadius - s.r : a ? a.radius-s.r : 70;
+      const poi=s.poiId?this.map?.adventure?.pois?.find(p=>p.id===s.poiId):undefined;
+      const margin = n ? n.interactionRadius - s.r : a ? a.radius-s.r : poi ? poi.radius - s.r : 70;
       if (d <= margin && d < bd && (!(this.map?.town || this.map?.adventure) || !this.world.collision?.segmentBlocked(x, y, s.x, s.y))) { bd = d; best = s; }
     }
     return best;

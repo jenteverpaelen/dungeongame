@@ -1,122 +1,172 @@
-import type { AdventureData } from '../adventureTypes';
 import type { Point } from '../townTypes';
-import type { Prop } from '../mapgen';
+import { ZoneBuilder, rect, riverPoly } from '../zoneKit';
 
-// C091/L108: authored coordinates, using the existing 640u room / 230u passage unit.
-const rect=(x:number,y:number,w:number,h:number):Point[]=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
-const road=(a:Point,b:Point,width=230):Point[]=>{
-  const d=Math.hypot(b[0]-a[0],b[1]-a[1]),x=-(b[1]-a[1])/d*width/2,y=(b[0]-a[0])/d*width/2;
-  return [[a[0]+x,a[1]+y],[b[0]+x,b[1]+y],[b[0]-x,b[1]-y],[a[0]-x,a[1]-y]];
-};
-const props=(k:string,points:Point[],r:number,s=1):Prop[]=>points.map(([x,y],v)=>({k,x,y,r,s,v}));
+// Act I upper road (DESIGN.md §2): Cairnspill Terraces (quarry), Cinderwash Kilns and Kilnwatch Crown (kiln country).
+// Every contact, encounter, location and portal id of the old plans is kept.
+const S = 92.16, P = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
 
-export const CAIRNSPILL:AdventureData={
-  id:'cairnspill_terraces',size:[56,48],surface:'masonry',
-  geometry:{entry:{x:600,y:2670},floors:[
-    {polygon:rect(340,2430,640,550)},
-    {polygon:road([750,2580],[1400,2210])},
-    {polygon:[[1060,1910],[1650,1830],[1840,2160],[1690,2540],[1110,2500],[980,2200]]},
-    {polygon:road([1450,2050],[2110,1490])},
-    {polygon:rect(1840,1180,760,660)},
-    {polygon:road([2400,1430],[2870,830])},
-    {polygon:rect(2480,420,700,720)},
-    {polygon:road([1240,2100],[790,1460])},
-    {polygon:rect(470,1150,640,640)},
-    {polygon:road([950,1420],[2050,1450])},
-  ],buildings:[{footprint:rect(1910,1210,360,45)},{footprint:rect(2510,450,45,340)}],barriers:[],props:[],npcs:[]},
-  paths:[{points:[[600,2670],[750,2580],[1400,2210],[1450,2050],[2110,1490],[2400,1430],[2870,830],[2940,600]],width:120},
-    {points:[[1240,2100],[790,1460],[950,1420],[2050,1450]],width:85}],
-  scenery:[...props('boulder',[[400,2520],[920,2750],[1090,2280],[1730,2020],[2440,1700],[3040,510],[1080,1670],[570,1220]],29),
-    ...props('stump',[[770,2860],[1610,2380],[2550,950]],17),...props('crate',[[2090,1740],[2140,1740],[2730,480]],17),
-    ...props('lantern',[[650,2500],[1200,1990],[2040,1300],[2880,1010]],6)],
-  npcs:[{id:'surveyor',name:'Iven · Road Surveyor',role:'quest',x:780,y:2680,r:18},
-    {id:'dispatch',name:'Quarry dispatch',role:'clue',x:2890,y:580,r:18}],
-  interactions:[{id:'surveyor',name:'Iven',x:780,y:2680,radius:110,kind:'person'},
-    {id:'dispatch',name:'Quarry dispatch',x:2890,y:580,radius:110,kind:'ledger'}],
-  portals:[{x:450,y:2750,to:'bracken_sluice',label:'Bracken Sluice'},{x:3080,y:690,to:'cinderwash_kilns',label:'Cinderwash Kilns'}],
-  locations:[{id:'cutting',x:2050,y:1540,radius:110}],
-  encounters:[
-    {id:'lower_cut',x:1430,y:2240,members:[{type:'flint_beetle',dx:0,dy:0},{type:'gloomshroom',dx:-110,dy:60},{type:'bog_slime',dx:100,dy:80},{type:'grave_bat',dx:90,dy:-100}]},
-    {id:'bench',x:2160,y:1510,members:[{type:'flint_beetle',dx:0,dy:0},{type:'vault_moth',dx:110,dy:-100},{type:'mossback',dx:-110,dy:80},{type:'bog_slime',dx:80,dy:90}]},
-    {id:'old_track',x:800,y:1460,members:[{type:'vault_moth',dx:0,dy:0},{type:'siltusk',dx:110,dy:60},{type:'grave_bat',dx:-120,dy:40},{type:'gloomshroom',dx:80,dy:-110}]},
-    {id:'foreman',x:2860,y:850,members:[{type:'flint_beetle',dx:0,dy:0,tier:2,name:'Splintercrown',questTarget:true,affixes:['fast']},{type:'gloomshroom',dx:-130,dy:40},{type:'vault_moth',dx:120,dy:-60},{type:'bog_slime',dx:90,dy:120}]},
-  ],
-  landmarks:[{name:'Survey Camp',x:600,y:2810},{name:'Lower Cutting',x:1420,y:2360},{name:'Stone Bench',x:2140,y:1660},{name:'Quarry Head',x:2840,y:690}],
-  ambience:{motion:[{id:'creek',kind:'ripples',position:[1520,1120],width:70},{id:'cut-mist',kind:'mist',position:[1730,1750],width:360},{id:'ledge-drip',kind:'drips',position:[1770,1120],width:32}],
-    sounds:[{id:'camp-wind',kind:'wind',position:[600,2650],radius:720},{id:'stone-water',kind:'water',position:[1740,1580],radius:720},{id:'quarry-wind',kind:'wind',position:[2810,850],radius:720}]},
-  routes:[[[600,2670],[750,2580],[1400,2210],[1450,2050],[2110,1490],[2400,1430],[2870,830],[2890,650]],
-    [[1240,2100],[790,1460],[950,1420],[2050,1450]],[[600,2670],[450,2750]],[[2870,830],[3080,690]],[[600,2670],[710,2680]]],
-};
+// ─────────── Cairnspill Terraces (L9–12) ───────────
+function cairnspill() {
+  const z = new ZoneBuilder('cairnspill_terraces', [144, 120], 'quarry', P(10, 72), { surface: 'masonry' });
+  const quarry = ['flint_beetle', 'vault_moth', 'gloomshroom', 'bog_slime'], track = ['vault_moth', 'siltusk', 'grave_bat', 'gloomshroom'];
+  z.land('water', riverPoly([P(52, 84), P(55, 70), P(52, 60)], 2.4 * S));
+  z.land('chasm', riverPoly([P(36, 2), P(40, 12), P(37, 20)], 3.4 * S));
+  z.region('camp', P(10.5, 71.5), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
+  z.region('lower_cut', P(25, 62), [6.4 * S, 4.6 * S], { roster: quarry, packs: 1 });
+  z.region('haul', P(36, 52), [5.4 * S, 4 * S], { roster: quarry, packs: 1 });
+  z.region('bench', P(47, 43), [7 * S, 5 * S], { role: 'yard', ground: 'stone' });
+  z.region('upper_cut', P(61, 33), [7 * S, 5 * S], { roster: quarry, packs: 2 });
+  z.region('quarry_head', P(74, 22), [6.6 * S, 4.6 * S], { role: 'arena', ground: 'gravel' });
+  z.region('dispatch', P(82, 11.5), [5 * S, 3.4 * S], { role: 'yard', ground: 'planks', poly: rect(77 * S, 8.5 * S, 10 * S, 6.5 * S), dress: 0 });
+  z.region('old_track', P(18, 41), [6.4 * S, 5 * S], { roster: track, packs: 2, ground: 'dirt' });
+  z.region('slide', P(31, 27), [6 * S, 4.6 * S], { roster: track, packs: 2 });
+  z.region('ledge', P(13, 18), [4.4 * S, 3.6 * S], { role: 'secret', ground: 'moss' });
+  z.region('creek', P(60, 63), [6.4 * S, 4.6 * S], { roster: track, packs: 1, ground: 'grass' });
+  z.region('loading', P(88, 28), [4.6 * S, 4 * S], { role: 'yard', ground: 'dirt', roster: quarry, packs: 1 });
+  z.road([P(10.5, 71.5), P(18, 67), P(25, 62), P(31, 57), P(36, 52), P(41, 47), P(47, 43), P(54, 38), P(61, 33), P(68, 27), P(74, 22), P(79, 16), P(82, 12)], 170, 'gravel');
+  z.road([P(25, 62), P(20, 52), P(18, 41), P(24, 33), P(31, 27), P(42, 32), P(47, 43)], 140, 'dirt');
+  z.road([P(18, 41), P(14, 30), P(13, 18)], 130, 'moss');
+  z.road([P(47, 43), P(54, 53), P(60, 63)], 140, 'dirt');
+  z.road([P(74, 22), P(82, 25), P(88, 28), P(90, 18)], 150, 'gravel');
+  z.camp(...P(11, 72.5), { tents: 2 });
+  z.contact('surveyor', 'Iven', ...P(12.5, 74.8), 'person');
+  z.portal(...P(6.5, 74), 'bracken_sluice', 'Bracken Sluice');
+  z.resident('cs_chain', 'worker', 'Chainman', ...P(8, 68.5), 20); z.decor('signalflag', ...P(16.5, 73.5)); z.decor('cairn', ...P(5.5, 69.5));
+  z.landmark('Survey Camp', ...P(10.5, 75.5));
+  z.pack('lower_cut', ...P(25.5, 60), ['flint_beetle', 'gloomshroom', 'bog_slime', 'grave_bat', 'flint_beetle']);
+  z.quarryCut(...P(22, 65.5)); z.landmark('Lower Cutting', ...P(25, 66));
+  z.location('cutting', ...P(45.5, 44.5));
+  z.pack('bench', ...P(49, 41), ['flint_beetle', 'vault_moth', 'mossback', 'bog_slime', 'vault_moth']);
+  z.decor('crates', ...P(51.5, 46)); z.decor('cart', ...P(43, 40.5)); z.decor('pickaxe', ...P(47.5, 47)); z.shrine('shrine_bench', ...P(41, 45.5), 'empowered');
+  z.landmark('Stone Bench', ...P(47, 47.5));
+  z.contact('warning_bell', 'Rockfall warning bell', ...P(64.5, 30.5), 'mechanism');
+  z.pack('rockfall', ...P(60, 35), ['flint_beetle', 'flint_beetle', 'vault_moth', 'flint_beetle', 'siltusk', 'flint_beetle']);
+  z.event('rockfall_warning', 'Rockfall Warning', 'warning_bell', 'rockfall', 'The warning bell still hangs over the upper cutting. Ring it and everything nesting in the scree comes down at once.', 'Ring the bell');
+  z.quarryCut(...P(56, 29)); z.landmark('Upper Cutting', ...P(61, 37));
+  z.pack('foreman', ...P(74, 23), [{ type: 'flint_beetle', dx: 0, dy: 0, tier: 2, name: 'Splintercrown', questTarget: true, affixes: ['fast'] }, 'gloomshroom', 'vault_moth', 'bog_slime']);
+  z.landmark('Quarry Head', ...P(74, 26));
+  z.wall(rect(77 * S, 8.5 * S, 10 * S, 0.5 * S)); z.wall(rect(77 * S, 8.5 * S, 0.5 * S, 6.5 * S)); z.wall(rect(86.5 * S, 8.5 * S, 0.5 * S, 3.2 * S));
+  z.contact('dispatch', 'Quarry dispatch', ...P(84, 10.8), 'ledger');
+  z.decor('table', ...P(79.5, 10.5)); z.light(...P(82, 10), 0xffc070, 150); z.landmark('Dispatch Shed', ...P(82, 16));
+  z.portal(...P(90, 19), 'cinderwash_kilns', 'Cinderwash Kilns');
+  z.pack('old_track', ...P(18.5, 42), ['vault_moth', 'siltusk', 'grave_bat', 'gloomshroom']);
+  z.wreck(...P(14, 44)); z.landmark('Old Track', ...P(18, 46));
+  z.elite('grindstone', ...P(31.5, 25.5), 'siltusk', 'Grindstone', ['fast'], ['flint_beetle', 'vault_moth']);
+  z.landmark('Slide Scar', ...P(31, 31));
+  z.cache('cache_ledge', ...P(11, 17), 'Hermit’s strongbox'); z.shrine('shrine_ledge', ...P(15.5, 19.5), 'keen'); z.decor('cairn', ...P(13, 15));
+  z.landmark('Hermit’s Ledge', ...P(13, 22));
+  z.fishery(...P(57, 66)); z.cache('cache_creek', ...P(63.5, 60.5), 'Quarrymen’s cache'); z.landmark('Creek Pool', ...P(60, 67));
+  z.decor('logpile', ...P(86, 31)); z.decor('crates', ...P(91, 26)); z.landmark('Loading Yard', ...P(88, 32));
+  for (const [x, y] of [P(10, 72), P(61, 33), P(82, 12)]) z.sound('wind', x, y);
+  z.sound('water', ...P(54, 66)); z.emit('motes', ...P(47, 43), 6); z.emit('birds', ...P(30, 30), 4);
+  return z.build();
+}
 
-export const CINDERWASH:AdventureData={
-  id:'cinderwash_kilns',theme:'ashen',surface:'ash',size:[56,48],
-  geometry:{entry:{x:620,y:2660},floors:[
-    {polygon:rect(330,2370,700,620)},{polygon:road([810,2550],[1490,2160])},
-    {polygon:rect(1120,1820,760,720)},{polygon:road([1710,2110],[2600,2140])},
-    {polygon:rect(2200,1740,850,760)},{polygon:road([2600,1880],[2430,1080])},
-    {polygon:rect(2080,540,950,920)},
-    {polygon:road([1390,2010],[1250,1250])},{polygon:rect(880,920,760,660)},
-    {polygon:road([1460,1170],[2280,1080])},
-  ],buildings:[],barriers:[],props:[],npcs:[]},
-  kilns:[{x:2300,y:560,w:300,d:220,h:160},{x:2690,y:860,w:230,d:180,h:130}],
-  paths:[{points:[[620,2660],[810,2550],[1490,2160],[1710,2110],[2600,2140],[2600,1880],[2430,1080],[2510,850]],width:125},
-    {points:[[1390,2010],[1250,1250],[1460,1170],[2280,1080]],width:85}],
-  scenery:[...props('boulder',[[380,2470],[970,2810],[1770,2380],[2340,2410],[2860,2250],[2150,780]],29),
-    ...props('crate',[[1140,2070],[1180,2110],[940,1100],[990,1100]],17),
-    ...props('lantern',[[820,2410],[1300,1880],[2280,1830],[2820,1340]],6)],
-  npcs:[{id:'firekeeper',name:'Kessa · Firekeeper',role:'quest',x:790,y:2720,r:18},
-    {id:'draught',name:'Kiln draught lever',role:'clue',x:2520,y:920,r:18},
-    {id:'tally',name:'Firing tally',role:'clue',x:1160,y:1050,r:18}],
-  interactions:[{id:'firekeeper',name:'Kessa',x:790,y:2720,radius:110,kind:'person'},
-    {id:'draught',name:'Kiln draught lever',x:2520,y:920,radius:110,kind:'mechanism'},
-    {id:'tally',name:'Firing tally',x:1160,y:1050,radius:110,kind:'ledger'}],
-  portals:[{x:460,y:2800,to:'cairnspill_terraces',label:'Cairnspill Terraces'},{x:2900,y:1300,to:'kilnwatch_crown',label:'Kilnwatch Crown'}],
-  locations:[{id:'firing_yard',x:2510,y:1860,radius:110}],
-  encounters:[
-    {id:'charcoal',x:1490,y:2200,members:[{type:'ember_imp',dx:0,dy:0},{type:'ash_wisp',dx:110,dy:80},{type:'bonewalker',dx:-100,dy:-80},{type:'cinder_cultist',dx:90,dy:-110}]},
-    {id:'firing',x:2600,y:2180,members:[{type:'magma_brute',dx:0,dy:0},{type:'ash_wisp',dx:110,dy:70},{type:'ember_imp',dx:-100,dy:80},{type:'cinder_cultist',dx:110,dy:-110}]},
-    {id:'store',x:1260,y:1320,members:[{type:'bonewalker',dx:0,dy:0,tier:2,name:'Coalmark',affixes:['electrified','fast']},{type:'ember_imp',dx:-120,dy:50},{type:'grave_bat',dx:100,dy:60},{type:'cinder_cultist',dx:80,dy:-110}]},
-    {id:'stoker',x:2420,y:1200,members:[{type:'cinder_cultist',dx:0,dy:0,tier:2,name:'The Unattended Flame',questTarget:true,affixes:['faulted']},{type:'ember_imp',dx:-120,dy:-30},{type:'bonewalker',dx:110,dy:60},{type:'grave_bat',dx:-80,dy:100}]},
-  ],
-  landmarks:[{name:'Firekeepers’ Camp',x:620,y:2820},{name:'Charcoal Road',x:1490,y:2360},{name:'Firing Yard',x:2600,y:2340},{name:'Upper Kilns',x:2500,y:810}],
-  ambience:{motion:[{id:'yard-smoke',kind:'mist',position:[2660,730],width:360},{id:'kiln-smoke',kind:'mist',position:[2850,820],width:180}],
-    sounds:[{id:'camp',kind:'wind',position:[620,2600],radius:720},{id:'yard',kind:'fire',position:[2520,1850],radius:720},{id:'upper-fire',kind:'fire',position:[2540,800],radius:720},{id:'stores',kind:'wind',position:[1250,1250],radius:720}]},
-  routes:[[[620,2660],[810,2550],[1490,2160],[1710,2110],[2600,2140],[2600,1880],[2430,1080],[2520,990]],
-    [[1390,2010],[1250,1250],[1160,1120]],[[1250,1250],[1460,1170],[2280,1080]],[[620,2660],[460,2800]],
-    [[2430,1080],[2550,1300],[2900,1300]],[[620,2660],[720,2720]]],
-};
+// ─────────── Cinderwash Kilns (L12–16) ───────────
+function cinderwash() {
+  const z = new ZoneBuilder('cinderwash_kilns', [144, 120], 'kiln', P(10, 72), { theme: 'ashen', surface: 'ash' });
+  const fire = ['ember_imp', 'ash_wisp', 'bonewalker', 'cinder_cultist'], yard = ['magma_brute', 'ember_imp', 'cinder_cultist', 'ember_imp'];
+  z.land('lava', riverPoly([P(44, 84), P(46, 74), P(43, 66)], 2 * S));
+  z.land('lava', riverPoly([P(76, 46), P(84, 50), P(94, 48)], 1.6 * S));
+  z.region('camp', P(10.5, 71.5), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
+  z.region('charcoal', P(25, 64), [6.4 * S, 4.6 * S], { roster: fire, packs: 1, ground: 'cinder' });
+  z.region('pits', P(38, 57), [6 * S, 4.6 * S], { roster: fire, packs: 2 });
+  z.region('firing', P(57, 62), [7.6 * S, 5.4 * S], { role: 'yard', ground: 'cinder', roster: yard, packs: 1 });
+  z.region('stores', P(28, 36), [7 * S, 5 * S], { role: 'yard', ground: 'stone', roster: fire, packs: 1 });
+  z.region('slag', P(48, 40), [6 * S, 4.4 * S], { roster: fire, packs: 2 });
+  z.region('upper', P(66, 23), [9 * S, 6 * S], { role: 'arena', ground: 'stone' });
+  z.region('cinder_flats', P(78, 66), [6 * S, 4.6 * S], { roster: yard, packs: 1 });
+  z.region('ruined_kiln', P(12, 22), [5 * S, 4 * S], { role: 'secret', ground: 'cinder' });
+  z.region('ridge_road', P(86, 22), [4.6 * S, 4 * S], { roster: fire, packs: 1 });
+  z.road([P(10.5, 71.5), P(18, 67.5), P(25, 64), P(32, 60), P(38, 57), P(47, 59), P(57, 62)], 170, 'cinder');
+  z.road([P(57, 62), P(58, 52), P(56, 44), P(60, 34), P(66, 27)], 170, 'stone');
+  z.road([P(38, 57), P(33, 47), P(28, 36), P(36, 33), P(48, 40), P(56, 44)], 140, 'cinder');
+  z.road([P(28, 36), P(18, 29), P(12, 22)], 130, 'cinder');
+  z.road([P(57, 62), P(68, 64), P(78, 66)], 140, 'cinder');
+  z.road([P(66, 23), P(76, 22), P(86, 22), P(89, 15)], 150, 'stone');
+  z.camp(...P(11, 72.5), { tents: 2 });
+  z.contact('firekeeper', 'Kessa', ...P(12.5, 74.8), 'person');
+  z.portal(...P(6.5, 74), 'cairnspill_terraces', 'Cairnspill Terraces');
+  z.resident('cw_stoker', 'worker', 'Off-shift stoker', ...P(8, 68.5), 15); z.decor('barrels', ...P(16, 74.5));
+  z.landmark('Firekeepers’ Camp', ...P(10.5, 75.5));
+  z.pack('charcoal', ...P(26, 62), ['ember_imp', 'ash_wisp', 'bonewalker', 'cinder_cultist', 'ember_imp']);
+  z.kilnYard(...P(21, 66)); z.landmark('Charcoal Road', ...P(25, 68));
+  z.contact('pit_bellows', 'Abandoned pit bellows', ...P(41, 60), 'mechanism');
+  z.pack('flare', ...P(37, 55), ['ember_imp', 'ember_imp', 'ash_wisp', 'ember_imp', 'magma_brute', 'ash_wisp']);
+  z.event('flare_up', 'Flare-up at the Pits', 'pit_bellows', 'flare', 'The bellows still feed the ash pits. Work them and the fire wakes up everything sleeping in the ash.', 'Work the bellows');
+  z.landmark('Ash Pits', ...P(38, 61));
+  z.location('firing_yard', ...P(55.5, 61));
+  z.pack('firing', ...P(59, 63.5), ['magma_brute', 'ash_wisp', 'ember_imp', 'cinder_cultist', 'ember_imp']);
+  z.kilnYard(...P(52, 66)); z.kilnYard(...P(62, 58)); z.shrine('shrine_yard', ...P(50.5, 59.5), 'frenzied');
+  z.landmark('Firing Yard', ...P(57, 67));
+  z.pack('store', ...P(29.5, 37.5), [{ type: 'bonewalker', dx: 0, dy: 0, tier: 2, name: 'Coalmark', affixes: ['electrified', 'fast'] }, 'ember_imp', 'grave_bat', 'cinder_cultist']);
+  z.contact('tally', 'Firing tally', ...P(21.5, 37.5), 'ledger');
+  z.decor('crates', ...P(32, 33)); z.decor('barrels', ...P(22, 38)); z.decor('coalpile', ...P(34.5, 38.5)); z.light(...P(25, 33), 0xffc070, 150);
+  z.landmark('Stores', ...P(28, 40.5));
+  z.elite('cinderhusk', ...P(49, 38.5), 'magma_brute', 'Cinderhusk', ['molten'], ['ember_imp', 'ash_wisp']);
+  z.landmark('Slag Heaps', ...P(48, 44));
+  z.kilns = [{ x: Math.round(58 * S), y: Math.round(15 * S), w: 300, d: 220, h: 160 }, { x: Math.round(70 * S), y: Math.round(18 * S), w: 230, d: 180, h: 130 }];
+  z.pack('stoker', ...P(64, 27.5), [{ type: 'cinder_cultist', dx: 0, dy: 0, tier: 2, name: 'The Unattended Flame', questTarget: true, affixes: ['faulted'] }, 'ember_imp', 'bonewalker', 'grave_bat']);
+  z.contact('draught', 'Kiln draught lever', ...P(68.5, 25), 'mechanism');
+  z.emit('smoke', ...P(60, 14), 8); z.emit('smoke', ...P(72, 17), 6); z.emit('embers', ...P(64, 20), 8);
+  z.landmark('Upper Kilns', ...P(66, 30));
+  z.elite('flats_rare', ...P(79, 67), 'bonewalker', 'Ashen Tallyman', ['electrified'], ['ember_imp', 'cinder_cultist']);
+  z.cache('cache_flats', ...P(82, 63), 'Scorched paybox'); z.landmark('Cinder Flats', ...P(78, 70.5));
+  z.cache('cache_kiln', ...P(10, 21), 'Kiln-keeper’s cache'); z.shrine('shrine_kiln', ...P(14.5, 23.5), 'empowered'); z.kilnYard(...P(12, 19));
+  z.landmark('Ruined Kiln', ...P(12, 26));
+  z.portal(...P(88.5, 16), 'kilnwatch_crown', 'Kilnwatch Crown');
+  for (const [x, y] of [P(57, 62), P(64, 20), P(38, 57)]) z.sound('fire', x, y);
+  z.sound('wind', ...P(10, 72)); z.sound('wind', ...P(28, 36));
+  return z.build();
+}
 
-export const KILNWATCH:AdventureData={
-  id:'kilnwatch_crown',theme:'ashen',surface:'ash',size:[48,48],
-  geometry:{entry:{x:660,y:2640},floors:[
-    {polygon:rect(320,2310,740,670)},{polygon:road([820,2510],[1450,1930])},
-    {polygon:rect(1090,1590,740,720)},{polygon:road([1450,1740],[2180,1370])},
-    {polygon:rect(1820,400,960,1140)},
-    {polygon:road([1250,1790],[830,1170])},{polygon:rect(480,820,720,720)},
-    {polygon:road([1020,1090],[2050,950])},
-  ],buildings:[{footprint:rect(1840,480,45,340)},{footprint:rect(2700,520,45,550)}],barriers:[],props:[],npcs:[]},
-  kilns:[{x:2120,y:410,w:400,d:240,h:200}],
-  paths:[{points:[[660,2640],[820,2510],[1450,1930],[1450,1740],[2180,1370],[2300,1010],[2310,760]],width:125},
-    {points:[[1250,1790],[830,1170],[1020,1090],[2050,950]],width:85}],
-  scenery:[...props('boulder',[[400,2410],[930,2840],[1690,2190],[1930,1390],[2640,1340],[560,920]],29),
-    ...props('crate',[[390,2800],[430,2800],[1070,1430]],17),...props('lantern',[[990,2400],[1360,1630],[2090,1260],[2590,750]],6)],
-  npcs:[{id:'watchkeeper',name:'Venn · Kiln Watchkeeper',role:'quest',x:820,y:2740,r:18},
-    {id:'seal',name:'Cold draw seal',role:'clue',x:2310,y:740,r:18},
-    {id:'watchlog',name:'Watch log',role:'clue',x:710,y:950,r:18}],
-  interactions:[{id:'watchkeeper',name:'Venn',x:820,y:2740,radius:110,kind:'person'},
-    {id:'seal',name:'Cold draw seal',x:2310,y:740,radius:110,kind:'mechanism'},
-    {id:'watchlog',name:'Watch log',x:710,y:950,radius:110,kind:'ledger'}],
-  portals:[{x:470,y:2750,to:'cinderwash_kilns',label:'Cinderwash Kilns'},{x:2590,y:1070,to:'sablefen_causeway',label:'Sablefen Causeway'}],
-  locations:[{id:'crown',x:2220,y:1300,radius:110}],
-  encounters:[
-    {id:'gantry',x:1480,y:1950,members:[{type:'flint_beetle',dx:0,dy:0},{type:'cinder_cultist',dx:100,dy:-110},{type:'bonewalker',dx:-100,dy:80},{type:'ember_imp',dx:100,dy:100}]},
-    {id:'watch',x:860,y:1200,members:[{type:'vault_moth',dx:0,dy:0,tier:2,name:'Sootveil',affixes:['faulted','fast']},{type:'grave_bat',dx:100,dy:60},{type:'bonewalker',dx:-110,dy:70},{type:'ember_imp',dx:70,dy:-110}]},
-    {id:'heart',x:2310,y:1020,members:[{type:'kiln_heart',dx:0,dy:0,tier:2,name:'The Last Ember',questTarget:true,combat:'furnace'}]},
-  ],
-  landmarks:[{name:'Watchkeepers’ Refuge',x:650,y:2830},{name:'Haulage Gantry',x:1460,y:2130},{name:'Abandoned Watch',x:830,y:1360},{name:'Crown Furnace',x:2290,y:840}],
-  ambience:{motion:[{id:'chimney-smoke',kind:'mist',position:[2400,420],width:360},{id:'shelf-smoke',kind:'mist',position:[1790,1480],width:180}],
-    sounds:[{id:'refuge-wind',kind:'wind',position:[650,2640],radius:720},{id:'crown-fire',kind:'fire',position:[2320,760],radius:720},{id:'gantry-wind',kind:'wind',position:[1460,1840],radius:720}]},
-  routes:[[[660,2640],[820,2510],[1450,1930],[1450,1740],[2180,1370],[2300,1010],[2310,810]],
-    [[1250,1790],[830,1170],[710,1020]],[[830,1170],[1020,1090],[2050,950],[2300,1010]],
-    [[660,2640],[470,2750]],[[660,2640],[750,2740]]],
-};
+// ─────────── Kilnwatch Crown (L16–20) ───────────
+function kilnwatch() {
+  const z = new ZoneBuilder('kilnwatch_crown', [136, 120], 'kiln', P(10, 72), { theme: 'ashen', surface: 'ash' });
+  const gantry = ['flint_beetle', 'cinder_cultist', 'bonewalker', 'ember_imp'], watch = ['vault_moth', 'grave_bat', 'bonewalker', 'ember_imp'];
+  z.land('lava', riverPoly([P(40, 4), P(44, 12), P(42, 20)], 2.2 * S));
+  z.land('chasm', riverPoly([P(2, 50), P(8, 54), P(14, 52)], 3 * S));
+  z.region('refuge', P(10.5, 71.5), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
+  z.region('gantry_road', P(22, 63), [5 * S, 3.8 * S], { roster: gantry, packs: 1, ground: 'cinder' });
+  z.region('gantry', P(33, 56), [7 * S, 5 * S], { role: 'yard', ground: 'planks', roster: gantry, packs: 1 });
+  z.region('watch', P(17, 35), [7 * S, 5.4 * S], { role: 'ruin', ground: 'stone', roster: watch, packs: 1 });
+  z.region('shelf', P(47, 45), [6.4 * S, 4.6 * S], { roster: gantry, packs: 2 });
+  z.region('crown', P(55, 32), [6 * S, 4.4 * S], { ground: 'stone' });
+  z.region('furnace', P(62, 17), [10 * S, 7 * S], { role: 'arena', ground: 'stone', dress: 0.3 });
+  z.region('bellows', P(78, 44), [6 * S, 4.6 * S], { roster: watch, packs: 2 });
+  z.region('lookout', P(30, 20), [4.6 * S, 3.6 * S], { role: 'secret', ground: 'stone' });
+  z.region('east_road', P(84, 30), [5 * S, 4 * S], { ground: 'cinder' });
+  z.road([P(10.5, 71.5), P(17, 66.5), P(22, 63), P(28, 59), P(33, 56), P(40, 50), P(47, 45), P(52, 38), P(55, 32), P(58, 25), P(62, 21)], 170, 'cinder');
+  z.road([P(28, 59), P(22, 47), P(17, 35), P(26, 30), P(38, 33), P(47, 38), P(55, 32)], 140, 'stone');
+  z.road([P(26, 30), P(30, 20)], 130, 'stone');
+  z.road([P(47, 45), P(62, 44), P(78, 44)], 140, 'cinder');
+  z.road([P(55, 32), P(70, 31), P(84, 30)], 150, 'cinder');
+  z.camp(...P(11, 72.5), { tents: 1 });
+  z.contact('watchkeeper', 'Venn', ...P(12.5, 74.8), 'person');
+  z.portal(...P(6.5, 74), 'cinderwash_kilns', 'Cinderwash Kilns');
+  z.resident('kw_guard', 'guard', 'Watch sentry', ...P(17, 72.5), -10); z.resident('kw_porter', 'porter', 'Refuge porter', ...P(7.5, 68.5), 25);
+  z.wardPost(...P(16, 75.5)); z.landmark('Watchkeepers’ Refuge', ...P(10.5, 76));
+  z.pack('gantry', ...P(34, 57.5), ['flint_beetle', 'cinder_cultist', 'bonewalker', 'ember_imp', 'bonewalker']);
+  z.contact('chimney_prop', 'Cracked chimney prop', ...P(29.5, 53), 'mechanism');
+  z.pack('collapse', ...P(36, 53), ['ember_imp', 'ember_imp', 'ash_wisp', 'cinder_cultist', 'ember_imp', 'magma_brute']);
+  z.event('chimney_collapse', 'Chimney Collapse', 'chimney_prop', 'collapse', 'One kick would bring the cracked chimney down — and whatever has been roosting in its flue.', 'Kick the prop');
+  z.decor('logpile', ...P(37.5, 59.5)); z.decor('crates', ...P(30, 60)); z.landmark('Haulage Gantry', ...P(33, 61));
+  z.pack('watch', ...P(18, 36.5), [{ type: 'vault_moth', dx: 0, dy: 0, tier: 2, name: 'Sootveil', affixes: ['faulted', 'fast'] }, 'grave_bat', 'bonewalker', 'ember_imp']);
+  z.contact('watchlog', 'Watch log', ...P(12.5, 32.5), 'ledger');
+  z.ruins(...P(12.5, 37), 380, 260); z.graves(...P(20.5, 40.5), 4); z.landmark('Abandoned Watch', ...P(17, 40.5));
+  z.location('crown', ...P(54.5, 33));
+  z.shrine('shrine_crown', ...P(50.5, 30.5), 'keen'); z.landmark('Crown Approach', ...P(55, 36));
+  z.kilns = [{ x: Math.round(58 * S), y: Math.round(9 * S), w: 400, d: 240, h: 200 }];
+  z.pack('heart', ...P(62, 19.5), [{ type: 'kiln_heart', dx: 0, dy: 0, tier: 2, name: 'The Last Ember', questTarget: true, combat: 'furnace' }]);
+  z.contact('seal', 'Cold draw seal', ...P(68.5, 15), 'mechanism');
+  z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.landmark('Crown Furnace', ...P(62, 23));
+  z.elite('slagmaw', ...P(79, 45.5), 'magma_brute', 'Slagmaw', ['molten'], ['ember_imp', 'bonewalker', 'ash_wisp']);
+  z.kilnYard(...P(74, 41)); z.cache('cache_bellows', ...P(82, 41), 'Bellows-house strongbox'); z.landmark('Bellows House', ...P(78, 48.5));
+  z.cache('cache_lookout', ...P(28.5, 19), 'Old watch cache'); z.decor('signalflag', ...P(32, 18)); z.landmark('Old Lookout', ...P(30, 23.5));
+  z.portal(...P(85, 31), 'sablefen_causeway', 'Sablefen Causeway');
+  for (const [x, y] of [P(62, 14), P(33, 56)]) z.sound('fire', x, y);
+  z.sound('wind', ...P(10, 72)); z.sound('wind', ...P(84, 30));
+  return z.build();
+}
+
+export const CAIRNSPILL = cairnspill(), CINDERWASH = cinderwash(), KILNWATCH = kilnwatch();
