@@ -1,10 +1,10 @@
-# Current working set — owner playtest feedback C107, 2026-10-10
+# Current working set — Claude takeover C108, 2026-10-10
 
 Only `codex/new-tristram-town`; solo/no subagents. AGENTS/root HANDOFF fully read earlier; use this checkpoint and changed sections on continuation. Search paths/symbols first, narrow reads, no moving/deleting sources. Claude original roadmap blob stays `b20bc7acef78c12582a8f5cf822665cf78ca7353`.
 
 ## Current task and delivered scope
 
-Owner moved from P11 handoff to fresh-playthrough testing and live feedback. [Guide](PLAYTEST_GUIDE.md), [C107 report](playtest-feedback/REPORT.md), [Claude handoff](CLAUDE_OPUS_5_5_HANDOFF.md). P10=`f75a72f`, P11=`bef89cb`; C107 is current owner-feedback commit, inspect git log/status. No P12 implementation. P11 full models/checks are complete historical evidence; do not rerun them because context compacted.
+Owner moved from P11 handoff to fresh-playthrough testing and live feedback. [Guide](PLAYTEST_GUIDE.md), [C107 report](playtest-feedback/REPORT.md), [Claude handoff](CLAUDE_OPUS_5_5_HANDOFF.md). P10=`f75a72f`, P11=`bef89cb`; C107=`760f163`, pushed. C108 refreshes only the handoff/log/checkpoint for the requested Claude takeover; no further gameplay edits. No P12 implementation. P11 full models/checks are complete historical evidence; do not rerun them because context compacted.
 
 C107: world camera75% default,66.67–200% manual wheel/trackpad pinch, saved locally; HUD remains fixed. Starter globes136px/XP336px at1080p. Persistent quest Track/Untrack and acceptance auto-track, always-visible journal, E prompts clickable via normal physical interaction. Gold ground dots route using existing authored destinations and swept-circle collision; no automatic movement. Owner replaced first floating arrow. Long acquisition20–37% shorter/cap380, class primary alignment, no extra ranged40buffer, synchronized summon/secondary targeting and limited non-lob projectile travel. Damage/costs/cooldowns/melee/AoE sizes retained. Save14/protocol20 unchanged.
 

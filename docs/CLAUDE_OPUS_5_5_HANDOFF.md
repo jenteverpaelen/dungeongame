@@ -1,6 +1,6 @@
 # Hearthfall — handoff to Claude Opus 5.5
 
-2026-10-10. **Final requested handoff. P10 Social (C102–C105) and the additional P11 Itemization chapter (C106) have complete selected implementation inventories. Codex is stopping as requested; no P12 implementation has begun.** The whole roadmap and independent/human gates are not complete. Read the report boundaries rather than interpreting a chapter number as release readiness.
+2026-10-10, refreshed after the owner's latest playtest fixes. **P10 Social (C102–C105), P11 Itemization (C106), and C107 playtest feedback are implemented within their documented scope. This is the requested Claude takeover; no P12 implementation has begun.** The whole roadmap and independent/human gates are not complete. Read the report boundaries rather than interpreting a chapter number as release readiness.
 
 **C107 owner playtest follow-up:** after this handoff, the owner requested a fresh-character guide, wider manual world zoom, compact starter HUD, explicit quest tracking with floor dots/E prompts, and shorter ranged reach. These are now implemented; no P12 chapter work. Read [playtest guide](PLAYTEST_GUIDE.md), [C107 report](playtest-feedback/REPORT.md) and current working set. The owner playtest server remains running on localhost:2577; preserve its isolated save folder. Physical trackpad-pinch feel remains their check.
 
@@ -8,7 +8,7 @@ This is the compact continuation entry. [CODEX_CHANGELOG](CODEX_CHANGELOG.md) re
 
 ## Safe takeover
 
-Repository `C:\Users\LaptopJente\dungeongame`, Windows11/PowerShell. **Only codex/new-tristram-town.** P10 checkpoint C105=`f75a72f`; C106=`bef89cb`; C107 is the subsequent owner-feedback commit containing this updated handoff. `git log -1` identifies its final hash, also recorded in Codex's final response. Do not reset to C105 or the older C104=`abd2a76`.
+Repository `C:\Users\LaptopJente\dungeongame`, Windows11/PowerShell. **Only codex/new-tristram-town.** P10 checkpoint C105=`f75a72f`; P11 C106=`bef89cb`; latest gameplay C107=`760f163`, already pushed. C108 is the documentation-only commit refreshing this handoff. Do not reset to an earlier checkpoint or discard later owner work.
 
 Read AGENTS.md and root HANDOFF.md completely once on fresh takeover. Follow later owner decisions below over stale historical next-step prose. Fetch origin and verify/check out the allowed branch without discarding local edits. Never push/rebase/force the baseline `claude/wizardly-feynman-9hd73d` / tag `baseline-original-ts-794f77e`; never delete branches/tags or run `git clean -fdx`. Check branch immediately before each push. PowerShell commits use a BOM-free file and `git commit -F`.
 
@@ -46,8 +46,23 @@ Never commit `.local`, `.env`, `server/data`, private ledgers/report evidence or
 | P9 C101 evidence |297 actual20Hz solo encounters across classes/bands/seeds/ordinary and set profiles, no120s timeout. Immortal/no-dodge profiles reveal class/gear sensitivity; no survival/human balance claim or global nerf. [Combat report](phase/P09-mid-game/COMBAT-BAND-REPORT.md). Full per-band co-op calibration remains open. |
 | P10 C102–C105 | Complete selected party lifecycle/frames, friends/privacy/block/mute, chat audiences, inspect, group finder, durable minimal guilds, emotes/titles, reports/manual owner tools/filter/audit, party story dungeons and targeted scaling/loot review. [Chapter inventory](phase/P10-social/CHAPTER-REPORT.md). G8 independent/human acceptance remains. |
 | P11 C106 | Complete selected F-ITM01–10: acquired codex/appearance, physical recipes, loot visibility/pickup/opt-in Smith salvage, authoritative item links/comparison,33affixes/22powers/9sets/6gems, reduced equipment cadence, base/numeric review and compatible save14 migration. [Chapter report](phase/P11-itemization/CHAPTER-REPORT.md). Nine matched build profiles meet the owner25% limit; combined P12/G9 and human survival/pacing remain. |
+| Playtest C107 | Fresh-character guide; saved world-only wheel/pinch zoom; compact starter HUD; persistent quest Track/Untrack, collision-aware gold floor dots and clickable E prompts; shorter ranged acquisition/projectile travel. [Feedback report](playtest-feedback/REPORT.md). Physical pinch and broad balance feel await owner playtesting. |
 
 CODEX_CHANGELOG preserves every smaller fix/research-only step and deletion reason; this digest does not replace it. Original Claude roadmap remains unchanged, Git blob **b20bc7acef78c12582a8f5cf822665cf78ca7353**. Its historical MISSING column is not today's status ledger.
+
+## Latest gameplay — C107 overrides earlier camera/range notes
+
+- `preferences.ts`, `render/scene.ts`, Settings: default camera75% of old scale; manual66.67–200%,90ms smoothing. Wheel/trackpad pinch changes only the world. Pinching over HUD/menu is consumed without resizing either layer; no automatic spell framing. Starter HUD globes136px and XP336px at1080p; full bar appears when active skills unlock.
+- `shared/src/quests.ts`, `server/src/quests.ts`, journal/maps: acceptance tracks automatically, explicit Untrack persists as an empty string. Retrack through the journal; untrack clears navigation but ordinary offer/reward icons remain. Quest/clue NPCs now have a clickable E prompt using the same physically verified interaction handler.
+- `client/src/game/questPath.ts`, `render/questGuide.ts`: **floor dots**, not a floating arrow.24-unit route grid, exact swept player-circle edges on authored maps, cached and time-sliced locally. Do not draw a straight line through obstacles when a route is unavailable. Dynamic rift hunts retain their existing live guidance. No auto-walk.
+- Skill/class data and server combat: long ranges reduced20–37%, cap380, no extra40-unit ranged primary buffer; shorter projectile travel and synchronized summon/secondary targeting. Preserve damage/costs/cooldowns/melee/AoE sizes. Large areas and close zoom can still exceed the screen. Earlier P11 build measurements are historical, not re-certified under these reach changes.
+- Nine focused checks, typecheck/build passed; actual local Chrome1920×1080 screenshots inspected. E/Orren, auto-track/untrack/reload/retrack, floor trail, wheel/slider/reset verified. Native physical pinch cannot be generated by current browser tooling; owner confirmation and broad feel remain open. No need to repeat completed checks before beginning unrelated work.
+
+## Preserve the owner's current playtest
+
+Link: **http://localhost:2577/**. It was left running with debug disabled and real simulation. Their active isolated DATA_DIR is `.local/owner-playtest-20261010-175510/characters`; never reset it or use it for assistant fixtures. Ignored `.local/START-OWNER-PLAYTEST.cmd` resumes that same world; `.local/owner-playtest-current.txt` records the folder. Other-machine clones will not contain these ignored files or saves.
+
+The new ignored `.local/owner-playtest-control.mjs` uses a parent IPC channel. For a necessary restart, create `.local/owner-playtest.stop`, wait for the server's **all characters saved, bye** acknowledgement and process exit, then restart the launcher. Avoid force-kill/Ctrl+C on their active session. The earlier direct C107 restart lacked that acknowledgement; only previously persisted progress was confirmed, and no data files were reset/deleted. Assistant2578 preview was stopped, its tab closed and viewport override reset. Check the port/process before starting a duplicate server. Keep the owner server running unless they ask to stop.
 
 ## Latest P10 implementation details
 
@@ -86,7 +101,7 @@ Current147 feature rows: **60 implemented scope (7 explicitly tagged human accep
 
 ## Efficient continuation
 
-Read this file/working set, then only the next affected roadmap section/report. Research indices: SOURCES.csv, CLAIMS.csv, FEATURE-EVIDENCE.csv, [SYNTHESIS](research/v2/SYNTHESIS.md), digests and UI-ATLAS/TIMELINES. Don't reread188 sources for one decision. New claims need primary evidence or labelled local measurement; shipped content stays original.
+Read this file/working set, then P12 in [Claude's original roadmap](design/FULL_GAME_ROADMAP.md), its applicable [errata](design/ROADMAP_ERRATA.md), and the affected report. Use [current status](CODEX_ROADMAP_STATUS.md) and [execution notes](EXECUTION.md) to distinguish delivered scope from remaining work. Research indices: SOURCES.csv, CLAIMS.csv, FEATURE-EVIDENCE.csv, [SYNTHESIS](research/v2/SYNTHESIS.md), digests and UI-ATLAS/TIMELINES. Don't reread188 sources for one decision. New claims need primary evidence or labelled local measurement; shipped content stays original.
 
 Typical checks: `npm run typecheck`, targeted `node --import tsx --test ...`, `npm run build`, `npm run content:check` when authored data changes. `npm run verify` is the broader isolated runner, not needed after every small edit. `npm run dev`: client5173/server2567; select fresh DATA_DIR first. Browser fixture URL `?autostart=DisposableName&class=warrior`, names2–16 letters/numbers. Never use a real player's name against production data.
 
