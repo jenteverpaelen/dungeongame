@@ -370,6 +370,10 @@ export const EQUIPMENT_DROP_SCALE = 2 / 3;
  *  treasure-goblin batches are rewards for effort and keep `EQUIPMENT_DROP_SCALE`. Calibrated against items per hour
  *  of a levelling bot (docs/rework/BALANCE.md): 2/3 × 1/6 = 1/9 of the original per-kill rate. */
 export const FIELD_DROP_FACTOR = 1 / 6;
+/** Gems and Death's Breath from ordinary, champion, rare and minion kills. They fed gear power (sockets, upgrades) at
+ *  ~200 per hour each; they had only fallen with the kill rate while equipment fell ×8, so they get the same treatment
+ *  in a gentler form. Boss and goblin batches are untouched. */
+export const FIELD_RESOURCE_FACTOR = 1 / 3;
 export const baseGoldAmount = (level:number) => (4 + level * 2.5) * Math.pow(1.06, level);
 export function goldAmount(rng: Rng, level: number, goldFind: number): number {
   return Math.max(1, Math.round(baseGoldAmount(level) * rng.range(0.6, 1.4) * (1 + goldFind / 100)));
@@ -409,12 +413,13 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number, equipmen
   }
   const goldPiles = ctx.elite === 5 ? 18 : ctx.elite === 4 ? 8 : ctx.elite === 2 ? 3 : ctx.elite === 1 ? 2 : rng.chance(NORMAL_GOLD_DROP_CHANCE) ? 1 : 0;
   for (let i = 0; i < goldPiles; i++) drops.push({ type: 'gold', amount: goldAmount(rng, ctx.level, goldFind) * (ctx.elite ? 2 : 1) });
-  if (rng.chance(ctx.elite ? 0.25 : 0.012)) {
+  const resource = ctx.elite >= 4 ? 1 : FIELD_RESOURCE_FACTOR;
+  if (rng.chance((ctx.elite ? 0.25 : 0.012) * resource)) {
     const rank = Math.min(5, Math.max(1, 1 + Math.floor(ctx.level / 15) + (ctx.difficulty >= 4 ? 1 : 0)));
     drops.push({ type: 'gem', gem: rng.pick(GEM_IDS), rank });
   }
   if (ctx.elite === 1 || ctx.elite === 2 || ctx.elite === 4) {
-    if (rng.chance(ctx.elite === 4 ? 1 : 0.6)) drops.push({ type: 'mat', mat: 'deathsBreath', amount: ctx.elite === 4 ? rng.int(2, 4) : 1 });
+    if (rng.chance(ctx.elite === 4 ? 1 : 0.6 * resource)) drops.push({ type: 'mat', mat: 'deathsBreath', amount: ctx.elite === 4 ? rng.int(2, 4) : 1 });
   }
   if (rng.chance(ctx.elite ? 0.5 : 0.035)) drops.push({ type: 'globe' });
   return { drops, pity };

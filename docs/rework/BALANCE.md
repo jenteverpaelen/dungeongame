@@ -69,6 +69,7 @@ is what makes a lucky early item feel like a real jump (§5).
 | Monster life | `server/src/sim/tuning.ts` `LEVEL_TOUGHNESS` | none | ×1 (L1) · ×2.5 (L5–8) · ×5 (L10) · ×15 (L20) · ×40 (L30) · ×80 (L40) · ×150 (L50) · ×350 (L70) | fitted so the engaged bot's median trash kill takes ≈1 s; ramps in gently early because a fresh character has only its primary attack |
 | Monster damage | `server/src/sim/tuning.ts` `LEVEL_DAMAGE` | none | ×0.4 (L1–5) → ×0.5 (L10+) | longer fights multiply damage per kill; at ×0.5 the engaged bots died 1–8 times in 180 minutes and took 13–65 % of their life per minute in the worst five-level buckets; at ×0.25 they died 0–1 times, i.e. no danger |
 | Field drops | `shared/src/items.ts` `FIELD_DROP_FACTOR` | – | **1/6** of the (already 2/3) equipment scale for ordinary/champion/rare/minion kills | root cause 4; bosses and goblins keep their batch |
+| Gems and Death's Breath, field kills | `shared/src/items.ts` `FIELD_RESOURCE_FACTOR` | 1.2 % / 25 % gems, 60 % Death's Breath (per ordinary / elite kill) | **× 1/3** | they fed socket and upgrade power at ~110–270 gems/h and ~155–290 Death's Breath/h after the kill rate fell; now ~50–80 and ~70–125 per hour. Boss and goblin batches unchanged |
 | Goblin batch | `shared/src/items.ts` | 5–9 items, 25 % Legendary each | **3–5 items, 12 %** | a goblin gave 1.17 Legendary/Set on average; now 0.32 |
 | Goblin frequency | `server/src/sim/tuning.ts` `GOBLIN_FIELD_CHANCE` | 0.02 per pack | **0.012** | one per ~12 min at a human pace |
 | Guardian natural Legendary | `shared/src/items.ts` | 0.35 per item | **0.2** | the guaranteed Legendary stays; natural extras 1.58 → 1.2 Legendary/Set per guardian |
@@ -171,8 +172,9 @@ Master, so this project deliberately differs.
 * **Torment ladder shifted.** With ×350 life at level 70 a set + legendaries kit clears Torment I–III in 3–11 minutes and
   Torment V in ~10 (warrior); the old curve put Torment VIII there. The ladder above III now needs paragon growth that
   this pass did not model. Tests were re-pointed (L20 Hard, L70 Torment II, party perf Torment III).
-* **Gold, gems, materials, globes are unchanged per kill**, so per *hour* they fell with the kill rate; per *level* gold
-  rose (more kills per level). Vendor prices were not retuned. Check the economy audit before a public test.
+* **Gold and globes are unchanged per kill**, so per *hour* they fell with the kill rate (engaged bot: 0.3–2.4 M gold/h
+  at levels 20–33) while per *level* gold rose (more kills per level). Crafting is limited by materials, not gold, so this
+  was left alone; vendor prices were not retuned. Check the economy audit before a public test.
 * **Human survival is unverified.** The bots stand still in melee and never dodge; humans should take less damage per
   fight, but nobody has played this.
 * **Early game.** The first five levels now take 5–7 minutes of farming; the quest chain still dominates there.
