@@ -281,9 +281,11 @@ export class GearFx {
     }
     // Primal heartbeat ring
     if (p.primals) { this.pulse = this.add(this.back, F.ringSoft, PRIMAL_RED, 0); }
+    this.counted = true;
     gearFxStats.heroes++;
     gearFxStats.sprites += this.sprites.length;
   }
+  private counted = false;
 
   /** Level-up / paragon: everything flares for a moment. */
   flare(): void { this.flareT = 1; }
@@ -472,7 +474,7 @@ export class GearFx {
   }
 
   destroy(): void {
-    if (this.sprites.length) { gearFxStats.heroes--; gearFxStats.sprites -= this.sprites.length; }
+    if (this.counted) { gearFxStats.heroes--; gearFxStats.sprites -= this.sprites.length; this.counted = false; }
     for (const s of this.sprites) s.destroy();
     for (const p of this.parts) p.s.destroy();
     this.sprites = []; this.parts = []; this.orbiters = []; this.bladeFx = []; this.nodes = []; this.haloGlints = [];

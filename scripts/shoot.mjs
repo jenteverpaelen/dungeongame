@@ -4,7 +4,7 @@
 // drives it over the DevTools protocol and writes PNGs. Plain Node (global WebSocket/fetch), no packages.
 //
 //   node scripts/shoot.mjs <scenario.mjs|builtin> [--base=http://localhost:5211] [--out=docs/rework/shots]
-//                          [--w=1920] [--h=1080] [--prefix=] [--keep]
+//                          [--w=1920] [--h=1080] [--prefix=] [--keep] [--jpeg[=82]]
 //
 // A scenario module exports `default async function (api) {}`. Builtins: `hud` (one fresh character),
 // `panels` (every panel, L1 then debug-levelled L40), `town` (establishing shots at fixed camera points).
@@ -161,8 +161,10 @@ const api = {
   async walk(dx, dy, ms) { await api.eval(`__shoot.move = { x: ${dx}, y: ${dy} }; true`); await wait(ms); await api.eval('__shoot.move = null; true'); },
   async shot(name, { clip } = {}) {
     await fs.mkdir(out, { recursive: true });
-    const r = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false, ...(clip ? { clip: { ...clip, scale: 1 } } : {}) });
-    const file = path.join(out, `${prefix}${name}.png`);
+    // --jpeg[=quality]: evidence screenshots as JPEG (repo size; lead request 2026-10-10), PNG otherwise
+    const jpeg = args.jpeg ? Math.max(30, Math.min(95, Number(args.jpeg === true ? 82 : args.jpeg) || 82)) : 0;
+    const r = await page.call('Page.captureScreenshot', { format: jpeg ? 'jpeg' : 'png', ...(jpeg ? { quality: jpeg } : {}), captureBeyondViewport: false, ...(clip ? { clip: { ...clip, scale: 1 } } : {}) });
+    const file = path.join(out, `${prefix}${name}.${jpeg ? 'jpg' : 'png'}`);
     await fs.writeFile(file, Buffer.from(r.data, 'base64'));
     const info = await api.eval('({ w: innerWidth, h: innerHeight, hidden: document.hidden, fps: __ui?.get().fps })').catch(() => ({}));
     console.log(`shot ${path.relative(root, file)} ${info.w}x${info.h} hidden=${info.hidden} fps=${info.fps}`);

@@ -5,13 +5,13 @@ const SHOTS = [
   ['ladder', 'gallery-art.html?view=gear-ladder&nohud=1'],
   ['ladder-walk', 'gallery-art.html?view=gear-ladder&anim=walk&nohud=1'],
   ['vs-warrior', 'gallery-art.html?view=gear-vs&cls=warrior&nohud=1'],
-  ['vs-all', 'gallery-art.html?view=gear-vs&all=1&dx=70&dy=-90&nohud=1'],
-  ['vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=70&dy=-90&labels=1&nohud=1'],
+  ['vs-all', 'gallery-art.html?view=gear-vs&all=1&dx=240&dy=-70&nohud=1'],
+  ['vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=240&dy=-70&labels=1&nohud=1'],
   ['vs-walk', 'gallery-art.html?view=gear-vs&all=1&walk=1&nohud=1'],
-  ['sets', 'gallery-art.html?view=gear-sets&nohud=1'],
+  ['sets', 'gallery-art.html?view=gear-sets&k=0.74&nohud=1'],
   ['icons', 'gallery-art.html?view=gear-icons&nohud=1'],
   ['before-ladder', 'gallery-art.html?view=gear-ladder&legacy=1&nohud=1'],
-  ['before-vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=70&dy=-90&legacy=1&nohud=1'],
+  ['before-vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=240&dy=-70&legacy=1&nohud=1'],
 ];
 
 export default async function (api) {
