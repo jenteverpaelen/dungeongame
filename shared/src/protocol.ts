@@ -6,6 +6,8 @@ import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
 export const PROTOCOL_VERSION = 22;
+/** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
+export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;

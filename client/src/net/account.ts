@@ -41,7 +41,7 @@ export function passwordProblem(password: string): string | null {
 /** Reads the server's public config. Any failure (old server, offline) means "no accounts": name-only login as before. */
 export async function fetchAccountMode(): Promise<AccountMode> {
   try {
-    const r = await fetch('/api/config', { cache: 'no-store' });
+    const r = await fetch('/api/config', { cache: 'no-store', signal: AbortSignal.timeout(3000) });
     if (!r.ok) return 'off';
     const body = (await r.json()) as { accounts?: unknown };
     return body.accounts === 'optional' || body.accounts === 'required' ? body.accounts : 'off';
