@@ -410,10 +410,13 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   // Movement works: send inputs, position changes, ack follows.
   for (const [op, role] of Object.entries(SERVICE_ROLE)) {
     const n = generateMap(b.zone.zone, b.zone.seed).town!.npcs.find(n => n.role === role)!;
-    const before = JSON.stringify(b.char);
+    // Time-dependent bookkeeping (play time, last-seen stamp, the transaction counter) legitimately moves between
+    // two snapshots; everything the player owns must not.
+    const owned = (c: unknown) => { const { lastSeen: _l, stats: _s, commands: _c, ...rest } = c as Record<string, unknown>; return JSON.stringify(rest); };
+    const before = owned(b.char);
     const rejected = await b.rawCmd(op, { x: n.x, y: n.y, npcId: n.id, itemId: 'spoof' });
     c(`${op} rejects remote/spoofed service access over WebSocket`, !rejected.ok && /Stand beside/.test(rejected.err ?? ''), rejected);
-    c(`${op} rejection preserves save`, JSON.stringify(b.char) === before);
+    c(`${op} rejection preserves save`, owned(b.char) === before);
   }
   const x0 = b.me!.x, y0 = b.me!.y;
   for (let i = 0; i < 20; i++) { b.input(1, 0); await sleep(TICK_MS); }
@@ -920,7 +923,9 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
     c('character file exists on disk', fs.existsSync(file), file);
     const onDisk = fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as CharacterSave) : null;
     c('character file is valid JSON of the save', !!onDisk && onDisk.name === name && onDisk.level === 70);
-    c('no temp files left behind', fs.readdirSync(dataDir).every((f) => !f.endsWith('.tmp')), fs.readdirSync(dataDir));
+    let leftovers: string[] = [];
+    for (let i = 0; i < 30; i++) { leftovers = fs.readdirSync(dataDir).filter((f) => f.endsWith('.tmp')); if (!leftovers.length) break; await sleep(100); }
+    c('no temp files left behind (after in-flight atomic writes settle)', leftovers.length === 0, leftovers);
   }
   b2.close();
 }
@@ -1080,7 +1085,7 @@ async function testAutosave(url: string, dataDir: string | null) {
   const g0 = readSave().gold;
   await b.cmd('debug', { op: 'gold', n: 777 });
   await sleep(300);
-  check('[autosave] a change is not written immediately (throttled)', readSave().gold === g0, { g0, now: readSave().gold });
+  check('[autosave] an acknowledged command is already on disk (durable receipts, no throttling)', readSave().gold === g0 + 777, { g0, now: readSave().gold });
   await b.cmd('travel', { zone: 'whispering_glade' });
   await sleep(400);
   const z = readSave();

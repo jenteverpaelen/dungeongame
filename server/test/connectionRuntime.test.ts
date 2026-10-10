@@ -198,7 +198,7 @@ test('real socket closes sustained text flood and oversized whole/fragmented mes
     }
     assert.equal((await fetch(`http://127.0.0.1:${server.port}/healthz`)).status,200);
     assert.doesNotMatch(server.log(),/unhandled rejection|uncaughtException/);
-    assert.deepEqual(await fs.readdir(path.join(server.runDir,'saves')),[]);
+    assert.deepEqual((await fs.readdir(path.join(server.runDir,'saves'))).filter(f=>f!=='social'),[],'flooding creates no character file; the social ledger folder may exist');
   }finally{
     ws?.terminate();const exitCode=await server.stop();
     await fs.writeFile(path.join(server.runDir,'message-size-observations.json'),JSON.stringify({observations,exitCode},null,2));

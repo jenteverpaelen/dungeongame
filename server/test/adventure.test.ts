@@ -39,7 +39,7 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: actual quest
     f.at(3340,665);assert.equal(f.cmd('inspect','ledger').ok,false,'mill wall');
     f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);
     const reward=structuredClone(f.save.rillwake!.reward!);
-    assert.equal(reward.ilvl,f.save.level);assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
+    assert.equal(reward.ilvl,3,'the weapon is generated for the level the XP of this reward reaches (storyXp(1,3)), not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
     assert.equal(f.cmd('inspect','ledger').ok,true);assert.deepEqual(f.save.rillwake!.reward,reward,'repeat inspection cannot reroll');
     f.near('tender');f.save.inventory.fill({...reward,id:'bag-fixture'});const before=JSON.stringify(f.save);
     assert.equal(f.cmd('claim').ok,false);assert.equal(JSON.stringify(f.save),before,'full bag loses nothing');
