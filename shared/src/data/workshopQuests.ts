@@ -1,0 +1,10 @@
+import type {QuestDef} from '../questTypes';
+const jewel={zone:'hearthmere',target:'jeweler'},mystic={zone:'hearthmere',target:'mystic'},smith={zone:'hearthmere',target:'blacksmith'};
+/** Separate IDs also make lessons available to characters with already-claimed story rewards. */
+export const WORKSHOP_QUESTS:readonly QuestDef[]=[
+  {id:'workshop_gems',revision:1,start:jewel,finish:jewel,requires:['pressure_below'],reward:{cubeLevel:2},title:'workshop.gems.title',offer:'workshop.gems.offer',complete:'workshop.gems.complete',rewardText:'workshop.gems.reward',steps:[{id:'lesson',kind:'talk',...jewel,text:'workshop.gems.talk'}]},
+  {id:'workshop_enchant',revision:1,start:mystic,finish:mystic,requires:['last_draw','workshop_gems'],reward:{cubeLevel:3},title:'workshop.enchant.title',offer:'workshop.enchant.offer',complete:'workshop.enchant.complete',rewardText:'workshop.enchant.reward',steps:[{id:'lesson',kind:'talk',...mystic,text:'workshop.enchant.talk'}]},
+  {id:'workshop_empower',revision:1,start:smith,finish:smith,requires:['sealed_brine','workshop_enchant'],reward:{cubeLevel:4},title:'workshop.empower.title',offer:'workshop.empower.offer',complete:'workshop.empower.complete',rewardText:'workshop.empower.reward',steps:[{id:'lesson',kind:'talk',...smith,text:'workshop.empower.talk'}]},
+  {id:'workshop_transmute',revision:1,start:smith,finish:smith,requires:['open_beacon','workshop_empower'],reward:{cubeLevel:5},title:'workshop.transmute.title',offer:'workshop.transmute.offer',complete:'workshop.transmute.complete',rewardText:'workshop.transmute.reward',steps:[{id:'lesson',kind:'talk',...smith,text:'workshop.transmute.talk'}]},
+  {id:'workshop_extract',revision:1,start:mystic,finish:mystic,requires:['last_transmission','workshop_transmute'],reward:{cubeLevel:6},title:'workshop.extract.title',offer:'workshop.extract.offer',complete:'workshop.extract.complete',rewardText:'workshop.extract.reward',steps:[{id:'lesson',kind:'talk',...mystic,text:'workshop.extract.talk'}]},
+];

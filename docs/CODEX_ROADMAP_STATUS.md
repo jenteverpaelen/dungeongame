@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C098. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C099. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -294,7 +294,7 @@ Claude's proposals remain in the original document. These notes separate current
 | D-13 | PvP | No PvP implemented or selected. |
 | D-14 | Level cap and Paragon | Existing70/Paragon retained; no new soft cap. |
 | D-15 | Campaign shape: acts, zones, length, tone | C070 chooses one optional flooded woodland/mill route from source patterns and local measurements. No act count or human journey-duration target; town and UI style stay fixed. [Rillwake report](adventure/RILLWAKE-REPORT.md). |
-| D-16 | Difficulty gating | Existing difficulty gates retained; no new progression restriction. |
+| D-16 | Difficulty gating | C099: existing rift gates retained; authored story fields/dungeons consistently Normal, independently of last rift preference. Obelisk explains scope. [Report](phase/P09-mid-game/WORKSHOP-REPORT.md) |
 | D-17 | Adventure layer (bounties) | Bounties remain proposed, not shipped. |
 | D-18 | Dungeon formats | Existing untimed rifts retained; objective/timed formats require scoped design. |
 | D-19 | Seasons | No season/reset cadence selected; no character wipe. |
@@ -365,3 +365,6 @@ C097 completes the authored20–50 route and selected objective-dungeon catalogu
 
 
 C098 completes P9 first set acquisition and supported vendor bands. Current147 features:38 implemented scope,36 partial,70 open,3 decided/excluded. Counts are not a completion percentage. P9 Cube/difficulty/family/band combat and human/party acceptance remain.
+
+
+C099 completes authored-route Cube pacing and the D-16 difficulty scope. Feature counts unchanged:38 implemented scope,36 partial,70 open,3 decided/excluded. P9 family/band combat, party and human acceptance remain; advanced recipes/sets remain P11.

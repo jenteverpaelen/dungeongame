@@ -1,0 +1,251 @@
+{
+  "scope": "600 deterministic one-clear runs, all authored members once, normal, midpoint zone level, zero MF, salvage EVERY dropped item, no respawns/quest items/service XP; not player timing or an optimal route",
+  "unlocks": [
+    {
+      "op": "salvage",
+      "level": 1,
+      "xp": 0
+    },
+    {
+      "op": "fuse",
+      "level": 2,
+      "xp": 60
+    },
+    {
+      "op": "enchant",
+      "level": 3,
+      "xp": 236
+    },
+    {
+      "op": "upgrade",
+      "level": 4,
+      "xp": 565
+    },
+    {
+      "op": "transmute",
+      "level": 5,
+      "xp": 1079
+    },
+    {
+      "op": "extract",
+      "level": 6,
+      "xp": 1806
+    },
+    {
+      "op": "reforge",
+      "level": 7,
+      "xp": 2770
+    },
+    {
+      "op": "socket",
+      "level": 8,
+      "xp": 3995
+    }
+  ],
+  "rows": [
+    {
+      "zone": "rillwake_crossing",
+      "level": 2,
+      "kills": 29,
+      "salvageAllXp": {
+        "mean": 19.8,
+        "p10": 8,
+        "median": 18,
+        "p90": 32
+      },
+      "cumulativeXp": {
+        "mean": 19.8,
+        "p10": 8,
+        "median": 18,
+        "p90": 32
+      }
+    },
+    {
+      "zone": "bracken_sluice",
+      "level": 5,
+      "kills": 15,
+      "salvageAllXp": {
+        "mean": 15.4,
+        "p10": 6,
+        "median": 14,
+        "p90": 25
+      },
+      "cumulativeXp": {
+        "mean": 35.1,
+        "p10": 21,
+        "median": 33,
+        "p90": 51
+      }
+    },
+    {
+      "zone": "reedvault_pumpworks",
+      "level": 8,
+      "kills": 10,
+      "salvageAllXp": {
+        "mean": 14.2,
+        "p10": 6,
+        "median": 13,
+        "p90": 22
+      },
+      "cumulativeXp": {
+        "mean": 49.3,
+        "p10": 33,
+        "median": 46,
+        "p90": 68
+      }
+    },
+    {
+      "zone": "cairnspill_terraces",
+      "level": 10,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 15.5,
+        "p10": 6,
+        "median": 15,
+        "p90": 25
+      },
+      "cumulativeXp": {
+        "mean": 64.8,
+        "p10": 45,
+        "median": 63,
+        "p90": 86
+      }
+    },
+    {
+      "zone": "cinderwash_kilns",
+      "level": 14,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 28.3,
+        "p10": 16,
+        "median": 27,
+        "p90": 42
+      },
+      "cumulativeXp": {
+        "mean": 93.1,
+        "p10": 70,
+        "median": 91,
+        "p90": 117
+      }
+    },
+    {
+      "zone": "kilnwatch_crown",
+      "level": 18,
+      "kills": 9,
+      "salvageAllXp": {
+        "mean": 26.3,
+        "p10": 14,
+        "median": 24,
+        "p90": 39
+      },
+      "cumulativeXp": {
+        "mean": 119.3,
+        "p10": 92,
+        "median": 117,
+        "p90": 151
+      }
+    },
+    {
+      "zone": "sablefen_causeway",
+      "level": 22,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 29.6,
+        "p10": 17,
+        "median": 28,
+        "p90": 44
+      },
+      "cumulativeXp": {
+        "mean": 148.9,
+        "p10": 118,
+        "median": 148,
+        "p90": 183
+      }
+    },
+    {
+      "zone": "saltwind_pans",
+      "level": 27,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 31.1,
+        "p10": 19,
+        "median": 29,
+        "p90": 47
+      },
+      "cumulativeXp": {
+        "mean": 180,
+        "p10": 145,
+        "median": 177,
+        "p90": 218
+      }
+    },
+    {
+      "zone": "lockglass_cistern",
+      "level": 32,
+      "kills": 10,
+      "salvageAllXp": {
+        "mean": 33.1,
+        "p10": 17,
+        "median": 30,
+        "p90": 56
+      },
+      "cumulativeXp": {
+        "mean": 213.1,
+        "p10": 171,
+        "median": 212,
+        "p90": 255
+      }
+    },
+    {
+      "zone": "shiverline_escarpment",
+      "level": 37,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 40.5,
+        "p10": 21,
+        "median": 39,
+        "p90": 61
+      },
+      "cumulativeXp": {
+        "mean": 253.6,
+        "p10": 215,
+        "median": 254,
+        "p90": 292
+      }
+    },
+    {
+      "zone": "beaconbreak_ward",
+      "level": 42,
+      "kills": 16,
+      "salvageAllXp": {
+        "mean": 35.4,
+        "p10": 21,
+        "median": 33,
+        "p90": 56
+      },
+      "cumulativeXp": {
+        "mean": 289.1,
+        "p10": 250,
+        "median": 288,
+        "p90": 329
+      }
+    },
+    {
+      "zone": "hollowstar_array",
+      "level": 47,
+      "kills": 10,
+      "salvageAllXp": {
+        "mean": 46,
+        "p10": 31,
+        "median": 44,
+        "p90": 63
+      },
+      "cumulativeXp": {
+        "mean": 335.1,
+        "p10": 294,
+        "median": 333,
+        "p90": 377
+      }
+    }
+  ]
+}

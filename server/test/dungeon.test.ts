@@ -33,6 +33,12 @@ function player(world:World,cls:ClassId='mage'){
   return {s,save,inst,p,at,near,cmd,travel,waypoint,unlock,accept,enter,activate,clear};
 }
 
+test('story dungeon uses Normal independently of the last rift selection',async()=>{
+  const world=new World();await world.init();
+  try{const a=player(world);a.save.difficulty=3;a.unlock();a.enter();assert.equal(a.inst().difficulty,0);assert.equal(a.save.difficulty,3,'rift preference preserved');}
+  finally{await world.shutdown();}
+});
+
 test('dungeon clock starts on valid activation, includes retries and freezes on final clear',async()=>{
   const world=new World();await world.init();
   try {

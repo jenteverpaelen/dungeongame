@@ -184,7 +184,7 @@ export function ObeliskPanel() {
       <div class="ob-sum">
         <div class="ob-sum-l">
           <b>{d.name}</b>
-          <span>Monsters have {d.hp}× life and deal {d.dmg.toFixed(1)}× damage.</span>
+          <span>Rift monsters: {d.hp}× life, {d.dmg.toFixed(1)}× damage. Story areas stay on Normal.</span>
         </div>
         <Bar tone="life" frac={Math.min(1, Math.log2(d.hp + 1) / 14)} height={8} />
       </div>

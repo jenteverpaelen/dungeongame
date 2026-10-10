@@ -50,6 +50,7 @@ import { completedRunSummary } from '../game/runSummary';
 import { QUESTS } from '@shared/data/quests';
 import { campaignSetReward } from '@shared/campaignSets';
 import { MIDGAME_GIFTS } from '@shared/data/midgameQuests';
+import { WORKSHOP_QUESTS } from '@shared/data/workshopQuests';
 import { ADVENTURES } from '@shared/adventure';
 import { QUEST_MESSAGES, type QuestMessageKey } from '@shared/data/questMessages';
 import { writeQuestState } from '@shared/quests';
@@ -415,7 +416,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
-      {(s === 'adventure'||s==='merchant'||s==='character'||s==='skills'||qs.has('savedEnchant')) && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
+      {(s === 'adventure'||s==='merchant'||s==='character'||s==='skills'||qs.has('savedEnchant')||qs.has('lesson')) && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
@@ -457,6 +458,12 @@ if(qs.get('s')==='adventure'&&qs.has('gift')){
   ui.set({char,journalQuest:q.id,adventureTarget:q.finish.target,adventureZone:q.finish.zone,
     zone:{...ui.get().zone!,zone:q.finish.zone,name:'Set gift · Presentation fixture (no live server)',kind:q.finish.zone==='lockglass_cistern'?'dungeon':'field'},
     interact:{name:npc.name,role:'quest'}});
+}
+if(qs.has('lesson')){
+  const q=WORKSHOP_QUESTS[1];
+  for(const id of q.requires){const required=QUESTS.find(q=>q.id===id)!;writeQuestState(char,id,{revision:required.revision,step:required.steps.length,claimed:true});}
+  char.cube.level=2;char.cube.xp=37;
+  ui.set({char,artisan:'mystic',interact:{name:'Mystic',role:'mystic'}});cubeUI.set({fn:'enchant'});
 }
 if(qs.get('s')==='runSummary') {
   // Explicit synthetic result for presentation review; never writes a save or grants loot.

@@ -25,6 +25,8 @@ export type QuestServiceOp=typeof QUEST_SERVICE_OPS[number];
 export interface QuestReward {
   xp?: number;
   gold?: number;
+  /** One-time training floor; never lowers earned Cube level or current XP. */
+  cubeLevel?: number;
   item?: 'magic_weapon' | 'starter_upgrade' | import('./campaignSets').SetReward;
   unlocks?: string[];
 }

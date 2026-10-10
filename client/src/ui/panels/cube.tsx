@@ -16,7 +16,9 @@ import { fmtInt } from '@shared/format';
 import { KIND_LABEL } from '@shared/items';
 import type { AffixRoll, CharacterSave, Item, Materials } from '@shared/types';
 import { ARTISAN_FUNCTIONS, ARTISAN_NAMES } from '@shared/townServices';
-import { ui } from '../store';
+import { ui, togglePanel } from '../store';
+import { WORKSHOP_QUESTS } from '@shared/data/workshopQuests';
+import { questAvailable, questCompleted } from '@shared/quests';
 import { Bar, CostList, PanelFrame, Paged } from './common';
 import { cubeUI, setCubeItem } from './cubestate';
 import { canDropOn, useDrag } from './dnd';
@@ -558,6 +560,8 @@ export function CubePanel() {
 
   const dangerous = fn === 'salvage' && !!item && (item.rarity === 'legendary' || item.rarity === 'set' || item.ancient > 0 || item.upgrade > 0);
   const choosing = fn === 'enchant' && !!pending && !!item && pending.itemId === item.id;
+  const lesson=WORKSHOP_QUESTS.find(q=>q.start.target===artisan&&!questCompleted(char,q.id)&&questAvailable(char,q))
+    ??WORKSHOP_QUESTS.find(q=>!questCompleted(char,q.id));
 
   return (
     <PanelFrame id="cube" title={ARTISAN_NAMES[artisan]} width={840} icon={<CubeEmblem size={22} glow={false} />}>
@@ -569,6 +573,7 @@ export function CubePanel() {
         <div class="cube-xp">
           <Bar frac={char.cube.xp / need} text={`${fmtInt(char.cube.xp)} / ${fmtInt(need)} XP`} height={18} />
           <small>Artisan and Cube operations share Cube experience and unlock levels.</small>
+          {lesson&&<button class="btn tiny" onClick={()=>{ui.set({adventureTarget:lesson.start.target,adventureZone:lesson.start.zone,journalQuest:lesson.id});togglePanel('cube',false);togglePanel('adventure',true);}}>Workshop lessons · {questAvailable(char,lesson)?'Available':'Story progress required'}</button>}
         </div>
       </div>
       <div class="cube-main">

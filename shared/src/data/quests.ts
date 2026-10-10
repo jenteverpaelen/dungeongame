@@ -2,6 +2,7 @@ import type { QuestDef } from '../questTypes';
 
 import { storyXp } from '../storyBudget';
 import { MIDGAME_QUESTS, MIDGAME_GIFTS } from './midgameQuests';
+import { WORKSHOP_QUESTS } from './workshopQuests';
 export { storyXp } from '../storyBudget';
 const orren = { zone: 'rillwake_crossing', target: 'tender' };
 export const QUESTS: readonly QuestDef[] = [
@@ -87,5 +88,6 @@ export const QUESTS: readonly QuestDef[] = [
   },
   ...MIDGAME_QUESTS,
   ...MIDGAME_GIFTS,
+  ...WORKSHOP_QUESTS,
 ];
 export const questById = (id: string) => QUESTS.find(q => q.id === id);

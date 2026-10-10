@@ -370,7 +370,8 @@ export class World {
       if(!target){
         if([...this.recs.values()].filter(r=>r.kind==='dungeon').length>=MAX_RIFTS)return fail('All dungeon instances are busy; try again shortly');
         const level=Math.max(def.levelBand[0],Math.min(def.levelBand[1],s.save.level));
-        const inst=this.create({zoneId,key,channel:0,seed:zoneSeed(zoneId,0),theme:def.theme,level,difficulty:s.save.difficulty});
+        // D057: authored story shares the fields' Normal setting, independent of the last rift.
+        const inst=this.create({zoneId,key,channel:0,seed:zoneSeed(zoneId,0),theme:def.theme,level,difficulty:0});
         target={key,zoneId,kind:'dungeon',channel:0,inst,members:new Set(),emptySince:Date.now(),hostedRifts:new Set()};
         this.recs.set(key,target);
       }

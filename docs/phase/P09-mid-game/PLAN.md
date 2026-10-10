@@ -16,3 +16,6 @@ C097 connected ActsII–III20–50 route complete; CAMPAIGN-REPORT has measured 
 
 
 C098 first earned two-piece class-set tranche and supported vendor bands complete; SET-ACQUISITION-REPORT records six focused checks/type/build and1080p no-scroll inspection. Continue Cube pacing, difficulty, family breadth and band combat evidence. Alternative new sets remain P11.
+
+
+C099 Cube pacing and D-16 complete for the authored route; WORKSHOP-REPORT/CUBE-ROUTE-MODEL record the reason, scope and eight focused checks. Next family breadth and per-band combat evidence; then P10 identity for party acceptance. No repeat broad playtesting.

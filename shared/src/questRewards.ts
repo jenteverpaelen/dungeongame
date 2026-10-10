@@ -13,7 +13,8 @@ export function questRewardError(q:QuestDef):string|undefined {
   const r=q.reward;
   if(typeof r==='string')return r==='magic_weapon'||r==='passage'?undefined:'Unknown reward';
   if(!r||typeof r!=='object'||Array.isArray(r))return 'Invalid reward';
-  if(Object.keys(r).some(k=>!['xp','gold','item','unlocks'].includes(k)))return 'Unknown reward field';
+  if(Object.keys(r).some(k=>!['xp','gold','item','unlocks','cubeLevel'].includes(k)))return 'Unknown reward field';
+  if(r.cubeLevel!==undefined&&(!Number.isInteger(r.cubeLevel)||r.cubeLevel<2||r.cubeLevel>6||q.repeat))return 'Invalid one-time workshop training';
   for(const [key,max] of [['xp',MAX_QUEST_XP],['gold',Number.MAX_SAFE_INTEGER]] as const) {
     if(r[key]!==undefined&&(!Number.isSafeInteger(r[key])||r[key]!<0||r[key]!>max))return `Invalid ${key} award`;
   }
@@ -31,6 +32,7 @@ export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState):
   const gold=save.gold+(reward.gold??0);
   if(!Number.isSafeInteger(gold)||gold<0)return {error:'This reward would exceed your gold capacity'};
   const next=structuredClone(save);
+  if(reward.cubeLevel!==undefined)next.cube.level=Math.max(next.cube.level,reward.cubeLevel);
   if(questHasItem(q)) {
     if(!state.reward)return {error:'Your reserved reward could not be read'};
     if(ownedItems(next).some(i=>i?.id===state.reward!.id))return {error:'This reward is already owned'};
