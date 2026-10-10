@@ -5,6 +5,8 @@ import { PlayerArt } from './player';
 import { flameSprite, glowSprite, sparkleSprite } from './fx';
 import type { PlayerLook } from '@shared/protocol';
 import type { ViewState } from '../types';
+import type { Speaker } from '../barks';
+import { BARKS } from '@shared/data/barks';
 
 type Motion = {root:Container; x:number;y:number; kind:string; parts:Container[]; seed:number};
 const outfits:Record<string,PlayerLook>={
@@ -17,6 +19,8 @@ const outfits:Record<string,PlayerLook>={
 export class TownLife {
   readonly ground=new Container();
   readonly above=new Container();
+  /** Walking villagers who may remark as the hero passes (positions follow their patrol). */
+  readonly speakers:Speaker[]=[];
   private motions:Motion[]=[];
   private walkers:{data:NonNullable<TownData['villagers']>[number];view:PlayerArt;state:ViewState}[]=[];
   private lightSprites:{data:TownData['lights'][number];view:Sprite}[]=[];
@@ -63,6 +67,7 @@ export class TownLife {
       const view=new PlayerArt(outfits[d.look],true);entities.addChild(view.root);
       const state:ViewState={x:0,y:0,vx:0,vy:0,moving:false,facingLeft:false,flags:0,attackSeq:0,hpFrac:1,time:0,aps:1};
       this.walkers.push({data:d,view,state});
+      const lines=BARKS[d.look];if(lines)this.speakers.push(Object.defineProperties({key:`villager:${d.id}`,height:68,lines} as unknown as Speaker,{x:{get:()=>state.x},y:{get:()=>state.y}}));
     }
   }
   update(dt:number,time:number,cx:number,cy:number,halfWidth:number,halfHeight:number) {

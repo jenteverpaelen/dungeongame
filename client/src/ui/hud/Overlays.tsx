@@ -93,7 +93,7 @@ export function InteractPrompt() {
   return (
     <button type="button" class="hud-interact interactive" key={it.name} onClick={() => session.interact()}>
       <span class={`ip-key${key.length > 1 ? ' wide' : ''}`}>{key}</span>
-      <span class="ip-text"><em>{verb}</em> {it.name}</span>
+      <span class="ip-text"><em>{verb}</em> {it.name.split(' · ')[0]}</span>
     </button>
   );
 }

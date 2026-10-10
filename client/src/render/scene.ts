@@ -23,6 +23,8 @@ import { AdventureLife } from './art/adventureLife';
 import { inPolygon } from '@shared/townGeometry';
 import { preferences } from '../game/preferences';
 import { QuestGuide } from './questGuide';
+import { BarkBubbles, type Speaker } from './barks';
+import { BARKS } from '@shared/data/barks';
 
 /** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
@@ -62,6 +64,9 @@ export class Scene {
   private roofAlpha=new Map<string,number>();
   private questStamp:CharacterSave|null=null;
   private questGuide=new QuestGuide();
+  private barks=new BarkBubbles();
+  /** Ambient speakers: statics with lines plus visual-only residents (filled by setMap / TownLife). */
+  private speakers:Speaker[]=[];
   toggleCollision() {
     this.showCollision = !this.showCollision;
     if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
@@ -71,6 +76,7 @@ export class Scene {
     window.addEventListener('wheel', this.onWheel, { passive: false, capture: true });
     this.entities.sortableChildren = true;
     this.root.addChild(this.ground, this.decals, this.groundFx, this.entities, this.aboveFx, this.text);
+    this.text.addChild(this.barks.root);
     app.stage.addChild(this.root);
     this.groundFx.addChild(this.questGuide.root);
     this.vfx = new Vfx({ groundFx: this.groundFx, aboveFx: this.aboveFx, text: this.text }, {
@@ -116,6 +122,8 @@ export class Scene {
     this.statics = [];
     this.questStamp=null;
     this.vfx.clear();
+    this.barks.clear();
+    this.speakers=[];
     this.map = map;
     this.questGuide.refresh(map,ui.get().char,this.world.collision);
     this.collisionOverlay?.destroy({ children: true });
@@ -131,11 +139,11 @@ export class Scene {
     }
     for (const n of map.npcs) {
       if (n.role === 'dummy') continue; // dummies are server-side monsters so they can be hit
-      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look, map.town?n.r:undefined, map.adventure?.interactions.find(i=>i.id===n.id)?.kind);
+      const view = createNpcView(n.role, n.name, map.town?.npcs.find(a => a.id === n.id)?.look, map.town?n.r:undefined, map.adventure?.interactions.find(i=>i.id===n.id)?.kind, { zone: map.zone, id: n.id });
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
-      const questLabel=nameLabel('',-90,0xffdb83);questLabel.style.fontSize=18;questLabel.visible=false;view.root.addChild(questLabel);
+      const questLabel=nameLabel('',-view.height-40,0xffdb83);questLabel.style.fontSize=24;questLabel.style.stroke={color:0x140e0a,width:5,join:'round'};questLabel.visible=false;view.root.addChild(questLabel);
       this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id,questLabel });
     }
     for (const p of map.portals) {
@@ -145,9 +153,11 @@ export class Scene {
       this.entities.addChild(view.root);
       this.statics.push({ view, x: p.x, y: p.y, name: p.label, r: 40, portalTo: p.to });
     }
+    for(const s of this.statics){const lines=s.role?BARKS[s.role]:undefined;if(lines)this.speakers.push({key:s.npcId??s.name,x:s.x,y:s.y,height:s.view.height,lines});}
     if(map.town?.stage==='complete') {
       this.townLife=new TownLife(map.town,this.entities);
       this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
+      this.speakers.push(...this.townLife.speakers);
     }
     if(map.adventure?.ambience) {
       this.adventureLife=new AdventureLife(map.adventure);
@@ -368,7 +378,14 @@ export class Scene {
       }
     }
     this.hoverId = hover;
+    this.barks.update(now, me, this.speakers);
     this.vfx.update(dtMs);
+  }
+
+  /** A service person's short line in a bubble above their head (force = on interaction). */
+  bark(s: StaticView, force = false): void {
+    const lines = s.role ? BARKS[s.role] : undefined;
+    if (lines) this.barks.say({ key: s.npcId ?? s.name, x: s.x, y: s.y, height: s.view.height, lines }, performance.now(), force);
   }
 
   /** Nearest static NPC / map portal within interaction range of (x, y). */

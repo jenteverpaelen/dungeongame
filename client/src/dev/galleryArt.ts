@@ -21,6 +21,7 @@ import type { EntityView, ViewState } from '../render/types';
 import { bakedPages } from '../render/art/bake';
 import { PlayerArt, artDebug, bakePlayerLook } from '../render/art/player';
 import { ACTIONS, type ActionSpec } from '../render/actions';
+import { NPC_PRESETS, RESIDENT_PRESETS } from '../render/art/npcLooks';
 import { F_WINDUP } from '@shared/protocol';
 
 const qs = new URLSearchParams(location.search);
@@ -156,6 +157,20 @@ function charsView() {
     });
   });
   world.scale.set(ZOOM * 0.585);
+}
+
+/** Townsfolk contact sheet (docs/rework/CAST.md): every named preset, then the ambient residents. */
+function npcsView() {
+  const named = Object.keys(NPC_PRESETS).map((k) => { const [zone, id] = k.split('/'); return { role: zone === 'hearthmere' ? id : 'quest', name: NPC_PRESETS[k].title ?? id, where: { zone, id } }; });
+  const residents = Object.keys(RESIDENT_PRESETS).map((k) => ({ role: k, name: RESIDENT_PRESETS[k].title ?? k, where: {} as { zone?: string; id?: string } }));
+  const all = [...named, ...residents];
+  const per = 9, colW = 120, rowH = 150;
+  all.forEach((n, i) => {
+    const x = 90 + (i % per) * colW, y = 150 + Math.floor(i / per) * rowH;
+    ground(x - 50, y - 9, 100, 18, 0x6a7a4c);
+    addActor(createNpcView(n.role, n.name, undefined, undefined, undefined, n.where), x, y, st({}), 1.1);
+  });
+  world.scale.set(ZOOM * 0.92);
 }
 
 function closeupView() {
@@ -669,6 +684,7 @@ switch (VIEW) {
   case 'bake': bakeTest(); break;
   case 'sheets': sheetsView(); break;
   case 'chars': charsView(); break;
+  case 'npcs': npcsView(); break;
   case 'closeup': closeupView(); break;
   case 'monsters': monstersView(); break;
   case 'objects': objectsView(); break;

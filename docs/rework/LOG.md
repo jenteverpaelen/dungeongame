@@ -15,3 +15,12 @@
   **HUD**: bottom-right menu bar (8 icon buttons + Paragon at 70, hotkey badges, pips for skill/paragon points, journal
   offers/turn-ins, party invites, near-full bag); quest tracker card with step/progress; old stacked buttons removed.
   Overlap probe: none at 1920×1080 or 1366×768, L1 and L70.
+- **R2 — townsfolk, dialogue, barks.** Hero rig extended for townsfolk only (`gear.ts` Body: beard/beardColor/face;
+  `heroParts.ts`: short/cropped/balding/bun/curly/braid hair, full/braided/goatee/moustache/stubble beards, monocle/
+  spectacles/goggles/eye patch; `gear.ts`: hammer, tongs, chalk rod, spear, broom, rod, pole, poker, rake and held
+  book/mug/lantern/lute/flag/slate/basket/gem/tin/scroll). `npcLooks.ts`: 14 named presets from `CAST.md` + 13 resident
+  looks + deterministic fallback; contact sheet `gallery-art.html?view=npcs` shows 27 distinct silhouettes. Work loops on
+  the shared town clock (smith hammers every 2.4 s with the anvil sound, bard whistles with notes, mystic/keeper bless).
+  Name plates: name + role line + role glyph. **Dialogue window** (lead request): E on a quest contact opens portrait,
+  conversation topics, quest offers/turn-ins/objective actions, merchant and journal links (verified with Orren).
+  **Barks**: `render/barks.ts` speech bubbles (cooldowns, max two ambient); the service `bark` banner is gone.

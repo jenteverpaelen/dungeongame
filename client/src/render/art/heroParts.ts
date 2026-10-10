@@ -259,6 +259,36 @@ function drawHairCap(c: Ctx, b: Body, yaw: number, underHat: boolean): void {
     // hair tie at the back of the head
     const t = sph(Math.PI, 26 * D2R, yaw, HEAD_R + 1.4);
     if (t.d > -0.1) { rbox(c, t.x - 2.6, t.y - 3.4, 5.2, 6.8, 1.8, OUTFIT[b.cls].band, { ow: 1.6, hl: 0.3 }); }
+  } else if (style === 'short' || style === 'braid') {
+    // close cut with a soft side-swept fringe (braid: same cap, the plait hangs from the back as a tail part)
+    const cap = capPolygon(hairline(14, -5, -28), yaw, HEAD_R + 1.1);
+    paintCap(c, cap, h, { shine: 0.45 });
+    tuft(c, { lon: -24 * D2R, lat: 18 * D2R, len: 4.2, w: 0.4, sweep: 0 }, yaw, HEAD_R + 0.9, h, 0.6);
+    tuft(c, { lon: 2 * D2R, lat: 19 * D2R, len: 3.6, w: 0.36, sweep: 0 }, yaw, HEAD_R + 0.9, h, 0.65);
+    hairCreases(c, h, yaw, [[-40, 46], [28, 56], [140, 26], [-140, 26]]);
+  } else if (style === 'cropped') {
+    const cap = capPolygon(hairline(21, 4, -16), yaw, HEAD_R + 0.5);
+    paintCap(c, cap, shade(h, 0.04), { shine: 0.2, sh: 0.22 });
+  } else if (style === 'balding') {
+    // fringe ring around sides and back; a bare crown recedes from the forehead
+    const ring = capPolygon(hairline(6, -4, -30), yaw, HEAD_R + 0.9);
+    paintCap(c, ring, h, { shine: 0 });
+    const crown = capPolygon(hairline(8, 28, 32), yaw, HEAD_R + 1.1);
+    paintCap(c, crown, b.skin, { hl: 0.28, sh: 0.12 });
+    if (!inSilhouette()) gloss(c, -HEAD_R * 0.3, -HEAD_R * 0.62, 4.2, 1.6, 0.4);
+  } else if (style === 'bun') {
+    const cap = capPolygon(hairline(17, -2, -24), yaw, HEAD_R + 1.2);
+    paintCap(c, cap, h, { shine: 0.5 });
+    hairCreases(c, h, yaw, [[-30, 50], [10, 58], [50, 48], [130, 40], [-130, 40]]);
+    tuft(c, { lon: -18 * D2R, lat: 20 * D2R, len: 4.4, w: 0.4, sweep: 0 }, yaw, HEAD_R + 1, h, 0.55);
+    drawBun(c, b, yaw, false);
+  } else if (style === 'curly') {
+    const cap = capPolygon(hairline(16, -10, -40), yaw, HEAD_R + 2.4, CURL_SPIKES);
+    paintCap(c, cap, h, { shine: 0.25 });
+    for (const [lon, lat] of CURLS) {
+      const q = sph(lon * D2R, lat * D2R, yaw, HEAD_R + 2.6);
+      if (q.d > 0.12 && !inSilhouette()) ball(c, q.x, q.y, 2.9, 2.6, light(h, 0.07), { hl: 0.28, ow: 1.2 });
+    }
   } else {
     const cap = capPolygon(hairCapLine(style), yaw, HEAD_R + 2);
     paintCap(c, cap, h, { shine: 0.75, sh: 0.3 });
@@ -275,6 +305,111 @@ function drawHairCap(c: Ctx, b: Body, yaw: number, underHat: boolean): void {
       const pts = [top.x - w, top.y - 2, top.x + w, top.y - 2, bot.x + w * 0.9, bot.y + 6, bot.x + w * 0.2, bot.y + 9.5, bot.x - w * 0.6, bot.y + 8, bot.x - w, bot.y + 4];
       blob(c, pts, shade(h, 0.04), { hl: 0.1, sh: 0.25, ow: 2 });
     }
+  }
+}
+
+// Curly hair: short rounded lumps on the silhouette plus puffs over the visible cap (townsfolk only).
+const CURL_SPIKES: Spike[] = [
+  { lon: 0, lat: 52 * D2R, len: 3.4, w: 0.5, sweep: 0 }, { lon: 60 * D2R, lat: 44 * D2R, len: 3.6, w: 0.5, sweep: 0 },
+  { lon: -60 * D2R, lat: 44 * D2R, len: 3.6, w: 0.5, sweep: 0 }, { lon: 115 * D2R, lat: 30 * D2R, len: 3.8, w: 0.55, sweep: 0 },
+  { lon: -115 * D2R, lat: 30 * D2R, len: 3.8, w: 0.55, sweep: 0 }, { lon: 165 * D2R, lat: 18 * D2R, len: 3.6, w: 0.55, sweep: 0 },
+  { lon: -165 * D2R, lat: 18 * D2R, len: 3.6, w: 0.55, sweep: 0 }, { lon: 30 * D2R, lat: 76 * D2R, len: 3.4, w: 0.5, sweep: 0 },
+  { lon: -30 * D2R, lat: 76 * D2R, len: 3.4, w: 0.5, sweep: 0 }, { lon: 180 * D2R, lat: 48 * D2R, len: 3.6, w: 0.55, sweep: 0 },
+];
+const CURLS: [number, number][] = [[-30, 30], [0, 33], [30, 30], [-55, 46], [-15, 52], [20, 54], [55, 46], [-35, 68], [5, 72], [40, 66], [-80, 30], [80, 30], [120, 40], [-120, 40], [150, 28], [-150, 28], [180, 40]];
+
+/** Bun on the back of the crown; drawn behind the skull when it faces away (two passes from drawHeadView). */
+function drawBun(c: Ctx, b: Body, yaw: number, back: boolean): void {
+  const t = sph(Math.PI, 54 * D2R, yaw, HEAD_R + 4.2);
+  if ((t.d < 0) !== back) return;
+  ball(c, t.x, t.y - 2.2, 6.4, 5.8, back ? shade(b.hair, 0.12) : b.hair, { hl: 0.3 });
+  if (!back && !inSilhouette()) crease(c, [t.x - 3.4, t.y - 3.4, t.x + 0.4, t.y - 0.6, t.x + 3.6, t.y - 2.8], 1, shade(b.hair, 0.35), 0.8);
+  if (!back) { const r = sph(Math.PI, 48 * D2R, yaw, HEAD_R + 2.4); if (r.d > -0.4) rbox(c, r.x - 3, r.y + 0.6, 6, 2.6, 1, OUTFIT[b.cls].band, { ow: 1.2, hl: 0.3 }); }
+}
+
+/** Facial hair on the lower face (townsfolk only). Points behind the head are dropped; beards read from the front. */
+function drawBeard(c: Ctx, b: Body, yaw: number): void {
+  if (!b.beard) return;
+  const col = b.beardColor ?? b.hair;
+  const centre = sph(0, -55 * D2R, yaw);
+  if (centre.d < -0.3) return;
+  const edge = (lonA: number, lonB: number, latTop: (lon: number) => number, latBot: number, bulge: number, drop: number): number[] => {
+    const pts: number[] = [];
+    for (let i = 0; i <= 14; i++) {
+      const lon = (lonA + (lonB - lonA) * i / 14) * D2R, q = sph(lon, latTop(lon / D2R) * D2R, yaw, HEAD_R + 0.6);
+      if (q.d > -0.04) pts.push(q.x, q.y);
+    }
+    for (let i = 14; i >= 0; i--) {
+      const lon = (lonA + (lonB - lonA) * i / 14) * D2R, q = sph(lon, latBot * D2R, yaw, HEAD_R + bulge);
+      const k = Math.cos(lon) ** 2;
+      if (q.d > -0.04) pts.push(q.x, q.y + drop * k);
+    }
+    return pts;
+  };
+  const shadeCol = shade(col, 0.32);
+  if (b.beard === 'stubble') {
+    const pts = edge(-78, 78, (lon) => -20 - 10 * Math.cos(lon * D2R), -84, 0.4, 0);
+    if (pts.length >= 6 && !inSilhouette()) wash(c, (k) => k.poly(pts, true), shade(col, 0.15), 0.38);
+    return;
+  }
+  if (b.beard === 'full' || b.beard === 'braided') {
+    const pts = edge(-84, 84, (lon) => -16 - 16 * Math.cos(lon * D2R) ** 2, -86, 2.8, b.beard === 'braided' ? 4 : 6.5);
+    if (pts.length >= 6) blob(c, pts, col, { hl: 0.12, sh: 0.3 });
+    if (!inSilhouette()) for (const lon of [-30, -10, 10, 30]) {
+      const a = sph(lon * D2R, -50 * D2R, yaw, HEAD_R + 1.4), z = sph(lon * D2R, -78 * D2R, yaw, HEAD_R + 2.2);
+      if (a.d > 0.15) crease(c, [a.x, a.y, z.x, z.y + 3], 1, shadeCol, 0.7);
+    }
+    if (b.beard === 'braided') {
+      const chin = sph(0, -86 * D2R, yaw, HEAD_R + 2.6);
+      if (chin.d > -0.2) for (let i = 0; i < 3; i++) {
+        const y = chin.y + 4 + i * 3.6;
+        poly(c, [chin.x - 2.4, y, chin.x, y - 2.2, chin.x + 2.4, y, chin.x, y + 2.4], i % 2 ? shade(col, 0.08) : col, { ow: 1.2, hl: 0.2 });
+      }
+      if (chin.d > -0.2) rbox(c, chin.x - 2.2, chin.y + 13.2, 4.4, 2.4, 1, 0xb08a3a, { ow: 1, hl: 0.4 });
+    }
+  }
+  if (b.beard === 'goatee') {
+    const pts = edge(-26, 26, () => -60, -88, 2, 3.6);
+    if (pts.length >= 6) blob(c, pts, col, { hl: 0.12, sh: 0.3 });
+  }
+  // moustache over the upper lip (all styles but stubble)
+  for (const sgn of [-1, 1]) {
+    const pts: number[] = [];
+    for (const [lon, lat] of [[3, -33], [16, -32], [30, -37], [34, -44], [24, -41], [12, -40], [3, -39]] as const) {
+      const q = sph(sgn * lon * D2R, lat * D2R, yaw, HEAD_R + 0.9);
+      if (q.d > 0.05) pts.push(q.x, q.y);
+    }
+    if (pts.length >= 8) blob(c, pts, col, { hl: 0.15, ow: 1.4 });
+  }
+}
+
+/** Monocle, spectacles, goggles pushed up, or an eye patch (townsfolk only). Eyes overlay at lon ±17°, lat −10°. */
+function drawFace(c: Ctx, b: Body, yaw: number): void {
+  if (!b.face || inSilhouette()) return;
+  const ring = (lon: number, lat: number, r: number, col: number, glass: number) => {
+    const q = sph(lon * D2R, lat * D2R, yaw, HEAD_R + 0.8);
+    if (q.d < 0.2) return null;
+    const sx = clamp(0.25 + q.d * 0.85, 0.35, 1);
+    c.ellipse(q.x, q.y, r * sx, r); fill(c, glass, 0.35);
+    c.ellipse(q.x, q.y, r * sx, r); c.stroke({ width: 3, color: OUT });
+    c.ellipse(q.x, q.y, r * sx, r); c.stroke({ width: 1.5, color: col });
+    return q;
+  };
+  if (b.face === 'monocle') {
+    const q = ring(17, -10, 3.8, 0xd8b54a, 0xcfe8ff);
+    if (q) line(c, (k) => k.moveTo(q.x + 2, q.y + 3.4).quadraticCurveTo(q.x + 5, q.y + 12, q.x + 2, q.y + 18), 0.8, 0xd8b54a, 0, false);
+  } else if (b.face === 'spectacles') {
+    const a = ring(17, -10, 3.4, 0x8a6a3a, 0xdfeaf2), z = ring(-17, -10, 3.4, 0x8a6a3a, 0xdfeaf2);
+    if (a && z) line(c, (k) => k.moveTo(a.x - 3, a.y - 0.6).lineTo(z.x + 3, z.y - 0.6), 1.1, 0x8a6a3a, 0, false);
+  } else if (b.face === 'goggles') {
+    const band = capPolygon(hairline(30, 26, 20), yaw, HEAD_R + 1.6);
+    if (band.run.length >= 4) strokeRun(c, band.run, 2.4, 0x5a3e28, 1.2);
+    ring(16, 30, 3.6, 0xa8823a, 0x9fd0e0); ring(-16, 30, 3.6, 0xa8823a, 0x9fd0e0);
+  } else if (b.face === 'eyepatch') {
+    const q = sph(-17 * D2R, -10 * D2R, yaw, HEAD_R + 0.8);
+    if (q.d > 0.15) { ball(c, q.x, q.y, 3.6 * clamp(0.3 + q.d, 0.4, 1), 3.4, 0x1e1a18, { ow: 1.4, hl: 0.15 }); }
+    const s1 = sph(-60 * D2R, 22 * D2R, yaw, HEAD_R + 0.6), s2 = sph(40 * D2R, 26 * D2R, yaw, HEAD_R + 0.6);
+    if (q.d > 0.15) line(c, (k) => k.moveTo(s1.x, s1.y).lineTo(q.x, q.y).lineTo(s2.x, s2.y), 1.2, 0x1e1a18, 0, false);
   }
 }
 
@@ -323,6 +458,8 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
   }
   if (shape === 'cap') capVisor(c, head!, yaw, true);
   if (shape === 'cap' && head!.variant % 2 === 1) capFeather(c, head!, yaw, true);
+  const bunVisible = b.hairStyle === 'bun' && (!shape || shape === 'circlet');
+  if (bunVisible) drawBun(c, b, yaw, true);
 
   // ── skull
   ball(c, 0, 0, R, RY, b.skin, { hl: 0.2, inset: 0.9, sh: 0.22 });
@@ -332,6 +469,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
     if (q.d < 0.18 || inSilhouette()) continue;
     wash(c, (k) => k.ellipse(q.x, q.y, 2.9 * clamp(q.d * 1.2, 0.3, 1), 1.5), BLUSH, shape === 'helm' || shape === 'helm_horned' ? 0.42 : 0.5);
   }
+  drawBeard(c, b, yaw);
 
   switch (shape) {
     case 'hood': {
@@ -451,6 +589,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
     default:
       drawHairCap(c, b, yaw, false);
   }
+  drawFace(c, b, yaw);
 }
 
 function wizardHat(c: Ctx, l: ItemLook, yaw: number): void {
@@ -826,6 +965,16 @@ export function drawHairTail(c: Ctx, b: Body, head: ItemLook | undefined): boole
   if (b.hairStyle === 'ponytail') {
     blob(c, [2, -1, -6, 0, -12, 9, -11, 23, -7, 28, -5.4, 18, -3, 10, 2.4, 5], b.hair, { hl: 0.2 });
     crease(c, [-4, 4, -8, 14, -7.6, 22], 1, shade(b.hair, 0.35), 0.8);
+    return true;
+  }
+  if (b.hairStyle === 'braid') {
+    // a plait of overlapping lobes, tied off with a band
+    for (let i = 0; i < 6; i++) {
+      const x = -2 - i * 1.6, y = 2 + i * 4.4;
+      blob(c, [x + 3, y - 2.6, x - 0.4, y - 3, x - 3.4, y + 0.4, x - 1, y + 3.4, x + 3, y + 1.4], i % 2 ? shade(b.hair, 0.1) : b.hair, { hl: 0.2, ow: 1.4 });
+    }
+    rbox(c, -14.6, 27, 5, 2.8, 1, OUTFIT[b.cls].band, { ow: 1.2, hl: 0.3 });
+    blob(c, [-13.4, 29.6, -10.4, 29.6, -10, 33, -12, 34.6, -14, 33], b.hair, { ow: 1.2 });
     return true;
   }
   return false;

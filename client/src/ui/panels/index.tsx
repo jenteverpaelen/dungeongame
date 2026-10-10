@@ -23,13 +23,14 @@ import { SocialPanel } from './social';
 import { InspectPanel } from './inspect';
 import {CommunityPanel} from './community';
 import { CollectionPanel } from './collection';
+import { DialoguePanel } from './dialogue';
 import { TipLayer, hideTip, installAltTracking } from './tooltip';
 
 export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHover } from './tooltip';
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue'];
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
@@ -88,6 +89,7 @@ export function PanelsRoot() {
             {panels.social && <SocialPanel />}
             {panels.inspect && <InspectPanel />}
             {panels.community && <CommunityPanel />}
+            {panels.dialogue && <DialoguePanel />}
           </div>
           {panels.debug && <div class="pn-dock top"><DebugPanel /></div>}
         </>

@@ -19,6 +19,10 @@ export interface Body {
   hair: number;
   hairStyle: string;
   eyes: number;
+  /** Townsfolk only (npcLooks.ts): facial hair, its colour and a face accessory. Heroes never set these. */
+  beard?: 'full' | 'braided' | 'moustache' | 'goatee' | 'stubble';
+  beardColor?: number;
+  face?: 'monocle' | 'spectacles' | 'goggles' | 'eyepatch';
 }
 
 export function classBody(cls: ClassId, choice?:HeroAppearance): Body {
@@ -674,6 +678,139 @@ export function drawWeapon(c: Ctx, l: ItemLook, rig = false): void {
       const tip = l.glow ? light(l.glow, 0.15) : light(s, 0.2);
       if (v % 2 === 0) star(c, 0, -17.6, 5, 4.6, 2, tip, 1.6);
       else gem(c, 0, -17, 3.4, tip);
+      break;
+    }
+    // ── townsfolk tools (never generated as items; only npcLooks.ts uses them) ──
+    case 'hammer': {
+      seg(c, 0, 6, 0, -15, 2.6, WOOD);
+      crease(c, [-1.2, 2, 1.2, 1.4], 1, shade(WOOD, 0.4), 1);
+      rbox(c, -7, -22, 14, 7, 1.6, p, { hl: 0.45 });
+      c.roundRect(-7, -22, 3, 7, 1); fill(c, light(p, 0.25));
+      crease(c, [-3.4, -21.4, -3.4, -15.6], 1, OUT, 0.4);
+      break;
+    }
+    case 'tongs': {
+      line(c, (k) => k.moveTo(-1, 4).lineTo(-2.2, -20).lineTo(-0.4, -24), 1.6, p, 1.4);
+      line(c, (k) => k.moveTo(1, 4).lineTo(2.2, -20).lineTo(0.4, -24), 1.6, light(p, 0.15), 1.4);
+      c.circle(0, -6, 1.6); fill(c, s);
+      break;
+    }
+    case 'chalk': {
+      seg(c, 0, 8, 0, -32, 1.8, 0xd8c8a0);
+      for (let y = -28; y < 6; y += 7) crease(c, [-1.6, y, 1.6, y], 1.4, 0x8a4a2a, 1);
+      ball(c, 0, -33, 2, 2, s, { ow: 1.2 });
+      break;
+    }
+    case 'spear': {
+      line(c, (k) => k.moveTo(0, 22).lineTo(0, -38), 2.6, WOOD, OW);
+      poly(c, [-3.2, -38, 0, -50, 3.2, -38, 0, -35.6], p, { ow: 1.8, hl: 0.4 });
+      crease(c, [0, -48, 0, -37], 0.9, shade(p, 0.45), 0.8);
+      blob(c, [-1.8, -35, 1.8, -35, 2.6, -29, 0, -27, -2.6, -29], s, { ow: 1.4 });
+      break;
+    }
+    case 'broom': {
+      line(c, (k) => k.moveTo(0, 14).lineTo(0, -30), 2.2, WOOD, OW);
+      blob(c, [-2.4, 13, 2.4, 13, 6, 26, 0, 28, -6, 26], 0xc9a85e, { hl: 0.2 });
+      for (const x of [-3.4, -1.2, 1.2, 3.4]) crease(c, [x * 0.5, 15, x, 26], 0.9, shade(0xc9a85e, 0.45), 0.8);
+      rbox(c, -2.8, 11.4, 5.6, 3, 1, s, { ow: 1.2 });
+      break;
+    }
+    case 'rod': {
+      line(c, (k) => k.moveTo(0, 10).quadraticCurveTo(1, -22, 7, -46), 1.7, p, 1.4);
+      line(c, (k) => k.moveTo(7, -46).quadraticCurveTo(11, -30, 10, -14), 0.6, 0xe8e2d0, 0, false);
+      ball(c, 10, -13, 1.6, 1.6, 0xd8463a, { ow: 1 });
+      rbox(c, -1.6, 2, 3.2, 6, 1, s, { ow: 1.2 });
+      break;
+    }
+    case 'pole': {
+      line(c, (k) => k.moveTo(0, 24).lineTo(0, -46), 2.4, WOOD, OW);
+      crease(c, [-1.2, -40, 1.2, -40], 1.4, s, 1);
+      crease(c, [-1.2, 18, 1.2, 18], 1.4, s, 1);
+      break;
+    }
+    case 'poker': {
+      line(c, (k) => k.moveTo(0, 18).lineTo(0, -32).quadraticCurveTo(0, -37, 4, -36), 2, p, OW);
+      rbox(c, -2, 12, 4, 7, 1.4, WOOD_DARK, { ow: 1.2 });
+      break;
+    }
+    case 'rake': {
+      line(c, (k) => k.moveTo(0, 22).lineTo(0, -30), 2.2, WOOD, OW);
+      rbox(c, -8, -33, 16, 3.4, 1, p, { ow: 1.4, hl: 0.3 });
+      for (let x = -6.6; x <= 6.6; x += 3.3) seg(c, x, -30, x, -26, 0.9, p, 1, false);
+      break;
+    }
+  }
+}
+
+/** Props townsfolk hold in the left hand (grip at the origin; see player.ts NPC_OFFHAND). */
+export function drawNpcOffhand(c: Ctx, l: ItemLook): void {
+  const p = l.primary, s = trim(l);
+  switch (l.shape) {
+    case 'book': {
+      rbox(c, -6.4, -13, 12.8, 15, 1.6, p, { hl: 0.25 });
+      c.roundRect(4.6, -12, 1.6, 13, 0.4); fill(c, 0xefe6cf);
+      crease(c, [-6, -11, -6, 0.6], 1.4, shade(p, 0.4), 0.9);
+      rbox(c, -2.2, -8, 4.4, 4, 1, s, { ow: 1.1, hl: 0.3 });
+      break;
+    }
+    case 'mug': {
+      line(c, (k) => k.ellipse(5.2, -4.6, 2.6, 3.2), 1.6, shade(p, 0.15), 1.2, false);
+      rbox(c, -4.2, -10, 8.4, 11, 1.8, p, { hl: 0.25 });
+      for (const x of [-1.6, 1.6]) crease(c, [x, -9, x, 0], 1, shade(p, 0.4), 0.7);
+      blob(c, [-4.6, -10, -3, -13, 0, -12, 3, -13.4, 4.6, -10, 0, -9], 0xfff4dc, { ow: 1.2, hl: 0 });
+      break;
+    }
+    case 'lantern': {
+      line(c, (k) => k.moveTo(0, 0).quadraticCurveTo(-3, 2.5, 0, 4.4).quadraticCurveTo(3, 2.5, 0, 0), 1, 0x3a3430, 1, false);
+      poly(c, [-3.6, 5, 3.6, 5, 2.4, 3.4, -2.4, 3.4], p, { ow: 1.2 });
+      rbox(c, -3.8, 5, 7.6, 10, 1.4, 0xffd27a, { hl: 0.4 });
+      crease(c, [0, 5.4, 0, 14.6], 1, s, 1);
+      c.roundRect(-4.4, 14.4, 8.8, 2.2, 0.8); fill(c, p); c.roundRect(-4.4, 14.4, 8.8, 2.2, 0.8); outline(c, 1.2);
+      break;
+    }
+    case 'lute': {
+      line(c, (k) => k.moveTo(0, 1).lineTo(-1, -16), 2.2, WOOD_DARK, 1.4);
+      rbox(c, -3, -20, 4.4, 5, 1, WOOD_DARK, { ow: 1.2 });
+      ball(c, 1.8, 9, 7.4, 8.2, p, { hl: 0.35 });
+      c.circle(1.6, 7.4, 2.2); fill(c, 0x2a1a10);
+      line(c, (k) => k.moveTo(-0.6, -14).lineTo(1.6, 14), 0.6, 0xf2e6c8, 0, false);
+      rbox(c, -1.4, 12.6, 6, 1.8, 0.6, s, { ow: 1 });
+      break;
+    }
+    case 'flag': {
+      line(c, (k) => k.moveTo(0, 6).lineTo(0, -18), 1.6, WOOD, 1.2);
+      poly(c, [0, -18, 11, -14.6, 0, -10.6], p, { ow: 1.4, hl: 0.25 });
+      crease(c, [1, -15, 7, -14.4], 1, s, 0.9);
+      break;
+    }
+    case 'slate': {
+      rbox(c, -7, -12, 14, 13, 1.4, WOOD, { hl: 0.2 });
+      c.roundRect(-5.4, -10.4, 10.8, 9.8, 0.8); fill(c, p);
+      for (let i = 0; i < 4; i++) crease(c, [-4 + i * 1.8, -8.6, -4 + i * 1.8, -4.6], 0.8, 0xeae4d4, 0.9);
+      crease(c, [-4.6, -4.2, 2.2, -8.8], 0.8, 0xeae4d4, 0.9);
+      break;
+    }
+    case 'basket': {
+      line(c, (k) => k.moveTo(-5, 6).quadraticCurveTo(0, -4, 5, 6), 1.6, shade(p, 0.2), 1.2, false);
+      blob(c, [-7, 6, 7, 6, 5.6, 15, -5.6, 15], p, { hl: 0.2 });
+      for (const y of [8.6, 11.6]) crease(c, [-6.4, y, 6.4, y], 0.9, shade(p, 0.4), 0.8);
+      ball(c, -2, 5, 2.2, 2, 0xd8463a, { ow: 1 }); ball(c, 2.2, 4.6, 2, 1.8, 0x8fbf4a, { ow: 1 });
+      break;
+    }
+    case 'gem': {
+      gem(c, 0, -5, 3.6, p);
+      if (!inSilhouette()) spark(c, 3.6, -9, 1.6, light(p, 0.6));
+      break;
+    }
+    case 'tin': {
+      ball(c, 0, -3, 5, 3.2, p, { hl: 0.4 });
+      c.ellipse(0, -4.4, 5, 1.8); fill(c, light(p, 0.2));
+      c.ellipse(0, -4.4, 5, 1.8); outline(c, 1);
+      break;
+    }
+    case 'scroll': {
+      rbox(c, -2.4, -14, 4.8, 14, 1, 0xefe2bf, { hl: 0.2 });
+      for (const y of [-14, 0]) { c.roundRect(-3.4, y - 1.2, 6.8, 2.4, 1); fill(c, s); c.roundRect(-3.4, y - 1.2, 6.8, 2.4, 1); outline(c, 1); }
       break;
     }
   }
