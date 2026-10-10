@@ -91,3 +91,26 @@ Reduced = steady glows, sigil, back pieces, no particles, footprints, flapping o
 ornaments stay: they are the item's art). Budget: particles thin out with the number of full-effect heroes on screen
 (constant total ≈ 8 heroes' worth); per hero ≤ 18 particles + ≤ ~30 effect sprites; ornaments are baked into the hero
 sheet (zero per-frame cost).
+
+## 7. Spectacle pass (lead review 2026-10-11: "rank 7-9 only adds ~60 px around a ~100 px hero")
+Goal: an overloaded veteran must be spottable from across the screen in a busy field, newcomer vs veteran clear from
+afar, not only side by side. Everything still comes from the same profile; budget, toggles and readability rules hold.
+
+| Element | Rank | Rule (world units at the default camera: 1 u = 1.31 px) |
+|---|---|---|
+| Wings | 7 / 8 / Primal | drawn at 1.62 / 1.98 / 2.58× the base wing; always spread (far wing ≥ 0.62); full Sets keep their silhouette when Primal (recoloured crimson). Target span ≥ 2.2× body width at 8, ≥ 2.6× Primal: measured 2.21–2.80 and 2.88–3.67 |
+| Cape / mantle | 6 / 7 | +14 % per rank above 6, flares out behind in profile |
+| Ground sigil | 5–9 | 40 / 52 / 64 / 72 / 82 u diameter (≥ 1.8× the 34 u shadow from rank 7), turning slowly; Primal brighter; Set sockets lit per piece |
+| Light column | 8+ | soft additive column ~140 u (2× hero height) in the rank colour; Primal: wider, embers rising along it |
+| Afterimage ribbon | 7+ | soft band (feet → shoulders) along the last 0.32 s of movement, additive, pooled mesh |
+| Orbiters | 4-pc Set, rings 3+ | Set tokens 14–34 u, ring gems 8–14 u |
+| Weapon swings | Storied+ weapon | additive accent trail ×1.35 (×1.6 Ancient+) brightness, sparks shed from the tip (visual only) |
+| Nameplate | 6+ / 8+ | dark pill + rank/Set coloured glow behind a brighter name; rank 8+ animated crown with a travelling glint, Primal flame licks |
+| Rank-up moment | any rank-up (first time this session) or first full Set | notice "Gear rank: …" / "Set complete: …", procedural chime (gear_rank / gear_rank_big), 1.5 s burst: 3 expanding rings, a column of light, a fountain of the motif, wings flare |
+| Primal drop | loot | its own procedural stinger (`primal`) |
+
+Readability: all ground effects (sigil, column, ribbon, footprints, Primal heartbeat, rank-up rings) live in a scene
+underlay **beneath the telegraph layer**, so enemy warnings always draw on top, and they **dim 45 % while the hero is
+fighting** (attacks, casts, hits; 2.5 s), so in combat the warnings dominate and in town the veteran shows off.
+Known problems fixed in the same pass: two-handed idle rests the weapon at the side (head clear), next-step hints
+read what is worn, shoulder icons show pauldron ornaments, new looks bake within 4 ms per frame (no crowd stall).

@@ -24,9 +24,9 @@ export default async function (api) {
   if (rings[0]) await api.cmd('equip', { itemId: rings[0], slot: 'ring1' });
   if (rings[1]) await api.cmd('equip', { itemId: rings[1], slot: 'ring2' });
   await api.settle(1200);
-  // both walk off the waypoint into the open square (south-east), the newcomer ending beside the veteran
-  await api.walk(1, 0.75, 700);
-  await two.walk(1, 0.55, 560);
+  // both step off the waypoint onto the open cobbles south of it, the newcomer ending beside the veteran
+  await api.walk(0.25, 1, 430);
+  await two.walk(-0.45, 1, 470);
   await api.settle(1800);
   await api.mouseAway();
   await equip("i.kind === 'weapon1h' || i.kind === 'weapon2h'");

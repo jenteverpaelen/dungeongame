@@ -41,6 +41,25 @@ icon (bag, paperdoll, tooltip, merchant, inspect, ground loot) shows the same fr
 **D10 — Character showcase uses the existing preview canvas system.** The class-select preview observer now stays on
 in game (it already destroys previews whose canvas leaves the DOM); a canvas with `data-look` animates any hero look.
 
+**D11 — Bigger is the point (spectacle pass).** Lead review measured too little presence at distance; wing spans of
+2.2–3.7× body width, an 82 u sigil and a 140 u light column were set against that brief, then measured (LOG G6).
+Rollback: the scale constants `wingK` / `backK` (player.ts `backOf`) and `sigilSize` (gearFx.ts).
+
+**D12 — Ground effects beneath telegraphs, dimmed in combat.** A scene underlay below the telegraph layer holds every
+ground effect; while the hero is fighting they drop 45 %. Galleries / previews keep them inside the view.
+
+**D13 — Budgeted GPU bakes for in-game heroes.** 'scene' views bake on the GPU (no readback) within 4 ms per frame and
+show their previous sheet or a class placeholder meanwhile; previews keep canvas sheets (they render elsewhere).
+Trade-off: a crowd of never-seen looks now pops in over seconds instead of stalling for seconds. Rollback: construct
+scene views in 'portable' mode (scene.ts `createView`).
+
+**D14 — Rank-up celebrates the first time per session.** Highest rank and completed Sets are remembered per character
+for the session, so swapping gear back and forth does not replay the moment.
+
+**D15 — Debug `showcase` op.** ENABLE_DEBUG only: puts a gear-ladder stage's items in the bag so evidence characters can
+wear Ancient / Primal / upgraded gear without farming. Not a game rule; disabled on normal servers like every debug op.
+
 **Owner-decision candidates (safe defaults chosen):** tier names (Threadbare … Primal) and the "Next:" hints are
 original placeholders the owner may rename; whether transmog should hide tier (D3); whether other players' effects
-should default to reduced in crowded towns (D8).
+should default to reduced in crowded towns (D8); how big Primal wings may get (D11: ~230 px wide at the default
+camera); whether the rank-up notice should also be announced to the party.
