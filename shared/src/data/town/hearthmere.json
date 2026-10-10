@@ -3327,7 +3327,7 @@
    "x": 3270,
    "y": 2640,
    "radius": 28,
-   "height": 260
+   "height": 190
   },
   {
    "id": "bollard-1",
@@ -3401,6 +3401,31 @@
    "radius": 20,
    "height": 90,
    "variant": 1
+  },
+  {
+   "id": "rift-column-1",
+   "kind": "column",
+   "x": 3200,
+   "y": 2400,
+   "radius": 20,
+   "height": 150
+  },
+  {
+   "id": "rift-column-2",
+   "kind": "column",
+   "x": 3462,
+   "y": 2412,
+   "radius": 20,
+   "height": 96,
+   "variant": 1
+  },
+  {
+   "id": "rift-ruin",
+   "kind": "ruin",
+   "x": 3236,
+   "y": 2522,
+   "radius": 22,
+   "height": 40
   },
   {
    "id": "ruin-block",
@@ -3830,12 +3855,12 @@
    "id": "rift",
    "name": "Rift Obelisk",
    "role": "obelisk",
-   "x": 4445,
-   "y": 1760,
+   "x": 3330,
+   "y": 2430,
    "r": 18,
    "approach": [
-    4445,
-    1850
+    3330,
+    2350
    ],
    "interactionRadius": 118,
    "idle": "breathe",
@@ -4199,6 +4224,23 @@
    ]
   },
   {
+   "label": "To the obelisk",
+   "points": [
+    [
+     3020,
+     2140
+    ],
+    [
+     3100,
+     2330
+    ],
+    [
+     3330,
+     2350
+    ]
+   ]
+  },
+  {
    "label": "To the beacon",
    "points": [
     [
@@ -4476,8 +4518,8 @@
   {
    "id": "obelisk-glow",
    "position": [
-    4445,
-    1765
+    3330,
+    2435
    ],
    "color": 13658879,
    "radius": 220,
@@ -5450,7 +5492,25 @@
    "y": 1760
   },
   {
-   "id": "parapet-36",
+   "id": "flowers-36",
+   "kind": "flowers",
+   "x": 4420,
+   "y": 1720
+  },
+  {
+   "id": "rubble-37",
+   "kind": "rubble",
+   "x": 3410,
+   "y": 2510
+  },
+  {
+   "id": "rubble-38",
+   "kind": "rubble",
+   "x": 3250,
+   "y": 2350
+  },
+  {
+   "id": "parapet-39",
    "kind": "parapet",
    "x": 1702,
    "y": 1954,
@@ -5460,7 +5520,7 @@
    ]
   },
   {
-   "id": "parapet-37",
+   "id": "parapet-40",
    "kind": "parapet",
    "x": 1702,
    "y": 2068,
@@ -5470,266 +5530,266 @@
    ]
   },
   {
-   "id": "oak-edge-38",
+   "id": "oak-edge-41",
    "kind": "oak",
    "x": 1247.5,
    "y": 1690.7,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-39",
+   "id": "oak-edge-42",
    "kind": "pine",
    "x": 1261.6,
    "y": 1798.7,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-40",
+   "id": "oak-edge-43",
    "kind": "oak",
    "x": 1251.2,
    "y": 1888.5,
    "scale": 1
   },
   {
-   "id": "oak-edge-41",
+   "id": "oak-edge-44",
    "kind": "oak",
    "x": 1238.6,
    "y": 1976.7,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-42",
+   "id": "oak-edge-45",
    "kind": "oak",
    "x": 1246,
    "y": 2079.8,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-43",
+   "id": "oak-edge-46",
    "kind": "oak",
    "x": 1231.8,
    "y": 2166.7,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-44",
+   "id": "oak-edge-47",
    "kind": "oak",
    "x": 1222,
    "y": 2226.5,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-45",
+   "id": "oak-edge-48",
    "kind": "pine",
    "x": 1350.1,
    "y": 2255.5,
    "scale": 1.2
   },
   {
-   "id": "oak-edge-46",
+   "id": "oak-edge-49",
    "kind": "oak",
    "x": 1423,
    "y": 2243.1,
    "scale": 1
   },
   {
-   "id": "oak-edge-47",
+   "id": "oak-edge-50",
    "kind": "oak",
    "x": 1525.2,
    "y": 2252.7,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-48",
+   "id": "oak-edge-51",
    "kind": "oak",
    "x": 1613.8,
    "y": 2252.2,
    "scale": 1
   },
   {
-   "id": "pine-edge-49",
+   "id": "pine-edge-52",
    "kind": "pine",
    "x": 1280.5,
    "y": 1645.4,
    "scale": 0.9
   },
   {
-   "id": "pine-edge-50",
+   "id": "pine-edge-53",
    "kind": "pine",
    "x": 1390.3,
    "y": 1666.2,
    "scale": 1.1
   },
   {
-   "id": "pine-edge-51",
+   "id": "pine-edge-54",
    "kind": "pine",
    "x": 1458.9,
    "y": 1656.1,
    "scale": 0.9
   },
   {
-   "id": "pine-edge-52",
+   "id": "pine-edge-55",
    "kind": "pine",
    "x": 1550.7,
    "y": 1663.4,
    "scale": 1
   },
   {
-   "id": "pine-edge-53",
+   "id": "pine-edge-56",
    "kind": "pine",
    "x": 1641.1,
    "y": 1669.6,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-54",
+   "id": "oak-edge-57",
    "kind": "pine",
    "x": 4608.7,
    "y": 2116.5,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-55",
+   "id": "oak-edge-58",
    "kind": "oak",
    "x": 4599.5,
    "y": 2199.6,
    "scale": 1
   },
   {
-   "id": "oak-edge-56",
+   "id": "oak-edge-59",
    "kind": "oak",
    "x": 4583.3,
    "y": 2277.5,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-57",
+   "id": "oak-edge-60",
    "kind": "oak",
    "x": 4593.3,
    "y": 2375,
    "scale": 1
   },
   {
-   "id": "oak-edge-58",
+   "id": "oak-edge-61",
    "kind": "oak",
    "x": 4583.5,
    "y": 2457.6,
    "scale": 0.9
   },
   {
-   "id": "oak-edge-59",
+   "id": "oak-edge-62",
    "kind": "oak",
    "x": 4580.9,
    "y": 2545.7,
    "scale": 0.9
   },
   {
-   "id": "pine-edge-60",
+   "id": "pine-edge-63",
    "kind": "pine",
    "x": 4614.5,
    "y": 1643.4,
    "scale": 1.1
   },
   {
-   "id": "pine-edge-61",
+   "id": "pine-edge-64",
    "kind": "pine",
    "x": 4616.9,
    "y": 1737.7,
    "scale": 1.2
   },
   {
-   "id": "pine-edge-62",
+   "id": "pine-edge-65",
    "kind": "pine",
    "x": 4608.6,
    "y": 1824,
    "scale": 1.1
   },
   {
-   "id": "pine-edge-63",
+   "id": "pine-edge-66",
    "kind": "pine",
    "x": 4596.6,
    "y": 1897.4,
    "scale": 1
   },
   {
-   "id": "pine-edge-64",
+   "id": "pine-edge-67",
    "kind": "pine",
    "x": 4685.8,
    "y": 1896.8,
    "scale": 1
   },
   {
-   "id": "pine-edge-65",
+   "id": "pine-edge-68",
    "kind": "pine",
    "x": 4777.9,
    "y": 1898.4,
    "scale": 1
   },
   {
-   "id": "pine-edge-66",
+   "id": "pine-edge-69",
    "kind": "pine",
    "x": 4867.8,
    "y": 1898.3,
    "scale": 1
   },
   {
-   "id": "pine-edge-67",
+   "id": "pine-edge-70",
    "kind": "pine",
    "x": 4941.8,
    "y": 1886.4,
    "scale": 0.9
   },
   {
-   "id": "pine-edge-68",
+   "id": "pine-edge-71",
    "kind": "pine",
    "x": 5009.9,
    "y": 1914.9,
    "scale": 1.2
   },
   {
-   "id": "pine-edge-69",
+   "id": "pine-edge-72",
    "kind": "pine",
    "x": 5069.1,
    "y": 1908.5,
    "scale": 1
   },
   {
-   "id": "oak-edge-70",
+   "id": "oak-edge-73",
    "kind": "pine",
    "x": 4635.6,
    "y": 2131.7,
    "scale": 1.2
   },
   {
-   "id": "oak-edge-71",
+   "id": "oak-edge-74",
    "kind": "oak",
    "x": 4718.1,
    "y": 2122.3,
    "scale": 1.1
   },
   {
-   "id": "oak-edge-72",
+   "id": "oak-edge-75",
    "kind": "pine",
    "x": 4826.8,
    "y": 2132.6,
    "scale": 1.2
   },
   {
-   "id": "oak-edge-73",
+   "id": "oak-edge-76",
    "kind": "oak",
    "x": 4904.8,
    "y": 2119.9,
    "scale": 1
   },
   {
-   "id": "oak-edge-74",
+   "id": "oak-edge-77",
    "kind": "pine",
    "x": 5010.2,
    "y": 2127.6,
    "scale": 1.2
   },
   {
-   "id": "oak-edge-75",
+   "id": "oak-edge-78",
    "kind": "pine",
    "x": 5098.5,
    "y": 2107.2,
@@ -6146,6 +6206,100 @@
     ]
    ],
    "width": 96
+  },
+  {
+   "id": "rift-circle",
+   "kind": "flag",
+   "polygon": [
+    [
+     3190,
+     2440
+    ],
+    [
+     3195.7,
+     2468.2
+    ],
+    [
+     3212.2,
+     2494.1
+    ],
+    [
+     3238.3,
+     2515.6
+    ],
+    [
+     3271.8,
+     2531
+    ],
+    [
+     3310.1,
+     2539
+    ],
+    [
+     3349.9,
+     2539
+    ],
+    [
+     3388.2,
+     2531
+    ],
+    [
+     3421.7,
+     2515.6
+    ],
+    [
+     3447.8,
+     2494.1
+    ],
+    [
+     3464.3,
+     2468.2
+    ],
+    [
+     3470,
+     2440
+    ],
+    [
+     3464.3,
+     2411.8
+    ],
+    [
+     3447.8,
+     2385.9
+    ],
+    [
+     3421.7,
+     2364.4
+    ],
+    [
+     3388.2,
+     2349
+    ],
+    [
+     3349.9,
+     2341
+    ],
+    [
+     3310.1,
+     2341
+    ],
+    [
+     3271.8,
+     2349
+    ],
+    [
+     3238.3,
+     2364.4
+    ],
+    [
+     3212.2,
+     2385.9
+    ],
+    [
+     3195.7,
+     2411.8
+    ]
+   ]
   },
   {
    "id": "track-beacon",

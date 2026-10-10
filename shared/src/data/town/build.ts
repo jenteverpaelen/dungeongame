@@ -166,7 +166,8 @@ const npcs: TownData['npcs'] = [
   { id: 'jeweler', name: 'Jeweler', role: 'jeweler', x: 4100, y: 1915, r: 16, approach: pt(4100, 1990), interactionRadius: 106, idle: 'polish', look: 'jeweler', bark: 'Every stone has a flaw.' },
   { id: 'mystic', name: 'Mystic', role: 'mystic', x: 3480, y: 1885, r: 16, approach: pt(3480, 1960), interactionRadius: 106, idle: 'weave', look: 'mystic', bark: 'The past is a draft.' },
   { id: 'cube', name: "The Ancients' Cube", role: 'cube', x: 2790, y: 1890, r: 28, approach: pt(2790, 1975), interactionRadius: 118, idle: 'breathe', bark: 'It hums when it is hungry.' },
-  { id: 'rift', name: 'Rift Obelisk', role: 'obelisk', x: 4445, y: 1760, r: 18, approach: pt(4445, 1850), interactionRadius: 118, idle: 'breathe', bark: 'The stone listens.' },
+  // Beside the square (≈420 u from the Waypoint): the rift loop starts here and a new portal is in view of the square.
+  { id: 'rift', name: 'Rift Obelisk', role: 'obelisk', x: 3330, y: 2430, r: 18, approach: pt(3330, 2350), interactionRadius: 118, idle: 'breathe', bark: 'The stone listens.' },
   { id: 'paragon', name: 'Paragon shrine', role: 'paragon', x: 1480, y: 1860, r: 22, approach: pt(1540, 1930), interactionRadius: 112, idle: 'breathe', bark: 'A quiet place, for loud deeds.' },
   { id: 'dummy-0', name: 'Training Dummy', role: 'dummy', x: 3990, y: 2430, r: 20, approach: pt(3990, 2520), interactionRadius: 0, idle: 'breathe' },
   { id: 'dummy-1', name: 'Training Dummy', role: 'dummy', x: 4110, y: 2400, r: 20, approach: pt(4110, 2500), interactionRadius: 0, idle: 'breathe' },
@@ -198,12 +199,15 @@ prop('jewel-table', 'counter', 4050, 1895, 18, { height: 34 });
 prop('mystic-table', 'crystal-table', 3540, 1890, 16, { height: 34 });
 prop('stash-crates', 'crates', 2945, 1872, 20, { height: 40 });
 prop('cart', 'cart', 3330, 2240, 30, { height: 52 });
-prop('crane', 'crane', 3270, 2640, 28, { height: 260 });
+prop('crane', 'crane', 3270, 2640, 28, { height: 190 });
 prop('bollard-1', 'bollard', 2940, 2680, 9, { height: 26 }); prop('bollard-2', 'bollard', 3090, 2680, 9, { height: 26 });
 prop('harbour-barrels', 'barrels', 3180, 2600, 24, { height: 40 }); prop('harbour-crates', 'crates', 2860, 2620, 24, { height: 44 });
 prop('netrack-1', 'netrack', 2050, 2620, 20, { height: 70 }); prop('netrack-2', 'netrack', 2210, 2630, 20, { height: 70 });
 prop('rack-yard', 'rack', 4280, 2330, 16, { height: 62 });
 prop('column-1', 'column', 4375, 1690, 20, { height: 150 }); prop('column-2', 'column', 4520, 1700, 20, { height: 90, variant: 1 });
+// the obelisk's ring of broken columns on the lawn south-east of the square
+prop('rift-column-1', 'column', 3200, 2400, 20, { height: 150 }); prop('rift-column-2', 'column', 3462, 2412, 20, { height: 96, variant: 1 });
+prop('rift-ruin', 'ruin', 3236, 2522, 22, { height: 40 });
 prop('ruin-block', 'ruin', 4500, 1800, 22, { height: 40 });
 prop('brazier-gate-n', 'brazier', 4500, 1915, 14, { height: 46 }); prop('brazier-gate-s', 'brazier', 4500, 2105, 14, { height: 46 });
 prop('shrine-lantern-1', 'stone-lantern', 1400, 1810, 12, { height: 56 }); prop('shrine-lantern-2', 'stone-lantern', 1580, 1800, 12, { height: 56 });
@@ -248,6 +252,7 @@ const ground: TownGround[] = [
   { id: 'track-boathouse', kind: 'dirt', path: [pt(2560, 2100), pt(2480, 2260), pt(2440, 2570)], width: 84 },
   { id: 'track-cottage', kind: 'dirt', path: [pt(3480, 2100), pt(3570, 2260), pt(3605, 2460)], width: 66 },
   { id: 'track-yard', kind: 'dirt', path: [pt(3780, 2100), pt(3940, 2210), pt(4060, 2300)], width: 96 },
+  { id: 'rift-circle', kind: 'flag', polygon: ring(3330, 2440, 140, 22, 100) },
   { id: 'track-beacon', kind: 'dirt', path: [pt(3760, 2120), pt(3820, 2260), pt(3840, 2600), pt(4200, 2620)], width: 70 },
   { id: 'quay-walk', kind: 'dirt', path: [pt(1890, 2604), pt(4560, 2604)], width: 46 },
   { id: 'quay-stone', kind: 'flag', polygon: [pt(1890, 2622), pt(4560, 2622), pt(4560, 2706), pt(1890, 2706)] },
@@ -292,7 +297,7 @@ d('nets', 2130, 2670); d('nets', 3340, 2690); d('anchor', 3110, 2660);
 d('flowers', 2480, 1878); d('flowers', 2590, 1880); d('flowers', 4045, 1866);
 d('flowers', 1420, 1950); d('flowers', 1540, 1960); d('flowers', 3560, 2475); d('flowers', 3660, 2480); d('pond', 1420, 2060);
 d('cat', 2350, 1950); d('dog', 3470, 2600); d('mushrooms', 1310, 2080); d('stump', 1660, 1720);
-d('steps', 4445, 1872); d('rubble', 4400, 1830); d('rubble', 4530, 1760);
+d('steps', 4445, 1872); d('rubble', 4400, 1830); d('rubble', 4530, 1760); d('flowers', 4420, 1720); d('rubble', 3410, 2510); d('rubble', 3250, 2350);
 // low parapets along the canal bridge (visual; the bridge floor edge is the collision boundary)
 d('parapet', 1702, 1954, { to: pt(1886, 1954) }); d('parapet', 1702, 2068, { to: pt(1886, 2068) });
 
@@ -348,7 +353,7 @@ const lights: TownData['lights'] = [
   { id: 'mystic-lamp', position: pt(3480, 1890), color: 0xb98cff, radius: 220, flicker: 0.08 },
   { id: 'cube-glow', position: pt(2790, 1890), color: 0x6fe8dc, radius: 200, flicker: 0.04 },
   { id: 'waypoint-glow', position: pt(3020, 2050), color: 0x7fc4ff, radius: 260, flicker: 0.03 },
-  { id: 'obelisk-glow', position: pt(4445, 1765), color: 0xd06aff, radius: 220, flicker: 0.05 },
+  { id: 'obelisk-glow', position: pt(3330, 2435), color: 0xd06aff, radius: 220, flicker: 0.05 },
   { id: 'jeweler-window', position: pt(4050, 1880), color: 0x9ff0e0, radius: 150, flicker: 0.03 },
   { id: 'vault-lamps', position: pt(3115, 1880), color: WARM, radius: 220, flicker: 0.05 },
   { id: 'gate-n', position: pt(4500, 1915), color: 0xff9a4a, radius: 200, flicker: 0.13 },
@@ -391,6 +396,7 @@ const routes: TownData['routes'] = [
   { label: 'To the pier', points: [pt(3020, 2140), pt(3015, 2600), pt(3015, 3200)] },
   { label: 'To the yard', points: [pt(3760, 2030), pt(3990, 2220), pt(4110, 2500)] },
   { label: 'To the terrace', points: [pt(4445, 2000), pt(4445, 1850)] },
+  { label: 'To the obelisk', points: [pt(3020, 2140), pt(3100, 2330), pt(3330, 2350)] },
   { label: 'To the beacon', points: [pt(3760, 2030), pt(3820, 2250), pt(3840, 2625), pt(4200, 2630), pt(4320, 2980)] },
   { label: 'Into the inn', points: [pt(2138, 1990), pt(2138, 1930), pt(2138, 1790), pt(2200, 1720)] },
 ];

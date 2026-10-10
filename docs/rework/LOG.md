@@ -43,3 +43,11 @@
   **Perf, 100 simulated heroes walking the square, visible tab, 1920×1080:** old town 86 fps still / 79 fps panning
   (p95 17.5 / 18.1 ms, worst 26.7 / 35.1 ms) → new town 88 / 83 fps (p95 16.5 / 18.5 ms, worst 25.7 / 50.3 ms; the worst
   pan frame is a visible chunk finished synchronously during a pan far faster than walking). Same machine, same path.
+- **R6 — final checks.** `npm run test:server` found two regressions against the old town (old data: 755 pass / 1 known
+  Windows shutdown-probe failure): (1) "rift portal spawned near the obelisk" — the NE Obelisk put new portals outside the
+  interest box (AOI ±1150×760) of a player at the square; **moved the Obelisk beside the square** (≈420 u from the
+  Waypoint, flagstone circle with broken columns; the NE terrace stays as a ruined overlook), which also shortens the rift
+  loop; (2) an EPERM "[persist] failed to save" log line — Windows refuses to rename a temp save over a file another
+  process is reading (here the test; in the wild antivirus/backup tools); `JsonCharacterStore.write` now retries that
+  rename up to 7 times (15 ms → 1.9 s total, Windows only, same atomic temp+rename). Result: 755 pass / 1 known failure,
+  identical to baseline. Gate towers rebuilt in stone; harbour crane lowered so it no longer crosses the Obelisk.

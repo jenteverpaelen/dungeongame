@@ -58,10 +58,10 @@ idle fade, pickup feed above it · interact prompt above the skill bar · contex
 
 ```
  N  ░░░░░░░░░░░░░░ wooded escarpment: rock face + forest, painted behind every house ░░░░░░░░░░░░░░░░░░░░░░░
- woods [Inn: Banked Ember][cottage][Cube rotunda][Stash vault][stall][Mystic tower][Forge][Jeweler][cottage] [Obelisk terrace]
+ woods [Inn: Banked Ember][cottage][Cube rotunda][Stash vault][stall][Mystic tower][Forge][Jeweler][cottage] [ruined overlook]
   ≈≈  terrace, bard, keeper   glass dome    key plaque   oil     leaning, runes  open hearth  awning     columns, steps
  [Grove:  ≈ bridge ═══ LANTERN ROW (cobbles, lamps, string lights) ══ ( SQUARE: Waypoint, oak, well ) ════ [GATE]→ Ashen Hollow
- Paragon  ≈ (canal)   [Mill + waterwheel]  [Boathouse] [fish stall]   lawns + dirt tracks   [cottage]  [Training yard ×3]
+ Paragon  ≈ (canal)   [Mill + waterwheel]  [Boathouse] [fish stall] [Rift Obelisk circle] [cottage] [Training yard ×3]
  shrine]  ≈            QUAY: stone wall, curb, crates, crane, nets ══╦══ pier, boats ═══════ breakwater → [HEARTHLIGHT]
  ← Glade  ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ lake: swells, glints, foam, mist, gulls, the beacon's sweeping beam ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 ```
