@@ -13,3 +13,5 @@ Do not call P8 complete from the stock feature. P7 implementation inventory is i
 C093 closes steps2 and the bounded per-character dashboard portion of3. See CURRENCY-MAP.md/HISTORY-REPORT.md. Step4 durable transaction safeguards and step5 wider distributions/acceptance remain. No phase completion claim.
 
 C094 completes the selected production transaction boundary for one authoritative server process (TRANSACTION-REPORT.md); broader power-loss/backup-rewind/independent review remains explicit. C095 follows L115/D053: allow savings, model earning/spending and exploit loops without inventing human gold/hour. Continue the roadmap after this implementation report; owner handles full playtesting later.
+
+C095 completes step5 reproducible distributions/report and selected implementation scope; see CHAPTER-REPORT.md. No runtime rate/price change. Human active band/soak/independent acceptance remains open under the owner’s deferred-playtest direction. Continue P9.

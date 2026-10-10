@@ -1,0 +1,23 @@
+{
+  "checkpoint": "C095",
+  "checkedAtUtc": "2026-10-10T00:54:16.7502362Z",
+  "scope": "Documentation integrity only; no game/server runtime tests",
+  "sources": 188,
+  "claims": 184,
+  "media": 30,
+  "atlasEntries": 71,
+  "recordings": 7,
+  "frames": 152,
+  "allCrossReferencesResolve": true,
+  "timestampsStrictlyIncreasing": true,
+  "balanceAndTimingEligibility": false,
+  "roadmapBlob": "b20bc7acef78c12582a8f5cf822665cf78ca7353",
+  "ledger": {
+    "features": 147,
+    "screens": 86,
+    "decisions": 40
+  },
+  "isolatedDataDir": "hf-c095-economy-docs-0e0557e968424bcdad2bfc7bac5c218e",
+  "gameCodeImported": false,
+  "saveDataRead": false
+}
