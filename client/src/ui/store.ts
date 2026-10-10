@@ -120,12 +120,15 @@ function shallowEqual(a: unknown, b: unknown): boolean {
 let seq = 1;
 export const nextId = () => seq++;
 
-export function togglePanel(id: PanelId, open?: boolean) {
+/** First-open guidance for a panel during onboarding (shown as a card inside the panel, never as a screen banner). */
+export function panelIntro(id: PanelId): string | null {
   const current=ui.get();
-  if((open??!current.panels[id])&&!introduced(current.char,id)) {
-    const key=id==='inventory'||id==='character'?'intro.faq.loot.body':id==='skills'?'intro.faq.points.body':id==='adventure'?'intro.faq.map.body':undefined;
-    if(key)pushNotice(text(key),'info');
-  }
+  if(introduced(current.char,id))return null;
+  const key=id==='inventory'||id==='character'?'intro.faq.loot.body':id==='skills'?'intro.faq.points.body':id==='adventure'?'intro.faq.map.body':undefined;
+  return key?text(key):null;
+}
+
+export function togglePanel(id: PanelId, open?: boolean) {
   ui.set((s) => ({ panels: { ...s.panels, [id]: open ?? !s.panels[id] } }));
 }
 

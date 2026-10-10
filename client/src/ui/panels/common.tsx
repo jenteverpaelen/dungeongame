@@ -6,7 +6,7 @@ import { useState } from 'preact/hooks';
 import { fmtInt } from '@shared/format';
 import type { Cost } from '@shared/cube';
 import type { CharacterSave, Materials, MaterialId } from '@shared/types';
-import { togglePanel, type PanelId } from '../store';
+import { panelIntro, togglePanel, useUI, type PanelId } from '../store';
 import { GoldIcon, IconCheck, IconClose, MatIcon, MATERIAL_INFO, MATERIAL_ORDER } from './icons';
 import { hideTip, textTipHandlers } from './tooltip';
 import { cls } from './util';
@@ -52,6 +52,9 @@ export function PanelFrame(p: {
   const action = PANEL_KEY[p.id];
   const key = useLocal(bindings, () => (action ? bindings.label(action) : ''));
   const iconName = PANEL_ICON[p.id];
+  useUI((s) => s.char);
+  const intro = panelIntro(p.id);
+  const [hideIntro, setHideIntro] = useState(false);
   return (
     <section class={cls('pn frame interactive', `pn-${p.id}`, p.class)} style={p.width ? { width: p.width } : undefined} data-panel={p.id} role="dialog" aria-label={p.title} onPointerDown={hideTip} onContextMenu={(e) => e.preventDefault()}>
       <header class="pn-head">
@@ -65,7 +68,10 @@ export function PanelFrame(p: {
           <IconClose size={12} />
         </button>
       </header>
-      <div class="pn-body">{p.children}</div>
+      <div class="pn-body">
+        {intro && !hideIntro && <div class="pn-intro" role="note"><UiIcon name="help" size={16} /><p>{intro}</p><button class="btn sm quiet" onClick={() => setHideIntro(true)}>Got it</button></div>}
+        {p.children}
+      </div>
       {p.footer && <footer class="pn-foot">{p.footer}</footer>}
     </section>
   );

@@ -20,7 +20,7 @@ function NoticeBanner({ n, age }: { n: Notice; age: number }) {
   const paragon = n.kind === 'level' && /paragon/i.test(n.text);
   const legendaryText = n.kind === 'legendary' && !/^legendary/i.test(n.text);
   return (
-    <div class={`notice notice-${n.kind}${paragon ? ' paragon' : ''}`} style={{ '--age': age }}>
+    <div class={`notice notice-${n.kind}${paragon ? ' paragon' : ''}${n.text.length > 56 ? ' notice-long' : ''}`} style={{ '--age': age }}>
       {n.kind === 'level' && <i class="notice-burst" />}
       <div class="notice-body">
         <span class="notice-wing l" />

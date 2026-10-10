@@ -24,3 +24,12 @@
   Name plates: name + role line + role glyph. **Dialogue window** (lead request): E on a quest contact opens portrait,
   conversation topics, quest offers/turn-ins/objective actions, merchant and journal links (verified with Orren).
   **Barks**: `render/barks.ts` speech bubbles (cooldowns, max two ambient); the service `bark` banner is gone.
+- **R3 — new Hearthmere.** Authored source `shared/src/data/town/build.ts` → `hearthmere.json` (validator green: every
+  service reachable, 8 swept routes, doorway clear; stable ids kept). Layout per `DESIGN.md` §4: escarpment north, lake
+  south, canal + stone bridge west, gate east; every facade faces the camera; services stand in front of their houses.
+  Renderer: painted ground chunks (`townGround.ts`), kit-painted houses with tile courses, round towers, glass dome,
+  lighthouse and inn cutaway (`townHouses.ts`), scenery/fences/trees/boats/waterwheel (`townScenery.ts`), residents and
+  ambient life (`townLife.ts`). Walk-behind ghosting for houses and tall scenery. Solid-looking furniture is collision.
+  Measured: chunk bake 80 → ~10 ms after bounds-limited regions; baking time-sliced (worst slice 6–11 ms); FPS 130–160
+  standing, 124 during a fast full-town pan (visible tab). Bug found and fixed: flagstone rows never reached y > 0.
+  Old-layout tests updated deliberately (gap check, inn depth, furniture ids, edge sampling density).

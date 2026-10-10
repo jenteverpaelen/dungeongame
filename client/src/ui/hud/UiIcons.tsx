@@ -5,12 +5,33 @@ import type { JSX } from 'preact';
 export type UiIconName =
   | 'bag' | 'skills' | 'character' | 'journal' | 'map' | 'social' | 'party' | 'settings' | 'paragon' | 'cube' | 'stash'
   | 'collection' | 'waypoint' | 'obelisk' | 'merchant' | 'inspect' | 'hourglass' | 'shield' | 'wrench' | 'help'
-  | 'pin' | 'pinOff' | 'quest' | 'turnin' | 'anvil' | 'gem' | 'eye' | 'chat' | 'star' | 'scroll';
+  | 'pin' | 'pinOff' | 'quest' | 'turnin' | 'anvil' | 'gem' | 'eye' | 'chat' | 'star' | 'scroll'
+  | 'lock' | 'gate' | 'house' | 'field';
 
 const INK = '#120b06';
 
 /** Shapes: `f` = filled silhouette (outlined), `d` = dark detail strokes drawn on top, `l` = light detail strokes. */
 const ICONS: Record<UiIconName, { f: string[]; d?: string[]; l?: string[] }> = {
+  lock: {
+    f: ['M6 10.6h12a1.4 1.4 0 0 1 1.4 1.4v7.6a1.4 1.4 0 0 1-1.4 1.4H6a1.4 1.4 0 0 1-1.4-1.4V12A1.4 1.4 0 0 1 6 10.6z'],
+    d: ['M8.4 10.6V8a3.6 3.6 0 0 1 7.2 0v2.6', 'M12 14.2v3'],
+    l: ['M6.6 12.6v5.4'],
+  },
+  gate: {
+    f: ['M4 21V9.4L12 3l8 6.4V21h-5.2v-6a2.8 2.8 0 0 0-5.6 0v6z'],
+    d: ['M4 9.4h16', 'M7.4 12.4v2.4M16.6 12.4v2.4'],
+    l: ['M6 10.8v7.6'],
+  },
+  house: {
+    f: ['M3.2 11.4L12 4l8.8 7.4h-2.4V20H5.6v-8.6z'],
+    d: ['M10 20v-5h4v5', 'M15.6 6.6V4.4h2v3.9'],
+    l: ['M7.2 12.4v5.6'],
+  },
+  field: {
+    f: ['M2.6 19.4l5.6-9.2 3.4 4.8 3.2-6.6 6.6 11z'],
+    d: ['M8.2 10.2l1.6 2.6', 'M14.8 8.4l1.8 3.4'],
+    l: ['M5.2 17.4l2.6-4.2'],
+  },
   bag: {
     f: ['M7.2 8.6h9.6l2.6 9.1a3.4 3.4 0 0 1-3.3 4.3H7.9a3.4 3.4 0 0 1-3.3-4.3z', 'M7 6.6h10v2.6H7z'],
     d: ['M9 6.6c0-2.4 1.3-3.6 3-3.6s3 1.2 3 3.6', 'M8.5 13.5h7'],

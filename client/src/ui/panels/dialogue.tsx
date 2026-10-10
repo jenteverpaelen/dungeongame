@@ -16,7 +16,7 @@ import type { CharacterSave } from '@shared/types';
 import { togglePanel, ui } from '../store';
 import { npcPortrait } from '../../render/portrait';
 import { PanelFrame } from './common';
-import { openJournal } from './adventure';
+import { FieldEventBlock, openJournal } from './adventure';
 import { useU } from './state';
 import { cls, run } from './util';
 import { UiIcon } from '../hud/UiIcons';
@@ -110,6 +110,7 @@ export function DialoguePanel() {
       {rows.length > 0 && <section class="dlg-quests" aria-label="Quests"><header class="card-h"><span>Quests</span><em>{rows.length === 1 ? 'One matter to discuss' : `${rows.length} matters to discuss`}</em></header>
         {rows.slice(0, 3).map((r) => <QuestAction key={r.q.id} save={save} row={r} target={d.target} present={present} />)}
       </section>}
+      <FieldEventBlock zone={d.zone} target={d.target} present={present} />
       {merchant && <div class="dlg-extra"><button class="btn" disabled={!present} onClick={() => togglePanel('merchant', true)}><UiIcon name="merchant" size={16} /> Trade gear with {merchant.name}</button></div>}
     </PanelFrame>
   );

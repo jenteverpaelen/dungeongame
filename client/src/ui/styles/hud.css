@@ -1253,3 +1253,8 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 .qt-area { color: #9fc4e6; }
 .qt-card.dungeon .qt-head .ui-ic { color: #c8a8ff; }
 .qt-run { align-self: flex-end; }
+
+/* Long notices (sentences, server errors) wrap in sentence case instead of overflowing as a one-line banner. */
+.notice-long .notice-text { white-space: normal; max-width: min(640px, 60vw); text-transform: none; letter-spacing: 0.01em; font-family: var(--font-body); }
+.notice-long .notice-text span { font-size: max(15px, calc(var(--u) * 18)) !important; line-height: 1.35; }
+.notice-long .notice-wing { width: calc(var(--u) * 48); }
