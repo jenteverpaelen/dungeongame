@@ -6,7 +6,9 @@ import { GUIDANCE_MESSAGES } from './guidanceMessages';
 import { AUTO_RULE_MESSAGES } from './autoRuleMessages';
 import { ONBOARDING_MESSAGES } from './onboardingMessages';
 import { JOURNAL_MESSAGES } from './journalMessages';
+import { GEAR_MESSAGES } from './gearMessages';
 export const ENGLISH = {
+  ...GEAR_MESSAGES,
   ...ONBOARDING_MESSAGES,
   ...JOURNAL_MESSAGES,
   ...AUTO_RULE_MESSAGES,

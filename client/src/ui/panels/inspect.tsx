@@ -7,6 +7,8 @@ import {ui,useUI,togglePanel} from '../store';
 import {PanelFrame} from './common';
 import {ItemCard,ItemVisual} from './tooltip';
 import {SLOT_LABEL} from './util';
+import {GearShowcaseLook} from './character';
+import {lookFromEquipment} from '@shared/gearVisual';
 
 export function openInspection(name:string){ui.set({inspectionName:name});togglePanel('inspect',true);}
 export function InspectPanel(){
@@ -17,6 +19,7 @@ export function InspectPanel(){
   return <PanelFrame id="inspect" title="Inspect equipment" width={960} sub={profile?`${profile.name} · Level ${profile.level} ${CLASSES[profile.classId].name}`:'Shared equipped items'}>
     <form class="party-invite" onSubmit={e=>{e.preventDefault();void load(name);}}><label>Online character name<input maxLength={16} value={name} onInput={e=>setName(e.currentTarget.value)}/></label><button class="btn" disabled={busy||!name.trim()}>Inspect</button></form>
     {error&&<p role="status">{error}</p>}{busy&&<p>Checking shared equipment…</p>}
+    {profile&&<GearShowcaseLook look={lookFromEquipment(profile.classId,profile.equipment)} local={false}/>}
     {profile&&<div class="inspection-body"><div class="inspection-slots">{SLOTS.map(s=><button class={`inspection-slot${slot===s?' selected':''}`} onClick={()=>setSlot(s)}><span>{profile.equipment[s]?<ItemVisual item={profile.equipment[s]!} size={30}/>:null}</span><span><strong>{SLOT_LABEL[s]}</strong><span>{profile.equipment[s]?.name??'Empty'}</span></span></button>)}</div><div class="inspection-item">{item?<ItemCard item={item} char={null} alt={false} tag="Shared equipment"/>:<p>This slot is empty.</p>}</div></div>}
     <p class="pn-note">This is an online equipment snapshot. Refresh to see changes. Inspection follows the other player's privacy setting and grants no item access or control.</p>
   </PanelFrame>;

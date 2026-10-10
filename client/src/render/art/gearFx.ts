@@ -95,6 +95,12 @@ function tok(): Tokens {
   return tokens;
 }
 
+/** Ground sigil textures for other systems (loot beams): runic ring, Set ring, Primal ring. */
+export function gearSigilTexture(kind: 'rune' | 'set' | 'primal'): Texture {
+  const T = tok();
+  return kind === 'primal' ? T.sigilPrimal : kind === 'set' ? T.sigilSet : T.sigil;
+}
+
 // ─────────────────────────── shared budget ───────────────────────────
 
 /** Heroes with full effects updated last frame: particles thin out as the crowd grows (≈ constant total). */

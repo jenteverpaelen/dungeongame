@@ -9,7 +9,9 @@ const SHOTS = [
   ['vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=70&dy=-90&labels=1&nohud=1'],
   ['vs-walk', 'gallery-art.html?view=gear-vs&all=1&walk=1&nohud=1'],
   ['sets', 'gallery-art.html?view=gear-sets&nohud=1'],
-  ['icons', 'gallery-art.html?view=icons&nohud=1'],
+  ['icons', 'gallery-art.html?view=gear-icons&nohud=1'],
+  ['before-ladder', 'gallery-art.html?view=gear-ladder&legacy=1&nohud=1'],
+  ['before-vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=70&dy=-90&legacy=1&nohud=1'],
 ];
 
 export default async function (api) {

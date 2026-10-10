@@ -48,3 +48,18 @@ test('existing version1 preferences preserve prior settings and default missing/
     assert.equal(store.get().values.masterVolume,0.3);
   }
 });
+
+test('gear effect levels persist, reject unknown values and reduced motion caps full at reduced', async () => {
+  const { gearEffectLevel } = await import('./preferences');
+  const data = new Map<string,string>();
+  const storage = { getItem:(k:string)=>data.get(k)??null, setItem:(k:string,v:string)=>{data.set(k,v);} };
+  const store = new PreferenceStore(storage);
+  assert.equal(store.get().values.gearEffects,'full'); assert.equal(store.get().values.otherGearEffects,'full');
+  store.set({gearEffects:'reduced',otherGearEffects:'off'});
+  assert.deepEqual([new PreferenceStore(storage).get().values.gearEffects,new PreferenceStore(storage).get().values.otherGearEffects],['reduced','off']);
+  const bad = new PreferenceStore({getItem:()=>JSON.stringify({version:1,values:{gearEffects:'ultra',otherGearEffects:3}}),setItem(){}});
+  assert.equal(bad.get().values.gearEffects,'full'); assert.equal(bad.get().values.otherGearEffects,'full');
+  const v = {...DEFAULT_PREFERENCES, otherGearEffects:'off' as const};
+  assert.equal(gearEffectLevel(true,v,false),'full'); assert.equal(gearEffectLevel(false,v,false),'off');
+  assert.equal(gearEffectLevel(true,v,true),'reduced'); assert.equal(gearEffectLevel(false,v,true),'off');
+});

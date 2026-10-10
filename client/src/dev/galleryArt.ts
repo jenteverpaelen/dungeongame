@@ -23,7 +23,7 @@ import { PlayerArt, artDebug, bakePlayerLook } from '../render/art/player';
 import { ACTIONS, type ActionSpec } from '../render/actions';
 import { NPC_PRESETS, RESIDENT_PRESETS } from '../render/art/npcLooks';
 import { F_WINDUP } from '@shared/protocol';
-import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearLook, gearProfile } from '@shared/gearVisual';
 import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/gearShowcase';
 import { gearFxStats } from '../render/art/gearFx';
 import { SET_STYLE } from '../render/art/gearStyle';
@@ -628,7 +628,10 @@ function mon2View() {
 function stageLook(cls: ClassId, stage: ShowcaseStage, seedN = 3): PlayerLook {
   const save = createCharacter('Gear', cls, 5);
   save.equipment = showcaseEquipment(cls, stage, seedN);
-  return playerLook(save);
+  const look = playerLook(save);
+  // ?legacy=1: the same loadout without the visual progression = exactly what the game drew before (protocol 21)
+  if (qs.get('legacy')) { delete look.jw; for (const l of Object.values(look.slots)) if (l) delete l.fx; }
+  return look;
 }
 const STAGE_LABEL: Record<ShowcaseStage, string> = { starter: 'Starter', L10: 'Level 10', L20: 'Level 20', L30: 'Level 30', L40: 'Level 40', L50: 'Level 50', L60: 'Level 60', L70: 'Level 70', set: 'Full set', ancient: 'Ancient set', primal: 'Primal set' };
 
@@ -712,6 +715,43 @@ function gearSetsView() {
     });
   });
   world.scale.set(ZOOM * Number(qs.get('k') ?? 0.62));
+}
+
+/** ?view=gear-icons: icons across the tier ladder (tier frames, Set marks, temper stars, Ancient / Primal jewels). */
+function gearIconsView() {
+  const el = document.getElementById('icons')!;
+  el.style.display = 'block';
+  app.canvas.style.display = 'none';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:grid;grid-template-columns:120px repeat(10, 84px);gap:6px;padding:14px;font:12px monospace;color:#c9b98f;align-items:center';
+  el.appendChild(wrap);
+  const steps: { name: string; rarity: Rarity; ilvl: number; ancient?: 0 | 1 | 2; upgrade?: number }[] = [
+    { name: 'Threadbare', rarity: 'normal', ilvl: 5 }, { name: 'Homespun', rarity: 'normal', ilvl: 20 }, { name: 'Tempered', rarity: 'magic', ilvl: 20 },
+    { name: 'Fine', rarity: 'magic', ilvl: 40 }, { name: 'Masterwork', rarity: 'rare', ilvl: 30, upgrade: 4 }, { name: 'Runic', rarity: 'rare', ilvl: 60, upgrade: 7 },
+    { name: 'Storied', rarity: 'legendary', ilvl: 60 }, { name: 'Heroic', rarity: 'set', ilvl: 70, upgrade: 4 }, { name: 'Ancient', rarity: 'legendary', ilvl: 70, ancient: 1, upgrade: 7 },
+    { name: 'Primal', rarity: 'set', ilvl: 70, ancient: 2, upgrade: 10 },
+  ];
+  const head = (t: string) => { const d = document.createElement('div'); d.textContent = t; d.style.textAlign = 'center'; wrap.appendChild(d); };
+  head('');
+  steps.forEach((st2) => head(st2.name));
+  const bases = qs.get('bases')?.split(',') ?? ['head_horned', 'shoulders_spiked', 'chest_plate', 'sword2h', 'bow', 'staff', 'shield', 'feet_boots'];
+  for (const b of bases) {
+    const base = BASES[b];
+    const cls: ClassId = base.classes?.[0] ?? base.affinity?.[0] ?? 'warrior';
+    head(base.noun);
+    steps.forEach((stp, i) => {
+      const set = stp.rarity === 'set' ? Object.values(SETS).find((x) => x.pieces.some((p) => p.base === b)) : undefined;
+      const leg = stp.rarity === 'legendary' || (stp.rarity === 'set' && !set) ? Object.values(LEGENDARIES).find((x) => x.base === b) : undefined;
+      const rarity: Rarity = set ? 'set' : leg ? 'legendary' : stp.rarity === 'normal' || stp.rarity === 'magic' ? stp.rarity : 'rare';
+      const it = generateItem(new Rng(i * 131 + b.length), { ilvl: stp.ilvl, classId: set?.classId ?? cls, rarity, base: b, set: set?.id, legendary: leg?.id, ancientAllowed: false });
+      it.ancient = stp.ancient ?? 0; it.upgrade = stp.upgrade ?? 0;
+      const url = itemIconUrl(gearLook(it), it.kind as ItemKind, 64);
+      const d = document.createElement('div');
+      const rc = ({ normal: '#777', magic: '#6969ff', rare: '#e8d83a', legendary: '#bf642f', set: '#2fd048' } as Record<Rarity, string>)[it.rarity];
+      d.innerHTML = `<div style="width:80px;height:80px;margin:auto;background:radial-gradient(#2a2119,#120d0a);border:1px solid ${rc};display:flex;align-items:center;justify-content:center">${url ? `<img src="${url}" width=76 height=76>` : ''}</div>`;
+      wrap.appendChild(d);
+    });
+  }
 }
 
 let drawCalls = 0, drawCallsShown = 0;
@@ -816,6 +856,7 @@ switch (VIEW) {
   case 'gear-ladder': gearLadderView(); break;
   case 'gear-vs': gearVsView(); break;
   case 'gear-sets': gearSetsView(); break;
+  case 'gear-icons': gearIconsView(); break;
 }
 
 let time = 0;

@@ -13,6 +13,9 @@ import type { CharacterSave, Item, Slot } from '@shared/types';
 import { GemIcon, EmptySocketIcon, IconDelta, IconDiamond, IconStar4, gemColor, lighten, hex } from './icons';
 import { ItemGlyph } from './glyphs';
 import { itemIconUrl } from '../../render/art';
+import { GEAR_TIER_NAMES, gearLook, itemVisualTier, temperOf } from '@shared/gearVisual';
+import { tierText } from '../../render/art/gearStyle';
+import { text } from '../../i18n/messages';
 import { Local, useLocal, useU } from './state';
 import {
   affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemTypeLine, rarityClass, rollFraction,
@@ -21,11 +24,29 @@ import {
 
 // ───────────────────────────── item icon ─────────────────────────────
 
-export function ItemVisual({ item, size = 40 }: { item: Pick<Item, 'look' | 'kind'>; size?: number }) {
-  const url = itemIconUrl(item.look, item.kind, size <= 48 ? 64 : 128);
-  if (url) return <img class="item-img" src={url} width={size} height={size} draggable={false} alt="" />;
+export function ItemVisual({ item, size = 40 }: { item: Pick<Item, 'look' | 'kind'> | Item; size?: number }) {
+  // Full items carry their visual progression into the icon (tier frame, Set mark, temper stars); stored looks never do.
+  const full = 'ilvl' in item && 'sockets' in item;
+  const look = full ? gearLook(item as Item) : item.look;
+  const tier = full ? itemVisualTier(item as Item) : 0;
+  const url = itemIconUrl(look, item.kind, size <= 48 ? 64 : 128);
+  if (url) return <img class={`item-img${tier >= 7 ? ` vt-hi vt-${tier}` : ''}`} src={url} width={size} height={size} draggable={false} alt="" />;
   return <ItemGlyph look={item.look} kind={item.kind} size={size} />;
 }
+
+/** Tier strip under the item name: tier name + numeral in the tier colour, temper stars. */
+function TierStrip({ item }: { item: Item }) {
+  const tier = itemVisualTier(item), temper = temperOf(item.upgrade);
+  const col = '#' + tierText(tier).toString(16).padStart(6, '0');
+  return (
+    <div class="tt-tier" style={{ color: col }}>
+      <i class="tt-tier-gem" style={{ background: col }} />
+      <span>{text('gear.tierLine', { tier: GEAR_TIER_NAMES[tier], numeral: ROMAN[tier] })}</span>
+      {temper > 0 && <span class="tt-temper" title={text('gear.temper', { value: String(item.upgrade) })}>{'★'.repeat(temper)}</span>}
+    </div>
+  );
+}
+const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 
 // ───────────────────────────── alt tracking ─────────────────────────────
 
@@ -172,6 +193,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
             <span class="tt-kind">{itemTypeLine(item)}</span>
             <span class="tt-slot">{slotName(item)}</span>
           </div>
+          <TierStrip item={item} />
         </div>
       </header>
 

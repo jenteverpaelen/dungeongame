@@ -13,6 +13,8 @@ import {
   drawTorso, drawWeapon, trim, type Body,
 } from './gear';
 import { rgba } from './util';
+import { GEAR_TIER_COLORS, lookFx } from '@shared/gearVisual';
+import { ANCIENT_GOLD, PRIMAL_CORE, PRIMAL_RED, SET_STYLE } from './gearStyle';
 
 const MANNEQUIN: Body = { cls: 'warrior', skin: 0x2b2220, hair: 0, hairStyle: 'none', eyes: 0 };
 
@@ -168,7 +170,7 @@ const urlCache = new Map<string, string>();
 const texCache = new Map<string, Texture>();
 
 function keyOf(look: ItemLook, kind: ItemKind, size: number): string {
-  return `${kind}|${look.shape}|${look.primary}|${look.secondary}|${look.glow}|${look.variant}|${size}`;
+  return `${kind}|${look.shape}|${look.primary}|${look.secondary}|${look.glow}|${look.variant}|${look.fx ?? ''}|${size}`;
 }
 
 /** Render an icon to a square canvas, or null when no renderer is available yet. */
@@ -205,7 +207,49 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   c2.shadowBlur = size / 22;
   c2.shadowOffsetY = size / 40;
   c2.drawImage(raw, 0, 0, size, size);
+  c2.shadowColor = 'transparent';
+  tierFrame(c2, look, size);
   return out;
+}
+
+/** Tier frame painted into the icon (so every place that shows the icon shows the tier): corner brackets in the tier
+ *  metal from Fine up, a Set mark, Ancient / Primal corner jewels and temper stars (docs/rework/gear/DESIGN.md §5). */
+function tierFrame(g: CanvasRenderingContext2D, look: ItemLook, size: number): void {
+  const fx = lookFx(look);
+  if (!fx) return;
+  const k = size / 64, T = fx.tier;
+  if (T >= 3) {
+    const col = fx.ancient === 2 ? PRIMAL_RED : fx.ancient === 1 ? ANCIENT_GOLD : GEAR_TIER_COLORS[T];
+    const L = (8 + Math.min(6, T - 3) * 1.6) * k, w = (T >= 7 ? 2.4 : T >= 5 ? 2 : 1.5) * k, m = 2.5 * k;
+    g.strokeStyle = rgba(col, T >= 6 ? 1 : 0.85); g.lineWidth = w; g.lineCap = 'round';
+    g.shadowColor = T >= 6 ? rgba(col, 0.9) : 'transparent'; g.shadowBlur = T >= 6 ? 4 * k : 0;
+    for (const [x, y, sx, sy] of [[m, m, 1, 1], [size - m, m, -1, 1], [m, size - m, 1, -1], [size - m, size - m, -1, -1]] as const) {
+      g.beginPath(); g.moveTo(x, y + sy * L); g.lineTo(x, y); g.lineTo(x + sx * L, y); g.stroke();
+    }
+    g.shadowBlur = 0; g.shadowColor = 'transparent';
+    if (T >= 8) {
+      for (const [x, y] of [[m + 1.5 * k, m + 1.5 * k], [size - m - 1.5 * k, m + 1.5 * k]] as const) {
+        g.fillStyle = rgba(fx.ancient === 2 ? PRIMAL_CORE : 0xfff0c8, 1);
+        g.beginPath(); g.moveTo(x, y - 3 * k); g.lineTo(x + 2.2 * k, y); g.lineTo(x, y + 3 * k); g.lineTo(x - 2.2 * k, y); g.closePath(); g.fill();
+      }
+    }
+  }
+  if (fx.set && SET_STYLE[fx.set]) {
+    // Set mark: a small diamond in the Set's colour (bottom left)
+    const x = 7 * k, y = size - 7 * k;
+    g.fillStyle = rgba(SET_STYLE[fx.set].main, 1); g.strokeStyle = 'rgba(10,8,6,0.9)'; g.lineWidth = 1.2 * k;
+    g.beginPath(); g.moveTo(x, y - 4 * k); g.lineTo(x + 3.4 * k, y); g.lineTo(x, y + 4 * k); g.lineTo(x - 3.4 * k, y); g.closePath(); g.fill(); g.stroke();
+  }
+  if (fx.temper > 0) {
+    // temper stars (bottom right), one per step (+4 / +7 / +10)
+    for (let i = 0; i < fx.temper; i++) {
+      const cx = size - (7 + i * 9.6) * k, cy = size - 7.5 * k, r = 4.6 * k;
+      g.fillStyle = fx.temper >= 3 ? '#fff4c8' : '#ffd65a'; g.strokeStyle = 'rgba(20,12,4,0.95)'; g.lineWidth = 1 * k;
+      g.beginPath();
+      for (let j = 0; j < 10; j++) { const a = -Math.PI / 2 + j * Math.PI / 5, rr = j % 2 ? r * 0.45 : r; g.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+      g.closePath(); g.fill(); g.stroke();
+    }
+  }
 }
 
 export function iconUrl(look: ItemLook, kind: ItemKind, size = 64): string {

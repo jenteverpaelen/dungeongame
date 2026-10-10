@@ -194,3 +194,12 @@ export function gearProfile(look: LookLike): GearProfile {
 export function setCount(p: GearProfile, id: string): number {
   return p.sets.find((s) => s.id === id)?.count ?? 0;
 }
+
+/** A hero look straight from an equipment map (inspect snapshots carry items, not looks). */
+export function lookFromEquipment(classId: import('./types').ClassId, equipment: Partial<Record<Slot, Item | null>>): import('./protocol').PlayerLook {
+  const slots: Partial<Record<import('./protocol').LookSlot, ItemLook>> = {};
+  for (const s of ['head', 'shoulders', 'chest', 'hands', 'legs', 'feet', 'waist', 'mainhand', 'offhand'] as const) { const it = equipment[s]; if (it) slots[s] = gearLook(it); }
+  const jw: Partial<Record<CharmSlot, number>> = {};
+  for (const s of CHARM_SLOTS) { const it = equipment[s]; if (it) jw[s] = packGearFx(it); }
+  return { classId, slots, ...(Object.keys(jw).length ? { jw } : {}) };
+}
