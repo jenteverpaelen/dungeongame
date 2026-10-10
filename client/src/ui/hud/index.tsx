@@ -3,6 +3,8 @@
 import '../styles/hud.css';
 import '../styles/account.css';
 import { useUI } from '../store';
+import { preferences } from '../../game/preferences';
+import { useLocal } from '../panels/state';
 import { ClassSelect, Connecting } from './ClassSelect';
 import { BottomBar } from './SkillBar';
 import { TopRight } from './Minimap';
@@ -40,8 +42,9 @@ function GameHud() {
 
 export function HudRoot() {
   const screen = useUI((s) => s.screen);
+  const k = useLocal(preferences, (s) => s.values.uiScale);
   return (
-    <div class={`hud-root screen-${screen}`}>
+    <div class={`hud-root screen-${screen}`} style={k === 1 ? undefined : { '--ui-k': k }}>
       {screen === 'select' && <ClassSelect />}
       {screen === 'connecting' && <Connecting />}
       {screen === 'game' && <GameHud />}

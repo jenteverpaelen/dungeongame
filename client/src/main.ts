@@ -18,6 +18,7 @@ import { cmd, session } from './net/api';
 import { initArt } from './render/art';
 import { App } from './ui/App';
 import { ui } from './ui/store';
+import { preferences } from './game/preferences';
 
 async function boot() {
   await Promise.all([
@@ -56,7 +57,7 @@ async function boot() {
   const auto = qs.get('autostart');
   if (auto) session.start(auto, (qs.get('class') as 'warrior' | 'ranger' | 'mage') ?? 'warrior');
 
-  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui });
+  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences });
 }
 
 void boot();
