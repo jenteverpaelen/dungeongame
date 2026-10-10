@@ -6,12 +6,27 @@ export type UiIconName =
   | 'bag' | 'skills' | 'character' | 'journal' | 'map' | 'social' | 'party' | 'settings' | 'paragon' | 'cube' | 'stash'
   | 'collection' | 'waypoint' | 'obelisk' | 'merchant' | 'inspect' | 'hourglass' | 'shield' | 'wrench' | 'help'
   | 'pin' | 'pinOff' | 'quest' | 'turnin' | 'anvil' | 'gem' | 'eye' | 'chat' | 'star' | 'scroll'
-  | 'lock' | 'gate' | 'house' | 'field';
+  | 'lock' | 'gate' | 'house' | 'field' | 'sound' | 'display' | 'keys';
 
 const INK = '#120b06';
 
 /** Shapes: `f` = filled silhouette (outlined), `d` = dark detail strokes drawn on top, `l` = light detail strokes. */
 const ICONS: Record<UiIconName, { f: string[]; d?: string[]; l?: string[] }> = {
+  sound: {
+    f: ['M3.4 9.4h3.6l4.8-4.2v13.6L7 14.6H3.4z'],
+    d: ['M14.8 9.2a4.2 4.2 0 0 1 0 5.6', 'M17.4 6.6a7.8 7.8 0 0 1 0 10.8'],
+    l: ['M5 10.8v2.4'],
+  },
+  display: {
+    f: ['M3.4 5h17.2a1.4 1.4 0 0 1 1.4 1.4v9.2a1.4 1.4 0 0 1-1.4 1.4H3.4A1.4 1.4 0 0 1 2 15.6V6.4A1.4 1.4 0 0 1 3.4 5z', 'M8.4 18.2h7.2l.9 2.2H7.5z'],
+    d: ['M4.6 7.6h14.8', 'M4.6 14.4h14.8'],
+    l: ['M4.4 9v4'],
+  },
+  keys: {
+    f: ['M3.2 6.6h17.6a1.4 1.4 0 0 1 1.4 1.4v8a1.4 1.4 0 0 1-1.4 1.4H3.2A1.4 1.4 0 0 1 1.8 16V8a1.4 1.4 0 0 1 1.4-1.4z'],
+    d: ['M5.2 10h1.2M8.6 10h1.2M12 10h1.2M15.4 10h1.2M18.2 10h.6', 'M7 14h10'],
+    l: ['M3.8 8.6v6'],
+  },
   lock: {
     // The shackle is part of the filled silhouette (a dark stroke vanished on dark rows at 14-16 px).
     f: ['M6 10.6h12a1.4 1.4 0 0 1 1.4 1.4v7.6a1.4 1.4 0 0 1-1.4 1.4H6a1.4 1.4 0 0 1-1.4-1.4V12A1.4 1.4 0 0 1 6 10.6z',

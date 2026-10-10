@@ -1017,17 +1017,6 @@
 
 .nm-up { display: inline-block; margin-left: 8px; vertical-align: 2px; padding: 2px 6px 1px; font: 400 12px/1.1 var(--font-num); letter-spacing: 0.02em; color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 180, 0.6); background: linear-gradient(180deg, #ffe38c 0%, #e0aa38 55%, #a8741a 100%); border: 1px solid #2a1806; border-radius: 8px; box-shadow: 0 1px 3px #000, inset 0 1px 0 rgba(255, 255, 255, 0.7); }
 
-.settings-content { display: grid; gap: 14px; padding: 18px; }
-.settings-volume { display: grid; grid-template-columns: 1fr auto; gap: 8px; color: var(--text-bright); font-size: var(--fs-l); }
-.settings-volume output { color: var(--gold-hi); font-family: var(--font-num); }
-.settings-volume input { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--gold); }
-.settings-check { display: flex; align-items: center; gap: 10px; font-size: var(--fs-l); color: var(--text-bright); }
-.settings-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
-.settings-note { margin: 0; color: var(--text); font-size: var(--fs-m); line-height: 1.4; }
-.settings-bindings { display: grid; gap: 6px; }
-.settings-binding { display: grid; grid-template-columns: 1fr 88px 88px 30px; gap: 6px; align-items: center; color: var(--text-bright); }
-.settings-binding .btn { min-width: 0; padding: 6px 4px; }
-.settings-binding .btn[aria-pressed="true"] { color: var(--gold-hi); border-color: var(--gold); }
 .pn-settings :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 4px; }
 
 /* Short viewports (720p): trim the tall workspaces so left-docked panels stay clear of the bottom HUD. */
@@ -1074,6 +1063,10 @@
 .auto-rule-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
 .auto-rule-fields label { display:flex; flex-direction:column; gap:5px; color:var(--text-dim); font-size: 13px; }
 .auto-rule-fields input,.auto-rule-fields select,.party-invite input { min-width:0; width:100%; padding:6px 8px; border:1px solid var(--gold-dim); background:#19150f; color:var(--text); font:inherit; }
+/* Checkbox rows and notes shared by the class select, guidance cards and the auto-rule editor (Settings restyles them under .pn-settings). */
+.settings-check { display: flex; align-items: center; gap: 10px; font-size: var(--fs-l); color: var(--text-bright); }
+.settings-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--gold); }
+.settings-note { margin: 0; color: var(--text); font-size: var(--fs-m); line-height: 1.4; }
 .auto-rule-editor .settings-check { font-size: 13px; }
 .target-priority-controls .pn-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin-bottom:7px; }
 .wm-network { position:relative; height:285px; margin:12px 0; background:radial-gradient(ellipse at center,#30281daa,#100d0a88); border:1px solid #716044; border-radius:4px; }
@@ -1118,7 +1111,6 @@
 .quest-list .page-items>.btn { width:100%; }
 .quest-list .page-nav .btn { min-width:0; }
 .pn-character .character-values { display:grid; grid-template-columns:1fr 1fr; gap:0 24px; }
-.settings-columns { display:grid; grid-template-columns:1fr 1fr; gap:30px; }
 .slist>.tabs { margin:0 0 10px; }
 .slist .tab { padding:9px 5px; }
 .passive-slots { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:12px 0; }
