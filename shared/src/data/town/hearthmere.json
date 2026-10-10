@@ -2429,65 +2429,65 @@
    "doors": [],
    "look": {
     "style": "gate-n",
-    "eaveHeight": 190,
-    "ridgeHeight": 262,
-    "roofColor": "#4a3a2c",
+    "eaveHeight": 170,
+    "ridgeHeight": 250,
+    "roofColor": "#4a5664",
     "roof": {
      "vertices": [
       [
        4508,
        1880,
-       190
+       170
       ],
       [
        4517.9,
        1906.3,
-       190
+       170
       ],
       [
        4543.9,
        1922.5,
-       190
+       170
       ],
       [
        4576.1,
        1922.5,
-       190
+       170
       ],
       [
        4602.1,
        1906.3,
-       190
+       170
       ],
       [
        4612,
        1880,
-       190
+       170
       ],
       [
        4602.1,
        1853.7,
-       190
+       170
       ],
       [
        4576.1,
        1837.5,
-       190
+       170
       ],
       [
        4543.9,
        1837.5,
-       190
+       170
       ],
       [
        4517.9,
        1853.7,
-       190
+       170
       ],
       [
        4560,
        1880,
-       262
+       250
       ]
      ],
      "faces": [
@@ -2552,12 +2552,23 @@
     },
     "kit": {
      "shape": "round",
-     "wallColor": "#6e5638",
-     "trimColor": "#4a3426",
-     "wall": "planks",
+     "wallColor": "#9a9282",
+     "trimColor": "#3a3430",
+     "wall": "stone",
      "roof": "cone",
-     "roofMat": "shingle",
-     "roofColor": "#4a3a2c"
+     "roofMat": "slate",
+     "roofColor": "#4a5664",
+     "windows": [
+      {
+       "face": 3,
+       "at": [
+        0.5
+       ],
+       "rows": 2,
+       "lit": true,
+       "upper": true
+      }
+     ]
     }
    }
   },
@@ -2636,65 +2647,65 @@
    "doors": [],
    "look": {
     "style": "gate-s",
-    "eaveHeight": 190,
-    "ridgeHeight": 262,
-    "roofColor": "#4a3a2c",
+    "eaveHeight": 170,
+    "ridgeHeight": 250,
+    "roofColor": "#4a5664",
     "roof": {
      "vertices": [
       [
        4508,
        2140,
-       190
+       170
       ],
       [
        4517.9,
        2166.3,
-       190
+       170
       ],
       [
        4543.9,
        2182.5,
-       190
+       170
       ],
       [
        4576.1,
        2182.5,
-       190
+       170
       ],
       [
        4602.1,
        2166.3,
-       190
+       170
       ],
       [
        4612,
        2140,
-       190
+       170
       ],
       [
        4602.1,
        2113.7,
-       190
+       170
       ],
       [
        4576.1,
        2097.5,
-       190
+       170
       ],
       [
        4543.9,
        2097.5,
-       190
+       170
       ],
       [
        4517.9,
        2113.7,
-       190
+       170
       ],
       [
        4560,
        2140,
-       262
+       250
       ]
      ],
      "faces": [
@@ -2759,12 +2770,23 @@
     },
     "kit": {
      "shape": "round",
-     "wallColor": "#6e5638",
-     "trimColor": "#4a3426",
-     "wall": "planks",
+     "wallColor": "#9a9282",
+     "trimColor": "#3a3430",
+     "wall": "stone",
      "roof": "cone",
-     "roofMat": "shingle",
-     "roofColor": "#4a3a2c"
+     "roofMat": "slate",
+     "roofColor": "#4a5664",
+     "windows": [
+      {
+       "face": 2,
+       "at": [
+        0.5
+       ],
+       "rows": 2,
+       "lit": true,
+       "upper": true
+      }
+     ]
     }
    }
   },

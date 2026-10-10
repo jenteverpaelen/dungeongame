@@ -130,10 +130,12 @@ buildings.push(rectBuilding({ id: 'fishstall', label: 'Fish stall', x0: 2700, y0
 buildings.push(rectBuilding({ id: 'cottage-c', label: 'Net-mender’s house', x0: 3520, y0: 2300, x1: 3690, y1: 2450, eave: 128, ridge: 224, height: '2–3H',
   kit: K({ wall: 'plaster', wallColor: '#cfd2c6', roof: 'gable', roofMat: 'tile', roofColor: '#a65a3a', flowerBoxes: true, windows: [{ face: 0, at: [0.25, 0.75], rows: 1, lit: true }], doors: [{ face: 0, at: 0.5, kind: 'wood' }], chimneys: [{ at: pt(3650, 2330), height: 236 }] }) }));
 // gate towers and the Hearthlight beacon
-buildings.push(roundBuilding({ id: 'gate-n', label: 'North gate tower', cx: 4560, cy: 1880, r: 40, n: 10, eave: 190, top: 262, height: '3–4H',
-  kit: K({ shape: 'round', wall: 'planks', wallColor: '#6e5638', roof: 'cone', roofMat: 'shingle', roofColor: '#4a3a2c' }) }));
-buildings.push(roundBuilding({ id: 'gate-s', label: 'South gate tower', cx: 4560, cy: 2140, r: 40, n: 10, eave: 190, top: 262, height: '3–4H',
-  kit: K({ shape: 'round', wall: 'planks', wallColor: '#6e5638', roof: 'cone', roofMat: 'shingle', roofColor: '#4a3a2c' }) }));
+buildings.push(roundBuilding({ id: 'gate-n', label: 'North gate tower', cx: 4560, cy: 1880, r: 40, n: 10, eave: 170, top: 250, height: '3–4H',
+  kit: K({ shape: 'round', wall: 'stone', wallColor: '#9a9282', trimColor: '#3a3430', roof: 'cone', roofMat: 'slate', roofColor: '#4a5664',
+    windows: [{ face: 3, at: [0.5], rows: 2, lit: true, upper: true }] }) }));
+buildings.push(roundBuilding({ id: 'gate-s', label: 'South gate tower', cx: 4560, cy: 2140, r: 40, n: 10, eave: 170, top: 250, height: '3–4H',
+  kit: K({ shape: 'round', wall: 'stone', wallColor: '#9a9282', trimColor: '#3a3430', roof: 'cone', roofMat: 'slate', roofColor: '#4a5664',
+    windows: [{ face: 2, at: [0.5], rows: 2, lit: true, upper: true }] }) }));
 buildings.push(roundBuilding({ id: 'hearthlight', label: 'The Hearthlight', cx: 4440, cy: 3080, r: 66, n: 14, eave: 372, top: 470, height: '7–8H',
   kit: K({ shape: 'round', wall: 'stone', wallColor: '#c9c1ad', trimColor: '#3a3430', roof: 'cone', roofMat: 'copper', roofColor: '#5f8a7a', beacon: true, windows: [{ face: 3, at: [0.5], rows: 3, lit: true, upper: true }], doors: [{ face: 3, at: 0.5, kind: 'arch' }] }) }));
 
