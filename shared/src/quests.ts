@@ -2,7 +2,7 @@ import { validIntro } from './onboarding';
 import { QUESTS } from './data/quests';
 import { questText } from './data/questMessages';
 import type { CharacterSave } from './types';
-import type { QuestDef, QuestState, QuestTarget, QuestStep } from './questTypes';
+import { ZONE_WIDE, type QuestDef, type QuestState, type QuestTarget, type QuestStep } from './questTypes';
 import type { MapData } from './mapgen';
 import { nextTravelPoint } from './worldNavigation';
 import town from './data/town/hearthmere.json';
@@ -102,6 +102,8 @@ export function questPoint(map:MapData,target:QuestTarget,save?:CharacterSave):{
     return questPoint(map,{zone:town.id,target:obelisk.id},save);
   }
   if(map.zone!==target.zone)return nextTravelPoint(map,target.zone,save?(id)=>zoneUnlocked(save,id):undefined);
+  // A zone-wide hunt has no single place; point at the first ordinary hunting ground so the map and trail still help.
+  if(target.target===ZONE_WIDE)return map.adventure?.encounters.find(e=>!e.members.some(m=>m.questTarget||m.combat));
   const stage=map.adventure?.dungeon?.stages.find(s=>s.id===target.target)??map.adventure?.events?.find(s=>s.id===target.target);
   return map.adventure?.interactions.find(i=>i.id===(stage?.trigger??target.target))
     ??map.town?.npcs.find(i=>i.id===target.target)

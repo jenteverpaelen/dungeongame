@@ -9,7 +9,7 @@ import { ZONES } from './data/zones';
 import { MONSTERS, ELITE_AFFIXES } from './data/monsters';
 import { CollisionWorld } from './movement';
 import { INVENTORY_SIZE, PLAYER_RADIUS } from './constants';
-import { QUEST_SERVICE_OPS, type QuestDef, type QuestTarget, type QuestStep } from './questTypes';
+import { QUEST_SERVICE_OPS, ZONE_WIDE, type QuestDef, type QuestTarget, type QuestStep } from './questTypes';
 import { BASES } from './data/items';
 import { SERVICE_ROLE } from './townServices';
 import town from './data/town/hearthmere.json';
@@ -33,8 +33,9 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       :kind==='collect'?a?.encounters.some(e=>e.id===t.target)
       :kind==='wave'?a?.dungeon?.stages.some(s=>s.id===t.target)||a?.events?.some(e=>e.id===t.target)
       :kind==='service'?t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&step?.serviceOp&&n.role===SERVICE_ROLE[step.serviceOp])
-      :kind==='kill'&&a?.encounters.some(e=>e.id===t.target&&e.members.some(m=>step?.monsterType||step?.monsterFamily
-        ?(!step.monsterType||m.type===step.monsterType)&&(!step.monsterFamily||MONSTERS[m.type]?.family===step.monsterFamily):m.questTarget));
+      :kind==='kill'&&a?.encounters.some(e=>(t.target===ZONE_WIDE||e.id===t.target)&&e.members.some(m=>step?.monsterType||step?.monsterFamily
+        ?(!step.monsterType||m.type===step.monsterType)&&(!step.monsterFamily||MONSTERS[m.type]?.family===step.monsterFamily)
+        :t.target===ZONE_WIDE?!m.questTarget&&!m.combat:m.questTarget));
     check(!!found,path,`unknown ${kind} target ${t.zone}/${t.target}`);
   };
   for(const q of quests) {

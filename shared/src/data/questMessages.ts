@@ -1,11 +1,13 @@
 import { MIDGAME_MESSAGES } from './midgameMessages';
 import { WORKSHOP_MESSAGES } from './workshopMessages';
 import { CAST_MESSAGES } from './castMessages';
+import { CAMP_CONTRACT_MESSAGES } from './campContractMessages';
 /** Original quest prose. Stable keys also serve the client localization catalogue. */
 export const QUEST_MESSAGES = {
   ...MIDGAME_MESSAGES,
   ...WORKSHOP_MESSAGES,
   ...CAST_MESSAGES,
+  ...CAMP_CONTRACT_MESSAGES,
   'quest.contract.road.title':'Contract: Clear the Timber Road',
   'quest.contract.road.offer':'The camp needs the road kept clear between timber runs. Defeat three bog slimes on the road above camp after taking this contract, then return to Orren.',
   'quest.contract.road.kill':'Defeat bog slimes on the timber road',

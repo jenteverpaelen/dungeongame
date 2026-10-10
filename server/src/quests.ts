@@ -2,7 +2,7 @@ import { QUESTS, questById } from '../../shared/src/data/quests';
 import { questText } from '../../shared/src/data/questMessages';
 import { questAvailable, questHasItem, questObjective, questState, trackedQuest, validQuestState, writeQuestState } from '../../shared/src/quests';
 import { campaignSetReward } from '../../shared/src/campaignSets';
-import { QUEST_SERVICE_OPS, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
+import { QUEST_SERVICE_OPS, ZONE_WIDE, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import type { CmdOp } from '../../shared/src/protocol';
 import type { CharacterSave, Item } from '../../shared/src/types';
@@ -145,7 +145,10 @@ export function creditQuestKill(inst:Instance,mob:Mob,witnesses:Player[],killer:
       // Legacy targets still require the specifically tagged member. A typed count opts into the whole authored site.
       if(step.credit==='killer'&&p!==killer)continue;
       const typed=step.monsterType||step.monsterFamily;
-      const matches=typed?step.target===mob.adventureSite&&(!step.monsterType||step.monsterType===mob.def.id)&&(!step.monsterFamily||step.monsterFamily===mob.def.family):step.target===mob.adventureTarget;
+      // A zone-wide step counts any authored (never random) monster of the zone; story targets stay reserved for story steps.
+      const zoneWide=step.target===ZONE_WIDE&&!!mob.adventureSite&&!mob.adventureTarget;
+      const site=zoneWide||step.target===mob.adventureSite;
+      const matches=typed?site&&(!step.monsterType||step.monsterType===mob.def.id)&&(!step.monsterFamily||step.monsterFamily===mob.def.family):step.target===ZONE_WIDE?zoneWide:step.target===mob.adventureTarget;
       if(matches)advance(inst,p,q,state);
     }
   }

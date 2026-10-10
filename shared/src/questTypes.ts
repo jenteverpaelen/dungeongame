@@ -22,6 +22,8 @@ export interface QuestStep extends QuestTarget {
 /** Operations with a real successful mutation; panel opens and power re-selection are excluded. */
 export const QUEST_SERVICE_OPS=['salvage','salvageAll','fuseGem','enchantPick','upgrade','transmute','extract','reforge','socket','insertGem','removeGem'] as const;
 export type QuestServiceOp=typeof QUEST_SERVICE_OPS[number];
+/** A kill step with this target counts matching authored monsters from every site of its zone ("defeat 12 creatures here"). */
+export const ZONE_WIDE='*';
 export interface QuestReward {
   xp?: number;
   gold?: number;
