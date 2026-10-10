@@ -8,7 +8,7 @@ const SHOTS = [
   ['vs-all', 'gallery-art.html?view=gear-vs&all=1&dx=240&dy=-70&nohud=1'],
   ['vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=240&dy=-70&labels=1&nohud=1'],
   ['vs-walk', 'gallery-art.html?view=gear-vs&all=1&walk=1&nohud=1'],
-  ['sets', 'gallery-art.html?view=gear-sets&nohud=1'],
+  ['sets', 'gallery-art.html?view=gear-sets&k=0.74&nohud=1'],
   ['icons', 'gallery-art.html?view=gear-icons&nohud=1'],
   ['before-ladder', 'gallery-art.html?view=gear-ladder&legacy=1&nohud=1'],
   ['before-vs-closeup', 'gallery-art.html?view=gear-vs&all=1&zoom=2.3&yaw=24&dx=240&dy=-70&legacy=1&nohud=1'],
