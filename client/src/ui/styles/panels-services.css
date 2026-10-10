@@ -152,9 +152,9 @@
 
 /* ═══════════════════════════ Inspect ═══════════════════════════ */
 .pn-inspect .pn-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-.ins-top { display: flex; flex-direction: column; gap: 8px; }
 .ins { display: grid; grid-template-columns: 312px minmax(0, 1fr); gap: 16px; align-items: start; }
-.ins-doll-wrap { display: flex; flex-direction: column; gap: 12px; }
+.ins-left { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ins-item { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .ins-who { --cls: var(--gold); display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--r-2);
   background: linear-gradient(90deg, color-mix(in srgb, var(--cls) 18%, var(--s-2)), var(--s-2) 70%);
   box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px color-mix(in srgb, var(--cls) 40%, #3a2c1c); }
@@ -164,9 +164,10 @@
   background: var(--s-well); box-shadow: inset 0 0 0 1px #000, inset 0 0 0 2px #2b2118; }
 .ins-cell { width: 80px; height: 80px; aspect-ratio: auto; padding: 0; cursor: pointer; }
 .ins-cell.on { outline: 2px solid var(--gold-hi); outline-offset: -2px; }
-.ins-cell .glyph, .ins-cell svg { opacity: 0.9; }
 .ins-cell.empty svg { opacity: 0.35; }
 .ins-item .tt { width: 100%; animation: none; }
+.ins-item .gear-show { margin: 0; grid-template-columns: 150px minmax(0, 1fr); padding: 8px 14px; }
+.ins-item .gear-show canvas { width: 150px; height: 136px; }
 .ins-idle { min-height: 260px; justify-content: center; }
 
 /* ═══════════════════════════ Run summary ═══════════════════════════ */

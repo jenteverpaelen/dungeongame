@@ -11,6 +11,28 @@ import type { Nameplate } from '../types';
 import type { VfxCore } from './core';
 import { PLATE_FONT, ensureFonts } from './fonts';
 import { clamp, lerpColor } from './util';
+import { GEAR_TIER_COLORS, gearProfile } from '@shared/gearVisual';
+import { SET_STYLE } from '../art/gearStyle';
+
+/** Gear-rank medal left of the level badge (rank 2+), escalating in shape: disc → shield → winged shield → Ancient
+ *  jewels → Primal flame tips (docs/rework/gear/DESIGN.md §5; D3 portrait frames / MapleStory medals as principle). */
+function drawMedal(g: Graphics, rank: number): number {
+  if (rank < 2) return 0;
+  const col = GEAR_TIER_COLORS[rank], hi = lerpColor(col, 0xffffff, 0.45), ink = 0x120c08;
+  const cx = 0, cy = 0;
+  if (rank >= 6) {
+    // wings
+    for (const k of [-1, 1]) {
+      g.poly([cx + k * 4, cy - 3, cx + k * 11, cy - 7, cx + k * 9.5, cy - 2, cx + k * 12, cy, cx + k * 8, cy + 2, cx + k * 4, cy + 2]).fill({ color: rank >= 8 ? hi : col, alpha: 0.95 }).stroke({ width: 1, color: ink, alpha: 0.9 });
+    }
+  }
+  if (rank >= 9) for (const k of [-1, 0, 1]) g.poly([cx + k * 3.4 - 1.6, cy - 6, cx + k * 3.4, cy - 11 - (k ? 0 : 2), cx + k * 3.4 + 1.6, cy - 6]).fill({ color: 0xffe0c8 });
+  if (rank >= 4) g.poly([cx - 5, cy - 6, cx + 5, cy - 6, cx + 5, cy + 1, cx, cy + 6.5, cx - 5, cy + 1]).fill({ color: col }).stroke({ width: 1.2, color: ink });
+  else g.circle(cx, cy, 5).fill({ color: col }).stroke({ width: 1.2, color: ink });
+  g.circle(cx, cy - 0.5, rank >= 4 ? 2 : 1.8).fill({ color: hi });
+  if (rank >= 8) for (const k of [-1, 1]) g.circle(cx + k * 3.2, cy - 4.2, 0.9).fill({ color: 0xfff0c8 });
+  return rank >= 6 ? 25 : 11;
+}
 
 const CHAMPION = 0x7f9bff;
 const RARE = 0xffe14a;
@@ -60,7 +82,12 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
   if(title){title.position.set(-title.width/2,-30);inner.addChild(title);}
   const lvl = text('', 10.5, 0xe8d9a8);
   const badge = new Graphics();
-  inner.addChild(badge, lvl, name);
+  const prof = desc.look && Object.values(desc.look.slots).some((l) => typeof l?.fx === 'number') ? gearProfile(desc.look) : null;
+  const medal = new Graphics();
+  const mw = prof ? drawMedal(medal, prof.rank) : 0;
+  const setMark = prof && prof.topSetCount >= 6 && prof.topSet ? new Graphics().poly([0, -4, 3.4, 0, 0, 4, -3.4, 0]).fill({ color: SET_STYLE[prof.topSet]?.main ?? 0x3cff6e }).stroke({ width: 1, color: 0x120c08 }) : null;
+  inner.addChild(badge, lvl, name, medal);
+  if (setMark) inner.addChild(setMark);
   const layout = (lv: number, pl: number) => {
     lvl.text = pl > 0 ? `P${pl}` : `${lv}`;
     lvl.tint = pl > 0 ? 0x9fb4ff : 0xe8d9a8;
@@ -69,10 +96,13 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
     badge.clear()
       .roundRect(0, 0, lw, 13, 4).fill({ color: 0x120c08, alpha: 0.72 })
       .roundRect(0, 0, lw, 13, 4).stroke({ width: 1, color: pl > 0 ? 0x5a6ab8 : 0x8a7240, alpha: 0.85 });
-    const total = lw + 4 + name.width;
-    badge.position.set(-total / 2, -14);
-    lvl.position.set(-total / 2 + pad, -14.5);
-    name.position.set(-total / 2 + lw + 4, -16.5);
+    const mgap = mw ? mw + 3 : 0, sgap = setMark ? 10 : 0;
+    const total = mgap + lw + 4 + name.width + sgap;
+    medal.position.set(-total / 2 + mw / 2, -7.5);
+    badge.position.set(-total / 2 + mgap, -14);
+    lvl.position.set(-total / 2 + mgap + pad, -14.5);
+    name.position.set(-total / 2 + mgap + lw + 4, -16.5);
+    if (setMark) setMark.position.set(total / 2 - 4, -7.5);
   };
   let curLv = desc.lv ?? 1, curPl = desc.pl ?? 0;
   layout(curLv, curPl);

@@ -6,6 +6,7 @@ import '../styles/panels-more.css';
 import '../styles/panels-collection.css';
 import '../styles/panels-social.css';
 import '../styles/panels-services.css';
+import '../styles/gear.css';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { togglePanel, type PanelId } from '../store';
 import { useU } from './state';

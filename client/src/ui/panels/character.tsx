@@ -11,6 +11,32 @@ import { fmtPowerValue } from './util';
 import { EconomySection } from './economy';
 import { UiIcon } from '../hud/UiIcons';
 import { text as ut } from '../../i18n/messages';
+import { playerLook } from '@shared/character';
+import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { SET_STYLE } from '../../render/art/gearStyle';
+import type { CharacterSave } from '@shared/types';
+
+const hexOf = (c: number) => '#' + c.toString(16).padStart(6, '0');
+/** The hero as other players see them, animated, with the gear rank and what raises it next (DESIGN.md §4). */
+export function GearShowcase({ save, local = true }: { save: Pick<CharacterSave, 'classId'> & Partial<CharacterSave>; local?: boolean }) {
+  const look = save.equipment ? playerLook(save as CharacterSave) : null;
+  if (!look) return null;
+  return <GearShowcaseLook look={look} local={local}/>;
+}
+export function GearShowcaseLook({ look, local }: { look: import('@shared/protocol').PlayerLook; local: boolean }) {
+  const p = gearProfile(look), col = hexOf(GEAR_TIER_COLORS[p.rank]);
+  return <div class="gear-show" style={{ '--gs': col }}>
+    <canvas data-preview={look.classId} data-look={JSON.stringify(look)} data-local={local ? '1' : '0'} width={420} height={380} aria-hidden="true"/>
+    <div>
+      <h4>{ut('gear.showcaseTitle')}</h4>
+      <div class="gear-rank"><i/>{ut('gear.rank', { rank: GEAR_TIER_NAMES[p.rank] })}</div>
+      <div class="gear-pips" aria-hidden="true">{GEAR_TIER_NAMES.slice(1).map((_, i) => <span key={i} class={i < p.rank ? 'on' : ''}/>)}</div>
+      {p.sets.length > 0 && <div class="gear-sets">{p.sets.map(s => <b key={s.id} style={{ background: hexOf(SET_STYLE[s.id]?.main ?? 0xd2ae68) }}>{ut('gear.setPieces', { set: SETS[s.id]?.name ?? s.id, count: String(s.count) })}</b>)}</div>}
+      <p>{ut('gear.next', { hint: ut(`gear.hint${p.rank}` as 'gear.hint0') })}</p>
+      <p class="pn-note">{ut('gear.rankNote')}</p>
+    </div>
+  </div>;
+}
 
 type Section='overview'|'offense'|'defense'|'utility'|'powers'|'economy';
 function Values({rows}:{rows:[string,string][]}) {
@@ -27,6 +53,7 @@ export function CharacterPanel() {
     <Tabs tabs={(['overview','offense','defense','utility','powers','economy'] as Section[]).map(id=>({id,label:id==='economy'?'Economy':t(id)}))} value={section} onChange={setSection}/>
     {section==='economy'&&<EconomySection save={save}/>}
     {section==='overview'&&<>
+      <GearShowcase save={save}/>
       <div class="ch-hero">
         {([['damage',d.sheetDps,'skills'],['toughness',d.toughness,'shield'],['recovery',d.recovery,'star']] as const).map(([k,v,icon])=><div key={k} class={`ch-big ${k}`} title={t(`${k}Note`)}>
           <UiIcon name={icon} size={26}/><span>{t(k)}</span><b>{n(v)}</b></div>)}

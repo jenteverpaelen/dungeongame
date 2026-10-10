@@ -3,7 +3,7 @@
 import { isHeroAppearance } from '@shared/appearance';
 import { Application } from 'pixi.js';
 import { createCharacter, playerLook } from '@shared/character';
-import { F_CHANNEL, F_MOVING } from '@shared/protocol';
+import { F_CHANNEL, F_MOVING, type PlayerLook } from '@shared/protocol';
 import type { ClassId } from '@shared/types';
 import { createPlayerView } from '../render/art';
 import type { PlayerView } from '../render/types';
@@ -23,16 +23,22 @@ async function mount(canvas: HTMLCanvasElement) {
   previews.set(canvas, entry);
   await ready;
   if (entry.dead) { app.destroy(); return; }
-  const look = playerLook(createCharacter('preview', classId, 7));
+  // data-look: a real hero look (character showcase / inspect); otherwise the class-select starter look.
+  const lookOf = (): PlayerLook => { try { const v = JSON.parse(canvas.dataset.look ?? ''); if (v && typeof v === 'object' && v.slots) return v as PlayerLook; } catch { /* fall through */ } return playerLook(createCharacter('preview', classId, 7)); };
+  let look = lookOf();
+  let lastLook = canvas.dataset.look ?? '';
   const view = createPlayerView(look);
-  const scale = canvas.height / 92;
+  (view as PlayerView & { setIsLocal?(v: boolean): void }).setIsLocal?.(canvas.dataset.local === '1');
+  // showcases leave room for wings and crests above the head
+  const scale = canvas.height / (canvas.dataset.look ? 132 : 92);
   view.root.scale.set(scale);
-  view.root.position.set(canvas.width / 2, canvas.height * 0.86);
+  view.root.position.set(canvas.width / 2, canvas.height * (canvas.dataset.look ? 0.9 : 0.86));
   app.stage.addChild(view.root);
   entry.view = view;
   let seq = 0, lastSwing = 0, lastAppearance='';
 
   app.ticker.add((t) => {
+    if ((canvas.dataset.look ?? '') !== lastLook) { lastLook = canvas.dataset.look ?? ''; look = lookOf(); view.setLook(look); }
     const chosen=canvas.dataset.appearance??'';
     if(chosen!==lastAppearance){lastAppearance=chosen;let value:unknown;try{value=JSON.parse(chosen);}catch{}view.setLook({...look,...(isHeroAppearance(value)?{appearance:value}:{appearance:undefined})});}
     time += t.deltaMS / 1000;

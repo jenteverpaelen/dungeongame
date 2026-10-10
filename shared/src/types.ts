@@ -36,6 +36,9 @@ export interface ItemLook {
   secondary: number; // trim / accent colour
   glow: number;      // 0 = none; legendary/set items get an aura colour
   variant: number;   // small deterministic variation (0-3)
+  /** Packed gear visual progression (shared/src/gearVisual.ts). Only on looks sent over the wire (heroes, loot);
+   *  stored item looks never carry it, so saves are unchanged. */
+  fx?: number;
 }
 
 export interface AffixRoll {

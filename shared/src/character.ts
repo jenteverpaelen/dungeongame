@@ -8,6 +8,7 @@ import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
 import { canClassUse, slotsForKind, starterItems } from './items';
+import { CHARM_SLOTS, gearLook, packGearFx } from './gearVisual';
 import { Rng } from './math';
 import { LOOK_SLOTS, type PlayerLook } from './protocol';
 import type { CharacterSave, ClassId, Item, Slot } from './types';
@@ -46,9 +47,12 @@ export function playerLook(save: CharacterSave): PlayerLook {
   const slots: PlayerLook['slots'] = {};
   for (const s of LOOK_SLOTS) {
     const it = save.equipment[s as Slot];
-    if (it) slots[s] = equippedLook(save, it, s as Slot);
+    // The wardrobe may change the shape and colours; the visual progression always comes from the worn item.
+    if (it) slots[s] = gearLook(it, equippedLook(save, it, s as Slot));
   }
-  return { classId: save.classId, slots, title:selectedTitle(save), ...(save.appearance?{appearance:save.appearance}:{}) };
+  const jw: NonNullable<PlayerLook['jw']> = {};
+  for (const s of CHARM_SLOTS) { const it = save.equipment[s]; if (it) jw[s] = packGearFx(it); }
+  return { classId: save.classId, slots, ...(Object.keys(jw).length ? { jw } : {}), title:selectedTitle(save), ...(save.appearance?{appearance:save.appearance}:{}) };
 }
 
 // ─────────────────────────── Inventory ───────────────────────────

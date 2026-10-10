@@ -10,13 +10,20 @@ export interface Preferences {
   combatNumbers: boolean;
   contextualHints: boolean;
   manualSkills: boolean;
+  /** Gear effects (docs/rework/gear/DESIGN.md §6): your hero, and other heroes. Baked ornaments always show. */
+  gearEffects: GearEffects;
+  otherGearEffects: GearEffects;
 }
+
+export type GearEffects = 'full' | 'reduced' | 'off';
+export const GEAR_EFFECT_LEVELS: readonly GearEffects[] = ['full', 'reduced', 'off'];
 
 export const DEFAULT_CAMERA_ZOOM = 0.75;
 export const MIN_CAMERA_ZOOM = 2 / 3;
 export const MAX_CAMERA_ZOOM = 2;
 export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, cameraZoom: DEFAULT_CAMERA_ZOOM, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true, manualSkills:false,
+  gearEffects: 'full', otherGearEffects: 'full',
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -30,6 +37,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
   }
   for (const key of ['muted', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'contextualHints', 'manualSkills'] as const) if (typeof input[key] === 'boolean') value[key] = input[key];
   if (typeof input.cameraZoom === 'number' && Number.isFinite(input.cameraZoom)) value.cameraZoom = Math.max(MIN_CAMERA_ZOOM, Math.min(MAX_CAMERA_ZOOM, input.cameraZoom));
+  for (const key of ['gearEffects', 'otherGearEffects'] as const) if (GEAR_EFFECT_LEVELS.includes(input[key] as GearEffects)) value[key] = input[key] as GearEffects;
   return Object.freeze(value);
 }
 
@@ -64,3 +72,14 @@ function browserStorage(): StorageAccess | undefined {
   try { return typeof window === 'undefined' ? undefined : window.localStorage; } catch { return undefined; }
 }
 export const preferences = new PreferenceStore(browserStorage());
+
+/** Effective gear-effect level for a hero: the player's choice, capped at 'reduced' when the OS asks for less motion. */
+export function gearEffectLevel(local: boolean, prefs: Readonly<Preferences> = preferences.get().values, reducedMotion = prefersReducedMotion()): GearEffects {
+  const want = local ? prefs.gearEffects : prefs.otherGearEffects;
+  return reducedMotion && want === 'full' ? 'reduced' : want;
+}
+let motionQuery: MediaQueryList | null | undefined;
+function prefersReducedMotion(): boolean {
+  if (motionQuery === undefined) { try { motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null; } catch { motionQuery = null; } }
+  return !!motionQuery?.matches;
+}

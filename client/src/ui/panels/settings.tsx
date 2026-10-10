@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { preferences, DEFAULT_CAMERA_ZOOM, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM, type Preferences } from '../../game/preferences';
+import { preferences, DEFAULT_CAMERA_ZOOM, GEAR_EFFECT_LEVELS, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM, type Preferences } from '../../game/preferences';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
 import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { useLocal } from './state';
@@ -20,6 +20,15 @@ export function SettingsPanel() {
   );
   const check = (key: keyof Pick<Preferences, 'muted' | 'cameraShake' | 'reduceFlashes' | 'lootQualityLabels' | 'combatNumbers' | 'contextualHints'>, label: string) => (
     <label class="settings-check"><input type="checkbox" checked={values[key]} onChange={e => preferences.set({ [key]: e.currentTarget.checked })} /><span>{label}</span></label>
+  );
+  const gearChoice = (key: 'gearEffects' | 'otherGearEffects', label: string) => (
+    <div class="settings-choice" role="radiogroup" aria-label={label}>
+      <span>{label}</span>
+      <div class="settings-seg">
+        {GEAR_EFFECT_LEVELS.map(level => <button key={level} type="button" role="radio" aria-checked={values[key] === level} class={`btn sm${values[key] === level ? ' on' : ''}`}
+          data-gear={`${key}:${level}`} onClick={() => preferences.set({ [key]: level })}>{text(`gear.${level}`)}</button>)}
+      </div>
+    </div>
   );
   return (
     <PanelFrame id="settings" title={text('settings.title')} width={820} sub={text('settings.subtitle')}>
@@ -48,6 +57,10 @@ export function SettingsPanel() {
         <p class="settings-note">{text('settings.combatNumbersNote')}</p>
         {check('contextualHints',text('guide.show'))}
         <p class="settings-note">{text('guide.settingNote')}</p>
+        <SecHead>{text('gear.settingsHeading')}</SecHead>
+        {gearChoice('gearEffects', text('gear.own'))}
+        {gearChoice('otherGearEffects', text('gear.others'))}
+        <p class="settings-note">{text('gear.settingsNote')}</p>
         </section></div><p class="settings-note" role="status">{text(retained ? 'settings.retained' : 'settings.sessionOnly')}</p>
         <button class="btn" onClick={() => preferences.reset()}>{text('settings.reset')}</button>
       </div>}

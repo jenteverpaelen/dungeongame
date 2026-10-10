@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 21;
+export const PROTOCOL_VERSION = 22;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -39,7 +39,11 @@ export interface PlayerLook {
   title?:string;
   appearance?: import('./appearance').HeroAppearance;
   classId: ClassId;
+  /** Paper-doll looks; since protocol 22 each carries `fx` (packed gear visual progression, gearVisual.ts). */
   slots: Partial<Record<LookSlot, ItemLook>>;
+  /** Protocol 22: packed progression (gearVisual.ts) of the jewellery and bracers, which are not paper-doll parts:
+   *  they feed the floating charms and the gear rank. Numbers only, to keep descriptors small. */
+  jw?: Partial<Record<import('./gearVisual').CharmSlot, number>>;
 }
 
 export interface LootView {

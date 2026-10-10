@@ -13,6 +13,8 @@ import { LABEL_FONT, ensureFonts } from './fonts';
 import { TAU, clamp, cssToInt, easeOut, hash01, lerpColor, rand } from './util';
 import { preferences } from '../../game/preferences';
 import { text } from '../../i18n/messages';
+import { lookFx } from '@shared/gearVisual';
+import { gearSigilTexture } from '../art/gearFx';
 
 function labelText(l: LootView, quality: boolean): string {
   if (!quality || l.lk !== 'item' || !l.rarity) return l.name;
@@ -34,6 +36,15 @@ interface BeamStyle { outer: number; core: number; width: number; height: number
 
 function beamStyle(l: LootView): BeamStyle | null {
   if (l.lk !== 'item') return null;
+  // Visual tier (protocol 22): Runic rares get a short pillar, Heroic (ilvl 70) Legendaries / Sets a taller beam.
+  const tier = lookFx(l.look)?.tier ?? -1;
+  if (tier === 5) return { outer: 0xe8c040, core: 0xfff4c0, width: 26, height: 150, glow: 0xffd040 };
+  const base = beamStyleByRarity(l);
+  if (base && tier === 7) return { ...base, width: base.width + 8, height: base.height + 70 };
+  return base;
+}
+
+function beamStyleByRarity(l: LootView): BeamStyle | null {
   if (l.rarity === 'legendary') {
     if (l.ancient === 2) return { outer: 0xff4630, core: 0xffd890, width: 70, height: 520, glow: 0xff5a30 };
     if (l.ancient === 1) return { outer: 0xff8a2a, core: 0xffe6a0, width: 66, height: 500, glow: 0xff9a40 };
@@ -178,6 +189,9 @@ class LootItemView implements EntityView {
   private labelAlpha = 0;
   private landed = false;
   private labelQuality = false;
+  private sigil: Sprite | null = null;
+  private tier = -1;
+  private nextPulse = 0.4;
 
   constructor(private V: VfxCore, private M: LootManager, private desc: EntDesc) {
     const T = V.T;
@@ -187,6 +201,7 @@ class LootItemView implements EntityView {
     this.shadow.tint = 0x000000;
     this.root.addChild(this.shadow, this.body);
     this.beamStyle = beamStyle(l);
+    this.tier = lookFx(l.look)?.tier ?? -1;
     this.hasLabel = l.lk === 'item' || l.lk === 'gem' || l.lk === 'mat';
     const seed = hash01(desc.id);
     this.tilt = (seed - 0.5) * 0.8;
@@ -358,6 +373,14 @@ class LootItemView implements EntityView {
     beam.position.set(0, 2);
     this.beam = beam;
     this.root.addChildAt(beam, 1);
+    if (this.tier >= 7) {
+      // Heroic+: a turning sigil under the drop; Primal uses the spiked ring (and pulses, see update)
+      const sg = new Sprite(gearSigilTexture(this.tier >= 9 ? 'primal' : this.desc.loot?.rarity === 'set' ? 'set' : 'rune'));
+      sg.anchor.set(0.5); sg.blendMode = 'add'; sg.tint = st.outer; sg.alpha = 0;
+      sg.width = this.tier >= 8 ? 70 : 58; sg.height = sg.width * 0.42;
+      this.sigil = sg;
+      this.root.addChildAt(sg, 1);
+    }
     if (burst) {
       const s = this.V.sys;
       s.flash(this.x, this.y, 20, 140, st.core, 0.22, 1);
@@ -415,6 +438,14 @@ class LootItemView implements EntityView {
     if (this.landed && this.hasLabel) {
       this.labelAlpha = Math.min(1, this.labelAlpha + rdt * 6);
       this.label.alpha = this.labelAlpha;
+    }
+    if (this.sigil) {
+      this.sigil.alpha = Math.min(0.75, this.sigil.alpha + rdt * 2) * (0.8 + 0.2 * Math.sin(this.time * 2.4));
+      this.sigil.scale.x = Math.abs(this.sigil.scale.x) * (Math.cos(this.time * 0.9) >= 0 ? 1 : 1);
+    }
+    if (this.tier >= 9 && this.beam && this.root.visible) {
+      this.nextPulse -= rdt;
+      if (this.nextPulse <= 0) { this.nextPulse = 1.4; const st = this.beamStyle!; this.V.sys.ring(this.V.sys.gAdd, this.V.T.ringThick, this.x, this.y, 10, 90, st.outer, 0.5, 0.9); }
     }
     // Beam: grow in, then breathe; motes drift up the column.
     if (this.beam) {

@@ -9,7 +9,13 @@
 // Skills are choreographed in choreo.ts; weapon trails are ribbons sampled along the real tip path.
 
 import { Container, Graphics, Matrix, Sprite, Texture } from 'pixi.js';
-import { preferences } from '../../game/preferences';
+import { gearEffectLevel, preferences } from '../../game/preferences';
+import { gearProfile, type GearProfile } from '@shared/gearVisual';
+import { LEGENDARIES } from '@shared/data/items';
+import { GEAR_TIER_COLORS } from '@shared/gearVisual';
+import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx';
+import { backPieceFor, drawBackPiece, drawWing, shoulderScale, weaponScale } from './gearDecor';
+import { SET_STYLE, itemStyle } from './gearStyle';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -61,9 +67,30 @@ function lookKey(look: PlayerLook): string {
   const parts: string[] = [look.classId,JSON.stringify(look.appearance??null),JSON.stringify((look as NpcBodyLook).npc??null)];
   for (const k of Object.keys(look.slots).sort()) {
     const l = look.slots[k as LookSlot]!;
-    parts.push(`${k}:${l.shape}:${l.primary}:${l.secondary}:${l.glow}:${l.variant}`);
+    parts.push(`${k}:${l.shape}:${l.primary}:${l.secondary}:${l.glow}:${l.variant}:${l.fx ?? ''}`);
   }
+  if (look.jw) parts.push(JSON.stringify(look.jw));
   return parts.join('|');
+}
+
+/** The back piece a look earns (cloth cape / mantle, or motif wings) and its colours. */
+function backOf(look: PlayerLook) {
+  const hasFx = Object.values(look.slots).some((l) => typeof l?.fx === 'number');
+  const p = hasFx ? gearProfile(look) : null;
+  const kind = p ? backPieceFor(p.rank, p.topSetCount, p.primals) : 'none';
+  const chest = look.slots.chest;
+  const cs = itemStyle(chest);
+  const set = p?.topSet && p.topSetCount >= 4 ? SET_STYLE[p.topSet] : undefined;
+  const motif = p ? profileMotif(look, p) : null;
+  const accent = p ? dominantColor(look, p) : 0xffffff;
+  return {
+    kind, tier: p?.rank ?? 0, accent, motif: motif === 'primal' ? 'ember' as const : motif,
+    primary: chest?.primary ?? 0x6a4a3a, metal: cs?.metal ?? GEAR_TIER_COLORS[p?.rank ?? 0],
+    deep: set?.deep ?? (p?.primals ? 0x5a1010 : 0x3a2a1c),
+    wing: (p?.primals ? 'primal' : set && p!.topSetCount >= 6 ? set.motif : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
+    // Ancient heroes get amber-edged wings (the deep tone of the wing gradient)
+    ancient: (p?.ancients ?? 0) >= 2,
+  };
 }
 
 /** Every part a look needs (names must match the rig below). */
@@ -74,15 +101,21 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
   for (const deg of HEAD_VIEWS) add(`head@${deg}`, (c) => drawHeadView(c, body, sl.head, deg), HEAD_FLASH_VIEWS.includes(deg));
   for (const deg of LEG_VIEWS) add(`leg@${deg}`, (c) => drawLegView(c, body, sl.legs, sl.feet, deg));
   add('torso', (c) => drawTorsoBase(c, body, sl.chest, sl.waist));
-  add('torsoF', (c) => drawTorsoFront(c, body, sl.chest));
+  const neck = look.jw?.neck;
+  const neckLeg = neck ? (neck >>> 14) & 31 : 0;
+  const neckColor = neckLeg ? Object.values(LEGENDARIES)[neckLeg - 1].colors.glow : GEAR_TIER_COLORS[(neck ?? 0) & 15];
+  add('torsoF', (c) => drawTorsoFront(c, body, sl.chest, neck, neckColor));
   add('torsoB', (c) => drawTorsoBack(c, body, sl.chest));
   if (sl.waist) add('belt', (c) => drawBeltFront(c, sl.waist!, sl.chest?.shape === 'robe'));
   add('arm', (c) => drawArm(c, body, sl.chest, false));
   add('hand', (c) => drawHand(c, body, sl.hands, false));
+  const back = backOf(look);
   if (sl.shoulders) {
     add('pad', (c) => drawShoulder(c, sl.shoulders!, false));
-    if (sl.shoulders.shape === 'mantle') add('cape', (c) => drawCapeBack(c, sl.shoulders!));
+    if (sl.shoulders.shape === 'mantle' && back.kind !== 'cape' && back.kind !== 'mantle') add('cape', (c) => drawCapeBack(c, sl.shoulders!));
   }
+  if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier));
+  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.ancient && !look.slots.chest?.fx ? back.deep : back.ancient ? 0xb8661a : back.deep));
   const probe = new Graphics();
   if (drawHairTail(probe.context, body, sl.head)) add('tail', (c) => { drawHairTail(c, body, sl.head); });
   if (drawHairCurtain(probe.context, body, sl.head)) add('curtain', (c) => { drawHairCurtain(c, body, sl.head); });
@@ -300,6 +333,14 @@ export class PlayerArt implements PlayerView {
   private twinkles: Twinkle[] = [];
   private stars: Sprite[] = [];
   private bubble: Sprite | null = null;
+  // gear visual progression (gearFx.ts / gearDecor.ts)
+  private gear: GearFx | null = null;
+  private profile: GearProfile | null = null;
+  private gearQ: GearQuality = 'full';
+  private isLocal = false;
+  private padK = 1;
+  private wpnK = 1;
+  private wingFlap = 0;
 
   // animation state
   private t = 0;
@@ -381,7 +422,9 @@ export class PlayerArt implements PlayerView {
     const wk = weaponKind(sl.mainhand?.shape);
     const npcHeld = !!sl.offhand && NPC_OFFHAND.has(sl.offhand.shape);
     this.kit = { wk, shield: sl.offhand?.shape === 'shield' || (!!sl.offhand && !npcHeld && !['quiver', 'orb'].includes(sl.offhand.shape)), orb: sl.offhand?.shape === 'orb' || npcHeld, shape: sl.mainhand?.shape ?? '' };
-    this.reach = reachOf(sl.mainhand?.shape);
+    this.padK = shoulderScale(sl.shoulders);
+    this.wpnK = weaponScale(sl.mainhand);
+    { const r = reachOf(sl.mainhand?.shape); this.reach = { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
     const glow = sl.mainhand?.glow ?? 0;
     this.trailColor = glow ? light(glow, 0.25) : 0xfff4dc;
     this.trailAdd = !!glow;
@@ -399,6 +442,8 @@ export class PlayerArt implements PlayerView {
     if (sheet.has('curtain')) mk('curtain', 'curtain');
     if (sheet.has('tail')) mk('tail', 'tail');
     if (sheet.has('cape')) mk('cape', 'cape');
+    if (sheet.has('back')) mk('back', 'back');
+    if (sheet.has('wing')) { mk('wingR', 'wing'); mk('wingL', 'wing'); }
     if (sheet.has('quiver')) mk('quiver', 'quiver');
     mk('head', 'head@65');
     mk('eyeR', 'eye'); mk('eyeL', 'eye');
@@ -461,6 +506,12 @@ export class PlayerArt implements PlayerView {
     const hs = sl.head?.shape;
     this.height = hs === 'wizard_hat' ? 78 : hs === 'helm_horned' ? 76 : wk === 'staff' ? 72 : 68;
 
+    // gear progression: profile-driven live effects replace the old per-look glow rules (looks without `fx` —
+    // townsfolk, older servers — keep the original glows below)
+    this.gear?.destroy(); this.gear = null;
+    const hasFx = Object.values(sl).some((l) => typeof l?.fx === 'number');
+    this.profile = hasFx ? gearProfile(this.look) : null;
+    if (this.profile) { this.buildGear(); return; }
     // legendary / set glows
     let glowCount = 0;
     const SLOTS: [LookSlot, number, number][] = [['head', 46, 40], ['chest', 36, 36], ['shoulders', 34, 22], ['hands', 22, 18], ['waist', 32, 14], ['legs', 26, 18], ['feet', 26, 12], ['offhand', 30, 30]];
@@ -498,6 +549,51 @@ export class PlayerArt implements PlayerView {
       this.over.addChild(m);
       this.twinkles.push({ s: m, x: 0, y: -26, r: 20, phase: (i / 4) * TAU, speed: 1.1, rise: true, color: GLOW_SET });
     }
+  }
+
+  /** Per-piece emissive glows (Storied+ pieces) and the live gear effects for the current quality. */
+  private buildGear(): void {
+    const sl = this.look.slots, p = this.profile!;
+    this.gearQ = this.npcLook() ? 'off' : gearEffectLevel(this.isLocal);
+    const q = this.gearQ;
+    if (q !== 'off') {
+      const SLOTS: [LookSlot, number, number][] = [['head', 46, 40], ['chest', 36, 36], ['shoulders', 34, 22], ['hands', 22, 18], ['waist', 32, 14], ['legs', 26, 18], ['feet', 26, 12], ['offhand', 30, 30]];
+      for (const [slot, w, h] of SLOTS) {
+        const st = itemStyle(sl[slot]);
+        if (!st || st.tier < 6) continue;
+        const g = glowSprite(st.accent, Math.max(w, h) * (1.5 + (st.tier - 6) * 0.12), 0.3, true);
+        g.scale.y *= h / w;
+        this.glowBack.addChild(g);
+        this.glows.push({ sprite: g, base: q === 'full' ? 0.32 + (st.tier - 6) * 0.06 : 0.3, phase: Math.random() * TAU, slot });
+      }
+      const w = itemStyle(sl.mainhand);
+      this.weaponGlow = null; this.tipSpark = null;
+      if (w && w.tier >= 6) {
+        const ws = glowSprite(w.accent, 30, 0.5, true);
+        ws.blendMode = 'normal'; ws.zIndex = 0;
+        this.weaponGlow = ws; this.body.addChild(ws);
+        if (q === 'full') { const tip = sparkleSprite(light(w.accent, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
+      }
+    }
+    this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR);
+    if (this.parts.wingR) this.parts.wingR.visible = this.parts.wingL.visible = q !== 'off';
+  }
+
+  private npcLook(): boolean { return !!(this.look as NpcBodyLook).npc; }
+
+  /** The scene tells views which hero is the local player (own vs other players' gear-effect setting). */
+  setIsLocal(v: boolean): void {
+    if (this.isLocal === v) return;
+    this.isLocal = v;
+    if (this.profile) this.rebuildGearFx();
+  }
+
+  private rebuildGearFx(): void {
+    for (const g of this.glows) g.sprite.destroy();
+    this.glows = [];
+    this.weaponGlow?.destroy(); this.tipSpark?.destroy(); this.weaponGlow = null; this.tipSpark = null;
+    this.gear?.destroy(); this.gear = null;
+    this.buildGear();
   }
 
   private addTwinkles(l: ItemLook, r: number): void {
@@ -542,7 +638,7 @@ export class PlayerArt implements PlayerView {
     }
     if (this.act) this.lastAct = this.act;
     this.act = { def, skill: a.skill, start: now, cycle: Math.max(180, a.cycleMs || 800), alt, tx: a.tx, ty: a.ty, primary, shots, fired: 0, notes };
-    if (a.skill === 'level_up') this.lvl = now;
+    if (a.skill === 'level_up') { this.lvl = now; this.gear?.flare(); }
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
@@ -707,6 +803,7 @@ export class PlayerArt implements PlayerView {
     }
 
     this.layout(P, s, actCtx, frozen);
+    const n0 = this.parts;
 
     // blink / expressions
     this.blinkT -= adt;
@@ -718,6 +815,16 @@ export class PlayerArt implements PlayerView {
 
     this.updateGlows(t, P);
     this.updateFx(t, P, act, actCtx, adt);
+    if (this.profile) {
+      const q = this.npcLook() ? 'off' : gearEffectLevel(this.isLocal);
+      if (q !== this.gearQ) this.rebuildGearFx();
+      this.gear?.update({
+        t, dt: adt, wx: s.x, wy: s.y, moving: this.moveBlend > 0.5, walk: this.walk, idle: this.idleFor(), side: this.side,
+        sB: Math.sin(this.yawB * D2R), cB: Math.cos(this.yawB * D2R),
+        head: { x: n0.head.x, y: n0.head.y, d: 0 }, chest: { x: 0, y: -24, d: 0 }, hR: this.hR, hL: this.hL, wTip: this.wTip, wBase: this.wBase,
+        hasWeapon: !!n0.weapon && this.kit.wk !== 'bow', bow: this.kit.wk === 'bow',
+      });
+    }
     this.updateStatus(t, flags, stunned);
 
     // tints
@@ -924,6 +1031,35 @@ export class PlayerArt implements PlayerView {
       n.cape.rotation = side * (0.06 * this.moveBlend + 0.5 * fly) * Math.abs(sB) + Math.sin(t * 2) * 0.015;
       n.cape.zIndex = clamp(this.tmp.d, -8, 0.6);
     }
+    if (n.back) {
+      // cloth back piece: hangs from the nape, sways with movement, narrows in profile (like the mantle cape)
+      this.pt(-6, -33 + drop, 0, this.tmp);
+      n.back.position.set(this.tmp.x, this.tmp.y);
+      const sway = this.gearQ === 'full' ? Math.sin(t * 1.8) * 0.025 + Math.sin(this.walk) * 0.03 * this.moveBlend : 0;
+      n.back.scale.set((0.5 + 0.5 * Math.abs(cB)) * (1 + fly * 0.3), 1 - fly * 0.18 - 0.05 * this.moveBlend);
+      // in profile the cloth flares out behind the hero so the silhouette shows it
+      n.back.rotation = side * (0.2 * Math.abs(sB) + (0.12 * this.moveBlend + 0.5 * fly) * Math.abs(sB)) + sway;
+      n.back.zIndex = clamp(this.tmp.d, -8.5, 0.55);
+    }
+    if (n.wingR) {
+      // wings attach between the shoulder blades and sweep outwards + back; their screen spread follows the yaw
+      this.pt(-4.2, -36 + drop, 0, this.tmp);
+      const ax = this.tmp.x, ay = this.tmp.y, ad = this.tmp.d;
+      const animate = this.gearQ === 'full';
+      this.wingFlap += (animate ? (1.1 + 1.6 * this.moveBlend) : 0) * TAU * 0.25 * (1 / 60);
+      const flap = animate ? Math.sin(t * (1.6 + 2.2 * this.moveBlend)) : 0;
+      // Wings read like the top-down ARPG convention: always spread to both sides behind the hero, with a yaw-driven
+      // asymmetry (the far wing narrows and the pair drifts to the back side in profile).
+      const facing = cB >= 0 ? 1 : -1;
+      for (const sz of [1, -1] as const) {
+        const w = sz === 1 ? n.wingR : n.wingL;
+        const X = -sz * facing * (0.72 + 0.28 * Math.abs(cB)) - 0.38 * sB;
+        w.position.set(ax - sB * 2, ay);
+        w.scale.set(Math.sign(X) * clamp(Math.abs(X), 0.34, 1.05), 1 + flap * 0.05);
+        w.rotation = Math.sign(X) * (-0.05 - flap * 0.1);
+        w.zIndex = clamp(ad, -8.6, 0.5) - 0.01;
+      }
+    }
     if (n.quiver) {
       this.pt(-7.6, -24 + drop, 1.4, this.tmp);
       n.quiver.position.set(this.tmp.x, this.tmp.y);
@@ -961,7 +1097,7 @@ export class PlayerArt implements PlayerView {
         const L = Math.hypot(this.wDir.x, this.wDir.y);
         wpn.position.set(hand.x, hand.y);
         wpn.rotation = Math.atan2(this.wDir.x, -this.wDir.y);
-        wpn.scale.set(1, clamp(L, 0.3, 1.05));
+        wpn.scale.set(this.wpnK, clamp(L, 0.3, 1.05) * this.wpnK);
         wpn.skew.set(0, 0);
       }
       const mid = (hand.d + (wk === 'bow' ? hand.d : this.wTip.d)) / 2;
@@ -1036,7 +1172,7 @@ export class PlayerArt implements PlayerView {
     // sits on top of the shoulder, nudged outwards; slightly smaller than the profile drawing
     const out = sideZ * 2.4;
     pad.position.set(s.x - out * this.cs, s.y - 1.8 + out * this.sn * KB);
-    pad.scale.set(0.84);
+    pad.scale.set(0.84 * this.padK);
     const raise = clamp((s.y - h.y) / ARM);
     pad.rotation = (h.x - s.x) * 0.02 * sideZ + raise * 0.25 * Math.sign(h.x - s.x || 1);
     pad.zIndex = s.d + 0.3;
@@ -1054,7 +1190,8 @@ export class PlayerArt implements PlayerView {
     this.dv(-U.x, -U.y, -U.z, this.tmp2);
     const vx = this.tmp2.x, vy = this.tmp2.y;
     const m = this.bowM;
-    m.set(ax, ay, vx, vy, hand.x - ax * 2.4, hand.y - ay * 2.4);
+    const k = this.wpnK;
+    m.set(ax * k, ay * k, vx * k, vy * k, hand.x - ax * 2.4, hand.y - ay * 2.4);
     bow.setFromMatrix(m);
     // string: limb tips → nock (pulled to the right hand)
     const at = (lx: number, ly: number) => ({ x: m.a * lx + m.c * ly + m.tx, y: m.b * lx + m.d * ly + m.ty });
@@ -1313,6 +1450,7 @@ export class PlayerArt implements PlayerView {
     this.destroyed = true;
     this.deathDone = null;
     this.ribbonF.destroy(); this.ribbonB.destroy();
+    this.gear?.destroy(); this.gear = null;
     this.root.destroy({ children: true });
     releaseSheet(this.key);
   }

@@ -12,6 +12,7 @@ import {
 } from './draw';
 import { BLUSH, BONE, GOLD, OUTFIT, WOOD, WOOD_DARK } from './palette';
 import { light, mix, shade } from './util';
+import { decorHand, decorShield, decorShoulder, decorWeapon } from './gearDecor';
 
 export interface Body {
   cls: ClassId;
@@ -270,6 +271,11 @@ export function drawArm(c: Ctx, b: Body, chest: ItemLook | undefined, isBack: bo
 
 /** Hand (centre at origin). Gloves change the silhouette: gauntlets are chunky, wraps trail a strip. */
 export function drawHand(c: Ctx, b: Body, hands: ItemLook | undefined, isBack: boolean): void {
+  drawHandBase(c, b, hands, isBack);
+  if (hands && !isBack) decorHand(c, hands);
+}
+
+function drawHandBase(c: Ctx, b: Body, hands: ItemLook | undefined, isBack: boolean): void {
   const skin = back(b.skin, isBack);
   if (!hands) { ball(c, 0, 0, 3.3, 3.3, skin, { hl: 0.25 }); return; }
   const p = back(hands.primary, isBack), s = back(trim(hands), isBack);
@@ -296,6 +302,11 @@ export function drawHand(c: Ctx, b: Body, hands: ItemLook | undefined, isBack: b
 // Pivot at the shoulder joint.
 
 export function drawShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
+  drawShoulderBase(c, l, isBack);
+  decorShoulder(c, l, isBack);
+}
+
+function drawShoulderBase(c: Ctx, l: ItemLook, isBack: boolean): void {
   const p = back(l.primary, isBack), s = back(trim(l), isBack);
   switch (l.shape) {
     case 'plate':
@@ -545,6 +556,11 @@ export function drawEyes(c: Ctx, b: Body, hooded: boolean): void {
 // Hand-local: grip at the origin, the business end points to -y.
 
 export function drawWeapon(c: Ctx, l: ItemLook, rig = false): void {
+  drawWeaponBase(c, l, rig);
+  decorWeapon(c, l);
+}
+
+function drawWeaponBase(c: Ctx, l: ItemLook, rig: boolean): void {
   const p = l.primary, s = trim(l), v = l.variant;
   const edge = light(p, 0.55);
   switch (l.shape) {
@@ -846,6 +862,7 @@ export function drawShield(c: Ctx, l: ItemLook): void {
     c.poly(pts, true); outline(c, OW);
   }
   if (l.glow) gem(c, 0, v === 0 ? 0 : -6, 2.2, light(l.glow, 0.2), 1.1);
+  decorShield(c, l);
 }
 
 /** Quiver on the back (pivot between the shoulder blades), tilted. */
