@@ -3,7 +3,9 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { INCOMPLETE_RESTORE, validCharacterId, type CharacterStore } from './characterStore';
 
-const RETRYABLE_RENAME = new Set(['EPERM', 'EBUSY', 'EACCES']);
+/** EACCES is deliberately not retried: it is what a read-only or permission-denied target reports (and what the
+ *  storage-outage tests inject), and waiting does not fix it. */
+const RETRYABLE_RENAME = new Set(['EPERM', 'EBUSY']);
 /** Windows briefly refuses to replace a file that another process holds open (antivirus, backup tools, a test reading
  *  the save). Retry the atomic rename with a short bounded backoff (~1.9 s total) instead of failing the save. */
 async function renameWithRetry(from: string, to: string): Promise<void> {
