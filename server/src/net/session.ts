@@ -20,6 +20,7 @@ import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
 import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
+import { diffEvents, observe, type Observed } from '../telemetry';
 import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
 import { decode, encode } from './codec';
@@ -84,6 +85,7 @@ export class Session implements PlayerLink {
   private commandReceipts = new CommandReceipts();
   private commandSave:Promise<void>|null=null;
   private commandQueue:Promise<void>=Promise.resolve();
+  private seen: Observed | null = null;
   private queuedCommands=0;
 
   constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
@@ -190,6 +192,17 @@ export class Session implements PlayerLink {
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
     if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
+    this.observe(now);
+  }
+
+  /** Playtest telemetry: compare this second's character with the last one and log what changed. */
+  private observe(now: number): void {
+    const telemetry = this.world.telemetry;
+    if (!telemetry.enabled || this.state !== 'ready') return;
+    const playMs = this.save.stats.playMs + (this.playMark ? now - this.playMark : 0);
+    const next = observe(this.save, this.rec?.inst.map.zone ?? '', playMs);
+    telemetry.logAll(diffEvents(this.seen, next, this.charId));
+    this.seen = next;
   }
 
   /** Ping the client; terminate when it did not answer the previous ping. */
@@ -483,6 +496,8 @@ export class Session implements PlayerLink {
     }
     this.saveNow();
     if (afk) this.send({ t: 'afk', ...afk });
+    this.world.telemetry.log({ e: 'login', c: this.charId, fresh: isNew, cls: save.classId, lvl: save.level, playMs: save.stats.playMs,
+      ...(afk ? { afkMs: afk.ms, afkKills: afk.kills, afkLevels: afk.levels } : {}) });
     this.world.systemMessage(this, `Welcome to Hearthfall, ${save.name}.`);
     if (isNew) {
       this.world.systemMessage(this, 'Attacks and slotted skills are automatic.');
@@ -525,6 +540,8 @@ export class Session implements PlayerLink {
     if (wasReady) {
       try { this.world.logout(this); } catch (err) { console.error(`[session] logout of ${this.name} failed:`, err); }
       this.saveNow();
+      this.world.telemetry.log({ e: 'logout', c: this.charId, lvl: this.save.level, playMs: this.save.stats.playMs + (this.playMark ? Date.now() - this.playMark : 0),
+        kills: this.save.stats.kills, deaths: this.save.stats.deaths });
       console.log(`[session] ${this.save.name} logged out`);
     }
     if (this.charId) this.world.release(this.charId, this);

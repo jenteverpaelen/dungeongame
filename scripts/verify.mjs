@@ -23,6 +23,7 @@ const stages = [
   ['command-replay', ['--import', 'tsx', '--test', 'server/test/commandReplay.test.ts']],
   ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts', 'server/test/messageBudget.test.ts']],
   ['accounts', ['--import', 'tsx', '--test', 'server/test/accounts.test.ts']],
+  ['telemetry', ['--import', 'tsx', '--test', 'server/test/telemetry.test.ts']],
   ['backups', ['--import', 'tsx', '--test', 'server/test/backups.test.ts']],
   ['backup-rotation', ['--import', 'tsx', '--test', 'server/test/backupRotation.test.ts']],
   ['backup-runtime', ['--import', 'tsx', '--test', 'server/test/backupRuntime.test.ts']],

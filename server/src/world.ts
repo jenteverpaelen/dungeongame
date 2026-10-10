@@ -6,6 +6,7 @@ import { recordIntro } from '../../shared/src/onboarding';
 import { Parties } from './party';
 import { Social } from './social';
 import { AccountStore } from './accounts';
+import { Telemetry } from './telemetry';
 import { Community } from './community';
 import { ACCOUNT_MODE, EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
@@ -107,6 +108,8 @@ export class World {
   readonly social:Social=new Social(()=>this.players,this.parties);
   /** Username/password accounts; only loaded when ACCOUNTS is `optional` or `required`. */
   readonly accounts = new AccountStore();
+  /** Local playtest event log; inert unless TELEMETRY=1. */
+  readonly telemetry = new Telemetry();
   readonly community:Community=new Community(()=>this.players,(a,b)=>this.social.blocked(a,b),s=>this.social.isEnabled(s),undefined,(a,b)=>this.social.presenceVisible(a,b));
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
@@ -164,6 +167,7 @@ export class World {
   async shutdown(): Promise<void> {
     await this.community.shutdown();
     for (const s of [...this.players]) s.shutdown('Server restarting');
+    await this.telemetry.shutdown();
     for (const rec of [...this.recs.values()]) {
       try { rec.inst.destroy(); } catch (err) { console.error(`[world] destroy ${rec.key} failed:`, err); }
     }
