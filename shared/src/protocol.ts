@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 16;
+export const PROTOCOL_VERSION = 17;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -176,15 +176,17 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: 'zone' | 'world' | 'system'; from?: string; cls?: ClassId; text: string }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
   | { t: 'world'; world: WorldInfo }
   | { t: 'party'; party: import('./party').PartyView }
+  | { t: 'social'; social: import('./social').SocialView }
   | { t: 'pong'; c: number; s: number }
   | { t: 'err'; msg: string };
 
 export type CmdOp = 'onboarding'
   | 'party'
+  | 'social'
   | 'merchant'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
   | 'stashDeposit' | 'stashWithdraw'
@@ -203,5 +205,5 @@ export type C2S =
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
   // Reusing an ID means retrying that request, not performing another action.
   | { t: 'cmd'; id: number; op: CmdOp; a?: Record<string, unknown>; r?: import('./commandState').CommandRequest }
-  | { t: 'chat'; text: string }
+  | { t: 'chat'; text: string; ch?:import('./social').ChatChannel; to?:string }
   | { t: 'ping'; c: number };

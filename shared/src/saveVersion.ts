@@ -1,2 +1,2 @@
-/** v12 preserves optional slotted passive selections; absent legacy selections grant no stats. */
-export const SAVE_VERSION = 12;
+/** v13 preserves optional character contact lists and privacy preferences. */
+export const SAVE_VERSION = 13;

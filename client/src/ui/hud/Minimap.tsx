@@ -282,6 +282,7 @@ export function TopRight() {
       <Minimap />
       <button class="btn" onClick={()=>togglePanel('worldmap')}>{text('map.title')}</button>
       <button class="btn" onClick={()=>togglePanel('party')}>Party</button>
+      <button class="btn" onClick={()=>togglePanel('social')}>Social</button>
       <RiftBar />
       <AdventureTracker />
     </div>

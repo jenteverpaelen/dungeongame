@@ -3,6 +3,8 @@
 
 import { isHeroAppearance } from '../../../shared/src/appearance';
 import { startIntro } from '../../../shared/src/onboarding';
+import {CHAT_MAX_LEN,CHAT_BURST,CHAT_REFILL_MS} from '../../../shared/src/social';
+export {CHAT_MAX_LEN} from '../../../shared/src/social';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
@@ -32,9 +34,6 @@ const CHAR_THROTTLE_MS = 1000; // XP, gold and level also ride in every snapshot
 /** Close connections whose send buffer grows beyond this (the client cannot keep up). */
 const MAX_BUFFERED_BYTES = 4 * 1024 * 1024;
 const HELLO_TIMEOUT_MS = 10_000;
-export const CHAT_MAX_LEN = 200;
-const CHAT_BURST = 5;
-const CHAT_REFILL_MS = 1_000;
 
 export type SessionState = 'new' | 'loading' | 'ready' | 'closed';
 
@@ -228,7 +227,7 @@ export class Session implements PlayerLink {
     switch (msg.t) {
       case 'in': this.onInput(msg); return;
       case 'cmd': this.onCmd(msg); return;
-      case 'chat': this.onChat(msg.text); return;
+      case 'chat': this.onChat(msg.text,msg.ch,msg.to); return;
     }
   }
 
@@ -285,7 +284,7 @@ export class Session implements PlayerLink {
     }else publish();
   }
 
-  private onChat(raw: unknown): void {
+  private onChat(raw: unknown,ch:unknown='zone',to?:unknown): void {
     if (typeof raw !== 'string') return;
     // eslint-disable-next-line no-control-regex
     let text = raw.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -297,14 +296,17 @@ export class Session implements PlayerLink {
     if (this.chatTokens < 1) { this.world.systemMessage(this, 'You are chatting too quickly.'); return; }
     this.chatTokens -= 1;
     if (text.startsWith('/')) { this.slash(text); return; }
-    this.world.chat(this, text);
+    this.world.chat(this, text,ch,to);
   }
 
   private slash(text: string): void {
     const cmd = text.slice(1).split(' ')[0].toLowerCase();
     switch (cmd) {
       case 'who': this.world.systemMessage(this, `${this.world.onlineCount} player${this.world.onlineCount === 1 ? '' : 's'} online.`); break;
-      case 'help': this.world.systemMessage(this, 'Commands: /who, /help. Everything else is sent to your zone.'); break;
+      case 'help': this.world.systemMessage(this, 'Commands: /who, /help, /w Name message, /p message, /world message, /trade message, /lfg message. Contacts and privacy are in Social.'); break;
+      case 'w': case 'whisper': {const [,name,...words]=text.split(' ');this.world.chat(this,words.join(' '),'whisper',name);break;}
+      case 'p': case 'party': this.world.chat(this,text.slice(cmd.length+2),'party');break;
+      case 'world': case 'trade': case 'lfg': this.world.chat(this,text.slice(cmd.length+2),cmd);break;
       default: this.world.systemMessage(this, 'Unknown command. Try /help.');
     }
   }

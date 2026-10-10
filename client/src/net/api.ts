@@ -8,7 +8,7 @@ import type { CmdOp } from '@shared/protocol';
 export interface CmdResult<T = unknown> { ok: boolean; err?: string; data?: T }
 
 type Sender = (op: CmdOp, args?: Record<string, unknown>) => Promise<CmdResult>;
-type ChatSender = (text: string) => void;
+type ChatSender = (text: string,ch?:import('@shared/social').ChatChannel,to?:string) => void;
 
 let sender: Sender = async () => ({ ok: false, err: 'Not connected' });
 let chatSender: ChatSender = () => {};
@@ -26,8 +26,8 @@ export function cmd<T = unknown>(op: CmdOp, args?: Record<string, unknown>): Pro
   });
 }
 
-export function sendChat(text: string) {
-  chatSender(text);
+export function sendChat(text: string,ch?:import('@shared/social').ChatChannel,to?:string) {
+  chatSender(text,ch,to);
 }
 
 /** Start the game with a character (class select screen). Installed by main.ts. */

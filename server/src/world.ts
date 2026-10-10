@@ -4,6 +4,7 @@
 
 import { recordIntro } from '../../shared/src/onboarding';
 import { Parties } from './party';
+import { Social } from './social';
 import { EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
@@ -100,7 +101,8 @@ export class World {
   private reserved = new Map<string, Session>();
   /** Sessions that are in the world (have a welcome). */
   private players = new Set<Session>();
-  readonly parties=new Parties(()=>this.players);
+  readonly parties:Parties=new Parties(()=>this.players,undefined,(a,b):boolean=>this.social.canInvite(a,b));
+  readonly social:Social=new Social(()=>this.players,this.parties);
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
   private rng = new Rng((Math.random() * 0xffffffff) >>> 0);
@@ -131,6 +133,7 @@ export class World {
   /** Once per second: autosave, empty-instance cleanup and the periodic world info broadcast. */
   maintain(now = Date.now()): void {
     this.parties.tick(now);
+    this.social.tick();
     for (const rec of [...this.recs.values()]) {
       if (rec.members.size > 0) continue;
       const idle = now - rec.emptySince;
@@ -294,6 +297,7 @@ export class World {
     try {
       this.enter(s, rec, undefined, (you, r) => welcome(you, r.inst.zone));
       this.parties.connected(s);
+      this.social.tick();
     } catch (err) {
       this.players.delete(s);
       throw err;
@@ -304,6 +308,7 @@ export class World {
   logout(s: Session): void {
     this.players.delete(s);
     this.parties.disconnected(s);
+    this.social.disconnected(s);
     const rec = s.rec;
     if (rec) {
       s.save.lastZone = rec.kind === 'rift' ? TOWN_ID : rec.zoneId;
@@ -565,12 +570,10 @@ export class World {
 
   // ─────────────────────────── Chat & info ───────────────────────────
 
-  /** Zone chat: everybody in the sender's instance. */
-  chat(s: Session, text: string): void {
-    const rec = s.rec;
-    if (!rec) return;
-    const buf = encode({ t: 'chat', ch: 'zone', from: s.save.name, cls: s.save.classId, text });
-    for (const m of rec.members) m.sendRaw(buf);
+  /** Server determines each channel's audience and enforces personal privacy. */
+  chat(s: Session, text: string, ch:unknown='zone',to?:unknown): void {
+    const result=this.social.chat(s,text,ch,to);
+    if(!result.ok)this.systemMessage(s,result.err??'Message could not be sent');
   }
 
   /** A system line for one player. */

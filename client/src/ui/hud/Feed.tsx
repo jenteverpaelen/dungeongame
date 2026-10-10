@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { ui, useUI, type ChatLine, type Notice, type PickupLine } from '../store';
 import { sendChat } from '../../net/api';
+import {CHAT_CHANNELS} from '@shared/social';
+import {whisperTo} from '../panels/social';
 import { fmtInt } from '@shared/format';
 import { RARITY_COLORS } from '@shared/items';
 import { CoinGlyph, GemMark } from './Glyphs';
@@ -82,8 +84,8 @@ function ChatRow({ l, idle }: { l: ChatLine; idle: boolean }) {
   if (l.ch === 'system') return <div class={`chat-line sys${idle ? ' idle' : ''}`}>{l.text}</div>;
   return (
     <div class={`chat-line${idle ? ' idle' : ''}`}>
-      {l.ch === 'world' && <span class="chat-tag">[World]</span>}
-      <span class="chat-name" style={{ color: l.cls ? CLASS_TEXT[l.cls] : '#d9ccb2' }}>{l.from ?? '?'}</span>
+      <span class="chat-tag">[{l.ch==='whisper'?`Whisper → ${l.to}`:l.ch==='lfg'?'LFG':l.ch}]</span>
+      <button class="chat-name interactive" style={{ color: l.cls ? CLASS_TEXT[l.cls] : '#d9ccb2' }} onClick={()=>{if(l.from)whisperTo(l.from===ui.get().char?.name?(l.to??l.from):l.from);}} title="Whisper to this character">{l.from ?? '?'}</button>
       <span class="chat-sep">:</span> <span class="chat-text">{l.text}</span>
     </div>
   );
@@ -92,6 +94,7 @@ function ChatRow({ l, idle }: { l: ChatLine; idle: boolean }) {
 function ChatInput() {
   const ref = useRef<HTMLInputElement>(null);
   const [text, setText] = useState('');
+  const ch=useUI(s=>s.chatChannel),target=useUI(s=>s.chatTarget);
   useEffect(() => { ref.current?.focus(); }, []);
 
   const close = () => ui.set({ chatOpen: false });
@@ -101,7 +104,7 @@ function ChatInput() {
     if (e.key === 'Enter') {
       e.preventDefault();
       const t = text.trim();
-      if (t) sendChat(t.slice(0, 200));
+      if (t) sendChat(t.slice(0, 200),ch,target);
       setText('');
       close();
     } else if (e.key === 'Escape') {
@@ -111,8 +114,11 @@ function ChatInput() {
     }
   };
   return (
-    <div class="chat-input interactive">
-      <span class="chat-prompt">Say</span>
+    <div class="interactive" onKeyDown={e=>e.stopPropagation()}>
+    <div class="chat-audiences">{CHAT_CHANNELS.map(channel=><button class={`btn tiny${channel===ch?' primary':''}`} onClick={()=>{ui.set({chatChannel:channel});ref.current?.focus();}}>{channel==='lfg'?'LFG':channel}</button>)}</div>
+    {ch==='whisper'&&<label class="chat-recipient">To <input aria-label="Whisper recipient" maxLength={16} value={target} onInput={e=>ui.set({chatTarget:e.currentTarget.value})}/></label>}
+    <div class="chat-input">
+      <span class="chat-prompt">{ch==='whisper'?`To ${target||'…'}`:ch}</span>
       <input
         ref={ref}
         value={text}
@@ -122,8 +128,8 @@ function ChatInput() {
         placeholder="Press Enter to send, Esc to cancel"
         onInput={(e) => setText((e.currentTarget as HTMLInputElement).value)}
         onKeyDown={onKeyDown}
-        onBlur={close}
       />
+    </div>
     </div>
   );
 }

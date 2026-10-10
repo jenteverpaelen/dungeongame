@@ -17,7 +17,9 @@ export class Parties {
   private invites=new Map<string,Invite>();
   private inviteAt=new Map<string,number>();
   private sent=new Map<string,string>();
-  constructor(private sessions:()=>Iterable<Session>,private disabled=new Set((process.env.PARTY_DISABLED_CHANNELS??'').split(',').filter(Boolean))){}
+  constructor(private sessions:()=>Iterable<Session>,private disabled=new Set((process.env.PARTY_DISABLED_CHANNELS??'').split(',').filter(Boolean)),private canInvite:(a:Session,b:Session)=>boolean=()=>true){}
+  together(a:Session,b:Session){const group=this.group(a.save.id);return !!group&&group.id===this.group(b.save.id)?.id;}
+  pruneInvites(){for(const [id,i] of this.invites){const a=this.online(i.from),b=this.online(i.to);if(a&&b&&!this.canInvite(a,b))this.invites.delete(id);}}
   private online(id:string){return [...this.sessions()].find(s=>s.save.id===id);}
   private group(id:string){const key=this.membership.get(id);return key?this.groups.get(key):undefined;}
   private enabled(s:Session){return !!s.rec&&!this.disabled.has(`${s.rec.zoneId}#${s.rec.channel}`);}
@@ -62,7 +64,7 @@ export class Parties {
     }
   }
   command(s:Session,a:Record<string,unknown>,now=Date.now()):CmdResult{
-    this.expire(now);const id=s.save.id,action=a.action,g=this.group(id);
+    this.expire(now);this.pruneInvites();const id=s.save.id,action=a.action,g=this.group(id);
     if(this.online(id)!==s)return fail('Join the world before managing a party');
     if(!['leave','decline','cancel'].includes(String(action))&&!this.enabled(s))return fail('Party invitations are disabled in this channel');
     if(action==='invite'){
@@ -72,7 +74,7 @@ export class Parties {
       const matches=[...this.sessions()].filter(peer=>peer.save.name.toLocaleLowerCase()===a.name!.toString().trim().toLocaleLowerCase());
       if(matches.length!==1)return fail('That character is not available');const target=matches[0];
       if(target.save.id===id)return fail('You cannot invite yourself');
-      if(!this.enabled(target)||this.group(target.save.id))return fail('That character is not available for a party');
+      if(!this.enabled(target)||!this.canInvite(s,target)||this.group(target.save.id))return fail('That character is not available for a party');
       if(now-(this.inviteAt.get(id)??-Infinity)<1000)return fail('Wait a moment before inviting again');
       const all=[...this.invites.values()];
       if(all.some(i=>i.from===id&&i.to===target.save.id))return fail('An invitation is already pending');

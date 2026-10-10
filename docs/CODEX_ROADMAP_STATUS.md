@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C102. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C103. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -132,9 +132,9 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ITM-09 | Collection codex (legendaries, sets) | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-ITM-10 | Item-level and base-tier curve review | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL |
 | F-SOC-01 | Party (invite, leave, kick, leader) + party frames | P10a | Implemented scope | C102 complete character/session party flow and frames; five checks/two real clients. Authentication and chapter acceptance remain explicit. | MISSING |
-| F-SOC-02 | Friends list + presence | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
-| F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — zone/world/system chat |
-| F-SOC-04 | Block / mute / report | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-02 | Friends list + presence | P10a | Implemented scope | C103 saved character friends and mutual-consent coarse presence; private/unknown states hidden. Account migration remains P3. | MISSING |
+| F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Partial | C103 complete10a whisper/party/world/trade/LFG routes, server privacy and UI. Guild channel remains10b. | PARTIAL — zone/world/system chat |
+| F-SOC-04 | Block / mute / report | P10a | Partial | C103 persistent block/mute and invitation/chat enforcement, real reconnect checked. Report queue/staff policy pending owner answer. | MISSING |
 | F-SOC-05 | Emotes, titles, nameplates | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — nameplates for remote players exist in town |
 | F-SOC-06 | Inspect / armory | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-SOC-07 | Guilds / clans | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
@@ -373,3 +373,5 @@ C099 completes authored-route Cube pacing and the D-16 difficulty scope. Feature
 C100 closes selected P7/P9 regional family expansion; current147 features:39 implemented scope,35 partial,70 open,3 decided/excluded. This is not a completion percentage. P9 band/party/human evidence remains.
 
 C102 implements F-SOC-01 selected character/session party scope. Current147 features:40 implemented scope,35 partial,69 open,3 decided/excluded. Not a completion percentage. P10 friends/channels/moderation and real-client disconnect acceptance continue. [Party report](phase/P10-social/PARTY-REPORT.md)
+
+C103 closes selected character friends/presence and10a chat routes; block/mute implemented, report and guild scope explicit. Current147 features:41 implemented scope,37 partial,66 open,3 decided/excluded. Not completion percentage. [Social report](phase/P10-social/SOCIAL-REPORT.md)
