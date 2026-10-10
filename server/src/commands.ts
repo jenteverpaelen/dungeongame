@@ -4,6 +4,7 @@
 
 import { onboardingCommand, introCommandResult } from './onboarding';
 import { merchantCommand } from './merchant';
+import { economyCommandAction, economySnapshot, recordEconomy } from '../../shared/src/economy';
 import { ownedItems, VENDOR_SALVAGE_REASON } from '../../shared/src/merchant';
 import type { Session } from './net/session';
 import { adventureCommand } from './adventure';
@@ -749,7 +750,9 @@ export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdRes
       const reason = itemProtectionReason(locate(s.save, str(a, 'itemId'))?.item, op);
       if (reason) return fail(reason);
     }
+    const economyAction=economyCommandAction(op,a),before=economyAction?economySnapshot(s.save):undefined;
     const result=HANDLERS[op](s,a,world);
+    if(result.ok&&economyAction&&before)recordEconomy(s.save,economyAction,before);
     if(result.ok){creditQuestService(s,op);if(introCommandResult(s,op,a))s.changed(false);}
     return result;
   } catch (err) {

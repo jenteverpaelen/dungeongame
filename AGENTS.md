@@ -16,3 +16,5 @@
 7. Stop at the owner gates in `HANDOFF.md` §8. Use they/them for the owner. `git commit -F file` (no multi-line `-m` on PowerShell 5.1).
 
 **Freedom:** the plan in `HANDOFF.md` §6–§7 is a recommendation. You may exceed or replace it if you can show a better result — record it in `docs/town/DECISIONS.md` (what/why/evidence/rollback) and mention it in your next report. The hard rules above never bend.
+
+**Context discipline (owner request, 2026-10-10):** keep the current working set in `docs/CODEX_WORKING_SET.md`. Read AGENTS/HANDOFF completely once as required; after a continuation, use the saved checkpoint and changed sections instead of rereading unchanged documents. Search paths/symbols first, then read narrow relevant ranges. Do not dump whole logs, historical research, or completed chapters into context. Keep routine tool output concise; expand only on a concrete failure or uncertainty. Keep all source files in place: “parking” means excluding unrelated files from reads, never moving/deleting game content. Work solo. Context compaction is not a reason to repeat completed work or checks.

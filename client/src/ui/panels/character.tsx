@@ -8,8 +8,9 @@ import { ELEMENTS } from '@shared/types';
 import { useUI } from '../store';
 import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { fmtPowerValue } from './util';
+import { EconomySection } from './economy';
 
-type Section='overview'|'offense'|'defense'|'utility'|'powers';
+type Section='overview'|'offense'|'defense'|'utility'|'powers'|'economy';
 function Values({rows}:{rows:[string,string][]}) {
   return <dl class="character-values">{rows.map(([name,value])=><div key={name}><dt>{name}</dt><dd>{value}</dd></div>)}</dl>;
 }
@@ -21,7 +22,8 @@ export function CharacterPanel() {
   const n=fmtInt,p=fmtPct;
   return <PanelFrame id="character" title={t('title')} sub={`${save.name} · ${CLASSES[save.classId].name} · ${save.level}`} width={820}>
     <p class="pn-note">{t('scope')}</p>
-    <Tabs tabs={(['overview','offense','defense','utility','powers'] as Section[]).map(id=>({id,label:t(id)}))} value={section} onChange={setSection}/>
+    <Tabs tabs={(['overview','offense','defense','utility','powers','economy'] as Section[]).map(id=>({id,label:id==='economy'?'Economy':t(id)}))} value={section} onChange={setSection}/>
+    {section==='economy'&&<EconomySection save={save}/>}
     {section==='overview'&&<>
       <Values rows={[[t(d.mainStatId),n(d.mainStat)],[t('vit'),n(d.vit)],[t('damage'),n(d.sheetDps)],[t('toughness'),n(d.toughness)],[t('recovery'),n(d.recovery)]]}/>
       <SecHead>{t('damage')}</SecHead><p>{t('damageNote')}</p>

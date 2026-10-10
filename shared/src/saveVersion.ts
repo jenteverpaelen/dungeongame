@@ -1,2 +1,2 @@
-/** v9 adds optional purchased-stock provenance; legacy items remain ordinary loot. */
-export const SAVE_VERSION = 9;
+/** v10 adds optional bounded resource summaries; existing wealth is never backfilled as income. */
+export const SAVE_VERSION = 10;

@@ -2,6 +2,7 @@
 // D3-style fountain around the corpse, visible to and collectable by their owner only.
 
 import { recordIntro } from '../../../shared/src/onboarding';
+import { economySnapshot, recordEconomy } from '../../../shared/src/economy';
 import {
   DIFFICULTIES, ITEM_PICKUP_RADIUS, MAGNET_RADIUS, addToInventory, gemName, goldAmount, rollDrops, type Drop, type EliteTier,
   type LootView,
@@ -102,6 +103,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
     if (pl.type === 'item') {
       const rr = ITEM_PICKUP_RADIUS + p.r;
       if (d2 > rr * rr) continue;
+      const before=p.save.inventory.includes(null)?economySnapshot(p.save):undefined;
       if (addToInventory(p.save, pl.item) < 0) {
         if (inst.t - p.noticeFullAt > 4000) { p.noticeFullAt = inst.t; inst.emitTo(p.id, { e: 'notice', text: 'Inventory is full', kind: 'warn' }); }
         continue;
@@ -109,6 +111,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
       if (pl.item.rarity === 'legendary' || pl.item.rarity === 'set') p.save.stats.legendaries++;
       creditQuestPickup(inst,p,pl.item);
       recordIntro(p.save,'loot');
+      if(before)recordEconomy(p.save,'pickup',before);
       touchChar(p);
       inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'item', name: pl.item.name, rarity: pl.item.rarity }, l.x, l.y, p.id);
       p.loot.delete(l);
@@ -116,6 +119,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
       continue;
     }
     if (d2 > magnet * magnet) continue;
+    const before=pl.type==='globe'?undefined:economySnapshot(p.save);
     switch (pl.type) {
       case 'gold':
         p.save.gold += pl.amount;
@@ -137,6 +141,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
         inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'globe', name: 'Health Globe' }, l.x, l.y, p.id);
         break;
     }
+    if(before)recordEconomy(p.save,'pickup',before);
     touchChar(p);
     p.loot.delete(l);
     inst.counters.lootPicked++;

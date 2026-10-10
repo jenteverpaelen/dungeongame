@@ -27,6 +27,7 @@ import { generateItem, type GenOptions } from '@shared/items';
 import { Rng } from '@shared/math';
 import { PARAGON_STATS, addXp, paragonPoints, paragonSpent, paragonXpToNext, xpToNext } from '@shared/progression';
 import { computeStats } from '@shared/stats';
+import { economySnapshot, recordEconomy } from '@shared/economy';
 import { INVENTORY_SIZE } from '@shared/constants';
 import type { CmdOp } from '@shared/protocol';
 import type { AffixRoll, CharacterSave, ClassId, Item, Rarity } from '@shared/types';
@@ -409,7 +410,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
-      {(s === 'adventure'||s==='merchant') && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
+      {(s === 'adventure'||s==='merchant'||s==='character') && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
@@ -417,6 +418,11 @@ function Gallery() {
 }
 
 setupUI();
+if(qs.get('s')==='character'&&qs.has('economy')){
+  const before=economySnapshot(char);char.gold+=600;char.materials.scrap+=12;recordEconomy(char,'offline',before);
+  const bought=economySnapshot(char);char.gold-=181;recordEconomy(char,'merchantBuy',bought);
+  const debug=economySnapshot(char);char.gold+=1000;recordEconomy(char,'debug',debug);sync();
+}
 if(qs.get('s')==='merchant')ui.set({zone:{...ui.get().zone!,zone:'rillwake_crossing',name:'Rillwake Crossing',kind:'field'},interact:{name:'Orren · Mill Tender',role:'quest'}});
 if(qs.get('s')==='adventure') {
   // Stress the real journal using disposable in-page data only. Never imported by the game entry.
@@ -448,7 +454,7 @@ if(qs.get('s')==='runSummary') {
 }
 
 const scene = (qs.get('s') ?? 'inventory').split(',');
-const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary', 'adventure', 'merchant'];
+const panelIds: PanelId[] = ['inventory', 'skills', 'paragon', 'cube', 'waypoint', 'obelisk', 'debug', 'runSummary', 'adventure', 'merchant', 'character'];
 for (const p of scene) if ((panelIds as string[]).includes(p)) togglePanel(p as PanelId, true);
 
 const cubeFn = qs.get('cube');

@@ -1,4 +1,4 @@
-# P8 economy — active C092
+# P8 economy — active C093
 
 Implement the whole P8 chapter in connected steps, solo. L112/D050 records vendor research and owner intent before code. Town, UI materials, camera and no-scroll rule stay. No paid/downloaded assets.
 
@@ -9,3 +9,5 @@ Implement the whole P8 chapter in connected steps, solo. L112/D050 records vendo
 5. Report measured earning/spending distributions, balance target questions and remaining human/soak/independent review. Owner selected “fill weak slots after a few packs”; overall inflation band and G6 are separate. No subagents means independent review requires a human later.
 
 Do not call P8 complete from the stock feature. P7 implementation inventory is in ../P07-early-game/CHAPTER-REPORT.md; human acceptance remains open. Continue P9 only within gate/owner authorization boundaries, preserving the whole-roadmap ledger.
+
+C093 closes steps2 and the bounded per-character dashboard portion of3. See CURRENCY-MAP.md/HISTORY-REPORT.md. Step4 durable transaction safeguards and step5 wider distributions/acceptance remain. No phase completion claim.

@@ -3,6 +3,7 @@
 // This is not the player's measured active kill rate and does not depend on weapon DPS.
 
 import { XP_MULT } from './config';
+import { economySnapshot, recordEconomy } from '../../shared/src/economy';
 import { AFK_EFFICIENCY, AFK_MAX_HOURS } from '../../shared/src/constants';
 import { ZONES } from '../../shared/src/data/zones';
 import { clamp } from '../../shared/src/math';
@@ -52,10 +53,12 @@ export function applyAfkGains(save: CharacterSave, now: number): AfkReport | nul
   if (dust) mats.dust = dust;
   if (crystal) mats.crystal = crystal;
 
+  const before = economySnapshot(save);
   const res = addXp(save, xp);
   save.gold += gold;
   for (const [k, v] of Object.entries(mats)) save.materials[k as keyof Materials] += v ?? 0;
   save.stats.kills += kills;
+  recordEconomy(save,'offline',before,now);
 
   return { ms: Math.round(away), xp, gold, kills, mats, zone: save.lastZone, levels: res.levels + res.paragons };
 }
