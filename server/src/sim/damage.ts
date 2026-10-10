@@ -1,4 +1,5 @@
 // Damage model (ARCHITECTURE 1.3): Diablo-3 multiplicative buckets, crits, area damage, DoTs, defences.
+import { boundedCombat, combatInteger } from '../../../shared/src/combatBounds';
 
 import { ELEMENT_INDEX, armorReduction, resistReduction, type Element } from '../shared';
 import { addDot, elIdx, getBuff } from './effects';
@@ -63,7 +64,7 @@ export function rollDamage(inst: Instance, p: Player, m: Mob | null, st: Strike)
     if (inst.rng.next() * 100 < chc) { crit = true; dmg *= 1 + (d.chd + p.live.chd) / 100; }
   }
   if (m) dmg *= vulnerability(p, m);
-  return { amount: Math.max(1, Math.round(dmg)), crit };
+  return { amount: combatInteger(dmg), crit };
 }
 
 /** Expected (average, crit-weighted) damage of a strike, used for DoTs and ground effects. */
@@ -71,7 +72,7 @@ export function expectedDamage(inst: Instance, p: Player, st: Strike): number {
   const d = p.ctx.d;
   const avg = (d.weaponMin + d.weaponMax) / 2;
   const chc = Math.min(100, d.chc + p.live.chc) / 100;
-  return avg * baseMult(inst, p, st) * (1 + chc * (d.chd + p.live.chd) / 100);
+  return boundedCombat(avg * baseMult(inst, p, st) * (1 + chc * (d.chd + p.live.chd) / 100));
 }
 
 /** Deal a direct hit from a player (or one of their summons) to a monster. */
@@ -86,10 +87,10 @@ export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitRes
 /** Apply already-computed damage to a monster: HP, events, aggro, elite reactions, death. Returns true if it died. */
 export function hurtMob(inst: Instance, m: Mob, amount: number, el: Element, attacker: Player | null, crit: boolean, dot: boolean, src: number, skill: string): boolean {
   if (m.dead) return false;
-  const a = Math.max(1, Math.round(amount));
+  const a = combatInteger(amount);
   m.lastDamagedT = inst.t;
-  if (attacker) { attacker.dealt += a; attacker.sinceHitMs = 0; }
-  if (inst.dmgBySkill) inst.dmgBySkill.set(skill, (inst.dmgBySkill.get(skill) ?? 0) + a);
+  if (attacker) { attacker.dealt = boundedCombat(attacker.dealt+a); attacker.sinceHitMs = 0; }
+  if (inst.dmgBySkill) inst.dmgBySkill.set(skill, boundedCombat((inst.dmgBySkill.get(skill) ?? 0) + a));
   if (m.dummy) {
     m.hp = Math.max(1, m.hp - a);
     emitDmg(inst, m, a, el, crit, dot, src, false, attacker);
@@ -224,7 +225,7 @@ export function defenseMult(p: Player, level: number, elite: boolean): number {
 export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element, src: Mob | null, level: number, melee = false): number {
   if (p.debugInfiniteHp || p.deadMs > 0 || p.invulnMs > 0 || inst.kind === 'town' || raw <= 0) return 0;
   const lvl = Math.max(1, src?.level ?? level);
-  const amount = Math.max(1, Math.round(raw * defenseMult(p, lvl, !!src && isEliteTier(src.tier))));
+  const amount = combatInteger(raw * defenseMult(p, lvl, !!src && isEliteTier(src.tier)));
   p.hp -= amount;
   p.taken += amount;
   p.sinceHurtMs = 0;

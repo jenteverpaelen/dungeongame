@@ -1,2 +1,2 @@
-/** v13 preserves optional character contact lists and privacy preferences. */
-export const SAVE_VERSION = 13;
+/** v14 adds acquired item appearances and independent loot preferences. */
+export const SAVE_VERSION = 14;

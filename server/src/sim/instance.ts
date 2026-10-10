@@ -24,6 +24,7 @@ import { Spawner, debugSpawnElite, debugSpawnGoblin } from './spawner';
 import { updateSummons } from './summons';
 import type { EvRec, Ground, Mob, Player, PortalEnt, Proj, Summon } from './types';
 
+import { boundedCombat } from '../../../shared/src/combatBounds';
 const TICK_HISTORY = 100; // ~5 s at 20 Hz
 
 interface DmgAgg { owner: number; src: number; a: number; best: number; crit: boolean; dot: boolean; el: number; k: boolean; x: number; y: number }
@@ -148,7 +149,7 @@ export class Instance implements InstanceApi {
 
   /**
    * Damage numbers are merged per (target, owning player, dot) within a tick: area damage, Sentry copies and
-   * pierce-all volleys can land dozens of hits on one monster in 50 ms. Sums (and so DPS meters) are exact;
+   * pierce-all volleys can land dozens of hits on one monster in 50 ms. Sums saturate at the exact-integer ceiling;
    * the event carries the source of the largest hit, crit if any hit crit, and the killing-blow flag.
    */
   private dmgAgg = new Map<number, DmgAgg[]>();
@@ -159,7 +160,7 @@ export class Instance implements InstanceApi {
     for (let i = 0; i < list.length; i++) {
       const g = list[i];
       if (g.owner !== owner || g.dot !== dot) continue;
-      g.a += a;
+      g.a = boundedCombat(g.a+a);
       if (a > g.best) { g.best = a; g.src = src; g.el = el; }
       if (crit) g.crit = true;
       if (killed) g.k = true;

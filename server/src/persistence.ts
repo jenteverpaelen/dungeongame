@@ -1,5 +1,6 @@
 import { autoSlotSkills } from '../../shared/src/progression';
 import { ownedItems } from '../../shared/src/merchant';
+import { seedCollection } from '../../shared/src/itemCollection';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -204,6 +205,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   const st = (save.stats ??= { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 });
   for (const k of ['kills', 'elites', 'legendaries', 'rifts', 'playMs', 'deaths'] as const) st[k] = num(st[k], 0);
   // Preserve owned objects and saved combat preferences.
+  seedCollection(save, ownedItems(save));
   save.version = SAVE_VERSION;
   return save;
 }

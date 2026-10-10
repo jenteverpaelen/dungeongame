@@ -258,7 +258,8 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
             <span>Item Level <b>{item.ilvl}</b></span>
           </div>
           {classBad && char && <div class="bad one">{CLASSES[char.classId].name}s cannot use this item</div>}
-          {item.bound && <div class="bound one">Account Bound</div>}
+          {item.bound && <div class="bound one">Character bound</div>}
+          {delta && <div class="bound one">Sheet estimate. Skill powers, conditional set bonuses, enemy defenses and uptime can change actual results.</div>}
           {item.vendorStock && <div class="bound one">Merchant stock · cannot be salvaged</div>}
           {item.protected && <div class="bound one">Protected · cannot destroy, salvage, transmute, extract, reforge, deliver or sell</div>}
           {showTier && (
@@ -308,9 +309,14 @@ export function ItemTooltip({ item, compare = false, equipped = false }: ItemToo
     try { const c = compareItem(char, item, slot); return { damage: c.damage, toughness: c.toughness, recovery: c.recovery }; } catch { return null; }
   }, [char, item, compare, slot]);
   return (
+    <div>
+    {compare && char && item.kind==='ring' && <div class="tt tt-lite" style={{width:680,padding:8}}>
+      {(['ring1','ring2'] as const).map(s=>{const d=compareItem(char,item,s);return <p style={{margin:2}}>Replace {s==='ring1'?'Ring 1':'Ring 2'}: Damage {fmtDeltaPct(d.damage)} · Toughness {fmtDeltaPct(d.toughness)} · Recovery {fmtDeltaPct(d.recovery)}</p>;})}
+    </div>}
     <div class="tt-row">
       <ItemCard item={item} char={char} alt={alt} delta={delta} tag={equipped ? 'Equipped' : undefined} />
       {eq.map((e) => <ItemCard item={e} char={char} alt={alt} tag="Equipped" key={e.id} />)}
+    </div>
     </div>
   );
 }

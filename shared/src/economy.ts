@@ -4,6 +4,7 @@ import type { CharacterSave } from './types';
 
 /** L113/D051: acquired resource deltas, never generated drops or inferred play rates. */
 export const ECONOMY_ACTIONS = {
+  forge:'Forged equipment',gemExchange:'Gem exchange',setConversion:'Set conversion',
   pickup:'Collected loot', offline:'Offline gains', quest:'Quest rewards', adventure:'Legacy quest rewards',
   merchantBuy:'Stock purchases', merchantSell:'Equipment sales', merchantBuyback:'Buyback', merchantRelease:'Released equipment',
   salvage:'Salvage', salvageAll:'Bulk salvage', enchantRoll:'Enchanting', upgrade:'Empowering', transmute:'Transmutation',

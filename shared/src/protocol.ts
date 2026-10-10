@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 19;
+export const PROTOCOL_VERSION = 20;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -177,7 +177,7 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
   | { t: 'world'; world: WorldInfo }
   | { t: 'party'; party: import('./party').PartyView }
@@ -190,6 +190,7 @@ export type CmdOp = 'onboarding'
   | 'social'
   | 'inspect'
   | 'community'
+  | 'collection'
   | 'merchant'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
   | 'stashDeposit' | 'stashWithdraw'

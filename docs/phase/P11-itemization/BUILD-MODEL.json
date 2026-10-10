@@ -1,0 +1,1923 @@
+{
+  "scope": "Level70, TormentX actual20Hz, three fixed encounters × three seeds/build; ordinary non-ancient six-piece sets and signature power, no upgrades/gems/Paragon/passives/Cube powers/runes,48tier points. Infinite HP, automatic skills, deterministic chase; no survival/human/rift-clear claim. Three-build class median of total matched encounter clear time;120s timeouts count as failures.",
+  "result": [
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "totalMs": 155200,
+      "stalls": 0,
+      "maxHit": 81029255,
+      "relativeToMedian": 0.9124044679600235,
+      "passes": true
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "totalMs": 172150,
+      "stalls": 0,
+      "maxHit": 222350277,
+      "relativeToMedian": 1.0120517342739566,
+      "passes": true
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "totalMs": 170100,
+      "stalls": 0,
+      "maxHit": 575141158,
+      "relativeToMedian": 1,
+      "passes": true
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "totalMs": 272400,
+      "stalls": 0,
+      "maxHit": 126680731,
+      "relativeToMedian": 1,
+      "passes": true
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "totalMs": 312200,
+      "stalls": 0,
+      "maxHit": 155660299,
+      "relativeToMedian": 1.146108663729809,
+      "passes": true
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "totalMs": 252150,
+      "stalls": 0,
+      "maxHit": 314265496,
+      "relativeToMedian": 0.9256607929515418,
+      "passes": true
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "totalMs": 235350,
+      "stalls": 0,
+      "maxHit": 706983896,
+      "relativeToMedian": 1.14609203798393,
+      "passes": true
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "totalMs": 205350,
+      "stalls": 0,
+      "maxHit": 167156635,
+      "relativeToMedian": 1,
+      "passes": true
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "totalMs": 175300,
+      "stalls": 0,
+      "maxHit": 98124726,
+      "relativeToMedian": 0.8536644752860969,
+      "passes": true
+    }
+  ],
+  "rows": [
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 4050,
+      "cleared": true,
+      "maxHit": 64816202,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 15096951,
+        "cleave": 36598705,
+        "rend": 532074256,
+        "whirlwind": 679482766,
+        "dust_devil": 173026331
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 9550,
+      "cleared": true,
+      "maxHit": 64816202,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 4405774,
+        "rend": 2018332022,
+        "cleave": 14384034,
+        "whirlwind": 2451086393,
+        "dust_devil": 2287832838
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 34050,
+      "cleared": true,
+      "maxHit": 64816202,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 10157371,
+        "cleave": 12574084,
+        "rend": 6031858766,
+        "whirlwind": 5739637482,
+        "dust_devil": 9719448512
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 5050,
+      "cleared": true,
+      "maxHit": 76083808,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 12286512,
+        "cleave": 50404735,
+        "rend": 553591216,
+        "whirlwind": 686258884,
+        "dust_devil": 101895476
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 10800,
+      "cleared": true,
+      "maxHit": 81029255,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 8951724,
+        "rend": 2443460703,
+        "cleave": 28220583,
+        "whirlwind": 1935167527,
+        "dust_devil": 2301142365
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 37600,
+      "cleared": true,
+      "maxHit": 81029255,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 7306107,
+        "cleave": 31604631,
+        "rend": 7639118829,
+        "whirlwind": 5302424306,
+        "dust_devil": 9227918056
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 3950,
+      "cleared": true,
+      "maxHit": 55295900,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 11695231,
+        "cleave": 31320331,
+        "rend": 287986576,
+        "whirlwind": 539194875,
+        "dust_devil": 405293805
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 10150,
+      "cleared": true,
+      "maxHit": 55295900,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 9556320,
+        "rend": 1886773061,
+        "cleave": 14422408,
+        "whirlwind": 2109316788,
+        "dust_devil": 2617320097
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "endless_storm",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 40000,
+      "cleared": true,
+      "maxHit": 55295900,
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 21610127,
+        "cleave": 16768994,
+        "rend": 5699564012,
+        "whirlwind": 5712237295,
+        "dust_devil": 10424049071
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 700,
+      "cleared": true,
+      "maxHit": 137510701,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 9779585,
+        "cleave": 1071276647,
+        "rend": 477130926
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 7050,
+      "cleared": true,
+      "maxHit": 153076244,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 4753244,
+        "cleave": 3666743394,
+        "rend": 3133386038
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 50500,
+      "cleared": true,
+      "maxHit": 152889977,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 10135665,
+        "cleave": 9140196591,
+        "rend": 11637323626
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 550,
+      "cleared": true,
+      "maxHit": 196454525,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 12815419,
+        "cleave": 1767121827
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 5550,
+      "cleared": true,
+      "maxHit": 222286123,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 4851421,
+        "cleave": 4195855373,
+        "rend": 2626735908
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 35200,
+      "cleared": true,
+      "maxHit": 222350277,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 5245600,
+        "cleave": 10798896158,
+        "rend": 11545282160
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1050,
+      "cleared": true,
+      "maxHit": 122506802,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 7607705,
+        "cleave": 1222249008,
+        "rend": 216241552
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 8550,
+      "cleared": true,
+      "maxHit": 127385319,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 4382817,
+        "cleave": 3891484529,
+        "rend": 2772072354
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "cinder_oath",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 63000,
+      "cleared": true,
+      "maxHit": 127337621,
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 18811729,
+        "cleave": 11993314654,
+        "rend": 12043211020
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 100,
+      "cleared": true,
+      "maxHit": 398954834,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 332132842,
+        "cleave": 4737980,
+        "seismic_slam": 1583643302
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 12150,
+      "cleared": true,
+      "maxHit": 493748279,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 168622365,
+        "seismic_slam": 6626383281,
+        "cleave": 25684751
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 42600,
+      "cleared": true,
+      "maxHit": 496072846,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 1167231218,
+        "cleave": 73350237,
+        "seismic_slam": 20377469949
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 100,
+      "cleared": true,
+      "maxHit": 460216837,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 270303185,
+        "cleave": 5900769,
+        "seismic_slam": 1807238282
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 12300,
+      "cleared": true,
+      "maxHit": 574109510,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 191473915,
+        "seismic_slam": 6891977491,
+        "cleave": 33145979
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 47150,
+      "cleared": true,
+      "maxHit": 575141158,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 606936254,
+        "cleave": 91481336,
+        "seismic_slam": 20831180305
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 100,
+      "cleared": true,
+      "maxHit": 399932576,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 257295208,
+        "cleave": 3542304,
+        "seismic_slam": 1558218315
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 14400,
+      "cleared": true,
+      "maxHit": 459922462,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 173884474,
+        "seismic_slam": 6914024251,
+        "cleave": 24576494
+      }
+    },
+    {
+      "classId": "warrior",
+      "build": "fault_warden",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 41200,
+      "cleared": true,
+      "maxHit": 459922462,
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "ground_stomp": 807055425,
+        "cleave": 67928178,
+        "seismic_slam": 20369122973
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 3350,
+      "cleared": true,
+      "maxHit": 19880808,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 10219060,
+        "multishot": 1219058669,
+        "sentry": 27188099,
+        "companion": 1786448
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 17350,
+      "cleared": true,
+      "maxHit": 62510019,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 41117746,
+        "multishot": 6012114459,
+        "sentry": 618904859,
+        "companion": 10406612
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 67600,
+      "cleared": true,
+      "maxHit": 62527499,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 152588155,
+        "multishot": 20627537283,
+        "sentry": 3861928947,
+        "companion": 36558153
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 5250,
+      "cleared": true,
+      "maxHit": 37713757,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 21775204,
+        "multishot": 1168798617,
+        "sentry": 63715471,
+        "companion": 2390937
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 18850,
+      "cleared": true,
+      "maxHit": 97879033,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 58679853,
+        "multishot": 6119967860,
+        "sentry": 584207464,
+        "companion": 13429284
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 71200,
+      "cleared": true,
+      "maxHit": 126680731,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 243631740,
+        "multishot": 18898506092,
+        "sentry": 3789822229,
+        "companion": 53980437
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 3650,
+      "cleared": true,
+      "maxHit": 29254286,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 12498875,
+        "multishot": 1217564161,
+        "sentry": 25094610,
+        "companion": 2106742
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 17250,
+      "cleared": true,
+      "maxHit": 91961284,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 44647756,
+        "multishot": 6184106182,
+        "sentry": 478640007,
+        "companion": 11260827
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "siegebreaker",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 67900,
+      "cleared": true,
+      "maxHit": 92040567,
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 185601183,
+        "multishot": 18339490320,
+        "sentry": 3543377485,
+        "companion": 40292891
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 550,
+      "cleared": true,
+      "maxHit": 54770309,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 1237314991,
+        "hungering_arrow": 100407787
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 15450,
+      "cleared": true,
+      "maxHit": 58073405,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 5620737450,
+        "hungering_arrow": 974138771,
+        "rain_of_vengeance": 18324346,
+        "companion": 30978480
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 91400,
+      "cleared": true,
+      "maxHit": 58156007,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 20408091076,
+        "hungering_arrow": 7049970001,
+        "rain_of_vengeance": 157633768,
+        "companion": 228587175
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 350,
+      "cleared": true,
+      "maxHit": 141145972,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 1576562111,
+        "hungering_arrow": 91452492
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 10250,
+      "cleared": true,
+      "maxHit": 154897701,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 5541772001,
+        "hungering_arrow": 1045008607,
+        "rain_of_vengeance": 20387563,
+        "companion": 29064006
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 65850,
+      "cleared": true,
+      "maxHit": 155660299,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 15966369070,
+        "hungering_arrow": 7383263648,
+        "rain_of_vengeance": 35128513,
+        "companion": 205963333
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1100,
+      "cleared": true,
+      "maxHit": 74671678,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 1170425238,
+        "hungering_arrow": 147318240,
+        "companion": 1649715
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 18650,
+      "cleared": true,
+      "maxHit": 77958127,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 5383432104,
+        "hungering_arrow": 1230748540,
+        "rain_of_vengeance": 15409535,
+        "companion": 33111123
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "farwatch",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 108600,
+      "cleared": true,
+      "maxHit": 78007765,
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "multishot": 17526378626,
+        "hungering_arrow": 7899141133,
+        "rain_of_vengeance": 135537078,
+        "companion": 224381738
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 550,
+      "cleared": true,
+      "maxHit": 151921841,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 2211076,
+        "rain_of_vengeance": 171534368,
+        "cluster_arrow": 1312141078
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 10850,
+      "cleared": true,
+      "maxHit": 151779756,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 25535347,
+        "rain_of_vengeance": 1474598172,
+        "cluster_arrow": 5119097091,
+        "companion": 31567302
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 68850,
+      "cleared": true,
+      "maxHit": 153039195,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 158530878,
+        "rain_of_vengeance": 6104196649,
+        "cluster_arrow": 17410869941,
+        "companion": 190861175
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 600,
+      "cleared": true,
+      "maxHit": 290983789,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 2862226,
+        "rain_of_vengeance": 177474075,
+        "cluster_arrow": 1463762469
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 9300,
+      "cleared": true,
+      "maxHit": 313836937,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 38064974,
+        "rain_of_vengeance": 1635513722,
+        "cluster_arrow": 4996975529,
+        "companion": 29317469
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 59200,
+      "cleared": true,
+      "maxHit": 314265496,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 231824613,
+        "rain_of_vengeance": 6039188726,
+        "cluster_arrow": 18367482354,
+        "companion": 206666457
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 600,
+      "cleared": true,
+      "maxHit": 177686976,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 2631613,
+        "rain_of_vengeance": 177501646,
+        "cluster_arrow": 1375530675
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 15350,
+      "cleared": true,
+      "maxHit": 177686976,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 40347366,
+        "rain_of_vengeance": 2200886566,
+        "cluster_arrow": 4508559300,
+        "companion": 40576643
+      }
+    },
+    {
+      "classId": "ranger",
+      "build": "rainkeeper",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 86850,
+      "cleared": true,
+      "maxHit": 179601205,
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "hungering_arrow": 231373123,
+        "rain_of_vengeance": 8584418001,
+        "cluster_arrow": 18322788651,
+        "companion": 226945501
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1100,
+      "cleared": true,
+      "maxHit": 355592231,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 9142032,
+        "frost_nova": 17492884,
+        "black_hole": 4725802,
+        "meteor": 1963355000
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 6300,
+      "cleared": true,
+      "maxHit": 386511498,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 41103944,
+        "frost_nova": 8577198,
+        "black_hole": 41335288,
+        "meteor": 7041883464
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 57750,
+      "cleared": true,
+      "maxHit": 402321163,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 459585012,
+        "frost_nova": 43094704,
+        "black_hole": 149351783,
+        "meteor": 23530960059
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1050,
+      "cleared": true,
+      "maxHit": 594551031,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 9175528,
+        "frost_nova": 25424087,
+        "black_hole": 7816508,
+        "meteor": 2059383825
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 7750,
+      "cleared": true,
+      "maxHit": 688361855,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 63519923,
+        "frost_nova": 6948676,
+        "black_hole": 60653086,
+        "meteor": 6954563902
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 66250,
+      "cleared": true,
+      "maxHit": 706983896,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 718357181,
+        "frost_nova": 46208174,
+        "black_hole": 147333794,
+        "meteor": 24144189047
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1100,
+      "cleared": true,
+      "maxHit": 312210667,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 6878676,
+        "frost_nova": 13084434,
+        "meteor": 2047153484
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 9000,
+      "cleared": true,
+      "maxHit": 173889485,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 49624734,
+        "frost_nova": 15537768,
+        "meteor": 6548930308,
+        "black_hole": 36786015
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "fallen_star",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 85050,
+      "cleared": true,
+      "maxHit": 343431734,
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 534307296,
+        "frost_nova": 61926187,
+        "meteor": 23801496180,
+        "black_hole": 174670590
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 3500,
+      "cleared": true,
+      "maxHit": 74476231,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 974099724,
+        "frost_nova": 5783314,
+        "black_hole": 426831453
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 21700,
+      "cleared": true,
+      "maxHit": 74938305,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 6006415,
+        "magic_missile": 5718622091,
+        "black_hole": 980952825
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 48250,
+      "cleared": true,
+      "maxHit": 75008580,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 20741528,
+        "magic_missile": 16672206826,
+        "black_hole": 4341482959
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 2350,
+      "cleared": true,
+      "maxHit": 154744540,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 874764667,
+        "frost_nova": 6599794,
+        "black_hole": 476005972
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 10600,
+      "cleared": true,
+      "maxHit": 167156635,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 6829278,
+        "magic_missile": 5989920237,
+        "black_hole": 827505793
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 29250,
+      "cleared": true,
+      "maxHit": 167108406,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 10497090,
+        "magic_missile": 16649765880,
+        "black_hole": 1854261991
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 4050,
+      "cleared": true,
+      "maxHit": 35491483,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 958836477,
+        "frost_nova": 4632262,
+        "black_hole": 367581468
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 23850,
+      "cleared": true,
+      "maxHit": 69077176,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 7047657,
+        "magic_missile": 5567632570,
+        "black_hole": 1134031919
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "glass_concord",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 61800,
+      "cleared": true,
+      "maxHit": 69900551,
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon",
+        null
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "frost_nova": 34483657,
+        "magic_missile": 17277761094,
+        "black_hole": 5096926655
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 101,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1350,
+      "cleared": true,
+      "maxHit": 51433202,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 4870107,
+        "frost_nova": 209914627,
+        "hydra": 1123035935,
+        "black_hole": 6983081
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 101,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 6300,
+      "cleared": true,
+      "maxHit": 51433202,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 19381027,
+        "frost_nova": 216612970,
+        "hydra": 6430488774,
+        "black_hole": 17063361
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 101,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 44250,
+      "cleared": true,
+      "maxHit": 51451606,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 133351393,
+        "frost_nova": 759923169,
+        "hydra": 19792389970,
+        "black_hole": 55284402
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 202,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1100,
+      "cleared": true,
+      "maxHit": 90980295,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 5817632,
+        "frost_nova": 305089034,
+        "hydra": 1002964356,
+        "black_hole": 10759785
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 202,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 5950,
+      "cleared": true,
+      "maxHit": 98124726,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 26525843,
+        "frost_nova": 112232098,
+        "hydra": 6603874564,
+        "black_hole": 25666415
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 202,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 39550,
+      "cleared": true,
+      "maxHit": 98053861,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 161590887,
+        "frost_nova": 1484712102,
+        "hydra": 18751590924,
+        "black_hole": 100943705
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 303,
+      "encounter": 0,
+      "hp": 1226205133,
+      "ms": 1650,
+      "cleared": true,
+      "maxHit": 26168872,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 4127206,
+        "frost_nova": 157013232,
+        "hydra": 1131823168,
+        "black_hole": 8213640
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 303,
+      "encounter": 1,
+      "hp": 6621507723,
+      "ms": 9000,
+      "cleared": true,
+      "maxHit": 47560654,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 22476077,
+        "frost_nova": 251221170,
+        "hydra": 6373127684,
+        "black_hole": 17853500
+      }
+    },
+    {
+      "classId": "mage",
+      "build": "lantern_garden",
+      "seed": 303,
+      "encounter": 2,
+      "hp": 17166871871,
+      "ms": 66150,
+      "cleared": true,
+      "maxHit": 56851875,
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "points": 48,
+      "damageBySkill": {
+        "magic_missile": 166063550,
+        "frost_nova": 2584503208,
+        "hydra": 18519757588,
+        "black_hole": 167838363
+      }
+    }
+  ]
+}

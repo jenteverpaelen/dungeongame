@@ -417,7 +417,7 @@ export function InventoryPanel() {
   if (!char) return null;
   const used = char.inventory.filter(Boolean).length;
   return (
-    <PanelFrame id="inventory" title="Inventory" width={466} sub={<><span class="pn-lv">Level {char.level} {CLASSES[char.classId].name}</span> <button class="btn sm" onClick={()=>togglePanel('character',true)}>{characterText('open')}</button></>}>
+    <PanelFrame id="inventory" title="Inventory" width={466} sub={<><span class="pn-lv">Level {char.level} {CLASSES[char.classId].name}</span> <button class="btn sm" onClick={()=>togglePanel('character',true)}>{characterText('open')}</button> <button class="btn sm" onClick={()=>togglePanel('collection',true)}>Collection</button></>}>
       <Paperdoll char={char} />
       <StatsStrip char={char} />
       <Wealth char={char} />

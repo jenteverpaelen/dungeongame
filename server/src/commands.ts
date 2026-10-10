@@ -3,6 +3,8 @@
 // recomputes derived stats, tells the simulation (refreshPlayer) when combat config changed, and marks the save dirty.
 
 import { onboardingCommand, introCommandResult } from './onboarding';
+import { collectionCommand } from './itemCollection';
+import { seedCollection } from '../../shared/src/itemCollection';
 import {setPassive} from '../../shared/src/passives';
 import { merchantCommand } from './merchant';
 import { economyCommandAction, economySnapshot, recordEconomy } from '../../shared/src/economy';
@@ -733,6 +735,7 @@ const debug: Handler = (s, a) => {
 // ─────────────────────────── Dispatch ───────────────────────────
 
 const HANDLERS: Record<CmdOp, Handler> = {
+  collection: collectionCommand,
   party:(s,a,world)=>world.parties.command(s,a),
   social:(s,a,world)=>world.social.command(s,a),
   inspect:(s,a,world)=>world.social.inspect(s,a),
@@ -763,7 +766,7 @@ export function runCommand(s: Session, world: World, op: CmdOp, a: Args): CmdRes
     const economyAction=economyCommandAction(op,a),before=economyAction?economySnapshot(s.save):undefined;
     const result=HANDLERS[op](s,a,world);
     if(result.ok&&economyAction&&before)recordEconomy(s.save,economyAction,before);
-    if(result.ok){creditQuestService(s,op);if(introCommandResult(s,op,a))s.changed(false);}
+    if(result.ok){seedCollection(s.save,ownedItems(s.save));creditQuestService(s,op);if(introCommandResult(s,op,a))s.changed(false);}
     return result;
   } catch (err) {
     if (err instanceof ArgError) return fail(err.message);

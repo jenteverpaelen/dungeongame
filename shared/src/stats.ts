@@ -7,6 +7,7 @@ import { PARAGON_STATS } from './progression';
 import type { CharacterSave, DerivedStats, Element, Item, Slot, StatId } from './types';
 import { ELEMENTS } from './types';
 import {activePassives,passiveValue} from './passives';
+import { combatInteger, boundedCombat } from './combatBounds';
 
 /** Life per point of Vitality: 10 until level 35, then rising to ~97 at 70 (D3 curve shape). */
 export function lifePerVit(level: number): number {
@@ -116,7 +117,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
   const mainStat = (mainStatId === 'str' ? str : mainStatId === 'dex' ? dex : int) + paragonMain;
 
   const lifePct = acc.lifePct ?? 0;
-  const life = Math.round((40 + 4 * level + vit * lifePerVit(level)) * (1 + lifePct / 100));
+  const life = combatInteger((40 + 4 * level + vit * lifePerVit(level)) * (1 + lifePct / 100));
 
   // D3 2.x: every class gains 1 Armor per Strength and 1 All Resistance per 10 Intelligence.
   const armor = Math.round(((acc.armorItems ?? 0) + (acc.armor ?? 0) + str) * (1 + (paragonPct.armor ?? 0) / 100));
@@ -180,9 +181,9 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     resourceRegen: cls.resource.regenPerSec + (acc.resourceRegen ?? 0),
     dmgPct: acc.dmgPct ?? 0,
     weaponMin, weaponMax, weaponElement,
-    sheetDps,
-    toughness,
-    recovery: lifeRegen + lifePerHit * aps,
+    sheetDps:boundedCombat(sheetDps),
+    toughness:boundedCombat(toughness),
+    recovery: boundedCombat(lifeRegen + lifePerHit * aps),
     armorDR, resDR,
     powers, sets,
   };

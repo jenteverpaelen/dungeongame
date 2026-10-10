@@ -120,6 +120,11 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     classRefs(l.classes,`legendaries.${l.id}.classes`);
     for (const c of l.classes ?? []) baseRef(l.base,`legendaries.${l.id}.base`,c);
     range(l.range,`legendaries.${l.id}.range`);
+    if(l.skillEffect) {
+      check(!!data.skills[l.skillEffect.skill],`legendaries.${l.id}.skillEffect`,'unknown skill');
+      check(l.classes?.includes(data.skills[l.skillEffect.skill]?.classId)??true,`legendaries.${l.id}.skillEffect`,'wrong skill class');
+      for(const [k,v] of Object.entries(l.skillEffect.mods??{}))if(typeof v==='number')check(Number.isFinite(v),`legendaries.${l.id}.mods.${k}`,'non-finite modifier');
+    }
   }
   for (const s of Object.values(data.sets)) {
     const at=`sets.${s.id}`;
@@ -130,6 +135,12 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for(const b of s.bonuses) {
       number(b.count,`${at}.bonuses.count`,1,true);
       check(b.count <= s.pieces.length,`${at}.bonuses.count`,'requires more pieces than the set provides');
+    }
+    for(const e of s.effects??[]) {
+      check(s.bonuses.some(b=>b.count===e.count),`${at}.effects`,'missing displayed threshold');
+      for(const skill of e.skills)check(data.skills[skill]?.classId===s.classId,`${at}.effects.${skill}`,'unknown or wrong-class skill');
+      if(e.multiplier!==undefined)number(e.multiplier,`${at}.effects.multiplier`,1);
+      for(const [k,v] of Object.entries(e.mods??{}))if(typeof v==='number')check(Number.isFinite(v),`${at}.mods.${k}`,'non-finite modifier');
     }
   }
   for (const gem of Object.values(data.gems)) for (const slot of ['weapon','head','armor'] as const) {

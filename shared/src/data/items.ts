@@ -2,6 +2,7 @@
 // Affix values are Diablo 3 Reaper of Souls level-70 ranges (non-ancient) unless noted.
 
 import type { ClassId, Element, ItemKind, StatId } from '../types';
+import type { SkillMods } from './skills';
 
 // ─────────────────────────── Bases ───────────────────────────
 
@@ -115,6 +116,7 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'dex', primary: true, ranges: MAIN_RANGES, weight: 0, scale: 'stat', group: 'main', label: (v) => `+${intFmt(v)} Dexterity` },
   { stat: 'int', primary: true, ranges: MAIN_RANGES, weight: 0, scale: 'stat', group: 'main', label: (v) => `+${intFmt(v)} Intelligence` },
   { stat: 'vit', primary: true, ranges: MAIN_RANGES, weight: 10, scale: 'stat', label: (v) => `+${intFmt(v)} Vitality` },
+  { stat: 'maxResource', primary: true, ranges: {head:[8,12],waist:[8,12],offhand:[8,12]}, weight:6, scale:'pct', label:v=>`+${pctFmt(v)} Maximum Resource` },
   { stat: 'chc', primary: true, ranges: { head: [4.5, 6], hands: [8, 10], neck: [8, 10], ring: [4.5, 6], wrists: [4.5, 6], offhand: [8, 10] }, weight: 10, scale: 'pct', label: (v) => `Critical Hit Chance Increased by ${pctFmt(v)}%` },
   { stat: 'chd', primary: true, ranges: { hands: [45, 50], ring: [45, 50], neck: [80, 100], weapon1h: [45, 50] }, weight: 10, scale: 'pct', label: (v) => `Critical Hit Damage Increased by ${pctFmt(v)}%` },
   { stat: 'ias', primary: true, ranges: { hands: [5, 7], ring: [5, 7], neck: [5, 7], weapon1h: [5, 7], weapon2h: [5, 7], offhand: [15, 20] }, weight: 9, scale: 'pct', label: (v) => `Attack Speed Increased by ${pctFmt(v)}%` },
@@ -128,7 +130,7 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'eleArcane', primary: true, ranges: { neck: [15, 20], wrists: [15, 20], offhand: [15, 20] }, weight: 3, scale: 'pct', group: 'ele', label: (v) => `Arcane skills deal ${pctFmt(v)}% more damage` },
   { stat: 'skillDmg', primary: true, ranges: { head: [10, 15], shoulders: [10, 15], chest: [10, 15], legs: [10, 15], feet: [10, 15], offhand: [10, 15] }, weight: 9, scale: 'pct', label: (v, p) => `Increases ${p ?? 'skill'} damage by ${pctFmt(v)}%` },
   { stat: 'weaponDmgPct', primary: true, ranges: { weapon1h: [7, 10], weapon2h: [7, 10] }, weight: 12, scale: 'pct', label: (v) => `+${pctFmt(v)}% Damage` },
-  { stat: 'flatMin', primary: true, ranges: { ring: [84, 100], neck: [140, 168], offhand: [100, 140] }, weight: 8, scale: 'flat', group: 'flat', label: (v) => `+${intFmt(v)}-${intFmt(v * 2)} Damage` },
+  { stat: 'flatMin', primary: true, ranges: { ring: [84, 100], neck: [140, 168], offhand: [100, 140], weapon1h:[84,100], weapon2h:[140,168] }, weight: 8, scale: 'flat', group: 'flat', label: (v) => `+${intFmt(v)}-${intFmt(v * 2)} Damage` },
   { stat: 'lifePct', primary: true, ranges: { head: [10, 15], shoulders: [10, 15], chest: [10, 15], legs: [10, 15], neck: [14, 18], ring: [10, 15], offhand: [10, 15] }, weight: 7, scale: 'pct', label: (v) => `+${pctFmt(v)}% Life` },
   { stat: 'armor', primary: true, ranges: ALL_ARMOR([397, 465]), weight: 7, scale: 'res', label: (v) => `+${intFmt(v)} Armor` },
   { stat: 'allRes', primary: true, ranges: { ...ALL_ARMOR([91, 100]), neck: [91, 100], ring: [91, 100] }, weight: 7, scale: 'res', label: (v) => `+${intFmt(v)} Resistance to All Elements` },
@@ -174,9 +176,13 @@ export interface LegendaryDef {
   cubeSlot: CubeSlot;
   flavor: string;
   colors: { primary: number; secondary: number; glow: number };
+  skillEffect?: { skill: string; rolled: 'dmg' | 'cooldown'; mods?: SkillMods };
 }
 
 export const LEGENDARIES: Record<string, LegendaryDef> = {
+  faultcleaver: {id:'faultcleaver',name:'Faultcleaver',base:'axe2h',classes:['warrior'],power:'Seismic Slam deals {v}% increased damage and costs 40% less Fury.',range:[150,200],cubeSlot:'weapon',flavor:'Its edge follows the seams beneath the earth.',colors:{primary:0x5b5045,secondary:0xdb9860,glow:0xffb369},skillEffect:{skill:'seismic_slam',rolled:'dmg',mods:{cost:-40}}},
+  rainspindle: {id:'rainspindle',name:'Rainspindle',base:'bow',classes:['ranger'],power:'Rain of Vengeance cooldown is reduced by {v}% and its radius grows by 40%.',range:[30,40],cubeSlot:'weapon',flavor:'The string remembers every arrow still in the sky.',colors:{primary:0x384c59,secondary:0xaacacb,glow:0xb8e7f0},skillEffect:{skill:'rain_of_vengeance',rolled:'cooldown',mods:{radius:40}}},
+  lanternroot: {id:'lanternroot',name:'Lanternroot',base:'staff',classes:['mage'],power:'Hydras deal {v}% increased damage. You may summon one additional Hydra.',range:[150,200],cubeSlot:'weapon',flavor:'A branch that taught its flames to keep watch.',colors:{primary:0x404a31,secondary:0xe6b45f,glow:0xf6cd7d},skillEffect:{skill:'hydra',rolled:'dmg',mods:{maxSummons:1}}},
   // Warrior
   ninefold_gale: { id: 'ninefold_gale', name: 'The Ninefold Gale', base: 'axe2h', classes: ['warrior'], power: 'Whirlwind always spawns Dust Devils, and Dust Devils deal {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: '"Nine storms bound in one edge. It hungers to spin."', colors: { primary: 0xb8c4cc, secondary: 0x6b8fa3, glow: 0x9fe3ff } },
   bloodwake: { id: 'bloodwake', name: 'Bloodwake', base: 'sword', classes: ['warrior'], power: "Rend's bleed deals {v}% increased damage.", range: [150, 200], cubeSlot: 'weapon', flavor: 'The blade weeps for every wound it opens.', colors: { primary: 0x9e1b1b, secondary: 0x3a0d0d, glow: 0xff3b3b } },
@@ -211,6 +217,7 @@ export interface SetDef {
   pieces: { base: string; name: string }[];
   bonuses: { count: number; text: string }[];
   colors: { primary: number; secondary: number; glow: number };
+  effects?: {count:number; skills:string[]; mods?:SkillMods; multiplier?:number}[];
 }
 
 export const SETS: Record<string, SetDef> = {
@@ -258,6 +265,31 @@ export const SETS: Record<string, SetDef> = {
   },
 };
 
+/** Authored alternative identities; inherited base geometry is original Hearthfall art. */
+function alternativeSet(id:string,name:string,classId:ClassId,bases:string[],color:number,skills:string[],
+  first:SkillMods,firstText:string,second:SkillMods,secondText:string,multiplier:number):SetDef {
+  const parts=['Crown','Mantle','Vest','Grips','Legwraps','Treads'];
+  return {id,name,classId,pieces:bases.map((base,i)=>({base,name:`${name} ${parts[i]}`})),
+    colors:{primary:color,secondary:0xc6b88c,glow:0x3cff6e},
+    bonuses:[{count:2,text:firstText},{count:4,text:secondText},{count:6,text:`${skills.map(s=>s.replaceAll('_',' ')).join(' and ')} deal ${(multiplier-1)*100}% increased damage.`}],
+    effects:[{count:2,skills,mods:first},{count:4,skills,mods:second},{count:6,skills,multiplier}]};
+}
+const warriorBases=['head_horned','shoulders_spiked','chest_plate','hands_gauntlets','legs_plate','feet_greaves'];
+const rangerBases=['head_hood','shoulders_pads','chest_leather','hands_gloves','legs_leather','feet_boots'];
+const mageBases=['head_wizard','shoulders_mantle','chest_robe','hands_wraps','legs_cloth','feet_shoes'];
+SETS.cinder_oath=alternativeSet('cinder_oath','Cinder Oath','warrior',warriorBases,0x773e35,['cleave','rend'],
+  {radius:40},'Cleave and Rend reach 40% further.',{cost:-40},'Rend costs 40% less Fury.',127);
+SETS.fault_warden=alternativeSet('fault_warden','Fault Warden','warrior',warriorBases,0x726549,['seismic_slam','ground_stomp'],
+  {radius:40},'Seismic Slam and Ground Stomp have 40% increased radius.',{cooldown:-30},'Ground Stomp cooldown is reduced by 30%.',22);
+SETS.farwatch=alternativeSet('farwatch','Farwatch','ranger',rangerBases,0x3a6170,['hungering_arrow','multishot'],
+  {pierce:50},'Hungering Arrow gains 50% pierce chance.',{cost:-40},'Multishot costs 40% less Hatred.',30);
+SETS.rainkeeper=alternativeSet('rainkeeper','Rainkeeper','ranger',rangerBases,0x64546c,['rain_of_vengeance','cluster_arrow'],
+  {radius:40},'Rain of Vengeance and Cluster Arrow have 40% increased radius.',{cooldown:-30},'Rain of Vengeance cooldown is reduced by 30%.',30);
+SETS.glass_concord=alternativeSet('glass_concord','Glass Concord','mage',mageBases,0x667996,['magic_missile','black_hole'],
+  {dmg:40},'Magic Missile and Black Hole deal 40% increased damage.',{cooldown:-30},'Black Hole cooldown is reduced by 30%.',24);
+SETS.lantern_garden=alternativeSet('lantern_garden','Lantern Garden','mage',mageBases,0x536745,['hydra','frost_nova'],
+  {duration:40},'Hydras last 40% longer and Frost Nova freezes last 40% longer.',{cooldown:-30},'Frost Nova cooldown is reduced by 30%.',24);
+
 // ─────────────────────────── Gems ───────────────────────────
 
 export interface GemDef {
@@ -272,6 +304,7 @@ export interface GemDef {
 export const GEM_RANKS = ['Chipped', 'Flawed', 'Regular', 'Flawless', 'Perfect', 'Royal'];
 
 export const GEMS: Record<string, GemDef> = {
+  pearlglass: {id:'pearlglass',name:'Pearlglass',color:0xabc6ce,weapon:{stat:'ias',values:[2,4,6,8,11,15]},head:{stat:'maxResource',values:[2,4,6,8,11,15]},armor:{stat:'resourceRegen',values:[0.2,0.4,0.6,0.8,1.1,1.5]}},
   ruby: { id: 'ruby', name: 'Ruby', color: 0xe0115f, weapon: { stat: 'weaponDmgPct', values: [2, 4, 6, 8, 11, 15] }, head: { stat: 'xpPct', values: [5, 10, 15, 20, 25, 31] }, armor: { stat: 'str', values: [3, 12, 35, 80, 160, 280] } },
   emerald: { id: 'emerald', name: 'Emerald', color: 0x2ecc71, weapon: { stat: 'chd', values: [10, 20, 35, 55, 85, 130] }, head: { stat: 'goldFind', values: [8, 14, 20, 26, 32, 41] }, armor: { stat: 'dex', values: [3, 12, 35, 80, 160, 280] } },
   topaz: { id: 'topaz', name: 'Topaz', color: 0xf1c40f, weapon: { stat: 'thorns', values: [10, 60, 300, 1200, 3000, 6000] }, head: { stat: 'pickup', values: [10, 15, 20, 25, 30, 40] }, armor: { stat: 'int', values: [3, 12, 35, 80, 160, 280] } },

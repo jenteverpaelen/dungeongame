@@ -5,6 +5,7 @@ import { Application, Container, type Text } from 'pixi.js';
 import type { CharacterSave } from '@shared/types';
 import { questMarker } from '@shared/quests';
 import { ui } from '../ui/store';
+import { ordinarySelected } from '@shared/itemCollection';
 import { nameLabel } from './art/npcs';
 import { MONSTERS } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
@@ -316,7 +317,9 @@ export class Scene {
         flags = me.dashing ? flags | 256 : flags;
         e.x = x; e.y = y;
       }
-      const vis = x > x0 && x < x1 && y > y0 && y < y1;
+      const hiddenLoot = e.desc.loot?.lk === 'item' && !!e.desc.loot.rarity
+        && ordinarySelected(ui.get().char?.collection?.loot.hidden, e.desc.loot.rarity);
+      const vis = !hiddenLoot && x > x0 && x < x1 && y > y0 && y < y1;
       v.root.visible = vis;
       if (e.nameplate) e.nameplate.root.visible = vis && !e.dying;
       if (!vis && !e.dying) continue;

@@ -3,6 +3,7 @@
 
 import { CLASSES, DASH, SKILLS, computeStats, loadoutMods, mergeMods, type DerivedStats, type SkillMods } from '../shared';
 import type { Player, PlayerCtx, SaveX, SkillRuntime } from './types';
+import { LEGENDARIES, SETS } from '../../../shared/src/data/items';
 
 /** Legendary-power and set-bonus modifications for one skill (ARCHITECTURE 1.5). */
 function extraMods(d: DerivedStats, skillId: string): SkillMods {
@@ -46,7 +47,14 @@ function extraMods(d: DerivedStats, skillId: string): SkillMods {
       if (pw.thousand_missiles) { add('projectiles', 2); add('dmg', pw.thousand_missiles); }
       break;
   }
-  return m;
+  let result=m;
+  for(const [id,value] of Object.entries(pw)){
+    const e=LEGENDARIES[id]?.skillEffect;
+    if(e?.skill===skillId)result=mergeMods(result,mergeMods(e.mods??{}, {[e.rolled]:e.rolled==='cooldown'?-value:value}));
+  }
+  for(const [id,count] of Object.entries(sets))for(const e of SETS[id]?.effects??[])
+    if(count>=e.count&&e.skills.includes(skillId)&&e.mods)result=mergeMods(result,e.mods);
+  return result;
 }
 
 function runtime(save: SaveX, d: DerivedStats, skillId: string): SkillRuntime {
@@ -132,6 +140,10 @@ export function activeSentries(p: Player): number {
 /** Own-bucket multipliers (set bonuses). */
 export function skillMult(p: Player, skillId: string): number {
   const c = p.ctx;
+  let authored=1;
+  for(const [id,count] of Object.entries(c.d.sets))for(const e of SETS[id]?.effects??[])
+    if(count>=e.count&&e.skills.includes(skillId)&&e.multiplier)authored*=e.multiplier;
+  if(authored!==1)return authored;
   switch (skillId) {
     case 'whirlwind':
     case 'dust_devil':

@@ -2,6 +2,7 @@
 
 import { INVENTORY_SIZE, STASH_SIZE } from './constants';
 import { SAVE_VERSION } from './saveVersion';
+import { collectItem, equippedLook, seedCollection } from './itemCollection';
 import {selectedTitle} from './community';
 import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
@@ -15,7 +16,7 @@ export function createCharacter(name: string, classId: ClassId, seed: number): C
   const rng = new Rng(seed);
   const cls = CLASSES[classId];
   const firstSkill = skillsForClass(classId).find((s) => s.kind !== 'primary' && s.unlock <= 1);
-  return {
+  const save:CharacterSave = {
     version: SAVE_VERSION,
     id: `${name.toLowerCase()}`,
     name,
@@ -37,13 +38,15 @@ export function createCharacter(name: string, classId: ClassId, seed: number): C
     lastSeen: Date.now(),
     stats: { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 },
   };
+  seedCollection(save,Object.values(save.equipment));
+  return save;
 }
 
 export function playerLook(save: CharacterSave): PlayerLook {
   const slots: PlayerLook['slots'] = {};
   for (const s of LOOK_SLOTS) {
     const it = save.equipment[s as Slot];
-    if (it) slots[s] = it.look;
+    if (it) slots[s] = equippedLook(save, it, s as Slot);
   }
   return { classId: save.classId, slots, title:selectedTitle(save), ...(save.appearance?{appearance:save.appearance}:{}) };
 }
@@ -56,7 +59,7 @@ export function freeInventorySlot(save: CharacterSave): number {
 
 export function addToInventory(save: CharacterSave, item: Item): number {
   const idx = freeInventorySlot(save);
-  if (idx >= 0) save.inventory[idx] = item;
+  if (idx >= 0) { save.inventory[idx] = item; collectItem(save, item); }
   return idx;
 }
 

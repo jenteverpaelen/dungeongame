@@ -1,0 +1,884 @@
+{
+  "scope": "Seeded local generated-drop model,10000kills per row, old opportunity scale1 versus new2/3 using final item catalogue; not human kills/hour or historical byte-identical pre-P11 RNG. Non-equipment probabilities unchanged; sample counts may differ due to RNG consumption. Boss guaranteed-chase overhead included.",
+  "cadence": [
+    {
+      "level": 1,
+      "difficulty": 0,
+      "elite": 0,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 693,
+        "legendary": 11,
+        "set": 8,
+        "gold": 2210,
+        "gems": 126,
+        "mats": 0,
+        "itemsPer100Kills": 6.93,
+        "chasePer100Kills": 0.19,
+        "maxObservedChaseGapKills": 767
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 491,
+        "legendary": 10,
+        "set": 6,
+        "gold": 2181,
+        "gems": 124,
+        "mats": 0,
+        "itemsPer100Kills": 4.91,
+        "chasePer100Kills": 0.16,
+        "maxObservedChaseGapKills": 1149
+      },
+      "equipmentRatio": 0.7085137085137085
+    },
+    {
+      "level": 35,
+      "difficulty": 0,
+      "elite": 0,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 721,
+        "legendary": 12,
+        "set": 6,
+        "gold": 2215,
+        "gems": 119,
+        "mats": 0,
+        "itemsPer100Kills": 7.21,
+        "chasePer100Kills": 0.18,
+        "maxObservedChaseGapKills": 746
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 474,
+        "legendary": 10,
+        "set": 7,
+        "gold": 2168,
+        "gems": 128,
+        "mats": 0,
+        "itemsPer100Kills": 4.74,
+        "chasePer100Kills": 0.16999999999999998,
+        "maxObservedChaseGapKills": 1171
+      },
+      "equipmentRatio": 0.6574202496532594
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 0,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 715,
+        "legendary": 15,
+        "set": 4,
+        "gold": 2228,
+        "gems": 119,
+        "mats": 0,
+        "itemsPer100Kills": 7.1499999999999995,
+        "chasePer100Kills": 0.19,
+        "maxObservedChaseGapKills": 749
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 464,
+        "legendary": 10,
+        "set": 4,
+        "gold": 2175,
+        "gems": 131,
+        "mats": 0,
+        "itemsPer100Kills": 4.64,
+        "chasePer100Kills": 0.13999999999999999,
+        "maxObservedChaseGapKills": 1208
+      },
+      "equipmentRatio": 0.6489510489510489
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 1,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 15041,
+        "legendary": 308,
+        "set": 109,
+        "gold": 20000,
+        "gems": 2563,
+        "mats": 6002,
+        "itemsPer100Kills": 150.41,
+        "chasePer100Kills": 4.17,
+        "maxObservedChaseGapKills": 37
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 10100,
+        "legendary": 221,
+        "set": 72,
+        "gold": 20000,
+        "gems": 2512,
+        "mats": 6001,
+        "itemsPer100Kills": 101,
+        "chasePer100Kills": 2.93,
+        "maxObservedChaseGapKills": 56
+      },
+      "equipmentRatio": 0.6714979057243534
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 2,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 24963,
+        "legendary": 507,
+        "set": 179,
+        "gold": 30000,
+        "gems": 2438,
+        "mats": 5995,
+        "itemsPer100Kills": 249.63000000000002,
+        "chasePer100Kills": 6.859999999999999,
+        "maxObservedChaseGapKills": 21
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 16681,
+        "legendary": 356,
+        "set": 105,
+        "gold": 30000,
+        "gems": 2485,
+        "mats": 5997,
+        "itemsPer100Kills": 166.81,
+        "chasePer100Kills": 4.61,
+        "maxObservedChaseGapKills": 32
+      },
+      "equipmentRatio": 0.6682289788887553
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 3,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 1428,
+        "legendary": 32,
+        "set": 8,
+        "gold": 2149,
+        "gems": 2480,
+        "mats": 0,
+        "itemsPer100Kills": 14.280000000000001,
+        "chasePer100Kills": 0.4,
+        "maxObservedChaseGapKills": 422
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 966,
+        "legendary": 20,
+        "set": 10,
+        "gold": 2173,
+        "gems": 2473,
+        "mats": 0,
+        "itemsPer100Kills": 9.66,
+        "chasePer100Kills": 0.3,
+        "maxObservedChaseGapKills": 586
+      },
+      "equipmentRatio": 0.6764705882352942
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 4,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 60578,
+        "legendary": 16565,
+        "set": 5194,
+        "gold": 80000,
+        "gems": 2450,
+        "mats": 10000,
+        "itemsPer100Kills": 605.78,
+        "chasePer100Kills": 217.59,
+        "maxObservedChaseGapKills": 1
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 41766,
+        "legendary": 12360,
+        "set": 3495,
+        "gold": 80000,
+        "gems": 2493,
+        "mats": 10000,
+        "itemsPer100Kills": 417.65999999999997,
+        "chasePer100Kills": 158.54999999999998,
+        "maxObservedChaseGapKills": 1
+      },
+      "equipmentRatio": 0.689458219155469
+    },
+    {
+      "level": 70,
+      "difficulty": 0,
+      "elite": 5,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 70022,
+        "legendary": 13207,
+        "set": 4394,
+        "gold": 180000,
+        "gems": 2472,
+        "mats": 0,
+        "itemsPer100Kills": 700.22,
+        "chasePer100Kills": 176.01,
+        "maxObservedChaseGapKills": 5
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 46551,
+        "legendary": 8860,
+        "set": 2818,
+        "gold": 180000,
+        "gems": 2426,
+        "mats": 0,
+        "itemsPer100Kills": 465.51,
+        "chasePer100Kills": 116.78,
+        "maxObservedChaseGapKills": 7
+      },
+      "equipmentRatio": 0.6648053468909771
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 0,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 1550,
+        "legendary": 65,
+        "set": 17,
+        "gold": 2174,
+        "gems": 118,
+        "mats": 0,
+        "itemsPer100Kills": 15.5,
+        "chasePer100Kills": 0.8200000000000001,
+        "maxObservedChaseGapKills": 356
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 1054,
+        "legendary": 58,
+        "set": 18,
+        "gold": 2233,
+        "gems": 125,
+        "mats": 0,
+        "itemsPer100Kills": 10.54,
+        "chasePer100Kills": 0.76,
+        "maxObservedChaseGapKills": 508
+      },
+      "equipmentRatio": 0.68
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 1,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 15072,
+        "legendary": 743,
+        "set": 219,
+        "gold": 20000,
+        "gems": 2485,
+        "mats": 5917,
+        "itemsPer100Kills": 150.72,
+        "chasePer100Kills": 9.62,
+        "maxObservedChaseGapKills": 36
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 10001,
+        "legendary": 471,
+        "set": 156,
+        "gold": 20000,
+        "gems": 2483,
+        "mats": 6023,
+        "itemsPer100Kills": 100.01,
+        "chasePer100Kills": 6.2700000000000005,
+        "maxObservedChaseGapKills": 58
+      },
+      "equipmentRatio": 0.6635483014861996
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 2,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 24981,
+        "legendary": 1190,
+        "set": 407,
+        "gold": 30000,
+        "gems": 2403,
+        "mats": 5990,
+        "itemsPer100Kills": 249.81,
+        "chasePer100Kills": 15.97,
+        "maxObservedChaseGapKills": 21
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 16635,
+        "legendary": 795,
+        "set": 258,
+        "gold": 30000,
+        "gems": 2521,
+        "mats": 6003,
+        "itemsPer100Kills": 166.35,
+        "chasePer100Kills": 10.530000000000001,
+        "maxObservedChaseGapKills": 33
+      },
+      "equipmentRatio": 0.6659060886273568
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 3,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 1454,
+        "legendary": 76,
+        "set": 31,
+        "gold": 2221,
+        "gems": 2466,
+        "mats": 0,
+        "itemsPer100Kills": 14.540000000000001,
+        "chasePer100Kills": 1.0699999999999998,
+        "maxObservedChaseGapKills": 355
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 971,
+        "legendary": 48,
+        "set": 15,
+        "gold": 2196,
+        "gems": 2467,
+        "mats": 0,
+        "itemsPer100Kills": 9.71,
+        "chasePer100Kills": 0.63,
+        "maxObservedChaseGapKills": 520
+      },
+      "equipmentRatio": 0.6678129298486932
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 4,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 60876,
+        "legendary": 16525,
+        "set": 5147,
+        "gold": 80000,
+        "gems": 2500,
+        "mats": 10000,
+        "itemsPer100Kills": 608.76,
+        "chasePer100Kills": 216.71999999999997,
+        "maxObservedChaseGapKills": 1
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 42029,
+        "legendary": 12432,
+        "set": 3515,
+        "gold": 80000,
+        "gems": 2519,
+        "mats": 10000,
+        "itemsPer100Kills": 420.28999999999996,
+        "chasePer100Kills": 159.47,
+        "maxObservedChaseGapKills": 1
+      },
+      "equipmentRatio": 0.6904034430645903
+    },
+    {
+      "level": 70,
+      "difficulty": 13,
+      "elite": 5,
+      "kills": 10000,
+      "before": {
+        "scale": 1,
+        "items": 70206,
+        "legendary": 13271,
+        "set": 4240,
+        "gold": 180000,
+        "gems": 2493,
+        "mats": 0,
+        "itemsPer100Kills": 702.06,
+        "chasePer100Kills": 175.11,
+        "maxObservedChaseGapKills": 5
+      },
+      "after": {
+        "scale": 0.6666666666666666,
+        "items": 46765,
+        "legendary": 8707,
+        "set": 2894,
+        "gold": 180000,
+        "gems": 2478,
+        "mats": 0,
+        "itemsPer100Kills": 467.65,
+        "chasePer100Kills": 116.00999999999999,
+        "maxObservedChaseGapKills": 8
+      },
+      "equipmentRatio": 0.6661111585904339
+    }
+  ],
+  "envelope": {
+    "scope": "Level70 item contribution with Paragon0; impossible superset of all positive affixes and39max-rank gems. Conservative finite upper envelope, not achievable build stats or uncapped-Paragon proof.",
+    "main": 42340,
+    "vitality": 42340,
+    "life": 49622342,
+    "weapon": 30353.564641454403,
+    "setMultiplier": 127,
+    "singleHitEnvelope": 471716779668273200000,
+    "maxSafeInteger": 9007199254740991,
+    "enforcedCombatCeiling": 9007199254740991,
+    "saturatedEnvelope": 9007199254740991,
+    "itemOnlyHpBelowSafeInteger": true,
+    "itemOnlyDamageBelowSafeInteger": false,
+    "maxOrdinaryMonsterHp": 245241026.7238587,
+    "paragon": "Uncapped allocation remains a P12 numerical policy. No big-number library adopted; do not claim all future Paragon configurations are exact integers."
+  },
+  "tiers": [
+    {
+      "level": 1,
+      "tier": 0,
+      "weapon": 3.2,
+      "armor": 11
+    },
+    {
+      "level": 2,
+      "tier": 0,
+      "weapon": 3.5200000000000005,
+      "armor": 16
+    },
+    {
+      "level": 3,
+      "tier": 0,
+      "weapon": 3.8720000000000008,
+      "armor": 21
+    },
+    {
+      "level": 4,
+      "tier": 0,
+      "weapon": 4.259200000000002,
+      "armor": 26
+    },
+    {
+      "level": 5,
+      "tier": 0,
+      "weapon": 4.685120000000001,
+      "armor": 31
+    },
+    {
+      "level": 6,
+      "tier": 0,
+      "weapon": 5.153632000000002,
+      "armor": 36
+    },
+    {
+      "level": 7,
+      "tier": 0,
+      "weapon": 5.668995200000003,
+      "armor": 41
+    },
+    {
+      "level": 8,
+      "tier": 0,
+      "weapon": 6.2358947200000046,
+      "armor": 47
+    },
+    {
+      "level": 9,
+      "tier": 0,
+      "weapon": 6.859484192000005,
+      "armor": 53
+    },
+    {
+      "level": 10,
+      "tier": 0,
+      "weapon": 7.545432611200006,
+      "armor": 60
+    },
+    {
+      "level": 11,
+      "tier": 0,
+      "weapon": 8.299975872320008,
+      "armor": 67
+    },
+    {
+      "level": 12,
+      "tier": 0,
+      "weapon": 9.129973459552009,
+      "armor": 74
+    },
+    {
+      "level": 13,
+      "tier": 1,
+      "weapon": 10.04297080550721,
+      "armor": 82
+    },
+    {
+      "level": 14,
+      "tier": 1,
+      "weapon": 11.047267886057933,
+      "armor": 91
+    },
+    {
+      "level": 15,
+      "tier": 1,
+      "weapon": 12.151994674663726,
+      "armor": 100
+    },
+    {
+      "level": 16,
+      "tier": 1,
+      "weapon": 13.367194142130101,
+      "armor": 110
+    },
+    {
+      "level": 17,
+      "tier": 1,
+      "weapon": 14.70391355634311,
+      "armor": 120
+    },
+    {
+      "level": 18,
+      "tier": 1,
+      "weapon": 16.174304911977426,
+      "armor": 131
+    },
+    {
+      "level": 19,
+      "tier": 1,
+      "weapon": 17.791735403175167,
+      "armor": 143
+    },
+    {
+      "level": 20,
+      "tier": 1,
+      "weapon": 19.570908943492686,
+      "armor": 156
+    },
+    {
+      "level": 21,
+      "tier": 1,
+      "weapon": 21.527999837841957,
+      "armor": 170
+    },
+    {
+      "level": 22,
+      "tier": 1,
+      "weapon": 23.680799821626152,
+      "armor": 184
+    },
+    {
+      "level": 23,
+      "tier": 1,
+      "weapon": 26.048879803788772,
+      "armor": 200
+    },
+    {
+      "level": 24,
+      "tier": 1,
+      "weapon": 28.653767784167652,
+      "armor": 216
+    },
+    {
+      "level": 25,
+      "tier": 2,
+      "weapon": 31.519144562584415,
+      "armor": 234
+    },
+    {
+      "level": 26,
+      "tier": 2,
+      "weapon": 34.67105901884286,
+      "armor": 252
+    },
+    {
+      "level": 27,
+      "tier": 2,
+      "weapon": 38.13816492072715,
+      "armor": 272
+    },
+    {
+      "level": 28,
+      "tier": 2,
+      "weapon": 41.951981412799874,
+      "armor": 293
+    },
+    {
+      "level": 29,
+      "tier": 2,
+      "weapon": 46.14717955407986,
+      "armor": 315
+    },
+    {
+      "level": 30,
+      "tier": 2,
+      "weapon": 50.76189750948785,
+      "armor": 338
+    },
+    {
+      "level": 31,
+      "tier": 2,
+      "weapon": 55.83808726043664,
+      "armor": 363
+    },
+    {
+      "level": 32,
+      "tier": 2,
+      "weapon": 61.42189598648031,
+      "armor": 389
+    },
+    {
+      "level": 33,
+      "tier": 2,
+      "weapon": 67.56408558512834,
+      "armor": 416
+    },
+    {
+      "level": 34,
+      "tier": 2,
+      "weapon": 74.32049414364118,
+      "armor": 445
+    },
+    {
+      "level": 35,
+      "tier": 2,
+      "weapon": 81.75254355800531,
+      "armor": 475
+    },
+    {
+      "level": 36,
+      "tier": 2,
+      "weapon": 89.92779791380586,
+      "armor": 507
+    },
+    {
+      "level": 37,
+      "tier": 3,
+      "weapon": 98.92057770518645,
+      "armor": 540
+    },
+    {
+      "level": 38,
+      "tier": 3,
+      "weapon": 108.8126354757051,
+      "armor": 574
+    },
+    {
+      "level": 39,
+      "tier": 3,
+      "weapon": 119.69389902327562,
+      "armor": 611
+    },
+    {
+      "level": 40,
+      "tier": 3,
+      "weapon": 131.66328892560318,
+      "armor": 649
+    },
+    {
+      "level": 41,
+      "tier": 3,
+      "weapon": 144.82961781816354,
+      "armor": 689
+    },
+    {
+      "level": 42,
+      "tier": 3,
+      "weapon": 159.3125795999799,
+      "armor": 730
+    },
+    {
+      "level": 43,
+      "tier": 3,
+      "weapon": 175.2438375599779,
+      "armor": 774
+    },
+    {
+      "level": 44,
+      "tier": 3,
+      "weapon": 192.7682213159757,
+      "armor": 819
+    },
+    {
+      "level": 45,
+      "tier": 3,
+      "weapon": 212.0450434475733,
+      "armor": 866
+    },
+    {
+      "level": 46,
+      "tier": 3,
+      "weapon": 233.24954779233065,
+      "armor": 915
+    },
+    {
+      "level": 47,
+      "tier": 3,
+      "weapon": 256.5745025715637,
+      "armor": 966
+    },
+    {
+      "level": 48,
+      "tier": 3,
+      "weapon": 282.23195282872007,
+      "armor": 1019
+    },
+    {
+      "level": 49,
+      "tier": 4,
+      "weapon": 310.45514811159217,
+      "armor": 1074
+    },
+    {
+      "level": 50,
+      "tier": 4,
+      "weapon": 341.5006629227514,
+      "armor": 1131
+    },
+    {
+      "level": 51,
+      "tier": 4,
+      "weapon": 375.65072921502656,
+      "armor": 1191
+    },
+    {
+      "level": 52,
+      "tier": 4,
+      "weapon": 413.21580213652925,
+      "armor": 1252
+    },
+    {
+      "level": 53,
+      "tier": 4,
+      "weapon": 454.5373823501822,
+      "armor": 1316
+    },
+    {
+      "level": 54,
+      "tier": 4,
+      "weapon": 499.9911205852004,
+      "armor": 1382
+    },
+    {
+      "level": 55,
+      "tier": 4,
+      "weapon": 549.9902326437206,
+      "armor": 1450
+    },
+    {
+      "level": 56,
+      "tier": 4,
+      "weapon": 604.9892559080926,
+      "armor": 1521
+    },
+    {
+      "level": 57,
+      "tier": 4,
+      "weapon": 665.488181498902,
+      "armor": 1594
+    },
+    {
+      "level": 58,
+      "tier": 4,
+      "weapon": 732.0369996487922,
+      "armor": 1670
+    },
+    {
+      "level": 59,
+      "tier": 4,
+      "weapon": 805.2406996136715,
+      "armor": 1748
+    },
+    {
+      "level": 60,
+      "tier": 4,
+      "weapon": 885.7647695750388,
+      "armor": 1828
+    },
+    {
+      "level": 61,
+      "tier": 5,
+      "weapon": 974.3412465325426,
+      "armor": 1911
+    },
+    {
+      "level": 62,
+      "tier": 5,
+      "weapon": 1071.775371185797,
+      "armor": 1997
+    },
+    {
+      "level": 63,
+      "tier": 5,
+      "weapon": 1178.952908304377,
+      "armor": 2085
+    },
+    {
+      "level": 64,
+      "tier": 5,
+      "weapon": 1296.8481991348146,
+      "armor": 2177
+    },
+    {
+      "level": 65,
+      "tier": 5,
+      "weapon": 1426.5330190482964,
+      "armor": 2270
+    },
+    {
+      "level": 66,
+      "tier": 5,
+      "weapon": 1569.186320953126,
+      "armor": 2367
+    },
+    {
+      "level": 67,
+      "tier": 5,
+      "weapon": 1726.1049530484388,
+      "armor": 2467
+    },
+    {
+      "level": 68,
+      "tier": 5,
+      "weapon": 1898.715448353283,
+      "armor": 2569
+    },
+    {
+      "level": 69,
+      "tier": 5,
+      "weapon": 2088.5869931886114,
+      "armor": 2674
+    },
+    {
+      "level": 70,
+      "tier": 5,
+      "weapon": 2297.4456925074724,
+      "armor": 2782
+    }
+  ],
+  "counts": {
+    "affixes": 33,
+    "bases": 42,
+    "powers": 22,
+    "sets": 9,
+    "gems": 6
+  }
+}

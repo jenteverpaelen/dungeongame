@@ -27,6 +27,7 @@ export function validCommandState(v:unknown):v is CommandState {
 }
 /** Classify every command explicitly. New currency costs must join the persisted path. */
 const persisted:Record<CmdOp,boolean>={
+  collection:true,
   party:false,
   social:true,
   inspect:false,

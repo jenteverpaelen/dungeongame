@@ -41,9 +41,7 @@ export function DeathScreen() {
 
 // ───────────────────────── AFK report ─────────────────────────
 
-const MAT_NAMES: Record<keyof Materials, string> = {
-  scrap: 'Reusable Parts', dust: 'Arcane Dust', crystal: 'Veiled Crystal', soul: 'Forgotten Soul', deathsBreath: "Death's Breath",
-};
+import { MATERIAL_NAMES as MAT_NAMES } from '@shared/materialNames';
 
 export function AfkModal() {
   const afk = useUI((s) => s.afk);

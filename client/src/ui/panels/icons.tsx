@@ -1,3 +1,4 @@
+import { MATERIAL_NAMES } from '@shared/materialNames';
 // Hand-drawn inline SVG icons: UI glyphs, gold, crafting materials, gems and the Cube emblem.
 // Every gradient id is static & content-identical so duplicated <defs> across icons are harmless.
 
@@ -130,11 +131,11 @@ export function GoldIcon({ size = 16 }: { size?: number }) {
 // ───────────────────────────── Materials ─────────────────────────────
 
 export const MATERIAL_INFO: Record<MaterialId, { name: string; color: string; desc: string; source: string }> = {
-  scrap: { name: 'Reusable Parts', color: '#c9d1d8', desc: 'Salvaged metal fittings. Fuel for upgrading plain gear.', source: 'Salvage Normal items' },
-  dust: { name: 'Arcane Dust', color: '#c9a8ff', desc: 'Glittering residue of faded enchantments.', source: 'Salvage Magic items' },
-  crystal: { name: 'Veiled Crystal', color: '#8fb8ff', desc: 'A shard that bends light around hidden power.', source: 'Salvage Rare items' },
-  soul: { name: 'Forgotten Soul', color: '#9ff0c8', desc: 'The lingering will of a legendary relic.', source: 'Salvage Legendary and Set items' },
-  deathsBreath: { name: "Death's Breath", color: '#ff8a5a', desc: 'Distilled from the last exhale of a slain elite.', source: 'Dropped by champions, rares and bosses' },
+  scrap: { name: MATERIAL_NAMES.scrap, color: '#c9d1d8', desc: 'Salvaged metal fittings. Fuel for upgrading plain gear.', source: 'Salvage Normal items' },
+  dust: { name: MATERIAL_NAMES.dust, color: '#c9a8ff', desc: 'Glittering residue of faded enchantments.', source: 'Salvage Magic items' },
+  crystal: { name: MATERIAL_NAMES.crystal, color: '#8fb8ff', desc: 'A shard that bends light around hidden power.', source: 'Salvage Rare items' },
+  soul: { name: MATERIAL_NAMES.soul, color: '#9ff0c8', desc: 'The lingering will of a legendary relic.', source: 'Salvage Legendary and Set items' },
+  deathsBreath: { name: MATERIAL_NAMES.deathsBreath, color: '#ff8a5a', desc: 'Distilled from the last exhale of a slain elite.', source: 'Dropped by champions, rares and bosses' },
 };
 export const MATERIAL_ORDER: MaterialId[] = ['scrap', 'dust', 'crystal', 'soul', 'deathsBreath'];
 
@@ -150,7 +151,7 @@ export function MatIcon({ id, size = 22 }: { id: MaterialId; size?: number }) {
 
 function ScrapIcon({ size }: { size: number }) {
   return (
-    <Svg size={size} title="Reusable Parts">
+    <Svg size={size} title={MATERIAL_NAMES.scrap}>
       <defs>
         <linearGradient id="mt-steel" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stop-color="#e6ebf0" /><stop offset=".45" stop-color="#97a1aa" /><stop offset="1" stop-color="#454c54" />
@@ -172,7 +173,7 @@ function ScrapIcon({ size }: { size: number }) {
 
 function DustIcon({ size }: { size: number }) {
   return (
-    <Svg size={size} title="Arcane Dust">
+    <Svg size={size} title={MATERIAL_NAMES.dust}>
       <defs>
         <linearGradient id="mt-dust" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#ead9ff" /><stop offset=".4" stop-color="#a97cf0" /><stop offset="1" stop-color="#4a2a8e" />
@@ -190,7 +191,7 @@ function DustIcon({ size }: { size: number }) {
 
 function CrystalIcon({ size }: { size: number }) {
   return (
-    <Svg size={size} title="Veiled Crystal">
+    <Svg size={size} title={MATERIAL_NAMES.crystal}>
       <defs>
         <linearGradient id="mt-cr-l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dff0ff" /><stop offset="1" stop-color="#6e9cff" /></linearGradient>
         <linearGradient id="mt-cr-r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c86f0" /><stop offset="1" stop-color="#2a2f9c" /></linearGradient>
@@ -210,7 +211,7 @@ function CrystalIcon({ size }: { size: number }) {
 
 function SoulIcon({ size }: { size: number }) {
   return (
-    <Svg size={size} title="Forgotten Soul">
+    <Svg size={size} title={MATERIAL_NAMES.soul}>
       <defs>
         <radialGradient id="mt-soul" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#ffffff" /><stop offset=".5" stop-color="#b6f8d6" /><stop offset="1" stop-color="#3fbf8c" /></radialGradient>
         <filter id="mt-soul-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2" /></filter>
@@ -227,7 +228,7 @@ function SoulIcon({ size }: { size: number }) {
 
 function BreathIcon({ size }: { size: number }) {
   return (
-    <Svg size={size} title="Death's Breath">
+    <Svg size={size} title={MATERIAL_NAMES.deathsBreath}>
       <defs>
         <radialGradient id="mt-br-liq" cx=".4" cy=".35" r=".85"><stop offset="0" stop-color="#ffd0a0" /><stop offset=".35" stop-color="#ff6a3a" /><stop offset="1" stop-color="#7a0e1a" /></radialGradient>
         <linearGradient id="mt-br-glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(255,255,255,.55)" /><stop offset=".3" stop-color="rgba(255,255,255,.08)" /><stop offset="1" stop-color="rgba(255,255,255,.22)" /></linearGradient>

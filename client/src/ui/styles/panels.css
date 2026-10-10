@@ -1171,3 +1171,6 @@
 .inspection-slot>span>span { font-size:12px; color:#b8aa8e; }
 .inspection-item { min-width:0; }
 .inspection-item .tt { width:100%; }
+
+.collection-row { padding: 12px 16px; margin: 8px 0; border: 1px solid #72552b66; background: #120e0b55; }
+.collection-row p { margin: 8px 0; }

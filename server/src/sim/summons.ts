@@ -161,7 +161,7 @@ function sentry(inst: Instance, s: Summon, p: Player, dtMs: number) {
 function hydra(inst: Instance, s: Summon, p: Player, dtMs: number) {
   const rt = p.ctx.modsOf('hydra');
   const el = skillElement(rt);
-  const base: Strike = { skill: 'hydra', coef: rt.def.coef, el, pct: skillPct(p, rt), src: s.id };
+  const base: Strike = { skill: 'hydra', coef: rt.def.coef, el, pct: skillPct(p, rt), mult: skillMult(p, 'hydra'), src: s.id };
   s.fireMs -= dtMs;
   if (s.fireMs > 0) return;
   const tgt = pickTarget(inst, s.x, s.y, 500, true, p.save.skills.targetPriority);

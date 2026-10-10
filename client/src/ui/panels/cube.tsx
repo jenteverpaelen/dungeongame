@@ -565,6 +565,7 @@ export function CubePanel() {
 
   return (
     <PanelFrame id="cube" title={ARTISAN_NAMES[artisan]} width={840} icon={<CubeEmblem size={22} glow={false} />}>
+      <button class="btn sm" onClick={()=>{togglePanel('cube',false);togglePanel('collection',true);}}>Collection · recipes · appearances</button>
       <div class="cube-top">
         <div class="cube-lv">
           <CubeEmblem size={54} class="cube-em" />

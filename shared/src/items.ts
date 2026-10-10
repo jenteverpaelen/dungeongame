@@ -3,7 +3,7 @@
 import { CLASSES } from './data/classes';
 import { skillsForClass } from './data/skills';
 import {
-  AFFIXES, AFFIX_BY_STAT, BASES, LEGENDARIES, MAGIC_PREFIX, MAGIC_SUFFIX, RARE_PREFIX, RARE_SUFFIX, SETS,
+  AFFIXES, AFFIX_BY_STAT, BASES, GEM_IDS, LEGENDARIES, MAGIC_PREFIX, MAGIC_SUFFIX, RARE_PREFIX, RARE_SUFFIX, SETS,
   affixScale, type AffixDef, type BaseItem,
 } from './data/items';
 import { Rng } from './math';
@@ -363,16 +363,18 @@ export function rollRarity(rng: Rng, ctx: DropContext): Rarity {
 }
 
 export const NORMAL_GOLD_DROP_CHANCE = 0.22;
+/** Owner requested fewer all-equipment drops; non-equipment budgets are unchanged. */
+export const EQUIPMENT_DROP_SCALE = 2 / 3;
 export const baseGoldAmount = (level:number) => (4 + level * 2.5) * Math.pow(1.06, level);
 export function goldAmount(rng: Rng, level: number, goldFind: number): number {
   return Math.max(1, Math.round(baseGoldAmount(level) * rng.range(0.6, 1.4) * (1 + goldFind / 100)));
 }
 
 /** Roll everything a monster drops for one player (personal loot). */
-export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops: Drop[]; pity: number } {
+export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number, equipmentScale = EQUIPMENT_DROP_SCALE): { drops: Drop[]; pity: number } {
   const drops: Drop[] = [];
   let pity = ctx.pity;
-  const itemCount = (() => {
+  const originalCount = (() => {
     switch (ctx.elite) {
       case 0: return rng.chance(0.075 * (1 + ctx.difficulty * 0.08)) ? 1 : 0;
       case 1: return rng.int(1, 2);
@@ -382,6 +384,8 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops
       case 5: return rng.int(5, 9);
     }
   })();
+  const scaledCount = originalCount * Math.max(0, Math.min(1, equipmentScale));
+  const itemCount = Math.floor(scaledCount) + (scaledCount % 1 > 0 && rng.chance(scaledCount % 1) ? 1 : 0);
   for (let i = 0; i < itemCount; i++) {
     const rarity = rollRarity(rng, { ...ctx, pity });
     const item = generateItem(rng, {
@@ -402,7 +406,7 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number): { drops
   for (let i = 0; i < goldPiles; i++) drops.push({ type: 'gold', amount: goldAmount(rng, ctx.level, goldFind) * (ctx.elite ? 2 : 1) });
   if (rng.chance(ctx.elite ? 0.25 : 0.012)) {
     const rank = Math.min(5, Math.max(1, 1 + Math.floor(ctx.level / 15) + (ctx.difficulty >= 4 ? 1 : 0)));
-    drops.push({ type: 'gem', gem: rng.pick(['ruby', 'emerald', 'topaz', 'amethyst', 'diamond']), rank });
+    drops.push({ type: 'gem', gem: rng.pick(GEM_IDS), rank });
   }
   if (ctx.elite === 1 || ctx.elite === 2 || ctx.elite === 4) {
     if (rng.chance(ctx.elite === 4 ? 1 : 0.6)) drops.push({ type: 'mat', mat: 'deathsBreath', amount: ctx.elite === 4 ? rng.int(2, 4) : 1 });

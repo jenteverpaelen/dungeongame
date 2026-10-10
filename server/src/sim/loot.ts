@@ -2,6 +2,8 @@
 // D3-style fountain around the corpse, visible to and collectable by their owner only.
 
 import { recordIntro } from '../../../shared/src/onboarding';
+import { ordinarySelected } from '../../../shared/src/itemCollection';
+import { MATERIAL_NAMES } from '../../../shared/src/materialNames';
 import { economySnapshot, recordEconomy } from '../../../shared/src/economy';
 import {
   DIFFICULTIES, ITEM_PICKUP_RADIUS, MAGNET_RADIUS, addToInventory, gemName, goldAmount, rollDrops, type Drop, type EliteTier,
@@ -24,7 +26,7 @@ function viewOf(pl: LootPayload): LootView {
     }
     case 'gold': return { lk: 'gold', name: 'Gold', amount: pl.amount };
     case 'gem': return { lk: 'gem', name: gemName(pl.gem, pl.rank), gem: `${pl.gem}:${pl.rank}`, amount: pl.rank };
-    case 'mat': return { lk: 'mat', name: "Death's Breath", amount: pl.amount };
+    case 'mat': return { lk: 'mat', name: MATERIAL_NAMES[pl.mat], amount: pl.amount };
     case 'globe': return { lk: 'globe', name: 'Health Globe' };
   }
 }
@@ -101,6 +103,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
     const d2 = dx * dx + dy * dy;
     const pl = l.payload;
     if (pl.type === 'item') {
+      if (ordinarySelected(p.save.collection?.loot.leave, pl.item.rarity)) continue;
       const rr = ITEM_PICKUP_RADIUS + p.r;
       if (d2 > rr * rr) continue;
       const before=p.save.inventory.includes(null)?economySnapshot(p.save):undefined;

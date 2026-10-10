@@ -16,8 +16,8 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P7 Early world | Selected level1–20 campaign/field loop complete C090–C092; see P07 CHAPTER-REPORT | C105 adds party dungeon participation. Human pacing/art/ambience acceptance and field-load evidence remain |
 | P8 Economy | Selected v1 implementation complete C090–C095; see P08 CHAPTER-REPORT | G6 human economy/long-soak/independent acceptance remains; P14 account stash/P15 trading later |
 | P9 Mid game | C096–C100 passives, authored20–50 route, set gifts/vendors, Cube lessons, difficulty and regional families | C101 solo band report complete; C105 party correctness/scaling review exists, but full per-band co-op combat/human balance/G7 remain open |
-| P10 Social | Selected10a/10b implementation complete C102–C105; see P10 CHAPTER-REPORT | Owner manual moderation/30-day reports decided; guilds/filters/audit/emotes/titles/co-op done. G8 independent/human acceptance, account ownership and social backup operations remain explicit. Stop for requested Claude handoff |
-| P11 Itemization | Existing system preserved | Balance/loot research and save compatibility |
+| P10 Social | Selected10a/10b implementation complete C102–C105; see P10 CHAPTER-REPORT | Owner manual moderation/30-day reports decided; guilds/filters/audit/emotes/titles/co-op done. G8 independent/human acceptance, account ownership and social backup operations remain explicit. C106 completes the additional P11 chapter before requested handoff |
+| P11 Itemization | Selected F-ITM01–10 implementation complete C106; see P11 CHAPTER-REPORT | Nine build candidates meet the owner25% harness limit; equipment opportunities2/3, recipes/appearance/codex/rules/save migration complete. Human balance and combined P12/G9 remain. Stop for requested Claude handoff |
 | P12 Endgame | Existing untimed rifts preserved | Reward/rank design and server validation |
 | P13 Extra modes | Not selected | Research-backed per-mode fit; not automatic feature approval |
 | P14 Meta/idle | Existing AFK preserved | Account ownership and offline fairness research |
@@ -143,3 +143,5 @@ C092 completes early-game vendor buying/selling/buyback. Four contacts/ten norma
 C093 implements bounded actual-resource history and explicit economy-v1 choices;19 distinct focused checks/typecheck/build and two inspected1080p presentation views. Save10/protocol13. Continue P8 production transaction safety and distributions; do not restart completed chapters. Current working navigation: CODEX_WORKING_SET.md.
 
 C094 saved command boundary is implemented and checked; TRANSACTION-REPORT.md records guarantees/limits. Owner allows savings and rejects a hard wallet cap (L115/D053). Continue C095 economy distributions, then the remaining roadmap; do not stop after checkpoints.
+
+C106 completes the additional whole P11 implementation chapter requested after Social. [Chapter report](phase/P11-itemization/CHAPTER-REPORT.md) distinguishes measured81-encounter/280,000-kill evidence from human/endgame/numeric-growth acceptance. No P12 implementation started. Final [Claude handoff](CLAUDE_OPUS_5_5_HANDOFF.md) is the next entry point; this stop is explicitly requested.

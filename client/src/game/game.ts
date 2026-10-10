@@ -105,7 +105,7 @@ export class Game {
         ui.set({ char: m.char, derived: m.derived });
         break;
       case 'chat':
-        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId });
+        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item });
         break;
       case 'afk':
         ui.set({ afk: m });
@@ -307,6 +307,13 @@ export class Game {
   }
 
   private openArtisan(role: Artisan) {
+    if (role === 'blacksmith' && ui.get().char?.collection?.loot.salvage.length) {
+      void this.conn?.cmd('collection', {action:'autoSalvage'}).then(r => {
+        if (!r.ok) { if(r.err)pushNotice(r.err,'warn'); return; }
+        const count = (r.data as {count?:number}|undefined)?.count;
+        if (count) pushNotice(`Blacksmith auto-salvaged ${count} ordinary items`, 'info');
+      });
+    }
     ui.set({ artisan: role });
     if (!ARTISAN_FUNCTIONS[role].includes(cubeUI.get().fn)) cubeUI.set({ fn: ARTISAN_FUNCTIONS[role][0], affix: null, result: null });
     togglePanel('cube', true);

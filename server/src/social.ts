@@ -6,6 +6,7 @@ import {SLOTS,type Item} from '../../shared/src/types';
 import {randomUUID} from 'node:crypto';
 import type {Community} from './community';
 import {unlockedTitles} from '../../shared/src/community';
+import { ownedItems } from '../../shared/src/merchant';
 
 const has=(names:string[],name:string)=>names.some(n=>n.toLowerCase()===name.toLowerCase());
 const fail=(err:string):CmdResult=>({ok:false,err});
@@ -73,6 +74,13 @@ export class Social {
     if(!this.supported(s))return fail('This social record needs a supported game version');
     text=text.replace(/[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g,' ').replace(/\s+/g,' ').trim().slice(0,CHAT_MAX_LEN);
     if(!text)return fail('Enter a message');
+    let item: Item | undefined;
+    const link = /^\[\[item:([^\[\]]{1,100})\]\]$/.exec(text);
+    if(link){
+      const owned=ownedItems(s.save).find(i=>i?.id===link[1]);
+      if(!owned)return fail('You no longer own that item');
+      item=structuredClone(owned); text=`[${item.name}]`;
+    }
     if(this.community&&!this.community.canSpeak(s))return fail('This character is muted. Contact the owner.');
     if(this.community&&!this.community.filter(text))return fail('That message is blocked by the chat filter');
     let recipients:Session[];
@@ -91,7 +99,7 @@ export class Social {
     const messageId=randomUUID();
     for(const peer of recipients){
       if(peer!==s&&(this.blocked(s,peer)||has(this.state(peer).muted,s.save.name)||(ch!=='zone'&&!this.enabled(peer))))continue;
-      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(ch==='whisper'?{to:recipients[1].save.name}:{})};
+      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(item?{item}:{}),...(ch==='whisper'?{to:recipients[1].save.name}:{})};
       this.community?.remember(peer,message);peer.send(message);
     }
     return {ok:true};

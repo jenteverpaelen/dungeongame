@@ -49,7 +49,7 @@ function lifeFor(def: MonsterDef, tier: EliteTier, level: number, diff: number, 
   if (tier === 1 || tier === 2) hp *= eliteToughness(level);
   hp *= 1 + HP_PER_EXTRA_PLAYER * Math.max(0, Math.min(3, players - 1));
   if (affixes.includes('extra_health')) hp *= 1.5;
-  return Math.max(1, Math.round(hp));
+  return Math.max(1, Math.min(Number.MAX_SAFE_INTEGER,Math.round(hp)));
 }
 
 export function createMob(inst: Instance, def: MonsterDef, level: number, x: number, y: number, o: MobOpts = {}): Mob {

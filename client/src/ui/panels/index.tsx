@@ -22,13 +22,14 @@ import { PartyPanel } from './party';
 import { SocialPanel } from './social';
 import { InspectPanel } from './inspect';
 import {CommunityPanel} from './community';
+import { CollectionPanel } from './collection';
 import { TipLayer, hideTip, installAltTracking } from './tooltip';
 
 export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHover } from './tooltip';
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection'];
 
 /** Panel scale from the viewport height: 1.0 at ~1000px, shrinking towards 720p, growing a little on tall screens. */
 function useScale(): number {
@@ -71,6 +72,7 @@ export function PanelsRoot() {
           {panels.inventory && <div class="pn-dock right"><InventoryPanel /></div>}
           <div class="pn-dock left">
             {panels.cube && <CubePanel />}
+            {panels.collection && <CollectionPanel />}
             {panels.stash && <StashPanel />}
             {panels.skills && <SkillsPanel />}
             {panels.paragon && <ParagonPanel />}

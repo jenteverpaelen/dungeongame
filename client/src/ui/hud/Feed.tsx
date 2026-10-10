@@ -6,6 +6,7 @@ import { sendChat } from '../../net/api';
 import {CHAT_CHANNELS} from '@shared/social';
 import {whisperTo} from '../panels/social';
 import {reportMessage} from '../panels/community';
+import { itemHover } from '../panels/tooltip';
 import { fmtInt } from '@shared/format';
 import { RARITY_COLORS } from '@shared/items';
 import { CoinGlyph, GemMark } from './Glyphs';
@@ -88,7 +89,7 @@ function ChatRow({ l, idle }: { l: ChatLine; idle: boolean }) {
     <div class={`chat-line${idle ? ' idle' : ''}`}>
       <span class="chat-tag">[{l.ch==='whisper'?`Whisper → ${l.to}`:l.ch==='lfg'?'LFG':l.ch}]</span>
       <button class="chat-name interactive" style={{ color: l.cls ? CLASS_TEXT[l.cls] : '#d9ccb2' }} onClick={()=>{if(l.from)whisperTo(l.from===ui.get().char?.name?(l.to??l.from):l.from);}} title="Whisper to this character">{l.from ?? '?'}</button>
-      <span class="chat-sep">:</span> <span class="chat-text">{l.text}</span>
+      <span class="chat-sep">:</span> {l.item ? <button class="chat-name interactive" style={{color:RARITY_COLORS[l.item.rarity]}} {...itemHover(()=>l.item??null,{compare:true})}>{l.text}</button> : <span class="chat-text">{l.text}</span>}
       {open&&l.messageId&&l.from&&l.from!==me&&<button class="chat-name interactive" onClick={()=>{ui.set({chatOpen:false});reportMessage(l.from!,l.messageId!);}} title="Report this received message"> · Report</button>}
     </div>
   );
