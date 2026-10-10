@@ -1,4 +1,5 @@
 import type { QuestMessageKey } from './questMessages';
+import { CAST_DIALOGUES } from './castDialogues';
 
 export interface DialogueNode { text:QuestMessageKey; choices:{label:QuestMessageKey;to:string;when?:string[]}[] }
 export interface DialogueDef { start:string; nodes:Record<string,DialogueNode> }
@@ -16,4 +17,5 @@ export const DIALOGUES:Readonly<Record<string,DialogueDef>>={
   'rillwake_crossing/ledger':{start:'read',nodes:{read:{text:'quest.dialogue.ledger',choices:[]}}},
   'rillwake_crossing/survey':{start:'read',nodes:{read:{text:'quest.dialogue.survey',choices:[]}}},
   'bracken_sluice/floodgate':{start:'read',nodes:{read:{text:'quest.dialogue.floodgate',choices:[]}}},
+  ...CAST_DIALOGUES,
 };
