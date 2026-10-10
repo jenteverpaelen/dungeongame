@@ -145,8 +145,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   seismic_slam: S({
     id: 'seismic_slam', classId: 'warrior', name: 'Seismic Slam', kind: 'spender', unlock: 9, element: 'physical',
-    coef: 7.55, cost: 30, gen: 0, cooldown: 0, range: 420, radius: 60, duration: 0, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 3, within: 380 },
+    coef: 7.55, cost: 30, gen: 0, cooldown: 0, range: 336, radius: 60, duration: 0, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 3, within: 304 },
     desc: 'Send a fissure through the earth, dealing {coef} weapon damage to all enemies in a 60° cone.',
     icon: { glyph: 'fissure', color: 0x9c7b52 },
     runes: [
@@ -181,7 +181,7 @@ export const SKILLS: Record<string, SkillDef> = {
   // ─────────────────────────── RANGER ───────────────────────────
   hungering_arrow: S({
     id: 'hungering_arrow', classId: 'ranger', name: 'Hungering Arrow', kind: 'primary', unlock: 1, element: 'physical',
-    coef: 1.55, cost: 0, gen: 3, cooldown: 0, range: 520, radius: 0, duration: 0, maxSummons: 0,
+    coef: 1.55, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire a magically imbued arrow that seeks out enemies for {coef} weapon damage, with a 35% chance to pierce. Generates {gen} Hatred.',
     icon: { glyph: 'arrow', color: 0x8fd16a },
@@ -198,7 +198,7 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   sentry: S({
     id: 'sentry', classId: 'ranger', name: 'Sentry', kind: 'summon', unlock: 2, element: 'physical',
-    coef: 2.8, cost: 20, gen: 0, cooldown: 8, range: 600, radius: 560, duration: 30, maxSummons: 2,
+    coef: 2.8, cost: 20, gen: 0, cooldown: 8, range: 380, radius: 380, duration: 30, maxSummons: 2,
     auto: { when: 'maintainSummon' },
     desc: 'Deploy a turret at your feet that fires bolts at enemies for {coef} weapon damage each second. Up to {max} Sentries; lasts {duration} seconds.',
     icon: { glyph: 'turret', color: 0xc9a227 },
@@ -215,8 +215,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   multishot: S({
     id: 'multishot', classId: 'ranger', name: 'Multishot', kind: 'spender', unlock: 4, element: 'physical',
-    coef: 3.6, cost: 25, gen: 0, cooldown: 0, range: 500, radius: 0, duration: 0, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 2, within: 480 },
+    coef: 3.6, cost: 25, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 2, within: 380 },
     desc: 'Fire a massive volley of arrows in a wide arc, dealing {coef} weapon damage to every enemy hit.',
     icon: { glyph: 'fan', color: 0x9bd36f },
     runes: [
@@ -232,8 +232,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   cluster_arrow: S({
     id: 'cluster_arrow', classId: 'ranger', name: 'Cluster Arrow', kind: 'spender', unlock: 6, element: 'fire',
-    coef: 6.5, cost: 40, gen: 0, cooldown: 0, range: 520, radius: 110, duration: 0, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 3, within: 500 },
+    coef: 6.5, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 110, duration: 0, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 3, within: 380 },
     desc: 'Lob an explosive arrow into the densest pack. It detonates for {coef} weapon damage as Fire, then releases 4 grenades for 210% weapon damage each.',
     icon: { glyph: 'cluster', color: 0xe67e22 },
     runes: [
@@ -249,8 +249,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   rain_of_vengeance: S({
     id: 'rain_of_vengeance', classId: 'ranger', name: 'Rain of Vengeance', kind: 'cooldown', unlock: 9, element: 'physical',
-    coef: 15, cost: 0, gen: 0, cooldown: 30, range: 520, radius: 240, duration: 5, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 5, within: 500 },
+    coef: 15, cost: 0, gen: 0, cooldown: 30, range: 380, radius: 240, duration: 5, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 5, within: 380 },
     desc: 'Call down a storm of arrows on a large area, dealing {coef} weapon damage over {duration} seconds.',
     icon: { glyph: 'rain', color: 0x5dade2 },
     runes: [
@@ -266,7 +266,7 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   companion: S({
     id: 'companion', classId: 'ranger', name: 'Companion', kind: 'summon', unlock: 12, element: 'physical',
-    coef: 1.5, cost: 0, gen: 0, cooldown: 0, range: 400, radius: 0, duration: 0, maxSummons: 1,
+    coef: 1.5, cost: 0, gen: 0, cooldown: 0, range: 320, radius: 0, duration: 0, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'A loyal wolf fights at your side, biting enemies for {coef} weapon damage.',
     icon: { glyph: 'paw', color: 0xa0a0a0 },
@@ -285,7 +285,7 @@ export const SKILLS: Record<string, SkillDef> = {
   // ─────────────────────────── MAGE ───────────────────────────
   magic_missile: S({
     id: 'magic_missile', classId: 'mage', name: 'Magic Missile', kind: 'primary', unlock: 1, element: 'arcane',
-    coef: 2.3, cost: 0, gen: 0, cooldown: 0, range: 480, radius: 0, duration: 0, maxSummons: 0,
+    coef: 2.3, cost: 0, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Launch a missile of arcane energy, dealing {coef} weapon damage as Arcane.',
     icon: { glyph: 'missile', color: 0xb388ff },
@@ -302,8 +302,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   meteor: S({
     id: 'meteor', classId: 'mage', name: 'Meteor', kind: 'spender', unlock: 2, element: 'fire',
-    coef: 7.4, cost: 40, gen: 0, cooldown: 0, range: 560, radius: 130, duration: 3, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 1, within: 540 },
+    coef: 7.4, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 130, duration: 3, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 1, within: 380 },
     desc: 'Summon a meteor onto the densest pack. After a short delay it impacts for {coef} weapon damage as Fire and leaves molten ground that burns for 235% weapon damage over {duration} seconds.',
     icon: { glyph: 'meteor', color: 0xff7a1a },
     runes: [
@@ -319,8 +319,8 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   black_hole: S({
     id: 'black_hole', classId: 'mage', name: 'Black Hole', kind: 'cooldown', unlock: 4, element: 'arcane',
-    coef: 5.4, cost: 20, gen: 0, cooldown: 12, range: 520, radius: 220, duration: 2, maxSummons: 0,
-    auto: { when: 'enemiesNear', count: 4, within: 520 },
+    coef: 5.4, cost: 20, gen: 0, cooldown: 12, range: 380, radius: 220, duration: 2, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 4, within: 380 },
     desc: 'Tear open a black hole that pulls enemies within {radius} units to its centre and deals {coef} weapon damage as Arcane over {duration} seconds. Pairs perfectly with Meteor.',
     icon: { glyph: 'vortex', color: 0x8e44ad },
     runes: [
@@ -353,7 +353,7 @@ export const SKILLS: Record<string, SkillDef> = {
   }),
   hydra: S({
     id: 'hydra', classId: 'mage', name: 'Hydra', kind: 'summon', unlock: 9, element: 'fire',
-    coef: 2.8, cost: 15, gen: 0, cooldown: 0, range: 520, radius: 500, duration: 9, maxSummons: 1,
+    coef: 2.8, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 380, duration: 9, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'Summon a Hydra that attacks for {coef} weapon damage per second as {element}. Lasts {duration} seconds.',
     icon: { glyph: 'hydra', color: 0xff5e3a },

@@ -11,7 +11,7 @@ import type { ClassId, DerivedStats } from '@shared/types';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
-import { installApi } from '../net/api';
+import { installApi, session } from '../net/api';
 import { Connection } from '../net/connection';
 import { Scene } from '../render/scene';
 import type { ActingView, PlayerView } from '../render/types';
@@ -43,6 +43,7 @@ export class Game {
   private observationPosition?:{x:number;y:number;dead:number};
 
   constructor(private app: Application) {
+    session.interact = () => this.interact();
     this.world = new ClientWorld({ onAdd: (e) => this.scene.onAdd(e), onRemove: (e) => this.scene.onRemove(e) });
     this.scene = new Scene(app, this.world);
     this.input = new Input({

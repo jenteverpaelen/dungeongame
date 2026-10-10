@@ -47,6 +47,14 @@
   z-index: 5;
 }
 
+/* With only attack and dash, keep the globes proportionate and XP readable. */
+.hud-bottom.is-starter { --globe: calc(var(--u) * 136); }
+.hud-bottom.is-starter .hud-bar {
+  min-width: calc(var(--u) * 420);
+  padding-inline: calc(var(--u) * 50);
+  margin-inline: calc(var(--u) * -24);
+}
+
 .globe {
   position: relative;
   width: var(--globe);
@@ -927,6 +935,8 @@
 /* ═════════════════════════ Interact prompt ═════════════════════════ */
 
 .hud-interact {
+  border: 0;
+  cursor: pointer;
   position: fixed;
   left: 50%;
   bottom: calc(var(--u) * 232);
@@ -941,6 +951,7 @@
   z-index: 5;
   animation: promptIn 0.25s var(--ease-out);
 }
+.hud-interact:focus-visible { outline: 2px solid var(--bronze-1); outline-offset: 4px; }
 .ip-key {
   display: grid;
   place-items: center;

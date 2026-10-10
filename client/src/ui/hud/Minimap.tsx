@@ -115,8 +115,7 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   const save=ui.get().char;
   if(save) {
     const quest=trackedQuest(save);
-    const dungeon=ui.get().dungeon;
-    const point=dungeon?questPoint(baked.map,{zone:baked.map.zone,target:dungeon.target},save):quest&&questPoint(baked.map,questObjective(save,quest),save);
+    const point=quest&&questPoint(baked.map,questObjective(save,quest),save);
     if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
   }
   for (const n of baked.map.npcs) {

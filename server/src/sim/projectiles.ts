@@ -1,7 +1,7 @@
 // Projectiles: player arrows / bolts / missiles / fireballs / rockets / lobbed cluster arrows, and monster
 // projectiles (seeds, firebolts, sparks, guardian rings). Clients simulate them from `proj` until `pend`.
 
-import { PLAYER_RADIUS, type Element } from '../shared';
+import { PLAYER_RADIUS, SKILLS, type Element } from '../shared';
 import { damagePlayer, gainResource, strikeMob } from './damage';
 import { chillMob, elIdx, freezeMob, shotBlocked } from './effects';
 import { nextId } from './ids';
@@ -42,10 +42,14 @@ export interface ProjSpec {
 }
 
 export function spawnProj(inst: Instance, s: ProjSpec): Proj {
+  // Target acquisition and visible projectile travel share the current skill reach.
+  const reach=s.owner&&s.strike?SKILLS[s.strike.skill]?.range??0:0;
+  const lifeMs=reach>0&&s.speed>0&&s.kind!=='cluster'
+    ?Math.min(s.lifeMs,(reach+PLAYER_RADIUS*2)/s.speed*1000):s.lifeMs;
   const vx = Math.cos(s.angle) * s.speed, vy = Math.sin(s.angle) * s.speed;
   const pr: Proj = {
     id: nextId(), kind: s.kind, v: s.v, owner: s.owner ?? null, mob: s.mob ?? null,
-    x: s.x, y: s.y, vx, vy, speed: s.speed, lifeMs: s.lifeMs, r: s.r, el: s.el,
+    x: s.x, y: s.y, vx, vy, speed: s.speed, lifeMs, r: s.r, el: s.el,
     strike: s.strike ?? null, dmg: s.dmg ?? 0, mobLevel: s.mobLevel ?? 1,
     pierce: s.pierce ?? 0, hits: s.hits ?? null, homing: s.homing ?? 0, turn: s.turn ?? 0, seek: !!s.seek,
     splash: s.splash ?? 0, pierced: 0, bits: s.bits ?? 0, tx: s.tx ?? 0, ty: s.ty ?? 0, dead: false,
@@ -53,7 +57,7 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
   inst.projs.push(pr);
   const ev: { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number } = {
     e: 'proj', id: pr.id, s: s.src, v: s.v, x: Math.round(s.x), y: Math.round(s.y), vx: Math.round(vx), vy: Math.round(vy),
-    life: Math.round(s.lifeMs), el: elIdx(s.el),
+    life: Math.round(lifeMs), el: elIdx(s.el),
   };
   if (pr.homing) ev.h = pr.homing;
   if (s.sz) ev.sz = s.sz;

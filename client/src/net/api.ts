@@ -32,5 +32,6 @@ export function sendChat(text: string,ch?:import('@shared/social').ChatChannel,t
 
 /** Start the game with a character (class select screen). Installed by main.ts. */
 export const session = {
+  interact: () => {},
   start: (_name: string, _classId: 'warrior' | 'ranger' | 'mage', _options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) => {},
 };

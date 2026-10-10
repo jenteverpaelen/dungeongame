@@ -209,7 +209,6 @@ export function XpBar() {
 // ───────────────────────── Bottom bar assembly ─────────────────────────
 
 export function BottomBar() {
-  const disclosure=useUI(s=>!s.char?.onboarding||s.char.onboarding.status!=='active'||s.char.level>1);
   const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash'), casts: CAST_ACTIONS.map(a => bindings.label(a)) }));
   const manual = useLocal(preferences, s => s.values.manualSkills);
   const char = useUI((s) => (s.char ? { cls: s.char.classId, skills: s.char.skills, level: s.char.level } : null));
@@ -238,17 +237,18 @@ export function BottomBar() {
 
   const primary = mk(skills.primary);
   const slots = [0, 1, 2, 3].map((i) => mk(skills.slots[i] ?? null, i + 1));
+  const compact = slots.every(s => !s.skill) && !Object.values(SKILLS).some(s => s.classId === cls && s.kind !== 'primary' && s.unlock <= char.level);
 
   return (
-    <div class="hud-bottom">
+    <div class={`hud-bottom${compact ? ' is-starter' : ''}`}>
       <HealthGlobe />
       <div class="hud-bar">
         <BuffRow />
         <XpBar />
         <div class="bar-slots">
           <Slot kind="primary" keyLabel="AUTO" skill={primary.skill} cd={0} nominalMs={0} tip={primary.tip} active={false} />
-          <i class="bar-sep" />
-          {slots.map((s, i) => (!disclosure&&!s.skill?null:(
+          {!compact && <i class="bar-sep" />}
+          {slots.map((s, i) => (compact?null:(
             <Slot
               key={i}
               kind="skill"

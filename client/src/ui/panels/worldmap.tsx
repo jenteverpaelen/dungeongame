@@ -43,7 +43,7 @@ export function WorldMapPanel() {
   const def=ZONES[selected]??ZONES.hearthmere;
   const positions=ROUTE_PAGES[page];
   const quest=trackedQuest(save),objective=quest&&questObjective(save,quest);
-  const point=map&&(dungeon?questPoint(map,{zone:map.zone,target:dungeon.target},save):objective&&questPoint(map,objective,save));
+  const point=map&&objective&&questPoint(map,objective,save);
   const route=objective?zoneRoute(zone.zone,objective.zone,id=>zoneUnlocked(save,id)):[];
   const locked=routeLock(save,def.id),tooLow=!zoneLevelAllowed(save,def.id),here=zone.zone===def.id;
   const near=(p:{x:number;y:number},r:number)=>!!me&&!me.dead&&me.hp>0&&Math.hypot(me.x-p.x,me.y-p.y)<=r&&!cw?.segmentBlocked(me.x,me.y,p.x,p.y);

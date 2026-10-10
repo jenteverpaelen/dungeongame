@@ -1,6 +1,6 @@
 import { QUESTS, questById } from '../../shared/src/data/quests';
 import { questText } from '../../shared/src/data/questMessages';
-import { questAvailable, questHasItem, questObjective, questState, validQuestState, writeQuestState } from '../../shared/src/quests';
+import { questAvailable, questHasItem, questObjective, questState, trackedQuest, validQuestState, writeQuestState } from '../../shared/src/quests';
 import { campaignSetReward } from '../../shared/src/campaignSets';
 import { QUEST_SERVICE_OPS, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
@@ -78,9 +78,10 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
   if(!questAvailable(s.save,q))return fail('Complete the preceding adventure first');
   const expectedCycle=(state?.cycle??0)+(a.action==='accept'&&state?.claimed?1:0);
   if(q.repeat&&a.cycle!==expectedCycle)return fail('This quest cycle changed; reopen the journal');
-  if(a.action==='track') {
+  if(a.action==='track'||a.action==='untrack') {
     if(state?.claimed)return fail('This adventure is already completed');
-    s.save.trackedQuest=q.id;s.changed(false);return ok();
+    if(a.action==='untrack'&&trackedQuest(s.save)?.id!==q.id)return ok();
+    s.save.trackedQuest=a.action==='untrack'?'':q.id;s.changed(false);return ok();
   }
   if(!inst)return fail('Not in a zone');
   if(a.action==='accept') {

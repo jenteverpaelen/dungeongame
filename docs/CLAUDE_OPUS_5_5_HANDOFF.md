@@ -2,11 +2,13 @@
 
 2026-10-10. **Final requested handoff. P10 Social (C102–C105) and the additional P11 Itemization chapter (C106) have complete selected implementation inventories. Codex is stopping as requested; no P12 implementation has begun.** The whole roadmap and independent/human gates are not complete. Read the report boundaries rather than interpreting a chapter number as release readiness.
 
-This is the compact continuation entry. [CODEX_CHANGELOG](CODEX_CHANGELOG.md) records every C001–C106 addition/removal, research basis, scope, validation and rollback. Earlier town work is in [town FINAL](town/FINAL.md), M1/M2/M3-SLICE and root HANDOFF.md. Read linked reports narrowly; do not dump the entire history into context.
+**C107 owner playtest follow-up:** after this handoff, the owner requested a fresh-character guide, wider manual world zoom, compact starter HUD, explicit quest tracking with floor dots/E prompts, and shorter ranged reach. These are now implemented; no P12 chapter work. Read [playtest guide](PLAYTEST_GUIDE.md), [C107 report](playtest-feedback/REPORT.md) and current working set. The owner playtest server remains running on localhost:2577; preserve its isolated save folder. Physical trackpad-pinch feel remains their check.
+
+This is the compact continuation entry. [CODEX_CHANGELOG](CODEX_CHANGELOG.md) records every C001–C107 addition/removal, research basis, scope, validation and rollback. Earlier town work is in [town FINAL](town/FINAL.md), M1/M2/M3-SLICE and root HANDOFF.md. Read linked reports narrowly; do not dump the entire history into context.
 
 ## Safe takeover
 
-Repository `C:\Users\LaptopJente\dungeongame`, Windows11/PowerShell. **Only codex/new-tristram-town.** P10 checkpoint C105=`f75a72f`; C106 is the next commit containing this final handoff. `git log -1` identifies its final hash, also recorded in Codex's final response. Do not reset to C105 or the older C104=`abd2a76`.
+Repository `C:\Users\LaptopJente\dungeongame`, Windows11/PowerShell. **Only codex/new-tristram-town.** P10 checkpoint C105=`f75a72f`; C106=`bef89cb`; C107 is the subsequent owner-feedback commit containing this updated handoff. `git log -1` identifies its final hash, also recorded in Codex's final response. Do not reset to C105 or the older C104=`abd2a76`.
 
 Read AGENTS.md and root HANDOFF.md completely once on fresh takeover. Follow later owner decisions below over stale historical next-step prose. Fetch origin and verify/check out the allowed branch without discarding local edits. Never push/rebase/force the baseline `claude/wizardly-feynman-9hd73d` / tag `baseline-original-ts-794f77e`; never delete branches/tags or run `git clean -fdx`. Check branch immediately before each push. PowerShell commits use a BOM-free file and `git commit -F`.
 
@@ -17,7 +19,7 @@ Never commit `.local`, `.env`, `server/data`, private ledgers/report evidence or
 ## Persistent owner directions
 
 - Deep research before design. Log primary evidence/local measurements in [REFERENCES](town/REFERENCES.md), then what/why/evidence/scope/removal/future/rollback in [DECISIONS](town/DECISIONS.md) and your own maintained Markdown log. Separate measured, inferred and unverified. Routine supported implementation is authorized without repeatedly asking.
-- Town and UI style frozen. **Keep the original fixed620-world-unit vertical camera and90ms smoothing.** C001 removed the zoom-out/automatic spell framing the owner disliked. Long-range clipping is known, not permission to restore it.
+- Town and UI style preserved. **C107 supersedes the fixed-camera preference:** default75% world scale, manual wheel/pinch66.67–200%,90ms smoothing, no automatic spell framing. The owner also requested shorter ranged reach and floor-dot quest directions. D071–D074 explain exact scope/rollback. Older chapter reports describe their historical camera.
 - No scrolling game menus; use pages/tabs/columns with existing fonts/materials/colors. Verify changed screens in real local Chrome1920×1080 and inspect screenshots. Hidden tabs are not FPS benchmarks.
 - More implementation, fewer redundant tests. Owner does broad playtesting. Run relevant correctness/type/build checks and expand only for a concrete change/failure. Infinite HP is for clearly labelled assisted combat fixtures, never normal players.
 - Complete coherent chapters. Don't call one quest the whole roadmap or stop at arbitrary checkpoints. **This stop is explicitly requested for the Claude handoff.** Resume when they ask. Use they/them.

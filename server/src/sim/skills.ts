@@ -242,7 +242,7 @@ function groundStomp(inst: Instance, p: Player, rt: SkillRuntime): boolean {
 
 function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const mul = Math.max(1, skillRadius(rt) / rt.def.radius);
-  const len = 420 * Math.min(1.6, mul);
+  const len = rt.def.range * Math.min(1.6, mul);
   const half = 30 * DEG * mul;
   let ang = bestConeAngle(inst, p.x, p.y, len, half);
   if (ang === null) {
@@ -326,7 +326,7 @@ function fireMultishot(inst: Instance, p: Player, rt: SkillRuntime, ox: number, 
     });
   }
   if (rt.flags.has('rockets')) {
-    const near = inst.queryMobs(ox, oy, 520).filter((m) => !m.dead);
+    const near = inst.queryMobs(ox, oy, rt.def.range).filter((m) => !m.dead);
     for (let i = 0; i < 3; i++) {
       const t = near.length ? near[Math.floor(inst.rng.next() * near.length)] : null;
       spawnProj(inst, {
@@ -344,7 +344,7 @@ function multishot(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   fireMultishot(inst, p, rt, p.x, p.y, t.ang, p.id);
   if (p.ctx.modsOf('sentry').flags.has('sentryCasts')) {
     for (const s of p.summons) {
-      if (s.type !== 'sentry' || s.dead || Math.hypot(t.x - s.x, t.y - s.y) > rt.def.range + 120) continue;
+      if (s.type !== 'sentry' || s.dead || Math.hypot(t.x - s.x, t.y - s.y) > rt.def.range) continue;
       s.attackSeq++; s.attackFlagMs = 200;
       fireMultishot(inst, p, rt, s.x, s.y, Math.atan2(t.y - s.y, t.x - s.x), s.id);
     }
@@ -375,7 +375,7 @@ export function clusterExplode(inst: Instance, pr: Proj) {
   inst.emit({ e: 'aoe', v: 'cluster', x: Math.round(pr.x), y: Math.round(pr.y), r: Math.round(radius), d: 420, el: elIdx(st.el), s: st.src ?? p.id }, pr.x, pr.y, p.id);
   if (pr.bits & PB_NOGRENADE) return;
   if (pr.bits & PB_ROCKETS) {
-    const near = inst.queryMobs(pr.x, pr.y, 420).filter((m) => !m.dead);
+    const near = inst.queryMobs(pr.x, pr.y, rt.def.range).filter((m) => !m.dead&&Math.hypot(m.x-p.x,m.y-p.y)<=rt.def.range);
     for (let i = 0; i < 3; i++) {
       const t = near.length ? near[Math.floor(inst.rng.next() * near.length)] : null;
       spawnProj(inst, {
@@ -404,7 +404,7 @@ function clusterArrow(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   lobCluster(inst, p, rt, p.x, p.y, bp.x, bp.y, p.id);
   if (p.ctx.modsOf('sentry').flags.has('sentryCasts')) {
     for (const s of p.summons) {
-      if (s.type !== 'sentry' || s.dead || Math.hypot(bp.x - s.x, bp.y - s.y) > rt.def.range + 120) continue;
+      if (s.type !== 'sentry' || s.dead || Math.hypot(bp.x - s.x, bp.y - s.y) > rt.def.range) continue;
       s.attackSeq++; s.attackFlagMs = 200;
       lobCluster(inst, p, rt, s.x, s.y, bp.x + (inst.rng.next() - 0.5) * 40, bp.y + (inst.rng.next() - 0.5) * 40, s.id);
     }
@@ -454,6 +454,7 @@ function meteor(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     let best: Mob | null = null, bd = Infinity;
     for (const m of inst.queryMobs(bp.x, bp.y, 400)) {
       if (m.dead) continue;
+      if (Math.hypot(m.x-p.x,m.y-p.y)>rt.def.range)continue;
       const d = Math.hypot(m.x - bp.x, m.y - bp.y);
       if (d < radius * 0.9) continue;
       if (d < bd) { bd = d; best = m; }

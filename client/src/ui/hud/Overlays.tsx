@@ -15,6 +15,7 @@ import { introduced } from '@shared/onboarding';
 import { GuidanceLibrary } from './Guidance';
 import { Tabs } from '../panels/common';
 import { text } from '../../i18n/messages';
+import { session } from '../../net/api';
 
 // ───────────────────────── Death ─────────────────────────
 
@@ -79,6 +80,7 @@ export function AfkModal() {
 // ───────────────────────── Interact prompt ─────────────────────────
 
 const VERBS: Partial<Record<NpcRole, string>> = {
+  quest: 'Talk to', clue: 'Interact with', blacksmith: 'Open', jeweler: 'Open', mystic: 'Open',
   cube: 'Open', stash: 'Open', obelisk: 'Use', waypoint: 'Use', paragon: 'Visit', healer: 'Speak with', vendor: 'Trade with',
 };
 
@@ -89,10 +91,10 @@ export function InteractPrompt() {
   const verb = VERBS[it.role];
   if (!verb) return null; // training dummies and the like have nothing to press E for
   return (
-    <div class="hud-interact" key={it.name}>
+    <button type="button" class="hud-interact interactive" key={it.name} onClick={() => session.interact()}>
       <span class={`ip-key${key.length > 1 ? ' wide' : ''}`}>{key}</span>
       <span class="ip-text"><em>{verb}</em> {it.name}</span>
-    </div>
+    </button>
   );
 }
 

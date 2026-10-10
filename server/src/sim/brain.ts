@@ -83,7 +83,7 @@ export function bestPoint(inst: Instance, x: number, y: number, range: number, r
   for (const m of all) {
     if (m.dead) continue;
     const d = Math.hypot(m.x - x, m.y - y);
-    if (d <= range + m.r) cands.push(m);
+    if (d <= range) cands.push(m);
   }
   if (!cands.length) return null;
   const step = Math.max(1, Math.ceil(cands.length / 24));
@@ -259,7 +259,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   if (p.channel) { if (p.atkCdMs < 0) p.atkCdMs = 0; return; }
   if (p.atkCdMs > 0) return;
   const melee = c.attackRange < 200;
-  const tgt = pickTarget(inst, p.x, p.y, c.attackRange + ACQUIRE_BUFFER, !melee, p.save.skills.targetPriority);
+  const tgt = pickTarget(inst, p.x, p.y, c.attackRange + (melee?ACQUIRE_BUFFER:0), !melee, p.save.skills.targetPriority);
   if (!tgt) { p.atkCdMs = 0; return; }
   castPrimary(inst, p, tgt);
   const aps = Math.max(0.2, c.d.aps * (1 + p.live.ias / 100));

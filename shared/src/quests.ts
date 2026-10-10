@@ -70,7 +70,8 @@ export function questMarker(save:CharacterSave,zone:string,target:string):'!'|'?
   const candidates=QUESTS.filter(q=>questAvailable(save,q));
   if(candidates.some(q=>{const s=questState(save,q.id);return s&&validQuestState(q,s)&&!s.claimed&&s.step===q.steps.length&&same(q.finish);}))return '?';
   if(candidates.some(q=>{const s=questState(save,q.id);return (!s||s.claimed&&q.repeat)&&same(q.start);}))return '!';
-  if(candidates.some(q=>{const s=questState(save,q.id);return s&&validQuestState(q,s)&&!s.claimed&&same(questObjective(save,q));}))return '◆';
+  const tracked=trackedQuest(save);
+  if(tracked&&candidates.some(q=>{const s=questState(save,q.id);return q.id===tracked.id&&s&&validQuestState(q,s)&&!s.claimed&&same(questObjective(save,q));}))return '◆';
   return undefined;
 }
 export function questObjective(save:CharacterSave,q:QuestDef):QuestTarget & {text:string} {
@@ -82,6 +83,7 @@ export function questObjective(save:CharacterSave,q:QuestDef):QuestTarget & {tex
   return step?{...step,text:questStepText(step,s.progress??0)}:{...q.finish,text:`${questText('quest.journal.return')}: ${questContact(q.finish)}`};
 }
 export function trackedQuest(save:CharacterSave):QuestDef|undefined {
+  if(save.trackedQuest==='')return undefined;
   const candidates=QUESTS.filter(q=>questAvailable(save,q)&&(!q.tutorial||save.onboarding?.status==='active')&&!questState(save,q.id)?.claimed);
   return candidates.find(q=>q.id===save.trackedQuest)??candidates.find(q=>questState(save,q.id))??candidates[0];
 }

@@ -4,6 +4,7 @@ export interface Preferences {
   ambienceVolume: number;
   muted: boolean;
   cameraShake: boolean;
+  cameraZoom: number;
   reduceFlashes: boolean;
   lootQualityLabels: boolean;
   combatNumbers: boolean;
@@ -11,8 +12,11 @@ export interface Preferences {
   manualSkills: boolean;
 }
 
+export const DEFAULT_CAMERA_ZOOM = 0.75;
+export const MIN_CAMERA_ZOOM = 2 / 3;
+export const MAX_CAMERA_ZOOM = 2;
 export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
-  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true, manualSkills:false,
+  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, cameraZoom: DEFAULT_CAMERA_ZOOM, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true, manualSkills:false,
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -25,6 +29,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
     if (typeof n === 'number' && Number.isFinite(n)) value[key] = Math.max(0, Math.min(1, n));
   }
   for (const key of ['muted', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'contextualHints', 'manualSkills'] as const) if (typeof input[key] === 'boolean') value[key] = input[key];
+  if (typeof input.cameraZoom === 'number' && Number.isFinite(input.cameraZoom)) value.cameraZoom = Math.max(MIN_CAMERA_ZOOM, Math.min(MAX_CAMERA_ZOOM, input.cameraZoom));
   return Object.freeze(value);
 }
 

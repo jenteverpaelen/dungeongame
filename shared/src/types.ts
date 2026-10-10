@@ -140,6 +140,7 @@ export interface CharacterSave {
   /** Optional adventure state; old saves require no rewrite to participate. */
   rillwake?: import('./adventureTypes').RillwakeQuest;
   quests?: Record<string, import('./questTypes').QuestState>;
+  /** Empty string is an explicit untrack; undefined keeps legacy automatic selection. */
   trackedQuest?: string;
   /** Absent only in legacy saves; normalized by the server before use. */
   version?: number;

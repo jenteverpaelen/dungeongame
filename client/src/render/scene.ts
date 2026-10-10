@@ -22,8 +22,9 @@ import { TownLife } from './art/townLife';
 import { AdventureLife } from './art/adventureLife';
 import { inPolygon } from '@shared/townGeometry';
 import { preferences } from '../game/preferences';
+import { QuestGuide } from './questGuide';
 
-/** Original fixed world height, restored at the owner's request. */
+/** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
 
 interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questLabel?:Text }
@@ -60,15 +61,18 @@ export class Scene {
   private crowdPoses=new Map<number,{elapsed:number;slot:number}>();
   private roofAlpha=new Map<string,number>();
   private questStamp:CharacterSave|null=null;
+  private questGuide=new QuestGuide();
   toggleCollision() {
     this.showCollision = !this.showCollision;
     if (this.collisionOverlay) this.collisionOverlay.visible = this.showCollision;
   }
 
   constructor(private app: Application, private world: ClientWorld) {
+    window.addEventListener('wheel', this.onWheel, { passive: false, capture: true });
     this.entities.sortableChildren = true;
     this.root.addChild(this.ground, this.decals, this.groundFx, this.entities, this.aboveFx, this.text);
     app.stage.addChild(this.root);
+    this.groundFx.addChild(this.questGuide.root);
     this.vfx = new Vfx({ groundFx: this.groundFx, aboveFx: this.aboveFx, text: this.text }, {
       myId: () => this.world.myId,
       entityPos: (id) => {
@@ -88,8 +92,18 @@ export class Scene {
 
   // ─────────────────────────── Map ───────────────────────────
 
+  private onWheel = (e: WheelEvent) => {
+    // Trackpad pinches arrive as ctrlKey wheel events. Cancel browser page zoom here.
+    if (ui.get().screen !== 'game' || e.defaultPrevented || e.altKey || !Number.isFinite(e.deltaY) || e.deltaY === 0) return;
+    if(e.target!==this.app.canvas){if(e.ctrlKey)e.preventDefault();return;}
+    e.preventDefault();
+    const units = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? this.app.screen.height : 1;
+    const pixels = Math.max(-100, Math.min(100, e.deltaY * units));
+    preferences.set({ cameraZoom: preferences.get().values.cameraZoom * Math.exp(-pixels * 0.001) });
+  };
+
   setMap(map: MapData) {
-    this.cam.zoom=this.app.screen.height/VIEW_HEIGHT;
+    this.cam.zoom=this.app.screen.height/VIEW_HEIGHT*preferences.get().values.cameraZoom;
     setViewScale(this.cam.zoom*this.app.renderer.resolution);
     this.roofAlpha.clear();
     this.townLife?.destroy();this.townLife=null;
@@ -103,6 +117,7 @@ export class Scene {
     this.questStamp=null;
     this.vfx.clear();
     this.map = map;
+    this.questGuide.refresh(map,ui.get().char,this.world.collision);
     this.collisionOverlay?.destroy({ children: true });
     this.collisionOverlay = map.town ? townCollisionOverlay(map.town) : null;
     if (this.collisionOverlay) { this.collisionOverlay.visible = this.showCollision; this.aboveFx.addChild(this.collisionOverlay); }
@@ -215,6 +230,7 @@ export class Scene {
   }
 
   clearEntities() {
+    this.questGuide.root.visible=false;
     for (const e of [...this.active]) this.destroyView(e);
     this.active.clear();
   }
@@ -242,7 +258,9 @@ export class Scene {
     this.time += dtMs / 1000;
     const viewDt = now < this.hitStopEnd ? 0 : dtMs / 1000;
     const scr = this.app.screen;
-    const zoom = scr.height / VIEW_HEIGHT;
+    const targetZoom = scr.height / VIEW_HEIGHT * preferences.get().values.cameraZoom;
+    const zoom = Math.abs(targetZoom - this.cam.zoom) < 0.0001 ? targetZoom
+      : this.cam.zoom + (targetZoom - this.cam.zoom) * (1 - Math.exp(-dtMs / 90));
     if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     // Camera follows the predicted player with a small movement lead.
     if (me) {
@@ -287,12 +305,14 @@ export class Scene {
     }
     const questSave=ui.get().char;
     if(questSave!==this.questStamp) {
+      this.questGuide.refresh(this.map,questSave,this.world.collision);
       for(const s of this.statics)if(s.questLabel&&s.npcId&&this.map) {
         const marker=questSave&&questMarker(questSave,this.map.zone,s.npcId);
         s.questLabel.text=marker??'';s.questLabel.visible=!!marker;
       }
       this.questStamp=questSave;
     }
+    this.questGuide.update(me,ui.get().screen==='game');
     for (const s of this.statics) {
       const vis = s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
       s.view.root.visible = vis;

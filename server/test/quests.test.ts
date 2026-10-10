@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter } from '../../shared/src/character';
 import { computeStats } from '../../shared/src/stats';
-import { questState, zoneUnlocked } from '../../shared/src/quests';
+import { questState, zoneUnlocked, trackedQuest, questObjective, questPoint } from '../../shared/src/quests';
 import type { ClassId } from '../../shared/src/types';
 import { World } from '../src/world';
 import { Instance } from '../src/sim/instance';
@@ -38,6 +38,26 @@ async function fixture(cls:ClassId='warrior') {
   };
   return {world,add,...add()};
 }
+
+test('quest tracking: acceptance selects, untrack survives progress and reload, retrack restores destination',async()=>{
+  const f=await fixture();
+  try {
+    f.waypoint();assert(f.travel('rillwake_crossing').ok);f.near('tender');
+    assert(f.quest('silent_wheel','accept').ok);
+    const q=trackedQuest(f.save)!;assert.equal(q.id,'silent_wheel');
+    assert(questPoint(f.inst().map,questObjective(f.save,q),f.save));
+    assert(f.quest(q.id,'untrack').ok);assert.equal(trackedQuest(f.save),undefined);
+    f.near('cart');assert(f.quest(q.id,'inspect','cart').ok);
+    assert.equal(trackedQuest(f.save),undefined,'advancing does not undo untrack');
+    await saveCharacter(f.save);await flushSaves();
+    const loaded=(await loadCharacter(f.save.id))!;
+    assert.equal(loaded.trackedQuest,'');assert.equal(trackedQuest(loaded),undefined);
+    assert(f.quest(q.id,'track').ok);assert.equal(trackedQuest(f.save)?.id,q.id);
+    assert(questPoint(f.inst().map,questObjective(f.save,q),f.save));
+    f.completedWheel();f.near('tender');assert(f.quest('high_water','accept').ok);
+    assert.equal(trackedQuest(f.save)?.id,'high_water');
+  } finally {await f.world.shutdown();}
+});
 
 test('counted server events retain partial progress, ignore failed actions and count each successful action once',async()=>{
   const f=await fixture('mage'),catalog=QUESTS as QuestDef[];

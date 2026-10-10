@@ -140,7 +140,7 @@ function QuestDetails({save,q}:{save:CharacterSave;q:QuestDef}) {
           {atStep&&step?.kind==='deliver'&&section!=='objectives'&&<button class="btn" onClick={()=>setSection('objectives')}>{t('quest.delivery.title')}</button>}
           {ready&&atFinish&&<button class="btn primary" disabled={busy} onClick={()=>void act('claim')}>{t('quest.journal.claim')}</button>}
           {!atStart&&!atFinish&&!atStep&&<p class="pn-note">{t('quest.journal.contact')}</p>}
-          <button class="btn" disabled={busy||trackedQuest(save)?.id===q.id} onClick={()=>void act('track')}>{t(trackedQuest(save)?.id===q.id?'quest.journal.tracked':'quest.journal.track')}</button>
+          <button class="btn" disabled={busy} onClick={()=>void act(trackedQuest(save)?.id===q.id?'untrack':'track')}>{trackedQuest(save)?.id===q.id?'Untrack':t('quest.journal.track')}</button>
         </>}
       </div>}
     </>}
@@ -151,7 +151,6 @@ export function AdventureTracker() {
   const save=useUI(s=>s.char),zone=useUI(s=>s.zone),dungeon=useUI(s=>s.dungeon);
   const lastRun=useUI(s=>s.lastRun);
   if(!save)return null;
-  if(!introduced(save,'adventure'))return null;
   const q=trackedQuest(save),objective=q&&questObjective(save,q);
   return <div class="quest-hud interactive">
     <button class="btn" onClick={openJournal}>{t('quest.journal.title')}</button>
@@ -165,5 +164,7 @@ export function AdventureTracker() {
       <strong>{t(q.title)}</strong><span>{objective.text}</span>
       {zone?.zone!==objective.zone&&<small>{ZONES[objective.zone]?.name??objective.zone}</small>}
     </button>}
+    {q&&<button class="btn sm" onClick={()=>void run('quest',questRequest(q,questState(save,q.id),undefined,'untrack'))}>Untrack quest</button>}
+    {!q&&<small>No quest tracked. Choose Track in your journal.</small>}
   </div>;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { preferences, type Preferences } from '../../game/preferences';
+import { preferences, DEFAULT_CAMERA_ZOOM, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM, type Preferences } from '../../game/preferences';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
 import { PanelFrame, SecHead, Tabs, Paged } from './common';
 import { useLocal } from './state';
@@ -31,6 +31,12 @@ export function SettingsPanel() {
         {slider('effectsVolume', text('settings.effectsVolume'))}
         {slider('ambienceVolume', text('settings.ambienceVolume'))}
         <SecHead>{text('settings.cameraHeading')}</SecHead>
+        <label class="settings-volume"><span>Camera scale</span><output>{Math.round(values.cameraZoom * 100)}%</output>
+          <input type="range" min={MIN_CAMERA_ZOOM * 100} max={MAX_CAMERA_ZOOM * 100} step="any" aria-label="Camera scale" value={values.cameraZoom * 100}
+            onInput={e => preferences.set({ cameraZoom: Number(e.currentTarget.value) / 100 })} />
+        </label>
+        <p class="settings-note">Scroll over the world: up to zoom in, down to zoom out.</p>
+        <button class="btn sm" onClick={() => preferences.set({ cameraZoom: DEFAULT_CAMERA_ZOOM })}>Default zoom</button>
         {check('cameraShake', text('settings.cameraShake'))}
         <p class="settings-note">{text('settings.cameraNote')}</p>
         </section><section><SecHead>{text('settings.effectsHeading')}</SecHead>
