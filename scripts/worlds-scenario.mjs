@@ -42,10 +42,12 @@ export default async function (a) {
     await a.shot(`${zone}-entry`);
     const marks = await a.eval('(__game.world.map.adventure?.landmarks ?? []).map(l => ({ name: l.name, x: l.x, y: l.y }))');
     for (const m of marks.slice(0, LIMIT)) {
-      await a.camera(m.x, m.y - 60);
-      await a.settle(900);
+      // Stand the hero at the landmark (warp to the nearest free spot) so monsters and residents replicate into the frame.
+      const spot = await a.eval(`(() => { const cw = __game.world.collision; for (let r = 0; r < 400; r += 30) for (let i = 0; i < 12; i++) { const x = ${m.x} + r * Math.cos(i * Math.PI / 6), y = ${m.y} + r * Math.sin(i * Math.PI / 6); if (cw.isFree(x, y, 18)) return { x, y }; } return null; })()`);
+      if (spot) await warp(spot.x, spot.y); else await a.camera(m.x, m.y - 60);
+      await a.settle(Number(process.env.WAIT ?? 1600));
       await a.shot(`${zone}-${m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+      if (!spot) await a.camera(null);
     }
-    await a.camera(null);
   }
 }

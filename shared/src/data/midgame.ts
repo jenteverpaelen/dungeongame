@@ -52,7 +52,8 @@ function sablefen() {
   z.contact('tide_bell', 'Drowned tide bell', ...P(86, 71), 'marker');
   z.pack('tide', ...P(82, 66), ['saltglass_skimmer', 'saltglass_skimmer', 'brine_crab', 'saltglass_skimmer', 'siltusk', 'saltglass_skimmer']);
   z.event('tide_of_skimmers', 'Tide of Skimmers', 'tide_bell', 'tide', 'The old tide bell still swings on its post. Ring it and every skimmer in the fen answers.', 'Ring the bell');
-  z.elite('mudgullet', ...P(80, 70.5), 'siltusk', 'Mudgullet', ['plagued', 'fast'], ['saltglass_skimmer', 'reedclaw']);
+  z.elite('mudgullet', ...P(80, 70.5), 'siltusk', 'Mudgullet', ['plagued', 'fast'], ['saltglass_skimmer', 'reedclaw'], { questTarget: true });
+  z.contact('cargo_float', 'Drifting cargo float', ...P(79.5, 66), 'cart');
   z.cache('cache_fen', ...P(88, 64), 'Smuggler’s float'); z.landmark('East Fen', ...P(82, 73));
   z.shrine('shrine_willow', ...P(10, 28), 'keen'); z.landmark('Willow Hollow', ...P(14, 35));
   z.pack('chainwatch', ...P(46, 14.5), [boss('salt_guard', 'Chainwatch', ['frozen', 'mortar']), 'vault_moth', 'brine_crab', 'bonewalker']);
@@ -63,6 +64,11 @@ function sablefen() {
   z.portal(...P(87, 21), 'saltwind_pans', 'Saltwind Pans'); z.landmark('Salt Stair', ...P(84, 18));
   for (const [x, y] of [P(40, 60), P(60, 30), P(44, 50)]) { z.sound('water', x, y); z.mist(x, y, 420); }
   z.sound('wind', ...P(12, 70)); z.emit('fog', ...P(44, 55), 4); z.emit('fireflies', ...P(14, 30), 10);
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('boatwreck', ...P(30, 71)); z.structure('watchtower', ...P(52.5, 70)); z.structure('house', ...P(45.5, 32), 1);
+  z.structure('dryingrack', ...P(28.5, 40.5)); z.structure('stonetower', ...P(7.5, 25), 1); z.structure('statue', ...P(37.5, 10.5));
+  z.resident('sf_cook', 'innkeeper', 'Refuge cook', ...P(33.5, 41.5), 15);
+  z.walker('sf_ferry', 'fisher', [P(44, 45), P(44, 52), P(44, 58), P(44, 52)], 38, 7);
   return z.build();
 }
 
@@ -113,13 +119,20 @@ function saltwind() {
   z.wall(rect(48 * F, 12 * F, 12 * F, 0.5 * F)); z.wall(rect(48 * F, 12 * F, 0.5 * F, 2.4 * F)); z.wall(rect(59.5 * F, 12 * F, 0.5 * F, 2.4 * F));
   z.contact('dispatch', 'Salt dispatch', ...P(57, 14.5), 'ledger');
   z.decor('table', ...P(51, 14.2)); z.light(...P(54, 14), 0xffc070, 160); z.landmark('Dispatch House', ...P(54, 23));
-  z.elite('white_clerk', ...P(85, 60), 'bonewalker', 'The White Clerk', ['frozen'], ['salt_guard', 'vault_moth']);
+  z.elite('white_clerk', ...P(85, 60), 'bonewalker', 'The White Clerk', ['frozen'], ['salt_guard', 'vault_moth'], { questTarget: true });
+  z.contact('gauge_west', 'West pan gauge', ...P(27, 58.5), 'mechanism'); z.contact('gauge_east', 'East pan gauge', ...P(80.5, 56.5), 'mechanism');
   z.cache('cache_flats', ...P(88.5, 55.5), 'Salt-crusted chest'); z.landmark('Crust Flats', ...P(84, 63));
   z.cache('cache_store', ...P(9, 23), 'Collapsed store'); z.shrine('shrine_store', ...P(13, 26.5), 'empowered'); z.landmark('Collapsed Store', ...P(10, 28));
   z.portal(...P(34, 10), 'lockglass_cistern', 'Lockglass Cistern'); z.landmark('Cistern Stair', ...P(34, 16));
   z.portal(...P(81, 19.5), 'shiverline_escarpment', 'Shiverline Escarpment'); z.landmark('Ridge Road', ...P(78, 17));
   for (const [x, y] of [P(12, 70), P(68, 40), P(54, 18)]) z.sound('wind', x, y);
   z.sound('water', ...P(34, 78)); z.sound('fire', ...P(58, 64)); z.emit('birds', ...P(30, 60), 5); z.critters('gulls', ...P(70, 72), 300, 6);
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('dryingrack', ...P(21, 54.5), 1); z.structure('dryingrack', ...P(39.5, 70.5), 1); z.structure('windmill', ...P(47.5, 35.5));
+  z.structure('kilnstack', ...P(66.5, 68.5)); z.structure('house', ...P(62.5, 11.5), 2); z.structure('stonetower', ...P(90, 52.5), 1); z.structure('wellhouse', ...P(15.5, 34.5));
+  z.resident('sw_pan1', 'worker', 'Pan raker', ...P(27.5, 60), 10); z.resident('sw_pan2', 'porter', 'Salt porter', ...P(36, 63.5), -10);
+  z.walker('sw_carry', 'porter', [P(21, 65), P(30, 62), P(40, 62), P(30, 62)], 40, 5);
+  z.structure('house', ...P(32.5, 45.5), 1); z.resident('sw_cook', 'innkeeper', 'Station cook', ...P(43.5, 44), -10);
   return z.build();
 }
 
@@ -128,11 +141,11 @@ function lockglass() {
   const S = 56.32, Q = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
   const z = new ZoneBuilder('lockglass_cistern', [88, 88], 'cistern', Q(20, 92), { theme: 'glade', surface: 'masonry' });
   const drown = ['saltglass_skimmer', 'vault_moth', 'bog_slime', 'salt_guard'];
-  const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<Z['region']>[3] = {}) => z.region(id, Q(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'tile', poly: room(cx * S, cy * S, w * S, h * S, 2.4 * S), dress: 0.5, ...o });
+  const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<Z['region']>[3] = {}) => z.region(id, Q(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'tile', poly: room(cx * S, cy * S, w * S, h * S, 2.4 * S), dress: 1.1, ...o });
   R('stairs', 20, 90, 20, 10);
-  const intake = R('intake', 20, 66, 28, 24, { dress: 0.3 });
+  const intake = R('intake', 20, 66, 28, 24, { dress: 0.6 });
   R('overflow', 52, 70, 26, 18, { roster: drown, packs: 2 });
-  const filters = R('filters', 82, 64, 28, 24, { dress: 0.3 });
+  const filters = R('filters', 82, 64, 28, 24, { dress: 0.6 });
   R('gallery', 82, 36, 24, 18, { ground: 'planks' });
   R('drain', 18, 34, 22, 18, { roster: drown, packs: 1 });
   const heart = R('heart', 50, 24, 34, 26, { dress: 0 });
@@ -163,6 +176,9 @@ function lockglass() {
   ] };
   for (const [x, y] of [Q(20, 66), Q(82, 64), Q(50, 24)]) z.sound('water', x, y);
   z.emit('fog', ...Q(52, 66), 3); z.emit('motes', ...Q(50, 24), 6);
+  // Second pass (LOG W4): tanks and pipes in the halls.
+  z.structure('tank', ...Q(61, 66)); z.structure('tank', ...Q(91.5, 56.5)); z.structure('tank', ...Q(9.5, 30));
+  z.decor('pipe', ...Q(44, 61.5), 1.2, 0); z.decor('pipe', ...Q(26, 46), 1, 2); z.decor('pipe', ...Q(76, 44), 1, 1); z.stores(...Q(88, 39));
   return z.build();
 }
 
@@ -205,7 +221,8 @@ function shiverline() {
   z.contact('gale_horn', 'Cracked gale horn', ...P(85, 37), 'marker');
   z.pack('gale', ...P(79, 42), ['ridge_harrier', 'ridge_harrier', 'rimehorn', 'ridge_harrier', 'signal_adept', 'ridge_harrier']);
   z.event('gale_harriers', 'Gale Harriers', 'gale_horn', 'gale', 'Blow the cracked horn and the harriers riding the gale will dive for you.', 'Sound the horn');
-  z.elite('rimecrown', ...P(82, 43.5), 'rimehorn', 'Rimecrown', ['frozen', 'fast'], ['ridge_harrier', 'rimehorn']);
+  z.elite('rimecrown', ...P(82, 43.5), 'rimehorn', 'Rimecrown', ['frozen', 'fast'], ['ridge_harrier', 'rimehorn'], { questTarget: true });
+  z.contact('flag_post', 'Torn signal post', ...P(76.5, 37.5), 'marker');
   z.landmark('Scree Fields', ...P(80, 45));
   z.pack('code_watch', ...P(17, 27), ['ridge_harrier', 'signal_adept', 'salt_guard', 'rimehorn']);
   z.contact('code', 'Ridge code wheel', ...P(10, 23.5), 'ledger');
@@ -218,6 +235,12 @@ function shiverline() {
   z.portal(...P(89.5, 19.5), 'beaconbreak_ward', 'Beaconbreak Ward'); z.landmark('Ward Road', ...P(88, 16));
   for (const [x, y] of [P(12, 78), P(52, 52), P(66, 16), P(80, 40)]) z.sound('wind', x, y);
   z.emit('leaves', ...P(36, 79), 4); z.critters('crows', ...P(40, 28), 200, 5);
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('signaltower', ...P(72.5, 81)); z.structure('beacontower', ...P(57.5, 9.5)); z.structure('watchtower', ...P(59.5, 48.5));
+  z.structure('stonetower', ...P(8.5, 19.5), 1); z.structure('statue', ...P(46.5, 33.5)); z.structure('house', ...P(4.5, 72.5), 2);
+  z.resident('sl_signaller', 'guard', 'Signaller', ...P(61, 79.5), 10);
+  z.walker('sl_runner2', 'guard', [P(36, 56), P(44, 54.5), P(52, 52), P(44, 54.5)], 46, 5);
+  z.structure('house', ...P(45.5, 47.5), 2); z.resident('sl_cook', 'innkeeper', 'Shelter cook', ...P(55.5, 55.5), 10);
   return z.build();
 }
 
@@ -266,13 +289,24 @@ function beaconbreak() {
   z.pack('relay_keeper', ...P(49, 19.5), [boss('signal_adept', 'The Countermand', ['electrified', 'faulted']), 'ridge_harrier', 'salt_guard', 'bonewalker']);
   z.contact('relay_book', 'Relay duty book', ...P(45, 15.8), 'ledger');
   z.decor('pillar', ...P(40, 23)); z.decor('pillar', ...P(60, 23), 1, 1); z.landmark('Relay Gate', ...P(50, 24));
-  z.elite('second_seal', ...P(66, 41.5), 'salt_guard', 'The Second Seal', ['mortar'], ['signal_adept', 'bonewalker'], { questTarget: false });
+  z.elite('second_seal', ...P(66, 41.5), 'salt_guard', 'The Second Seal', ['mortar'], ['signal_adept', 'bonewalker'], { questTarget: true });
+  z.contact('ledger_chapel', 'Ledger page in the chapel yard', ...P(36, 40.5), 'ledger'); z.contact('ledger_market', 'Ledger page at the old market', ...P(69.5, 38.5), 'ledger');
   z.shrine('shrine_market', ...P(61, 37.5), 'empowered'); z.landmark('Old Market', ...P(66, 44.5));
   z.graves(...P(31, 39), 5); z.shrine('shrine_chapel', ...P(37.5, 35.5), 'keen'); z.landmark('Chapel Yard', ...P(34, 42));
   z.cache('cache_bastion', ...P(90, 6.5), 'Bastion strongroom'); z.landmark('Broken Bastion', ...P(88, 11.5));
   z.portal(...P(50, 4.5), 'hollowstar_array', 'Hollowstar Array'); z.landmark('Array Lane', ...P(50, 8.5));
   for (const [x, y] of [P(50, 55), P(18, 30), P(82, 30), P(50, 18)]) z.sound('wind', x, y);
   z.critters('crows', ...P(18, 30), 200, 5); z.critters('rats', ...P(66, 40), 120, 3);
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('granary', ...P(9, 24)); z.structure('wellhouse', ...P(90.5, 26)); z.structure('stonetower', ...P(42, 76.5)); z.structure('stonetower', ...P(58.5, 76.5));
+  z.structure('house', ...P(24, 50.5)); z.structure('house', ...P(76, 52.5), 1); z.structure('beacontower', ...P(61.5, 12));
+  z.resident('bw_baker', 'innkeeper', 'Ward baker', ...P(30, 59), 0); z.resident('bw_smith', 'carpenter', 'Ward joiner', ...P(70, 61), 10);
+  z.walker('bw_patrol2', 'guard', [P(26, 56), P(38, 56), P(50, 55), P(38, 56)], 45, 4); z.walker('bw_patrol3', 'guard', [P(62, 57), P(74, 58), P(80, 44), P(74, 58)], 45, 4);
+  z.structure('house', ...P(40.5, 50.5)); z.structure('house', ...P(60, 50.5), 2);
+  // The ward's main street: houses and stalls line the road north of the crossroads (each slides clear of the road).
+  for (const [i, y] of [44, 38, 32, 26].entries()) { z.structure('house', ...P(45.5, y), i % 3); z.structure('house', ...P(54.5, y + 3), (i + 1) % 3, true); }
+  z.stores(...P(46.5, 47)); z.stores(...P(53.5, 41)); z.decor('banner', ...P(47.5, 35)); z.decor('banner', ...P(52.5, 29)); z.decor('noticeboard', ...P(52.6, 46));
+  z.resident('bw_vendor', 'merchant', 'Ward vendor', ...P(47.6, 41.5), 30); z.resident('bw_crier', 'bard', 'Street crier', ...P(52.4, 35.5), -20);
   return z.build();
 }
 
@@ -281,10 +315,10 @@ function hollowstar() {
   const S = 61.44, Q = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
   const z = new ZoneBuilder('hollowstar_array', [96, 88], 'array', Q(50, 87), { theme: 'glade', surface: 'slate' });
   const signal = ['signal_adept', 'ridge_harrier', 'vault_moth', 'salt_guard'];
-  const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<Z['region']>[3] = {}) => z.region(id, Q(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'slate', poly: room(cx * S, cy * S, w * S, h * S, 2.4 * S), dress: 0.5, ...o });
+  const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<Z['region']>[3] = {}) => z.region(id, Q(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'slate', poly: room(cx * S, cy * S, w * S, h * S, 2.4 * S), dress: 1.1, ...o });
   R('approach', 50, 85, 22, 10);
   R('gallery', 50, 62, 30, 16, { roster: signal, packs: 2 });
-  const west = R('west', 16, 50, 26, 22, { dress: 0.3 }), east = R('east', 84, 50, 26, 22, { dress: 0.3 });
+  const west = R('west', 16, 50, 26, 22, { dress: 0.6 }), east = R('east', 84, 50, 26, 22, { dress: 0.6 });
   R('west_reading', 22, 74, 18, 12, { ground: 'planks' }); R('east_reading', 78, 74, 18, 12, { ground: 'planks' });
   R('north_hall', 50, 40, 22, 12, { roster: signal, packs: 1 });
   const array = R('array', 50, 20, 36, 22, { dress: 0 });
@@ -316,6 +350,9 @@ function hollowstar() {
   ] };
   for (const [x, y] of [Q(50, 62), Q(16, 50), Q(84, 50), Q(50, 20)]) z.sound('wind', x, y);
   z.emit('motes', ...Q(50, 20), 10); z.emit('motes', ...Q(16, 50), 6); z.emit('motes', ...Q(84, 50), 6);
+  // Second pass (LOG W4): relay racks in the halls.
+  z.structure('relayrack', ...Q(40, 58)); z.structure('relayrack', ...Q(60, 58)); z.structure('relayrack', ...Q(43, 37));
+  z.decor('crystal', ...Q(30, 28), 1.2); z.decor('crystal', ...Q(70, 28), 1.1, 1);
   return z.build();
 }
 

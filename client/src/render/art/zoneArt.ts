@@ -3,6 +3,7 @@
 import type { Point } from '@shared/townTypes';
 import { ellipse, hash, INK, line, poly, rrect, tone, type Paint } from './townKit';
 import { TOWN_DECOR_ART, TOWN_PROP_ART, townBirchArt, townOakArt, townPineArt, townWillowArt, type TownArt } from './townScenery';
+import { ZONE_FLAT_KINDS } from '@shared/zoneKit';
 
 type Art = TownArt;
 const box = (x0: number, y0: number, x1: number, y1: number) => ({ x0, y0, x1, y1 });
@@ -130,11 +131,59 @@ const ART: Record<string, (s: number, v: number) => Art> = {
     ellipse(c, 0, -4, 9, 4, '#ff8a3a'); ellipse(c, 0, -5, 5, 2.4, '#ffe08a');
   } }),
   lamppost: (s) => TOWN_PROP_ART.lamp(78 * s, 0),
+  // ── second pass (LOG W4): biome-true rocks, logs, fences, stakes, torches, pipes, crystals, standing stones ──
+  ashrock: (s, v) => ({ box: box(-34 * s, -44 * s, 34 * s, 8), draw: (c) => { shadow(c, 28 * s); rockShape(c, 26 * s, 30 * s, ['#5a504a', '#4e4642', '#625650'][v % 3], v, false); line(c, [[-8 * s, -6 * s], [6 * s, -14 * s]], 'rgba(255,120,40,0.35)', 1.2); } }),
+  ashboulder: (s, v) => ({ box: box(-44 * s, -58 * s, 44 * s, 8), draw: (c) => { shadow(c, 36 * s); rockShape(c, 34 * s, 44 * s, ['#4e4642', '#5a504a', '#463e3a'][v % 3], v, false); for (let i = 0; i < 3; i++) ellipse(c, (-14 + i * 12) * s, (-38 + i * 4) * s, 6 * s, 2.4 * s, 'rgba(200,190,180,0.28)'); } }),
+  ashcrag: (s, v) => crag(s, v, '#564c46'),
+  saltrock: (s, v) => ({ box: box(-34 * s, -44 * s, 34 * s, 8), draw: (c) => { shadow(c, 28 * s); rockShape(c, 26 * s, 30 * s, ['#b8b0a0', '#a8a090', '#c4bcac'][v % 3], v, false); ellipse(c, -4 * s, -28 * s, 14 * s, 4 * s, 'rgba(250,248,240,0.7)'); } }),
+  saltboulder: (s, v) => ({ box: box(-44 * s, -58 * s, 44 * s, 8), draw: (c) => { shadow(c, 36 * s); rockShape(c, 34 * s, 44 * s, ['#aca492', '#b8b0a0', '#9e9686'][v % 3], v, false); ellipse(c, -6 * s, -40 * s, 18 * s, 5 * s, 'rgba(250,248,240,0.75)'); } }),
+  saltcrag: (s, v) => crag(s, v, '#a8a090'),
+  log: (s, v) => ({ box: box(-56 * s, -30 * s, 56 * s, 8), draw: (c) => {
+    shadow(c, 46 * s, 8 * s); const L = 46 * s, R = 12 * s;
+    rrect(c, -L, -R * 2, L * 2, R * 2, R, '#5a4030', INK, 1.4); line(c, [[-L + 6, -R * 1.5], [L - 8, -R * 1.6]], 'rgba(255,224,180,0.18)', 2);
+    for (let i = 0; i < 4; i++) line(c, [[-L + 14 + i * 22 * s, -R * 2 + 2], [-L + 10 + i * 22 * s, -2]], 'rgba(20,12,8,0.35)', 1);
+    ellipse(c, L - 2, -R, R * 0.8, R, '#b8946a', INK, 1.2); ellipse(c, L - 2, -R, R * 0.4, R * 0.5, undefined, '#8a6a46', 1);
+    if (v !== 1) for (let i = 0; i < 4; i++) ellipse(c, -L * 0.6 + i * 14 * s, -R * 2 + 1, 5 * s, 2.4 * s, '#4f7a3c');
+    if (v === 2) { rrect(c, -L * 0.2, -R * 2 - 7 * s, 3 * s, 7 * s, 1, '#efe6d2'); ellipse(c, -L * 0.2 + 1.5 * s, -R * 2 - 7 * s, 5 * s, 3 * s, '#b83a2a', INK, 0.7); }
+  } }),
+  fence: (s, v) => ({ box: box(-40, -44, 40, 6), draw: (c) => {
+    ellipse(c, 0, 1, 34, 4, 'rgba(10,8,12,0.28)');
+    for (const x of [-30, 30]) { rrect(c, x - 3, -40, 6, 40, 1.2, '#5a4030', INK, 1); rrect(c, x - 4, -42, 8, 4, 1, '#6a5038', INK, 0.8); }
+    for (const z of [14, 30]) { line(c, [[-32, -z], [32, -z + (v === 1 ? 4 : 0)]], '#7a5a3a', 3.4); line(c, [[-32, -z - 1.2], [32, -z - 1.2 + (v === 1 ? 4 : 0)]], 'rgba(255,230,190,0.2)', 1); }
+    if (v === 2) line(c, [[-30, -6], [30, -34]], '#7a5a3a', 3);
+    void s;
+  } }),
+  stake: (s, v) => ({ box: box(-14, -70 * s, 26, 6), draw: (c) => {
+    ellipse(c, 2, 1, 9, 3, 'rgba(10,8,12,0.3)'); poly(c, [[-4, 0], [-4, -62 * s], [0, -70 * s], [4, -62 * s], [4, 0]], '#6a5038', INK, 1.1);
+    if (v !== 2) poly(c, [[3, -60 * s], [22, -54 * s], [3, -48 * s]], ['#c83a2a', '#e8c35a', '#e8e2d4'][v % 3], INK, 0.9);
+    line(c, [[-4, -22 * s], [4, -24 * s]], '#c8b890', 1.4);
+  } }),
+  walltorch: () => ({ box: box(-14, -96, 14, 6), draw: (c) => {
+    rrect(c, -3, -70, 6, 30, 1.5, '#3a3430', INK, 1); poly(c, [[-9, -74], [9, -74], [6, -66], [-6, -66]], '#4a4440', INK, 1);
+    ellipse(c, 0, -78, 7, 9, '#ff9a4a'); ellipse(c, 0, -80, 4, 6, '#ffe08a'); ellipse(c, 0, 0, 10, 3, 'rgba(10,8,12,0.25)');
+  } }),
+  pipe: (s, v) => ({ box: box(-60 * s, -60 * s, 60 * s, 8), draw: (c) => {
+    shadow(c, 50 * s, 8 * s); const col = v === 1 ? '#6a5a4a' : '#5a6466';
+    rrect(c, -54 * s, -26 * s, 108 * s, 20 * s, 9 * s, col, INK, 1.4); line(c, [[-50 * s, -21 * s], [50 * s, -21 * s]], 'rgba(220,230,240,0.25)', 2);
+    for (const x of [-34, 0, 34]) rrect(c, (x - 5) * s, -30 * s, 10 * s, 28 * s, 2, tone(col, 0.8), INK, 1);
+    if (v === 2) { rrect(c, -8 * s, -54 * s, 16 * s, 30 * s, 3, col, INK, 1.2); ellipse(c, 0, -56 * s, 14 * s, 5 * s, '#9a4a2a', INK, 1); }
+  } }),
+  crystal: (s, v) => ({ box: box(-26 * s, -64 * s, 26 * s, 6), draw: (c) => {
+    ellipse(c, 0, 1, 20 * s, 5 * s, 'rgba(10,8,12,0.3)'); const col = ['#9a7ad8', '#7ab8e8', '#c8a0ff'][v % 3];
+    for (const [x, h, w] of [[-10, 44, 9], [4, 58, 11], [14, 34, 8]] as const) { poly(c, [[(x - w) * s, 0], [x * s, -h * s], [(x + w) * s, 0]], col, INK, 1.2); poly(c, [[(x - w * 0.6) * s, -2], [x * s, -h * s], [(x - w * 0.1) * s, -2]], 'rgba(255,255,255,0.35)'); }
+  } }),
+  menhir: (s, v) => ({ box: box(-30 * s, -124 * s, 30 * s, 8), draw: (c) => {
+    shadow(c, 24 * s, 7 * s); const h = (90 + v * 14) * s, base = ['#7e796e', '#8a857a', '#726d62'][v % 3];
+    poly(c, [[-18 * s, 0], [-21 * s, -h * 0.6], [-12 * s, -h], [10 * s, -h * 0.94], [20 * s, -h * 0.5], [17 * s, 0]], base, INK, 1.5);
+    poly(c, [[-17 * s, -4], [-19 * s, -h * 0.6], [-11 * s, -h * 0.95], [-4 * s, -h * 0.5]], tone(base, 1.2));
+    for (let i = 0; i < 3; i++) line(c, [[-8 * s, -h * (0.3 + i * 0.18)], [6 * s, -h * (0.32 + i * 0.18)]], 'rgba(200,170,255,0.45)', 1.6);
+    ellipse(c, -6 * s, -h * 0.98, 8 * s, 3 * s, '#5a7a3c');
+  } }),
 };
 /** Kinds painted flat into the ground chunks (never sorted). */
-export const ZONE_FLAT = new Set(['flowers', 'mushrooms', 'rubble', 'reeds', 'lilypads', 'nets', 'fern', 'fernbed', 'tuft', 'puddle', 'cracks', 'embers', 'bones', 'saltcrust', 'snowpatch', 'leaves', 'rubblepile', 'stumpflat']);
+export const ZONE_FLAT = ZONE_FLAT_KINDS;
 /** Tall enough to hide the hero: ghost while the hero stands behind. */
-export const ZONE_TALL = new Set(['pine', 'oak', 'birch', 'willow', 'deadtree', 'crag', 'pillar', 'relaymast', 'tent']);
+export const ZONE_TALL = new Set(['pine', 'oak', 'birch', 'willow', 'deadtree', 'crag', 'ashcrag', 'saltcrag', 'pillar', 'relaymast', 'tent', 'menhir']);
 /** Height used by the town's prop painters (lamp, well…) when they are placed by a zone. */
 const TOWN_H: Record<string, number> = { lamp: 78, brazier: 44, 'stone-lantern': 52, noticeboard: 74, barrel: 30, barrels: 30, crates: 26, fishcrates: 0, rack: 64, column: 110, ruin: 60, cart: 0, well: 0, anvil: 0, netrack: 58, bollard: 0, table: 0, cask: 0 };
 
@@ -171,6 +220,10 @@ export function paintFlat(c: Paint, kind: string, x: number, y: number, s: numbe
     case 'saltcrust': for (let i = 0; i < 8; i++) { const sx = x + (hash(i, 1, seed) - 0.5) * 70 * s, sy = y + (hash(i, 2, seed) - 0.5) * 30 * s; poly(c, [[sx - 9, sy], [sx - 2, sy - 4], [sx + 8, sy - 1], [sx + 3, sy + 4]], 'rgba(246,242,230,0.75)', 'rgba(150,140,120,0.5)', 0.8); } break;
     case 'snowpatch': c.save(); c.filter = 'blur(2px)'; for (let i = 0; i < 6; i++) ellipse(c, x + (hash(i, 1, seed) - 0.5) * 50 * s, y + (hash(i, 2, seed) - 0.5) * 16 * s, (8 + hash(i, 3, seed) * 12) * s, (3 + hash(i, 4, seed) * 4) * s, 'rgba(232,238,242,0.42)'); c.restore(); break;
     case 'leaves': for (let i = 0; i < 10; i++) { const lx = x + (hash(i, 1, seed) - 0.5) * 50, ly = y + (hash(i, 2, seed) - 0.5) * 22; poly(c, [[lx - 3, ly], [lx, ly - 2.5], [lx + 4, ly + 1], [lx + 1, ly + 3]], ['#8a6a3a', '#a8783a', '#6d6a40'][i % 3]); } break;
+    case 'cinders': for (let i = 0; i < 12; i++) { const ex = x + (hash(i, 1, seed) - 0.5) * 60 * s, ey = y + (hash(i, 2, seed) - 0.5) * 24 * s; ellipse(c, ex, ey, 2.2, 1.6, i % 4 === 0 ? '#e0642a' : '#2a2220'); } break;
+    case 'brine': ellipse(c, x, y, 30 * s, 11 * s, 'rgba(150,170,160,0.55)'); ellipse(c, x, y, 34 * s, 13 * s, undefined, 'rgba(250,246,236,0.75)', 2); ellipse(c, x - 6, y - 2, 14 * s, 2.6, 'rgba(230,245,240,0.45)'); break;
+    case 'glyph': c.save(); c.globalAlpha = 0.55; ellipse(c, x, y, 34 * s, 14 * s, undefined, '#b89cff', 1.6); for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; line(c, [[x + Math.cos(a) * 22 * s, y + Math.sin(a) * 9 * s], [x + Math.cos(a) * 30 * s, y + Math.sin(a) * 12 * s]], '#d8c0ff', 1.4); } c.restore(); break;
+    case 'moss': for (let i = 0; i < 5; i++) ellipse(c, x + (hash(i, 1, seed) - 0.5) * 50 * s, y + (hash(i, 2, seed) - 0.5) * 20 * s, (8 + hash(i, 3, seed) * 10) * s, (3 + hash(i, 4, seed) * 4) * s, i % 2 ? 'rgba(70,96,52,0.55)' : 'rgba(84,110,60,0.5)'); break;
     case 'stumpflat': poly(c, [[x - 14, y], [x - 12, y - 10], [x + 12, y - 10], [x + 15, y]], '#5a4030', INK, 1.1); ellipse(c, x, y - 10, 12, 4.5, '#b8946a', INK, 1); break;
   }
 }

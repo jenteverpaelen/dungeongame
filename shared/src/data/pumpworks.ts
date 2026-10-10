@@ -6,12 +6,14 @@ import { ZoneBuilder, rect, room } from '../zoneKit';
 const S = 56.32, P = (x: number, y: number): Point => [Math.round(x * S), Math.round(y * S)];
 const z = new ZoneBuilder('reedvault_pumpworks', [88, 80], 'pump', P(50, 84), { theme: 'glade', surface: 'masonry' });
 const vermin = ['grave_bat', 'reedclaw', 'bog_slime', 'grave_bat'], works = ['mossback', 'gloomshroom', 'vault_moth', 'bog_slime'];
-const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<typeof z.region>[3] = {}) => z.region(id, P(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'flag', poly: room(cx * S, cy * S, w * S, h * S, 2.2 * S), dress: 0.5, ...o });
+const R = (id: string, cx: number, cy: number, w: number, h: number, o: Parameters<typeof z.region>[3] = {}) => z.region(id, P(cx, cy), [w * S / 2, h * S / 2], { role: 'room', ground: 'flag', poly: room(cx * S, cy * S, w * S, h * S, 2.2 * S), dress: 1.1, ...o });
 
 R('stairs', 50, 83, 22, 11);
 R('hall', 50, 64, 36, 17, { roster: vermin, packs: 2 });
-const west = R('west', 17, 54, 26, 22, { dress: 0.3 }), east = R('east', 83, 54, 26, 22, { dress: 0.3 });
-R('valves', 17, 28, 24, 16, { roster: vermin, packs: 1 });
+const west = R('west', 17, 54, 26, 22, { dress: 0.6 }), east = R('east', 83, 54, 26, 22, { dress: 0.6 });
+// The valve gallery stays free of solid furniture: the single-monster combat probes (server/test/reedclaw, siltusk, frontier)
+// measure attacks in this open floor.
+R('valves', 17, 28, 24, 16, { roster: vermin, packs: 1, dress: 0 });
 R('tanks', 83, 28, 24, 16, { roster: works, packs: 1 });
 const heart = R('heart', 50, 22, 34, 24, { dress: 0 });
 R('records', 50, 5.5, 20, 9, { ground: 'planks', dress: 0 });
@@ -60,4 +62,8 @@ z.dungeon = { stages: [
 for (const [x, y] of [P(50, 74), P(10, 54), P(90, 54), P(50, 14)]) z.sound('water', x, y);
 z.emit('fog', ...P(50, 70), 3); z.emit('motes', ...P(50, 22), 8);
 
+// Second pass (LOG W4): machines in the rooms, pipes on the walls.
+z.structure('pumpengine', ...P(61, 15)); z.structure('tank', ...P(90, 26)); z.structure('tank', ...P(64.5, 70.5));
+z.decor('pipe', ...P(38, 58.5), 1.2, 0); z.decor('pipe', ...P(62, 58.5), 1.2, 1); z.decor('pipe', ...P(26, 47), 1, 2); z.decor('pipe', ...P(74, 47), 1, 0);
+z.stores(...P(57, 85.5));
 export const PUMPWORKS = z.build();
