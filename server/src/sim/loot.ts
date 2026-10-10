@@ -3,6 +3,7 @@
 
 import { recordIntro } from '../../../shared/src/onboarding';
 import { ordinarySelected } from '../../../shared/src/itemCollection';
+import { gearLook } from '../../../shared/src/gearVisual';
 import { MATERIAL_NAMES } from '../../../shared/src/materialNames';
 import { economySnapshot, recordEconomy } from '../../../shared/src/economy';
 import {
@@ -22,7 +23,8 @@ function viewOf(pl: LootPayload): LootView {
   switch (pl.type) {
     case 'item': {
       const it = pl.item;
-      return { lk: 'item', name: it.name, rarity: it.rarity, ancient: it.ancient, look: it.look, kind: it.kind };
+      // `fx` (visual tier) lets the client scale the drop moment: beams, sigils and icon frames by tier.
+      return { lk: 'item', name: it.name, rarity: it.rarity, ancient: it.ancient, look: gearLook(it), kind: it.kind };
     }
     case 'gold': return { lk: 'gold', name: 'Gold', amount: pl.amount };
     case 'gem': return { lk: 'gem', name: gemName(pl.gem, pl.rank), gem: `${pl.gem}:${pl.rank}`, amount: pl.rank };
