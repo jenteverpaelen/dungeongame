@@ -57,16 +57,15 @@ idle fade, pickup feed above it · interact prompt above the skill bar · contex
 ## 4. Town — "Hearthmere, the last lit hearth": a lakeside harbour at blue hour (replaces the old layout)
 
 ```
- N  ░░░ wooded escarpment (painted, behind the hero) ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-    ░ [Paragon shrine garden]      [Mystic's crooked tower]        [Rift Obelisk on ruined terrace]
-    ░        hedges, pond               violet lamp, runes               broken arches, steps
-  ≈≈╗     [Cube workshop: glass dome]   [Stash vault]     MARKET LANE ═══════════════ [EAST GATE]→ Ashen Hollow
- W ≈║ bridge═══ [Inn: The Banked Ember] ( SQUARE + Waypoint stones ) [Smith forge][Jeweler]  palisade
- ←  ≈║  Glade         terrace, bard      notice board, well     stalls, string lights  [Training yard: 3 dummies]
-    ≈║  houses     LANTERN ROW (lamp-lit street down to the water)      houses, laundry
-    ≈╚══ QUAY ═══ crates, nets, fish stall ══╦══ pier + moored boats ══════ breakwater → [THE HEARTHLIGHT beacon]
-    ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ lake: teal water, foam at the shore, mist, bobbing boats ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+ N  ░░░░░░░░░░░░░░ wooded escarpment: rock face + forest, painted behind every house ░░░░░░░░░░░░░░░░░░░░░░░
+ woods [Inn: Banked Ember][cottage][Cube rotunda][Stash vault][stall][Mystic tower][Forge][Jeweler][cottage] [Obelisk terrace]
+  ≈≈  terrace, bard, keeper   glass dome    key plaque   oil     leaning, runes  open hearth  awning     columns, steps
+ [Grove:  ≈ bridge ═══ LANTERN ROW (cobbles, lamps, string lights) ══ ( SQUARE: Waypoint, oak, well ) ════ [GATE]→ Ashen Hollow
+ Paragon  ≈ (canal)   [Mill + waterwheel]  [Boathouse] [fish stall]   lawns + dirt tracks   [cottage]  [Training yard ×3]
+ shrine]  ≈            QUAY: stone wall, curb, crates, crane, nets ══╦══ pier, boats ═══════ breakwater → [HEARTHLIGHT]
+ ← Glade  ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈ lake: swells, glints, foam, mist, gulls, the beacon's sweeping beam ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
 ```
+(As built in `shared/src/data/town/build.ts`; the square, the services and every exit keep their ids.)
 Rules that drive the art: everything north of the walkable edge is painted into the ground layer (always behind the hero),
 water is flat ground art with animated overlays, so **no void anywhere**: the camera only ever sees escarpment, forest,
 canal or lake. Buildings are rotated where needed so door/sign facades face the camera. Compact core: every service within
@@ -84,3 +83,13 @@ Risks: (1) town art volume — build a parametric kit, look at screenshots after
 repeated sprites, bake ground in chunks, keep culling, measure before/after in a visible page; (3) tests that encode the
 old layout (`townDepth`, `townLife`, `townServices` inn wall) are updated deliberately and listed in the report;
 (4) merge risk with the lead — only files in my lane change; any shared/server edit is minimal, additive and reported.
+
+## 6. World map, journal, quest objects
+
+**World map (M)**: one painted frontier chart (original Canvas2D art, cached) with live overlays — roads from the real
+exit graph, fog over places not yet unlocked, medallion nodes (name + level range, padlock, waypoint badge), quest pin,
+marching route to the tracked objective, "You are here" ring, legend; inspecting a node never travels, the detail card
+keeps the waypoint/exit rule. Placement is a diagram, labelled as such (atlas UI-POE2-01, UI-TBH-04, UI-D3-09, UI-POE1-06).
+**Journal (J)**: chapters by act with progress on the left; the quest sheet (story, objectives with progress, rewards
+and unlocks, track toggle, actions) on the right; no inner tabs, no scrolling. **Quest objects**: CAST.md kinds with a
+tracked pulse, an interaction bounce and a used look; first-open hints live inside the panel, never as a screen banner.

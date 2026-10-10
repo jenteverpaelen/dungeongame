@@ -33,3 +33,13 @@
   Measured: chunk bake 80 → ~10 ms after bounds-limited regions; baking time-sliced (worst slice 6–11 ms); FPS 130–160
   standing, 124 during a fast full-town pan (visible tab). Bug found and fixed: flagstone rows never reached y > 0.
   Old-layout tests updated deliberately (gap check, inn depth, furniture ids, edge sampling density).
+- **R4 — world map + journal.** Painted frontier chart with live roads/fog/nodes/pin/route/"you are here"; inspect-only
+  selection, travel rule unchanged; area tab framed to walkable ground with labels. Journal: act/chapter accordion with
+  progress, status chips, inline objectives/rewards/track toggle (1240×~880, no scroll regions). Found and fixed: R2's
+  dialogue window had made field-event triggers unreachable (now in the dialogue); first-open FAQ text was an uppercase
+  screen banner that overflowed behind panels (now an in-panel card; long notices wrap).
+- **R5 — quest objects, chat, character.** CAST.md quest objects with tracked pulse / bounce / used state (gallery
+  `?view=quest-objects`); chat channel tabs; character headline cards; bubbles above two-line plates.
+  **Perf, 100 simulated heroes walking the square, visible tab, 1920×1080:** old town 86 fps still / 79 fps panning
+  (p95 17.5 / 18.1 ms, worst 26.7 / 35.1 ms) → new town 88 / 83 fps (p95 16.5 / 18.5 ms, worst 25.7 / 50.3 ms; the worst
+  pan frame is a visible chunk finished synchronously during a pan far faster than walking). Same machine, same path.
