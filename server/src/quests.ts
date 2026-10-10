@@ -190,7 +190,7 @@ export function creditQuestReach(inst:Instance,p:Player) {
   }
 }
 
-/** Called only by the authoritative dungeon after its complete living-initiator check. */
+/** Called only after authoritative encounter completion and living-participant checks. */
 export function creditQuestWave(inst:Instance,p:Player,target:string) {
   const authored=inst.kind==='dungeon'&&!!inst.dungeon || inst.kind==='field'&&inst.map.adventure?.events?.some(e=>e.id===target);
   if(!authored||p.deadMs>0||p.hp<=0||inst.playerById(p.id)!==p)return;

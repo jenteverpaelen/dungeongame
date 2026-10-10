@@ -62,10 +62,10 @@ export class Game {
 
   async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
-    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+    ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
       funnel.stop();
-      ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null,social:null,inspectionName:'',chat:[],chatOpen:false,chatTarget:'' });
+      ui.set({ connected: false, error: reason, screen: 'select', enchant: null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatTarget:'' });
       this.stopChannelAudio();
       this.townSound?.destroy();this.townSound=null;
       this.adventureSound?.destroy();this.adventureSound=null;
@@ -105,7 +105,7 @@ export class Game {
         ui.set({ char: m.char, derived: m.derived });
         break;
       case 'chat':
-        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text });
+        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId });
         break;
       case 'afk':
         ui.set({ afk: m });

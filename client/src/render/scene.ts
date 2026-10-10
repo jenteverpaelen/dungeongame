@@ -163,7 +163,15 @@ export class Scene {
       // Re-described (e.g. equipment changed): update looks in place.
       if (e.kind === 'player' && e.desc.look) {
         const key = JSON.stringify(e.desc.look);
-        if (this.looks.get(e.id) !== key) { (e.view as PlayerView).setLook(e.desc.look); this.looks.set(e.id, key); }
+        const previous=this.looks.get(e.id);
+        if (previous !== key) {
+          (e.view as PlayerView).setLook(e.desc.look);this.looks.set(e.id,key);
+          if((previous?JSON.parse(previous).title:undefined)!==e.desc.look.title){
+            e.nameplate?.destroy();
+            e.nameplate=this.vfx.createNameplate(e.desc,e.id===this.world.myId);
+            if(e.nameplate)this.text.addChild(e.nameplate.root);
+          }
+        }
       }
       return;
     }

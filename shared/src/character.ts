@@ -2,6 +2,7 @@
 
 import { INVENTORY_SIZE, STASH_SIZE } from './constants';
 import { SAVE_VERSION } from './saveVersion';
+import {selectedTitle} from './community';
 import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
@@ -44,7 +45,7 @@ export function playerLook(save: CharacterSave): PlayerLook {
     const it = save.equipment[s as Slot];
     if (it) slots[s] = it.look;
   }
-  return { classId: save.classId, slots, ...(save.appearance?{appearance:save.appearance}:{}) };
+  return { classId: save.classId, slots, title:selectedTitle(save), ...(save.appearance?{appearance:save.appearance}:{}) };
 }
 
 // ─────────────────────────── Inventory ───────────────────────────

@@ -56,6 +56,8 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
   const cls = CLASSES[desc.t as ClassId];
   const color = lerpColor(cls?.themeColor ?? 0xd8cfc0, 0xffffff, 0.38);
   const name = text(desc.n ?? 'Hero', 13, color);
+  const title=desc.look?.title?text(desc.look.title,10.5,0xbca777):null;
+  if(title){title.position.set(-title.width/2,-30);inner.addChild(title);}
   const lvl = text('', 10.5, 0xe8d9a8);
   const badge = new Graphics();
   inner.addChild(badge, lvl, name);

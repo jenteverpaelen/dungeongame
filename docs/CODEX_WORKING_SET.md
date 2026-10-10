@@ -1,19 +1,15 @@
-# Current working set — 2026-10-10 shutdown checkpoint
+# Current working set — C105 Claude handoff, 2026-10-10
 
-Owner explicitly asked: finish current work, update logs, end for PC shutdown; continue later. SOLO, no subagents. ONLY codex/new-tristram-town. C102596adde and C103a295b93 pushed; C104 ready (git log for hash). Do not resume until requested.
+ACTIVE: owner extended scope to one more whole chapter, P11 Itemization, then Claude handoff. P10 selected implementation finished. P11 target approved: three distinct builds/class, each <=25% slower than class median on identical encounters. SOLO, only codex/new-tristram-town. Parent C104 abd2a76; final handoff commit contains this file (git log -1).
 
-## Resume here
+Read [Claude handoff](CLAUDE_OPUS_5_5_HANDOFF.md) first: all delivered systems, persistent preferences, next work, evidence indices and missing dependencies. AGENTS/root HANDOFF already read fully in this chat; don't reread unchanged history after compaction. Fresh agents follow the initial-read requirement once.
 
-Continue Claude's whole roadmap, completing chapters. P10 next: remaining minimal emotes/titles; report queue/moderation policy; guilds/chat/permissions; party/scaling review and real-client disconnect-mid-action acceptance. C102 parties, C103 friends/chat/privacy, C104 online equipment inspection/public group finder are implemented. Reports docs/phase/P10-social. Do not retest/reread completed work without a finding. Read narrow affected files, not giant historical JSONs/logs.
+C102 parties; C103 friends/chat/privacy; C104 inspect/group finder; C105 persistent minimal guilds, reports/manual owner tools/filter/audit/emotes/titles and party dungeons. [P10 report](phase/P10-social/CHAPTER-REPORT.md), [owner CLI](phase/P10-social/MODERATION.md). Both moderation questions answered: owner review, no automatic punishments,30-day report/evidence retention. No bank/perks; mail conditional P15. Save13/protocol19/ledger1.
 
-Pending owner questions: (1) reports to owner manual review with mute/ban tools and no automatic sanctions, or tools-only policy later? (2) report/message evidence retention30days/7days/until resolution? Neither answered yet. Do independent work while awaiting; do not invent retention. Legacy character names identify saves; authenticated account ownership remains P3. Ordinary chat memory-only. No public release/G8 certification.
+37 distinct focused checks pass, final changed subset7/7; typecheck/build pass. Main1305.53kB/gzip423.13kB; inherited bundle warning. Local two-client guild/report/disconnect flows and inspected full1920x1080 eight-row guild/report screens, no scrolling. No crowd/human/independent acceptance claim. Owned previews/tabs cleaned up before handoff; next preview requires new DATA_DIR and backups disabled.
 
-## Latest facts
+Current147 features:50 implemented scope (7 explicitly human acceptance pending),35 partial,59 open,3 decided/excluded. Counts aren't completion percentages. Original roadmap blob b20bc7acef78c12582a8f5cf822665cf78ca7353 unchanged. P5/P6/P7 phase summaries reconciled with existing chapter reports.
 
-- C104 protocol18/save13. Optional social.inspect default contacts; private equipment response allowlisted. Group publishing/join rechecks capacity/block/flags; leadership change unpublishes. No travel/reward bypass.
--12 focused party/social checks, typecheck and build passed. Local Chrome two-client inspection/list/join succeeded;1920x1080 shots inspected. C103 block survived real browser reload. Not human/crowd/longest-item acceptance.
-- Owned server76367 and Vite47406 stopped for shutdown; temporary tabs closed, viewport reset. Next preview needs fresh isolated DATA_DIR, BACKUP_DIR empty/BACKUP_KEEP0. All prior runtime data disposable; never touch real saves.
-- P8 selected implementation completeC095. P9 contentC096–C100; C101297 actual solo encounters, no120s timeouts; party/human evidence remains. Keep measured/assumed/unverified distinct.
-- Current147 features43 implemented scope/37partial/64open/3decided. Not percent/phase acceptance. Original Claude roadmap blob b20bc7acef78c12582a8f5cf822665cf78ca7353 unchanged.
+Current implementation: whole P11 itemization chapter, research/current-system audit first. P3 auth/legacy ownership/social backup operations remain release blockers. P9 full per-band co-op combat/G7 and independent/human G8 remain; C105 correctness is not that combat calibration. Don't repeat completed solo fixtures or unanswered-question prompts that have since been answered.
 
-Town/UI style/fixed620 camera frozen; no scrolling menus. Owner does broad playtests. Infinite HP only assisted combat tests. No paid services/download without required approval. Record evidence/why/scope/removal/future/rollback in references, decisions and CODEX_CHANGELOG. Check branch before every push; commit-F; never private files/baseline/force/clean. Narrow file reads and focused checks save context; no folder moving/deletion.
+Town/UI style/fixed620-camera90ms smoothing frozen; no scrolling. Owner does broad playtesting. Deep primary research before design; log every addition/removal/why/scope/future/rollback. No subagents/paid services/unapproved required downloads. Never real-save tests/private-data commits. Fresh DATA_DIR for runtime tests; BACKUP_DIR empty/BACKUP_KEEP0. Branch check before push, commit-F, never baseline/force/rebase/delete/clean. Narrow reads, concise outputs; no parking/deleting source.

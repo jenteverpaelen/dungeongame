@@ -150,7 +150,7 @@ function wakeFromDormant(inst: Instance, m: Mob, by: Player | null) {
       const [lo, hi] = inst.def.levelBand;
       const lvl = Math.max(lo, Math.min(hi, p.save.level));
       const diff = encounterDifficulty(inst,p);
-      if (lvl !== m.level || diff !== m.diff) relevel(m, lvl, diff, playersAround(inst, m.x, m.y));
+      relevel(m, lvl, diff, playersAround(inst, m.x, m.y));
     }
   }
 }

@@ -5,11 +5,13 @@ import {ui,useUI,togglePanel} from '../store';
 import {PanelFrame,Tabs} from './common';
 import {run} from './util';
 import {openInspection} from './inspect';
+import {unlockedTitles,EMOTES} from '@shared/community';
+import {sendChat} from '../../net/api';
 
 export function whisperTo(name:string){togglePanel('social',false);ui.set({chatChannel:'whisper',chatTarget:name,chatOpen:true});}
 type Tab='friends'|'blocked'|'muted'|'privacy';
 export function SocialPanel(){
-  const social=useUI(s=>s.social),[tab,setTab]=useState<Tab>('friends'),[page,setPage]=useState(0),[name,setName]=useState(''),[busy,setBusy]=useState(false);
+  const social=useUI(s=>s.social),char=useUI(s=>s.char),[tab,setTab]=useState<Tab>('friends'),[page,setPage]=useState(0),[name,setName]=useState(''),[busy,setBusy]=useState(false);
   if(!social)return <PanelFrame id="social" title="Social" width={800}><p>Waiting for contacts…</p></PanelFrame>;
   const act=async(action:string,args:Record<string,unknown>={})=>{setBusy(true);try{const r=await run('social',{action,...args});if(r.ok)setName('');}finally{setBusy(false);}};
   const entries=tab==='privacy'?[]:social[tab].map(v=>typeof v==='string'?{name:v,online:false}:v),pages=Math.max(1,Math.ceil(entries.length/SOCIAL_PAGE_SIZE)),current=Math.min(page,pages-1);
@@ -23,6 +25,7 @@ export function SocialPanel(){
       <p class="pn-note">Blocked names cannot message or invite you. Muted names have their messages hidden. These lists are saved with this character; other characters have their own lists.</p>
       <h3>Who can inspect your equipped items?</h3><div class="social-options">{(['all','contacts','off'] as const).map(v=><button class={`btn${social.inspect===v?' primary':''}`} disabled={busy||!social.supported} onClick={()=>void act('privacy',{presence:social.presence,whispers:social.whispers,inspect:v})}>{v==='all'?'Everyone':v==='contacts'?'Mutual friends & party':'Nobody'}</button>)}</div>
       <p class="pn-note">Inspection shares equipped item details only. Your bag, stash, currency and quest history stay private.</p>
+      <h3>Nameplate title</h3><div class="social-options"><button class="btn tiny" disabled={busy} onClick={()=>void act('title',{title:''})}>No title</button>{char&&unlockedTitles(char).map(t=><button class={`btn tiny${char.social?.title===t.id?' primary':''}`} disabled={busy} onClick={()=>void act('title',{title:t.id})}>{t.name}</button>)}</div><p class="pn-note">More titles are earned through story milestones. Titles are cosmetic.</p>
     </>:<>
       <p class="pn-note">{tab==='friends'?'Add a character name to keep it here. Add each other to share presence; unavailable includes offline, private and unconfirmed contacts.':tab==='blocked'?'Blocking hides messages and presence and prevents invitations in both directions. Leave an existing party separately.':'Muting hides incoming messages without preventing invitations. Unmute at any time.'}</p>
       <form class="party-invite" onSubmit={e=>{e.preventDefault();void act(tab==='friends'?'add':tab==='blocked'?'block':'mute',{name:name.trim()});}}><label>Character name<input value={name} maxLength={16} onInput={e=>setName(e.currentTarget.value)} autoComplete="off"/></label><button class="btn primary" disabled={busy||!social.enabled||!social.supported||!name.trim()||entries.length>=SOCIAL_LIMIT}>{tab==='friends'?'Add friend':tab==='blocked'?'Block':'Mute'}</button></form>
@@ -36,5 +39,6 @@ export function SocialPanel(){
     </>}
     <div class="social-options social-chat-links">{(['zone','world','party','trade','lfg'] as const).map(ch=><button class="btn tiny" onClick={()=>{togglePanel('social',false);ui.set({chatChannel:ch,chatTarget:'',chatOpen:true});}}>{ch==='lfg'?'LFG':ch} chat</button>)}</div>
     <p class="pn-note">Press Enter to chat. /w Name message whispers; /p message reaches your party. Trade chat is conversation only.</p>
+    <div class="social-options"><button class="btn" onClick={()=>togglePanel('community',true)}>Guild & reports</button>{Object.keys(EMOTES).map(key=><button class="btn tiny" onClick={()=>sendChat('/'+key)}>{key}</button>)}</div>
   </PanelFrame>;
 }

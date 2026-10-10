@@ -9,9 +9,9 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community';
 
-export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number }
+export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
 export interface PickupLine { id: number; lk: LootView['lk']; name: string; rarity?: string; amount?: number; at: number }
 export interface AfkReport { ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
@@ -46,6 +46,7 @@ export interface UIState {
   party: import('@shared/party').PartyView|null;
   social: import('@shared/social').SocialView|null;
   inspectionName:string;
+  reportContext:{name:string;message:string}|null;
   chatChannel:import('@shared/social').ChatChannel;
   chatTarget:string;
   panels: Partial<Record<PanelId, boolean>>;
@@ -85,7 +86,7 @@ export const ui = new Store<UIState>({
   helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
-  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',chatChannel:'zone',chatTarget:'',
+  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });

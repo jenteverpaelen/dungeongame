@@ -30,6 +30,7 @@ const persisted:Record<CmdOp,boolean>={
   party:false,
   social:true,
   inspect:false,
+  community:false, // Its independent social ledger persists before the asynchronous reply.
   onboarding:true,passive:true,merchant:true,equip:true,unequip:true,swapInv:true,destroy:true,itemProtect:true,stashDeposit:true,stashWithdraw:true,
   adventure:true,quest:true,salvage:true,salvageAll:true,enchantRoll:true,enchantPick:true,upgrade:true,transmute:true,extract:true,cubeEquip:true,
   reforge:true,socket:true,insertGem:true,removeGem:true,fuseGem:true,skillSlot:true,skillRune:true,skillTier:true,skillReset:true,

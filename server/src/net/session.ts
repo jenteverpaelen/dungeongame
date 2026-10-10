@@ -4,6 +4,7 @@
 import { isHeroAppearance } from '../../../shared/src/appearance';
 import { startIntro } from '../../../shared/src/onboarding';
 import {CHAT_MAX_LEN,CHAT_BURST,CHAT_REFILL_MS} from '../../../shared/src/social';
+import {EMOTES} from '../../../shared/src/community';
 export {CHAT_MAX_LEN} from '../../../shared/src/social';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
@@ -77,6 +78,8 @@ export class Session implements PlayerLink {
   private kicking = false;
   private commandReceipts = new CommandReceipts();
   private commandSave:Promise<void>|null=null;
+  private commandQueue:Promise<void>=Promise.resolve();
+  private queuedCommands=0;
 
   constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
     this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, HELLO_TIMEOUT_MS);
@@ -243,22 +246,30 @@ export class Session implements PlayerLink {
   }
 
   private onCmd(msg: Extract<C2S, { t: 'cmd' }>): void {
+    if(this.queuedCommands>=60){this.send({t:'res',id:msg.id,ok:false,err:'Too many queued commands'});return;}
+    this.queuedCommands++;
+    this.commandQueue=this.commandQueue.then(()=>this.handleCmd(msg)).catch(e=>console.error('[session] command queue failed',e)).finally(()=>{this.queuedCommands--;});
+  }
+  private async handleCmd(msg:Extract<C2S,{t:'cmd'}>):Promise<void>{
+    if(this.state!=='ready')return;
     const id = msg.id;
     if (typeof id !== 'number' || !Number.isFinite(id)) return;
     const args = msg.a === undefined ? {} : msg.a;
-    const res = this.commandReceipts.execute(id, msg.op, {args,request:msg.r??null}, () => {
+    let commit:Promise<void>|null=null;
+    const res = await this.commandReceipts.executeAsync(id, msg.op, {args,request:msg.r??null}, async () => {
       let r: CmdResult;
       if (typeof msg.op !== 'string' || !isRecord(args)) {
         r = fail('Bad command');
       } else {
         try {
           const execute=()=>runCommand(this,this.world,msg.op as CmdOp,args);
-          if(isPersistedCommand(msg.op)){
+          if(msg.op==='community')r=await this.world.community.command(this,args);
+          else if(isPersistedCommand(msg.op)){
             const result=persistedCommand(this,msg.r,msg.op,args,execute,()=>!this.commandSave);
             r=result.result;
             if(result.fresh){
               this.markDirty();
-              const saving=this.captureSave();this.commandSave=saving;
+              const saving=this.captureSave();this.commandSave=saving;commit=saving;
               void saving.then(()=>{if(this.commandSave===saving)this.commandSave=null;this.saveWarning=false;},
                 ()=>{if(this.commandSave===saving)this.commandSave=null;this.persistDirty=true;this.saveWarning=true;});
             }
@@ -274,9 +285,9 @@ export class Session implements PlayerLink {
       return reply;
     });
     const publish=()=>{if(this.state==='ready'){this.flushChar();this.send(res);}};
-    const saving=this.commandSave;
+    const saving=commit??this.commandSave;
     if(saving){
-      void saving.then(publish,()=>{
+      await saving.then(publish,()=>{
         if(this.state!=='ready')return;
         this.send({t:'res',id,ok:false,err:'The result could not be confirmed on disk. Reconnect to recover the saved state before trying again.'});
         this.kick('Saving failed; reconnect to recover your character.');
@@ -301,12 +312,14 @@ export class Session implements PlayerLink {
 
   private slash(text: string): void {
     const cmd = text.slice(1).split(' ')[0].toLowerCase();
+    if(Object.hasOwn(EMOTES,cmd)){this.world.chat(this,EMOTES[cmd as keyof typeof EMOTES]);return;}
     switch (cmd) {
       case 'who': this.world.systemMessage(this, `${this.world.onlineCount} player${this.world.onlineCount === 1 ? '' : 's'} online.`); break;
-      case 'help': this.world.systemMessage(this, 'Commands: /who, /help, /w Name message, /p message, /world message, /trade message, /lfg message. Contacts and privacy are in Social.'); break;
+      case 'help': this.world.systemMessage(this, 'Chat: /w Name message, /p, /g, /world, /trade, /lfg. Emotes: /wave, /thanks, /cheer, /ready. Contacts, titles, guilds and reports are in Social. /who lists players.'); break;
       case 'w': case 'whisper': {const [,name,...words]=text.split(' ');this.world.chat(this,words.join(' '),'whisper',name);break;}
       case 'p': case 'party': this.world.chat(this,text.slice(cmd.length+2),'party');break;
       case 'world': case 'trade': case 'lfg': this.world.chat(this,text.slice(cmd.length+2),cmd);break;
+      case 'g': case 'guild':this.world.chat(this,text.slice(cmd.length+2),'guild');break;
       default: this.world.systemMessage(this, 'Unknown command. Try /help.');
     }
   }
@@ -323,6 +336,7 @@ export class Session implements PlayerLink {
     if(msg.appearance!==undefined&&!isHeroAppearance(msg.appearance)){this.kick('Invalid appearance');return;}
     if(msg.tutorial!==undefined&&typeof msg.tutorial!=='boolean'){this.kick('Invalid introduction choice');return;}
     const id = characterId(name);
+    if(this.world.community.banned(id)){this.kick('This character is suspended. Contact the owner.');return;}
     if (!this.world.reserve(id, this)) { this.kick('That character is already online.'); return; }
     this.charId = id;
     this.state = 'loading';

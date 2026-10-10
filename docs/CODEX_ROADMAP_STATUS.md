@@ -1,6 +1,6 @@
 # Codex whole-roadmap status
 
-Updated2026-10-10, solo, through C104. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
+Updated2026-10-10, solo, through C105. This is my current work ledger, separate from Claude's unchanged [roadmap](design/FULL_GAME_ROADMAP.md). See [execution](EXECUTION.md) for phase dependencies and [change log](CODEX_CHANGELOG.md) for why, evidence, removals, future effects and rollback.
 
 Coverage check:147 feature IDs,86 screen IDs and40 decision IDs, each represented once. These are catalogue counts, not a completion percentage. Original snapshot statuses below are Claude's historical audit at d630a76; they are not silently relabelled as current measurements. A missing newer completion claim means the full item stays open, even where a working baseline already exists.
 
@@ -26,7 +26,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 
 ## Features
 
-**Current inventory through C092:** 28 rows explicitly record implemented scope, 41 contain partial work/research, and 78 remain open with no newer implementation claim. This is a conservative reading of the existing evidence, not an audited percentage of total effort. No phase or release gate is complete. Some individual implementations still need owner playtest; other rows have substantial code/content missing, which is stated separately in their evidence.
+**Current inventory through C105:** 147 feature rows: 31 partial / research, 59 open, 4 partial / implementation, 43 implemented scope, 7 implemented scope / human acceptance pending, 3 decided / excluded from v1. These unweighted counts are not a completion percentage. P10 selected implementation is complete; independent/human gates and public-release dependencies are not certified.
 
 **Read Current status and Current evidence first.** Historical baseline is Claude's original snapshot, preserved for comparison: MISSING there does not mean it is still missing today. Implemented scope means the bounded implementation exists, not that every future extension or the enclosing phase is accepted. The earlier15–20% estimate mixed research and partial progress and must not be used as a completed-feature score.
 
@@ -66,8 +66,8 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ADM-01 | Debug commands off by default | P3 | Implemented scope | Default denial retained. C070 owner-requested infinite HP is gated by explicit debug opt-in, respects DISABLE_DEBUG and resets on player recreation; no saved flag. [Rillwake report](adventure/RILLWAKE-REPORT.md). | **MISSING — on by default** |
 | F-ADM-02 | Admin console (ban, mute, kick, announce, restore, grant) | P3 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-ADM-03 | Audit log of sensitive actions | P3 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
-| F-ADM-04 | Chat filter | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — rate limit only |
-| F-ADM-05 | Player report queue | P10 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-ADM-04 | Chat filter | P10b | Implemented scope | C105 configurable phrase/link rejection plus existing rate limits; owner changes audited. Not semantic moderation or automatic sanctions. | PARTIAL — rate limit only |
+| F-ADM-05 | Player report queue | P10 | Implemented scope | C105 durable manual report queue, delivered-message evidence, local owner controls/audit and30-day expiry. P3 auth/social backup and independent G8 remain. | MISSING |
 | F-ADM-06 | Feature flags / config | P3 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — environment variables |
 | F-CMB-01 | Locked combat spec (auto-cast rules, resources, dash, statuses) | P4 | Partial / research | Not locked; current behavior inventoried, no owner parity/feel sign-off or final targets. [build audit](phase/P01-research/BUILD-REPORT.md). | PARTIAL — `docs/ARCHITECTURE.md` §1.3–1.5 is the working spec |
 | F-CMB-02 | Skill unlock cadence redesign | P4 | Partial / research | Existing schedule measured; deliberately unchanged pending reference/human evidence. [build audit](phase/P01-research/BUILD-REPORT.md). | PARTIAL — cadence exists: L1, 2, 4, 6, 9, 12 |
@@ -133,14 +133,14 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-ITM-10 | Item-level and base-tier curve review | P11 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL |
 | F-SOC-01 | Party (invite, leave, kick, leader) + party frames | P10a | Implemented scope | C102 complete character/session party flow and frames; five checks/two real clients. Authentication and chapter acceptance remain explicit. | MISSING |
 | F-SOC-02 | Friends list + presence | P10a | Implemented scope | C103 saved character friends and mutual-consent coarse presence; private/unknown states hidden. Account migration remains P3. | MISSING |
-| F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Partial | C103 complete10a whisper/party/world/trade/LFG routes, server privacy and UI. Guild channel remains10b. | PARTIAL — zone/world/system chat |
-| F-SOC-04 | Block / mute / report | P10a | Partial | C103 persistent block/mute and invitation/chat enforcement, real reconnect checked. Report queue/staff policy pending owner answer. | MISSING |
-| F-SOC-05 | Emotes, titles, nameplates | P10a | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — nameplates for remote players exist in town |
+| F-SOC-03 | Whispers and chat channels (party, guild, trade/LFG) | P10a | Implemented scope | C103/C105 all selected chat audiences including guild; privacy, block/mute and text/rate checks. | PARTIAL — zone/world/system chat |
+| F-SOC-04 | Block / mute / report | P10a | Implemented scope | C103 saved block/mute; C105 report UI, durable queue, owner review and30-day evidence retention. | MISSING |
+| F-SOC-05 | Emotes, titles, nameplates | P10a | Implemented scope | C105 four original text emotes and four cosmetic milestone titles, existing nameplates retained. No animated emote catalogue promised. | PARTIAL — nameplates for remote players exist in town |
 | F-SOC-06 | Inspect / armory | P10b | Implemented scope | C104 permission-checked online equipped-item snapshot and original item-card UI. Inventory/stash/currency/history excluded; no offline web armory. | MISSING |
-| F-SOC-07 | Guilds / clans | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-07 | Guilds / clans | P10b | Implemented scope | C105 complete minimal guild roster/chat/invites/ranks/MOTD/transfer/leave and atomic ledger. D-27 excludes bank/perks. | MISSING |
 | F-SOC-08 | Group finder | P10b | Implemented scope | C104 complete opt-in activity directory, explicit joining, capacity/block/leadership checks and paged UI. No matchmaking/travel bypass. | MISSING |
-| F-SOC-09 | Party scaling and loot-rule review | P10b | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — +50 % life per extra player, personal loot, shared XP |
-| F-SOC-10 | Mail | P15 (if trading) | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
+| F-SOC-09 | Party scaling and loot-rule review | P10b | Implemented scope | C105 actual1–4 scaling/XP/personal loot review and party dungeon participation/disconnect credit. Full P9 per-band co-op balance/human acceptance remain. | PARTIAL — +50 % life per extra player, personal loot, shared XP |
+| F-SOC-10 | Mail | P15 (if trading) | Open | Conditional P15 mail only if trading is selected. Explicitly outside completed selected P10; no mail implementation claimed. | MISSING |
 | F-END-01 | Timed rifts with ranks and keystones | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING — rifts have no timer or rank |
 | F-END-02 | Bounties (adventure layer) | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-END-03 | Torment gating and rewards | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — 14 tiers, Torment at L60 |
@@ -210,7 +210,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-24 | Player plate | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-25 | Minimap, zone plate, rift bar | P5 pins | EXISTS | C087 shared NPC status markers and tracked town/adventure guidance integrated; existing HUD style retained. [P5 report](phase/P05-quests/CHAPTER-CLOSURE-REPORT.md). |
 | U-26 | Target frame | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-27 | Chat | P10a channels, whispers | EXISTS (zone / world / system) | Existing chat retained; private new-character control cues corrected (C019); social channels open. [change log](CODEX_CHANGELOG.md). |
+| U-27 | Chat | P10a channels, whispers | Implemented selected interface | C103/C105 selected channel buttons, whispers and guild/report entry implemented; existing chat style. G8 acceptance remains. |
 | U-28 | Notice banners | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-29 | Pickup feed | — | EXISTS | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-30 | Floating combat text | P3 options | EXISTS (render layer) | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
@@ -222,7 +222,7 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-36 | Boss health bar | P4 | PARTIAL — target frame | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-37 | Ground loot labels / beams | P11 | verify in P11 | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-38 | Objective / compass markers | P5 | MISSING | C087 shared NPC labels plus current-area/minimap guidance and connecting-exit markers implemented; no separate compass strip added. [P5 report](phase/P05-quests/CHAPTER-CLOSURE-REPORT.md). |
-| U-39 | Emote wheel / quick chat | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-39 | Emote wheel / quick chat | P10a | Implemented selected interface | C105 minimal original text quick-emote buttons and slash commands; no wheel/animation catalogue. G8 acceptance remains. |
 | U-40 | Performance overlay (fps, ping, dps) | P3 | PARTIAL — values exist in the store | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-41 | Hint toasts | P6 | Implemented scope | C088/C089: corresponding creation/loading/guidance/help flow implemented in existing style; no-scroll sections, human acceptance pending. [P6 report](phase/P06-onboarding/CHAPTER-REPORT.md). |
 | U-42 | Help panel | P6 v2 | Implemented scope | C088/C089: corresponding creation/loading/guidance/help flow implemented in existing style; no-scroll sections, human acceptance pending. [P6 report](phase/P06-onboarding/CHAPTER-REPORT.md). |
@@ -259,18 +259,18 @@ Existing screens retain the approved style. This catalogue is not the reference-
 | U-87 | Artisan panels (Blacksmith / Jeweler / Mystic as separate identities) | P8/P11 | PARTIAL — Cube panel with artisan state | Existing style/services retained; enchant transition correction (C022); separate artisan progression open. [foundation state](phase/P03-foundations/STATE.md). |
 | U-88 | Gamble vendor | P8 | DECISION | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-90 | Respec dialog | P4 | PARTIAL | Existing two-click confirmation/cancel/refund observed (C029); no price redesign. [earned decisions](phase/P01-research/FIRST-DECISIONS-REPORT.md). |
-| U-95 | Party window and invites | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-96 | Friends list | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-97 | Whisper windows / chat tabs | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-98 | Block / report dialog | P10a | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-99 | Inspect / armory | P10b | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-100 | Guild window | P10b | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-101 | Group finder | P10b | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-95 | Party window and invites | P10a | Implemented selected interface | C102 party controls/frames; C105 real disconnect-mid-action/reconnect check. G8 acceptance remains. |
+| U-96 | Friends list | P10a | Implemented selected interface | C103 paged saved friends, mutual privacy and presence. G8 acceptance remains. |
+| U-97 | Whisper windows / chat tabs | P10a | Implemented selected interface | C103/C105 explicit chat audiences, whisper target and server-checked delivery. G8 acceptance remains. |
+| U-98 | Block / report dialog | P10a | Implemented selected interface | C103 block/mute, C105 report form/received-message attachment and own report receipts. G8 acceptance remains. |
+| U-99 | Inspect / armory | P10b | Implemented selected interface | C104 online consent-based equipped item viewer, original ItemCard. G8 acceptance remains. |
+| U-100 | Guild window | P10b | Implemented selected interface | C105 paged roster/invitations/MOTD/ranks, inspected full1920x1080 view. G8 acceptance remains. |
+| U-101 | Group finder | P10b | Implemented selected interface | C104 paginated explicit public activity directory and revalidated joins. G8 acceptance remains. |
 | U-102 | Mail | P15 (if trading) | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-103 | Trade window | P15 (if trading) | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-104 | Market / auction | P15 (if trading) | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
 | U-110 | Admin console / dashboard | P3 | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
-| U-111 | Moderation queue | P10b | MISSING | No new implementation/acceptance claimed; retain the original baseline and check full states when this scope is taken up. |
+| U-111 | Moderation queue | P10b | Implemented selected interface | C105 local owner CLI queue/audit and action results; deliberately no network staff UI under legacy identity. G8 acceptance remains. |
 | U-112 | Debug panel | P3 | EXISTS — gate behind the dev flag | Server debug defaults off, explicit test opt-in checked (C005); no new account-role admin UI. [foundation state](phase/P03-foundations/STATE.md). |
 
 ## Decisions
@@ -304,9 +304,9 @@ Claude's proposals remain in the original document. These notes separate current
 | D-23 | Item pool targets (affixes, legendaries, sets) | No arbitrary pool counts; build diversity and content-cost evidence needed. |
 | D-24 | Stash model | C093: retain owner-approved60-slot per-character stash; account ownership/tabs remain P14. L113/D051. |
 | D-25 | Crafting philosophy | C093: retain distinct physical artisans and existing Cube progression; no separate artisan-leveling currencies in v1. P11 crafting remains. L113/D051. |
-| D-26 | Party size and scaling | C087 formalizes current nearby/personal field and present-member rift quest credit. Exclusive social party membership/scaling remain P10; four-client tests are not a claim that social parties exist. |
-| D-27 | Guild scope | Guild scope unselected. |
-| D-28 | Moderation policy and staffing | Moderation policy/staffing unresolved; no automatic messages to other people. |
+| D-26 | Party size and scaling | C102/C105 retain four-person parties and existing capped nearby life/full XP/personal loot. Party dungeons now share participant waves. Correctness measured; human/per-band co-op tuning open. |
+| D-27 | Guild scope | C105 selects roadmap-recommended minimal roster/chat/ranks/MOTD. No bank or perks in selected v1. |
+| D-28 | Moderation policy and staffing | Owner approved manual owner review, no automatic punishments and30-day reports/evidence. C105 local mute/ban/lift/resolve/filter audit tools and written rules; no character-name staff privilege. |
 | D-29 | Capacity targets per release step | No new capacity promise; town100-player requirement remains unaccepted performance work. |
 | D-30 | Account credential model | Argon2id candidate measured; design and C037 library fit review written. No dependency selected; integration/deployment/ownership work remains. |
 | D-31 | Storage | JSON store boundary implemented; worker SQLite measured as candidate, no migration selected. |
@@ -377,3 +377,6 @@ C102 implements F-SOC-01 selected character/session party scope. Current147 feat
 C103 closes selected character friends/presence and10a chat routes; block/mute implemented, report and guild scope explicit. Current147 features:41 implemented scope,37 partial,66 open,3 decided/excluded. Not completion percentage. [Social report](phase/P10-social/SOCIAL-REPORT.md)
 
 C104 adds scoped online inspection and full explicit group discovery. Current147 features:43 implemented scope,37 partial,64 open,3 decided/excluded. Not a completion percentage. Owner requested pause for shutdown; resume remaining social chapter next. [Report](phase/P10-social/DISCOVERY-INSPECT-REPORT.md)
+
+
+C105 finishes selected P10 implementation (10a+10b) and records the owner moderation decision. Read [chapter report](phase/P10-social/CHAPTER-REPORT.md) for boundaries and [Claude handoff](CLAUDE_OPUS_5_5_HANDOFF.md) for continuation. The earlier shutdown/pending-question notes are historical; both owner questions are answered. No P11 work started in this stop/handoff turn.

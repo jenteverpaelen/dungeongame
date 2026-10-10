@@ -89,7 +89,7 @@ export const QUEST_MESSAGES = {
   'quest.pump.record': 'Recover the maintenance record beside the pump',
   'quest.pump.ready': 'Turn the marked mechanism to begin. Stay inside its chamber until every creature is defeated.',
   'quest.pump.active': 'Clear the chamber',
-  'quest.pump.solo': 'Solo dungeon',
+  'quest.pump.solo': 'Private dungeon',
   'quest.pump.done': 'Pumpworks cleared. Recover the record, then return to Orren.',
   'quest.pump.retry': 'The encounter reset. Return to its mechanism when you are ready.',
   'quest.pump.replay': 'Your journal progress is saved. Returning later may require clearing earlier chambers again. A completed dungeon starts fresh on your next visit.',

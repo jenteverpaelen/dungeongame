@@ -115,7 +115,7 @@ test('each connection owns its own ID history', async () => {
   } finally { await one.close(); await two.close(); }
 });
 
-test('concurrent packets wait for replacement; duplicate intent spends once and another mutation is refused while saving',async t=>{
+test('concurrent packets wait for replacement; duplicate intent spends once and the next mutation runs after saving',async t=>{
   const f=await fixture();let release!:()=>void;
   const barrier=new Promise<void>(r=>{release=r;});let entered!:()=>void;const writing=new Promise<void>(r=>{entered=r;});
   const file=path.join(DATA_DIR,f.session.save.id+'.json');
@@ -133,8 +133,8 @@ test('concurrent packets wait for replacement; duplicate intent spends once and 
     assert(!f.socket.messages.slice(before).some(m=>m.t==='res'||m.t==='char'),'nothing confirmed while replacement is pending');
     assert.equal(await fs.readFile(file,'utf8'),original);
     release();const replies=await Promise.all([first,duplicate,newIdRetry,concurrent]);
-    assert(replies[0].ok&&replies[1].ok&&replies[2].ok);assert(!replies[3].ok);assert.match(replies[3].err!,/still saving/);
-    const disk=JSON.parse(await fs.readFile(file,'utf8'));assert.equal(disk.gems['ruby:2'],1);assert.equal(disk.commands.sequence,1);
+    assert(replies.every(r=>r.ok));
+    const disk=JSON.parse(await fs.readFile(file,'utf8'));assert.equal(disk.gems['ruby:2'],2);assert.equal(disk.commands.sequence,2);
   }finally{release();mock.mock.restore();await f.close();}
 });
 

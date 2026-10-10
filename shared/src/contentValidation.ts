@@ -164,9 +164,12 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     } else check(m.attack.chargeMs===undefined,`${at}.attack.chargeMs`,'only charge attacks have a charge duration');
     if(m.attack.projSpeed !== undefined) number(m.attack.projSpeed,`${at}.attack.projSpeed`,Number.MIN_VALUE);
     if(m.attack.aoe !== undefined) number(m.attack.aoe,`${at}.attack.aoe`);
-    if(m.attack.kind==='lob'||m.attack.kind==='fracture') {
+    if(m.attack.kind==='lob') {
       number(m.attack.aoe??NaN,`${at}.attack.aoe`,Number.MIN_VALUE);
       number(m.attack.flightMs??NaN,`${at}.attack.flightMs`,Number.MIN_VALUE);
+    } else if(m.attack.kind==='fracture') {
+      // Fracture uses fractureLine's own timing; inherited lob metadata is optional.
+      if(m.attack.flightMs!==undefined)number(m.attack.flightMs,`${at}.attack.flightMs`,Number.MIN_VALUE);
     } else check(m.attack.flightMs===undefined,`${at}.attack.flightMs`,'only lob attacks have a flight delay');
   }
   return errors;

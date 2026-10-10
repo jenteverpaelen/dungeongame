@@ -24,6 +24,22 @@ export class CommandReceipts {
   private highWater = 0;
   private receipts = new Map<number, Receipt>();
   private retainedBytes = 0;
+  private pending=new Map<number,{fingerprint:string;result:Promise<Reply>}>();
+
+  async executeAsync(id:number,op:unknown,args:unknown,execute:()=>Promise<Reply>):Promise<Reply>{
+    const fail=(err:string):Reply=>({t:'res',id,ok:false,err});
+    if(!Number.isSafeInteger(id)||id<=0)return fail('Invalid command ID');
+    let fingerprint:string;try{fingerprint=commandFingerprint(op,args);}catch{return fail('Invalid command arguments');}
+    const running=this.pending.get(id);if(running)return running.fingerprint===fingerprint?structuredClone(await running.result):fail('Command ID was already used for a different request');
+    const previous=this.receipts.get(id);if(previous)return previous.fingerprint===fingerprint?structuredClone(previous.response):fail('Command ID was already used for a different request');
+    if(id<=this.highWater)return fail('Command result expired; refresh state before making a new request');this.highWater=id;
+    const result=(async()=>{let response:Reply;try{response=await execute();}catch{response=fail('Server error');}
+      const snapshot=structuredClone(response),bytes=Buffer.byteLength(JSON.stringify(snapshot))+fingerprint.length;
+      if(bytes<=MAX_MESSAGE_BYTES){this.receipts.set(id,{fingerprint,response:snapshot,bytes});this.retainedBytes+=bytes;}
+      while(this.receipts.size>MAX_COMMAND_RECEIPTS||this.retainedBytes>MAX_MESSAGE_BYTES){const [key,r]=this.receipts.entries().next().value!;this.receipts.delete(key);this.retainedBytes-=r.bytes;}
+      return response;})();
+    this.pending.set(id,{fingerprint,result});try{return await result;}finally{this.pending.delete(id);}
+  }
 
   execute(id: number, op: unknown, args: unknown, execute: () => Reply): Reply {
     const fail = (err: string): Reply => ({ t: 'res', id, ok: false, err });

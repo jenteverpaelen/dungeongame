@@ -736,6 +736,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   party:(s,a,world)=>world.parties.command(s,a),
   social:(s,a,world)=>world.social.command(s,a),
   inspect:(s,a,world)=>world.social.inspect(s,a),
+  community:()=>fail('Community commands require the asynchronous connection handler'),
   merchant:merchantCommand,
   onboarding: onboardingCommand,
   adventure: adventureCommand,

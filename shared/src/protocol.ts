@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 18;
+export const PROTOCOL_VERSION = 19;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -36,6 +36,7 @@ export type LookSlot = 'head' | 'shoulders' | 'chest' | 'hands' | 'legs' | 'feet
 export const LOOK_SLOTS: LookSlot[] = ['head', 'shoulders', 'chest', 'hands', 'legs', 'feet', 'waist', 'mainhand', 'offhand'];
 
 export interface PlayerLook {
+  title?:string;
   appearance?: import('./appearance').HeroAppearance;
   classId: ClassId;
   slots: Partial<Record<LookSlot, ItemLook>>;
@@ -176,7 +177,7 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
   | { t: 'world'; world: WorldInfo }
   | { t: 'party'; party: import('./party').PartyView }
@@ -188,6 +189,7 @@ export type CmdOp = 'onboarding'
   | 'party'
   | 'social'
   | 'inspect'
+  | 'community'
   | 'merchant'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
   | 'stashDeposit' | 'stashWithdraw'

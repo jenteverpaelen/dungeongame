@@ -39,6 +39,24 @@ test('story dungeon uses Normal independently of the last rift selection',async(
   finally{await world.shutdown();}
 });
 
+test('four-person story run preserves individual gates, shares chamber credit, and survives an initiator disconnect',async()=>{
+  const world=new World();await world.init();
+  try{
+    const team=Array.from({length:4},()=>player(world)),[a,b,c,d]=team;let now=Date.now();
+    for(const peer of [b,c,d]){assert(world.parties.command(a.s,{action:'invite',name:peer.save.name},now+=1100).ok);assert(world.parties.command(peer.s,{action:'accept',invite:world.parties.view(peer.s,now).incoming[0].id},now+=1100).ok);}
+    a.unlock();a.accept();a.enter();b.waypoint();assert(!b.travel('reedvault_pumpworks').ok,'membership never bypasses personal route or physical entry');
+    for(const peer of [b,c,d]){peer.unlock();peer.accept();peer.enter();assert.equal(peer.inst(),a.inst());}
+    for(const peer of team){peer.near('west_wheel');peer.p().debugInfiniteHp=true;}
+    assert(a.activate('west_wheel').ok);const inst=a.inst();const scaled=inst.mobs[0].mhp;
+    world.logout(a.s);inst.dungeon!.tick();assert.equal(inst.dungeonState()!.phase,'active');
+    b.clear();assert.equal(questState(a.save,'pressure_below')!.step,0,'absent initiator gets no wave');
+    for(const peer of [b,c,d])assert.equal(questState(peer.save,'pressure_below')!.step,1);
+    assert(scaled>0);assert.equal(inst.dungeonState()!.stage,1);
+    b.near('east_wheel');assert(b.activate('east_wheel').ok);world.logout(b.s);inst.dungeon!.tick();
+    assert.equal(inst.dungeonState()!.phase,'ready','only participants at activation count; people outside next chamber cannot keep it running');
+  }finally{await world.shutdown();}
+});
+
 test('dungeon clock starts on valid activation, includes retries and freezes on final clear',async()=>{
   const world=new World();await world.init();
   try {

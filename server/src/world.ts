@@ -5,6 +5,7 @@
 import { recordIntro } from '../../shared/src/onboarding';
 import { Parties } from './party';
 import { Social } from './social';
+import { Community } from './community';
 import { EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
@@ -103,6 +104,7 @@ export class World {
   private players = new Set<Session>();
   readonly parties:Parties=new Parties(()=>this.players,undefined,(a,b):boolean=>this.social.canInvite(a,b));
   readonly social:Social=new Social(()=>this.players,this.parties);
+  readonly community:Community=new Community(()=>this.players,(a,b)=>this.social.blocked(a,b),s=>this.social.isEnabled(s),undefined,(a,b)=>this.social.presenceVisible(a,b));
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
   private rng = new Rng((Math.random() * 0xffffffff) >>> 0);
@@ -110,6 +112,8 @@ export class World {
   // ─────────────────────────── Lifecycle ───────────────────────────
 
   async init(): Promise<void> {
+    await this.community.init();
+    this.social.community=this.community;
     this.create = await loadCreateInstance();
     this.channelRec(TOWN_ID, 1);
     for (const id of FIELD_IDS) this.channelRec(id, 1);
@@ -134,6 +138,7 @@ export class World {
   maintain(now = Date.now()): void {
     this.parties.tick(now);
     this.social.tick();
+    void this.community.maintain();
     for (const rec of [...this.recs.values()]) {
       if (rec.members.size > 0) continue;
       const idle = now - rec.emptySince;
@@ -153,6 +158,7 @@ export class World {
   }
 
   async shutdown(): Promise<void> {
+    await this.community.shutdown();
     for (const s of [...this.players]) s.shutdown('Server restarting');
     for (const rec of [...this.recs.values()]) {
       try { rec.inst.destroy(); } catch (err) { console.error(`[world] destroy ${rec.key} failed:`, err); }
@@ -309,6 +315,7 @@ export class World {
     this.players.delete(s);
     this.parties.disconnected(s);
     this.social.disconnected(s);
+    this.community.disconnected(s);
     const rec = s.rec;
     if (rec) {
       s.save.lastZone = rec.kind === 'rift' ? TOWN_ID : rec.zoneId;
@@ -370,9 +377,10 @@ export class World {
     const nearWaypoint = waypoint && cur.inst.canInteract(s, waypoint.x, waypoint.y, waypoint.interactionRadius);
     const nearExit = cur.inst.map.portals.some(p => p.to === zoneId && cur.inst.canInteract(s, p.x, p.y, 110));
     if(def.kind==='dungeon') {
-      if(channel!==undefined)return fail('Solo dungeons have no public channels');
+      if(channel!==undefined)return fail('Private dungeons have no public channels');
       if(!nearExit)return fail('Enter through the physical dungeon entrance');
-      const key=`dungeon#${s.save.id}#${zoneId}`;
+      const group=this.parties.view(s).id;
+      const key=`dungeon#${group??s.save.id}#${zoneId}`;
       let target=this.recs.get(key);
       if(target?.members.size===0&&target.inst.dungeonState?.()?.phase==='done'){
         target.inst.destroy();this.recs.delete(key);this.tickErrAt.delete(key);target=undefined;
@@ -385,7 +393,7 @@ export class World {
         target={key,zoneId,kind:'dungeon',channel:0,inst,members:new Set(),emptySince:Date.now(),hostedRifts:new Set()};
         this.recs.set(key,target);
       }
-      if(target.members.size)return fail('That character already has an active dungeon session');
+      if(target.members.size>=(group?PARTY_MAX:1))return fail('That dungeon is full');
       this.enter(s,target,undefined,this.zoneAnnounce);s.saveNow();
       return ok({zone:zoneId,channel:0});
     }
