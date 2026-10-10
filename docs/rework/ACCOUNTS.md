@@ -72,7 +72,7 @@ alone). Restore is explicit and never touches the live directory:
 
 ```
 npm run saves:backup -- aux-verify  <BACKUP_DIR>ux-…
-npm run saves:backup -- aux-restore <BACKUP_DIR>ux-… <NEW-destination-directory>   # then copy accounts\ and social\ in, server stopped
+npm run saves:backup -- aux-restore <BACKUP_DIR>ux-… <NEW-destination-directory>   # then copy accounts\ and social\ into DATA_DIR, server stopped
 ```
 
 ## Self-review notes (2026-10-10)
