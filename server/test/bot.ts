@@ -1444,7 +1444,10 @@ async function main() {
           const file = path.join(srv.dataDir, `${shutdownSave.id}.json`);
           await shutdownBot.waitFor(() => fs.existsSync(file));
           const prior = JSON.parse(fs.readFileSync(file, 'utf8')) as CharacterSave;
-          check('shutdown probe is newer than its on-disk save', prior.gold !== shutdownSave.gold);
+          // Debug grants are persisted commands (shared/src/commandState.ts): they reach disk before the reply, so
+          // this fixture can no longer be "newer than its save". The shutdown flush of ordinary unsaved progress is
+          // covered by server/test/shutdownFailures.test.ts; here we prove the command path wrote it.
+          check('debug grant is already on disk (persisted command)', prior.gold === shutdownSave.gold);
         }
       } catch (err) { check('shutdown fixture setup succeeds', false, String(err)); }
     }

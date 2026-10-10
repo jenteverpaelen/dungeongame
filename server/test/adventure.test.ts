@@ -2,6 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createCharacter} from '../../shared/src/character';
 import {computeStats} from '../../shared/src/stats';
+import {xpToNext} from '../../shared/src/progression';
+import {storyXp} from '../../shared/src/storyBudget';
 import {Instance} from '../src/sim/instance';
 import {killMob} from '../src/sim/kills';
 import {damagePlayer} from '../src/sim/damage';
@@ -10,6 +12,8 @@ import {normalizeSave,saveCharacter,loadCharacter,flushSaves} from '../src/persi
 import type {Session} from '../src/net/session';
 import type {World} from '../src/world';
 import type {ClassId} from '../../shared/src/types';
+/** The level a character starting at level 1 with no XP is at after receiving `xp`. */
+const levelReachedBy=(xp:number)=>{let level=1,left=xp;while(left>=xpToNext(level)){left-=xpToNext(level);level++;}return level;};
 
 function fixture(cls:ClassId='warrior') {
   const save=createCharacter(`Rillwake${cls}`,cls,1);
@@ -39,7 +43,7 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: actual quest
     f.at(3340,665);assert.equal(f.cmd('inspect','ledger').ok,false,'mill wall');
     f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);
     const reward=structuredClone(f.save.rillwake!.reward!);
-    assert.equal(reward.ilvl,3,'the weapon is generated for the level the XP of this reward reaches (storyXp(1,3)), not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
+    assert.equal(reward.ilvl,levelReachedBy(storyXp(1,3)),'the weapon is generated for the level the XP of this reward reaches (storyXp(1,3)), not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
     assert.equal(f.cmd('inspect','ledger').ok,true);assert.deepEqual(f.save.rillwake!.reward,reward,'repeat inspection cannot reroll');
     f.near('tender');f.save.inventory.fill({...reward,id:'bag-fixture'});const before=JSON.stringify(f.save);
     assert.equal(f.cmd('claim').ok,false);assert.equal(JSON.stringify(f.save),before,'full bag loses nothing');

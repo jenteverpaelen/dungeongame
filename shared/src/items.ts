@@ -352,8 +352,9 @@ export function rollRarity(rng: Rng, ctx: DropContext): Rarity {
   const lvl = ctx.level;
   const diff = ctx.difficulty;
   let legendary = 0.012 * (1 + 0.3 * diff) * (ctx.inRift ? 1.4 : 1) * (1 + ctx.magicFind / 100);
-  if (ctx.elite === 4) legendary = 0.35;
-  if (ctx.elite === 5) legendary = 0.25;
+  // Guardians always end up with a Legendary (see rollDrops); goblins are a jackpot, not a loot machine.
+  if (ctx.elite === 4) legendary = 0.2;
+  if (ctx.elite === 5) legendary = 0.12;
   if (ctx.pity >= PITY_THRESHOLD) legendary = 1;
   if (rng.chance(legendary)) return rng.chance(0.25) ? 'set' : 'legendary';
   const normalW = Math.max(8, 48 - lvl * 0.6 - diff * 4);
@@ -365,6 +366,10 @@ export function rollRarity(rng: Rng, ctx: DropContext): Rarity {
 export const NORMAL_GOLD_DROP_CHANCE = 0.22;
 /** Owner requested fewer all-equipment drops; non-equipment budgets are unchanged. */
 export const EQUIPMENT_DROP_SCALE = 2 / 3;
+/** Further factor for ordinary, champion, rare and minion kills only ("too many drops", owner 2026-10-10). Boss and
+ *  treasure-goblin batches are rewards for effort and keep `EQUIPMENT_DROP_SCALE`. Calibrated against items per hour
+ *  of a levelling bot (docs/rework/BALANCE.md): 2/3 × 1/6 = 1/9 of the original per-kill rate. */
+export const FIELD_DROP_FACTOR = 1 / 6;
 export const baseGoldAmount = (level:number) => (4 + level * 2.5) * Math.pow(1.06, level);
 export function goldAmount(rng: Rng, level: number, goldFind: number): number {
   return Math.max(1, Math.round(baseGoldAmount(level) * rng.range(0.6, 1.4) * (1 + goldFind / 100)));
@@ -381,10 +386,10 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number, equipmen
       case 2: return rng.int(2, 3);
       case 3: return rng.chance(0.15) ? 1 : 0;
       case 4: return rng.int(5, 7);
-      case 5: return rng.int(5, 9);
+      case 5: return rng.int(3, 5);
     }
   })();
-  const scaledCount = originalCount * Math.max(0, Math.min(1, equipmentScale));
+  const scaledCount = originalCount * Math.max(0, Math.min(1, equipmentScale * (ctx.elite >= 4 ? 1 : FIELD_DROP_FACTOR)));
   const itemCount = Math.floor(scaledCount) + (scaledCount % 1 > 0 && rng.chance(scaledCount % 1) ? 1 : 0);
   for (let i = 0; i < itemCount; i++) {
     const rarity = rollRarity(rng, { ...ctx, pity });

@@ -1,5 +1,10 @@
 # Measured pacing — how fast the shipped rules level (2026-10-10)
 
+> **Superseded in part (2026-10-10):** the numbers below describe the build *before* the balance pass. The owner found
+> it levelled "insanely fast"; see [BALANCE.md](BALANCE.md) for the root causes, the new defaults (`XP_MULT` 1, kill XP
+> ×0.2, story XP ×0.5, level toughness, field drops) and the re-measured pace. This file stays as the "before".
+
+
 Answers roadmap decision D-02 with *data* instead of the old "~40–60 hours" guess. Reproduce with:
 
 ```

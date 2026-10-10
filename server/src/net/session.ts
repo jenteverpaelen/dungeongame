@@ -197,8 +197,8 @@ export class Session implements PlayerLink {
 
   /** Playtest telemetry: compare this second's character with the last one and log what changed. */
   private observe(now: number): void {
-    const telemetry = this.world.telemetry;
-    if (!telemetry.enabled || this.state !== 'ready') return;
+    const telemetry = this.world?.telemetry;
+    if (!telemetry?.enabled || this.state !== 'ready') return;
     const playMs = this.save.stats.playMs + (this.playMark ? now - this.playMark : 0);
     const next = observe(this.save, this.rec?.inst.map.zone ?? '', playMs);
     telemetry.logAll(diffEvents(this.seen, next, this.charId));

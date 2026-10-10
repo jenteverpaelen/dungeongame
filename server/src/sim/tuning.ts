@@ -24,7 +24,7 @@ export const FURY_DECAY_DELAY_MS = 4000;
 /** Champion / rare / goblin chances per pack (fields + rifts). */
 export const CHAMPION_CHANCE = 0.18;
 export const RARE_CHANCE = 0.1;
-export const GOBLIN_FIELD_CHANCE = 0.02;
+export const GOBLIN_FIELD_CHANCE = 0.012;
 export const GOBLIN_RIFT_CHANCE = 0.25;
 /** Treasure goblins: escape this long after first noticing a player. */
 export const GOBLIN_ESCAPE_MS = 25000;
@@ -37,6 +37,45 @@ export const ELITE_TOUGHNESS = 2.5;
 export const ELITE_TOUGHNESS_FULL_LEVEL = 15;
 export function eliteToughness(level: number): number {
   return 1 + (ELITE_TOUGHNESS - 1) * Math.min(1, Math.max(0, level - 1) / (ELITE_TOUGHNESS_FULL_LEVEL - 1));
+}
+
+/** Level toughness: weapon damage and main stats outgrow the base life curve (`monsterHp`, ×1.123 per level) by
+ *  ~×1.2 per level, so an at-level character one-shot every ordinary monster from level ~10 on (measured in
+ *  docs/rework/BALANCE.md). Monster life is multiplied by this per-level factor so that a character wearing
+ *  level-appropriate rares needs about the same time to kill ordinary monsters at every level.
+ *  Anchors are *calibrated*, not designed: `npx tsx server/test/sim.ts calibrate` reproduces them. Re-run after
+ *  any change to item, skill or class scaling. Between anchors the factor is interpolated in log space. */
+export const LEVEL_TOUGHNESS: readonly (readonly [level: number, factor: number])[] = [
+  [1, 1], [3, 1.5], [5, 2.5], [8, 2.5], [10, 5], [13, 8], [15, 9], [18, 12], [20, 15], [25, 30], [30, 40], [35, 55],
+  [40, 80], [45, 120], [50, 150], [60, 250], [70, 350],
+];
+/** Calibration harnesses substitute the factor; production code never touches this. */
+export const tuningOverrides: {
+  levelToughness: ((level: number) => number) | null;
+  levelDamage: ((level: number) => number) | null;
+} = { levelToughness: null, levelDamage: null };
+export function levelToughness(level: number, table = LEVEL_TOUGHNESS): number {
+  if (tuningOverrides.levelToughness) return tuningOverrides.levelToughness(level);
+  return interpolateLog(level, table);
+}
+
+/** Monster damage per hit is multiplied by this per-level factor so that the longer fights `levelToughness` creates do
+ *  not simply multiply the damage a character takes per kill. Calibrated like LEVEL_TOUGHNESS (same harness). */
+export const LEVEL_DAMAGE: readonly (readonly [level: number, factor: number])[] = [[1, 0.4], [5, 0.4], [10, 0.5], [70, 0.5]];
+export function levelDamage(level: number, table = LEVEL_DAMAGE): number {
+  if (tuningOverrides.levelDamage) return tuningOverrides.levelDamage(level);
+  return interpolateLog(level, table);
+}
+export function interpolateLog(level: number, table: readonly (readonly [number, number])[]): number {
+  if (level <= table[0][0]) return table[0][1];
+  for (let i = 1; i < table.length; i++) {
+    const [l1, f1] = table[i];
+    if (level <= l1) {
+      const [l0, f0] = table[i - 1];
+      return Math.exp(Math.log(f0) + (Math.log(f1) - Math.log(f0)) * (level - l0) / (l1 - l0));
+    }
+  }
+  return table[table.length - 1][1];
 }
 
 /** Rifts: number of packs placed (spread over the map) and the fraction of monsters needed for 100%. */

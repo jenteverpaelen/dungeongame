@@ -16,8 +16,13 @@ export function paragonXpToNext(p: number): number {
 
 export const ELITE_XP_MULT = [1, 4, 6, 1.5, 40, 8];
 
+/** Kill XP is scaled by this on top of the designed curve. The shipped curve levelled a bot from 1 to 70 in about
+ *  an hour (and a player in a Master rift +17 levels in five minutes); see docs/rework/BALANCE.md for the
+ *  measurements and the reference points this was set against. Story awards are unaffected (see `storyXp`). */
+export const KILL_XP_SCALE = 0.2;
+
 export function monsterXp(level: number, eliteTier: number, difficulty: number): number {
-  return Math.round((12 * Math.pow(level, 1.7) + 10) * (ELITE_XP_MULT[eliteTier] ?? 1) * (1 + DIFFICULTIES[difficulty].xpBonus / 100));
+  return Math.round(KILL_XP_SCALE * (12 * Math.pow(level, 1.7) + 10) * (ELITE_XP_MULT[eliteTier] ?? 1) * (1 + DIFFICULTIES[difficulty].xpBonus / 100));
 }
 
 /** Base monster life at a level, before monster type, elite and difficulty multipliers. */
