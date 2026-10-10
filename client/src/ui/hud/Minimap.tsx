@@ -9,7 +9,6 @@ import { clamp01, fmtClock, safeGet, safeSet } from './util';
 import { AdventureTracker } from '../panels/adventure';
 import { questMarker, questObjective, questPoint, trackedQuest } from '@shared/quests';
 import { ui, togglePanel } from '../store';
-import { text } from '../../i18n/messages';
 import { questText } from '@shared/data/questMessages';
 
 const SIZE = 440;
@@ -279,9 +278,6 @@ export function TopRight() {
     <div class="hud-topright">
       <ZonePlate />
       <Minimap />
-      <button class="btn" onClick={()=>togglePanel('worldmap')}>{text('map.title')}</button>
-      <button class="btn" onClick={()=>togglePanel('party')}>Party</button>
-      <button class="btn" onClick={()=>togglePanel('social')}>Social</button>
       <RiftBar />
       <AdventureTracker />
     </div>

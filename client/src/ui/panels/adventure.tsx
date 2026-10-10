@@ -18,6 +18,7 @@ import { run } from './util';
 import { QuestDelivery } from './questDelivery';
 import { Bestiary } from './bestiary';
 import { MERCHANTS } from '@shared/merchant';
+import { UiIcon } from '../hud/UiIcons';
 
 export function openJournal() {
   ui.set({adventureTarget:null,adventureZone:null,journalQuest:null});
@@ -147,24 +148,32 @@ function QuestDetails({save,q}:{save:CharacterSave;q:QuestDef}) {
   </>;
 }
 
+/** HUD quest tracker card (top right): title, objective, step progress, area and a track toggle. */
 export function AdventureTracker() {
   const save=useUI(s=>s.char),zone=useUI(s=>s.zone),dungeon=useUI(s=>s.dungeon);
   const lastRun=useUI(s=>s.lastRun);
   if(!save)return null;
-  const q=trackedQuest(save),objective=q&&questObjective(save,q);
+  const q=trackedQuest(save),objective=q&&questObjective(save,q),state=q&&questState(save,q.id);
+  const step=q&&state&&!state.claimed?q.steps[state.step]:undefined,count=step?.count??1,progress=state?.progress??0;
+  const stepIndex=q&&state?Math.min(state.step,q.steps.length):0,total=q?q.steps.length+1:0;
   return <div class="quest-hud interactive">
-    <button class="btn" onClick={openJournal}>{t('quest.journal.title')}</button>
-    {lastRun&&<button class="btn" onClick={()=>togglePanel('runSummary',true)}>{t('run.summary.open')}</button>}
-    {dungeon&&<div class="frame adventure-tracker" title={t('quest.pump.replay')}>
-      <strong>{zone?.name}</strong>
-      <span>{dungeon.phase==='done'?t(ADVENTURES[zone!.zone]?.dungeon?.endTarget?'mid.dungeon.done':'quest.pump.done'):ADVENTURES[zone!.zone]?.interactions.find(i=>i.id===dungeon.target)?.name}</span>
-      {dungeon.phase!=='done'&&<small>{dungeon.phase==='active'?`${t('quest.pump.active')} · ${dungeon.remaining}`:t('quest.pump.ready')}</small>}
+    {dungeon&&<div class="qt-card dungeon" title={t('quest.pump.replay')}>
+      <div class="qt-head"><UiIcon name="obelisk" size={15}/><span>{zone?.name}</span></div>
+      <p class="qt-obj">{dungeon.phase==='done'?t(ADVENTURES[zone!.zone]?.dungeon?.endTarget?'mid.dungeon.done':'quest.pump.done'):ADVENTURES[zone!.zone]?.interactions.find(i=>i.id===dungeon.target)?.name}</p>
+      {dungeon.phase!=='done'&&<small class="qt-area">{dungeon.phase==='active'?`${t('quest.pump.active')} · ${dungeon.remaining}`:t('quest.pump.ready')}</small>}
     </div>}
-    {q&&objective&&<button class="frame adventure-tracker" onClick={()=>{openJournal();ui.set({journalQuest:q.id});}} title={t('quest.journal.open')}>
-      <strong>{t(q.title)}</strong><span>{objective.text}</span>
-      {zone?.zone!==objective.zone&&<small>{ZONES[objective.zone]?.name??objective.zone}</small>}
-    </button>}
-    {q&&<button class="btn sm" onClick={()=>void run('quest',questRequest(q,questState(save,q.id),undefined,'untrack'))}>Untrack quest</button>}
-    {!q&&<small>No quest tracked. Choose Track in your journal.</small>}
+    {q&&objective?<div class="qt-card">
+      <div class="qt-head">
+        <UiIcon name="quest" size={15}/><span>Tracked quest</span>
+        <button class="qt-toggle" title="Stop tracking this quest" aria-label="Stop tracking this quest" onClick={()=>void run('quest',questRequest(q,questState(save,q.id),undefined,'untrack'))}><UiIcon name="pinOff" size={15}/></button>
+      </div>
+      <button class="qt-body" onClick={()=>{openJournal();ui.set({journalQuest:q.id});}} title={t('quest.journal.open')}>
+        <strong>{t(q.title)}</strong>
+        <span class="qt-obj">{objective.text}</span>
+        {count>1&&<span class="qt-bar" aria-label={`${progress} of ${count}`}><i style={{width:`${Math.min(100,progress/count*100)}%`}}/></span>}
+        <span class="qt-meta">{state?<span>Step {Math.min(stepIndex+1,total)} of {total}</span>:<span>Not started</span>}{zone?.zone!==objective.zone&&<span class="qt-area">· {ZONES[objective.zone]?.name??objective.zone}</span>}</span>
+      </button>
+    </div>:<button class="qt-card empty" onClick={openJournal}><UiIcon name="pin" size={15}/><span>No quest tracked — open the Journal to track one.</span></button>}
+    {lastRun&&<button class="btn sm qt-run" onClick={()=>togglePanel('runSummary',true)}>{t('run.summary.open')}</button>}
   </div>;
 }
