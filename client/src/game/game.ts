@@ -97,6 +97,7 @@ export class Game {
   async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
     ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+    await this.accountReady;
     const conn = await this.openConnection();
     if (!conn) {
       ui.set({ screen: 'select', error: 'Could not reach the game server' });
@@ -142,13 +143,20 @@ export class Game {
     return { ok: reply.ok, err: reply.err };
   }
 
+  /** Resolves once the account mode is known and a stored session was tried; `start()` waits for it so a login
+   *  started right at page load (autostart, a fast click) never races the resume request. */
+  private accountReady: Promise<void> = Promise.resolve();
+
   /** At startup: read the server's mode and, when accounts exist and a session token is stored, resume it. */
-  async initAccount(): Promise<void> {
-    const mode = await fetchAccountMode();
-    ui.set((s) => ({ account: { ...s.account, mode, open: mode === 'required' && !s.account.username } }));
-    if (mode === 'off' || ui.get().account.username || !loadToken()) return;
-    await this.auth('resume');
-    ui.set((s) => ({ account: { ...s.account, open: s.account.mode === 'required' && !s.account.username } }));
+  initAccount(): Promise<void> {
+    this.accountReady = (async () => {
+      const mode = await fetchAccountMode();
+      ui.set((s) => ({ account: { ...s.account, mode, open: mode === 'required' && !s.account.username } }));
+      if (mode === 'off' || ui.get().account.username || !loadToken()) return;
+      await this.auth('resume');
+      ui.set((s) => ({ account: { ...s.account, open: s.account.mode === 'required' && !s.account.username } }));
+    })();
+    return this.accountReady;
   }
 
   // ─────────────────────────── Messages ───────────────────────────
