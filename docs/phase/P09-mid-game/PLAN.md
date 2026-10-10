@@ -22,3 +22,5 @@ C099 Cube pacing and D-16 complete for the authored route; WORKSHOP-REPORT/CUBE-
 
 
 C100 regional families complete; REGIONAL-FAMILIES-REPORT records original art, retained content and corrected dynamic field difficulty. Next per-band combat/stall evidence, then P10 party identity. Six focused cases/type/build/local1080p passed; do not redo without a new finding.
+
+C101 completes the solo per-band combat/stall evidence deliverable:297 seeded encounters, zero120s timeouts, class/gear sensitivity explicitly unaccepted. P9 remaining dependency is real party identity/2–4 checks plus human G7; P10 implementation begins next. Do not repeat solo fixtures without a new change or question.
