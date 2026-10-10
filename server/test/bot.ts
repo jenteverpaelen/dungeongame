@@ -111,6 +111,7 @@ class Bot {
   seq = 0;
   private nextCmd = 1;
   lastCommandId = 0;
+  private requestStamps=new Map<number,import('../../shared/src/commandState').CommandRequest>();
   private pending = new Map<number, (r: Res) => void>();
   welcomeAt = 0;
 
@@ -222,7 +223,10 @@ class Bot {
       this.lastCommandId = id;
       const timer = setTimeout(() => { this.pending.delete(id); resolve({ ok: false, err: 'TIMEOUT' }); }, timeoutMs);
       this.pending.set(id, (r) => { clearTimeout(timer); resolve(r); });
-      this.send({ t: 'cmd', id, op: op as CmdOp, a });
+      const state=this.char?.commands;
+      if(state&&!this.requestStamps.has(id))this.requestStamps.set(id,{epoch:state.epoch,sequence:state.sequence,token:id.toString(16).padStart(32,'0')});
+      this.send({ t: 'cmd', id, op: op as CmdOp, a, r:this.requestStamps.get(id) });
+      while(this.requestStamps.size>480)this.requestStamps.delete(this.requestStamps.keys().next().value!);
     });
   }
 

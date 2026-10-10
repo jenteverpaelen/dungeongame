@@ -15,7 +15,11 @@ function canonical(value: unknown): string {
   throw new Error('Command arguments must contain finite JSON values');
 }
 
-/** Connection-local only. No receipt survives reconnect or makes a save durable. */
+export function commandFingerprint(op:unknown,args:unknown):string {
+  return createHash('sha256').update(canonical([op,args])).digest('hex');
+}
+
+/** Connection-local transport/failure history. Saved mutation receipts live in CharacterSave.commands. */
 export class CommandReceipts {
   private highWater = 0;
   private receipts = new Map<number, Receipt>();
@@ -25,7 +29,7 @@ export class CommandReceipts {
     const fail = (err: string): Reply => ({ t: 'res', id, ok: false, err });
     if (!Number.isSafeInteger(id) || id <= 0) return fail('Invalid command ID');
     let fingerprint: string;
-    try { fingerprint = createHash('sha256').update(canonical([op, args])).digest('hex'); }
+    try { fingerprint = commandFingerprint(op,args); }
     catch { return fail('Invalid command arguments'); }
     const previous = this.receipts.get(id);
     if (previous) return previous.fingerprint === fingerprint

@@ -22,7 +22,7 @@ export class JsonCharacterStore implements CharacterStore {
   async write(id: string, json: string): Promise<void> {
     const file = this.file(id), tmp = `${file}.${process.pid}.${++this.tmpCounter}.tmp`;
     try {
-      await fsp.writeFile(tmp, json);
+      await fsp.writeFile(tmp, json, { flush: true });
       await fsp.rename(tmp, file);
     } catch (error) {
       await fsp.rm(tmp, { force: true }).catch(() => undefined);

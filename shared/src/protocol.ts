@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 13;
+export const PROTOCOL_VERSION = 14;
 // Existing transport budgets, shared with the connection-local receipt window.
 export const MAX_MESSAGE_BYTES = 64 * 1024;
 export const MAX_MESSAGES_PER_SECOND = 60;
@@ -200,6 +200,6 @@ export type C2S =
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
   // Reusing an ID means retrying that request, not performing another action.
-  | { t: 'cmd'; id: number; op: CmdOp; a?: Record<string, unknown> }
+  | { t: 'cmd'; id: number; op: CmdOp; a?: Record<string, unknown>; r?: import('./commandState').CommandRequest }
   | { t: 'chat'; text: string }
   | { t: 'ping'; c: number };

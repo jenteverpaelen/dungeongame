@@ -56,8 +56,9 @@ test('real child shutdown reports failed storage, exits nonzero and never claims
     // the real atomic rename fail on Windows and POSIX without permission hacks.
     await fs.rename(file, file + '.previous');
     await fs.mkdir(file);
-    ws.send(codec.pack({ t: 'cmd', id: 1, op: 'debug', a: { op: 'gold', n: 1234 } }));
-    await until(() => messages.some(m => m.t === 'res' && m.id === 1 && m.ok));
+    const welcome=messages.find(m=>m.t==='welcome') as Extract<S2C,{t:'welcome'}>;
+    ws.send(codec.pack({ t: 'cmd', id: 1, op: 'debug', a: { op: 'gold', n: 1234 },r:{epoch:welcome.char.commands!.epoch,sequence:welcome.char.commands!.sequence,token:'1'.repeat(32)} }));
+    await until(() => messages.some(m => m.t === 'res' && m.id === 1 && !m.ok));
     await new Promise<void>((resolve, reject) => child.send('hearthfall:shutdown', err => err ? reject(err) : resolve()));
     const code = await closed;
     assert.equal(code, 1);

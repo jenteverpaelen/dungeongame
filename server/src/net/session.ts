@@ -20,6 +20,8 @@ import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
 import { decode, encode } from './codec';
 import { CommandReceipts } from './commandReceipts';
+import { isPersistedCommand, validCommandState } from '../../../shared/src/commandState';
+import { initializeCommandState, persistedCommand } from './persistedCommands';
 
 /** Messages accepted per second per connection; the rest are dropped. */
 export const MAX_MSGS_PER_SEC = MAX_MESSAGES_PER_SECOND;
@@ -75,6 +77,7 @@ export class Session implements PlayerLink {
   private playMark = 0;
   private kicking = false;
   private commandReceipts = new CommandReceipts();
+  private commandSave:Promise<void>|null=null;
 
   constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
     this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, HELLO_TIMEOUT_MS);
@@ -120,14 +123,14 @@ export class Session implements PlayerLink {
   }
 
   private scheduleChar(): void {
-    if (this.charTimer || this.state !== 'ready') return;
+    if (this.charTimer || this.commandSave || this.state !== 'ready') return;
     const wait = Math.max(0, CHAR_THROTTLE_MS - (Date.now() - this.lastCharAt));
     this.charTimer = setTimeout(() => { this.charTimer = null; this.flushChar(); }, wait);
   }
 
   /** Send the pending `char` message now (commands do this before their `res`). */
   flushChar(): void {
-    if (!this.charDirty || this.state !== 'ready') return;
+    if (!this.charDirty || this.commandSave || this.state !== 'ready') return;
     if (this.hold) { this.scheduleChar(); return; }
     if (this.save.level !== this.derivedLevel) this.recompute();
     this.charDirty = false;
@@ -154,12 +157,7 @@ export class Session implements PlayerLink {
   /** Write the character to disk (asynchronously, in order). */
   saveNow(): void {
     if (!this.save) return;
-    const now = Date.now();
-    if (this.playMark) this.save.stats.playMs += now - this.playMark;
-    this.playMark = now;
-    this.persistDirty = false;
-    this.lastSaveAt = now;
-    void saveCharacter(this.save).then(() => {
+    void this.captureSave().then(() => {
       if (this.saveWarning && this.state === 'ready') this.send({ t: 'chat', ch: 'system', text: 'Saving is working again.' });
       this.saveWarning = false;
     }, () => {
@@ -171,9 +169,18 @@ export class Session implements PlayerLink {
     });
   }
 
+  private async captureSave():Promise<void> {
+    const now = Date.now();
+    if (this.playMark) this.save.stats.playMs += now - this.playMark;
+    this.playMark = now;
+    this.persistDirty = false;
+    this.lastSaveAt = now;
+    await saveCharacter(this.save);
+  }
+
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
-    if (this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
+    if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
   }
 
   /** Ping the client; terminate when it did not answer the previous ping. */
@@ -240,13 +247,23 @@ export class Session implements PlayerLink {
     const id = msg.id;
     if (typeof id !== 'number' || !Number.isFinite(id)) return;
     const args = msg.a === undefined ? {} : msg.a;
-    const res = this.commandReceipts.execute(id, msg.op, args, () => {
+    const res = this.commandReceipts.execute(id, msg.op, {args,request:msg.r??null}, () => {
       let r: CmdResult;
       if (typeof msg.op !== 'string' || !isRecord(args)) {
         r = fail('Bad command');
       } else {
         try {
-          r = runCommand(this, this.world, msg.op as CmdOp, args);
+          const execute=()=>runCommand(this,this.world,msg.op as CmdOp,args);
+          if(isPersistedCommand(msg.op)){
+            const result=persistedCommand(this,msg.r,msg.op,args,execute,()=>!this.commandSave);
+            r=result.result;
+            if(result.fresh){
+              this.markDirty();
+              const saving=this.captureSave();this.commandSave=saving;
+              void saving.then(()=>{if(this.commandSave===saving)this.commandSave=null;this.saveWarning=false;},
+                ()=>{if(this.commandSave===saving)this.commandSave=null;this.persistDirty=true;this.saveWarning=true;});
+            }
+          }else r=execute();
         } catch (err) {
           console.error(`[session] command ${msg.op} failed for ${this.name}:`, err);
           r = fail('Server error');
@@ -257,9 +274,15 @@ export class Session implements PlayerLink {
       if (r.data !== undefined) reply.data = r.data;
       return reply;
     });
-    // The client updates its character from `char`; deliver it before the response.
-    if (this.state === 'ready') this.flushChar();
-    this.send(res);
+    const publish=()=>{if(this.state==='ready'){this.flushChar();this.send(res);}};
+    const saving=this.commandSave;
+    if(saving){
+      void saving.then(publish,()=>{
+        if(this.state!=='ready')return;
+        this.send({t:'res',id,ok:false,err:'The result could not be confirmed on disk. Reconnect to recover the saved state before trying again.'});
+        this.kick('Saving failed; reconnect to recover your character.');
+      });
+    }else publish();
   }
 
   private onChat(raw: unknown): void {
@@ -322,6 +345,12 @@ export class Session implements PlayerLink {
     const afk = isNew ? null : applyAfkGains(save, now);
 
     this.save = save;
+    initializeCommandState(save);
+    if(validCommandState(save.commands))this.pendingEnchant=save.commands.pendingEnchant?structuredClone(save.commands.pendingEnchant):null;
+    try{await saveCharacter(save);}catch{
+      this.kick('Your character could not be saved. Login rewards have not been confirmed; please retry when saving is available.');return;
+    }
+    if(this.isClosed)return;
     this.recompute();
     this.playMark = now;
     this.state = 'ready';

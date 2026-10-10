@@ -9,3 +9,5 @@ C091 was pushed in1e9b590. C092 adds complete early vendor stock loop; see phase
 C093: resource history implemented with checks/report in phase/P08-economy/HISTORY-REPORT.md. Read CODEX_WORKING_SET.md for the small active scope. Continue P8 durable-command safeguards/distributions, not a full replay. Save10/protocol13; economy policy decisions are explicit and no content was deleted.
 
 C093 test server restarted after protocol13 update: owned session36066 on2567 with fresh disposable synthetic FrontierC091 data; previous44374 stopped. Vite47406 stays on5173. Preview tabs closed and viewport reset. No owner saves accessed.
+
+C094 transaction boundary implemented (save11/protocol14); see CODEX_WORKING_SET.md and P08 TRANSACTION-REPORT.md for focused evidence/limits. C095 owner policy: savings allowed, prevent exploit loops, no cap. Proceed to distributions and later roadmap; no need for a full replay. Old owned server36066 still needs protocol14 restart before another live preview. Browser preview closed/viewport reset.

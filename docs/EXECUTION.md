@@ -14,7 +14,7 @@ Owner direction, 2026-10-09: continue the whole Claude roadmap; a saved checkpoi
 | P5 Quests/dialogue | Four authored quests, branching dialogue, world map and eight objective kinds through C079; phase partial | Broader rewards, party/repeat rules and durable recovery remain open |
 | P6 Onboarding | Optional contextual hints/Help library added (C073), based on earned-action observations; no full tutorial | P5, broader error flows, reference footage and unfamiliar-player evidence |
 | P7 Early world | Rillwake, Bracken Sluice and first private objective dungeon; Reedclaw, Siltusk and authored ambience through C083; phase partial | Further monster variety, production art/ambience, human pacing, party dungeons and field-load evidence remain open |
-| P8 Economy | Not implemented | Sources/sinks, persistence and anti-dupe evidence |
+| P8 Economy | C090–C094 vendor loop, provenance, currency decisions, saved resource dashboard and persisted commands implemented | C095 distributions/report; human economy/soak/independent acceptance remains |
 | P9 Mid game | Not implemented | Verified early-game content and build progression |
 | P10 Social | Not implemented | Account identity, privacy, party rules and moderation |
 | P11 Itemization | Existing system preserved | Balance/loot research and save compatibility |
@@ -141,3 +141,5 @@ C091 delivers the P7 implementation inventory through level20: six authored area
 C092 completes early-game vendor buying/selling/buyback. Four contacts/ten normal templates per class; source flag prevents bought stock salvage. Save9/protocol12;19 distinct focused tests/type/content/build and1080p gallery pass, affordability model recorded. P8 remaining source/sink decisions, dashboards/durable boundary and acceptance continue; see phase/P08-economy/STOCK-REPORT.md.
 
 C093 implements bounded actual-resource history and explicit economy-v1 choices;19 distinct focused checks/typecheck/build and two inspected1080p presentation views. Save10/protocol13. Continue P8 production transaction safety and distributions; do not restart completed chapters. Current working navigation: CODEX_WORKING_SET.md.
+
+C094 saved command boundary is implemented and checked; TRANSACTION-REPORT.md records guarantees/limits. Owner allows savings and rejects a hard wallet cap (L115/D053). Continue C095 economy distributions, then the remaining roadmap; do not stop after checkpoints.

@@ -1,2 +1,2 @@
-/** v10 adds optional bounded resource summaries; existing wealth is never backfilled as income. */
-export const SAVE_VERSION = 10;
+/** v11 saves command identity/results and paid pending enchant choices with character mutations. */
+export const SAVE_VERSION = 11;

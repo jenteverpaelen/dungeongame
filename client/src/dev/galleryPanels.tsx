@@ -194,7 +194,7 @@ const find = (id: string): Item | null => char.inventory.find((i) => i?.id === i
 const fail = (err: string): CmdResult => ({ ok: false, err });
 
 async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResult> {
-  if(op==='merchant')return fail('Presentation fixture only. Trading runs against the local server.');
+  if(op==='merchant'||(qs.has('savedEnchant')&&(op==='enchantRoll'||op==='enchantPick')))return fail('Presentation fixture only. Transactions run against the local server.');
   if(op==='quest')return fail('Presentation fixture only. Quest commands are checked against the local server.');
   await new Promise((r) => setTimeout(r, 120));
   const id = a.itemId as string;
@@ -410,7 +410,7 @@ function Gallery() {
       {s === 'tips' && <TipsSheet />}
       {s === 'icons' && <IconsSheet />}
       {s === 'delivery' && <DeliverySheet />}
-      {(s === 'adventure'||s==='merchant'||s==='character') && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
+      {(s === 'adventure'||s==='merchant'||s==='character'||qs.has('savedEnchant')) && <div style={{position:'fixed',bottom:8,left:8,color:'#ffdb83',zIndex:1000}}>Presentation fixture · no server or saved character</div>}
       {qs.has('hud') && <HudRoot />}
       <PanelsRoot />
     </>
@@ -461,6 +461,12 @@ const cubeFn = qs.get('cube');
 if (cubeFn) cubeUI.set({ fn: cubeFn as never });
 const itemIdx = qs.get('item');
 if (itemIdx !== null) cubeUI.set({ itemId: ui.get().char!.inventory[Number(itemIdx)]?.id ?? null });
+if(qs.has('savedEnchant')){
+  const item=char.inventory.find(i=>i&&i.rarity!=='normal'&&i.affixes.length)!;
+  const epoch='00000000-0000-4000-8000-000000000001';
+  char.commands={revision:1,epoch,sequence:0,pendingEnchant:{itemId:item.id,affix:0,options:[{...item.affixes[0]},{...item.affixes[0],value:item.affixes[0].max}]}};
+  ui.set({char,artisan:'mystic',enchant:null,interact:{name:'Mystic · Presentation fixture',role:'mystic'}});cubeUI.set({fn:'enchant',itemId:null,affix:null});
+}
 
 render(<Gallery />, document.getElementById('ui')!);
 

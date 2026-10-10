@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { itemProtectionReason } from '@shared/itemProtection';
 import { VENDOR_SALVAGE_REASON } from '@shared/merchant';
+import { validCommandState } from '@shared/commandState';
 import {
   CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, UPGRADE_CHANCE, canAfford, canEnchantAffix, cubeXpToNext, enchantCost, extractCost, fuseCost,
   gemName, gemRemoveCost, maxSockets, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost,
@@ -161,7 +162,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
 
 function EnchantView({ item, char }: { item: Item | null; char: CharacterSave }) {
   const affix = useLocal(cubeUI, (s) => s.affix);
-  const pending = useU((s) => s.enchant);
+  const pending = useU((s) => s.enchant??(validCommandState(s.char?.commands)?s.char!.commands!.pendingEnchant:null)??null);
   if (!item) return <Hint>Place a Magic, Rare, Legendary or Set item to reroll one of its properties.</Hint>;
   if (item.rarity === 'normal') return <Hint>Normal items have no properties to enchant.</Hint>;
   if (pending && pending.itemId === item.id) return <EnchantChoice item={item} pending={pending} />;
@@ -458,7 +459,8 @@ export function CubePanel() {
   const available = ARTISAN_FUNCTIONS[artisan];
   const { fn, itemId, busy, affix, result } = useLocal(cubeUI, (s) => s);
   useEffect(() => { if (!available.includes(fn)) cubeUI.set({ fn: available[0], affix: null }); }, [artisan, fn]);
-  const pending = useU((s) => s.enchant);
+  const pending = useU((s) => s.enchant??(validCommandState(s.char?.commands)?s.char!.commands!.pendingEnchant:null)??null);
+  useEffect(()=>{if(artisan==='mystic'&&pending&&!itemId&&itemById(char,pending.itemId))cubeUI.set({fn:'enchant',itemId:pending.itemId,affix:pending.affix});},[artisan,pending?.itemId,itemId,char]);
   const [fuseSel, setFuseSel] = useState<string | null>(null);
   const [armed, arm] = useConfirmBtn();
   const lastLevel = useRef<number | null>(null);
