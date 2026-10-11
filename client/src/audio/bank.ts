@@ -356,6 +356,145 @@ export const SOUNDS: Record<string, SoundDef> = {
     ],
   },
 
+  // ── mage M1 (docs/rework/depth/MAGE.md §3 "VFX / icon / sound") ──
+  // Rime Needles: three quick glassy "tsk"s, one per needle of the volley.
+  needles: {
+    gain: 0.24, max: 2, vary: 0.07,
+    layers: [0, 0.034, 0.068].flatMap((at, i): Layer[] => [
+      { p: { freq: 3000, release: 0.03, shape: 4, filter: 2600 + i * 300 }, at, gain: 0.55 },
+      { p: { freq: N(34 + i * 2), attack: 0.001, release: 0.07, shape: 0 }, at, gain: 0.16, exp: 0.022 },
+    ]),
+  },
+  // Glacier Spine: one heavier glassy launch.
+  needle_spine: {
+    gain: 0.3, max: 2, vary: 0.05,
+    layers: [
+      { p: { freq: 2400, release: 0.05, shape: 4, filter: 2000 }, gain: 0.5 },
+      { p: { freq: 900, attack: 0.004, release: 0.16, shape: 0, slide: -2 }, gain: 0.3, exp: 0.06 },
+      ...bell(N(31), 0.01, 0.14, 0.3),
+    ],
+  },
+  // A crystalline ping (Glacier Spine strikes).
+  needle_ping: { gain: 0.24, max: 2, vary: 0.04, layers: [...bell(N(39), 0, 0.3, 0.45), ...bell(N(46), 0.012, 0.18, 0.35)] },
+  // Thrumming Ray: a low hum climbing a whole tone per quarter of resonance; at full resonance a chord (root, fifth,
+  // octave, tenth). One ~0.33 s note per 250 ms channel tick, so consecutive notes overlap into a drone.
+  ...Object.fromEntries([0, 1, 2, 3, 4].map((lv): [string, SoundDef] => {
+    const f = 98 * 2 ** ((lv * 2) / 12);
+    const env = { attack: 0.05, sustain: 0.2, release: 0.09 };
+    const layers: Layer[] = [
+      { p: { freq: f, ...env, shape: 0, tremolo: 0.1 + lv * 0.03, repeat: 0.06 } },
+      { p: { freq: f * 2, ...env, shape: 1 }, gain: 0.16 + lv * 0.04 },
+    ];
+    if (lv >= 2) layers.push({ p: { freq: f * 1.5, ...env, shape: 0 }, gain: 0.1 * (lv - 1) });
+    if (lv >= 4) layers.push({ p: { freq: f * 2.52, ...env, shape: 0 }, gain: 0.16 }, { p: { freq: f * 4, ...env, shape: 0, tremolo: 0.2, repeat: 0.03 }, gain: 0.05 });
+    return [`ray_hum${lv}`, { gain: 0.15 + lv * 0.02, max: 2, vary: 0.005, layers }];
+  })),
+  // The ray catching: a rising shimmer.
+  ray_start: {
+    gain: 0.26, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 196, attack: 0.08, release: 0.2, shape: 0, slide: 3 }, exp: 0.12 },
+      { p: { freq: 1400, attack: 0.05, release: 0.15, shape: 4, filter: 2400 }, gain: 0.12 },
+    ],
+  },
+  // Harmonic: a bright plucked overtone running down the beam.
+  ray_pulse: { gain: 0.22, max: 1, vary: 0.04, layers: [...bell(N(19), 0, 0.3, 0.4), { p: { freq: 330, attack: 0.01, release: 0.25, shape: 0, slide: -2 }, gain: 0.25, exp: 0.1 }] },
+  // Cinderkin: a crackling hiss and tiny "pip" voices as kin climb out of the coals.
+  kin_spawn: {
+    gain: 0.3, max: 1, vary: 0.06,
+    layers: [
+      { p: { freq: 900, attack: 0.02, sustain: 0.18, release: 0.15, shape: 4, filter: 1800, tremolo: 0.7, repeat: 0.021 } },
+      { p: { freq: 1250, attack: 0.004, release: 0.05, shape: 0, slide: 14 }, at: 0.14, gain: 0.3, exp: 0.03 },
+      { p: { freq: 1500, attack: 0.004, release: 0.05, shape: 0, slide: 16 }, at: 0.23, gain: 0.26, exp: 0.03 },
+    ],
+  },
+  // Hearth Bond: two little voices calling.
+  kin_pip: {
+    gain: 0.22, max: 1, vary: 0.06,
+    layers: [
+      { p: { freq: 1300, attack: 0.004, release: 0.06, shape: 0, slide: 12 }, gain: 0.5, exp: 0.035 },
+      { p: { freq: 1100, attack: 0.004, release: 0.06, shape: 0, slide: 10 }, at: 0.09, gain: 0.45, exp: 0.035 },
+      { p: { freq: 700, attack: 0.02, sustain: 0.1, release: 0.12, shape: 4, filter: 1500, tremolo: 0.6, repeat: 0.025 }, gain: 0.3 },
+    ],
+  },
+  // A kin bursts: a pop with a crackle.
+  kin_pop: {
+    gain: 0.4, max: 3, vary: 0.1,
+    layers: [
+      { p: { freq: 170, release: 0.12, shape: 0, slide: -4 }, exp: 0.05 },
+      { p: { freq: 1200, release: 0.07, shape: 4, filter: -2600 }, gain: 0.6 },
+      { p: { freq: 1600, attack: 0.01, sustain: 0.08, release: 0.1, shape: 4, filter: 2200, tremolo: 0.7, repeat: 0.018 }, at: 0.03, gain: 0.25 },
+    ],
+  },
+  // Rimefield: crackling ice spreading, a faint wind chime.
+  rime_spread: {
+    gain: 0.32, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 2600, attack: 0.03, sustain: 0.32, release: 0.3, shape: 4, filter: 2800, tremolo: 0.8, repeat: 0.023 }, gain: 0.5 },
+      { p: { freq: 260, attack: 0.1, sustain: 0.3, release: 0.4, shape: 4, filter: -700 }, gain: 0.3 },
+      ...bell(N(34), 0.16, 0.12, 0.6), ...bell(N(38), 0.34, 0.1, 0.55), ...bell(N(41), 0.52, 0.08, 0.5),
+    ],
+  },
+  rime_chime: { gain: 0.24, max: 1, vary: 0.03, layers: [...bell(N(36), 0, 0.22, 0.5), ...bell(N(40), 0.08, 0.16, 0.45), { p: { freq: 2800, release: 0.08, shape: 4, filter: 2600 }, gain: 0.12 }] },
+  // Stormglass Orb: a buzzing hum (re-struck while the orb flies), sharp zaps, a glass shatter.
+  glass_hum: {
+    gain: 0.12, max: 2, vary: 0.04,
+    layers: [
+      { p: { freq: 120, attack: 0.06, sustain: 0.42, release: 0.16, shape: 2, filter: -900, tremolo: 0.45, repeat: 0.0167 } },
+      { p: { freq: 241, attack: 0.06, sustain: 0.42, release: 0.16, shape: 0, tremolo: 0.3, repeat: 0.04 }, gain: 0.35 },
+    ],
+  },
+  glass_zap: {
+    gain: 0.22, max: 3, vary: 0.14,
+    layers: [
+      { p: { freq: 1500, release: 0.05, shape: 4, filter: 1600 }, gain: 0.7 },
+      { p: { freq: 2400, release: 0.06, shape: 0, slide: -30 }, gain: 0.3, exp: 0.025 },
+    ],
+  },
+  glass_shatter: {
+    gain: 0.46, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 3200, release: 0.12, shape: 4, filter: 2400 }, gain: 0.5, exp: 0.05 },
+      { p: { freq: 90, release: 0.25, shape: 0, slide: -1 }, gain: 0.45, exp: 0.08 },
+      ...bell(N(36), 0, 0.2, 0.35), ...bell(N(41), 0.02, 0.15, 0.3), ...bell(N(44), 0.05, 0.12, 0.28), ...bell(N(48), 0.08, 0.08, 0.25),
+      { p: { freq: 1200, release: 0.1, shape: 4, tremolo: 0.6, repeat: 0.015, filter: -2400 }, at: 0.02, gain: 0.3, exp: 0.05 },
+    ],
+  },
+  // Orrery: slow mechanical ticking under a choir pad; a soft chime per sphere missile.
+  orrery_tick: {
+    gain: 0.16, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 2200, release: 0.012, shape: 4, filter: 1800 }, gain: 0.6 },
+      { p: { freq: 820, release: 0.03, shape: 1, slide: -3 }, gain: 0.4, exp: 0.012 },
+    ],
+  },
+  orrery_pad: {
+    gain: 0.1, max: 1, vary: 0.01,
+    layers: [A4, N(4), N(7), N(12)].map((freq, i): Layer => ({ p: { freq, attack: 0.5, sustain: 1.1, release: 0.9, shape: i % 2 ? 1 : 0, tremolo: 0.06, repeat: 0.2 + i * 0.03 }, gain: i === 3 ? 0.35 : 0.8 - i * 0.12 })),
+  },
+  orrery_chime: { gain: 0.2, max: 2, vary: 0.05, layers: bell(N(24), 0, 0.3, 0.4) },
+  orrery_unfold: {
+    gain: 0.34, max: 1, vary: 0.03,
+    layers: [
+      { p: { freq: 1800, release: 0.02, shape: 4, filter: 1600, repeat: 0.045 }, gain: 0.3 },
+      { p: { freq: 330, attack: 0.08, release: 0.35, shape: 0, slide: 1.5 }, gain: 0.4, exp: 0.2 },
+      ...bell(N(12), 0.12, 0.2, 0.7), ...bell(N(19), 0.22, 0.16, 0.6),
+    ],
+  },
+  eclipse: {
+    gain: 0.4, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 70, attack: 0.02, release: 0.5, shape: 0, slide: -0.6 }, exp: 0.2 },
+      { p: { freq: 1800, attack: 0.03, sustain: 0.15, release: 0.25, shape: 4, filter: 2000, tremolo: 0.5, repeat: 0.03 }, gain: 0.2 },
+      ...bell(N(31), 0.02, 0.18, 0.5),
+    ],
+  },
+  // Meteor · Lodestone: a low pull winding down; Fallen Star crater: a hum of drawn-in light.
+  lodestone: { gain: 0.3, max: 1, vary: 0.04, layers: [{ p: { freq: 130, attack: 0.1, sustain: 0.35, release: 0.2, shape: 1, slide: -0.8, tremolo: 0.4, repeat: 0.07 } }, { p: { freq: 65, attack: 0.15, sustain: 0.3, release: 0.25, shape: 0 }, gain: 0.5 }] },
+  star_crater: { gain: 0.3, max: 1, vary: 0.04, layers: [{ p: { freq: 260, attack: 0.1, sustain: 0.4, release: 0.4, shape: 0, slide: -0.5, tremolo: 0.25, repeat: 0.09 } }, ...bell(N(27), 0.05, 0.15, 0.6)] },
+  // Lantern Garden: a paper rustle and a small bell.
+  lantern: { gain: 0.2, max: 2, vary: 0.06, layers: [{ p: { freq: 1600, attack: 0.02, release: 0.08, shape: 4, filter: 2000 }, gain: 0.4 }, ...bell(N(29), 0.04, 0.25, 0.5)] },
+
   // ── deaths ──
   die: {
     gain: 0.28, max: 3, vary: 0.15,

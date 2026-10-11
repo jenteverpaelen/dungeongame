@@ -11,6 +11,7 @@ import { skillPct } from './playerctx';
 import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './powerActions';
 import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor, type HitTerm } from './powerRuntime';
 import { consumeVulns, scopedVulnerability, weakenFactor } from './status';
+import { mFreeze } from './skills/mageKit';
 import { killPlayer } from './players';
 import { benchHit } from './bench';
 import type { Dot, DotKind, Mob, Player, SkillRuntime, Strike } from './types';
@@ -83,6 +84,7 @@ export function expectedDamage(inst: Instance, p: Player, st: Strike, sink?: Bas
 export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitResult {
   if (m.dead) return NO_HIT;
   const { amount, crit } = rollDamage(inst, p, m, st);
+  if (p.ctx.powers.elementStacks?.generic) elementStacks(inst, p, st.el); // generic-bucket stacks record dealt elements here
   const prevActing = p.acting;
   p.acting = st.skill;
   const killed = hurtMob(inst, m, amount, st.el, p, crit, false, st.src ?? p.id, st.skill);
@@ -157,17 +159,36 @@ function onHitProcs(inst: Instance, p: Player, m: Mob, st: Strike, amount: numbe
       hurtMob(inst, o, splash, st.el, p, false, false, st.src ?? p.id, st.skill);
     }
   }
-  if (st.primary && !killed && !m.dead) primaryHitProcs(inst, p, m);
+  if (!killed && !m.dead) {
+    if (st.primary) primaryHitProcs(inst, p, m, amount, 1);
+    else if (st.src !== undefined && st.src !== p.id && getBuff(p, 'magic_weapon')) {
+      // Bound Glyph (Magic Weapon node): Summon hits trigger its rune effect at a share of the normal rate.
+      const share = modVar(p.ctx.modsOf('magic_weapon').mods, 'weaponSummonProc');
+      if (share > 0) primaryHitProcs(inst, p, m, amount, share / 100);
+    }
+  }
 }
 
-/** Magic Weapon runes: Ignite and Electrify trigger from primary attacks while the buff is up. */
-function primaryHitProcs(inst: Instance, p: Player, m: Mob) {
+/**
+ * Magic Weapon runes: Ignite, Electrify and Chilling Edge trigger from primary attacks while the buff is up. `rate` scales
+ * how often (Bound Glyph: summon hits); Rune Echo (node) and Glyphstone Orb make them trigger more often
+ * (`vars.weaponProc` %). A 100 % effect stays exact at rate 1, so no RNG draw is added for it. Splash Glyph (node):
+ * a chance to splash 50 % of a primary hit onto enemies within 60 units.
+ */
+function primaryHitProcs(inst: Instance, p: Player, m: Mob, amount: number, share: number) {
   if (!getBuff(p, 'magic_weapon')) return;
   const mw = p.ctx.modsOf('magic_weapon');
-  if (mw.flags.has('igniteHits')) {
+  const rate = share * (1 + modVar(mw.mods, 'weaponProc') / 100);
+  if (mw.flags.has('igniteHits') && (rate >= 1 || inst.rng.next() < rate)) {
     addOwnedDot(p, m, makeDot(inst, p, { skill: 'magic_weapon', coef: 1.0, el: 'fire', pct: skillPct(p, mw) }, 'burn', 3000, 500));
   }
-  if (mw.flags.has('electrify') && inst.rng.next() < 0.25) {
+  if (mw.flags.has('weaponFrost') && !m.dead && inst.rng.next() < Math.min(1, 0.15 * rate)) mFreeze(inst, p, m, 500, null);
+  const splash = share === 1 ? modVar(mw.mods, 'weaponSplash') : 0;
+  if (splash > 0 && amount > 0 && inst.rng.next() * 100 < splash) {
+    const part = Math.max(1, Math.round(amount * 0.5));
+    for (const o of inst.queryMobs(m.x, m.y, 60)) if (o !== m && !o.dead) hurtMob(inst, o, part, 'arcane', p, false, false, p.id, 'magic_weapon');
+  }
+  if (mw.flags.has('electrify') && inst.rng.next() < Math.min(1, 0.25 * rate)) {
     let n = 0;
     let fx = m.x, fy = m.y;
     const near = inst.queryMobs(m.x, m.y, 280);

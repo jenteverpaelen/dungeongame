@@ -3,17 +3,21 @@
 import type { GameEvent } from '@shared/protocol';
 import type { VfxCore } from './core';
 import { EL_COLD, EL_FIRE, TAU, clamp, easeIn, lerpColor, pal, rand } from './util';
+import type { MageFx } from './mage';
 
 type Beam = Extract<GameEvent, { e: 'beam' }>;
 
 export class Beams {
   private lastChainSnd = -1;
+  /** Mage M1 beams (stormglass `zap`), injected by Vfx. */
+  mage: MageFx | null = null;
 
   constructor(private V: VfxCore) {}
 
   handle(ev: Beam): void {
     const d = Math.max(0.12, ev.d / 1000);
     switch (ev.v) {
+      case 'zap': if (this.mage) { this.mage.zap(ev); break; } this.lightning(ev.x, ev.y, ev.tx, ev.ty, d, 30, ev.el, false); break;
       case 'vortex': this.tether(ev.x, ev.y, ev.tx, ev.ty, d); break;
       case 'arc': this.lightning(ev.x, ev.y, ev.tx, ev.ty, Math.max(0.16, d), 26, ev.el, true); break;
       case 'splinter': this.splinter(ev.x, ev.y, ev.tx, ev.ty, d, ev.el); break;
@@ -139,7 +143,7 @@ export class Beams {
 }
 
 /** Midpoint-displaced jagged polyline between two points. */
-function jagged(ax: number, ay: number, bx: number, by: number, rough: number): [number, number][] {
+export function jagged(ax: number, ay: number, bx: number, by: number, rough: number): [number, number][] {
   let pts: [number, number][] = [[ax, ay], [bx, by]];
   let amp = Math.hypot(bx - ax, by - ay) * rough;
   const levels = Math.hypot(bx - ax, by - ay) > 160 ? 4 : 3;

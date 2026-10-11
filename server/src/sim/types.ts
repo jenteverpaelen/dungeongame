@@ -245,7 +245,7 @@ export interface MobPowerStatus {
 
 // ─────────────────────────── Summons ───────────────────────────
 
-export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil';
+export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'cinderkin' | 'frostkin' | 'ember_sprite';
 
 export interface Summon extends Hashed {
   kind: 'summon';
@@ -351,6 +351,19 @@ export interface Proj {
   returned?: boolean;
   /** Life it was fired with (range ricochets). */
   life0?: number;
+  /**
+   * Class-module behaviour (mage pilot): `hit` replaces the kind's hit rule (the hook strikes, pierces or ends the
+   * projectile itself), `tick` runs after every movement step of the update, `end` runs once when the projectile ends
+   * for good (a hit, its life, a wall). A bounced continuation carries the same hook object (and its state).
+   */
+  hook?: ProjHook;
+}
+
+/** See `Proj.hook`. `why`: hit = ended by a hit, life = ran out, wall = stopped by a wall without bounces left. */
+export interface ProjHook {
+  hit?(inst: import('./instance').Instance, pr: Proj, p: Player, m: Mob): void;
+  tick?(inst: import('./instance').Instance, pr: Proj, dtMs: number): void;
+  end?(inst: import('./instance').Instance, pr: Proj, why: 'hit' | 'life' | 'wall'): void;
 }
 
 export const PB_SPLIT = 1, PB_DEVOUR = 2, PB_MARK = 4, PB_FREEZE = 8, PB_CHILL = 16, PB_BATTERY = 32, PB_SENTRY4 = 64, PB_NOGRENADE = 128, PB_ROCKETS = 256;

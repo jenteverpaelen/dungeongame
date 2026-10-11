@@ -10,6 +10,7 @@ import { MAGE_SKILLS } from './mage';
 
 export * from './types';
 export { WARRIOR_FX } from './warrior';
+export { MAGE_FX } from './mage';
 
 export const SKILLS: Record<string, SkillDef> = Object.fromEntries(
   [...WARRIOR_SKILLS, ...RANGER_SKILLS, ...MAGE_SKILLS].map((s) => [s.id, s]),
@@ -116,13 +117,17 @@ export function describeNode(node: NodeDef, rank: number): string {
     key.startsWith('var:') ? num(m.vars?.[key.slice(4)]) : num(m[key as (typeof NUMERIC_MOD_KEYS)[number]]));
 }
 
-/** The same bonuses are applied by the server and shown in skill summaries. */
-export function skillBuffBonuses(id: 'battle_rage' | 'magic_weapon', flags: ReadonlySet<string>): { dmg: number; chc?: number; chd?: number } {
+/**
+ * The same bonuses are applied by the server and shown in skill summaries. Magic Weapon (MAGE.md v2): Glyphstone Orb adds
+ * `vars.buffPoints` points, Hollowstar Choir 4 doubles the bonus (`buffDouble`), the Arcane Ward rune halves it.
+ */
+export function skillBuffBonuses(id: 'battle_rage' | 'magic_weapon', flags: ReadonlySet<string>, vars?: Readonly<Record<string, number>>): { dmg: number; chc?: number; chd?: number } {
   if (id === 'battle_rage') return {
     dmg: (flags.has('rageDmg') ? 25 : 10) + (flags.has('rageExtra') ? 5 : 0),
     chc: 3, chd: flags.has('rageChd') ? 25 : 0,
   };
-  return { dmg: (flags.has('forceWeapon') ? 20 : 10) + (flags.has('weaponExtra') ? 5 : 0) };
+  const base = (flags.has('forceWeapon') ? 20 : 10) + (flags.has('weaponExtra') ? 5 : 0) + (vars?.buffPoints ?? 0);
+  return { dmg: base * (flags.has('buffDouble') ? 2 : 1) * (flags.has('weaponWard') ? 0.5 : 1) };
 }
 
 /** Render rune/tier numbers; equipment-specific modifiers require the caller to supply them. */
@@ -130,7 +135,7 @@ export function describeSkill(skill: SkillDef, mods?: SkillMods): string {
   const m = mods ?? {};
   const coef = skill.coef * (1 + (m.dmg ?? 0) / 100);
   const buff = skill.id === 'battle_rage' || skill.id === 'magic_weapon'
-    ? skillBuffBonuses(skill.id, new Set(m.flags ?? [])) : undefined;
+    ? skillBuffBonuses(skill.id, new Set(m.flags ?? []), m.vars) : undefined;
   const element = m.element ?? skill.element;
   return skill.desc
     .replace('{coef}', `${Math.round(coef * 100)}%`)

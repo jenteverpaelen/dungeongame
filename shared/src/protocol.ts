@@ -115,7 +115,7 @@ export type GameEvent =
   | { e: 'cast'; s: number; sk: string; r?: string; x: number; y: number; tx: number; ty: number; rad?: number }
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
   | { e: 'pend'; id: number; x: number; y: number; hit?: 1 }
-  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1 }
+  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1; /** a count (Orrery spheres) */ n?: number }
   | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number; s?: number }
   | { e: 'beam'; v: string; x: number; y: number; tx: number; ty: number; el: number; d: number }
   | { e: 'level'; t: number; lv: number }

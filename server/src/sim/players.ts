@@ -186,7 +186,9 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
         if (at !== undefined && inst.t - at <= es.windowMs) oldest = Math.min(oldest, at);
       }
       const ms = Math.max(0, es.windowMs - (inst.t - oldest));
-      if (b) { b.st = n; b.ms = ms; } else addBuff(p, { id: es.buff, ms, st: n });
+      // Generic-bucket stacks: the buff itself carries the damage (refreshLive counts sdmg × stacks).
+      if (b) { const changed = b.st !== n; b.st = n; b.ms = ms; if (es.generic && changed) refreshLive(p); }
+      else addBuff(p, es.generic ? { id: es.buff, ms, st: n, sdmg: es.perStack } : { id: es.buff, ms, st: n });
     } else if (b) removeBuff(p, es.buff);
   }
 
