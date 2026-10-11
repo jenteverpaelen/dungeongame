@@ -1,3 +1,4 @@
+// PARKED (owner, 2026-10-11): off unless OFFLINE_REWARDS=1 (server/src/config.ts); kept dormant and tested.
 // Idleon-style offline gains (ARCHITECTURE §1.10), v2 (F-MET-02). A character that logged out in a field keeps
 // fighting at AFK_EFFICIENCY of an active kill rate for up to AFK_MAX_HOURS:
 //   * the rate is the character's own measured field kill rate (last session with ≥ RATE_MIN_FIELD_MINUTES in fields),
@@ -11,7 +12,7 @@
 // Deterministic (no randomness; fractions are dropped), capped, per character: nothing an alt does changes another
 // character's gains, and splitting an absence into several logins never earns more than one long absence.
 
-import { XP_MULT } from './config';
+import { OFFLINE_REWARDS, XP_MULT } from './config';
 import { economySnapshot, recordEconomy } from '../../shared/src/economy';
 import { AFK_EFFICIENCY, AFK_MAX_HOURS } from '../../shared/src/constants';
 import { AFK_BAND_KPM } from '../../shared/src/data/afkRates';
@@ -69,7 +70,9 @@ export function salvagePerKill(level: number): { scrap: number; dust: number; cr
  * sent to the client, or null when the character was not AFK-farming a field. Call this once per login, before
  * the save's lastZone / lastSeen are overwritten.
  */
-export function applyAfkGains(save: CharacterSave, now: number): AfkReport | null {
+export function applyAfkGains(save: CharacterSave, now: number, opts: { enabled?: boolean } = {}): AfkReport | null {
+  // Parked by the owner (2026-10-11): nothing is granted unless the feature switch is on (tests pass enabled: true).
+  if (!(opts.enabled ?? OFFLINE_REWARDS)) return null;
   const elapsed = now - save.lastSeen;
   const away = Math.min(elapsed, AFK_MAX_AWAY_MS);
   if (!(away > AFK_MIN_AWAY_MS)) return null;

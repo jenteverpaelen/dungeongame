@@ -5,20 +5,23 @@ import type { CharacterSave } from './types';
  * Stash tabs (F-ECO-08). The stash stays per character (D-24, the approved exception); each tab is the approved 60-slot
  * page and tabs after the first are optional purchases with gold, bought in order.
  *
- * MAX_STASH_TABS = 5 [K, not re-checked]: Diablo III in the Reaper of Souls era sold stash tabs for gold up to five per
- * account, and Diablo IV also sells extra tabs for gold; the exact count is an owner pick (LOG.md, F-ECO-08).
+ * Owner 2026-10-11: recommendations adopted (five tabs, one hour of play per tab, per-character stash for now; changeable).
  *
- * Prices [M → P]: tab k costs one hour of the measured engaged-bot gold income (median of the three classes, gold
- * picked up per hour, docs/rework/partials/bot-metrics/baseline.json) in the level band where the roadmap expects that
- * much storage to matter, rounded to two significant figures:
- *   tab 2 — L10→15 median 168,497/h → 170,000   (the Frontier, where the roadmap introduces the stash)
- *   tab 3 — L20→25 median 1,054,784/h → 1,100,000
- *   tab 4 — L30→35 median 2,363,195/h → 2,400,000
- *   tab 5 — L35→40 median 4,616,796/h → 4,600,000
- * "One hour" is the proposal; escalating gold prices follow Diablo III / Last Epoch [K].
+ * MAX_STASH_TABS = 5 [K, not re-checked]: Diablo III in the Reaper of Souls era sold stash tabs for gold up to five per
+ * account, and Diablo IV also sells extra tabs for gold.
+ *
+ * Prices [M]: tab k costs one hour of the measured engaged-bot gold income (median of the three classes, gold picked up
+ * per hour, docs/rework/partials/bot-metrics/baseline.json, re-recorded after the Warrior pilot) in the level band where
+ * the roadmap expects that much storage to matter, rounded to two significant figures:
+ *   tab 2 — L10→15 median 168,259/h → 170,000   (the Frontier, where the roadmap introduces the stash)
+ *   tab 3 — L20→25 median 634,308/h → 630,000
+ *   tab 4 — L30→35 median 2,135,274/h → 2,100,000
+ *   tab 5 — L35→40 median 3,424,544/h → 3,400,000
+ * Escalating gold prices follow Diablo III / Last Epoch [K]. Prices are fixed constants: a later baseline does not move
+ * them silently.
  */
 export const MAX_STASH_TABS = 5;
-export const STASH_TAB_PRICES: readonly number[] = [0, 170_000, 1_100_000, 2_400_000, 4_600_000];
+export const STASH_TAB_PRICES: readonly number[] = [0, 170_000, 630_000, 2_100_000, 3_400_000];
 
 /** Tabs this character owns (1 … MAX_STASH_TABS). Legacy saves own one. */
 export function stashTabs(save: Pick<CharacterSave, 'stashTabs'>): number {

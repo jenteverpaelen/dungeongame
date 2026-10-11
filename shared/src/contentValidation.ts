@@ -197,7 +197,7 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for(const level of z.levelBand) check(Number.isInteger(level) && level >= 1 && level <= MAX_LEVEL,`${at}.levelBand`,'invalid level');
     for(const [i,size] of z.size.entries()) number(size,`${at}.size[${i}]`,1,true);
     number(z.packTarget,`${at}.packTarget`,0,true); number(z.respawnSec,`${at}.respawnSec`);
-    if(z.kind === 'rift') check(!!data.guardians[z.theme],`${at}.theme`,'missing rift guardian');
+    if(z.kind === 'rift') check(!!data.guardians[z.theme],`${at}.theme`,'missing Faultline Keeper');
   }
   for(const [theme,id] of Object.entries(data.guardians)) {
     check(themes.has(theme as typeof data.zones[string]['theme']),`guardians.${theme}`,'unknown zone theme');

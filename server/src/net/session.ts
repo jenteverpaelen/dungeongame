@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
 import { FieldRateMeter, applyAfkGains } from '../afk';
-import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS } from '../config';
+import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS, OFFLINE_REWARDS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
 import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
@@ -190,7 +190,7 @@ export class Session implements PlayerLink {
     const now = Date.now();
     if (this.playMark) this.save.stats.playMs += now - this.playMark;
     this.playMark = now;
-    this.afkMeter?.record(this.save, now); // optional: tests build sessions from the prototype alone
+    if (OFFLINE_REWARDS) this.afkMeter?.record(this.save, now); // optional: tests build sessions from the prototype alone
     this.persistDirty = false;
     this.lastSaveAt = now;
     await saveCharacter(this.save);
@@ -198,7 +198,7 @@ export class Session implements PlayerLink {
 
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
-    if (this.state === 'ready') this.afkMeter?.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
+    if (OFFLINE_REWARDS && this.state === 'ready') this.afkMeter?.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
     if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
     this.observe(now);
   }
@@ -548,7 +548,7 @@ export class Session implements PlayerLink {
     const isNew = save === null;
     if (!save) save = createCharacter(name, msg.classId, (Math.random() * 0xffffffff) >>> 0);
     if(isNew){if(msg.appearance)save.appearance={...msg.appearance};if(msg.tutorial!==false)startIntro(save);}
-    const afk = isNew ? null : applyAfkGains(save, now);
+    const afk = isNew ? null : applyAfkGains(save, now); // null while offline rewards are parked (OFFLINE_REWARDS)
 
     this.save = save;
     initializeCommandState(save);

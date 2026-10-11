@@ -40,7 +40,7 @@ test('a tab is bought once, in order, at the shown price, and only with enough g
   let before = unchanged();
   assert.equal(buyStashTab(s, 2, 170_000), 'Not enough gold'); assert.equal(unchanged(), before);
   s.gold = 2_000_000; before = unchanged();
-  assert.equal(buyStashTab(s, 3, 1_100_000), 'Buy the tabs in order'); assert.equal(unchanged(), before);
+  assert.equal(buyStashTab(s, 3, 630_000), 'Buy the tabs in order'); assert.equal(unchanged(), before);
   assert.equal(buyStashTab(s, 2, 1), 'The price changed; check it and try again'); assert.equal(unchanged(), before);
   assert.equal(buyStashTab(s, 2, 170_000), null);
   assert.equal(s.gold, 2_000_000 - 170_000); assert.equal(stashTabs(s), 2); assert.equal(s.stash.length, 2 * STASH_SIZE);
@@ -52,7 +52,7 @@ test('a tab is bought once, in order, at the shown price, and only with enough g
 });
 
 test('deposits fill the open tab, then the next ones; moves stay inside owned tabs', () => {
-  const s = hero(1e9); buyStashTab(s, 2, 170_000); buyStashTab(s, 3, 1_100_000);
+  const s = hero(1e9); buyStashTab(s, 2, 170_000); buyStashTab(s, 3, 630_000);
   const a = bagged(s);
   assert.equal(transferStash(s, a.id, true, 1), null);
   assert.equal(s.stash.findIndex(i => i?.id === a.id), STASH_SIZE, 'first slot of tab II');

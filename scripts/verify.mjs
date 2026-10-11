@@ -32,7 +32,7 @@ const stages = [
   ['backup-aux', ['--import', 'tsx', '--test', 'server/test/backupAux.test.ts']],
   ['backup-drill', ['--import', 'tsx', '--test', 'server/test/backupDrill.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
-  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts', 'client/src/game/quality.test.ts', 'client/src/game/gamepad.test.ts']],
+  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts', 'client/src/game/quality.test.ts', 'client/src/game/gamepad.test.ts', 'client/src/game/townProgress.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
   ['offline-gains', ['--import', 'tsx', '--test', 'server/test/afk.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts', 'server/test/stashTabs.test.ts']],
@@ -43,8 +43,12 @@ const stages = [
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
   ['perf-budget', ['--import', 'tsx', 'scripts/perf-budget.ts']],
   ['bot-metrics', ['--import', 'tsx', '--test', 'scripts/bot-metrics.test.ts']],
+  // Owner-approved pace targets per band (F-CMB-08): 120 simulated minutes per class against bot-metrics/targets.json.
+  ['pace-targets', ['--import', 'tsx', 'scripts/bot-metrics.ts', 'check', '120']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
+  // The built client through the real server and its security headers, in headless Chrome (after build).
+  ['served-build', ['scripts/served-build-check.mjs']],
 ];
 const results = [];
 let child;

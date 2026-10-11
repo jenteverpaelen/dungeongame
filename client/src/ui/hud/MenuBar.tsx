@@ -17,7 +17,7 @@ const ENTRIES: Entry[] = [
   { id: 'character', icon: 'character', label: 'Character', panel: 'character', note: 'Statistics, powers and economy' },
   { id: 'inventory', icon: 'bag', label: 'Inventory', panel: 'inventory', action: 'inventory', note: 'Equipment, bag and gems' },
   { id: 'skills', icon: 'skills', label: 'Skills', panel: 'skills', action: 'skills', note: 'Loadout, tiers, runes and passives' },
-  { id: 'paragon', icon: 'paragon', label: 'Paragon', panel: 'paragon', action: 'paragon', note: 'Points earned after level 70' },
+  { id: 'paragon', icon: 'paragon', label: 'Lantern Ranks', panel: 'paragon', action: 'paragon', note: 'Points earned after level 70' },
   { id: 'journal', icon: 'journal', label: 'Journal', panel: 'adventure', action: 'journal', note: 'Quests, records and bestiary' },
   { id: 'map', icon: 'map', label: 'World map', panel: 'worldmap', action: 'map', note: 'Regions, routes and this area' },
   { id: 'social', icon: 'social', label: 'Social', panel: 'social', note: 'Friends, chat channels and privacy' },

@@ -12,13 +12,24 @@ import { Rng } from '../../shared/src/math';
 import type { CharacterSave } from '../../shared/src/types';
 import { FieldRateMeter, LEGACY_KILLS_PER_MINUTE, afkRate, applyAfkGains, bandKillsPerMinute, normalizeAfkRate, salvagePerKill } from '../src/afk';
 import { afkTable, type MetricsReport } from '../../scripts/bot-metrics';
+import { OFFLINE_REWARDS } from '../src/config';
 
 assert.ok(process.env.DATA_DIR, 'Use an isolated DATA_DIR');
 const H = 3_600_000, NOW = 1_800_000_000_000;
+/** Offline rewards are parked (OFFLINE_REWARDS off by default); the dormant code is tested with the switch on. */
+const ON = { enabled: true };
 function hero(level: number, zone = 'ashen_hollow', awayMs = 2 * H): CharacterSave {
   const s = createCharacter(`Away${level}`, 'ranger', level);
   s.level = level; s.lastZone = zone; s.lastSeen = NOW - awayMs; return s;
 }
+
+test('parked by the owner: with the switch off (the default) nothing is granted and the save is untouched', () => {
+  assert.equal(OFFLINE_REWARDS, false, 'off unless OFFLINE_REWARDS=1');
+  const s = hero(30, 'ashen_hollow', 6 * H), before = JSON.stringify(s);
+  assert.equal(applyAfkGains(s, NOW), null);
+  assert.equal(JSON.stringify(s), before);
+  assert.ok(applyAfkGains(hero(30, 'ashen_hollow', 6 * H), NOW, ON), 'the dormant feature still works when switched on');
+});
 
 test('the band table is the committed bot-metrics baseline', () => {
   const base = JSON.parse(fs.readFileSync(new URL('../../docs/rework/partials/bot-metrics/baseline.json', import.meta.url), 'utf8')) as MetricsReport;
@@ -35,7 +46,7 @@ test('own measured rate is used, never above the band median; legacy saves keep 
   assert.deepEqual(afkRate(s), { rate: 31.5, basis: 'own', bandCap: bandKillsPerMinute(20) });
   s.afk.rate = 5000;
   assert.equal(afkRate(s).rate, bandKillsPerMinute(20), 'a burst session cannot exceed the measured band median');
-  const r = applyAfkGains(s, NOW)!;
+  const r = applyAfkGains(s, NOW, ON)!;
   assert.equal(r.kills, Math.floor(120 * bandKillsPerMinute(20) * AFK_EFFICIENCY));
   assert.equal(r.basis, 'own'); assert.equal(r.efficiency, AFK_EFFICIENCY); assert.equal(r.capped, false);
 });
@@ -65,26 +76,26 @@ test('deterministic, capped at the maximum, nothing in town, dungeons or after a
   const realRandom = Math.random;
   Math.random = () => { throw new Error('offline gains must not roll'); };
   try {
-    const a = applyAfkGains(hero(40, 'ashen_hollow', 100 * H), NOW)!, b = applyAfkGains(hero(40, 'ashen_hollow', 100 * H), NOW)!;
+    const a = applyAfkGains(hero(40, 'ashen_hollow', 100 * H), NOW, ON)!, b = applyAfkGains(hero(40, 'ashen_hollow', 100 * H), NOW, ON)!;
     assert.deepEqual(a, b);
     assert.equal(a.ms, AFK_MAX_HOURS * H); assert.equal(a.capped, true);
-    assert.deepEqual(applyAfkGains(hero(40, 'ashen_hollow', AFK_MAX_HOURS * H), NOW)!.kills, a.kills);
+    assert.deepEqual(applyAfkGains(hero(40, 'ashen_hollow', AFK_MAX_HOURS * H), NOW, ON)!.kills, a.kills);
   } finally { Math.random = realRandom; }
-  assert.equal(applyAfkGains(hero(20, 'hearthmere'), NOW), null);
-  assert.equal(applyAfkGains(hero(20, 'reedvault_pumpworks'), NOW), null, 'dungeons do not farm while away');
-  assert.equal(applyAfkGains(hero(20, 'ashen_hollow', 2 * 60_000), NOW), null);
+  assert.equal(applyAfkGains(hero(20, 'hearthmere'), NOW, ON), null);
+  assert.equal(applyAfkGains(hero(20, 'reedvault_pumpworks'), NOW, ON), null, 'dungeons do not farm while away');
+  assert.equal(applyAfkGains(hero(20, 'ashen_hollow', 2 * 60_000), NOW, ON), null);
 });
 
 test('splitting an absence into several logins never earns more than one long absence', () => {
   for (const level of [8, 33, 70]) {
     const whole = hero(level, 'ashen_hollow', 6 * H);
-    const w = applyAfkGains(whole, NOW)!;
+    const w = applyAfkGains(whole, NOW, ON)!;
     const parts = hero(level, 'ashen_hollow', 6 * H);
     const sum = { kills: 0, gold: 0, xp: 0, scrap: 0, dust: 0, crystal: 0 };
     let t = parts.lastSeen;
     for (let i = 0; i < 24; i++) {
       t += 15 * 60_000;
-      const r = applyAfkGains(parts, t)!; parts.lastSeen = t; // log in, log straight out again
+      const r = applyAfkGains(parts, t, ON)!; parts.lastSeen = t; // log in, log straight out again
       sum.kills += r.kills; sum.gold += r.gold; sum.xp += r.xp;
       for (const k of ['scrap', 'dust', 'crystal'] as const) sum[k] += r.mats[k] ?? 0;
     }

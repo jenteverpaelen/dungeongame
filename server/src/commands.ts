@@ -109,7 +109,7 @@ function inInventory(save: CharacterSave, itemId: string): Loc | null {
 function requireCube(save: CharacterSave, op: CubeOp): string | null {
   if (cubeUnlocked(save, op)) return null;
   const f = CUBE_FUNCTIONS.find((c) => c.op === op)!;
-  return `${f.name} unlocks at Cube level ${f.unlock}`;
+  return `${f.name} unlocks at Reliquary level ${f.unlock}`;
 }
 
 /** Why the player cannot pay, or null. */
@@ -466,7 +466,7 @@ const reforge: Handler = (s, a) => {
   if (!loc) return fail('Item not found');
   const item = loc.item;
   if (item.rarity !== 'legendary' && item.rarity !== 'set') return fail('Only Legendary and Set items can be reforged');
-  if (s.pendingEnchant?.itemId === item.id) return fail('Choose your pending enchantment at the Mystic before reforging this item.');
+  if (s.pendingEnchant?.itemId === item.id) return fail('Choose your pending enchantment at the Glasswright before reforging this item.');
   const cost = reforgeCost();
   const why = lacking(save, cost);
   if (why) return fail(why);
@@ -654,14 +654,14 @@ const paragon: Handler = (s, a) => {
   const save = s.save;
   const id = str(a, 'stat');
   const def = PARAGON_STATS.find((d) => d.id === id);
-  if (!def) return fail('Unknown paragon stat');
+  if (!def) return fail('Unknown Lantern stat');
   const n = int(a, 'n', -1_000_000, 1_000_000);
   if (n === 0) return fail('Invalid amount');
   const cur = save.paragon.spent[id] ?? 0;
   if (n > 0) {
     const catLabel = PARAGON_CATEGORIES.find((c) => c.id === def.category)!.label;
     const budget = paragonPoints(save.paragon.level)[def.category] - paragonSpent(save, def.category);
-    if (budget <= 0) return fail(`No ${catLabel} paragon points available`);
+    if (budget <= 0) return fail(`No ${catLabel} Lantern points available`);
     const room = def.cap > 0 ? def.cap - cur : Infinity;
     if (room <= 0) return fail(`${def.label} is at its cap`);
     save.paragon.spent[id] = cur + Math.min(n, budget, room);
@@ -749,6 +749,12 @@ const debug: Handler = (s, a) => {
       const n = int(a, 'n', 1, 1_000_000_000_000, 10_000_000);
       save.gold += n;
       return done(s, false, { gold: save.gold });
+    }
+    case 'cube': {
+      // QA: set the Reliquary level (unlocks; the town shows them, F-WLD-06). XP restarts at 0 for that level.
+      save.cube.level = int(a, 'n', 1, CUBE_FUNCTIONS.length, CUBE_FUNCTIONS.length);
+      save.cube.xp = 0;
+      return done(s, false, { level: save.cube.level });
     }
     case 'mats': {
       const n = int(a, 'n', 1, 1_000_000_000, 100);

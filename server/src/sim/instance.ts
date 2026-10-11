@@ -32,9 +32,9 @@ import { encounterDifficulty } from './monsters';
  *  channels cannot reopen a cache. Shrines: D3's 120 s buffs (docs/rework/worlds/REFERENCES W1), combat effects only. */
 const POI_READY = new Map<string, number>();
 const SHRINE = {
-  empowered: { buff: { dmg: 25 }, text: 'Empowered Shrine: +25% damage for 2 minutes' },
-  frenzied: { buff: { ias: 25 }, text: 'Frenzied Shrine: +25% attack speed for 2 minutes' },
-  keen: { buff: { chc: 10 }, text: 'Keen Shrine: +10% critical hit chance for 2 minutes' },
+  empowered: { buff: { dmg: 25 }, text: 'Hearthfire Altar: +25% damage for 2 minutes' },
+  frenzied: { buff: { ias: 25 }, text: 'Quickening Altar: +25% attack speed for 2 minutes' },
+  keen: { buff: { chc: 10 }, text: 'Keen Altar: +10% critical chance for 2 minutes' },
 } as const;
 export const SHRINE_COOLDOWN_MS = 180_000, CACHE_COOLDOWN_MS = 600_000;
 const TICK_HISTORY = 100; // ~5 s at 20 Hz

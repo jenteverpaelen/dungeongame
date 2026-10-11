@@ -44,7 +44,7 @@ test('actual pickup excludes generated, expired, dead and full-bag loot; offline
     spawnLoot(f.inst,f.p,{type:'item',item},100,100,false);updateLoot(f.inst,f.p,600);updateLoot(f.inst,f.p,1);
     assert.equal(f.save.economy!.activities.pickup!.events,1);assert.equal(f.save.economy!.activities.pickup!.gained.items,undefined);
     f.save.inventory.fill(null);f.save.lastZone='rillwake_crossing';f.save.lastSeen=1000;
-    const report=applyAfkGains(f.save,601000)!;assert(report.gold>0);assert.equal(f.save.economy!.activities.offline!.gained.gold,report.gold);
+    const report=applyAfkGains(f.save,601000,{enabled:true})!; // offline rewards are parked; the dormant source is still recorded correctlyassert(report.gold>0);assert.equal(f.save.economy!.activities.offline!.gained.gold,report.gold);
     assert.equal(f.save.economy!.activities.offline!.gained.scrap,report.mats.scrap);assert.equal(f.save.economy!.incomplete,false);
   }finally{f.inst.destroy();}
 });

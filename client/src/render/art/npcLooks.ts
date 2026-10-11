@@ -41,7 +41,7 @@ export const NPC_PRESETS: Record<string, NpcPreset> = {
   }, { title: 'Jeweler', scale: 0.9, idle: 'flourish', facing: 25 }),
   'hearthmere/mystic': person('mage', { skin: SKIN.light, hair: HAIR.silver, hairStyle: 'long', eyes: EYES.green }, {
     head: I('hood', 0x4a3a66, 0xc9a85e, 2), chest: I('robe', 0x3e3058, 0xc9a85e, 2), feet: I('shoes', 0x2e2638, 0x8a7aa8), offhand: I('orb', 0xb89cff, 0xe8d8ff, 2),
-  }, { title: 'Mystic', idle: 'craft', facing: 20 }),
+  }, { title: 'Glasswright', idle: 'craft', facing: 20 }),
   // ── Field contacts (CAST.md "Named people")
   'rillwake_crossing/tender': person('warrior', { skin: SKIN.warm, hair: HAIR.brown, hairStyle: 'short', eyes: EYES.brown, beard: 'stubble' }, {
     head: I('cap', 0x4a3a2a, 0xb8402a), chest: I('leather', 0x7a5a3a, 0x5a4030), legs: I('cloth', 0x3a4048, 0x2e3238), feet: I('boots', 0x4a3426, 0x7a6a4a),

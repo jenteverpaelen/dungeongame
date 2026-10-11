@@ -324,7 +324,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
             <span class="slot">{slotName(item)}</span>
             <span class={reqBad ? 'bad' : ''}>Requires level <b>{item.reqLevel}</b></span>
             <span>Item level <b>{item.ilvl}</b></span>
-            {item.bound && <span class="bound">Character bound</span>}
+            {item.bound && <span class="bound">Bound to this hero</span>}
           </div>
           {classBad && char && <div class="bad one">{CLASSES[char.classId].name}s cannot use this item</div>}
           {item.vendorStock && <div class="note one">Merchant stock · cannot be salvaged</div>}
@@ -332,7 +332,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
           {showTier && (
             <div class="tier">
               <div class="tier-row">
-                <span class="tier-l">Cube Tier</span>
+                <span class="tier-l">Reliquary tier</span>
                 <span class="pips">{Array.from({ length: 10 }, (_, i) => <i class={i < item.upgrade ? 'on' : ''} key={i} />)}</span>
                 <span class="tier-n">+{item.upgrade}</span>
               </div>

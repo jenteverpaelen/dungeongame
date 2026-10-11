@@ -6,6 +6,7 @@ import type { CharacterSave } from '@shared/types';
 import { contactSpot, questMarker, questState, trackerQuests, stepTargets } from '@shared/quests';
 import { questBadgeTexture } from './art/questBadges';
 import { WorldPhases } from './worldPhases';
+import { TownProgressView } from './townProgress';
 import { boardComplete, boardState, boardUnlocked } from '@shared/bounties';
 import { QUESTS } from '@shared/data/quests';
 import { ui } from '../ui/store';
@@ -80,6 +81,8 @@ export class Scene {
   private questStamp:CharacterSave|null=null;
   private questGuide=new QuestGuide();
   private phases:WorldPhases|null=null;
+  /** Town reflects the hero's systems (F-WLD-06): Reliquary unlocks at the artisans, bought stash tabs at the vault. */
+  private townProgress:TownProgressView|null=null;
   /** Story presentation (F-QST-08): a short camera pan to a world change that just happened (docs/rework/quests/DESIGN.md §7). */
   private revealPan:{x:number;y:number;t:number}|null=null;
   onReveal:((key:string)=>void)|null=null;
@@ -138,6 +141,7 @@ export class Scene {
     this.adventureLife?.destroy();this.adventureLife=null;
     this.critters?.destroy();this.critters=null;
     this.phases?.destroy();this.phases=null;this.revealPan=null;
+    this.townProgress?.destroy();this.townProgress=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
@@ -186,6 +190,7 @@ export class Scene {
     }
     for(const s of this.statics){const lines=s.role?BARKS[s.role]:undefined;if(lines)this.speakers.push({key:s.npcId??s.name,x:s.x,y:s.y,height:s.view.height,lines});}
     if(map.town?.stage==='complete') {
+      this.townProgress=new TownProgressView(map.town,this.entities);
       this.townLife=new TownLife(map.town,this.entities);
       this.groundFx.addChild(this.townLife.ground);this.aboveFx.addChild(this.townLife.above);
       this.speakers.push(...this.townLife.speakers);
@@ -384,6 +389,7 @@ export class Scene {
       this.questGuide.refresh(this.map,questSave,this.world.collision);
       // World states first: people may have moved, appeared or gone (phasing), and changes may deserve a reveal.
       const turnedOn=this.phases?.refresh(questSave)??[];
+      this.townProgress?.refresh(questSave);
       if(!firstStamp&&turnedOn.length&&this.phases){const at=this.phases.revealPoint(turnedOn[0]);if(at)this.reveal(at.x,at.y);this.onReveal?.(turnedOn[0]);}
       const zone=this.map?.zone??'',rows=questSave?trackerQuests(questSave,zone):[];
       for(const s of this.statics)if(s.questBadge&&s.npcId&&this.map) {
