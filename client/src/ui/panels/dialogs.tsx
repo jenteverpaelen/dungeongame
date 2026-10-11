@@ -221,7 +221,7 @@ export function ObeliskPanel() {
               <span>{lockedSel ? `Unlocks at level ${d.minLevel}` : torment ? 'For fully geared heroes. Fabled items can drop.' : 'Open to your level.'}</span>
             </div>
           </header>
-          <p class="co-sub">Open a rift to hunt through an endless wilderness. Slay enough monsters to draw out the Rift Guardian, then claim his spoils. Higher difficulties bring more experience, gold and legendaries; story areas stay on Normal.</p>
+          <p class="co-sub">Open a Faultline to hunt through an endless wilderness. Slay enough monsters to draw out its Keeper, then claim the spoils. Higher difficulties bring more experience, gold and legendaries; story areas always use Story difficulty.</p>
           <div class="ob-stats">
             {stats.map((s) => <div key={s.label} class={cls('ob-stat', s.tone)}><span>{s.label}</span><b>{s.value}</b></div>)}
           </div>
@@ -230,7 +230,7 @@ export function ObeliskPanel() {
               <i /> {world?.riftOpen ? 'A Faultline is open in this channel' : 'No Faultline is open in this channel'}
             </div>
             <button class="btn" disabled={busy || !world?.riftOpen} onClick={() => void act('riftEnter')}>Enter the open Faultline</button>
-            <button class="btn primary" disabled={busy || lockedSel} onClick={() => void act('riftOpen')}>Open {d.name} rift</button>
+            <button class="btn primary" disabled={busy || lockedSel} onClick={() => void act('riftOpen')}>Open {d.name} Faultline</button>
           </div>
         </section>
       </div>

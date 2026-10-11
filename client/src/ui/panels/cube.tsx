@@ -647,7 +647,7 @@ export function CubePanel() {
               {locked && <div class="cw-locked">
                 <IconLock size={22} />
                 <div>
-                  <b>{def.name} unlocks at Cube level {def.unlock}</b>
+                  <b>{def.name} unlocks at Reliquary level {def.unlock}</b>
                   <span>{def.desc}</span>
                   <div class="cw-locked-bar"><i style={{ width: `${Math.min(100, (level / def.unlock) * 100)}%` }} /></div>
                   <small>You are level {level}. Salvaging, fusing and other work earns Reliquary experience.</small>

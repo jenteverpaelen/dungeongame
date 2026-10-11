@@ -319,7 +319,7 @@ function GemGrid({ char }: { char: CharacterSave }) {
         ))}
         {list.length === 0 && <div class="empty-note">No gems yet. Gems drop from elites and Faultline Keepers.</div>}
       </div>
-      <div class="gems-foot">{total} gems · fuse three of a kind in the Cube</div>
+      <div class="gems-foot">{total} gems · fuse three of a kind at the Jeweler</div>
     </div>
   );
 }

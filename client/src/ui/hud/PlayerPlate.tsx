@@ -27,7 +27,7 @@ export function PlayerPlate() {
       <div class="player-info">
         <div class="pi-name">{v.name}</div>
         <div class="pi-sub">
-          {paragon ? <span class="pi-paragon">Paragon {v.pl}</span> : <span>Level {v.lv}</span>}
+          {paragon ? <span class="pi-paragon">Lantern Rank {v.pl}</span> : <span>Level {v.lv}</span>}
           <i />
           <span style={{ color: theme === '#c0392b' ? '#e0705a' : undefined }}>{CLASS_NAME[v.cls]}</span>
         </div>

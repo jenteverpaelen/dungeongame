@@ -110,7 +110,7 @@ export function CollectionPanel() {
         </>}
 
         {tab === 'looks' && <>
-          <div class="co-bar"><h3>Appearances</h3><span class="co-sub">Visit the Mystic to apply one. Stats and ownership never change; choices are free.</span></div>
+          <div class="co-bar"><h3>Appearances</h3><span class="co-sub">Visit the Glasswright to apply one. Stats and ownership never change; choices are free.</span></div>
           <div class="co-slots">{LOOK_SLOTS.map(s => <button key={s} class={cls('co-slot', slot === s && 'on')} title={SLOT_LABEL[s as Slot]} onClick={() => setSlot(s as Slot)}>
             <SlotGlyph slot={s as Slot} size={30} /><span>{SLOT_LABEL[s as Slot]}</span></button>)}</div>
           <div class="co-equipped">
