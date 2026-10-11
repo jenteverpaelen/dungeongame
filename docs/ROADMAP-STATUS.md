@@ -42,8 +42,9 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 | What | Status |
 |---|---|
 | **Build depth: foundation** | engine for 5 runes, a skill tree per skill, data-driven legendaries/sets, and a test that a full legendary build can compete with a full set |
-| **Build depth: content design** | new skills, runes, tree nodes, passives, sets and legendaries for all 3 classes |
+| **Build depth: content design** | ✅ done (`docs/rework/depth/`): per class 12 skills, 60 runes, 72 tree nodes, 14 passives, 5 sets, ~34 legendaries; plus 18 shared legendaries, 80 item shapes, 55 affixes. On paper every set build and its legendary-only rival are within 1.25× of each other |
 | **Questing rework** | all quests redone; main/side/contract look different; tracker for several quests; better contracts; objectives that visibly change the world; more story |
+| **Finishing Codex's partial items** | accounts part 2, save migrations, settings (gamepad, colour-blind, low-spec), stash tabs, AFK rewards, telemetry, security audit, combat spec |
 
 ## Next (in this order)
 
@@ -84,3 +85,8 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 - Trading between players: yes or no
 - How long levelling to 70 should take for a normal player
 - What comes after build depth: endgame first, or a playtest with friends first
+
+**Decided 2026-10-11 (you left it to me):** no ready-made builds; players get building blocks and tools to work out and
+share builds themselves (exact tooltips, damage breakdown, training dummy, build codes, opt-in public build data for fan
+sites). Skill-tree points are a separate pool; Primal sets get no extra multiplier; the Ninefold Gale, Lantern Garden and
+Frost Nova changes go ahead.

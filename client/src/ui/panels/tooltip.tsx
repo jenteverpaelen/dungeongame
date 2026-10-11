@@ -1,16 +1,17 @@
-// The Diablo 3 style item tooltip (with TBH flair), the comparison row, a lightweight text tooltip and
-// the cursor-following tooltip layer that every panel hovers into.
+// The item card (Hearthfall's own layout, see docs/rework/TOOLTIP.md), the comparison row, a lightweight text
+// tooltip and the cursor-following tooltip layer that every panel hovers into.
 
 import type { ComponentChildren, VNode } from 'preact';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { AFFIX_BY_STAT, GEMS, LEGENDARIES, SETS } from '@shared/data/items';
 import { CLASSES } from '@shared/data/classes';
-import { canClassUse, slotsForKind } from '@shared/items';
+import { SKILLS } from '@shared/data/skills';
+import { RARITY_LABEL, canClassUse, slotsForKind } from '@shared/items';
 import { gemName, upgradeChance } from '@shared/cube';
-import { compareItem, gemSlotRole } from '@shared/stats';
+import { STAT_LABELS, compareItem, gemSlotRole } from '@shared/stats';
 import { fmtInt } from '@shared/format';
-import type { CharacterSave, Item, Slot } from '@shared/types';
-import { GemIcon, EmptySocketIcon, IconDelta, IconDiamond, IconStar4, gemColor, lighten, hex } from './icons';
+import type { CharacterSave, DerivedStats, Element, Item, Slot } from '@shared/types';
+import { GemIcon, EmptySocketIcon, IconDelta, IconStar4, gemColor, lighten, hex } from './icons';
 import { ItemGlyph } from './glyphs';
 import { itemIconUrl } from '../../render/art';
 import { GEAR_TIER_NAMES, gearLook, itemVisualTier, temperOf } from '@shared/gearVisual';
@@ -19,7 +20,7 @@ import { text } from '../../i18n/messages';
 import { Local, useLocal, useU } from './state';
 import { preferences } from '../../game/preferences';
 import {
-  affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemTypeLine, rarityClass, rollFraction,
+  affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemNoun, rarityClass, rollFraction,
   scaledAffix, slotName, targetSlot, weaponStats,
 } from './util';
 
@@ -78,45 +79,99 @@ export function installAltTracking(): () => void {
 
 // ───────────────────────────── the card ─────────────────────────────
 
-interface Delta { damage: number; toughness: number; recovery: number }
+/** "If equipped" summary: sheet damage and survival change plus the concrete stat changes behind them. */
+interface Delta { damage: number; toughness: number; lines: StatLine[]; more: number }
+interface StatLine { key: string; text: string; up: boolean }
 
-function DeltaCell({ label, v }: { label: string; v: number }) {
+const ELEMENT_LABEL: Record<Element, string> = {
+  physical: 'Physical', fire: 'Fire', cold: 'Cold', lightning: 'Lightning', poison: 'Poison', arcane: 'Arcane', holy: 'Holy',
+};
+type StatKey = 'mainStat' | 'vit' | 'life' | 'armor' | 'allRes' | 'chc' | 'chd' | 'ias' | 'cdr' | 'rcr' | 'area' | 'dmgPct'
+  | 'elite' | 'lifePerHit' | 'lifePerKill' | 'lifeRegen' | 'ms' | 'maxResource' | 'resourceRegen' | 'goldFind' | 'xpPct' | 'thorns';
+/** Order = reading priority; `pct` stats print with one decimal and a % sign. */
+const DELTA_STATS: { k: StatKey; label: string; pct?: boolean }[] = [
+  { k: 'mainStat', label: '' }, { k: 'dmgPct', label: 'Damage', pct: true }, { k: 'chc', label: 'Critical Hit Chance', pct: true },
+  { k: 'chd', label: 'Critical Hit Damage', pct: true }, { k: 'ias', label: 'Attack Speed', pct: true },
+  { k: 'cdr', label: 'Cooldown Reduction', pct: true }, { k: 'rcr', label: 'Resource Cost Reduction', pct: true },
+  { k: 'area', label: 'Area Damage', pct: true }, { k: 'elite', label: 'Damage vs Elites', pct: true },
+  { k: 'vit', label: 'Vitality' }, { k: 'life', label: 'Life' }, { k: 'armor', label: 'Armor' }, { k: 'allRes', label: 'All Resistance' },
+  { k: 'lifePerHit', label: 'Life per Hit' }, { k: 'lifePerKill', label: 'Life per Kill' }, { k: 'lifeRegen', label: 'Life per Second' },
+  { k: 'thorns', label: 'Thorns' }, { k: 'maxResource', label: 'Maximum Resource' }, { k: 'resourceRegen', label: 'Resource per Second' },
+  { k: 'ms', label: 'Movement Speed', pct: true }, { k: 'goldFind', label: 'Gold Find', pct: true }, { k: 'xpPct', label: 'Bonus Experience', pct: true },
+];
+const MAX_DELTA_LINES = 6;
+
+function fmtStatDelta(d: number, pct: boolean): string {
+  const sign = d > 0 ? '+' : '−';
+  const a = Math.abs(d);
+  return pct ? `${sign}${(Math.round(a * 10) / 10).toLocaleString('en-US')}%` : `${sign}${fmtInt(Math.round(a))}`;
+}
+
+/** Concrete stat changes between two stat sheets, in reading priority. */
+export function statDeltaLines(cur: DerivedStats, next: DerivedStats): { lines: StatLine[]; more: number } {
+  const out: StatLine[] = [];
+  const push = (key: string, label: string, d: number, pct: boolean) => {
+    if (pct ? Math.abs(d) < 0.05 : Math.abs(d) < 0.5) return;
+    out.push({ key, text: `${fmtStatDelta(d, pct)} ${label}`, up: d > 0 });
+  };
+  for (const s of DELTA_STATS) {
+    const label = s.k === 'mainStat' ? STAT_LABELS[cur.mainStatId] ?? 'Main stat' : s.label;
+    push(s.k, label, next[s.k] - cur[s.k], !!s.pct);
+  }
+  push('weapon', 'Average Weapon Damage', (next.weaponMin + next.weaponMax) / 2 - (cur.weaponMin + cur.weaponMax) / 2, false);
+  for (const el of Object.keys(ELEMENT_LABEL) as Element[]) push(`ele:${el}`, `${ELEMENT_LABEL[el]} Damage`, (next.ele[el] ?? 0) - (cur.ele[el] ?? 0), true);
+  const skills = new Set([...Object.keys(cur.skillDmg), ...Object.keys(next.skillDmg)]);
+  for (const id of skills) push(`skill:${id}`, `${SKILLS[id]?.name ?? id} Damage`, (next.skillDmg[id] ?? 0) - (cur.skillDmg[id] ?? 0), true);
+  return { lines: out.slice(0, MAX_DELTA_LINES), more: Math.max(0, out.length - MAX_DELTA_LINES) };
+}
+
+function DeltaPill({ label, v }: { label: string; v: number }) {
   const flat = Math.abs(v) < 0.05;
   const up = v > 0;
   return (
-    <div class={cls('dl', flat ? 'flat' : up ? 'up' : 'down')}>
-      <span class="dl-k">{label}</span>
-      <span class="dl-v">
-        {flat ? <i class="dl-dash" /> : <IconDelta up={up} />}
-        {flat ? '0%' : fmtDeltaPct(v)}
-      </span>
-    </div>
+    <span class={cls('dp', flat ? 'flat' : up ? 'up' : 'down')}>
+      <span class="dp-k">{label}</span>
+      {flat ? <i class="dl-dash" /> : <IconDelta up={up} />}
+      <b class="dp-v">{flat ? '0%' : fmtDeltaPct(v)}</b>
+    </span>
   );
 }
 
-function AffixList({ item, alt, primary }: { item: Item; alt: boolean; primary: boolean }) {
-  const rows = item.affixes.map((a, i) => ({ a, i })).filter((r) => r.a.primary === primary);
+function DeltaBlock({ delta }: { delta: Delta }) {
   return (
-    <>
-      {rows.map(({ a, i }) => {
-        const ench = item.enchanted === i;
-        const s = scaledAffix(a, item);
-        const frac = rollFraction(a);
-        return (
-          <li class={cls('af', ench && 'af-ench', alt && frac >= 0.98 && 'af-max')} key={i}>
-            {ench ? <IconStar4 class="af-star" size={11} /> : <span class="af-b" />}
-            <span class="af-t">{emphasize(affixText(a, item))}</span>
-            {alt && (
-              <span class="af-rng">
-                [{fmtRange(s.min, s.max)}]
-                <i class="af-meter"><u style={{ width: `${Math.round(frac * 100)}%` }} /></i>
-              </span>
-            )}
-            {ench && !alt && <span class="af-etag">Enchanted</span>}
-          </li>
-        );
-      })}
-    </>
+    <section class="tt-cmp">
+      <div class="cmp-h">
+        <span class="cmp-t">If equipped</span>
+        <DeltaPill label="Damage" v={delta.damage} />
+        <DeltaPill label="Survival" v={delta.toughness} />
+      </div>
+      {delta.lines.length > 0 && (
+        <ul class="cmp-lines">
+          {delta.lines.map((l) => <li class={l.up ? 'up' : 'down'} key={l.key}>{emphasize(l.text)}</li>)}
+          {delta.more > 0 && <li class="more" key="more">+{delta.more} more change{delta.more > 1 ? 's' : ''}</li>}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function AffixRow({ item, i, alt }: { item: Item; i: number; alt: boolean }) {
+  const a = item.affixes[i];
+  const ench = item.enchanted === i;
+  const s = scaledAffix(a, item);
+  const frac = rollFraction(a);
+  return (
+    <li class={cls('af', !a.primary && 'af-minor', ench && 'af-ench', alt && frac >= 0.98 && 'af-max')}>
+      {ench ? <IconStar4 class="af-star" size={11} /> : <span class="af-b" />}
+      <span class="af-t">{emphasize(affixText(a, item))}</span>
+      {alt && (
+        <span class="af-rng">
+          {fmtRange(s.min, s.max)}
+          <i class="af-meter"><u style={{ width: `${Math.round(frac * 100)}%` }} /></i>
+        </span>
+      )}
+      {ench && !alt && <span class="af-etag">Enchanted</span>}
+    </li>
   );
 }
 
@@ -125,13 +180,13 @@ function SocketRows({ item }: { item: Item }) {
   const slot = slotsForKind(item.kind)[0];
   const role = gemSlotRole(slot);
   return (
-    <>
+    <ul class="tt-socks">
       {item.sockets.map((s, i) => {
         if (!s) {
           return (
             <li class="af sock empty" key={`s${i}`}>
-              <span class="sk"><EmptySocketIcon size={20} /></span>
-              <span class="af-t">Empty Socket</span>
+              <span class="sk"><EmptySocketIcon size={18} /></span>
+              <span class="af-t">Empty socket</span>
             </li>
           );
         }
@@ -142,7 +197,7 @@ function SocketRows({ item }: { item: Item }) {
         const label = AFFIX_BY_STAT[eff.stat]?.label(v) ?? `${eff.stat} ${v}`;
         return (
           <li class="af sock" key={`s${i}`}>
-            <span class="sk"><GemIcon gem={s.gem} size={20} /></span>
+            <span class="sk"><GemIcon gem={s.gem} size={18} /></span>
             <span class="af-t">
               <span class="tt-gem-n" style={{ color: lighten(gemColor(s.gem), 0.35) }}>{gemName(s.gem, s.rank)}</span>
               <span class="tt-gem-e">{emphasize(label)}</span>
@@ -150,17 +205,40 @@ function SocketRows({ item }: { item: Item }) {
           </li>
         );
       })}
-    </>
+    </ul>
+  );
+}
+
+/** Two or three equal stat tiles: weapon DPS / damage / speed, or armor / sockets. */
+function KeyStats({ item }: { item: Item }) {
+  const w = weaponStats(item);
+  const armor = armorValue(item);
+  const tiles: { k: string; v: string; main?: boolean }[] = [];
+  if (w) {
+    tiles.push({ k: 'DPS', v: fmtInt(w.dps), main: true }, { k: 'Damage', v: `${fmtInt(w.min)}–${fmtInt(w.max)}` }, { k: 'Speed', v: `${w.aps.toFixed(2)}/s` });
+  } else if (armor !== null) {
+    tiles.push({ k: 'Armor', v: fmtInt(armor), main: true });
+    if (item.sockets.length) tiles.push({ k: 'Sockets', v: String(item.sockets.length) });
+  }
+  if (!tiles.length) return null;
+  return (
+    <div class={cls('tt-stats', `n${tiles.length}`)}>
+      {tiles.map((t) => (
+        <div class={cls('tst', t.main && 'main')} key={t.k}>
+          <span class="tst-k">{t.k}</span>
+          <span class="tst-v">{t.v}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 
 export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: CharacterSave | null; alt: boolean; delta?: Delta | null; tag?: string }) {
-  const w = weaponStats(item);
-  const armor = armorValue(item);
   const leg = item.legendary ? LEGENDARIES[item.legendary.power] : null;
   const setDef = item.set ? SETS[item.set] : null;
-  const hasPrimary = item.affixes.some((a) => a.primary) || item.sockets.length > 0;
-  const hasSecondary = item.affixes.some((a) => !a.primary);
+  const tier = itemVisualTier(item);
+  // Core properties first, then the minor ones; one list, no section headings.
+  const order = item.affixes.map((_, i) => i).sort((x, y) => Number(!item.affixes[x].primary) - Number(!item.affixes[y].primary) || x - y);
 
   let ownedNames = new Set<string>();
   let setCount = 0;
@@ -172,72 +250,37 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
   const showTier = item.rarity !== 'normal' && (item.upgrade > 0 || cubeLevel >= 4);
   const reqBad = !!char && item.reqLevel > char.level;
   const classBad = !!char && !canClassUse(char.classId, item);
+  const rar = RARITY_LABEL[item.rarity];
 
   return (
-    <div class={cls('tt', rarityClass(item), tag && 'tt-equipped')}>
-      <i class="tt-edge" />
+    <div class={cls('tt', rarityClass(item), tier >= 8 && 'tt-apex', tag && 'tt-equipped')}>
+      <i class="tt-rule" />
       {tag && <div class="tt-tagbar"><span>{tag}</span></div>}
       <header class="tt-head">
         <div class="tt-icon">
-          <ItemVisual item={item} size={56} />
+          <ItemVisual item={item} size={52} />
         </div>
         <div class="tt-titles">
-          {item.ancient > 0 && (
-            <div class="tt-anc">
-              <IconDiamond size={7} />
-              <span>{item.ancient === 2 ? 'Primal Ancient' : 'Ancient'}</span>
-              <IconDiamond size={7} />
-            </div>
-          )}
           <div class="tt-name">{item.name}{item.upgrade > 0 && <span class="nm-up">+{item.upgrade}</span>}</div>
           <div class="tt-type">
-            <span class="tt-kind">{itemTypeLine(item)}</span>
-            <span class="tt-slot">{slotName(item)}</span>
+            {rar && <span class="tt-rar">{rar}</span>}
+            {rar && <i class="tt-dot" />}
+            <span class="tt-kind">{itemNoun(item)}</span>
           </div>
           <TierStrip item={item} />
         </div>
       </header>
 
-      {delta && (
-        <div class="tt-delta">
-          <DeltaCell label="Damage" v={delta.damage} />
-          <DeltaCell label="Toughness" v={delta.toughness} />
-          <DeltaCell label="Recovery" v={delta.recovery} />
-        </div>
-      )}
-
       <div class="tt-body">
-        {w && (
-          <div class="tt-big">
-            <div class="big-n">{fmtInt(w.dps)}</div>
-            <div class="big-l">Damage Per Second</div>
-            <div class="big-sub"><b>{fmtInt(w.min)}–{fmtInt(w.max)}</b> Damage</div>
-            <div class="big-sub dim"><b>{w.aps.toFixed(2)}</b> Attacks per Second</div>
-          </div>
-        )}
-        {!w && armor !== null && (
-          <div class="tt-big">
-            <div class="big-n">{fmtInt(armor)}</div>
-            <div class="big-l">Armor</div>
-          </div>
-        )}
+        <KeyStats item={item} />
+        {delta && <DeltaBlock delta={delta} />}
 
-        {hasPrimary && (
-          <section class="tt-sec">
-            <h4>Primary</h4>
-            <ul><AffixList item={item} alt={alt} primary /><SocketRows item={item} /></ul>
-          </section>
-        )}
-        {hasSecondary && (
-          <section class="tt-sec sec2">
-            <h4>Secondary</h4>
-            <ul><AffixList item={item} alt={alt} primary={false} /></ul>
-          </section>
-        )}
+        {order.length > 0 && <ul class="tt-props">{order.map((i) => <AffixRow item={item} i={i} alt={alt} key={i} />)}</ul>}
+        <SocketRows item={item} />
 
         {leg && item.legendary && (
-          <div class="tt-power">
-            <IconDiamond class="pw-b" size={9} />
+          <section class="tt-power">
+            <span class="pw-l">Legendary power</span>
             <p>
               {leg.power.split('{v}').map((part, i, arr) => (
                 <>
@@ -245,46 +288,42 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
                   {i < arr.length - 1 && <b class="pw-v">{fmtPowerValue(item.legendary!.value)}</b>}
                 </>
               ))}
-              {alt && <span class="af-rng"> [{fmtPowerValue(item.legendary.min)} – {fmtPowerValue(item.legendary.max)}]</span>}
+              {alt && <span class="af-rng"> {fmtPowerValue(item.legendary.min)} – {fmtPowerValue(item.legendary.max)}</span>}
             </p>
-          </div>
+          </section>
         )}
 
         {setDef && (
-          <div class="tt-set">
+          <section class="tt-set">
             <div class="set-name">
               <span>{setDef.name}</span>
               <em>{setCount} / {setDef.pieces.length}</em>
             </div>
             <ul class="set-pieces">
-              {setDef.pieces.map((p) => (
-                <li class={ownedNames.has(p.name) ? 'on' : 'off'} key={p.name}>
-                  <IconDiamond size={6} />{p.name}
-                </li>
-              ))}
+              {setDef.pieces.map((p) => <li class={ownedNames.has(p.name) ? 'on' : 'off'} key={p.name}><i />{p.name}</li>)}
             </ul>
             <ul class="set-bonus">
               {setDef.bonuses.map((b) => (
                 <li class={setCount >= b.count ? 'on' : 'off'} key={b.count}>
-                  <b class="sb-n">({b.count})</b> <span>Set:</span> {b.text}
+                  <b class="sb-n">{b.count}</b><span>{b.text}</span>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
 
         {item.flavor && <p class="tt-flavor">{item.flavor}</p>}
 
         <footer class="tt-foot">
           <div class="req-row">
-            <span class={reqBad ? 'bad' : ''}>Required Level <b>{item.reqLevel}</b></span>
-            <span>Item Level <b>{item.ilvl}</b></span>
+            <span class="slot">{slotName(item)}</span>
+            <span class={reqBad ? 'bad' : ''}>Requires level <b>{item.reqLevel}</b></span>
+            <span>Item level <b>{item.ilvl}</b></span>
+            {item.bound && <span class="bound">Character bound</span>}
           </div>
           {classBad && char && <div class="bad one">{CLASSES[char.classId].name}s cannot use this item</div>}
-          {item.bound && <div class="bound one">Character bound</div>}
-          {delta && <div class="bound one">Sheet estimate. Skill powers, conditional set bonuses, enemy defenses and uptime can change actual results.</div>}
-          {item.vendorStock && <div class="bound one">Merchant stock · cannot be salvaged</div>}
-          {item.protected && <div class="bound one">Protected · cannot destroy, salvage, transmute, extract, reforge, deliver or sell</div>}
+          {item.vendorStock && <div class="note one">Merchant stock · cannot be salvaged</div>}
+          {item.protected && <div class="note one">Protected · cannot destroy, salvage, transmute, extract, reforge, deliver or sell</div>}
           {showTier && (
             <div class="tier">
               <div class="tier-row">
@@ -301,6 +340,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
               {item.upgrade >= 10 && <div class="tier-sub"><b>Fully empowered</b></div>}
             </div>
           )}
+          {delta && <div class="note one">Sheet estimate: conditional powers, set bonuses, enemy defences and uptime change real results.</div>}
         </footer>
       </div>
     </div>
@@ -311,13 +351,18 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
 
 export interface ItemTooltipProps {
   item: Item;
-  /** Show the equipped item(s) of the matching slot(s) next to this one with a Damage / Toughness / Recovery delta. */
+  /** Show the equipped item(s) of the matching slot(s) next to this one with an "If equipped" summary. */
   compare?: boolean;
   /** Tag this card as the equipped one. */
   equipped?: boolean;
 }
 
-/** Diablo 3 item tooltip. Renders in normal flow; use showItemTooltip()/itemHover() to attach it to the cursor. */
+export function toDelta(c: ReturnType<typeof compareItem>): Delta {
+  const { lines, more } = statDeltaLines(c.cur, c.next);
+  return { damage: c.damage, toughness: c.toughness, lines, more };
+}
+
+/** Item tooltip. Renders in normal flow; use showItemTooltip()/itemHover() to attach it to the cursor. */
 export function ItemTooltip({ item, compare = false, equipped = false }: ItemTooltipProps) {
   const char = useU((s) => s.char);
   const alt = useAlt();
@@ -329,20 +374,31 @@ export function ItemTooltip({ item, compare = false, equipped = false }: ItemToo
   }
   const delta = useMemo(() => {
     if (!compare || !char || !slot) return null;
-    try { const c = compareItem(char, item, slot); return { damage: c.damage, toughness: c.toughness, recovery: c.recovery }; } catch { return null; }
+    try { return toDelta(compareItem(char, item, slot)); } catch { return null; }
   }, [char, item, compare, slot]);
+  const rings = useMemo(() => {
+    if (!compare || !char || item.kind !== 'ring') return null;
+    try { return (['ring1', 'ring2'] as const).map((s) => ({ s, d: compareItem(char, item, s) })); } catch { return null; }
+  }, [char, item, compare]);
   return (
     <div>
-    {compare && char && item.kind==='ring' && <div class="tt tt-lite" style={{width:680,padding:8}}>
-      {(['ring1','ring2'] as const).map(s=>{const d=compareItem(char,item,s);return <p style={{margin:2}}>Replace {s==='ring1'?'Ring 1':'Ring 2'}: Damage {fmtDeltaPct(d.damage)} · Toughness {fmtDeltaPct(d.toughness)} · Recovery {fmtDeltaPct(d.recovery)}</p>;})}
-    </div>}
-    <div class="tt-row">
-      <ItemCard item={item} char={char} alt={alt} delta={delta} tag={equipped ? 'Equipped' : undefined} />
-      {eq.map((e) => <ItemCard item={e} char={char} alt={alt} tag="Equipped" key={e.id} />)}
-    </div>
+      {rings && (
+        <div class="tt tt-lite tt-rings">
+          {rings.map(({ s, d }) => (
+            <p class="tl" key={s}>
+              Replace <b>{s === 'ring1' ? 'left ring' : 'right ring'}</b>: Damage {fmtDeltaPct(d.damage)} · Survival {fmtDeltaPct(d.toughness)}
+            </p>
+          ))}
+        </div>
+      )}
+      <div class="tt-row">
+        <ItemCard item={item} char={char} alt={alt} delta={delta} tag={equipped ? 'Equipped' : undefined} />
+        {eq.map((e) => <ItemCard item={e} char={char} alt={alt} tag="Equipped" key={e.id} />)}
+      </div>
     </div>
   );
 }
+
 
 // ───────────────────────────── generic text tooltip ─────────────────────────────
 
@@ -358,7 +414,7 @@ export interface TextTipProps {
 export function TextTip({ title, color, sub, icon, lines, note }: TextTipProps) {
   return (
     <div class="tt tt-lite">
-      <i class="tt-edge" />
+      <i class="tt-rule" />
       <header class="tt-head lite">
         {icon && <div class="tt-icon sm">{icon}</div>}
         <div class="tt-titles">

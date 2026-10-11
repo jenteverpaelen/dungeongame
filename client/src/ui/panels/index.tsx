@@ -2,6 +2,7 @@
 // Mounted by ui/App.tsx next to the HUD. Open/close goes through the store (togglePanel / closeAllPanels).
 
 import '../styles/panels.css';
+import '../styles/tooltip.css';
 import '../styles/panels-more.css';
 import '../styles/panels-collection.css';
 import '../styles/panels-social.css';

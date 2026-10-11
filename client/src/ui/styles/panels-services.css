@@ -26,10 +26,10 @@
 .mx-tile .cell { width: 100%; }
 .mx-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; font: 700 13.5px/1.15 var(--font-body);
   color: var(--t-1); }
-.mx-name.r-magic { color: #9a9aff; }
+.mx-name.r-magic { color: var(--r-magic); }
 .mx-name.r-rare { color: #f2e04a; }
-.mx-name.r-legendary { color: #e48444; }
-.mx-name.r-set { color: #46ff58; }
+.mx-name.r-legendary { color: var(--r-legendary); }
+.mx-name.r-set { color: var(--r-set); }
 .mx-price { display: inline-flex; align-items: center; justify-content: center; gap: 4px; font: 400 14px/1 var(--font-num); color: var(--gold-hi); }
 .mx-detail { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .mx-buy { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: var(--r-2);

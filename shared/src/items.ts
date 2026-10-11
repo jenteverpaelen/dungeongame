@@ -9,12 +9,13 @@ import {
 import { Rng } from './math';
 import type { AffixRoll, AncientTier, ClassId, Element, Item, ItemKind, ItemLook, Rarity, Slot, StatId } from './types';
 
+/** Hearthfall rarity palette (contrast and colour-vision checks: docs/rework/TOOLTIP.md §4). Keep in sync with tokens.css. */
 export const RARITY_COLORS: Record<Rarity, string> = {
-  normal: '#ffffff',
-  magic: '#6969ff',
-  rare: '#ffff00',
-  legendary: '#bf642f',
-  set: '#00ff00',
+  normal: '#e6dfd0',
+  magic: '#7a9cff',
+  rare: '#f2d43c',
+  legendary: '#ef6c2a',
+  set: '#34c79a',
 };
 
 export const RARITY_LABEL: Record<Rarity, string> = {

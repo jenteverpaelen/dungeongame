@@ -13,7 +13,7 @@ import { useUI } from '../store';
 import { PanelFrame, Paged } from './common';
 import { GoldIcon, IconDelta } from './icons';
 import { ProtectionBadge } from './itemProtection';
-import { ItemCard, ItemVisual, itemHover } from './tooltip';
+import { ItemCard, ItemVisual, itemHover, toDelta } from './tooltip';
 import { cls, rarityClass, run, targetSlot } from './util';
 import { UiIcon, type UiIconName } from '../hud/UiIcons';
 
@@ -26,7 +26,7 @@ const TABS: { id: TradeTab; label: string; icon: UiIconName }[] = [
 const REVIEW: Record<TradeTab, string> = { buy: 'Review your purchase', sell: 'Review your sale', buyback: 'Recover your gear' };
 
 function delta(char: CharacterSave, item: Item) {
-  try { const c = compareItem(char, item, targetSlot(char, item)); return { damage: c.damage, toughness: c.toughness, recovery: c.recovery }; } catch { return null; }
+  try { return toDelta(compareItem(char, item, targetSlot(char, item))); } catch { return null; }
 }
 /** Same rule as the bag's green arrow: raises Damage or Toughness without a large loss in the other. */
 export function isGearUpgrade(char: CharacterSave, item: Item): boolean {
