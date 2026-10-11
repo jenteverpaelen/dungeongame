@@ -121,3 +121,8 @@
   `npm audit` 0 / 99, `npm outdated` → patch proposals (vite 8.3.4, @types/node 26.6.5), majors deferred.
 - **F-WLD-06** left deferred: owner 2026-10-09 "keep the town as it is" (PAUSED.md); proposal stays in PLAN.md.
 - **Ledger** `docs/CODEX_ROADMAP_STATUS.md`: 28 rows updated with honest statuses and evidence links.
+- **Final verification (2026-10-11).** `npm run typecheck` clean; `npm test` 70/70; `npm run verify` **passed, 31/31
+  stages** (server bot suite 768 / 0 — no known Windows shutdown failures this run, simulation 382/382, perf budget
+  4×150 round avg 1.95 ms / p99 5.3 ms, 81.5 kB/s per client). Two earlier runs: one caught a real bug (the session's
+  rate meter broke prototype-built test sessions; fixed d5d4e3a), one had `backup-runtime` time out at its 6 s
+  startup deadline while other agents were loading the machine — the test passes alone (11 s) and in the clean run.
