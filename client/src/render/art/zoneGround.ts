@@ -455,7 +455,8 @@ interface Job { key: string; x: number; y: number; canvas: HTMLCanvasElement; st
 
 /** Lazy, bounded chunk layer: prefetch two chunks ahead, a few ms per frame, steps small enough to stay under budget. */
 export class ZoneGround extends Container {
-  bakeMs = 0; baked = 0; worstSlice = 0;
+  /** Diagnostics for scripts/worlds-perf.mjs: total paint ms, chunks painted, worst per-frame slice, on-screen chunks painted synchronously. */
+  bakeMs = 0; baked = 0; worstSlice = 0; syncBakes = 0;
   private tiles = new Map<string, { sprite: Sprite; x: number; y: number; used: number }>();
   private matrix = new Matrix();
   private wanted: [number, number][] = [];
@@ -480,7 +481,7 @@ export class ZoneGround extends Container {
       const onScreen = (q: [number, number]) => q[0] >= minX && q[0] <= maxX && q[1] >= minY && q[1] <= maxY;
       list.sort((q, w) => (onScreen(q) ? 0 : 100) + Math.abs(q[0] - mid[0]) + Math.abs(q[1] - mid[1]) - ((onScreen(w) ? 0 : 100) + Math.abs(w[0] - mid[0]) + Math.abs(w[1] - mid[1])));
       for (const q of list) { const tile = this.tiles.get(`${q[0]},${q[1]}`); if (tile) tile.used = this.serial; else this.wanted.push(q); }
-      for (const q of this.wanted) if (onScreen(q)) this.finish(this.job?.key === `${q[0]},${q[1]}` ? this.job : this.start(q[0], q[1]));
+      for (const q of this.wanted) if (onScreen(q)) { this.syncBakes++; this.finish(this.job?.key === `${q[0]},${q[1]}` ? this.job : this.start(q[0], q[1])); }
       for (const tile of this.tiles.values()) { const x = tile.x * m.a + m.tx, y = tile.y * m.d + m.ty; tile.sprite.visible = x < s.width && x + CHUNK * m.a > 0 && y < s.height && y + CHUNK * m.d > 0; }
       while (this.tiles.size > cap) if (!this.evict()) break;
       this.work(3);

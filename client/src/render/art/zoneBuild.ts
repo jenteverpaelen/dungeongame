@@ -23,11 +23,18 @@ function texture(key: string, art: NonNullable<ReturnType<typeof zoneArt>>): Tex
   const tex = new Texture({ source: new CanvasSource({ resource: canvas, resolution: DENSITY, scaleMode: 'linear', autoGenerateMipmaps: true }) });
   cache.set(key, tex); return tex;
 }
+/**
+ * Props are painted at their scale rounded up to a quarter step and the sprite is scaled down to the exact size (never up).
+ * One canvas per exact random scale made ≈ 700 textures per field zone (120 MB of canvases in Rillwake, 369 MB over all
+ * zones, kept by the cache and uploaded one by one while walking); quarter steps keep ≤ 100 per zone (LOG W4, D-W15).
+ */
+const SCALE_STEP = 0.25;
 function place(kind: string, s: number, v: number, x: number, y: number, flip = false) {
-  const art = zoneArt(kind, s, v); if (!art) return null;
-  const root = new Container(), sp = new Sprite(texture(`z:${kind}:${s.toFixed(2)}:${v}`, art));
-  sp.position.set(art.box.x0, art.box.y0); root.addChild(sp); root.position.set(x, y); if (flip) root.scale.x = -1;
-  const bounds = { x0: x + (flip ? -art.box.x1 : art.box.x0), x1: x + (flip ? -art.box.x0 : art.box.x1), y0: y + art.box.y0, y1: y + art.box.y1 };
+  const sq = Math.max(SCALE_STEP, Math.ceil(s / SCALE_STEP - 1e-6) * SCALE_STEP), k = s / sq;
+  const art = zoneArt(kind, sq, v); if (!art) return null;
+  const root = new Container(), sp = new Sprite(texture(`z:${kind}:${sq.toFixed(2)}:${v}`, art));
+  sp.position.set(art.box.x0, art.box.y0); root.addChild(sp); root.position.set(x, y); root.scale.set(flip ? -k : k, k);
+  const bounds = { x0: x + (flip ? -art.box.x1 : art.box.x0) * k, x1: x + (flip ? -art.box.x0 : art.box.x1) * k, y0: y + art.box.y0 * k, y1: y + art.box.y1 * k };
   return { root, bounds };
 }
 /** Stone wall block over an authored footprint: dressed courses on the front face, a capped top. */
