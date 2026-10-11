@@ -32,10 +32,13 @@ export const SHAPE_FAMILY: Record<string, FamilyInfo> = {
   sword: F('blade', '1h', 31, 8), sword2h: F('greatblade', '2h', 48, 10), axe: F('axe', '1h', 27, 13), axe2h: F('greataxe', '2h', 50, 26),
   mace: F('mace', '1h', 27, 13), bow: F('bow', 'bow', 22, 14), crossbow: F('crossbow', 'xbow', 30, 20), handxbow: F('handxbow', 'hxbow', 17, 10),
   staff: F('staff', 'staff', 50, 38), wand: F('wand', 'wand', 20, 12), shield: F('shield', 'off', 0, 0), quiver: F('quiver', 'off', 0, 0), orb: F('orb', 'off', 0, 0),
-  // planned bases (ITEMS-SHARED.md §3.3): nearest family until drawn on their own
+  // The shared-items wave (claude/depth) gives its new bases EXISTING shapes (cleaver → 'axe', maul2h / polearm →
+  // 'axe2h', longbow → 'bow', sling → 'handxbow', rod / sceptre → 'wand', censer → 'staff', warhorn / trap_kit →
+  // 'quiver', tome → 'orb'; armour likewise), so they already draw through the families above. The keys below are
+  // ready for when a base gets its own shape (a one-line content change in data/items.ts).
   cleaver: F('axe', '1h', 27, 13), maul2h: F('greataxe', '2h', 50, 26), polearm: F('greataxe', '2h', 50, 26), longbow: F('bow', 'bow', 22, 14),
   sling: F('handxbow', 'hxbow', 17, 10), sceptre: F('wand', 'wand', 20, 12), censer: F('staff', 'staff', 50, 38),
-  warhorn: F('orb', 'off', 0, 0), trap_kit: F('quiver', 'off', 0, 0), tome: F('orb', 'off', 0, 0),
+  warhorn: F('quiver', 'off', 0, 0), trap_kit: F('quiver', 'off', 0, 0), tome: F('orb', 'off', 0, 0),
 };
 
 /** Bespoke treatments a legendary can carry on top of its family (weaponArt.ts SIGNATURES). Each changes the
@@ -67,6 +70,13 @@ export const LEGENDARY_VISUAL: Record<string, LegendaryVisual> = {
   cindervane: { motif: 'flame', bespoke: 'cindervane' }, void_heart: { motif: 'void' }, starfall_mantle: { motif: 'star' },
   thousand_missiles: { motif: 'arcane' }, ouroboros_loop: { motif: 'gold' }, patient_thief: { motif: 'shadow' },
   hellforge_talisman: { motif: 'flame' }, witching_cord: { motif: 'arcane' }, stridewind: { motif: 'wind' }, mountain_fists: { motif: 'stone' },
+  // shared-items wave (claude/depth, shared/src/data/powers/shared.ts): motifs from ITEMS-SHARED.md §6; Journeyman's
+  // Ring is not in that table, 'gold' is a placeholder [P]
+  patchwork_signet: { motif: 'gold' }, journeymans_ring: { motif: 'gold' }, watchkeepers_hood: { motif: 'shadow' },
+  kilnwatch_spaulders: { motif: 'ember' }, hearthguard_coat: { motif: 'holy' }, ink_stained_gloves: { motif: 'shadow' },
+  causeway_waders: { motif: 'shadow' }, ridgewalker_boots: { motif: 'wind' }, surveyors_plumb: { motif: 'shadow' },
+  brine_tally: { motif: 'gold' }, signal_horn_charm: { motif: 'chime' }, lockglass_cincture: { motif: 'knot' },
+  wardkeepers_cuffs: { motif: 'shadow' },
 };
 
 export interface SetStyle {

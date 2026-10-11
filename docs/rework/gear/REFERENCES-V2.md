@@ -86,3 +86,13 @@ means the text sources are silent, not that the effect does not exist.
 | V9 | **Scale by composition**: few base types × versions × effects (96 GW2 looks from 16 types; WoW 4 looks × 4 tints; PoE shared base art + unique art). | G2, W4, X2 |
 | V10 | **Item-tied prestige effects**: footfalls / aura come from a specific item (legendary weapon, legendary trinkets escalating with count, Mythic set), not from an account-wide rank. | G1, G4, W1 |
 | V11 | **Remove the abstract ladder from the UI**: rarity colour + enhancement (+N / stars) are what the reference games show on the item card; no game found shows a separate "tier" name. | M4, M5, X2 |
+
+## 4. Pass 2.1 (hold pose, attack presentation; logged before the rig changes)
+| # | Observation | Label / source |
+|---|---|---|
+| A1 | MapleStory Classic's item pages list the **basic attack visuals by weapon category** (swings, thrusts, crouched variants) and note that presentations are shared across the weapons of a category: one hold / attack set per family, the item only changes the drawing. | [S] meowdb.com/msclassic/item-db/1662 (page summary) |
+| A2 | MapleStory keeps its idle frames per weapon stance (`stand1` one-handed, `stand2` two-handed). Frame names not re-verified. | [K] |
+| A3 | A held prop reads at small sprite sizes when part of it breaks the body silhouette; a prop drawn inside the silhouette depends on contrast alone, one behind the body is lost. Common sprite-art guidance, no single source. | [K] |
+| A4 | ARPGs colour attacks by **damage element** (fire orange, cold blue, lightning violet / white, poison green); the weapon's own colour shows on physical attacks and on the effect layer around them. Diablo III / Path of Exile convention. | [K] |
+| A5 | Prestige weapons change the attack itself: Terra Blade's swing aura and slash beyond the blade (T2), GW2 legendaries replace the weapon trail (G1); effects must show off the weapon, not hide the target (G2, V8). | [S] via T2, G1, G2 |
+| A6 | After the first pass-2.1 hold (readable direction only), G0 at side 65° (the commonest facing): the light weapons still rested over the torso — wand box 100 % inside the torso box, hand crossbow 92 %, sword 56 %; the bow (left hand, far side) was behind the torso. Hero torso box 31–40 units wide; screen x ≈ 0.91·x − 0.42·z at yaw 65. | [M] `?view=weapon-pose`, `window.__pose` |

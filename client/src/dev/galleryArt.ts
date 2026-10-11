@@ -26,12 +26,15 @@ import { F_WINDUP } from '@shared/protocol';
 import { gearLook, gearProfile } from '@shared/gearVisual';
 import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/gearShowcase';
 import { gearFxStats } from '../render/art/gearFx';
-import { SET_STYLE } from '../render/art/gearStyle';
+import { SET_STYLE, setSizeCap } from '../render/art/gearStyle';
 import { preferences } from '../game/preferences';
+import { Vfx } from '../render/vfx';
 
 const qs = new URLSearchParams(location.search);
 // ?q=full|reduced|off: gear-effect level for the gallery heroes (they count as other players)
 { const q = qs.get('q'); if (q === 'full' || q === 'reduced' || q === 'off') preferences.set({ otherGearEffects: q, gearEffects: q }); }
+// ?cap=1.5|1.8|2.1: show another one-hander size cap (owner decision 1, DESIGN-V2 §2.6)
+{ const c = qs.get('cap'); if (c) setSizeCap(Number(c)); }
 // baked pages are only retained for the sheet viewer (keeping every page alive would leak in ?view=stress)
 (globalThis as { __artDebug?: boolean }).__artDebug = (qs.get('view') ?? 'chars') === 'sheets';
 const VIEW = qs.get('view') ?? 'chars';
@@ -631,6 +634,9 @@ function mon2View() {
 function stageLook(cls: ClassId, stage: ShowcaseStage, seedN = 3): PlayerLook {
   const save = createCharacter('Gear', cls, 5);
   save.equipment = showcaseEquipment(cls, stage, seedN);
+  // ?noset=1: the same loadout with every Set piece shown as a Legendary (no Set wings / sigil: the item-driven look
+  // of the gear itself, pass 2.1 newcomer-vs-endgame check)
+  if (qs.get('noset')) for (const it of Object.values(save.equipment)) if (it && it.rarity === 'set') { it.rarity = 'legendary'; delete it.set; }
   const look = playerLook(save);
   // ?legacy=1: the same loadout without the visual progression = exactly what the game drew before (protocol 21)
   if (qs.get('legacy')) { delete look.jw; for (const l of Object.values(look.slots)) if (l) delete l.fx; }
@@ -638,7 +644,7 @@ function stageLook(cls: ClassId, stage: ShowcaseStage, seedN = 3): PlayerLook {
 }
 const STAGE_LABEL: Record<ShowcaseStage, string> = { starter: 'Starter', L10: 'Level 10', L20: 'Level 20', L30: 'Level 30', L40: 'Level 40', L50: 'Level 50', L60: 'Level 60', L70: 'Level 70', set: 'Full set', ancient: 'Kindled set', primal: 'Fabled set' };
 
-/** ?view=gear-ladder: each class from starter rags to a Primal set (the contact sheet of DESIGN.md §1). */
+/** ?view=gear-ladder: each class from starter rags to a Fabled set (the contact sheet of DESIGN.md §1). */
 function gearLadderView() {
   const stages = (qs.get('stages')?.split(',') as ShowcaseStage[] | undefined) ?? [...SHOWCASE_STAGES];
   const colW = Number(qs.get("colw") ?? 98), rowH = Number(qs.get("rowh") ?? 186), gx = 64, gy = 140;
@@ -720,7 +726,7 @@ function gearSetsView() {
   world.scale.set(ZOOM * Number(qs.get('k') ?? 0.62));
 }
 
-/** ?view=gear-icons: icons across the tier ladder (tier frames, Set marks, temper stars, Ancient / Primal jewels). */
+/** ?view=gear-icons: icons across the tier ladder (tier frames, Set marks, temper stars, Kindled / Fabled jewels). */
 function gearIconsView() {
   const el = document.getElementById('icons')!;
   el.style.display = 'block';
@@ -731,8 +737,8 @@ function gearIconsView() {
   const steps: { name: string; rarity: Rarity; ilvl: number; ancient?: 0 | 1 | 2; upgrade?: number }[] = [
     { name: 'Threadbare', rarity: 'normal', ilvl: 5 }, { name: 'Homespun', rarity: 'normal', ilvl: 20 }, { name: 'Tempered', rarity: 'magic', ilvl: 20 },
     { name: 'Fine', rarity: 'magic', ilvl: 40 }, { name: 'Masterwork', rarity: 'rare', ilvl: 30, upgrade: 4 }, { name: 'Runic', rarity: 'rare', ilvl: 60, upgrade: 7 },
-    { name: 'Storied', rarity: 'legendary', ilvl: 60 }, { name: 'Heroic', rarity: 'set', ilvl: 70, upgrade: 4 }, { name: 'Ancient', rarity: 'legendary', ilvl: 70, ancient: 1, upgrade: 7 },
-    { name: 'Primal', rarity: 'set', ilvl: 70, ancient: 2, upgrade: 10 },
+    { name: 'Storied', rarity: 'legendary', ilvl: 60 }, { name: 'Heroic', rarity: 'set', ilvl: 70, upgrade: 4 }, { name: 'Kindled', rarity: 'legendary', ilvl: 70, ancient: 1, upgrade: 7 },
+    { name: 'Fabled', rarity: 'set', ilvl: 70, ancient: 2, upgrade: 10 },
   ];
   const head = (t: string) => { const d = document.createElement('div'); d.textContent = t; d.style.textAlign = 'center'; wrap.appendChild(d); };
   head('');
@@ -916,6 +922,162 @@ function weaponBoardHeroes() {
   world.scale.set(1);
 }
 
+/** ?view=weapon-pose: every weapon family held by a plain hero at the facing yaws the game uses (side ±65, towards the
+ *  camera 20, away 158) and walking, at the default game camera; &ilvl= &rarity= pick the weapon. Logs how much of the
+ *  weapon's screen box the head and torso cover (window.__pose) — the readability measure of the rest poses. */
+function weaponPoseView() {
+  artDebug.deterministic = true;
+  const fams = qs.get('bases')?.split(',') ?? ['sword', 'axe', 'mace', 'wand', 'handxbow', 'bow', 'crossbow', 'sword2h', 'axe2h', 'staff'];
+  const ilvl = Number(qs.get('ilvl') ?? 70), rarity = (qs.get('rarity') ?? 'rare') as Rarity;
+  const cols: { label: string; yaw: number; walk: boolean }[] = [
+    { label: 'side 65°', yaw: 65, walk: false }, { label: 'camera 20°', yaw: 20, walk: false }, { label: 'away 158°', yaw: 158, walk: false },
+    { label: 'side 115°', yaw: 115, walk: false }, { label: 'walk', yaw: 65, walk: true },
+  ];
+  const z = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  const colW = 230, rowH = Number(qs.get('rowh') ?? 102), gx = 260, gy = 92;
+  const holder = new Container();
+  world.addChild(holder);
+  cols.forEach((c, ci) => label(c.label, gx + ci * colW, 8, 15, 0xe8d9b5));
+  const rows: Record<string, unknown>[] = [];
+  fams.forEach((b, ri) => {
+    const base = BASES[b];
+    const cls: ClassId = base.classes?.[0] ?? 'warrior';
+    const y = gy + ri * rowH;
+    label(base.noun, 90, y - 34, 14, 0xc9b98f);
+    cols.forEach((c, ci) => {
+      const save = createCharacter('Pose', cls, 7);
+      const look = playerLook(save);
+      const it = generateItem(new Rng(77 + ri), { ilvl, classId: cls, rarity, base: b, ancientAllowed: false });
+      look.slots.mainhand = gearLook(it);
+      if (base.weapon?.twoHanded || cls !== 'ranger') delete look.slots.offhand;
+      if (cls === 'ranger' && (b === 'bow' || b === 'crossbow')) delete look.slots.offhand;
+      bakePlayerLook(look);
+      const v = new PlayerArt(look);
+      const x = gx + ci * colW;
+      v.setYaw(c.yaw);
+      v.root.position.set(x / z, y / z);
+      holder.addChild(v.root);
+      for (let i = 0; i < 60; i++) v.update(1 / 60, { x: x / z, y: y / z, vx: c.walk ? 200 : 0, vy: 0, moving: c.walk, facingLeft: false, flags: c.walk ? F_MOVING : 0, attackSeq: 0, hpFrac: 1, time: i / 60, aps: 1.2 });
+      if (!c.walk) v.setYaw(c.yaw);
+      v.update(1 / 60, { x: x / z, y: y / z, vx: c.walk ? 200 : 0, vy: 0, moving: c.walk, facingLeft: false, flags: c.walk ? F_MOVING : 0, attackSeq: 0, hpFrac: 1, time: 1, aps: 1.2 });
+      const parts = (v as unknown as { parts: Record<string, Container> }).parts;
+      const bb = (n: string) => { const o = parts[n]; if (!o || !o.visible) return null; const r = o.getBounds(); return { x0: r.minX, y0: r.minY, x1: r.maxX, y1: r.maxY }; };
+      const w = bb('weapon'), head = bb('head'), torso = bb('torso');
+      const ov = (a: typeof w, q: typeof w) => (!a || !q ? 0 : Math.max(0, Math.min(a.x1, q.x1) - Math.max(a.x0, q.x0)) * Math.max(0, Math.min(a.y1, q.y1) - Math.max(a.y0, q.y0)));
+      const wa = w ? (w.x1 - w.x0) * (w.y1 - w.y0) : 0;
+      rows.push({ base: b, col: c.label, weaponPx: w ? [Math.round(w.x1 - w.x0), Math.round(w.y1 - w.y0)] : null, headCover: wa ? +(ov(w, head) / wa).toFixed(2) : 0, torsoCover: wa ? +(ov(w, torso) / wa).toFixed(2) : 0, dx: w && torso ? Math.round((w.x0 + w.x1 - torso.x0 - torso.x1) / 2) : null, torsoW: torso ? Math.round(torso.x1 - torso.x0) : null, ext: w && torso ? Math.round(Math.max(0, w.x1 - torso.x1, torso.x0 - w.x0)) : null, front: !!parts.weapon && !!parts.torso && parts.weapon.zIndex > parts.torso.zIndex });
+    });
+  });
+  holder.scale.set(z);
+  world.scale.set(1);
+  (window as unknown as { __pose: unknown }).__pose = rows;
+}
+
+/** ?view=weapon-strike: the attack presentation per generation (DESIGN-V2 §10). One row per WB_COLS stage, columns are
+ *  frozen instants of a real primary attack: the hero art (swing trail, strike flash, impact burst) and the real Vfx
+ *  module (cleave arc, projectile skin, hit flash) driven by the same events the server sends, all advanced in lockstep
+ *  at 240 Hz and frozen at the shown time after the cast. &me=0 shows every row as another player's attack (row heroes
+ *  count as "mine" by default: the presentation you see of your own hero). */
+function weaponStrikeView() {
+  artDebug.deterministic = true;
+  const rowsIdx = (qs.get('rows') ?? '0,1,2,3,4,5,6,10,11,12').split(',').map(Number);
+  type Cell = { label: string; base: string; cls: ClassId; sk: string; at: number; proj?: { v: string; el: number; speed: number } };
+  const cells: Cell[] = [
+    { label: 'sword +70ms', base: 'sword', cls: 'warrior', sk: 'cleave', at: 0.07 },
+    { label: 'sword +140ms', base: 'sword', cls: 'warrior', sk: 'cleave', at: 0.14 },
+    { label: 'axe 2h +90ms', base: 'axe2h', cls: 'warrior', sk: 'cleave', at: 0.09 },
+    { label: 'bow +55ms', base: 'bow', cls: 'ranger', sk: 'hungering_arrow', at: 0.055, proj: { v: 'arrow', el: 0, speed: 900 } },
+    { label: 'bow hit +140ms', base: 'bow', cls: 'ranger', sk: 'hungering_arrow', at: 0.14, proj: { v: 'arrow', el: 0, speed: 900 } },
+    { label: 'wand +60ms', base: 'wand', cls: 'mage', sk: 'magic_missile', at: 0.06, proj: { v: 'missile', el: 5, speed: 800 } },
+    { label: 'wand hit +150ms', base: 'wand', cls: 'mage', sk: 'magic_missile', at: 0.15, proj: { v: 'missile', el: 5, speed: 800 } },
+  ];
+  const z = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  const colW = Number(qs.get('colw') ?? 236), rowH = Number(qs.get('rowh') ?? 100), gx = 150, gy = 96;
+
+  const holder = new Container();
+  const groundFx = new Container(), ents = new Container(), aboveFx = new Container(), text = new Container();
+  text.visible = false; // damage numbers would cover the hits; the numbers are not part of this pass
+  holder.addChild(groundFx, ents, aboveFx, text);
+  world.addChild(holder);
+  holder.scale.set(z);
+  world.scale.set(1);
+  cells.forEach((c, ci) => label(c.label, gx + ci * colW + 50, 8, 14, 0xe8d9b5));
+  const reg = new Map<number, { x: number; y: number; view: EntityView; r: number }>();
+  let me = qs.get('me') === '0' ? -1 : 0;
+  const vfx = new Vfx({ groundFx, aboveFx, text }, {
+    myId: () => me,
+    entityPos: (id) => { const e = reg.get(id); return e ? { x: e.x, y: e.y } : null; },
+    entityView: (id) => reg.get(id)?.view ?? null,
+    entityRadius: (id) => reg.get(id)?.r ?? 16,
+    shake: () => undefined, hitStop: () => undefined, zoom: () => z,
+  });
+  interface Run { id: number; tid: number; view: EntityView; x: number; y: number; t0: number; c: Cell; fired: boolean; ended: boolean; hitAt: number; pid: number }
+  const runs: Run[] = [];
+  const T_END = 1.2;
+  let pid = 1;
+  rowsIdx.forEach((wi, ri) => {
+    const col = WB_COLS[wi];
+    const y = gy + ri * rowH;
+    label(col.label, 70, y - 34, 13, 0xc9b98f);
+    cells.forEach((c, ci) => {
+      const save = createCharacter('Strike', c.cls, 7);
+      const look = playerLook(save);
+      const it = wbItem(c.base, col, wi) ?? wbItem(c.base, { ...col, sig: false }, wi);
+      if (!it) return;
+      look.slots.mainhand = gearLook(it);
+      delete look.slots.offhand;
+      bakePlayerLook(look);
+      const v = new PlayerArt(look);
+      const x = gx + ci * colW;
+      const id = 1000 + ri * 20 + ci, tid = 5000 + ri * 20 + ci;
+      v.root.position.set(x / z, y / z);
+      ents.addChild(v.root);
+      v.setYaw(65);
+      reg.set(id, { x: x / z, y: y / z, view: v, r: 16 });
+      const dx = c.proj ? 112 : 70; // world units: inside Cleave's 86 range / a short bow shot
+      const dummy = createNpcView('dummy', 'Training Dummy');
+      dummy.root.position.set(x / z + dx, y / z);
+      ents.addChild(dummy.root);
+      reg.set(tid, { x: x / z + dx, y: y / z, view: dummy, r: 18 });
+      runs.push({ id, tid, view: v, x: x / z, y: y / z, t0: T_END - c.at, c, fired: false, ended: false, hitAt: 0, pid: pid++ });
+    });
+  });
+  let t = 0;
+  while (t < T_END - 1e-9) {
+    const step = Math.min(DT, T_END - t);
+    t += step;
+    for (const r of runs) {
+      const tg = reg.get(r.tid)!;
+      if (!r.fired && t >= r.t0) {
+        r.fired = true;
+        me = qs.get('me') === '0' ? -1 : r.id;
+        (r.view as PlayerArt).playAction({ skill: r.c.sk, tx: tg.x, ty: tg.y, cycleMs: 1000 / 1.4 });
+        vfx.handle({ e: 'cast', s: r.id, sk: r.c.sk, x: r.x, y: r.y, tx: tg.x, ty: tg.y, ...(r.c.proj ? {} : { rad: 120 }) });
+        if (r.c.proj) {
+          const d = Math.hypot(tg.x - r.x, tg.y - r.y), life = Math.round((d - tg.r) / r.c.proj.speed * 1000);
+          vfx.handle({ e: 'proj', id: r.pid, s: r.id, v: r.c.proj.v, x: r.x, y: r.y - 4, vx: (tg.x - r.x) / d * r.c.proj.speed, vy: 0, life: life + 400, el: r.c.proj.el });
+          r.hitAt = r.t0 + life / 1000;
+        } else {
+          vfx.handle({ e: 'aoe', v: 'cleave', x: Math.round(r.x), y: Math.round(r.y), r: 110, d: 220, el: 0, s: r.id, a: 0 });
+          r.hitAt = r.t0;
+        }
+        me = qs.get('me') === '0' ? -1 : 0;
+      }
+      if (r.fired && !r.ended && t >= r.hitAt) {
+        r.ended = true;
+        me = qs.get('me') === '0' ? -1 : r.id;
+        if (r.c.proj) vfx.handle({ e: 'pend', id: r.pid, x: tg.x - tg.r, y: tg.y - 4, hit: 1 });
+        vfx.handle({ e: 'dmg', t: r.tid, a: 1200, el: r.c.proj?.el ?? 0, s: r.id });
+        me = qs.get('me') === '0' ? -1 : 0;
+      }
+      r.view.update(step, { x: r.x, y: r.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: t, aps: 1.4 });
+      tg.view.update(step, { x: tg.x, y: tg.y, vx: 0, vy: 0, moving: false, facingLeft: true, flags: 0, attackSeq: 0, hpFrac: 1, time: t, aps: 1 });
+    }
+    vfx.update(step * 1000);
+  }
+  (window as unknown as { __strike: unknown }).__strike = runs.map((r) => ({ cell: r.c.label, skin: (r.view as PlayerArt).weaponSkin() }));
+}
+
 let drawCalls = 0, drawCallsShown = 0;
 function perfView() {
   mapView();
@@ -1022,6 +1184,8 @@ switch (VIEW) {
   case 'gear-measure': void gearMeasureView(); break;
   case 'weapon-board': weaponBoardIcons(); break;
   case 'weapon-hero': weaponBoardHeroes(); break;
+  case 'weapon-pose': weaponPoseView(); break;
+  case 'weapon-strike': weaponStrikeView(); break;
 }
 
 let time = 0;

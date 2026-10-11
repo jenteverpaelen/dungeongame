@@ -6,7 +6,8 @@ import type { GameEvent } from '@shared/protocol';
 import type { VfxCore } from './core';
 import type { Fx } from './particles';
 import type { Combat } from './combat';
-import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, angDiff, clamp, pal, rand } from './util';
+import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, angDiff, clamp, lerpColor, pal, rand } from './util';
+import type { WeaponSkin } from '../art/weaponSkin';
 
 type ProjEv = Extract<GameEvent, { e: 'proj' }>;
 type PEnd = Extract<GameEvent, { e: 'pend' }>;
@@ -18,6 +19,10 @@ interface Proj {
   lob: boolean; x0: number; y0: number; tx: number; ty: number; H: number;
   parts: Fx[]; acc: number; spin: number; phase: number;
   color: number; hot: number;
+  /** The shooter's weapon presentation (gear V2 pass 2.1): physical shots take its light, every shot a soft aura and
+   *  trail motes in it; null for monsters and plain weapons. */
+  skin: WeaponSkin | null;
+  aura: Fx | null;
 }
 
 const MAX = 600;
@@ -53,12 +58,13 @@ export class Projectiles {
     const lob = ev.v === 'cluster';
     const mine = V.isMine(ev.s);
     const [color, hot] = boltColor(ev.el);
+    const skin = V.skinOf(ev.s);
     const p: Proj = {
-      id: ev.id, v: ev.v, el: ev.el, mine, sz: ev.sz ?? 1,
+      id: ev.id, v: ev.v, el: ev.el, mine, sz: (ev.sz ?? 1) * (skin ? 1 + Math.min(0.4, skin.strength * 0.22) : 1),
       x: ev.x, y: ev.y, z: 26, vx: ev.vx, vy: ev.vy, speed,
       age: 0, life, h: ev.h ?? 0, turn: 6,
       lob, x0: ev.x, y0: ev.y, tx: ev.x + ev.vx * life, ty: ev.y + ev.vy * life, H: 0,
-      parts: [], acc: 0, spin: rand(0, TAU), phase: rand(0, TAU), color, hot,
+      parts: [], acc: 0, spin: rand(0, TAU), phase: rand(0, TAU), color, hot, skin, aura: null,
     };
     if (lob) p.H = clamp(Math.hypot(p.tx - p.x, p.ty - p.y) * 0.42, 50, 190);
     this.build(p);
@@ -178,6 +184,17 @@ export class Projectiles {
         add(s.aAdd, T.swirl, p.color);
         add(s.aAdd, T.core, p.hot);
       }
+    }
+    // weapon skin: physical shots take the weapon's light (elemental colours keep telling the damage type); every shot
+    // carries a soft aura in it (an extra part after the body parts: place() positions it last)
+    if (p.skin) {
+      const k = p.skin;
+      if (p.el === EL_PHYS && (p.v === 'arrow' || p.v === 'bolt' || p.v === 'missile' || p.v === 'spark')) {
+        p.color = k.light; p.hot = k.core || lerpColor(k.light, 0xffffff, 0.5);
+        if (p.v === 'arrow') p.parts[0].tintTo(lerpColor(k.light, 0xffffff, 0.35));
+        else { p.parts[0].tintTo(p.color); p.parts[1]?.tintTo(p.hot); }
+      }
+      p.aura = add(s.aAdd, T.glow, k.edge || k.light);
     }
     this.place(p, 0);
   }
@@ -305,6 +322,11 @@ export class Projectiles {
         c.place(p.x, p.y, p.z); c.setScale(18 * sz); c.setAlpha(1);
       }
     }
+    if (p.aura && p.skin) {
+      p.aura.place(p.x, p.y, p.z);
+      p.aura.setScale((18 + 8 * Math.min(1.6, p.skin.strength)) * sz * (1 + Math.sin(t * 20 + p.phase) * 0.08));
+      p.aura.setAlpha(0.32);
+    }
   }
 
   /** Emit trail particles every few units travelled. */
@@ -368,12 +390,19 @@ export class Projectiles {
           f.z = z + rand(-3, 3); f.w0 = 11 * p.sz; f.w1 = 1; f.fo = 0.1; f.tintTo(p.color);
         }
       }
+      // weapon skin motes along the path, by the drawing's particle hint
+      const k = p.skin;
+      if (k && Math.random() < 0.3 * Math.min(1.5, k.strength) * s.budget) {
+        if (k.impact === 'ember') s.ember(x, y, z, k.edge || k.light, 0.45, 4, 30);
+        else s.glint(x + rand(-3, 3), y, z + rand(-3, 3), 7 + 3 * Math.min(1.6, k.strength), k.impact === 'star' ? 0xffffff : k.core || k.light, 0.28, 0.85);
+      }
     }
   }
 
   private impact(p: Proj, hit: boolean, x: number, y: number): void {
     const V = this.V, s = V.sys, T = s.T;
     const z = p.lob ? 6 : p.z;
+    if (hit && p.skin) s.flash(x, y, z, 12 + 8 * Math.min(1.6, p.skin.strength), p.skin.light, 0.08, 0.55);
     switch (p.v) {
       case 'arrow': {
         if (hit) {

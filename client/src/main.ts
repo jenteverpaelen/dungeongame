@@ -11,6 +11,9 @@ import '@fontsource/lilita-one/400.css';
 import './ui/styles/tokens.css';
 
 import { Application } from 'pixi.js';
+// The served page has a strict CSP without 'unsafe-eval' (server/src/net/static.ts PAGE_CSP); Pixi then needs its
+// eval-free shader/uniform path, which this module installs. Must load before any renderer is created.
+import 'pixi.js/unsafe-eval';
 import { h, render } from 'preact';
 import { Game } from './game/game';
 import { startPreviews } from './game/previews';

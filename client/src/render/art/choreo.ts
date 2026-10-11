@@ -108,7 +108,24 @@ const tmpA = newPose(), tmpB = newPose(), tmpC = newPose();
 
 // ─────────────────────────── rest / locomotion ───────────────────────────
 
-export interface BaseIn { t: number; walk: number; move: number; dash: number; stun: number; cast: number; turn: number }
+export interface BaseIn { t: number; walk: number; move: number; dash: number; stun: number; cast: number; turn: number; /** body yaw (deg): the rest hold of light weapons turns to stay readable */ yaw?: number }
+
+/** Rest direction of a light weapon (one-handers, wands, hand crossbows) that reads from the facing yaws the game uses
+ *  (gear V2 pass 2.1): forward when seen in profile, out to the hand's side when facing the camera or away, so it never
+ *  sits over the head or the torso; `down` tilts the business end (negative = up). Measured in ?view=weapon-pose. */
+function readableHold(yawDeg: number, down: number): V3 {
+  const th = yawDeg * (Math.PI / 180);
+  const sf = Math.abs(Math.sin(th)), cf = Math.abs(Math.cos(th));
+  // in profile the weapon hand is on the camera's side of the torso, so the outward (+z) part would pull the business
+  // end back over the body on screen (screen x ≈ 0.91·x − 0.42·z at yaw 65): it fades out as the view turns to profile
+  return norm(0.85 * sf + 0.1, down, 0.8 * cf * cf + 0.12 - 0.25 * sf * sf);
+}
+/** Arm swing / outward yaw of a light weapon's rest hand: further forward and closer to the body line in profile (the
+ *  hand then sits at the front edge of the torso instead of over it), out to the side when facing the camera or away. */
+function lightHand(yawDeg: number, a0: number, swing: number): V3 {
+  const th = yawDeg * (Math.PI / 180), sf = Math.abs(Math.sin(th)), cf = Math.abs(Math.cos(th));
+  return arm(1, a0 - 0.3 * sf - swing * 0.5, -0.3 * sf + 0.95 * cf);
+}
 
 /** Idle + walk (+ dash / stun / generic cast) for a weapon kit. Writes every field of P. */
 export function basePose(P: Pose, kit: Kit, s: BaseIn): void {
@@ -126,7 +143,9 @@ export function basePose(P: Pose, kit: Kit, s: BaseIn): void {
   const bob = V(0, breath * 0.35 * (1 - m), 0);
   switch (kit.wk) {
     case '1h':
-      P.hR = arm(1, -0.42 - swing * 0.6, 0.55); P.w = norm(0.55, -0.82, 0.18);
+      // readable side hold (gear V2 pass 2.1): the hand low and out to the side, the weapon angled forward and out,
+      // clear of the head and the torso at every facing yaw (measured: gallery ?view=weapon-pose)
+      P.hR = lightHand(s.yaw ?? 65, -0.38, swing); P.w = readableHold(s.yaw ?? 65, 0.3);
       P.hL = kit.shield ? V(8.6 + sw * 0.8 * m, -20.6, -3.4) : arm(-1, -0.1 + swing, 0.8);
       break;
     case '2h':
@@ -135,16 +154,29 @@ export function basePose(P: Pose, kit: Kit, s: BaseIn): void {
       P.hR = V(1.4 + sw * 0.6 * m, -19.6, 7.8); P.hL = arm(-1, -0.12 + swing, 0.8);
       P.w = norm(-0.42, -0.9, 0.52);
       break;
-    case 'bow':
-      // bow carried forward in the bow hand so it reads from either side
-      P.hL = V(11 + sw * 1.2 * m, -21.5, -3); P.w = norm(1, 0, 0.35); P.up = norm(0.22, -1, 0.05);
+    case 'bow': {
+      // bow carried in the bow hand, its belly turned to the camera's side so the limbs read from any yaw: forward in
+      // profile, out to the bow hand's side when facing the camera or away (pass 2.1, ?view=weapon-pose)
+      const th = (s.yaw ?? 65) * (Math.PI / 180), sf = Math.abs(Math.sin(th)), cf = Math.abs(Math.cos(th));
+      // in profile the bow hand is on the far side of the torso: it is carried forward of the chest so the limbs clear it
+      // turned away (cos < 0) the bow hand's outward offset would pull it back behind the body on screen, so there it
+      // stays nearer the body line in profile and goes further out to the side when seen from behind
+      const away = Math.cos(th) < 0 ? 1 : 0;
+      P.hL = V(3 + 11 * sf + away * (3 * sf - 5 * cf) + sw * 1.2 * m, -21.5, -3 - 8 * cf + away * (2.5 * sf - 7 * cf * cf));
+      P.w = norm(sf + 0.1, 0, -(0.9 * cf + 0.2) + 0.35 * sf); P.up = norm(0.22, -1, 0.05 - 0.2 * cf);
       P.hR = arm(1, -0.15 - swing, 0.7);
       break;
-    case 'xbow':
-      P.hR = V(3.6 + sw * 0.6 * m, -21.4, 6.6); P.hL = V(9.6 + sw * 0.6 * m, -23.4, 1.2); P.w = norm(1, -0.32, -0.05);
+    }
+    case 'xbow': {
+      // carried at the hip, the stock turned out to the side when facing the camera or away
+      const th = (s.yaw ?? 65) * (Math.PI / 180), sf = Math.abs(Math.sin(th)), cf = Math.abs(Math.cos(th));
+      P.w = norm(sf + 0.1, -0.3, 0.85 * cf * cf + 0.05);
+      P.hR = V(3.6 + 4 * sf + sw * 0.6 * m, -21.4, 6.6 + 3 * cf);
+      P.hL = V(P.hR.x + P.w.x * 6.5, P.hR.y + P.w.y * 6.5 - 1.2, P.hR.z + P.w.z * 6.5 - 4.6 * sf);
       break;
+    }
     case 'hxbow':
-      P.hR = arm(1, -0.6 - swing * 0.5, 0.4); P.w = norm(0.8, -0.6, 0.08);
+      P.hR = lightHand(s.yaw ?? 65, -0.95, swing * 0.8); P.w = readableHold(s.yaw ?? 65, -0.12);
       P.hL = arm(-1, -0.1 + swing, 0.8);
       break;
     case 'staff':
@@ -153,7 +185,8 @@ export function basePose(P: Pose, kit: Kit, s: BaseIn): void {
       P.hL = arm(-1, -0.15 + swing, 0.8);
       break;
     case 'wand':
-      P.hR = arm(1, -0.62 - swing * 0.6, 0.45); P.w = norm(0.62, -0.78, 0.12);
+      { const sf = Math.abs(Math.sin((s.yaw ?? 65) * (Math.PI / 180)));
+        P.hR = lightHand(s.yaw ?? 65, -0.7 - 0.25 * sf, swing); P.w = readableHold(s.yaw ?? 65, -0.42 + 0.45 * sf); }
       P.hL = arm(-1, -0.42 + swing * 0.6, 0.6);
       break;
     default:

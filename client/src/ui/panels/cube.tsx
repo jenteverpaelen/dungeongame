@@ -176,7 +176,7 @@ function EnchantView({ item, char }: { item: Item | null; char: CharacterSave })
     <div class="cv">
       {canRekindle(item) && (
         <div class="cv-row">
-          <Note>This item is an old Ancient. The Mystic can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
+          <Note>This item still has its old grade bonus. The Mystic can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
           <button class="btn sm" onClick={async () => { const r = await run('rekindle', { itemId: item.id }); if (r.ok) flash('success', 'Rekindled', 'The item now carries a Kindled property.'); }}>Rekindle</button>
         </div>
       )}
@@ -327,7 +327,7 @@ function TransmuteView({ item }: { item: Item | null }) {
         <IconArrowRight size={20} />
         <div class="tr-box out"><label>Output</label><b class="r-legendary">{item ? `Legendary ${KIND_LABEL[item.kind]}` : 'A random Legendary'}</b></div>
       </div>
-      <Note>The Rare item is consumed and replaced by a random Legendary of the same type. It may roll as Ancient.</Note>
+      <Note>The Rare item is consumed and replaced by a random Legendary of the same type. It may roll as Kindled or Fabled.</Note>
       {item && item.upgrade > 0 && <Note tone="warn">The +{item.upgrade} upgrade tier will be lost.</Note>}
     </div>
   );
@@ -390,7 +390,7 @@ function ExtractView({ item, char }: { item: Item | null; char: CharacterSave })
           <span class="teach"><b class="r-legendary">{LEGENDARIES[item.legendary.power].name}</b>{learned ? <em class="have"><IconCheck size={10} /> Already learned</em> : <em class="new">New power</em>}</span>
         </div>
       )}
-      <div class="cv-label">Ancient power slots <span>({char.cube.learned.length} powers learned, always at their best roll)</span></div>
+      <div class="cv-label">Learned power slots <span>({char.cube.learned.length} powers learned, always at their best roll)</span></div>
       <KanaiSlots char={char} />
     </div>
   );
@@ -439,8 +439,8 @@ function SocketView({ item, char }: { item: Item | null; char: CharacterSave }) 
 function ReforgeView({ item }: { item: Item | null }) {
   return (
     <div class="cv">
-      <Note>Every property is rerolled as if the item had just dropped. The power and look stay the same, it may become Ancient, and its upgrade tier and enchantment reset.</Note>
-      {item && <div class="cv-row"><label>Current</label><span class="cur-line"><b class={rarityClass(item)}>{item.name}</b><em>{item.ancient ? (item.ancient === 2 ? 'Primal Ancient' : 'Ancient') : 'Normal roll'}{item.upgrade ? ` · +${item.upgrade}` : ''}</em></span></div>}
+      <Note>Every property is rerolled as if the item had just dropped. The power and look stay the same, it may become Kindled or Fabled, and its upgrade tier and enchantment reset.</Note>
+      {item && <div class="cv-row"><label>Current</label><span class="cur-line"><b class={rarityClass(item)}>{item.name}</b><em>{item.ancient ? (item.ancient === 2 ? 'Fabled' : 'Kindled') : 'Normal roll'}{item.upgrade ? ` · +${item.upgrade}` : ''}</em></span></div>}
     </div>
   );
 }

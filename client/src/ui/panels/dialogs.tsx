@@ -218,7 +218,7 @@ export function ObeliskPanel() {
             <span class="ob-sigil"><UiIcon name="obelisk" size={40} /></span>
             <div>
               <h3>{d.name}</h3>
-              <span>{lockedSel ? `Unlocks at level ${d.minLevel}` : torment ? 'For fully geared heroes. Primal items can drop.' : 'Open to your level.'}</span>
+              <span>{lockedSel ? `Unlocks at level ${d.minLevel}` : torment ? 'For fully geared heroes. Fabled items can drop.' : 'Open to your level.'}</span>
             </div>
           </header>
           <p class="co-sub">Open a rift to hunt through an endless wilderness. Slay enough monsters to draw out the Rift Guardian, then claim his spoils. Higher difficulties bring more experience, gold and legendaries; story areas stay on Normal.</p>
