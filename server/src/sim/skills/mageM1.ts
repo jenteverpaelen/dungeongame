@@ -19,7 +19,7 @@ import type { ChannelState, Dot, Mob, Player, Proj, ProjHook, SkillRuntime, Stri
 import { DEG, emitCast, face, faceTo, fanAngles, strikeOf, trimSummons, type SkillBehaviour, type SummonBehaviour } from './common';
 import { groundPlus, magicMissile, meteorAt, primaryEcho, spenderCast, summonExtend } from './mage';
 import {
-  type BoltRules, type CastBudget, type GoneSummon, type Rimefield, choirExtra, fireBolt, lineReach, mChill, mFreeze, mHit, markHandled, mstate, nearestMob, newBudget, newTally,
+  type BoltRules, type CastBudget, type GoneSummon, type Rimefield, choirExtra, fireBolt, lineReach, mChill, mChillAt, mFreeze, mSlow, mHit, markHandled, mstate, nearestMob, newBudget, newTally,
   noteSpend, scaled, summonAttacked, summonHaste,
 } from './mageKit';
 
@@ -42,7 +42,8 @@ export function rimeNeedles(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mo
   // Freeze build-up: six needles in 2 s (Deep Chill four; Deep Winter fewer; Arcane Thorns none).
   const threshold = thorns ? 0 : Math.max(1, (rt.flags.has('needleDeepChill') ? 4 : 6) - Math.floor(modVar(rt.mods, 'needleThreshold')));
   const rules: BoltRules = {
-    rt, primary: !borrowed, budget: newBudget(p), chillMs: thorns ? 0 : 1500,
+    // Bible: each needle chills 30 % (kept at the engine's 40 %: the chill state is what Chill items read); Deep Chill 60 %.
+    rt, primary: !borrowed, budget: newBudget(p), chillMs: thorns ? 0 : 1500, ...(rt.flags.has('needleDeepChill') ? { chillPct: 60 } : {}),
     needle: { threshold, freezeMs: skillDurationMs(rt), gen: modVar(rt.mods, 'needleGen'), splinter: rt.flags.has('needleSplinter'), splitKill: modVar(rt.mods, 'needleSplitKill') },
     ...(thorns ? { pierce: 1, pierceScale: 1 } : {}),
     ...(spine ? { pierceAll: true, push: 20 } : {}),
@@ -345,6 +346,19 @@ function rimefield(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const r0 = skillRadius(rt);
   const bp = follow ? (anyEnemyWithin(inst, p.x, p.y, r0 + 120) ? { x: p.x, y: p.y } : null) : bestPoint(inst, p.x, p.y, rt.def.range, r0);
   if (!bp) return false;
+  spreadRime(inst, p, rt, bp.x, bp.y, r0, false);
+  emitCast(inst, p, rt, bp.x, bp.y, r0);
+  return true;
+}
+
+/**
+ * One Rimefield at (x, y) with radius r0 (a cast, or Rimewalker Slippers' half-size copy: `copy` never follows you and
+ * does not become your most recent Ground effect).
+ */
+export function spreadRime(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, r0: number, copy: boolean) {
+  const follow = !copy && rt.flags.has('rimeFollow');
+  const bp = { x, y };
+  if (!copy) mstate(p).lastGround = { kind: 'rime', skill: rt.def.id, r: r0, scale: 1 };
   const dur = skillDurationMs(rt) + groundPlus(rt);
   const g = placeGround(inst, p, follow ? 'rime_ground_follow' : 'rime_ground', bp.x, bp.y, 0);
   if (g) { g.r = r0; g.endT = inst.t + dur; if (g.fx) { g.fx.offX = 0; g.fx.offY = 0; } }
@@ -361,6 +375,12 @@ function rimefield(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const exposure = new Map<Mob, number>(), done = new Set<Mob>();
   const vuln = rt.flags.has('rimeVuln') ? resolveStatus({ kind: 'vulnerable', pct: 15, ms: 600 }, p.ctx.powers.index) : null; // Brittle Ground
   const gen = modVar(rt.mods, 'rimeGen'), finale = modVar(rt.mods, 'rimeFinale');
+  // Cold Snap Edge (node): the rim (outer quarter of the radius [P]) slows a further rimeEdge % on top of the field's
+  // 50 % chill (movement 0.5 × (1 − edge)). Absolute Field (node): frozen enemies inside take rimeFrozenBonus % more
+  // from Rimefield and Rime Needles (a scoped vulnerability refreshed every step while they stay frozen inside).
+  const edge = modVar(rt.mods, 'rimeEdge'), edgeChill = 100 * (1 - RIME_CHILL_MOVE * (1 - edge / 100));
+  const absolute = modVar(rt.mods, 'rimeFrozenBonus');
+  const absVuln = absolute > 0 ? resolveStatus({ kind: 'vulnerable', pct: absolute, ms: 400, skills: ['rimefield', 'rime_needles'] }, p.ctx.powers.index) : null;
   const zaps = 2 + modVar(rt.mods, 'chains'); // Static Frost (+ Conductor's Legwraps)
   const zap: Strike = { ...strikeOf(p, rt, 1.0), noArea: true };
   const start = inst.t;
@@ -399,8 +419,11 @@ function rimefield(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     for (const m of inside) {
       if (m.dead) continue;
       if (vuln) applyStatus(inst, p, m, vuln, field.x, field.y, 'rimefield');
+      if (absVuln && m.freezeMs > 0) applyStatus(inst, p, m, absVuln, field.x, field.y, 'rimefield');
       if (stat) continue;
-      mChill(inst, p, m, 600);
+      // Bible: enemies inside are chilled 50 % (the engine chill is 40 %; mChillAt adds the movement difference).
+      const rim = edge > 0 && (m.x - field.x) ** 2 + (m.y - field.y) ** 2 >= (field.r * RIME_EDGE) ** 2;
+      mChillAt(inst, p, m, 600, rim ? edgeChill : 100 * (1 - RIME_CHILL_MOVE), 'rimefield');
       const e = (exposure.get(m) ?? 0) + 250;
       exposure.set(m, e);
       const ms2 = sealState(m);
@@ -416,9 +439,10 @@ function rimefield(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     inst.sched.schedule(inst.t + 250, step);
   };
   inst.sched.schedule(inst.t + 250, step);
-  emitCast(inst, p, rt, bp.x, bp.y, r0);
-  return true;
 }
+
+/** Rimefield: movement inside is 50 % of normal (bible "chilled 50 %"); the rim starts at 75 % of the radius [P]. */
+const RIME_CHILL_MOVE = 0.5, RIME_EDGE = 0.75;
 
 const seals = new WeakMap<Mob, { sealT: number }>();
 const sealState = (m: Mob) => { let s = seals.get(m); if (!s) { s = { sealT: -1e9 }; seals.set(m, s); } return s; };
@@ -452,6 +476,10 @@ function stormglassOrb(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   spenderCast(inst, p, rt, p.x + Math.cos(ang) * 220, p.y + Math.sin(ang) * 220);
   noteSpend(inst, p, skillCost(p, rt));
   emitCast(inst, p, rt, p.x + Math.cos(ang) * rt.def.range, p.y + Math.sin(ang) * rt.def.range);
+  // Paced by the attack rate (as every D3 cast takes an attack's time): a 0-cooldown Spender was limited only by
+  // resource, and Static Charge on an elite pack refunds more than an orb costs — measured 184 casts and 78 orbs in
+  // flight in 10 s without debug resources. One cast per attack interval keeps it at a few orbs.
+  p.readyAt.set(rt.def.id, inst.t + 1000 / Math.max(0.2, p.ctx.d.aps * (1 + p.live.ias / 100)));
   return true;
 }
 
@@ -584,7 +612,13 @@ function orrery(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const R = skillRadius(rt) * (wide ? MAGE_FX.orreryWideRadius : 1);
   const period = MAGE_FX.orreryPeriodMs / (wide ? MAGE_FX.orreryWideSlow : 1);
   const n = 5 + Math.max(0, Math.floor(modVar(rt.mods, 'spheres'))); // Armillary Staff
-  const dur = skillDurationMs(rt), t0 = inst.t, end = t0 + dur, phase = inst.rng.next() * TAU;
+  const dur = skillDurationMs(rt), t0 = inst.t, phase = inst.rng.next() * TAU;
+  let end = t0 + dur;
+  // Tidal Lock (node): spheres slow the enemies they pass by orrerySlow % for 1 s. Clockwinding (node): each spell you
+  // cast while it turns (bar skills, primary attacks and channels: the cast counter attackSeq) adds orreryExtend
+  // seconds, at most +10 s in total. The Orrery's own cast is not counted (its counter step comes after this call).
+  const tidal = modVar(rt.mods, 'orrerySlow'), wind = modVar(rt.mods, 'orreryExtend');
+  let seq = p.attackSeq + 1, added = 0;
   const el = skillElement(rt), frost = rt.flags.has('orreryFrost'), pull = rt.flags.has('orreryPull'), sun = rt.flags.has('orrerySun');
   const gen = modVar(rt.mods, 'orreryGen'), eclipse = modVar(rt.mods, 'orreryEclipse'), assist = modVar(rt.mods, 'orrerySynergy');
   const st = strikeOf(p, rt);
@@ -594,6 +628,15 @@ function orrery(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   let eclipseT = t0 + 5000, sunMs = 0;
   const step = () => {
     if (inst.playerById(p.id) !== p) return;
+    if (wind > 0 && p.attackSeq !== seq && added < 10000) {
+      const casts = Math.max(0, p.attackSeq - seq);
+      seq = p.attackSeq;
+      const more = Math.min(10000 - added, casts * wind * 1000);
+      if (more > 0) {
+        added += more; end += more;
+        inst.emit({ e: 'aoe', v: 'orrery_extend', x: Math.round(p.x), y: Math.round(p.y), r: Math.round(R), d: Math.round(end - inst.t), el: elIdx(el), s: p.id }, p.x, p.y, p.id);
+      }
+    }
     if (inst.t >= end || p.deadMs > 0) {
       // Comet Ring (rune): the spheres fall as 5 meteors (50 % of your Meteor's impact each) on nearby enemies.
       if (rt.flags.has('orreryMeteors') && p.deadMs <= 0) {
@@ -615,6 +658,7 @@ function orrery(inst: Instance, p: Player, rt: SkillRuntime): boolean {
         const r = mHit(inst, p, m, k === 1 ? st : scaled(st, k), rt);
         if (r.killed || m.dead) continue;
         if (frost) mChill(inst, p, m, 1500);
+        if (tidal > 0) mSlow(inst, p, m, tidal, 1000, 'orrery');
         if (pull) { const d = Math.hypot(m.x - p.x, m.y - p.y); if (d > 30) dragMob(inst, m, p.x, p.y, 10, p); } // Gravity Orrery
       }
       if (inst.t >= sp.shotT) {

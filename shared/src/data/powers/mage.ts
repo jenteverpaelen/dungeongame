@@ -92,7 +92,11 @@ export const MAGE_LEGENDARIES: LegendaryDef[] = [
   // (the dotDmg stat) covers every kind, so the text says damage-over-time. The Burn on hit uses Ignite's numbers [M].
   { id: 'firekeepers_gloves', name: 'Firekeeper’s Gloves', base: 'hands_wraps', classes: ['mage'], power: 'Your damage-over-time effects deal {v}% more damage, and your Summons’ hits make enemies Burn for 100% weapon damage over 3 seconds.', range: [25, 35], cubeSlot: 'armor', flavor: 'Too big for anyone. Worn anyway.', colors: EMBER,
     effects: [{ kind: 'stat', stat: 'dotDmg', value: ROLL }, proc('hit', { tags: tagged('summon'), applyStatus: { kind: 'burn', coef: 1, ms: 3000 } })] },
-  // Rimewalker Slippers (Ground + Movement-end copy) wait for engine wave 3 (a Movement-end trigger): MAGE-PILOT.md §2.
+  // Movement skill = the dash (engine wave 3 trigger dashEnd). The proc grants the marker buff 'rimewalker' for its 8 s
+  // internal cooldown (the HUD shows it recharging); the mage tick answers each new one with a half-size copy of your most recent Ground effect
+  // (molten ground, Black Hole or Rimefield) at the landing point (server mageKit / mage.copyGround).
+  { id: 'rimewalker_slippers', name: 'Rimewalker Slippers', base: 'feet_shoes', classes: ['mage'], power: 'Your Ground effects deal {v}% more damage, and when a Movement skill ends you drop a half-size copy of your most recent Ground effect (once every 8 seconds).', range: [25, 35], cubeSlot: 'armor', flavor: 'Every step leaves a little winter.', colors: FROST,
+    effects: [skillMore(tagged('ground'), ROLL), proc('dashEnd', { icdMs: 8000, buff: { id: 'rimewalker', ms: 8000 } })] },
   { id: 'conductors_legwraps', name: 'Conductor’s Legwraps', base: 'legs_cloth', classes: ['mage'], power: 'Your Lightning skills chain to one more enemy and deal {v}% more damage.', range: [25, 35], cubeSlot: 'armor', flavor: 'Copper thread, carefully insulated.', colors: STORM,
     effects: [skillMore(tagged('lightning'), ROLL), skillMods(tagged('lightning'), { vars: { chains: 1 } })] },
   { id: 'static_loop', name: 'Static Loop', base: 'ring', classes: ['mage'], power: 'Your Spender skills deal {v}% increased damage, and each enemy they hit refunds 1 Arcane Power (at most 8 per cast).', range: [60, 90], cubeSlot: 'jewelry', flavor: 'Your hair will stand up.', colors: STORM,

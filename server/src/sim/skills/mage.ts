@@ -19,10 +19,10 @@ import {
   type DeathHook, type SkillBehaviour, type SummonBehaviour,
 } from './common';
 import {
-  type BoltRules, type CastBudget, type CastTally, type GoneSummon, choirExtra, fireBolt, mChill, mFreeze, mHit, mstate, nearestMob,
+  type BoltRules, type CastBudget, type CastTally, type GoneSummon, type LastGround, choirExtra, fireBolt, mChill, mFreeze, mHit, mSlow, mstate, nearestMob,
   newBudget, newTally, noteSpend, refundCooldownLater, refundDuringCast, scaled, summonAttacked, summonHaste,
 } from './mageKit';
-import { extendFieldsAt } from './mageM1'; // runtime call only (module cycle)
+import { extendFieldsAt, spreadRime } from './mageM1'; // runtime calls only (module cycle)
 
 const TAU = Math.PI * 2;
 /** Horizon Cowl: "your Ground effects last 1 s longer" (ms, read where a mage ground is placed). */
@@ -240,7 +240,8 @@ function meteorImpact(inst: Instance, p: Player, rt: SkillRuntime, x: number, y:
 }
 
 /** Molten ground: 235 % weapon damage over 3 s [M] (Cindervane: twice as long; Horizon Cowl: +1 s). */
-function molten(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, r: number, scale: number) {
+function molten(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, r: number, scale: number, copy = false) {
+  if (!copy) mstate(p).lastGround = { kind: 'molten', skill: rt.def.id, r, scale };
   const dur = 3000 * (rt.flags.has('moltenDouble') ? 2 : 1) + groundPlus(rt);
   const ms: Strike = { ...strikeOf(p, rt, 2.35 * scale), el: 'fire' };
   const g = newGround('molten', x, y, r, inst.t, dur, 500);
@@ -275,6 +276,17 @@ function moltenRules(inst: Instance, p: Player, rt: SkillRuntime, g: Ground) {
   inst.sched.schedule(inst.t + 250, loop);
 }
 
+/**
+ * Rimewalker Slippers: a half-size copy of a Ground effect at (x, y) with the skill's current rules (its runes, nodes
+ * and items as they are now); copies do not become the "most recent" Ground effect themselves.
+ */
+export function copyGround(inst: Instance, p: Player, g: LastGround, x: number, y: number) {
+  const rt = p.ctx.modsOf(g.skill);
+  if (g.kind === 'molten') molten(inst, p, rt, x, y, g.r * 0.5, g.scale, true);
+  else if (g.kind === 'blackhole') openHole(inst, p, rt, x, y, g.r * 0.5, true);
+  else spreadRime(inst, p, rt, x, y, g.r * 0.5, true);
+}
+
 // ─────────────────────────── Black Hole ───────────────────────────
 
 function blackHole(inst: Instance, p: Player, rt: SkillRuntime): boolean {
@@ -306,7 +318,8 @@ function blackHole(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   return true;
 }
 
-function openHole(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, radius: number) {
+function openHole(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, radius: number, copy = false) {
+  if (!copy) mstate(p).lastGround = { kind: 'blackhole', skill: rt.def.id, r: radius, scale: 1 };
   const dur = skillDurationMs(rt) + groundPlus(rt);
   const ticks = Math.max(1, Math.round((rt.def.duration * 1000) / 250));
   // Quick Collapse (node): 30 % shorter with the same total damage — each tick carries what the lost ticks would have.
@@ -337,6 +350,7 @@ function openHole(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: num
 function holeLoop(inst: Instance, p: Player, rt: SkillRuntime, g: Ground) {
   const drift = rt.flags.has('holeDrift'), core = modVar(rt.mods, 'holeCore');
   const freeze = rt.flags.has('freeze'), bolts = rt.flags.has('holeBolts');
+  const linger = modVar(rt.mods, 'holeSlow'); // Lingering Pull (node): slowed holeSlow % for 2 s after the collapse
   const budget = newBudget(p);
   const step = () => {
     if (inst.playerById(p.id) !== p) return;
@@ -345,6 +359,7 @@ function holeLoop(inst: Instance, p: Player, rt: SkillRuntime, g: Ground) {
         for (const m of inst.queryMobs(g.x, g.y, g.r)) if (!m.dead) mFreeze(inst, p, m, 1500, budget);
         inst.emit({ e: 'aoe', v: 'nova', x: Math.round(g.x), y: Math.round(g.y), r: Math.round(g.r), d: 450, el: elIdx('cold'), s: p.id }, g.x, g.y, p.id);
       }
+      if (linger > 0) for (const m of inst.queryMobs(g.x, g.y, g.r)) if (!m.dead) mSlow(inst, p, m, linger, 2000, 'black_hole');
       if (bolts) {
         const bst: Strike = { ...strikeOf(p, rt, 0.8), el: skillElement(rt), noArea: true };
         for (let i = 0; i < 8; i++) fireBolt(inst, p, { rt }, bst, { v: 'missile', x: g.x, y: g.y - 6, angle: i * TAU / 8, speed: 700, lifeMs: 430, r: 12, keepLife: true });

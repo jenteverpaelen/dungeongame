@@ -21,6 +21,7 @@ import { ownMultiplier } from '../src/sim/powerRuntime';
 import { chillMob, getBuff } from '../src/sim/effects';
 import { spawnProj } from '../src/sim/projectiles';
 import { castPrimary, castSkill, startChannel } from '../src/sim/skills';
+import { spreadRime } from '../src/sim/skills/mageM1';
 import type { Mob, Player } from '../src/sim/types';
 
 assert(process.env.DATA_DIR, 'isolated DATA_DIR required');
@@ -106,10 +107,10 @@ test('mage data: bible v2 tags (ITEMS-SHARED §1.2), NAMES.md renames, categorie
     }
     assert(treeTotalRanks(s) >= 12, `${s.id} ${treeTotalRanks(s)} ranks`);
   }
-  // Wave-3 blocked nodes are absent (slow of chosen strength): BH N4, Rimefield N3 + N6, Orrery N2 + N5.
-  assert.equal(SKILLS.black_hole.nodes!.length, 5); assert.equal(SKILLS.rimefield.nodes!.length, 4); assert.equal(SKILLS.orrery.nodes!.length, 4);
+  // Phase 2 (engine wave 3 slows and dashEnd): every tree has its six bible nodes, all 34 mage legendaries ship.
+  for (const s of list) assert.equal(s.nodes!.length, 6, `${s.id} six nodes`);
   assert.equal(PASSIVES.filter((p) => p.classId === 'mage').length, 14);
-  assert.equal(Object.values(LEGENDARIES).filter((l) => l.classes?.includes('mage')).length, 33);
+  assert.equal(Object.values(LEGENDARIES).filter((l) => l.classes?.includes('mage')).length, 34);
   assert.equal(Object.values(SETS).filter((s) => s.classId === 'mage').length, 5);
   assert.deepEqual(SETS.hollowstar_choir.pieces.map((p) => p.base), ['head_circlet', 'shoulders_mantle', 'chest_robe', 'hands_wraps', 'waist_sash', 'wrists_bracers']);
 });
@@ -386,5 +387,93 @@ test('legendaries: Snowglobe Pendant bursts on a freeze (once per 6 s); Winterbo
     g.setPowers({ winterbound_robe: 30, hornlistener_circlet: 30 });
     assert.equal(g.p.ctx.powers.vulnTerms.length, 2);
   } finally { g.inst.destroy(); }
-  assert.equal(CONTENT_DATA.legendaries.rimewalker_slippers, undefined, 'Rimewalker Slippers waits for engine wave 3');
+});
+
+// ─────────────────────────── Phase 2 (engine wave 3: slows of chosen strength, dashEnd) ───────────────────────────
+
+const slowOf = (m: Mob) => (m.ps && m.ps.slowMs > 0 ? m.ps.slowPct : 0);
+const moveFactor = (m: Mob) => (m.chillMs > 0 ? 0.6 : 1) * (1 - slowOf(m) / 100);
+
+test('phase 2: Deep Chill chills 60 % and the Rimefield 50 % (chill + movement slow); the rim and Lingering Pull slow further', () => {
+  const f = fixture({ primary: 'rime_needles', runes: { rime_needles: 'deep_chill' }, posts: [[120, 0]] });
+  try {
+    castPrimary(f.inst, f.p, f.posts[0]); f.tick(6);
+    assert(f.posts[0].chillMs > 0); assert(Math.abs(moveFactor(f.posts[0]) - 0.4) < 1e-9, `Deep Chill: movement ${moveFactor(f.posts[0])}`);
+  } finally { f.inst.destroy(); }
+  // A Rimefield of radius 200 placed directly: the centre post moves at 50 %, the rim post (outer quarter) at 50 % × (1 − 50 %).
+  const e = fixture({ slots: ['rimefield', null, null, null], nodes: { rimefield: { wide_frost: 2, cold_snap_edge: 3 } }, posts: [[200, 0], [380, 0]] });
+  try {
+    spreadRime(e.inst, e.p, slot(e, 'rimefield'), e.p.x + 200, e.p.y, 200, false);
+    e.tick(6);
+    assert(Math.abs(moveFactor(e.posts[0]) - 0.5) < 1e-9, `inner: ${moveFactor(e.posts[0])}`);
+    assert(Math.abs(moveFactor(e.posts[1]) - 0.25) < 1e-9, `rim: ${moveFactor(e.posts[1])}`);
+  } finally { e.inst.destroy(); }
+  const b = fixture({ slots: ['black_hole', null, null, null], nodes: { black_hole: { event_rim: 2, lingering_pull: 3 } }, posts: [[160, 0], [170, 20]] });
+  try {
+    assert(castSkill(b.inst, b.p, slot(b, 'black_hole')));
+    b.tick(Math.ceil(SKILLS.black_hole.duration * 20) + 4);
+    assert.equal(slowOf(b.posts[0]), 50, 'Lingering Pull rank 3: 50 % for 2 s after the collapse');
+  } finally { b.inst.destroy(); }
+});
+
+test('phase 2: Absolute Field (frozen enemies inside take more from Rimefield and Rime Needles), Tidal Lock and Clockwinding', () => {
+  const run = (nodes: Record<string, number>) => {
+    const f = fixture({ slots: ['rimefield', null, null, null], nodes: { rimefield: { wide_frost: 2, cold_snap_edge: 2, ...nodes } }, posts: [[160, 0]] });
+    try {
+      assert(castSkill(f.inst, f.p, slot(f, 'rimefield')));
+      f.tick(80); // freezes after 1.5 s inside, keeps ticking
+      return dealt(f.posts[0]);
+    } finally { f.inst.destroy(); }
+  };
+  const base = run({}), abs = run({ absolute_field: 3 });
+  assert(abs > base * 1.05, `Absolute Field rank 3 adds damage while frozen (${abs} vs ${base})`);
+  const o = fixture({ slots: ['orrery', null, null, null], nodes: { orrery: { brass_spheres: 2, tidal_lock: 3, clockwinding: 3 } }, posts: [[SKILLS.orrery.radius, 0], [-SKILLS.orrery.radius, 0]] });
+  try {
+    assert(castSkill(o.inst, o.p, slot(o, 'orrery')));
+    o.p.attackSeq++; // the Orrery's own cast (the brain counts it after the cast)
+    let slowed = false;
+    for (let i = 0; i < 60 && !slowed; i++) { o.tick(); slowed = o.posts.some((m) => slowOf(m) === 30); }
+    assert(slowed, 'Tidal Lock rank 3: spheres slow 30 %');
+    for (let i = 0; i < 4; i++) o.p.attackSeq++; // four spells cast while it turns: +0.5 s each
+    o.tick();
+    assert.equal(o.events['aoe:orrery_extend'], 1, 'one extension event');
+    o.tick(Math.ceil(SKILLS.orrery.duration * 20) + 30); // past the base duration plus 1.5 s: still turning
+    const before = dealt(o.posts[0]) + dealt(o.posts[1]);
+    o.tick(10);
+    assert(dealt(o.posts[0]) + dealt(o.posts[1]) > before, 'spheres still hit 2 s after the base duration');
+  } finally { o.inst.destroy(); }
+});
+
+test('phase 2: Rimewalker Slippers drop a half-size copy of the most recent Ground effect when a dash ends (once per 8 s)', () => {
+  const f = fixture({ slots: ['rimefield', null, null, null], posts: [[160, 0], [-60, 0]] });
+  try {
+    f.setPowers({ rimewalker_slippers: 30 });
+    assert(castSkill(f.inst, f.p, slot(f, 'rimefield')));
+    assert.equal(f.events['aoe:rimefield'], 1);
+    const rime = () => f.inst.grounds.filter((g) => g.fx?.def.id === 'rime_ground' && g.endT > f.inst.t);
+    const r0 = rime()[0].r;
+    f.p.mv.dashMs = 100; f.tick(4);
+    assert.equal(f.events['aoe:rimefield'], 2, 'a copy where the dash ended');
+    const rs = rime().map((g) => g.r).sort((a, b) => a - b);
+    assert.equal(rs.length, 2); assert(Math.abs(rs[0] - r0 * 0.5) < 1e-6, `half size (${rs[0]} vs ${r0})`);
+    assert(getBuff(f.p, 'rimewalker'), 'the recharge marker');
+    f.p.mv.dashMs = 100; f.tick(4);
+    assert.equal(f.events['aoe:rimefield'], 2, 'internal cooldown: no second copy');
+    assert(ownMultiplier(f.p, 'rimefield') > ownMultiplier(f.p, 'frost_nova'), 'Ground effects deal more damage');
+  } finally { f.inst.destroy(); }
+});
+
+test('Stormglass Orb is paced by the attack rate: an AP-positive loop (Static Charge on elites, two orbs) cannot cast it every tick', () => {
+  const f = fixture({ primary: 'magic_missile', slots: ['stormglass_orb', null, null, null], nodes: { stormglass_orb: { heavier_glass: 1, static_charge: 3 } }, posts: [[150, 0, 1], [160, 30, 1], [140, -30, 1], [170, 10, 1], [150, 50, 1]] });
+  try {
+    f.save.skills.autoCast = ['auto', 'paused', 'paused', 'paused'];
+    f.setPowers({ stormglass_prism: 171 }, { glass_concord: 2 });
+    f.p.res = f.p.mres;
+    let casts = 0, maxOrbs = 0;
+    const emit = f.inst.emit.bind(f.inst);
+    f.inst.emit = ((ev: { e: string; sk?: string }, x: number, y: number, s: number) => { if (ev.e === 'cast' && ev.sk === 'stormglass_orb') casts++; return emit(ev as Parameters<typeof emit>[0], x, y, s); }) as typeof f.inst.emit;
+    for (let i = 0; i < 200; i++) { f.inst.tick(); maxOrbs = Math.max(maxOrbs, f.inst.projs.filter((pr) => pr.v === 'stormglass' && !pr.dead).length); }
+    const aps = f.p.ctx.d.aps * (1 + f.p.live.ias / 100);
+    assert(casts <= Math.ceil(10 * aps) + 1, `at most one cast per attack interval (${casts} casts, aps ${aps.toFixed(2)})`);
+  } finally { f.inst.destroy(); }
 });

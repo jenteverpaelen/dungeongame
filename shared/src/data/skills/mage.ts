@@ -2,8 +2,9 @@
 // Content: docs/rework/depth/MAGE.md (bible v2). Display names follow docs/rework/depth/NAMES.md (ids never change).
 // Numbers marked in the bible as [M] are today's values; everything else is the bible's [P] proposal unless a comment says
 // otherwise (docs/rework/depth/MAGE-PILOT.md lists every deviation). Node texts use {var:…} placeholders so the tree shows
-// the cumulative value of the bought rank. Chills use the engine's one chill (a fixed 40 % slow [M]); the bible's other
-// chill strengths wait for engine wave 3 (a slow of chosen strength) and are not claimed in any text.
+// the cumulative value of the bought rank. Chills use the engine's chill (40 % slower movement and attacks [M]); stronger
+// chills of the bible (Rimefield 50 %, Deep Chill 60 %) add an engine wave 3 slow for the movement difference
+// (server mageKit.mChillAt); slows of a stated strength are the wave 3 `slow` status.
 
 import type { NodeDef, SkillDef, TagQuery } from './types';
 import type { PowerEffect } from '../../powers';
@@ -111,7 +112,8 @@ export const MAGE_SKILLS: SkillDef[] = [
       { id: 'event_rim', name: 'Event Rim', text: 'Black Hole’s radius is {radius}% larger.', maxRank: 3, ranks: [{ radius: 8 }, { radius: 8 }, { radius: 8 }], pos: at(0, 0) },
       { id: 'siphoning_void', name: 'Siphoning Void', text: 'Each enemy the Black Hole catches restores {var:holeGen} Arcane Power (at most 15 per cast).', maxRank: 3, ranks: v3('holeGen', 1), pos: at(1, 0) },
       { id: 'crushing_core', name: 'Crushing Core', text: 'Enemies in the inner 40% of the Black Hole take {var:holeCore}% more damage from it.', maxRank: 3, ranks: v3('holeCore', 15), pos: at(2, 0) },
-      // N4 Lingering Pull (slow 20 / 35 / 50 % after collapse) waits for engine wave 3 (a slow of chosen strength).
+      { id: 'lingering_pull', name: 'Lingering Pull', text: 'After the Black Hole collapses, enemies within it stay slowed by {var:holeSlow}% for 2 seconds.', maxRank: 3,
+        ranks: v3('holeSlow', 20, 15, 15), requires: needs('event_rim'), pos: at(0, 1) },
       // Cooldown −1 / 2 / 3 s of the 12 s base = −8.33 % per rank (cooldowns are additive %).
       { id: 'quick_collapse', name: 'Quick Collapse', text: 'The Black Hole lasts 30% shorter but deals the same total damage, and its cooldown is {var:holeQuickCd} seconds shorter.', maxRank: 3,
         ranks: [{ duration: -30, cooldown: -100 / 12, flags: ['holeQuick'], vars: { holeQuickCd: 1 } }, { cooldown: -100 / 12, vars: { holeQuickCd: 1 } }, { cooldown: -100 / 12, vars: { holeQuickCd: 1 } }],
@@ -229,8 +231,8 @@ export const MAGE_SKILLS: SkillDef[] = [
       { id: 'icicle_fan', name: 'Icicle Fan', unlock: 18, desc: 'Fire five needles in a 30° fan, each dealing 25% less damage.', mods: { projectiles: 2, dmg: -25 } },
       { id: 'shiver_splinter', name: 'Shiver Splinter', unlock: 21, desc: 'Needles hitting a frozen enemy shatter into 2 splinters that seek nearby enemies for 50% of the damage.', mods: { flags: ['needleSplinter'] } },
       { id: 'arcane_thorns', name: 'Arcane Thorns', unlock: 25, addTags: ['piercing'], removeTags: ['chill'], desc: 'Arcane damage; needles pierce one enemy, but no longer chill or freeze.', mods: { element: 'arcane', flags: ['needlePierce'] } },
-      // Bible: "Chill 60%; four needles freeze". The chill strength waits for engine wave 3; the threshold ships.
-      { id: 'deep_chill', name: 'Deep Chill', unlock: 30, desc: 'Four needles in two seconds freeze an enemy instead of six.', mods: { flags: ['needleDeepChill'] } },
+      // Bible: "Chill 60%; four needles freeze" (the chill plus a movement slow: mageKit.mChillAt).
+      { id: 'deep_chill', name: 'Deep Chill', unlock: 30, desc: 'Needles chill enemies by 60%, and four needles in two seconds freeze an enemy instead of six.', mods: { flags: ['needleDeepChill'] } },
       // Bible text: "twice the damage of a needle trio"; its mods (one needle, +100 %) give twice a needle's damage.
       { id: 'glacier_spine', name: 'Glacier Spine', unlock: 36, desc: 'Fire one large needle that deals twice a needle’s damage, pierces every enemy and pushes them back 20 units.', mods: { projectiles: -2, dmg: 100, flags: ['needleSpine'] } },
     ],
@@ -341,11 +343,14 @@ export const MAGE_SKILLS: SkillDef[] = [
     nodes: [
       { id: 'wide_frost', name: 'Wide Frost', text: 'Rimefield’s radius is {radius}% larger.', maxRank: 3, ranks: [{ radius: 8 }, { radius: 8 }, { radius: 8 }], pos: at(0, 0) },
       { id: 'frozen_power', name: 'Frozen Power', text: 'Each enemy the field freezes restores {var:rimeGen} Arcane Power.', maxRank: 3, ranks: v3('rimeGen', 2), pos: at(1, 0) },
-      // N3 Cold Snap Edge (rim slowed 20 / 35 / 50 % more) waits for engine wave 3 (a slow of chosen strength), and with it
-      // N6 Absolute Field, which needs it.
+      // Cold Snap Edge: "the rim" = the outer quarter of the radius [P]; "a further" = on top of the field's 50 % chill.
+      { id: 'cold_snap_edge', name: 'Cold Snap Edge', text: 'Enemies at the rim of the field (its outer quarter) are slowed a further {var:rimeEdge}%.', maxRank: 3,
+        ranks: v3('rimeEdge', 20, 15, 15), pos: at(2, 0) },
       { id: 'shard_burst', name: 'Shard Burst', text: 'When the field ends, it bursts for {var:rimeFinale}% weapon damage to enemies inside.', maxRank: 3,
         ranks: v3('rimeFinale', 100, 50, 50), requires: needs('wide_frost'), pos: at(0, 1) },
       { id: 'ice_mirror', name: 'Ice Mirror', text: 'Casting Frost Nova inside your field adds {var:rimeRefresh} seconds to it.', maxRank: 3, ranks: v3('rimeRefresh', 2, 1, 1), requires: needs('frozen_power'), pos: at(1, 1) },
+      { id: 'absolute_field', name: 'Absolute Field', text: 'Frozen enemies inside the field take {var:rimeFrozenBonus}% more damage from Rimefield and Rime Needles.', maxRank: 3,
+        ranks: v3('rimeFrozenBonus', 10), requires: needs('cold_snap_edge'), pos: at(2, 1) },
     ],
   },
   {
@@ -404,10 +409,13 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
     nodes: [
       { id: 'brass_spheres', name: 'Brass Spheres', text: 'Orrery deals {dmg}% increased damage.', maxRank: 3, ranks: [{ dmg: 10 }, { dmg: 10 }, { dmg: 10 }], pos: at(0, 0) },
-      // N2 Tidal Lock (slow 10 / 20 / 30 %) waits for engine wave 3 (a slow of chosen strength), and with it N5 Clockwinding.
+      { id: 'tidal_lock', name: 'Tidal Lock', text: 'The spheres slow enemies they pass by {var:orrerySlow}% for 1 second.', maxRank: 3, ranks: v3('orrerySlow', 10), pos: at(1, 0) },
       { id: 'planetary_gift', name: 'Planetary Gift', text: 'Each sphere missile restores {var:orreryGen} Arcane Power.', maxRank: 3, ranks: v3('orreryGen', 0.5), pos: at(2, 0) },
       { id: 'eclipse', name: 'Eclipse', text: 'Every 5 seconds the spheres align and fire a beam outward that deals {var:orreryEclipse}% weapon damage.', maxRank: 3,
         ranks: v3('orreryEclipse', 200, 100, 100), requires: needs('brass_spheres'), pos: at(0, 1) },
+      // "Each spell cast": every bar skill, primary attack and channel you start while it turns (the cast counter).
+      { id: 'clockwinding', name: 'Clockwinding', text: 'Each spell you cast while the Orrery turns adds {var:orreryExtend} seconds to it (at most 10 seconds in total).', maxRank: 3,
+        ranks: v3('orreryExtend', 0.2, 0.15, 0.15), requires: needs('tidal_lock'), pos: at(1, 1) },
       { id: 'gravity_assist', name: 'Gravity Assist', text: 'Spheres passing through your Black Hole or molten ground deal {var:orrerySynergy}% more damage for 3 seconds.', maxRank: 3,
         ranks: v3('orrerySynergy', 25), requires: needs('planetary_gift'), pos: at(2, 1) },
     ],

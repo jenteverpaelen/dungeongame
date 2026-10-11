@@ -133,6 +133,7 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   // the rune id stays `spellsteal`; its display name follows docs/rework/depth/NAMES.md
   spellsteal: { name: 'Starve the Light', shape: 'star', color: '#c39bff' },
   deep_freeze: { name: 'Deep Freeze', shape: 'crit', color: '#7fd3ff' },
+  rimewalker: { name: 'Rimewalker (recharging)', shape: 'up', color: '#9fdcff' },
   hunters_mark: { name: "Hunter's Mark", shape: 'crit', color: '#ff6a4a' },
   momentum: { name: 'Momentum', shape: 'up', color: '#ffd24a' },
   wolf_howl: { name: 'Pack Leader', shape: 'up', color: '#d9c7a0' },

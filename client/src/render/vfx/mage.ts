@@ -27,7 +27,7 @@ type Cast = Extract<GameEvent, { e: 'cast' }>;
 /** Area visuals handled here (AoeFx routes them before its own switch). */
 export const MAGE_AOE = new Set([
   'ray', 'ray_refract', 'ray_pulse', 'rimefield', 'rimefield_bloom', 'rimefield_extend', 'rime_burst', 'glass_burst', 'glass_shard',
-  'kin_burst', 'kin_taunt', 'orrery', 'orrery_wide', 'orrery_sun', 'eclipse', 'nova_cone', 'lodestone', 'star_crater', 'lantern', 'hydra_breath',
+  'kin_burst', 'kin_taunt', 'orrery', 'orrery_wide', 'orrery_sun', 'orrery_extend', 'eclipse', 'nova_cone', 'lodestone', 'star_crater', 'lantern', 'hydra_breath',
 ]);
 /** Projectile visuals handled here (projectiles.ts routes build / place / trail / impact). */
 export const MAGE_PROJ = new Set(['needle', 'needle_spine', 'stormglass', 'kinbolt']);
@@ -86,12 +86,13 @@ interface Field {
   flourish(): void;
 }
 
-interface Orrery { owner: number; n: number; pts: Float32Array; alive: boolean }
+interface Orrery { owner: number; n: number; pts: Float32Array; alive: boolean; /** Clockwinding: `d` = seconds still to turn. */ extend: (d: number) => void }
 
 export class MageFx {
   private rayOwners = new Map<number, RayOwner>();
   private fields: Field[] = [];
   private orreries: Orrery[] = [];
+  private suns: { owner: number; extend: (d: number) => void }[] = [];
   private lastNeedleSnd = -1;
   private lastZapSnd = -1;
   private zapLoad = 0;
@@ -122,6 +123,7 @@ export class MageFx {
       case 'kin_taunt': this.kinTaunt(ev.x, ev.y, r, Math.max(0.4, d), mine); break;
       case 'orrery': case 'orrery_wide': this.orrery(ev, ev.v === 'orrery_wide', mine); break;
       case 'orrery_sun': this.orrerySun(ev.s ?? -1, ev.x, ev.y, r, Math.max(0.5, d)); break;
+      case 'orrery_extend': for (const o of this.orreries) if (o.alive && o.owner === (ev.s ?? -1)) o.extend(Math.max(0.3, d)); for (const x of this.suns) if (x.owner === (ev.s ?? -1)) x.extend(Math.max(0.3, d)); break;
       case 'eclipse': this.eclipse(ev.x, ev.y, ev.a ?? 0, r, ev.el, mine); break;
       case 'nova_cone': this.novaCone(ev.x, ev.y, r, ev.a ?? 0, ev.el, mine); break;
       case 'lodestone': this.lodestone(ev.x, ev.y, r, Math.max(0.3, d), ev.el, mine); break;
@@ -899,7 +901,8 @@ export class MageFx {
     const V = this.V, s = V.sys, T = s.T;
     const owner = ev.s ?? -1;
     const n = clamp(Math.round(ev.n ?? 5), 1, 12);
-    const R = Math.max(30, ev.r), d = Math.max(0.5, ev.d / 1000);
+    const R = Math.max(30, ev.r);
+    let d = Math.max(0.5, ev.d / 1000);
     const period = (wide ? MAGE_FX.orreryPeriodMs / MAGE_FX.orreryWideSlow : MAGE_FX.orreryPeriodMs) / 1000;
     const a0 = ev.a ?? 0, start = V.real;
     const cold = ev.el === EL_COLD;
@@ -918,7 +921,7 @@ export class MageFx {
       held.push([s.gNormal, shadow], [s.aAdd, glow], [s.aAdd, ring], [s.aBody, body]);
       sp.push({ shadow, glow, ring, body, lx: NaN, ly: NaN, acc: 0 });
     }
-    const O: Orrery = { owner, n, pts: new Float32Array(n * 2), alive: true };
+    const O: Orrery = { owner, n, pts: new Float32Array(n * 2), alive: true, extend: (left) => { d = V.real - start + left; } };
     this.orreries.push(O);
     let tick = 0.25, pad = 0;
     V.add({
@@ -973,6 +976,8 @@ export class MageFx {
   /** Sun at Centre: a small sun hovering over the owner and a ring of heat on the ground (radius r). */
   private orrerySun(owner: number, x0: number, y0: number, r: number, d: number): void {
     const V = this.V, s = V.sys, T = s.T;
+    const sun0 = { owner, extend: (left: number) => { d = age + left; } };
+    this.suns.push(sun0);
     let x = x0, y = y0, h = 60;
     const pool = s.gAdd.hold(T.glow, x, y); pool.tintTo(0xff7a1a);
     const rim = s.gAdd.hold(T.ringHard, x, y); rim.tintTo(0xffa040);
@@ -1008,7 +1013,7 @@ export class MageFx {
         }
         return age < d;
       },
-      kill: () => { for (const [l, p] of held) l.kill(p); },
+      kill: () => { for (const [l, p] of held) l.kill(p); const i = this.suns.indexOf(sun0); if (i >= 0) this.suns.splice(i, 1); },
     });
   }
 

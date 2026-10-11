@@ -19,7 +19,7 @@ import { applyStatus } from '../status';
 import type { Ground, Mob, Player, Proj, ProjHook, SkillRuntime, Strike, Summon } from '../types';
 import { DEG, fanAngles, type DeathHook, type OwnerSummonHook } from './common';
 // Runtime calls only (module cycle with the skill modules; nothing here runs at import time).
-import { freeNovaCast, hydraGone } from './mage';
+import { copyGround, freeNovaCast, hydraGone } from './mage';
 import { kinGone, spawnEmberSprite } from './mageM1';
 
 const TAU = Math.PI * 2;
@@ -48,13 +48,21 @@ export interface MageState {
   /** The Thrumming Ray's last beam (Conductor arcs to it), and the live Stormglass Orbs. */
   ray: { a: number; len: number; t: number } | null;
   orbs: Set<Proj>;
+  /** Rimewalker Slippers: your most recent Ground effect (copied at half size when a Movement skill ends). */
+  lastGround: LastGround | null;
+  /** Rimewalker Slippers: the marker buff its dashEnd proc granted that was already answered, and its time left then. */
+  walkerSeen: unknown;
+  walkerMs: number;
 }
+
+/** A Ground effect the mage placed: molten ground (Meteor), a Black Hole or a Rimefield, with its radius. */
+export interface LastGround { kind: 'molten' | 'blackhole' | 'rime'; skill: string; r: number; scale: number }
 
 const players = new WeakMap<Player, MageState>();
 export function mstate(p: Player): MageState {
   let s = players.get(p);
   if (!s) {
-    s = { spent: 0, spenderCasts: 0, summons: new Map(), lastTaken: p.taken, reflexT: -1e9, rampMs: 0, rampT: -1e9, summonAttacks: 0, fields: [], ray: null, orbs: new Set() };
+    s = { spent: 0, spenderCasts: 0, summons: new Map(), lastTaken: p.taken, reflexT: -1e9, rampMs: 0, rampT: -1e9, summonAttacks: 0, fields: [], ray: null, orbs: new Set(), lastGround: null, walkerSeen: null, walkerMs: 0 };
     players.set(p, s);
   }
   return s;
@@ -182,6 +190,25 @@ export function mChill(inst: Instance, p: Player, m: Mob, ms: number) {
   if (blind > 0 && m.chillMs > 0) applyStatus(inst, p, m, resolveStatus({ kind: 'weaken', pct: blind, ms: m.chillMs }, p.ctx.powers.index), p.x, p.y, 'rime_needles');
 }
 
+/** A movement slow of chosen strength (engine wave 3 status `slow`: the strongest active slow counts, max 90 %). */
+export function mSlow(inst: Instance, p: Player, m: Mob, pct: number, ms: number, source: string) {
+  if (m.dead || pct <= 0 || ms <= 0) return;
+  applyStatus(inst, p, m, resolveStatus({ kind: 'slow', pct, ms }, p.ctx.powers.index), p.x, p.y, source);
+}
+
+/** The engine chill slows movement and attacks by 40 % [M] (monsters.ts: × 0.6). */
+const CHILL_MOVE = 0.6;
+/**
+ * A chill of a stated strength above the engine's 40 % (Rimefield "chilled 50 %", Deep Chill "Chill 60 %"): the chill
+ * (state, attack slow) plus a movement slow that brings movement to (100 − pct) % of normal, lasting as long as the
+ * chill (so Chill Margin's longer chills keep it). Chill strengths at or below 40 % are the plain chill.
+ */
+export function mChillAt(inst: Instance, p: Player, m: Mob, ms: number, pct: number, source: string) {
+  mChill(inst, p, m, ms);
+  const extra = 100 * (1 - (1 - pct / 100) / CHILL_MOVE);
+  if (extra > 0 && m.chillMs > 0) mSlow(inst, p, m, extra, m.chillMs, source);
+}
+
 // ─────────────────────────── The mage hit ───────────────────────────
 
 /** Per-cast tally of a Spender (Static Loop: 1 AP per enemy hit, at most 8 per cast). */
@@ -261,6 +288,8 @@ export interface BoltRules {
   splash?: number;
   /** Status effects on hit. */
   chillMs?: number; freezeChance?: number;
+  /** Chill strength above the engine's 40 % (Deep Chill 60 %): `mChillAt` instead of the plain chill. */
+  chillPct?: number;
   /** Rime Needles: counts toward the freeze build-up (threshold needles in 2 s → freeze `freezeMs`). */
   needle?: { threshold: number; freezeMs: number; gen: number; splinter: boolean; splitKill: number };
   /** Magic Missile rules (rune and nodes): resource per hit, Volley of Glass, Static Thread, Void Bolt. */
@@ -315,7 +344,7 @@ function boltHit(inst: Instance, pr: Proj, p: Player, m: Mob, rules: BoltRules, 
   if (!pr.hits) pr.hits = new Set();
   pr.hits.add(m.id);
   const alive = !r.killed && !m.dead;
-  if (alive && rules.chillMs) mChill(inst, p, m, rules.chillMs);
+  if (alive && rules.chillMs) { if (rules.chillPct) mChillAt(inst, p, m, rules.chillMs, rules.chillPct, rt.def.id); else mChill(inst, p, m, rules.chillMs); }
   if (alive && rules.freezeChance && inst.rng.next() < rules.freezeChance) mFreeze(inst, p, m, 1000, rules.budget ?? null);
   if (alive && rules.push) knockbackMob(m, pr.vx, pr.vy, rules.push, inst, p);
   const ux = pr.vx / (pr.speed || 1), uy = pr.vy / (pr.speed || 1), ang = Math.atan2(uy, ux);
@@ -465,6 +494,14 @@ function mageTick(inst: Instance, p: Player) {
     freeNovaCast(inst, p, fn!);
   }
   ms.lastTaken = p.taken;
+  // Rimewalker Slippers: the engine's dashEnd proc (once per 8 s) grants the marker buff 'rimewalker'; each new one drops
+  // a half-size copy of your most recent Ground effect where the Movement skill ended.
+  const walker = getBuff(p, 'rimewalker');
+  if (walker && (walker !== ms.walkerSeen || walker.ms > ms.walkerMs + TICK_MS)) { // new, or refreshed by a new proc
+    ms.walkerSeen = walker;
+    if (ms.lastGround) copyGround(inst, p, ms.lastGround, p.x, p.y);
+  }
+  ms.walkerMs = walker?.ms ?? 0;
   // Summons that are gone since the last tick (expired, retired): bursts, Last Breath, Lantern Garden lanterns.
   if (ms.summons.size || p.summons.length) {
     const now = new Set<number>();
