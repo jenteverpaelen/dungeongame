@@ -12,7 +12,10 @@ import {
 } from './draw';
 import { BLUSH, BONE, GOLD, OUTFIT, WOOD, WOOD_DARK } from './palette';
 import { light, mix, shade } from './util';
-import { decorHand, decorShield, decorShoulder, decorWeapon } from './gearDecor';
+import { decorHand, decorShoulder } from './gearDecor';
+import { itemStyle } from './gearStyle';
+import { SHAPE_FAMILY } from './gearVisuals';
+import { localXf, weaponModel, type WLayer } from './weaponArt';
 
 export interface Body {
   cls: ClassId;
@@ -555,9 +558,24 @@ export function drawEyes(c: Ctx, b: Body, hooded: boolean): void {
 // ═══════════════════════════════ WEAPONS ═══════════════════════════════
 // Hand-local: grip at the origin, the business end points to -y.
 
-export function drawWeapon(c: Ctx, l: ItemLook, rig = false): void {
-  drawWeaponBase(c, l, rig);
-  decorWeapon(c, l);
+export function drawWeapon(c: Ctx, l: ItemLook, rig = false, layer: WLayer = 'base', floats = !rig): void {
+  if (drawHeldV2(c, l, rig, layer, floats)) return;
+  if (layer === 'base') drawWeaponBase(c, l, rig);
+}
+
+/** Held items with an identity (heroes, loot) draw through the parametric V2 art (weaponArt.ts); townsfolk tools and
+ *  looks without identity keep the drawings below. `floats`: also draw the floating pieces at rest (icons). */
+export function drawHeldV2(c: Ctx, l: ItemLook, rig: boolean, layer: WLayer, floats: boolean): boolean {
+  const s = itemStyle(l);
+  const fam = s ? SHAPE_FAMILY[l.shape] : undefined;
+  if (!s || !fam) return false;
+  const m = weaponModel(l, s, fam.family, rig);
+  m.draw(c, layer);
+  if (floats && layer === 'base') for (const f of m.floats) {
+    const a = f.phase;
+    c.save?.(); localXf(c, f.x + Math.cos(a) * f.orbit, f.y + Math.sin(a) * f.orbit * 0.4); f.draw(c); c.restore?.();
+  }
+  return true;
 }
 
 function drawWeaponBase(c: Ctx, l: ItemLook, rig: boolean): void {
@@ -835,7 +853,8 @@ export function drawNpcOffhand(c: Ctx, l: ItemLook): void {
 // ═══════════════════════════════ OFF-HANDS ═══════════════════════════════
 
 /** Shield face (centre at origin). */
-export function drawShield(c: Ctx, l: ItemLook): void {
+export function drawShield(c: Ctx, l: ItemLook, floats = true): void {
+  if (drawHeldV2(c, l, false, 'base', floats)) return;
   const r = rarityOf(l), v = l.variant;
   const HERALD = [0x9a3b30, 0x2f5a8a, 0x8a6236, 0x3f6a3a];
   const rim = r === 'legend' ? trim(l) : r === 'rare' ? 0xd4b13a : l.primary;
@@ -862,11 +881,11 @@ export function drawShield(c: Ctx, l: ItemLook): void {
     c.poly(pts, true); outline(c, OW);
   }
   if (l.glow) gem(c, 0, v === 0 ? 0 : -6, 2.2, light(l.glow, 0.2), 1.1);
-  decorShield(c, l);
 }
 
 /** Quiver on the back (pivot between the shoulder blades), tilted. */
-export function drawQuiver(c: Ctx, l: ItemLook): void {
+export function drawQuiver(c: Ctx, l: ItemLook, floats = true): void {
+  if (drawHeldV2(c, l, false, 'base', floats)) return;
   const p = l.primary, s = trim(l);
   const feather = [0xf2ead8, 0xd8463a, 0xf2ead8, 0x5aa0d8][l.variant];
   for (const [x, y] of [[-3.4, -16], [0, -18], [3.4, -15.4]] as const) {
@@ -881,7 +900,8 @@ export function drawQuiver(c: Ctx, l: ItemLook): void {
 }
 
 /** Mage orb (centre at origin); floats near the off hand. */
-export function drawOrb(c: Ctx, l: ItemLook): void {
+export function drawOrb(c: Ctx, l: ItemLook, floats = true): void {
+  if (drawHeldV2(c, l, false, 'base', floats)) return;
   const p = l.primary, s = trim(l);
   const core = l.glow ? mix(p, l.glow, 0.25) : p;
   ball(c, 0, 0, 7, 7, core, { hl: 0, inset: 0.84, sh: 0.4 });

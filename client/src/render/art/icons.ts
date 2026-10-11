@@ -13,15 +13,24 @@ import {
   drawTorso, drawWeapon, trim, type Body,
 } from './gear';
 import { rgba } from './util';
-import { GEAR_TIER_COLORS, lookFx } from '@shared/gearVisual';
-import { ANCIENT_GOLD, PRIMAL_CORE, PRIMAL_RED, SET_STYLE } from './gearStyle';
+import { lookFx } from '@shared/gearVisual';
+import { SET_STYLE, TOP_COLORS, TOP_CORE, itemStyle } from './gearStyle';
+import { SHAPE_FAMILY } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
+import { drawHeldV2 } from './gear';
+import type { WLayer } from './weaponArt';
 
 const MANNEQUIN: Body = { cls: 'warrior', skin: 0x2b2220, hair: 0, hairStyle: 'none', eyes: 0 };
 
-/** Draw the icon pose of an item into a context (origin roughly at the item's centre). */
-function drawIcon(c: Ctx, look: ItemLook, kind: ItemKind): void {
+/** Draw the icon pose of an item into a context (origin roughly at the item's centre). The 'light' layer holds only the
+ *  emissive parts of held items (composited with a glow, DESIGN-V2 §6). */
+function drawIcon(c: Ctx, look: ItemLook, kind: ItemKind, layer: WLayer = 'base'): void {
   const shape = look.shape;
+  if (layer === 'light') {
+    if (kind === 'offhand') drawHeldV2(c, look, false, 'light', false);
+    else if (kind === 'weapon1h' || kind === 'weapon2h') { c.save?.(); c.rotate(Math.PI / 4); drawHeldV2(c, look, false, 'light', false); c.restore?.(); }
+    return;
+  }
   const sub = (fn: (k: Ctx) => void, x: number, y: number, rot = 0, sx = 1, sy = 1) => {
     c.save?.();
     c.translate(x, y); c.rotate(rot); c.scale(sx, sy);
@@ -176,6 +185,15 @@ function keyOf(look: ItemLook, kind: ItemKind, size: number): string {
   return `${kind}|${look.shape}|${look.primary}|${look.secondary}|${look.glow}|${look.variant}|${look.fx ?? ''}|${size}`;
 }
 
+/** Icon fill by generation: early pieces sit smaller in the cell, endgame pieces fill it (DESIGN-V2 §6). */
+function fillOf(look: ItemLook, kind: ItemKind): number {
+  const st = itemStyle(look);
+  const held = kind === 'weapon1h' || kind === 'weapon2h' || kind === 'offhand';
+  if (kind === 'ring' || kind === 'neck') return st ? 0.66 + 0.016 * st.gen : 0.74;
+  if (!st) return 0.88;
+  return held ? 0.7 + 0.04 * st.gen : 0.8 + 0.018 * st.gen;
+}
+
 /** Render an icon to a square canvas, or null when no renderer is available yet. */
 function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasElement | null {
   const renderer = getRenderer();
@@ -185,22 +203,38 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   const g = new Graphics(ctx);
   const b = g.getLocalBounds();
   const bw = Math.max(1, b.maxX - b.minX), bh = Math.max(1, b.maxY - b.minY);
-  const inner = size * (kind === 'ring' || kind === 'neck' ? 0.74 : 0.88);
-  const k = inner / Math.max(bw, bh);
-  const holder = new Container();
-  g.scale.set(k);
-  g.position.set(size / 2 - (b.minX + bw / 2) * k, size / 2 - (b.minY + bh / 2) * k);
-  holder.addChild(g);
+  const k = (size * fillOf(look, kind)) / Math.max(bw, bh);
   const ss = 2; // supersample, then downscale with smoothing for clean small icons
-  const raw = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, size, size), resolution: ss, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
-  holder.destroy({ children: true });
+  const grab = (gr: Graphics) => {
+    const holder = new Container();
+    gr.scale.set(k);
+    gr.position.set(size / 2 - (b.minX + bw / 2) * k, size / 2 - (b.minY + bh / 2) * k);
+    holder.addChild(gr);
+    const cv = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, size, size), resolution: ss, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
+    holder.destroy({ children: true });
+    return cv;
+  };
+  const raw = grab(g);
   ctx.destroy();
+  // the light layer of held items (lit channels, cores, top-tier edges), composited with a glow
+  const st = itemStyle(look);
+  const held = !!st && !!SHAPE_FAMILY[look.shape] && (kind === 'weapon1h' || kind === 'weapon2h' || kind === 'offhand');
+  let glowCv: HTMLCanvasElement | null = null;
+  if (held && st && (st.light || st.edgeLight)) {
+    const lctx = new GraphicsContext();
+    drawIcon(lctx, look, kind, 'light');
+    glowCv = grab(new Graphics(lctx));
+    lctx.destroy();
+  }
   const out = document.createElement('canvas');
   out.width = size; out.height = size;
   const c2 = out.getContext('2d')!;
-  if (look.glow) {
+  // backdrop light: legendary / Set / top tier, and the late generations of lit items (none on early or plain gear)
+  const halo = st ? (st.special || st.top ? st.edgeLight || st.light : st.gen >= 5 ? st.light : 0) : look.glow;
+  if (halo) {
+    const a = st ? Math.min(0.5, 0.14 + st.lightK * 0.2) : 0.42;
     const gr = c2.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size * 0.5);
-    gr.addColorStop(0, rgba(look.glow, 0.42)); gr.addColorStop(0.55, rgba(look.glow, 0.16)); gr.addColorStop(1, rgba(look.glow, 0));
+    gr.addColorStop(0, rgba(halo, a)); gr.addColorStop(0.55, rgba(halo, a * 0.38)); gr.addColorStop(1, rgba(halo, 0));
     c2.fillStyle = gr;
     c2.fillRect(0, 0, size, size);
   }
@@ -210,31 +244,36 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   c2.shadowBlur = size / 22;
   c2.shadowOffsetY = size / 40;
   c2.drawImage(raw, 0, 0, size, size);
-  c2.shadowColor = 'transparent';
-  tierFrame(c2, look, size);
+  c2.shadowColor = 'transparent'; c2.shadowOffsetY = 0;
+  if (glowCv && st) {
+    c2.globalCompositeOperation = 'lighter';
+    c2.shadowColor = rgba(st.light || st.edgeLight, 0.95);
+    c2.shadowBlur = (size / 16) * Math.min(1.5, 0.6 + st.lightK * 0.6);
+    c2.globalAlpha = Math.min(0.9, 0.4 + st.lightK * 0.3);
+    c2.drawImage(glowCv, 0, 0, size, size);
+    c2.shadowBlur = 0; c2.shadowColor = 'transparent';
+    c2.globalAlpha = 1;
+    c2.globalCompositeOperation = 'source-over';
+  }
+  itemMarks(c2, look, size);
   return out;
 }
 
-/** Tier frame painted into the icon (so every place that shows the icon shows the tier): corner brackets in the tier
- *  metal from Fine up, a Set mark, Ancient / Primal corner jewels and temper stars (docs/rework/gear/DESIGN.md §5). */
-function tierFrame(g: CanvasRenderingContext2D, look: ItemLook, size: number): void {
+/** Item marks painted into the icon (every surface that shows the icon shows them): a Set diamond, top-tier corner
+ *  jewels and enhancement stars (+4 / +7 / +10). No tier frame: the art itself carries generation and rarity. */
+function itemMarks(g: CanvasRenderingContext2D, look: ItemLook, size: number): void {
   const fx = lookFx(look);
   if (!fx) return;
-  const k = size / 64, T = fx.tier;
-  if (T >= 3) {
-    const col = fx.ancient === 2 ? PRIMAL_RED : fx.ancient === 1 ? ANCIENT_GOLD : GEAR_TIER_COLORS[T];
-    const L = (8 + Math.min(6, T - 3) * 1.6) * k, w = (T >= 7 ? 2.4 : T >= 5 ? 2 : 1.5) * k, m = 2.5 * k;
-    g.strokeStyle = rgba(col, T >= 6 ? 1 : 0.85); g.lineWidth = w; g.lineCap = 'round';
-    g.shadowColor = T >= 6 ? rgba(col, 0.9) : 'transparent'; g.shadowBlur = T >= 6 ? 4 * k : 0;
-    for (const [x, y, sx, sy] of [[m, m, 1, 1], [size - m, m, -1, 1], [m, size - m, 1, -1], [size - m, size - m, -1, -1]] as const) {
-      g.beginPath(); g.moveTo(x, y + sy * L); g.lineTo(x, y); g.lineTo(x + sx * L, y); g.stroke();
-    }
-    g.shadowBlur = 0; g.shadowColor = 'transparent';
-    if (T >= 8) {
-      for (const [x, y] of [[m + 1.5 * k, m + 1.5 * k], [size - m - 1.5 * k, m + 1.5 * k]] as const) {
-        g.fillStyle = rgba(fx.ancient === 2 ? PRIMAL_CORE : 0xfff0c8, 1);
-        g.beginPath(); g.moveTo(x, y - 3 * k); g.lineTo(x + 2.2 * k, y); g.lineTo(x, y + 3 * k); g.lineTo(x - 2.2 * k, y); g.closePath(); g.fill();
-      }
+  const k = size / 64, m = 2.5 * k;
+  if (fx.top > 0) {
+    const col = TOP_COLORS[Math.min(3, fx.top)];
+    const spots: [number, number][] = fx.top >= 2 ? [[m + 1.5 * k, m + 1.5 * k], [size - m - 1.5 * k, m + 1.5 * k]] : [[size - m - 1.5 * k, m + 1.5 * k]];
+    for (const [x, y] of spots) {
+      g.fillStyle = rgba(col, 1); g.strokeStyle = 'rgba(10,8,6,0.9)'; g.lineWidth = 1 * k;
+      g.shadowColor = rgba(col, 0.9); g.shadowBlur = 4 * k;
+      g.beginPath(); g.moveTo(x, y - 3.4 * k); g.lineTo(x + 2.4 * k, y); g.lineTo(x, y + 3.4 * k); g.lineTo(x - 2.4 * k, y); g.closePath(); g.fill(); g.stroke();
+      g.shadowBlur = 0; g.shadowColor = 'transparent';
+      g.fillStyle = rgba(TOP_CORE, 0.9); g.beginPath(); g.arc(x, y - 0.6 * k, 0.9 * k, 0, Math.PI * 2); g.fill();
     }
   }
   if (fx.set && SET_STYLE[fx.set]) {
@@ -244,7 +283,7 @@ function tierFrame(g: CanvasRenderingContext2D, look: ItemLook, size: number): v
     g.beginPath(); g.moveTo(x, y - 4 * k); g.lineTo(x + 3.4 * k, y); g.lineTo(x, y + 4 * k); g.lineTo(x - 3.4 * k, y); g.closePath(); g.fill(); g.stroke();
   }
   if (fx.temper > 0) {
-    // temper stars (bottom right), one per step (+4 / +7 / +10)
+    // enhancement stars (bottom right), one per step (+4 / +7 / +10)
     for (let i = 0; i < fx.temper; i++) {
       const cx = size - (7 + i * 9.6) * k, cy = size - 7.5 * k, r = 4.6 * k;
       g.fillStyle = fx.temper >= 3 ? '#fff4c8' : '#ffd65a'; g.strokeStyle = 'rgba(20,12,4,0.95)'; g.lineWidth = 1 * k;

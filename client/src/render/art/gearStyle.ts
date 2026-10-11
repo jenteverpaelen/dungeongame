@@ -1,104 +1,173 @@
-// Gear visual language (docs/rework/gear/DESIGN.md §3–§4): per-item style from the packed progression, the nine Set
-// identities and the motif of each Legendary. Pure data + tiny helpers shared by the baked ornaments (gearDecor.ts),
-// the live effects (gearFx.ts), icons and nameplates. Every motif, shape and colour here is original.
+// Gear visual language V2 (docs/rework/gear/DESIGN-V2.md §3): the per-item style every piece of gear art reads.
+// Derived from the packed identity of a look (shared/src/gearVisual.ts) and the registry (gearVisuals.ts):
+//   generation → material ladder (crude iron … zenith pearl) and size;  rarity → the colour and amount of light;
+//   legendary / Set → signature + motif;  top tier → luminous edge + extra floating pieces;  +N → glow steps.
+// Pure data + tiny helpers shared by the weapon generator, the baked ornaments, the live effects, icons and loot.
 
-import { GEAR_TIER_COLORS, lookFx, type GearFx } from '@shared/gearVisual';
+import { isSpecial, lookFx, type GearFx } from '@shared/gearVisual';
 import { GEMS, LEGENDARIES } from '@shared/data/items';
-import type { ItemLook } from '@shared/types';
+import { RARITY_COLORS } from '@shared/items';
+import type { ItemLook, Rarity } from '@shared/types';
+import { LEGENDARY_VISUAL, MOTIF_SIGNATURE, SET_STYLE, SHAPE_FAMILY, type Motif, type SetStyle, type Signature } from './gearVisuals';
 import { mix } from './util';
 
-export type Motif = 'wind' | 'cog' | 'star' | 'ember' | 'stone' | 'feather' | 'rain' | 'shard' | 'lantern'
-  | 'blood' | 'holy' | 'void' | 'arcane' | 'storm' | 'frost' | 'leaf' | 'shadow' | 'flame' | 'gold';
+export { SET_STYLE, type Motif, type SetStyle } from './gearVisuals';
 
-/** Back pieces from cloth to wings (rank / Set driven). */
-export type BackKind = 'none' | 'cape' | 'mantle' | 'wings';
+/** Legendary id → motif (registry view kept for the effect code). */
+export const LEGENDARY_MOTIF: Record<string, Motif> = Object.fromEntries(Object.entries(LEGENDARY_VISUAL).map(([k, v]) => [k, v.motif]));
 
-export interface SetStyle {
-  motif: Motif;
-  /** Emissive accent and the deep tone it sits on. */
-  main: number;
-  deep: number;
-  /** Original name of the Set's signature (shown in the showcase card). */
-  signature: string;
+// ─────────────────────────── generations: the material ladder ───────────────────────────
+
+export interface GenMaterial {
+  /** Short original name of the generation's material (design docs / gallery labels only, never UI). */
+  name: string;
+  metal: number; edge: number; dark: number;
+  /** Fittings (guard, bands, rivets). */
+  trim: number;
+  wood: number;
+  /** Grip wrap / cloth. */
+  wrap: number;
+  /** Colour of the generation's own light where its silhouette has light channels (0 = none). */
+  rune: number;
 }
 
-/** The nine Sets: one silhouette language each (crest, back piece, orbit token, particles, footprints, idle burst). */
-export const SET_STYLE: Record<string, SetStyle> = {
-  endless_storm: { motif: 'wind', main: 0x9fe3ff, deep: 0x2f5f7a, signature: 'Eyewall: cyclone wings, gale ribbons, dust-devil steps' },
-  siegebreaker: { motif: 'cog', main: 0xffc94a, deep: 0x5a4a22, signature: 'Siege engine: brass cog halo, spark plumes, piston steps' },
-  fallen_star: { motif: 'star', main: 0xffa14a, deep: 0x2a1858, signature: 'Comet: constellation wings, orbiting stars, stardust steps' },
-  cinder_oath: { motif: 'ember', main: 0xff7a3a, deep: 0x4a1a12, signature: 'Oathfire: ember mantle, rising ash, burning steps' },
-  fault_warden: { motif: 'stone', main: 0xffc47a, deep: 0x4a3a28, signature: 'Fault line: floating rock plates, orbiting shards, cracked steps' },
-  farwatch: { motif: 'feather', main: 0x8fe0ff, deep: 0x1f4656, signature: 'Watchtower: hawk-feather wings, drifting plumes, feather steps' },
-  rainkeeper: { motif: 'rain', main: 0xc9b8ff, deep: 0x3a2f4e, signature: 'Stormcloud: mist wings, a personal rain, ripple steps' },
-  glass_concord: { motif: 'shard', main: 0xbfe6ff, deep: 0x34485e, signature: 'Prism: crystal wings, orbiting glass, refracting steps' },
-  lantern_garden: { motif: 'lantern', main: 0xffd27a, deep: 0x2c4224, signature: 'Night garden: leaf wings, floating lanterns, blooming steps' },
-};
+/** Seven generations = the item-name bands (Worn … Starforged) + the level-70 cap. Model changes at G0 / G2 / G4 / G6,
+ *  material + light steps in between (REFERENCES-V2 V1/V2). Colours are original proposals [P]. */
+export const GEN_MATERIAL: readonly GenMaterial[] = [
+  { name: 'scrap iron', metal: 0x8a8379, edge: 0xb2a998, dark: 0x57504a, trim: 0x6d6457, wood: 0x80603e, wrap: 0xa8946c, rune: 0 },
+  { name: 'iron', metal: 0x9ba1a8, edge: 0xcdd1d5, dark: 0x5f656d, trim: 0x8b8274, wood: 0x6e4a2c, wrap: 0x5c3d24, rune: 0 },
+  { name: 'steel and bronze', metal: 0xb6bec8, edge: 0xe6ebf0, dark: 0x6c7581, trim: 0xb98149, wood: 0x5c3a22, wrap: 0x4a3426, rune: 0 },
+  { name: 'bright steel and gilt', metal: 0xc8d2dc, edge: 0xf6f9fc, dark: 0x6a7686, trim: 0xe2b448, wood: 0x4a2c1a, wrap: 0x7a2420, rune: 0 },
+  { name: 'runesteel', metal: 0x58688a, edge: 0xa9c4e2, dark: 0x2c3448, trim: 0xd2dae2, wood: 0x2e2430, wrap: 0x23345a, rune: 0x62e6dc },
+  { name: 'starmetal', metal: 0xd6d2ee, edge: 0xffffff, dark: 0x6a6490, trim: 0xf2c24e, wood: 0x3a2a4a, wrap: 0x48286a, rune: 0xc4b4ff },
+  { name: 'zenith pearl', metal: 0xf1e9d6, edge: 0xffffff, dark: 0x8a7856, trim: 0xffd56a, wood: 0x2a1e30, wrap: 0x6a1a2a, rune: 0xfff0c2 },
+];
 
-/** Legendary signature motifs (parameterised generators, not 22 one-off sprites). */
-export const LEGENDARY_MOTIF: Record<string, Motif> = {
-  faultcleaver: 'stone', rainspindle: 'rain', lanternroot: 'lantern', ninefold_gale: 'wind', bloodwake: 'blood', eternal_gyre: 'wind',
-  anvil_vambraces: 'gold', last_light: 'holy', sappers_pack: 'cog', gearwright_heart: 'cog', thunderhead: 'storm', hunters_mark: 'leaf',
-  cindervane: 'flame', void_heart: 'void', starfall_mantle: 'star', thousand_missiles: 'arcane', ouroboros_loop: 'gold', patient_thief: 'shadow',
-  hellforge_talisman: 'flame', witching_cord: 'arcane', stridewind: 'wind', mountain_fists: 'stone',
-};
+/** World / rig size of held items per generation, by size class (icons fill by their own ladder, icons.ts). Small
+ *  one-handers climb the most (they are the hardest to read on a ~95 px hero); big two-handers climb least because
+ *  their drawings already grow heads and edges per generation. Proposal [P]; owner decision how big endgame may get. */
+export const GEN_SCALE = {
+  small: [0.9, 0.97, 1.05, 1.15, 1.26, 1.38, 1.5],
+  mid: [0.9, 0.95, 1.02, 1.1, 1.18, 1.27, 1.36],
+  large: [0.88, 0.93, 0.98, 1.04, 1.1, 1.17, 1.24],
+} as const;
+export type SizeClass = keyof typeof GEN_SCALE;
+function sizeClassOf(shape: string): SizeClass {
+  const rig = SHAPE_FAMILY[shape]?.rig;
+  return rig === '1h' || rig === 'wand' || rig === 'hxbow' ? 'small' : rig === '2h' || rig === 'staff' ? 'large' : 'mid';
+}
 
-export const ANCIENT_GOLD = 0xffb04a;
-export const PRIMAL_RED = 0xff3a2a;
-export const PRIMAL_CORE = 0xfff0e0;
+/** Item grades above Legendary (stored `item.ancient` 1 / 2; docs/rework/depth/ITEMS-SHARED.md §7): grade 1 **Kindled**
+ *  carries an ember accent (ember-orange edge light, an ember set into the piece, drifting embers); grade 2 **Fabled**
+ *  takes "a unique look": white-gold starlight replaces the core light (the item's own colour moves to its rim), an
+ *  Inscription ring of glyphs orbits held items, starlight glints. Index 3 is spare. */
+export const TOP_COLORS = [0, 0xff8a3c, 0xbcd6ff, 0xbcd6ff] as const;
+/** Fabled core light (white-gold starlight) and the white core of every grade light. */
+export const FABLED_LIGHT = 0xfff0c4;
+export const TOP_CORE = 0xffffff;
+
+const hexOf = (css: string) => parseInt(css.replace('#', ''), 16);
+/** Rarity light colours, from the shared rarity tokens (RARITY_COLORS) lifted towards white so they read as light. */
+export const RARITY_LIGHT: Record<Rarity, number> = {
+  normal: 0,
+  magic: mix(hexOf(RARITY_COLORS.magic), 0xffffff, 0.18),
+  rare: mix(hexOf(RARITY_COLORS.rare), 0xffffff, 0.22),
+  legendary: mix(hexOf(RARITY_COLORS.legendary), 0xffffff, 0.12),
+  set: mix(hexOf(RARITY_COLORS.set), 0xffffff, 0.15),
+};
 
 export interface ItemStyle {
   fx: GearFx;
-  tier: number;
-  /** Emissive accent (legendary glow / Set main / rarity trim colour). */
+  gen: number;
+  /** Rarity index 0..4 (normal, magic, rare, legendary, set). */
+  rar: number;
+  special: boolean;
+  top: number;
+  temper: number;
+  mat: GenMaterial;
+  /** Final material colours (the stored look's own colour tints the metal a little, legendaries keep their palette). */
+  metal: number; edge: number; dark: number; trim: number; wood: number; wrap: number;
+  /** The colour of this item's light (0 = dormant: normal items show empty channels). */
+  light: number;
+  /** Light strength 0..~1.6: rarity, generation, enhancement and top tier. */
+  lightK: number;
+  /** Top-tier edge light (0 below the top tier). */
+  edgeLight: number;
+  /** Ornament accent (light colour, else the trim). */
   accent: number;
-  /** Filigree / ornament metal (tier metal, Ancient amber, Primal crimson). */
-  metal: number;
   motif: Motif | null;
   set?: SetStyle;
+  sig: Signature | null;
+  bespoke?: string;
+  legendary?: string;
   /** Socketed gem colour (0 = none) and whether it glows (rank 5+). */
   gem: number;
   gemGlow: boolean;
+  /** Rig / world size factor of held items. */
+  scale: number;
+  /** Floating pieces around held items (generation + rarity + top tier). */
+  floats: number;
+  /** Armour ornament complexity 0..9 (gearDecor.ts): structure from the generation, embellishment from the rarity,
+   *  filigree from the grade. Internal only, never shown as a tier. */
+  orn: number;
+  /** Ornament metal of armour pieces (fittings; the grade colour on Kindled / Fabled pieces). */
+  orMetal: number;
+  /** Fabled: the item's own identity colour, moved to the rim (0 otherwise). */
+  idLight: number;
 }
 
-const cache = new Map<number, ItemStyle>();
+/** Armour ornament complexity from generation, rarity and grade (see ItemStyle.orn). */
+export function ornOf(gen: number, rar: number, top: number): number {
+  const structure = [0, 1, 3, 4, 5, 5, 6][gen] ?? 0;
+  let o = rar >= 3 ? (gen >= 6 ? 7 : 6) : rar === 2 ? Math.min(5, structure + 1) : structure;
+  if (top >= 1) o = Math.max(o, 8);
+  if (top >= 2) o = 9;
+  return o;
+}
 
-/** Style of a look, or null for looks without progression (townsfolk, older servers: drawn exactly as before). */
+const cache = new Map<string, ItemStyle>();
+
+/** Style of a look, or null for looks without identity (townsfolk, older servers: drawn exactly as before). */
 export function itemStyle(look: ItemLook | undefined): ItemStyle | null {
   if (!look || typeof look.fx !== 'number') return null;
-  const key = look.fx * 16 + (look.glow ? 1 : 0);
+  const key = `${look.fx}|${look.primary}|${look.secondary}|${look.glow}`;
   const hit = cache.get(key);
-  if (hit && hit.accent === (accentOf(look, hit.fx))) return hit;
+  if (hit) return hit;
   const fx = lookFx(look)!;
+  const gen = fx.gen, rar = ['normal', 'magic', 'rare', 'legendary', 'set'].indexOf(fx.rarity), special = isSpecial(fx.rarity);
   const set = fx.set ? SET_STYLE[fx.set] : undefined;
-  const motif = set?.motif ?? (fx.legendary ? LEGENDARY_MOTIF[fx.legendary] ?? null : null);
-  const metal = fx.ancient === 2 ? PRIMAL_RED : fx.ancient === 1 ? ANCIENT_GOLD : GEAR_TIER_COLORS[fx.tier];
+  const lv = fx.legendary ? LEGENDARY_VISUAL[fx.legendary] : undefined;
+  const motif = set?.motif ?? lv?.motif ?? null;
+  const mat = GEN_MATERIAL[gen];
+  // metal keeps a hint of the stored colour (variety inside a generation); legendaries tint more towards their palette
+  const tint = special ? 0.32 : 0.14;
+  const metal = mix(mat.metal, look.primary, tint), edge = mix(mat.edge, look.primary, tint * 0.4), dark = mix(mat.dark, look.primary, tint);
+  const trim = special ? mix(mat.trim, look.secondary, 0.55) : mat.trim;
+  const defGlow = fx.legendary && LEGENDARIES[fx.legendary] ? LEGENDARIES[fx.legendary].colors.glow : look.glow || RARITY_LIGHT.legendary;
+  // the core light keeps the item's identity (rarity / legendary / Set colour); the top tier adds its own edge light
+  const idLight = set ? set.main : fx.rarity === 'legendary' ? defGlow : RARITY_LIGHT[fx.rarity];
+  // Fabled: starlight takes the core, the identity colour moves to the rim
+  const light = fx.top >= 2 ? FABLED_LIGHT : idLight;
+  const lightK = !light ? 0 : (special ? 0.8 : rar === 2 ? 0.55 : 0.4) + gen * 0.05 + fx.temper * 0.14 + fx.top * 0.18;
   const gemDef = fx.gem ? GEMS[fx.gem] : undefined;
-  const s: ItemStyle = { fx, tier: fx.tier, accent: accentOf(look, fx), metal, motif, set, gem: gemDef?.color ?? 0, gemGlow: fx.gemRank >= 5 };
+  const scale = GEN_SCALE[sizeClassOf(look.shape)][gen] * (special ? 1.06 : 1) * (1 + 0.04 * fx.top);
+  const floats = (gen >= 6 ? (rar >= 2 ? 2 : 1) : gen >= 5 && rar >= 2 ? 1 : 0) + (special && gen >= 4 ? 1 : 0) + fx.top;
+  const s: ItemStyle = {
+    fx, gen, rar, special, top: fx.top, temper: fx.temper, mat,
+    metal, edge, dark, trim, wood: mat.wood, wrap: special ? mix(mat.wrap, look.primary, 0.5) : mat.wrap,
+    light, lightK, edgeLight: TOP_COLORS[Math.min(3, fx.top)] ?? 0, accent: light || trim, motif, set, sig: lv?.sig ?? (lv ? MOTIF_SIGNATURE[lv.motif] : set ? MOTIF_SIGNATURE[set.motif] : null),
+    bespoke: lv?.bespoke, legendary: fx.legendary, gem: gemDef?.color ?? 0, gemGlow: fx.gemRank >= 5, scale, floats,
+    orn: ornOf(gen, rar, fx.top), orMetal: fx.top >= 2 ? FABLED_LIGHT : fx.top ? TOP_COLORS[1] : special ? mix(trim, light || trim, 0.3) : trim,
+    idLight: fx.top >= 2 ? idLight : 0,
+  };
   if (cache.size > 2000) cache.clear();
   cache.set(key, s);
   return s;
 }
 
-function accentOf(look: ItemLook, fx: GearFx): number {
-  if (fx.ancient === 2) return PRIMAL_RED;
-  if (fx.set && SET_STYLE[fx.set]) return SET_STYLE[fx.set].main;
-  if (fx.legendary && LEGENDARIES[fx.legendary]) return LEGENDARIES[fx.legendary].colors.glow;
-  if (fx.tier >= 6) return look.glow || 0xffb347;
-  if (fx.tier >= 5) return 0x7fe8d8;
-  if (fx.tier >= 3) return 0xffd65a;
-  if (fx.tier >= 1) return 0x9fb4ff;
-  return 0;
-}
-
-/** Ornament level 0..9 of a look (0 for looks without progression). */
+/** Ornament level 0..6 of a look (its generation; 0 for looks without identity). */
 export function ornament(look: ItemLook | undefined): number {
-  return itemStyle(look)?.tier ?? 0;
-}
-
-/** Colour of a tier blended for light UI text. */
-export function tierText(tier: number): number {
-  return mix(GEAR_TIER_COLORS[Math.max(0, Math.min(9, tier))], 0xffffff, 0.25);
+  return itemStyle(look)?.gen ?? 0;
 }
 
 export function motifColor(m: Motif | null, fallback: number): number {

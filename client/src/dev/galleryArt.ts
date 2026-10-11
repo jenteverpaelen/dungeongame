@@ -23,7 +23,7 @@ import { PlayerArt, artDebug, bakePlayerLook, bakeStats } from '../render/art/pl
 import { ACTIONS, type ActionSpec } from '../render/actions';
 import { NPC_PRESETS, RESIDENT_PRESETS } from '../render/art/npcLooks';
 import { F_WINDUP } from '@shared/protocol';
-import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearLook, gearProfile } from '@shared/gearVisual';
+import { gearLook, gearProfile } from '@shared/gearVisual';
 import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/gearShowcase';
 import { gearFxStats } from '../render/art/gearFx';
 import { SET_STYLE } from '../render/art/gearStyle';
@@ -654,7 +654,6 @@ function gearLadderView() {
       const x = gx + ci * colW;
       const v = createPlayerView(look);
       addActor(v, x, y, anim === 'walk' ? st({ moving: true, vx: 220, flags: F_MOVING }) : st({}), 1.2);
-      label(GEAR_TIER_NAMES[p.rank] + ' ' + p.rank, x, y + 14, 10, GEAR_TIER_COLORS[p.rank]);
     });
   });
   world.scale.set(ZOOM * Number(qs.get('k') ?? 1.06));
@@ -681,7 +680,6 @@ function gearVsView() {
       const yaw = qs.get('yaw');
       if (yaw !== null && !moving) (v as PlayerArt).setYaw(Number(yaw) * (k === 0 ? -1 : 1));
       v.root.zIndex = hy;
-      if (qs.get('labels')) { const p = gearProfile(stageLook(c, stg)); label(GEAR_TIER_NAMES[p.rank], hx, hy + 12, 9, GEAR_TIER_COLORS[p.rank], ents).zIndex = 1e6; }
     });
   });
   const scr = app.screen;
@@ -803,7 +801,7 @@ async function gearMeasureView() {
     hideAll((n) => n === 'wingR' || n === 'wingL');
     const wings = box(153);
     const p = gearProfile(look);
-    rows.push({ cls, stage: stg, yaw, rank: p.rank, visible, solid, body, wings, ratio: body.w ? +(wings.w / body.w).toFixed(2) : 0 });
+    rows.push({ cls, stage: stg, yaw, sets: p.topSetCount, visible, solid, body, wings, ratio: body.w ? +(wings.w / body.w).toFixed(2) : 0 });
     frame.destroy({ children: false });
     holder.destroy({ children: false }); art.destroy();
   }
@@ -811,6 +809,109 @@ async function gearMeasureView() {
   const pre = document.getElementById('icons')!;
   pre.style.display = 'block';
   pre.innerHTML = '<pre style="color:#e8d9b5;font:12px monospace;padding:12px">' + rows.map((r) => JSON.stringify(r)).join(String.fromCharCode(10)) + '</pre>';
+}
+
+// ─────────────────────────── weapon look board (docs/rework/gear/DESIGN-V2.md, checkpoint) ───────────────────────────
+
+const WB_WEAPONS = ['sword', 'axe', 'mace', 'sword2h', 'axe2h', 'bow', 'crossbow', 'handxbow', 'staff', 'wand', 'shield', 'quiver', 'orb'];
+interface WbCol { label: string; ilvl: number; rarity: Rarity; ancient?: 0 | 1 | 2; upgrade?: number; sig?: boolean }
+/** Level sweep (one column per generation: the first item level of each name band) at the rarity a levelling hero
+ *  typically wears, then a rarity sweep at level 70. */
+const WB_COLS: WbCol[] = [
+  { label: 'L1 normal', ilvl: 1, rarity: 'normal' }, { label: 'L13 magic', ilvl: 13, rarity: 'magic' }, { label: 'L25 magic', ilvl: 25, rarity: 'magic' },
+  { label: 'L37 rare', ilvl: 37, rarity: 'rare' }, { label: 'L49 rare', ilvl: 49, rarity: 'rare' }, { label: 'L61 rare', ilvl: 61, rarity: 'rare' },
+  { label: 'L70 rare', ilvl: 70, rarity: 'rare' }, { label: 'L70 normal', ilvl: 70, rarity: 'normal' }, { label: 'L70 magic', ilvl: 70, rarity: 'magic' },
+  { label: 'L70 legendary', ilvl: 70, rarity: 'legendary', sig: false }, { label: 'L70 signature', ilvl: 70, rarity: 'legendary', sig: true },
+  { label: 'Kindled +7', ilvl: 70, rarity: 'legendary', sig: true, ancient: 1, upgrade: 7 }, { label: 'Fabled +10', ilvl: 70, rarity: 'legendary', sig: true, ancient: 2, upgrade: 10 },
+];
+/** PLACEHOLDER colours for a legendary that has no visual entry yet (stands in for the ~100 legendaries still to come). */
+const WB_GENERIC_LEG = { primary: 0x4a3a5a, secondary: 0xe0a040, glow: 0xffa040 };
+
+/** One board item, generated through the real item pipeline (null when the base has no legendary of its own). */
+function wbItem(base: string, col: WbCol, i: number): Item | null {
+  const b = BASES[base];
+  const cls: ClassId = b.classes?.[0] ?? b.affinity?.[0] ?? 'warrior';
+  const rng = new Rng(1000 + i * 131 + base.length * 7);
+  let it: Item;
+  if (col.rarity === 'legendary' && col.sig) {
+    const sig = Object.values(LEGENDARIES).find((l) => l.base === base);
+    if (!sig) return null;
+    it = generateItem(rng, { ilvl: col.ilvl, classId: cls, rarity: 'legendary', legendary: sig.id, ancientAllowed: false });
+  } else if (col.rarity === 'legendary') {
+    it = generateItem(rng, { ilvl: col.ilvl, classId: cls, rarity: 'rare', base, ancientAllowed: false });
+    it.rarity = 'legendary';
+    it.look = { ...it.look, ...WB_GENERIC_LEG };
+  } else it = generateItem(rng, { ilvl: col.ilvl, classId: cls, rarity: col.rarity, base, ancientAllowed: false });
+  it.ancient = col.ancient ?? 0; it.upgrade = col.upgrade ?? 0;
+  return it;
+}
+
+/** ?view=weapon-board: every weapon / off-hand base across the level and rarity sweep as inventory icons (&px= cell). */
+function weaponBoardIcons() {
+  const px = Number(qs.get('px') ?? 56);
+  const el = document.getElementById('icons')!;
+  el.style.display = 'block';
+  app.canvas.style.display = 'none';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `display:grid;grid-template-columns:96px repeat(${WB_COLS.length}, ${px + 12}px);gap:4px;padding:10px 14px;font:11px monospace;color:#c9b98f;align-items:center`;
+  el.appendChild(wrap);
+  const head = (t: string) => { const d = document.createElement('div'); d.textContent = t; d.style.textAlign = 'center'; wrap.appendChild(d); };
+  head('');
+  WB_COLS.forEach((c) => head(c.label));
+  const bases = qs.get('bases')?.split(',') ?? WB_WEAPONS;
+  bases.forEach((b) => {
+    head(BASES[b].noun);
+    WB_COLS.forEach((c, i) => {
+      const it = wbItem(b, c, i);
+      const d = document.createElement('div');
+      const url = it ? itemIconUrl(gearLook(it), it.kind as ItemKind, px > 48 ? 128 : 64) : '';
+      const rc = it ? ({ normal: '#6a6156', magic: '#5d7ad8', rare: '#d8bf3a', legendary: '#d8662a', set: '#2fb884' } as Record<Rarity, string>)[it.rarity] : '#2a221a';
+      d.innerHTML = `<div style="width:${px + 8}px;height:${px + 8}px;margin:auto;background:radial-gradient(#2a2119,#120d0a);border:1px solid ${rc};display:flex;align-items:center;justify-content:center">${url ? `<img src="${url}" width=${px} height=${px}>` : '<span style="color:#4a3f33">—</span>'}</div>`;
+      wrap.appendChild(d);
+    });
+  });
+}
+
+/** ?view=weapon-hero&set=melee|ranged: the same sweep held by a plain hero at the default game camera. */
+function weaponBoardHeroes() {
+  const which = qs.get('set') ?? 'melee';
+  const bases = qs.get('bases')?.split(',') ?? (which === 'melee' ? ['sword', 'axe', 'mace', 'sword2h', 'axe2h', 'shield'] : ['bow', 'crossbow', 'handxbow', 'staff', 'wand', 'quiver', 'orb']);
+  const pick = (qs.get('cols') ?? '0,2,3,4,5,6,9,12').split(',').map(Number);
+  const cols = pick.map((i) => WB_COLS[i]);
+  const z = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  const colW = Number(qs.get('colw') ?? 200), rowH = Number(qs.get('rowh') ?? 150), gx = 210, gy = 120;
+  const anim = qs.get('anim') ?? 'idle';
+  const holder = new Container();
+  world.addChild(holder);
+  cols.forEach((c, ci) => label(c.label, (gx + ci * colW) * 1, 8, 15, 0xe8d9b5));
+  bases.forEach((b, ri) => {
+    const base = BASES[b];
+    const cls: ClassId = base.classes?.[0] ?? 'warrior';
+    const y = gy + ri * rowH;
+    label(base.noun, 80, y - 40, 15, 0xc9b98f);
+    cols.forEach((c, ci) => {
+      const save = createCharacter('Board', cls, 7);
+      const look = playerLook(save);
+      const it = wbItem(b, c, WB_COLS.indexOf(c));
+      if (!it) { label('—', gx + ci * colW, y - 30, 16, 0x6a5f50); return; }
+      const off = base.kind === 'offhand';
+      if (off) {
+        const main = wbItem(cls === 'warrior' ? 'sword' : cls === 'ranger' ? 'bow' : 'wand', { ...c, rarity: c.rarity === 'legendary' ? 'rare' : c.rarity, sig: false }, WB_COLS.indexOf(c));
+        if (main) look.slots.mainhand = gearLook(main);
+        look.slots.offhand = gearLook(it);
+      } else {
+        look.slots.mainhand = gearLook(it);
+        if (base.weapon?.twoHanded || cls !== 'warrior') delete look.slots.offhand;
+        if (cls === 'ranger' && (b === 'bow' || b === 'crossbow')) delete look.slots.offhand;
+        if (cls === 'warrior' && !base.weapon?.twoHanded) delete look.slots.offhand;
+      }
+      const v = createPlayerView(look);
+      const x = gx + ci * colW;
+      addActor(v, x / z * 1, y / z, anim === 'attack' ? st({ flags: F_ATTACK }) : anim === 'walk' ? st({ moving: true, vx: 220, flags: F_MOVING }) : st({}), 1.2, holder);
+    });
+  });
+  holder.scale.set(z);
+  world.scale.set(1);
 }
 
 let drawCalls = 0, drawCallsShown = 0;
@@ -917,6 +1018,8 @@ switch (VIEW) {
   case 'gear-sets': gearSetsView(); break;
   case 'gear-icons': gearIconsView(); break;
   case 'gear-measure': void gearMeasureView(); break;
+  case 'weapon-board': weaponBoardIcons(); break;
+  case 'weapon-hero': weaponBoardHeroes(); break;
 }
 
 let time = 0;

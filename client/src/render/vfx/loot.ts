@@ -15,6 +15,7 @@ import { preferences } from '../../game/preferences';
 import { text } from '../../i18n/messages';
 import { lookFx } from '@shared/gearVisual';
 import { gearSigilTexture } from '../art/gearFx';
+import { FABLED_LIGHT, TOP_COLORS } from '../art/gearStyle';
 
 function labelText(l: LootView, quality: boolean): string {
   if (!quality || l.lk !== 'item' || !l.rarity) return l.name;
@@ -36,25 +37,22 @@ interface BeamStyle { outer: number; core: number; width: number; height: number
 
 function beamStyle(l: LootView): BeamStyle | null {
   if (l.lk !== 'item') return null;
-  // Visual tier (protocol 22): Runic rares get a short pillar, Heroic (ilvl 70) Legendaries / Sets a taller beam.
-  const tier = lookFx(l.look)?.tier ?? -1;
-  if (tier === 5) return { outer: 0xe8c040, core: 0xfff4c0, width: 26, height: 150, glow: 0xffd040 };
+  // From the item (DESIGN-V2 §6): rares of the two late generations get a short pillar, legendary / Set beams by rarity,
+  // taller at the level-70 generation; Kindled and Fabled beams in the grade colours.
+  const gen = lookFx(l.look)?.gen ?? -1;
+  if (l.rarity === 'rare' && gen >= 5) return { outer: 0xe8c040, core: 0xfff4c0, width: 26, height: gen >= 6 ? 170 : 140, glow: 0xffd040 };
   const base = beamStyleByRarity(l);
-  if (base && tier === 7) return { ...base, width: base.width + 8, height: base.height + 70 };
+  if (base && gen >= 6 && !l.ancient) return { ...base, width: base.width + 8, height: base.height + 70 };
   return base;
 }
 
 function beamStyleByRarity(l: LootView): BeamStyle | null {
-  if (l.rarity === 'legendary') {
-    if (l.ancient === 2) return { outer: 0xff4630, core: 0xffd890, width: 70, height: 520, glow: 0xff5a30 };
-    if (l.ancient === 1) return { outer: 0xff8a2a, core: 0xffe6a0, width: 66, height: 500, glow: 0xff9a40 };
-    return { outer: 0xef6c2a, core: 0xffd8a8, width: 54, height: 450, glow: 0xf07a34 };
-  }
-  if (l.rarity === 'set') {
-    if (l.ancient) return { outer: 0x4fe0b4, core: 0xe0fff4, width: 66, height: 500, glow: 0x52e6b8 };
-    return { outer: 0x34c79a, core: 0xc8f5e6, width: 54, height: 450, glow: 0x3ad6a6 };
-  }
-  return null;
+  if (l.rarity !== 'legendary' && l.rarity !== 'set') return null;
+  // Fabled: white-gold starlight with a cool rim; Kindled: the rarity beam with an ember core
+  if (l.ancient === 2) return { outer: FABLED_LIGHT, core: 0xffffff, width: 74, height: 540, glow: TOP_COLORS[2] };
+  const set = l.rarity === 'set';
+  if (l.ancient === 1) return { outer: set ? 0x34c79a : 0xef6c2a, core: 0xffc48a, width: 64, height: 520, glow: TOP_COLORS[1] };
+  return set ? { outer: 0x34c79a, core: 0xc8f5e6, width: 54, height: 450, glow: 0x3ad6a6 } : { outer: 0xef6c2a, core: 0xffd8a8, width: 54, height: 450, glow: 0xf07a34 };
 }
 
 export function labelColor(l: LootView): number {
@@ -190,7 +188,9 @@ class LootItemView implements EntityView {
   private landed = false;
   private labelQuality = false;
   private sigil: Sprite | null = null;
+  /** Ground mark under the drop: 7 = level-70 legendary / Set, 8 = Kindled, 9 = Fabled (from the item). */
   private tier = -1;
+  private gen = 2;
   private nextPulse = 0.4;
 
   constructor(private V: VfxCore, private M: LootManager, private desc: EntDesc) {
@@ -201,7 +201,7 @@ class LootItemView implements EntityView {
     this.shadow.tint = 0x000000;
     this.root.addChild(this.shadow, this.body);
     this.beamStyle = beamStyle(l);
-    this.tier = lookFx(l.look)?.tier ?? -1;
+    { const f = lookFx(l.look); this.tier = !f ? -1 : f.top >= 2 ? 9 : f.top === 1 ? 8 : (f.rarity === 'legendary' || f.rarity === 'set') && f.gen >= 6 ? 7 : 0; this.gen = f?.gen ?? 2; }
     this.hasLabel = l.lk === 'item' || l.lk === 'gem' || l.lk === 'mat';
     const seed = hash01(desc.id);
     this.tilt = (seed - 0.5) * 0.8;
@@ -259,7 +259,7 @@ class LootItemView implements EntityView {
         }
         const icon = new Sprite(tex ?? T.icons[SHAPE_ICON[l.look?.shape ?? ''] ?? KIND_ICON[l.kind ?? ''] ?? 'chest'] ?? T.icons.chest);
         icon.anchor.set(0.5, 0.7);
-        const size = 30;
+        const size = 26 + this.gen * 1.4; // late generations lie bigger on the ground
         icon.scale.set(size / Math.max(icon.texture.orig.width, icon.texture.orig.height));
         if (!tex) icon.tint = l.look ? lerpColor(l.look.primary, 0xffffff, 0.25) : 0xd8cfc0;
         this.art.push(icon);
@@ -300,7 +300,7 @@ class LootItemView implements EntityView {
     const padX = 7, padY = 3;
     const w = Math.ceil(txt.width + padX * 2), h = Math.ceil(txt.height + padY * 2) - 2;
     const special = l.rarity === 'legendary' || l.rarity === 'set';
-    const border = l.ancient === 2 ? 0xff3a2a : l.ancient === 1 ? 0xff9a30 : special ? lerpColor(col, 0x000000, 0.25) : lerpColor(col, 0x000000, 0.55);
+    const border = l.ancient === 2 ? TOP_COLORS[2] : l.ancient === 1 ? TOP_COLORS[1] : special ? lerpColor(col, 0x000000, 0.25) : lerpColor(col, 0x000000, 0.55);
     const bg = new Graphics()
       .roundRect(-w / 2, -h, w, h, 3).fill({ color: 0x0b0806, alpha: 0.82 })
       .roundRect(-w / 2, -h, w, h, 3).stroke({ width: special || l.ancient ? 1.5 : 1, color: border, alpha: special ? 0.95 : 0.6 });

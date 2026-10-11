@@ -1,4 +1,5 @@
-// Gear visual progression (docs/rework/gear/DESIGN.md): settings, tooltip tier strip, showcase card, nameplates.
+// Gear visuals (docs/rework/gear/DESIGN-V2.md): settings, showcase card, Set moments. No tier or rank strings: the look
+// of a hero is the items they wear.
 export const GEAR_MESSAGES = {
   'gear.settingsHeading': 'Gear effects',
   'gear.own': 'Your hero',
@@ -6,25 +7,10 @@ export const GEAR_MESSAGES = {
   'gear.full': 'Full',
   'gear.reduced': 'Reduced',
   'gear.off': 'Off',
-  'gear.settingsNote': 'Full shows every gear effect: auras, wings, particles and footprints. Reduced keeps steady glows and back pieces without motion. Off hides gear effects; armour shapes always show. Reduced motion in your system caps this at Reduced.',
-  'gear.tierLine': '{tier} · tier {numeral}',
+  'gear.settingsNote': 'Full shows every gear effect: glowing weapons, floating pieces, auras, wings, particles and footprints. Reduced keeps steady glows and back pieces without motion. Off hides gear effects; the shapes of your weapons and armour always show. Reduced motion in your system caps this at Reduced.',
   'gear.temper': 'Tempered +{value}',
   'gear.showcaseTitle': 'Gear showcase',
-  'gear.rank': 'Gear rank: {rank}',
-  'gear.rankNote': 'Your gear rank is what other players see: it grows with item level, rarity, Ancient and Primal items, Cube upgrades and complete Sets.',
-  'gear.next': 'Next: {hint}',
+  'gear.lookNote': 'Your hero looks like what you wear: every weapon and armour piece changes shape and material with its item level, gains light with its rarity, and Legendary items carry their own signature.',
   'gear.setPieces': '{set} · {count} of 6',
-  'gear.hintEmpty': 'fill your empty slots ({slots})',
-  'gear.hintWeakest': 'replace your {slot} ({tier})',
-  'gear.hintRares': 'rare items of a higher item level',
-  'gear.hintLegendary': 'Legendary and Set items',
-  'gear.hintLevel70': 'level-70 Legendary and Set items',
-  'gear.hintSet': 'complete {set} ({count} of 6 worn)',
-  'gear.hintSetNone': 'collect a 6-piece Set',
-  'gear.hintAncient': 'Ancient Legendary or Set items',
-  'gear.hintTemper': 'empower your best items to +10 in the Cube',
-  'gear.hintPrimal': 'a Primal Ancient item',
-  'gear.hint9': 'you have reached the top of the ladder.',
-  'gear.rankUp': 'Gear rank: {rank}',
   'gear.setComplete': 'Set complete: {set}',
 } as const;

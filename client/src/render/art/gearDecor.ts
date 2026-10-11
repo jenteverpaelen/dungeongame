@@ -21,7 +21,7 @@ export function filigree(c: Ctx, x: number, y: number, s: number, col: number, f
 
 /** One motif ornament pointing up from (x, y) with height h (local "up" = -y). Used on pauldrons, crests, charms. */
 export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: number, w: number, s: ItemStyle, lean = 0): void {
-  const acc = light(s.accent || s.metal, 0.12), metal = s.metal;
+  const acc = light(s.accent || s.orMetal, 0.12), metal = s.orMetal;
   const tx = x + lean * h, ty = y - h;
   switch (m) {
     case 'wind': { // swept fin, curling backwards
@@ -77,7 +77,7 @@ export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: num
     }
     default: { // tiered metal spike with an emissive tip
       poly(c, [x - w, y, tx, ty, x + w, y], light(metal, 0.1), { ow: 1.6, hl: 0.2 });
-      if (s.tier >= 7 && !inSilhouette()) { c.moveTo(x, y - 1).lineTo(tx - lean * 1.5, ty + h * 0.3); c.stroke({ width: 1, color: light(acc, 0.5), alpha: 0.9 }); }
+      if (s.orn >= 7 && !inSilhouette()) { c.moveTo(x, y - 1).lineTo(tx - lean * 1.5, ty + h * 0.3); c.stroke({ width: 1, color: light(acc, 0.5), alpha: 0.9 }); }
     }
   }
 }
@@ -88,11 +88,11 @@ export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: num
 export function decorShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
   const s = itemStyle(l);
   if (!s) return;
-  const T = s.tier, p = isBack ? shade(l.primary, 0.2) : l.primary;
+  const T = s.orn, p = isBack ? shade(l.primary, 0.2) : l.primary;
   if (T >= 5) {
     // a raised top plate widens the silhouette
     blob(c, [-10.5, -2.4, -5.6, -9.4, 5.8, -10, 12, -2.8, 6.4, -5.2, -4.6, -5], light(p, 0.08), { ow: 1.8, hl: 0.35 });
-    crease(c, [-8, -4.2, 0, -8, 9, -4.4], 1.2, s.metal, 0.95);
+    crease(c, [-8, -4.2, 0, -8, 9, -4.4], 1.2, s.orMetal, 0.95);
   }
   if (T >= 6) {
     const n = T >= 7 ? 3 : 2, h = 5 + (T - 5) * 2.2, w = 2.3 + (T - 6) * 0.25;
@@ -100,16 +100,16 @@ export function decorShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
     xs.forEach((x, i) => motifSpike(c, s.motif, x, -6.6 - (i === 1 && n === 3 ? 1.6 : 0), h * (i === 1 && n === 3 ? 1.25 : 1), w, s, (x - 0.8) * 0.06));
   }
   if (T >= 3) {
-    crease(c, [-7.8, 3.4, 0.6, 5.6, 8.8, 3.6], 1.6, s.metal, 1);
-    if (!isBack) for (const x of T >= 4 ? [-4.6, 0.6, 5.8] : [0.6]) rivet(c, x, 4.1 - Math.abs(x) * 0.08, 0.9, light(s.metal, 0.3));
+    crease(c, [-7.8, 3.4, 0.6, 5.6, 8.8, 3.6], 1.6, s.orMetal, 1);
+    if (!isBack) for (const x of T >= 4 ? [-4.6, 0.6, 5.8] : [0.6]) rivet(c, x, 4.1 - Math.abs(x) * 0.08, 0.9, light(s.orMetal, 0.3));
   }
   if (T >= 7 && !isBack) gem(c, 0.6, -1.2, 2.2, light(s.accent, 0.2), 1.1);
-  if (T >= 8 && !isBack) { filigree(c, -4.6, 0.6, 0.9, s.metal); filigree(c, 5.6, 0.6, 0.9, s.metal, -1); }
+  if (T >= 8 && !isBack) { filigree(c, -4.6, 0.6, 0.9, s.orMetal); filigree(c, 5.6, 0.6, 0.9, s.orMetal, -1); }
 }
 
 /** How much bigger the pauldrons get (rig scale factor). */
 export function shoulderScale(l: ItemLook | undefined): number {
-  const T = itemStyle(l)?.tier ?? 0;
+  const T = itemStyle(l)?.orn ?? 0;
   return 1 + 0.035 * Math.max(0, T - 2);
 }
 
@@ -123,7 +123,7 @@ type Vec = (fwd: number, up: number, side: number, yaw: number) => Pt;
 export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: boolean, sph: Sph, vec: Vec, R: number): void {
   const s = itemStyle(l);
   if (!s || !l) return;
-  const T = s.tier, shape = l.shape;
+  const T = s.orn, shape = l.shape;
   const up = vec(0, 1, 0, yaw);
   const top = shape === 'wizard_hat' ? 0 : 1;
   const rr = shape === 'hood' ? R + 3.4 : R + 2.2;
@@ -135,7 +135,7 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
     const L = T >= 9 ? 17 : 14;
     const tip = { x: base.x + out.x * L * 0.9 + up.x * L * 0.9, y: base.y + out.y * L * 0.9 + up.y * L * 0.9 };
     const mid = { x: base.x + out.x * L * 0.65 + up.x * L * 0.25, y: base.y + out.y * L * 0.65 + up.y * L * 0.25 };
-    const col = back ? shade(s.metal, 0.25) : light(s.metal, 0.1);
+    const col = back ? shade(s.orMetal, 0.25) : light(s.orMetal, 0.1);
     blob(c, [base.x, base.y - 3, mid.x, mid.y - 2.4, tip.x, tip.y, mid.x + 1.6, mid.y + 2.6, base.x, base.y + 3], col, { ow: 1.7, hl: 0.35 });
     if (!back) crease(c, [base.x, base.y, mid.x, mid.y, tip.x, tip.y], 0.9, light(s.accent, 0.5), 0.8);
   }
@@ -149,7 +149,7 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
       const front = Math.cos(lon);
       const h = (4 + (T - 7) * 1.6) * (0.75 + 0.35 * Math.max(0, front));
       const w = 1.9;
-      const col = back ? shade(s.metal, 0.3) : s.metal;
+      const col = back ? shade(s.orMetal, 0.3) : s.orMetal;
       poly(c, [b.x - w, b.y, b.x + up.x * h, b.y + up.y * h, b.x + w, b.y], col, { ow: 1.4 });
       if (!back && b.d > 0.4 && T >= 8) c.circle(b.x + up.x * h, b.y + up.y * h, 0.9).fill({ color: light(s.accent, 0.5) });
     }
@@ -167,7 +167,7 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
         const q = sph(-70 * D2R, 30 * D2R, yaw, rr + 0.5);
         if (q.d > -0.1) { c.save?.(); c.translate(q.x, q.y); motifSpike(c, 'cog', 0, 4, 6 + (T - 5) * 1.2, 2.6 + (T - 5) * 0.3, s, 0); c.restore?.(); }
         const a1 = sph(-20 * D2R, 70 * D2R, yaw, rr);
-        if (a1.d > -0.1) { line(c, (k) => k.moveTo(a1.x, a1.y).lineTo(a1.x + up.x * H, a1.y + up.y * H), 1, s.metal, 1, false); c.circle(a1.x + up.x * H, a1.y + up.y * H, 1.6); fill(c, light(s.accent, 0.3)); }
+        if (a1.d > -0.1) { line(c, (k) => k.moveTo(a1.x, a1.y).lineTo(a1.x + up.x * H, a1.y + up.y * H), 1, s.orMetal, 1, false); c.circle(a1.x + up.x * H, a1.y + up.y * H, 1.6); fill(c, light(s.accent, 0.3)); }
       } else if (s.motif && s.motif !== 'gold' && s.motif !== 'blood' && s.motif !== 'shadow') {
         // a row of motif spikes over the crown, tallest at the top (3 at Runic/Storied, 5 from Heroic)
         const keep = T >= 7 ? [1, 2, 3, 4, 5] : [2, 3, 4];
@@ -183,8 +183,8 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
         const fin: number[] = [];
         for (let k = 0; k <= 6; k++) { const h = H * Math.sin((k / 6) * Math.PI * 0.9 + 0.2); fin.push(pts[k].x + up.x * h, pts[k].y + up.y * h); }
         for (let k = 6; k >= 0; k--) fin.push(pts[k].x, pts[k].y);
-        blob(c, fin, light(s.accent || s.metal, 0.05), { hl: 0.3 });
-        if (pts[3].d > 0) crease(c, [pts[1].x + up.x * H * 0.4, pts[1].y + up.y * H * 0.4, pts[5].x + up.x * H * 0.4, pts[5].y + up.y * H * 0.4], 1, s.metal, 0.9);
+        blob(c, fin, light(s.accent || s.orMetal, 0.05), { hl: 0.3 });
+        if (pts[3].d > 0) crease(c, [pts[1].x + up.x * H * 0.4, pts[1].y + up.y * H * 0.4, pts[5].x + up.x * H * 0.4, pts[5].y + up.y * H * 0.4], 1, s.orMetal, 0.9);
       }
     }
   }
@@ -194,23 +194,23 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
     const brim = vec(0, R * 0.62, 0, yaw);
     if (f > -0.2) for (let i = -2; i <= 2; i++) {
       const x = brim.x + Math.sin(yaw) * 6.5 * 0 + i * 4.4 * clamp(Math.abs(f) + 0.2, 0.3, 1), y = brim.y - 3.4;
-      if (Math.abs(i) <= (T >= 6 ? 2 : 1)) gem(c, x, y, i === 0 ? 1.9 : 1.3, i === 0 ? light(s.accent, 0.2) : s.metal, 0.9);
+      if (Math.abs(i) <= (T >= 6 ? 2 : 1)) gem(c, x, y, i === 0 ? 1.9 : 1.3, i === 0 ? light(s.accent, 0.2) : s.orMetal, 0.9);
     }
   }
   // brow jewel (Masterwork+) on helms, hoods and caps
   if (T >= 4 && (shape === 'helm' || shape === 'helm_horned' || shape === 'hood' || shape === 'cap')) {
     const g = sph(0, (shape === 'cap' ? 22 : 16) * D2R, yaw, rr + 0.3);
-    if (g.d > 0.25) gem(c, g.x, g.y, 2 + (T >= 6 ? 0.6 : 0), s.gem ? light(s.gem, 0.15) : light(s.accent || s.metal, 0.15), 1);
+    if (g.d > 0.25) gem(c, g.x, g.y, 2 + (T >= 6 ? 0.6 : 0), s.gem ? light(s.gem, 0.15) : light(s.accent || s.orMetal, 0.15), 1);
   }
   // circlet → diadem → crown
   if (shape === 'circlet' && T >= 5) {
-    for (const lon of [-30, 30]) { const q = sph(lon * D2R, 20 * D2R, yaw, R + 2.3); if (q.d > 0.25) gem(c, q.x, q.y, 1.5, s.metal, 0.9); }
+    for (const lon of [-30, 30]) { const q = sph(lon * D2R, 20 * D2R, yaw, R + 2.3); if (q.d > 0.25) gem(c, q.x, q.y, 1.5, s.orMetal, 0.9); }
   }
   // Ancient / Primal filigree on the dome
   if (T >= 8 && (shape === 'helm' || shape === 'helm_horned')) {
     const q = sph(-28 * D2R, 30 * D2R, yaw, rr), q2 = sph(28 * D2R, 30 * D2R, yaw, rr);
-    if (q.d > 0.3) filigree(c, q.x, q.y, 0.85, s.metal);
-    if (q2.d > 0.3) filigree(c, q2.x, q2.y, 0.85, s.metal, -1);
+    if (q.d > 0.3) filigree(c, q.x, q.y, 0.85, s.orMetal);
+    if (q2.d > 0.3) filigree(c, q2.x, q2.y, 0.85, s.orMetal, -1);
   }
 }
 
@@ -220,16 +220,16 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
 export function decorTorsoFront(c: Ctx, chest: ItemLook | undefined, neck: number | undefined, neckColor: number): void {
   const s = itemStyle(chest);
   if (s) {
-    const T = s.tier;
+    const T = s.orn;
     if (T === 0) patch(c, -6.4, -12, 4.6, 4, chest!.primary);
     if (s.fx.gems > 0 && s.gem) for (let i = 0; i < s.fx.gems; i++) gem(c, (i - (s.fx.gems - 1) / 2) * 5, -16.4, 1.5, light(s.gem, 0.1), 0.9);
     if (T >= 6) {
-      const col = s.accent || s.metal;
-      ball(c, 0, -9.6, 3.6, 3.6, shade(s.set?.deep ?? s.metal, 0.1), { ow: 1.6, hl: 0.3 });
+      const col = s.accent || s.orMetal;
+      ball(c, 0, -9.6, 3.6, 3.6, shade(s.set?.deep ?? s.orMetal, 0.1), { ow: 1.6, hl: 0.3 });
       emblem(c, s.motif, 0, -9.6, 2.6, light(col, 0.25));
-      if (T >= 7) { crease(c, [-7, -14.6, -3.4, -11.4], 1.3, s.metal, 1); crease(c, [7, -14.6, 3.4, -11.4], 1.3, s.metal, 1); }
+      if (T >= 7) { crease(c, [-7, -14.6, -3.4, -11.4], 1.3, s.orMetal, 1); crease(c, [7, -14.6, 3.4, -11.4], 1.3, s.orMetal, 1); }
     }
-    if (T >= 8) { filigree(c, -5.4, -4.6, 1, s.metal); filigree(c, 5.4, -4.6, 1, s.metal, -1); }
+    if (T >= 8) { filigree(c, -5.4, -4.6, 1, s.orMetal); filigree(c, 5.4, -4.6, 1, s.orMetal, -1); }
   }
   if (neck !== undefined && neck > 0) {
     // pendant: a chain V and a jewel in the jewellery's colour, larger for higher tiers
@@ -270,13 +270,13 @@ export function emblem(c: Ctx, m: Motif | null, x: number, y: number, r: number,
 /** Charms hanging from the belt buckle (Fine+: one, Runic+: two, Heroic+: three with a glowing jewel). */
 export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
   const s = itemStyle(w);
-  if (!s || s.tier < 3) return;
-  const n = s.tier >= 7 ? 3 : s.tier >= 5 ? 2 : 1;
+  if (!s || s.orn < 3) return;
+  const n = s.orn >= 7 ? 3 : s.orn >= 5 ? 2 : 1;
   for (let i = 0; i < n; i++) {
-    const x = (i - (n - 1) / 2) * 3.6, len = 5 + (i === (n - 1) / 2 ? 2 : 0) + (s.tier >= 7 ? 1.5 : 0);
+    const x = (i - (n - 1) / 2) * 3.6, len = 5 + (i === (n - 1) / 2 ? 2 : 0) + (s.orn >= 7 ? 1.5 : 0);
     if (!inSilhouette()) { c.moveTo(x, y + 2.6).lineTo(x, y + 2.6 + len); c.stroke({ width: 0.8, color: 0x3a2a1c, alpha: 0.9 }); }
-    if (s.tier >= 6 && i === Math.floor(n / 2)) gem(c, x, y + 3.6 + len, 1.7, light(s.accent || s.metal, 0.2), 0.9);
-    else emblem(c, s.motif, x, y + 3.4 + len, 1.4, s.metal);
+    if (s.orn >= 6 && i === Math.floor(n / 2)) gem(c, x, y + 3.6 + len, 1.7, light(s.accent || s.orMetal, 0.2), 0.9);
+    else emblem(c, s.motif, x, y + 3.4 + len, 1.4, s.orMetal);
   }
 }
 
@@ -284,16 +284,16 @@ export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
 export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | undefined, sn: number, cs: number): void {
   const ls = itemStyle(legs), fs = itemStyle(feet);
   if (ls) {
-    if (ls.tier === 0 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
-    if (ls.tier >= 6 && cs > -0.3) poly(c, [0.7 * sn - 1.8, 2.6, 0.7 * sn + 2.2 * sn, -0.6, 0.7 * sn + 1.8, 2.6], light(ls.metal, 0.1), { ow: 1.3 });
-    if (ls.tier >= 4) crease(c, [-3.4, 8, 3.4, 8], 1.1, ls.metal, 0.9);
+    if (ls.orn === 0 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
+    if (ls.orn >= 6 && cs > -0.3) poly(c, [0.7 * sn - 1.8, 2.6, 0.7 * sn + 2.2 * sn, -0.6, 0.7 * sn + 1.8, 2.6], light(ls.orMetal, 0.1), { ow: 1.3 });
+    if (ls.orn >= 4) crease(c, [-3.4, 8, 3.4, 8], 1.1, ls.orMetal, 0.9);
   }
-  if (fs && fs.tier >= 5) {
-    crease(c, [-4.4, 3.1, 4.4, 3.1], 1.3, fs.metal, 1);
-    if (fs.tier >= 7 && Math.abs(sn) > 0.3) {
+  if (fs && fs.orn >= 5) {
+    crease(c, [-4.4, 3.1, 4.4, 3.1], 1.3, fs.orMetal, 1);
+    if (fs.orn >= 7 && Math.abs(sn) > 0.3) {
       // a small swept fin at the ankle (profile views)
       const k = Math.sign(sn);
-      blob(c, [-1.6 * k, 4.4, -6.4 * k, 1.4, -4.4 * k, 6.6], light(fs.accent || fs.metal, 0.1), { ow: 1.3, hl: 0.3 });
+      blob(c, [-1.6 * k, 4.4, -6.4 * k, 1.4, -4.4 * k, 6.6], light(fs.accent || fs.orMetal, 0.1), { ow: 1.3, hl: 0.3 });
     }
   }
 }
@@ -301,96 +301,17 @@ export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | un
 /** Glove ornaments: knuckle spikes on armoured hands, a cuff jewel. */
 export function decorHand(c: Ctx, hands: ItemLook | undefined): void {
   const s = itemStyle(hands);
-  if (!s || s.tier < 5) return;
-  if (s.tier >= 6) for (const x of [-2.6, 0, 2.6]) poly(c, [x - 0.9, -2.6, x, -5.8 - (s.tier - 6) * 0.5, x + 0.9, -2.6], light(s.metal, 0.1), { ow: 1.1 });
-  gem(c, 0, -4.6, 1.3, light(s.accent || s.metal, 0.2), 0.8);
+  if (!s || s.orn < 5) return;
+  if (s.orn >= 6) for (const x of [-2.6, 0, 2.6]) poly(c, [x - 0.9, -2.6, x, -5.8 - (s.orn - 6) * 0.5, x + 0.9, -2.6], light(s.orMetal, 0.1), { ow: 1.1 });
+  gem(c, 0, -4.6, 1.3, light(s.accent || s.orMetal, 0.2), 0.8);
 }
 
 // ═══════════════════════════════ WEAPONS / OFF-HANDS ═══════════════════════════════
 
-/** Weapon embellishments by tier (grip at the origin, business end towards -y; same frame as drawWeapon). */
-export function decorWeapon(c: Ctx, l: ItemLook): void {
-  const s = itemStyle(l);
-  if (!s || s.tier < 4) return;
-  const T = s.tier, acc = light(s.accent || s.metal, 0.2), metal = s.metal;
-  const runes = (x0: number, y0: number, y1: number) => {
-    if (inSilhouette()) return;
-    for (let y = y0; y > y1; y -= 4.2) { c.moveTo(x0 - 0.8, y).lineTo(x0 + 0.8, y - 1.6); c.moveTo(x0 + 0.8, y - 2).lineTo(x0 - 0.6, y - 3.2); }
-    c.stroke({ width: 0.9, color: light(acc, 0.35), alpha: 0.95, cap: 'round' });
-  };
-  switch (l.shape) {
-    case 'sword': case 'sword2h': {
-      const big = l.shape === 'sword2h';
-      const gy = big ? -7.4 : -4.7, gw = big ? 10 : 6.4, tipY = big ? -46 : -29;
-      if (T >= 5) runes(0, gy - 4, tipY + 8);
-      if (T >= 6) for (const k of [1, -1]) blob(c, [k * gw * 0.7, gy - 0.6, k * (gw + 4.4 + (T - 6)), gy - 4.6 - (T - 6), k * (gw + 1.2), gy + 1.8], light(metal, 0.05), { ow: 1.6, hl: 0.35 });
-      if (T >= 7) for (const y of big ? [-18, -28] : [-12]) for (const k of [1, -1]) poly(c, [k * (big ? 4 : 3), y, k * (big ? 7 : 5.4), y - 3, k * (big ? 4.1 : 3), y - 5], light(l.primary, 0.1), { ow: 1.3 });
-      gem(c, 0, gy, T >= 6 ? 2.2 : 1.7, acc, 1);
-      gem(c, 0, big ? 10.4 : 5, T >= 6 ? 1.8 : 1.4, s.gem ? light(s.gem, 0.15) : metal, 0.9);
-      if (T >= 8) { filigree(c, -1.4, gy - 8, 0.8, metal); filigree(c, 1.4, gy - 14, 0.8, metal, -1); }
-      break;
-    }
-    case 'axe': case 'axe2h': {
-      const big = l.shape === 'axe2h';
-      if (T >= 5) runes(big ? 9 : 7, big ? -30 : -17, big ? -42 : -24);
-      if (T >= 6) poly(c, big ? [-12.4, -30, -20 - (T - 6) * 1.5, -40, -13.6, -42.6] : [-0.6, -23, -9 - (T - 6), -28, -0.6, -18], light(metal, 0.05), { ow: 1.6, hl: 0.3 });
-      if (T >= 7) poly(c, big ? [-1.8, -50, 0, -58 - (T - 7) * 2, 1.8, -50] : [-1.4, -27, 0, -33, 1.4, -27], light(metal, 0.15), { ow: 1.4 });
-      gem(c, 0, big ? -36 : -20, T >= 6 ? 2.3 : 1.7, acc, 1);
-      if (T >= 8) filigree(c, big ? 8 : 6, big ? -36 : -20, 0.9, metal);
-      break;
-    }
-    case 'mace': {
-      if (T >= 6) for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + (i - 1) * 1.1; poly(c, [Math.cos(a) * 6 - 1.6, -20.6 + Math.sin(a) * 6, Math.cos(a) * (12 + T - 6), -20.6 + Math.sin(a) * (12 + T - 6), Math.cos(a) * 6 + 1.6, -20.6 + Math.sin(a) * 6], light(metal, 0.1), { ow: 1.4 }); }
-      gem(c, 0, -20.6, T >= 6 ? 2.6 : 2, acc, 1);
-      break;
-    }
-    case 'staff': {
-      if (T >= 5) runes(0, 4, -26);
-      if (T >= 6) { line(c, (k) => k.moveTo(-6, -38).quadraticCurveTo(-12 - (T - 6), -48, -4, -58 - (T - 6) * 1.5), 1.8, metal, 1.2); line(c, (k) => k.moveTo(6, -38).quadraticCurveTo(12 + (T - 6), -48, 4, -58 - (T - 6) * 1.5), 1.8, metal, 1.2); }
-      if (T >= 7) star(c, 0, -60 - (T - 7) * 1.5, 4, 3, 1.2, acc, 1);
-      break;
-    }
-    case 'wand': {
-      if (T >= 6) for (const k of [1, -1]) poly(c, [k * 1.6, -15, k * (5.4 + (T - 6) * 0.6), -21, k * 1.2, -19], light(metal, 0.1), { ow: 1.1 });
-      if (T >= 5) runes(0, 2, -10);
-      break;
-    }
-    case 'bow': {
-      if (T >= 6) for (const k of [1, -1]) poly(c, [-2.6, k * 19.4, -7.4 - (T - 6), k * (25 + (T - 6) * 1.2), -1, k * 22.6], light(metal, 0.05), { ow: 1.4 });
-      gem(c, 2.4, 0, T >= 6 ? 2 : 1.6, acc, 1);
-      if (T >= 7) { gem(c, 1.6, -11, 1.2, metal, 0.8); gem(c, 1.6, 11, 1.2, metal, 0.8); }
-      break;
-    }
-    case 'crossbow': case 'handxbow': {
-      const k = l.shape === 'crossbow' ? 1 : 0.7;
-      if (T >= 6) for (const sd of [1, -1]) poly(c, [sd * 11 * k, -16.6 * k, sd * (15 + T - 6) * k, -21 * k, sd * 9 * k, -18 * k], light(metal, 0.05), { ow: 1.3 });
-      gem(c, 0, -6 * k, T >= 6 ? 1.8 : 1.4, acc, 0.9);
-      break;
-    }
-  }
-}
-
-/** Shield rim spikes and a jewelled boss. */
-export function decorShield(c: Ctx, l: ItemLook): void {
-  const s = itemStyle(l);
-  if (!s || s.tier < 4) return;
-  if (s.tier >= 6) {
-    const n = s.tier >= 8 ? 6 : 4;
-    for (let i = 0; i < n; i++) {
-      const a = -Math.PI / 2 + (i - (n - 1) / 2) * (n === 6 ? 0.55 : 0.75);
-      const r0 = 11.4, r1 = 15.6 + (s.tier - 6) * 0.8;
-      poly(c, [Math.cos(a - 0.12) * r0, Math.sin(a - 0.12) * r0, Math.cos(a) * r1, Math.sin(a) * r1, Math.cos(a + 0.12) * r0, Math.sin(a + 0.12) * r0], light(s.metal, 0.05), { ow: 1.4 });
-    }
-    emblem(c, s.motif, 0, 4.4, 3, light(s.accent || s.metal, 0.3));
-  }
-  gem(c, 0, -6, s.tier >= 6 ? 2.6 : 2, light(s.accent || s.metal, 0.2), 1.1);
-  if (s.tier >= 8) { filigree(c, -5, 0, 1, s.metal); filigree(c, 5, 0, 1, s.metal, -1); }
-}
-
-/** Weapon length factor of the rig (higher tiers carry visibly larger weapons; reach / hitboxes are unchanged). */
+/** Rig size factor of held items: the item's generation, rarity and top tier (DESIGN-V2 §3; reach and hitboxes are
+ *  unchanged, the trail follows the drawn tip). */
 export function weaponScale(l: ItemLook | undefined): number {
-  const T = itemStyle(l)?.tier ?? 0;
-  return 1 + 0.024 * T;
+  return itemStyle(l)?.scale ?? 1;
 }
 
 // ═══════════════════════════════ BACK PIECES ═══════════════════════════════
@@ -519,11 +440,11 @@ function drawWingShape(c: Ctx, motif: Motif | 'light' | 'primal', main: number, 
   }
 }
 
-/** Which back piece a hero wears: from the gear rank and the worn Set (see DESIGN.md §2.3). */
-export function backPieceFor(rank: number, topSetCount: number, primals: number): 'none' | 'cape' | 'mantle' | 'wings' {
-  if (topSetCount >= 6 || rank >= 8 || primals > 0) return 'wings';
-  if (rank >= 7 || topSetCount >= 4) return 'mantle';
-  if (rank >= 6) return 'cape';
+/** Which back piece a hero wears: from the worn Set and the chest piece (DESIGN-V2.md §5). */
+export function backPieceFor(topSetCount: number, chestCape: boolean): 'none' | 'cape' | 'mantle' | 'wings' {
+  if (topSetCount >= 6) return 'wings';
+  if (topSetCount >= 4) return 'mantle';
+  if (chestCape) return 'cape';
   return 'none';
 }
 
