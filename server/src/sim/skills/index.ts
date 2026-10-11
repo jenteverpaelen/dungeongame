@@ -10,6 +10,8 @@ import type { Mob, Player, SkillRuntime } from '../types';
 import { emitCast, face, type DeathHook, type OwnerSummonHook, type SkillBehaviour, type SummonBehaviour } from './common';
 import { MAGE_BEHAVIOURS, MAGE_SUMMONS, shatterHook } from './mage';
 import { RANGER_BEHAVIOURS, RANGER_OWNER_HOOKS, RANGER_SUMMONS } from './ranger';
+import { RANGER_M1_BEHAVIOURS, RANGER_M1_SUMMONS } from './rangerM1';
+import { rangerDeathHook } from './rangerKit';
 import { WARRIOR_BEHAVIOURS, WARRIOR_SUMMONS, contagionHook, ruptureHook, warriorDepthHook } from './warrior';
 import { WARRIOR_M1_BEHAVIOURS } from './warriorM1';
 
@@ -22,12 +24,12 @@ let behaviours: Record<string, SkillBehaviour> | null = null;
 let summonKinds: Record<string, SummonBehaviour> | null = null;
 
 export function skillBehaviour(id: string): SkillBehaviour | undefined {
-  behaviours ??= { ...WARRIOR_BEHAVIOURS, ...WARRIOR_M1_BEHAVIOURS, ...RANGER_BEHAVIOURS, ...MAGE_BEHAVIOURS };
+  behaviours ??= { ...WARRIOR_BEHAVIOURS, ...WARRIOR_M1_BEHAVIOURS, ...RANGER_BEHAVIOURS, ...RANGER_M1_BEHAVIOURS, ...MAGE_BEHAVIOURS };
   return Object.hasOwn(behaviours, id) ? behaviours[id] : undefined;
 }
 
 export function summonBehaviour(type: string): SummonBehaviour | undefined {
-  summonKinds ??= { ...WARRIOR_SUMMONS, ...RANGER_SUMMONS, ...MAGE_SUMMONS };
+  summonKinds ??= { ...WARRIOR_SUMMONS, ...RANGER_SUMMONS, ...RANGER_M1_SUMMONS, ...MAGE_SUMMONS };
   return Object.hasOwn(summonKinds, type) ? summonKinds[type] : undefined;
 }
 
@@ -38,7 +40,7 @@ export function ownerSummonHooks(): readonly OwnerSummonHook[] {
 
 /** Death hooks in a fixed order (the order is observable through RNG use, so append new hooks at the end). */
 function deathHooks(): readonly DeathHook[] {
-  return [contagionHook, shatterHook, ruptureHook, warriorDepthHook];
+  return [contagionHook, shatterHook, ruptureHook, warriorDepthHook, rangerDeathHook];
 }
 
 // ─────────────────────────── Primary attacks ───────────────────────────

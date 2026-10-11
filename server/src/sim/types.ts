@@ -238,7 +238,7 @@ export interface MobPowerStatus {
 
 // ─────────────────────────── Summons ───────────────────────────
 
-export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil';
+export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'snare' | 'mortar' | 'flock' | 'flock_guard' | 'badger' | 'heron';
 
 export interface Summon extends Hashed {
   kind: 'summon';

@@ -63,8 +63,9 @@ test('rune selection honours each rune’s own unlock level on the authoritative
 
 // ─────────────────────────── Specialization nodes ───────────────────────────
 
-test('only the warrior (pilot class) ships specialization trees so far; fixture trees validate', () => {
-  for (const s of Object.values(SKILLS)) assert.equal(!!s.nodes?.length, s.classId === 'warrior', `${s.id} trees`);
+test('the warrior (pilot) and the ranger (wave) ship specialization trees; fixture trees validate', () => {
+  const withTrees = new Set(['warrior', 'ranger']);
+  for (const s of Object.values(SKILLS)) assert.equal(!!s.nodes?.length, withTrees.has(s.classId), `${s.id} trees`);
   const data = fixture();
   for (const [id, nodes] of Object.entries(FIXTURE_NODES)) data.skills[id].nodes = structuredClone(nodes);
   assert.deepEqual(validateContent(data), []);
@@ -198,8 +199,9 @@ test('passive data: still four slots at 10/20/30/70, six stat passives per class
   assert.deepEqual([...PASSIVE_SLOT_LEVELS], [10, 20, 30, 70]);
   // The six stat passives keep their place; the warrior pilot appends bible v2 rule passives.
   for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.deepEqual(passivesForClass(classId).slice(0, 6).map(p => !!p.stat), [true, true, true, true, true, true]);
-  assert.equal(passivesForClass('ranger').length, 6); assert.equal(passivesForClass('mage').length, 6);
-  assert(passivesForClass('warrior').slice(6).every(p => !p.stat && p.effects?.length), 'warrior rule passives are templates');
+  assert.equal(passivesForClass('mage').length, 6);
+  assert.equal(passivesForClass('ranger').length, 14, 'ranger: 6 kept + 8 new (RANGER.md §6)');
+  for (const classId of ['warrior', 'ranger'] as const) assert(passivesForClass(classId).slice(6).every(p => !p.stat && p.effects?.length), `${classId} rule passives are templates`);
   const data = fixture();
   data.passives.push(...structuredClone(FIXTURE_PASSIVES));
   assert.deepEqual(validateContent(data), []);

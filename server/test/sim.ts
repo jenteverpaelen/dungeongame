@@ -512,7 +512,7 @@ function skillCoverage() {
           check(dmg > 0, `${tag}: dealt damage`);
         }
         if (sk.id === 'sentry') {
-          check(link.sawSummon('sentry') && link.n('proj:bolt@sentry') > 0, `${tag}: sentry placed & firing`);
+          check(link.sawSummon('sentry') && (rune === 'flame_lance' ? link.n('aoe:sentry_flame') > 0 : link.n('proj:bolt@sentry') > 0), `${tag}: sentry placed & firing`);
           if (rune === 'spitfire') check(link.n('proj:rocket@sentry') > 0, `${tag}: rockets`);
           if (rune === 'chain_of_torment') check(link.n('beam:chain') > 0, `${tag}: chains`);
         }
@@ -521,7 +521,14 @@ function skillCoverage() {
           if (rune !== 'comet') check(link.n('aoe:molten') > 0, `${tag}: molten ground`);
         }
         if (sk.id === 'hydra') check(link.sawSummon('hydra'), `${tag}: hydra summoned`);
-        if (sk.id === 'companion') check(link.sawSummon(rune === 'bat' ? 'bat' : rune === 'raven' ? 'raven' : 'wolf'), `${tag}: companion summoned`);
+        if (sk.id === 'companion') check(link.sawSummon(rune === 'bat' ? 'bat' : rune === 'raven' ? 'raven' : rune === 'badger_sett' ? 'badger' : rune === 'heron' ? 'heron' : 'wolf'), `${tag}: companion summoned`);
+        // Ranger wave skills (RANGER.md §3): each one's signature event.
+        if (sk.id === 'skipstone_bolt') check(link.n(rune === 'heavy_stone' ? 'proj:skip_heavy' : 'proj:skip') > 0, `${tag}: skipping bolt`);
+        if (sk.id === 'spring_snare') check(link.sawSummon('snare') && link.n('aoe:snare_snap') > 0, `${tag}: snare set and snapped`);
+        if (sk.id === 'overcast_volley') check(link.n('aoe:overcast_cloud') > 0 && link.n('aoe:overcast_arrow') > 4, `${tag}: arrows fall`);
+        if (sk.id === 'quarry_mark') check(link.n('aoe:quarry_mark') > 0, `${tag}: quarry marked`);
+        if (sk.id === 'pitch_mortar') check(link.sawSummon('mortar') && link.n('aoe:mortar_impact') > 0, `${tag}: mortar shells land`);
+        if (sk.id === 'murmuration') check(link.sawSummon('flock'), `${tag}: the flock flies`);
         if (sk.id === 'black_hole') check(link.n('aoe:blackhole') > 0, `${tag}: black hole`);
         if (sk.id === 'frost_nova') check(link.n('aoe:nova') > 0, `${tag}: nova`);
         if (sk.id === 'seismic_slam') check(link.n('aoe:fissure') > 0, `${tag}: fissure`);
