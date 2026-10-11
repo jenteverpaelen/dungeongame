@@ -250,5 +250,14 @@
     now refused only for recasts the hero does not pay for. The gate's L25+ class median went from 6.87 to 6.53 s.
   - L25+ still sits at the 6.4 s target; that is the combined classes' pace.
   - Rift sections run in their own state. L70 medians over 9 maps: warrior 77 %, ranger 56 %, mage 78 %.
-  - The default map is a ranger death spiral (21.5 %, 13 deaths), so `simulation` fails there. Reported, not lowered.
+  - Lead decision: L70 floors use the median of 3 maps (30 % kept; each map printed). First run medians: warrior 57.4 %,
+    ranger 46.9 %, mage 58.1 %. A weakened ranger kit fails (median 6.7 %).
+- **Open balance items (for the balance pass).**
+  - **Ranger death spirals at L70 Torment II on some maps.** 9–20 deaths in 12 minutes, 21.5 % and 22.9 % progress,
+    against a 56 % median over 9 maps. The warrior has one such map too (seed 3: 9 deaths, 5.6 %).
+  - **L25+ pace sits right at the 6.4 s champion-TTK target.** With the refined recast floor, the class median per seed
+    averages 6.53 s over 10 seeds.
+    - The 3-seed gate passes on the gate seeds and on seeds 4–6, and misses on 1–3 (L10+ 8.85 s, L25+ 6.55 s).
+    - Class means at L25+: warrior 9.0 s, ranger 5.7 s, mage 5.8 s.
+    - FOUNDATION.md §13.15.
   - Details in FOUNDATION.md §13.15.

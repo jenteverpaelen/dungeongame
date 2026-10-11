@@ -363,11 +363,11 @@ function newField(zoneId = 'whispering_glade', fixedSeed?: number): Instance {
  * swung with the shared stream (the ranger agent measured one mage kit at 8.9 % and 54.8 % of a Torment II rift in two
  * streams), so each class's rift now starts from the state its section and the seed give, not from the classes before it.
  */
-function freshStreams<T>(section: number, fn: () => T): T {
+function freshStreams<T>(section: number, fn: () => T, seed = SIM_SEED): T {
   const saved = { simRng, gearRng, seedCounter, instSeq }, ids = peekIdForHarness(), random = Math.random;
   // Another SIM_SEED also gives another map and other gear rolls (the default seed keeps offset 0).
-  const off = ((SIM_SEED - 0xc0ffee) % 997 + 997) % 997;
-  simRng = new Rng(SIM_SEED + section); gearRng = new Rng(4242 + section + off); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START + off;
+  const off = ((seed - 0xc0ffee) % 997 + 997) % 997;
+  simRng = new Rng(seed + section); gearRng = new Rng(4242 + section + off); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START + off;
   Math.random = () => simRng.next(); // an earlier section may have pointed it at its own stream (dodgeScenario)
   // Entity ids, item ids and pack ids too: monster separation breaks exact overlaps by id (ids.ts). A high fixed id base
   // stays clear of live ids; the old sequences continue afterwards.
@@ -475,10 +475,9 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   console.log(`   ${ttkLine(link)}  boss TTK ${link.ttk[4] ? fmt(link.ttk[4][0] / 1000) + 's' : '—'}`);
   if (process.env.SIM_DEBUG) console.log('   ', JSON.stringify(Object.fromEntries(Object.entries(link.evV).filter(([k]) => /^(cast|dmgsrc|aoe|tele):/.test(k)))), 'dealt', Math.round(p.dealt).toExponential(2), 'sheet', Math.round(p.ctx.d.sheetDps).toExponential(2));
   if (refitFloor !== undefined) {
-    check(maxProg >= refitFloor, `${label}: progress ≥ ${refitFloor}% in 12 minutes before the Torment re-fit (${fmt(maxProg)})`);
-    summary.push(`${label.padEnd(44)} ${fmt(kpm).padStart(6)} kills/min   rift ${doneAt >= 0 ? dur(doneAt) : `DNF ${fmt(maxProg)}%`} (depth budget; Torment re-fit pending), deaths ${save.stats.deaths}`);
+    // Floor mode: riftFloor checks the median over its maps.
     inst.destroy();
-    return { link, doneAt };
+    return { link, doneAt, maxProg, deaths: save.stats.deaths, kpm, label };
   }
   check(maxProg >= 100, `${label}: progress reached 100 (${fmt(maxProg)})`);
   check(guardianAt >= 0, `${label}: guardian spawned`);
@@ -489,7 +488,25 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   check(!!link.me && [...link.ents.values()].some((e) => e.desc.k === 'portal'), `${label}: portal replicated`);
   summary.push(`${label.padEnd(44)} ${fmt(kpm).padStart(6)} kills/min   rift ${doneAt >= 0 ? dur(doneAt) : 'DNF'} (guardian ${guardianAt >= 0 ? dur(guardianAt) : '—'}), deaths ${save.stats.deaths}`);
   inst.destroy();
-  return { link, doneAt };
+  return { link, doneAt, maxProg, deaths: save.stats.deaths, kpm, label };
+}
+
+/**
+ * L70 Torment II progress floor before the Torment re-fit (lead 2026-10-11, the same rule as the pace gate): the median
+ * over three maps (the seed and two fixed offsets, each with its own fresh per-class state) must reach `floor` % in 12
+ * minutes. One map alone was a coin: 9 seeds gave the ranger 21.5–90.4 % (median 56 %) and the warrior 5.6–100 % (median
+ * 77 %), the misses all death spirals on one map (9–20 deaths) [M, FOUNDATION.md §13.15]. Each map is printed for context.
+ * `SIM_WEAK_KIT=<class>` gives that class its L70 rare kit instead of the set kit (the proof that a real collapse fails).
+ */
+const RIFT_FLOOR_SEEDS = [SIM_SEED, SIM_SEED + 1, SIM_SEED + 2];
+function riftFloor(cls: ClassId, floor: number) {
+  const endgame = process.env.SIM_WEAK_KIT !== cls;
+  const runs = RIFT_FLOOR_SEEDS.map((seed) => freshStreams(70, () => riftScenario(cls, 70, 5, endgame, 'ashen', floor), seed));
+  const prog = runs.map((r) => r.maxProg).sort((a, b) => a - b), med = prog[prog.length >> 1];
+  const label = runs[0].label;
+  console.log(`   ${label} floor: ${runs.map((r, i) => `seed ${RIFT_FLOOR_SEEDS[i]} ${fmt(r.maxProg)}% (${r.deaths} deaths)`).join(', ')} → median ${fmt(med)}%`);
+  check(med >= floor, `${label}: median progress of ${runs.length} maps ≥ ${floor}% in 12 minutes before the Torment re-fit (${prog.map((p) => fmt(p)).join(' / ')})`);
+  summary.push(`${label.padEnd(44)} median ${fmt(med)}% of ${runs.length} maps in 12 min (${runs.map((r) => `${fmt(r.maxProg)}%/${r.deaths}d`).join(', ')}; depth budget, Torment re-fit pending)`);
 }
 
 /** Put a player next to a fresh pack in a field and let one skill/rune do its thing. */
@@ -1720,9 +1737,9 @@ if (!only || only === 'rift') {
       // Own state (freshStreams; another SIM_SEED = another map and gear rolls), 9 seeds after the ranger merge [M]:
       // warrior 80.9 (default) / 78.7 / 100 / 5.6 / 49.3 / 82.2 / 77.2 / 44.1 / 59.1 %, ranger 21.5 (default) / 56.0 / 90.4 /
       // 54.6 / 53.0 / 66.4 / 79.4 / 61.0 / 22.9 %, mage 58.1 (default) / 93.0 / 100 / 42.7 / 73.9 / 89.3 / 87.2 / 71.3 /
-      // 77.9 %. The runs under 30 % are death spirals on one map (9–20 deaths). The default map is one of them for the
-      // ranger: reported to the lead, not lowered (FOUNDATION.md §13.15).
-      freshStreams(70, () => riftScenario(cls, 70, 5, true, 'ashen', 30));
+      // 77.9 %. The runs under 30 % are death spirals on one map (9–20 deaths), so the floor is the median of 3 maps
+      // (riftFloor; lead decision, FOUNDATION.md §13.15).
+      riftFloor(cls, 30);
   }
 }
 if (!only || only === 'skills') skillCoverage();

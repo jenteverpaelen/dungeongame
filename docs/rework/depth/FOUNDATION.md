@@ -1124,8 +1124,20 @@ floor against no floor. Differences are paired per seed, ± one standard error.
   25.2–36.0 % without the floor and 28.8–31.1 % with the plain floor. The class gate changes nothing.
 * The warrior's 22.9 % on the lead's tree came from the shared state. In its own state it clears 80.9 % on the default
   seed.
-* The default map is one of the ranger's death-spiral maps (21.5 %), so `simulation` fails there. Not lowered; options
-  for the lead:
-  * the median of three maps, as for the pace gate;
-  * the pending Torment re-fit;
-  * ranger survivability (ranger lane).
+* The default map is one of the ranger's death-spiral maps (21.5 %).
+
+**Decision (lead, 2026-10-11, the same rule as the pace gate).** The L70 Torment II progress floors of all three
+classes are checked on the median of three maps (`riftFloor` in `server/test/sim.ts`).
+* The maps come from SIM_SEED, +1 and +2, each with its own fresh per-class state.
+* The floor stays at 30 % in 12 minutes, the reason is the 9-seed table above, and each map's progress and deaths are
+  printed.
+* The three maps run in-process: the whole rift section takes 15 s [M].
+* **First run [M], default seed:**
+  * warrior 80.9 / 57.4 / 15.6 % (2 deaths on the last map), median 57.4 %;
+  * ranger 21.5 (13 deaths) / 60.6 / 46.9 %, median 46.9 %;
+  * mage 58.1 / 57.0 / 61.7 %, median 58.1 %.
+* **Proof that a real collapse still fails [M]:** `SIM_WEAK_KIT=ranger` gives the ranger its L70 rare kit instead of
+  the set kit.
+  * Ranger: 6.7 / 14.1 / 1.7 % (43 deaths on the last map), median 6.7 %, so the check fails.
+  * The other two classes are unchanged.
+  * By construction, two maps below the floor put the median below it.
