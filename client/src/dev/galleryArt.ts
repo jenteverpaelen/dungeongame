@@ -12,7 +12,7 @@ import { ADVENTURES } from '@shared/adventure';
 import { generateItem, type EliteTier } from '@shared/items';
 import { generateMap, type MapData, type NpcRole } from '@shared/mapgen';
 import { Rng } from '@shared/math';
-import { F_ATTACK, F_CAST, F_CHANNEL, F_DASH, F_FROZEN, F_MOVING, F_STUN, LOOK_SLOTS, type LookSlot, type PlayerLook } from '@shared/protocol';
+import { F_ATTACK, F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_FROZEN, F_MOVING, F_SLOW, F_STUN, LOOK_SLOTS, type LookSlot, type PlayerLook } from '@shared/protocol';
 import type { ClassId, Item, ItemKind, Rarity, Slot } from '@shared/types';
 import {
   buildMapLayers, createMonsterView, createNpcView, createPlayerView, createPortalView, createSummonView, initArt, itemIconUrl,
@@ -392,7 +392,8 @@ function bakeTest() {
   const ids = (qs.get('ids') ?? 'ember_imp').split(',');
   const tiers = (qs.get('tiers') ?? '0').split(',').map(Number);
   const anim = qs.get('anim') ?? 'idle';
-  const fl = anim === 'walk' ? F_MOVING : anim === 'attack' ? F_ATTACK : anim === 'windup' ? 1 << 15 : anim === 'stun' ? F_STUN : anim === 'frozen' ? F_FROZEN : 0;
+  const fl = anim === 'walk' ? F_MOVING : anim === 'attack' ? F_ATTACK : anim === 'windup' ? 1 << 15 : anim === 'stun' ? F_STUN : anim === 'frozen' ? F_FROZEN
+    : anim === 'slow' ? F_SLOW | F_MOVING : anim === 'chill' ? F_CHILL | F_MOVING : 0;
   let x = 60;
   for (const id of ids) for (const t of tiers) {
     addActor(createMonsterView(id, t as EliteTier, t === 1 || t === 2 ? ['molten'] : [], MONSTERS[id].scale), x, 120, st({ moving: anim === 'walk', vx: 100, flags: fl }), 1.1);
