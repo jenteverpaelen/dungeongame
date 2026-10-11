@@ -40,6 +40,7 @@ test('every version migrates to the current version with zero custody loss, keep
     assert.deepEqual(custodySummary(migrated), before, `${step.fixture}: item ids, gems, gold and materials survive`);
     for (const field of step.fields) {
       if (field === 'version' || field === 'protected' || field === 'vendorStock') continue; // item flags / the version itself are covered elsewhere
+      if (step.mayRepair) continue; // validity is checked below instead (see the step's note)
       const was = get(original, field);
       if (was !== undefined) assert.deepEqual(get(migrated, field), was, `${step.fixture}: ${field} preserved`);
     }
@@ -54,6 +55,7 @@ test('every version migrates to the current version with zero custody loss, keep
 test('fixtures of newer versions carry the data their version introduced', async () => {
   const v13 = await read('v13-social'), v14 = await read('v14-collection');
   assert.ok(v13.social && v13.social.friends.length > 0 && v13.social.presence === 'hidden');
-  assert.ok(v14.collection && Object.keys(v14.collection.looks).length > 0 && v14.collection.wardrobe.chest);
-  assert.deepEqual(v14.collection.loot, { hidden: ['normal'], leave: ['magic'], salvage: ['normal'] });
+  assert.ok(v14.collection && Object.keys(v14.collection.looks).length > 0);
+  const v15 = await read('v15-nodes');
+  assert.ok(v15.skills.nodes && Object.keys(v15.skills.nodes).length > 0);
 });

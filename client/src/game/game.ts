@@ -280,7 +280,7 @@ export class Game {
 
   private applyDerived(d: DerivedStats) {
     this.predictor.msPct = d.ms;
-    this.predictor.dashCd = d.powers.stridewind ? DASH.cooldownMs / 2 : DASH.cooldownMs;
+    this.predictor.dashCd = d.dashCdMs ?? DASH.cooldownMs; // shared computeStats: dash templates (Stridewind …)
     this.scene.myAps = d.aps;
   }
 

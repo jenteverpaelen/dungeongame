@@ -27,10 +27,11 @@ import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
 import { BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS, affixScale, type AffixDef } from '../../shared/src/data/items';
-import { skillsForClass } from '../../shared/src/data/skills';
+import { SKILLS, skillsForClass } from '../../shared/src/data/skills';
+import { buySkillNode, refundSkillNode } from '../../shared/src/specialization';
 import { Rng } from '../../shared/src/math';
 import {
-  addToInventory, buySkillTier, equipItem, findEquipped, findInventory, resetSkillTiers, setSkillRune, setSkillSlot, unequipItem,
+  addToInventory, buySkillTier, equipItem, findEquipped, findInventory, resetSkillPoints, setPrimarySkill, setSkillRune, setSkillSlot, unequipItem,
 } from '../../shared/src/character';
 import {
   BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, addCubeXp, canAfford, canEnchantAffix, cubeSlotOf, cubeUnlocked, enchantCost, enchantPool,
@@ -585,10 +586,28 @@ const skillTier: Handler = (s, a) => {
   return done(s, true);
 };
 
-const skillReset: Handler = (s) => {
-  if (!Object.keys(s.save.skills.tiers).length) return fail('No upgrade tiers to reset');
-  resetSkillTiers(s.save);
-  return done(s, true);
+/** Free respec of tiers and specialization: every skill, or only `skill` when given. */
+const skillReset: Handler = (s, a) => {
+  const skill = optStr(a, 'skill') ?? undefined;
+  if (skill !== undefined && (!Object.hasOwn(SKILLS, skill) || SKILLS[skill].classId !== s.save.classId)) return fail('Unknown skill');
+  const freed = resetSkillPoints(s.save, skill);
+  if (!freed.tierPoints && !freed.nodePoints) return fail(skill ? 'Nothing to refund on this skill' : 'No skill points to refund');
+  return done(s, true, freed);
+};
+
+/** Choose the auto-attack among the class's unlocked primary skills. */
+const skillPrimary: Handler = (s, a) => {
+  const err = setPrimarySkill(s.save, str(a, 'skill'));
+  return err ? fail(err) : done(s, true);
+};
+
+/** Buy (delta 1) or refund (delta -1) one specialization rank. Same persisted-command custody as skillTier. */
+const skillNode: Handler = (s, a) => {
+  const skill = str(a, 'skill'), node = str(a, 'node'), delta = int(a, 'delta', -1, 1);
+  if (delta === 0) return fail('Invalid amount');
+  const err = delta > 0 ? buySkillNode(s.save, skill, node) : refundSkillNode(s.save, skill, node);
+  if (err) return fail(err);
+  return done(s, true, { skill, node, rank: s.save.skills.nodes?.[skill]?.[node] ?? 0 });
 };
 
 const passive:Handler=(s,a)=>{
@@ -776,7 +795,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
+  skillSlot, skillRune, skillTier, skillReset, skillNode, skillPrimary, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

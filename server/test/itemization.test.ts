@@ -3,6 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter, addToInventory, playerLook } from '../../shared/src/character';
 import { generateItem } from '../../shared/src/items';
+import { gearLook } from '../../shared/src/gearVisual';
+import { SAVE_VERSION } from '../../shared/src/saveVersion';
 import { Rng } from '../../shared/src/math';
 import { computeStats } from '../../shared/src/stats';
 import { collectionKey, seedCollection } from '../../shared/src/itemCollection';
@@ -31,7 +33,7 @@ const rare=(seed:number)=>generateItem(new Rng(seed),{ilvl:70,classId:'warrior',
 
 test('legacy acquisition history preserves item identity, failed pickup does not unlock, persisted wardrobe survives consumption',async()=>{
  ensureDataDir();const save=createCharacter('CollectionSave','warrior',1),item=rare(999);delete save.collection;save.version=13;save.stash[0]=item;
- const equipment=structuredClone(save.equipment);normalizeSave(save);assert.equal(save.version,14);assert.deepEqual(save.equipment,equipment);assert.deepEqual(save.stash[0],item);
+ const equipment=structuredClone(save.equipment);normalizeSave(save);assert.equal(save.version,SAVE_VERSION);assert.deepEqual(save.equipment,equipment);assert.deepEqual(save.stash[0],item);
  const unknown=generateItem(new Rng(2),{ilvl:70,classId:'warrior',rarity:'legendary',legendary:'faultcleaver'});
  save.inventory.fill(item);assert.equal(addToInventory(save,unknown),-1);assert(!save.collection!.looks[collectionKey(unknown)]);
  save.inventory.fill(null);addToInventory(save,unknown);save.inventory[0]=null;await saveCharacter(save);await flushSaves();const loaded=(await loadCharacter(save.id))!;
@@ -44,8 +46,8 @@ test('Mystic authenticates physical range and appearance compatibility without c
   f.save.equipment.head=rare(77);
   const slot='head',key=collectionKey(item),before=structuredClone(f.save.equipment),stats=computeStats(f.save);
   f.near('blacksmith');assert(!f.cmd({action:'look',slot,key,x:0,y:0}).ok);assert.deepEqual(f.save.equipment,before);
-  f.near('mystic');assert(f.cmd({action:'look',slot,key}).ok);assert.deepEqual(computeStats(f.save),stats);assert.deepEqual(playerLook(f.save).slots.head,item.look);assert.deepEqual(f.save.equipment,before);
-  assert(!f.cmd({action:'look',slot:'mainhand',key}).ok);assert(f.cmd({action:'look',slot,key:null}).ok);assert.deepEqual(playerLook(f.save).slots.head,before.head!.look);
+  f.near('mystic');assert(f.cmd({action:'look',slot,key}).ok);assert.deepEqual(computeStats(f.save),stats);assert.deepEqual(playerLook(f.save).slots.head,gearLook(before.head!,item.look));assert.deepEqual(f.save.equipment,before);
+  assert(!f.cmd({action:'look',slot:'mainhand',key}).ok);assert(f.cmd({action:'look',slot,key:null}).ok);assert.deepEqual(playerLook(f.save).slots.head,gearLook(before.head!));
  }finally{f.close();}
 });
 test('forge and set conversion require the right NPC and capacity; protected inputs and Ancient laundering are rejected',async()=>{

@@ -31,6 +31,8 @@ export interface SaveVersionStep {
   migrate?: (save: CharacterSave) => void;
   /** After loading, the version's fields are either absent (old save) or valid. */
   check?: (save: CharacterSave) => boolean;
+  /** Set when loading may legitimately repair this version's fields (then they are checked for validity, not equality). */
+  mayRepair?: string;
 }
 
 const absentOr = <T>(v: T | undefined, ok: (v: T) => boolean) => v === undefined || ok(v);
@@ -58,6 +60,12 @@ export const SAVE_HISTORY: readonly SaveVersionStep[] = [
     fixture: 'v13-social', check: s => absentOr(s.social, validSocial) },
   { version: 14, adds: 'Acquired item appearances (wardrobe) and independent loot preferences.', fields: ['collection'],
     fixture: 'v14-collection', check: s => absentOr(s.collection, c => c.revision === 1 && validLootRules(c.loot)) },
+  { version: 15, adds: 'Specialization node ranks per skill (build-depth foundation).', fields: ['skills.nodes'],
+    // normalizeSkillNodes clears a tree that is illegal under the current data (a free respec), so the fixture's ranks
+    // only survive once its skill has those nodes; the custody check still applies.
+    mayRepair: 'skills.nodes are re-validated against the current skill trees on load',
+    fixture: 'v15-nodes', check: s => absentOr(s.skills.nodes, n => !!n && typeof n === 'object' && Object.values(n).every(r => !!r && typeof r === 'object'
+      && Object.values(r).every(v => Number.isInteger(v) && v >= 0))) },
 ];
 
 /** Problems with the history itself (gaps, order, missing current version). Empty when consistent. */

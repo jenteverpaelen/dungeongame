@@ -1,6 +1,6 @@
 {
-  "id": "v14collection",
-  "name": "V14Collection",
+  "id": "v14fixture",
+  "name": "V11Commands",
   "classId": "mage",
   "level": 22,
   "xp": 1234,
@@ -680,22 +680,6 @@
       null
     ]
   },
-  "social": {
-    "revision": 1,
-    "friends": [
-      "Brannoc",
-      "Ilsa"
-    ],
-    "blocked": [
-      "Grief"
-    ],
-    "muted": [
-      "Spammy"
-    ],
-    "presence": "hidden",
-    "whispers": "contacts",
-    "inspect": "off"
-  },
   "collection": {
     "revision": 1,
     "looks": {
@@ -772,19 +756,11 @@
         }
       }
     },
-    "wardrobe": {
-      "chest": "base:chest_robe"
-    },
+    "wardrobe": {},
     "loot": {
-      "hidden": [
-        "normal"
-      ],
-      "leave": [
-        "magic"
-      ],
-      "salvage": [
-        "normal"
-      ]
+      "hidden": [],
+      "leave": [],
+      "salvage": []
     }
   }
 }

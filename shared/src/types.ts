@@ -107,6 +107,8 @@ export interface SkillLoadout {
   runes: Record<string, string | null>;
   /** Purchased upgrade tiers (0..3) per skill id. */
   tiers: Record<string, number>;
+  /** Specialization ranks: skill id -> node id -> rank (save v15; normalised by shared/src/specialization.ts). */
+  nodes?: Record<string, Record<string, number>>;
   /** Primary (auto-attack) skill id. */
   primary: string;
 }
@@ -212,4 +214,6 @@ export interface DerivedStats {
   powers: Record<string, number>;
   /** Equipped set piece counts. */
   sets: Record<string, number>;
+  /** Dash cooldown after power templates (shared so client prediction and server agree). */
+  dashCdMs: number;
 }

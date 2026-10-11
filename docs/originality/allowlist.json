@@ -263,16 +263,6 @@
     },
     {
       "file": "shared/src/data/items.ts",
-      "text": "Hunter's Mark",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/items.ts",
-      "text": "Hellforge Talisman",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/items.ts",
       "text": "Focus",
       "reason": "keep: generic English word; a D3 rune shares it by coincidence"
     },
@@ -282,358 +272,368 @@
       "reason": "keep: generic English word (monster-name prefix); a D3 rune shares it by coincidence"
     },
     {
+      "file": "shared/src/data/powers/ranger.ts",
+      "text": "Hunter's Mark",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/powers/shared.ts",
+      "text": "Hellforge Talisman",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
       "file": "shared/src/data/questMessages.ts",
       "text": "Rift Guardian defeated",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
-      "text": "Cleave",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Rupture",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Broad Sweep",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Gathering Storm",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Momentum",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Whirlwind",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Dust Devils",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Blood Funnel",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Volcanic Eruption",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Rend",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Ravage",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Lacerate",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Contagion",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Ground Stomp",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Wrenching Smash",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Jarring Slam",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Foot of the Mountain",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Seismic Slam",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Shattered Ground",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Permafrost",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Rumble",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Battle Rage",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Into the Fray",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Marauder's Rage",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Ferocity",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Hungering Arrow",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Puncturing Arrow",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Shatter Shot",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Devouring Arrow",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Sentry",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Spitfire Turret",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Chain of Torment",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Polar Station",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Multishot",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Fire at Will",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Arsenal",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Full Broadside",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Cluster Arrow",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Maelstrom",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Shooting Stars",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Loaded for Bear",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Rain of Vengeance",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Dark Cloud",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Stampede",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Companion",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
-      "text": "Bat Companion",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Magic Missile",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Seeker",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Split",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Glacial Spike",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Meteor",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Star Pact",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Comet",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Meteor Shower",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Black Hole",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Event Horizon",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Spellsteal",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Absolute Zero",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Frost Nova",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Shatter",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Bone Chill",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Deep Freeze",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Hydra",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Arcane Hydra",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Frost Hydra",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Mammoth Hydra",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Magic Weapon",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Ignite",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Electrify",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "shared/src/data/skills.ts",
+      "file": "shared/src/data/skills/mage.ts",
       "text": "Force Weapon",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Hungering Arrow",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Puncturing Arrow",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Shatter Shot",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Devouring Arrow",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Sentry",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Spitfire Turret",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Chain of Torment",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Polar Station",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Multishot",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Fire at Will",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Arsenal",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Full Broadside",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Cluster Arrow",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Maelstrom",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Shooting Stars",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Loaded for Bear",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Rain of Vengeance",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Dark Cloud",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Stampede",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Companion",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/ranger.ts",
+      "text": "Bat Companion",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Cleave",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Rupture",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Broad Sweep",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Gathering Storm",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Momentum",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Whirlwind",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Dust Devils",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Blood Funnel",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Volcanic Eruption",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Rend",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Ravage",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Lacerate",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Contagion",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Ground Stomp",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Wrenching Smash",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Jarring Slam",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Foot of the Mountain",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Seismic Slam",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Shattered Ground",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Permafrost",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Rumble",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Battle Rage",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Into the Fray",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Marauder's Rage",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
+      "file": "shared/src/data/skills/warrior.ts",
+      "text": "Ferocity",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {

@@ -1,20 +1,27 @@
-// Skills (K) — one screen (docs/rework/DESIGN.md §2): loadout bar, skill cards with tier pips and a direct [+] spend,
-// a detail pane with tiers, runes and casting inline, and the passive slots on the same page. Same server ops as before:
-// skillSlot, skillRune, skillTier, skillReset, skillAutoCast, skillAutoRule, targetPriority, passive.
+// Skills (K) — one screen that scales to 12–20 skills (docs/rework/DESIGN.md §2, docs/rework/depth/FOUNDATION.md §7):
+// loadout bar and both point pools on top; a paged, filterable skill list and the passive slots on the left; the
+// selected skill on the right with three views (runes & tiers · specialization tree · casting). Nothing scrolls.
+// Server ops: skillSlot, skillRune, skillTier, skillNode, skillReset, skillAutoCast, skillAutoRule, targetPriority, passive.
 
 import { useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AUTO_CAST_MODES, AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText } from '@shared/autoCast';
 import { TARGET_PRIORITIES, TARGET_PRIORITY_LABEL, TARGET_PRIORITY_NOTE, normalizeTargetPriority } from '@shared/targetPriority';
-import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
+import {
+  NODE_GRID, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeNode, describeSkill, runeUnlockLevel, skillsForClass,
+  skillTags, type NodeDef, type SkillDef, type SkillKind, type SkillTag,
+} from '@shared/data/skills';
 import { PASSIVE_SLOT_LEVELS, passiveEffect, passivesForClass, setPassive, validPassiveState } from '@shared/passives';
+import {
+  NODE_RANK_COST, SPEC_POINTS, nodeBuyError, nodeRefundError, nodeUnlockLevel, savedNodeRanks, specPointsAvailable, treeSpent, treeTotalRanks,
+} from '@shared/specialization';
 import { computeStats } from '@shared/stats';
 import { skillPointsSpent } from '@shared/character';
 import { fmtInt } from '@shared/format';
 import type { CharacterSave, Element } from '@shared/types';
 import { PanelFrame } from './common';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
-import { IconCheck, IconLock, IconStar4, hex } from './icons';
+import { IconCheck, IconChevron, IconDiamond, IconLock, IconStar4, hex } from './icons';
 import { SkillGlyph } from './skillicons';
 import { Local, useLocal, useU } from './state';
 import { textTipHandlers } from './tooltip';
@@ -22,16 +29,28 @@ import { cls, run } from './util';
 import { AutoRuleEditor } from './autoRules';
 
 type Mode = { kind: 'skill' } | { kind: 'passive'; slot: number };
-export const skillsUI = new Local<{ selected: string | null; assign: number | null; mode: Mode }>({ selected: null, assign: null, mode: { kind: 'skill' } });
+export type SkillsTab = 'runes' | 'tree' | 'cast';
+export type SkillsFilter = string; // 'all' or a category (SkillDef.category, else the kind's label)
+export const skillsUI = new Local<{ selected: string | null; assign: number | null; mode: Mode; tab: SkillsTab; filter: SkillsFilter; page: number }>(
+  { selected: null, assign: null, mode: { kind: 'skill' }, tab: 'runes', filter: 'all', page: 0 });
 
+/** Cards per page: two columns × five rows fit the one-screen budget with the passives underneath. */
+const PAGE_SIZE = 10;
 const ELEMENT_COLOR: Record<Element, string> = {
   physical: '#e2d8c4', fire: '#ff8a3d', cold: '#7fd3ff', lightning: '#d6c2ff', poison: '#8fd16a', arcane: '#c39bff', holy: '#ffe9a0',
 };
-const KIND_LABEL: Record<SkillDef['kind'], string> = {
+const KIND_LABEL: Record<SkillKind, string> = {
   primary: 'Primary attack', spender: 'Spender', channel: 'Channelled', cooldown: 'Cooldown', buff: 'Buff', summon: 'Summon',
 };
+const KIND_FILTER: Record<SkillKind, string> = { primary: 'Primary', spender: 'Spender', channel: 'Channel', cooldown: 'Cooldown', buff: 'Buff', summon: 'Summon' };
+const KIND_ORDER: SkillKind[] = ['primary', 'spender', 'channel', 'cooldown', 'buff', 'summon'];
+/** Display group: the authored category (D3-style, per class) or the kind. */
+const categoryOf = (s: SkillDef) => s.category ?? KIND_FILTER[s.kind];
+const TAG_LABEL: Partial<Record<SkillTag, string>> = { projectile: 'Projectile', area: 'Area', melee: 'Melee', ground: 'Ground', movement: 'Movement', mark: 'Mark', aura: 'Aura', summon: 'Summon' };
 const ROMAN = ['I', 'II', 'III'];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
+const nodesOf = (char: CharacterSave, id: string) => savedNodeRanks(char, id);
+const modsOf = (skill: SkillDef, char: CharacterSave) => collectSkillMods(skill, char.skills.runes[skill.id], char.skills.tiers[skill.id] ?? 0, nodesOf(char, skill.id));
 
 /** Next tier index and its cost, or null when maxed / locked. */
 function nextTier(skill: SkillDef, char: CharacterSave): { index: number; cost: number; afford: boolean } | null {
@@ -59,7 +78,7 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
     <div class="sk-loadout" role="group" aria-label="Skill loadout">
       <div class="sk-slot primary" title={`${primary.name} · primary attack, always active`}
         onClick={() => skillsUI.set({ selected: primary.id, mode: { kind: 'skill' } })}
-        {...textTipHandlers(() => ({ title: primary.name, icon: <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={34} />, sub: 'Primary attack · always active', lines: [describeSkill(primary, collectSkillMods(primary, char.skills.runes[primary.id], char.skills.tiers[primary.id] ?? 0))] }), 'prim')}>
+        {...textTipHandlers(() => ({ title: primary.name, icon: <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={34} />, sub: 'Primary attack · always active', lines: [describeSkill(primary, modsOf(primary, char))] }), 'prim')}>
         <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={42} />
         <span class="sk-slot-key">AUTO</span>
       </div>
@@ -75,7 +94,7 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
             onClick={() => { if (!justDragged()) place(i); }}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(i); } }}
             onContextMenu={(e) => { e.preventDefault(); if (sk) void run('skillSlot', { slot: i, skill: null }); }}
-            {...textTipHandlers(() => (sk ? { title: sk.name, icon: <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={34} />, sub: `Slot ${i + 1} · ${AUTO_CAST_LABEL[mode]}`, lines: [describeSkill(sk, collectSkillMods(sk, char.skills.runes[sk.id], char.skills.tiers[sk.id] ?? 0))], note: 'Right-click to clear. Slot order is auto-cast priority.' } : { title: `Slot ${i + 1}`, sub: 'Empty', note: 'Click the slot, then a skill card — or drag a card here.' }), `slot-${i}-${id}`)}>
+            {...textTipHandlers(() => (sk ? { title: sk.name, icon: <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={34} />, sub: `Slot ${i + 1} · ${AUTO_CAST_LABEL[mode]}`, lines: [describeSkill(sk, modsOf(sk, char))], note: 'Right-click to clear. Slot order is auto-cast priority.' } : { title: `Slot ${i + 1}`, sub: 'Empty', note: 'Click the slot, then a skill card — or drag a card here.' }), `slot-${i}-${id}`)}>
             {sk ? <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={40} /> : <span class="sk-slot-plus">+</span>}
             <span class="sk-slot-key">{i + 1}</span>
             {mode !== 'auto' && <span class="sk-slot-mode">{mode === 'paused' ? 'Paused' : 'Still'}</span>}
@@ -87,32 +106,41 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
   );
 }
 
-function PointsAndTargets({ char }: { char: CharacterSave }) {
+function PointsAndTargets({ char, trees }: { char: CharacterSave; trees: boolean }) {
   const [confirm, setConfirm] = useState(false);
   const spent = skillPointsSpent(char);
+  const spec = specPointsAvailable(char);
+  const specSpent = Object.entries(char.skills.nodes ?? {}).reduce((n, [id, r]) => n + (SKILLS[id] ? treeSpent(SKILLS[id], r) : 0), 0);
   const preference = normalizeTargetPriority(char.skills.targetPriority);
+  const anything = spent > 0 || specSpent > 0;
   return (
     <div class="sk-side">
-      <div class={cls('sk-points', char.skillPoints > 0 && 'has')} {...textTipHandlers(() => ({ title: 'Skill points', lines: ['You earn one per level. Spend them on upgrade tiers with the [+] buttons.', `Spent: ${spent}. Refunding returns every point; runes stay.`] }), 'sp')}>
+      <div class={cls('sk-points', char.skillPoints > 0 && 'has')} {...textTipHandlers(() => ({ title: 'Skill points', lines: ['One per level. Spend them on upgrade tiers with the [+] buttons.', `Spent: ${spent}. Refunding returns every point; runes stay.`] }), 'sp')}>
         <IconStar4 size={16} />
         <b>{fmtInt(char.skillPoints)}</b>
-        <span>{char.skillPoints === 1 ? 'point to spend' : 'points to spend'}</span>
+        <span>{char.skillPoints === 1 ? 'skill point' : 'skill points'}</span>
       </div>
+      {trees && SPEC_POINTS.source === 'separate' && <div class={cls('sk-points spec', spec > 0 && 'has')} {...textTipHandlers(() => ({ title: 'Specialization points', lines: ['One per level. Each node rank in a skill’s specialization tree costs one.', `Spent: ${specSpent}. Refunds are free.`] }), 'spec')}>
+        <IconDiamond size={14} />
+        <b>{fmtInt(spec)}</b>
+        <span>specialization</span>
+      </div>}
       <label class="sk-target" {...textTipHandlers(() => ({ title: 'Target preference', lines: [TARGET_PRIORITY_NOTE[preference], 'Used by primary attacks, target-based skills and new summon targets.'] }), 'tp')}>
         <span>Targets</span>
         <select value={preference} onChange={(e) => void run('targetPriority', { mode: e.currentTarget.value })}>
           {TARGET_PRIORITIES.map((m) => <option key={m} value={m}>{TARGET_PRIORITY_LABEL[m]}</option>)}
         </select>
       </label>
-      <button class={cls('btn sm', confirm && 'primary')} disabled={spent === 0} onBlur={() => setConfirm(false)}
+      <button class={cls('btn sm', confirm && 'primary')} disabled={!anything} onBlur={() => setConfirm(false)}
+        {...textTipHandlers(() => ({ title: 'Refund all', lines: ['Returns every skill point spent on tiers and clears every specialization tree. Runes and slots stay. Free.'] }), 'refund')}
         onClick={() => { if (!confirm) { setConfirm(true); setTimeout(() => setConfirm(false), 3200); } else { setConfirm(false); void run('skillReset'); } }}>
-        {confirm ? `Refund ${spent} points?` : 'Refund tiers'}
+        {confirm ? `Refund ${spent} + ${specSpent}?` : 'Refund all'}
       </button>
     </div>
   );
 }
 
-// ───────────────────────── cards ─────────────────────────
+// ───────────────────────── skill list ─────────────────────────
 
 function TierPips({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
   const cur = char.skills.tiers[skill.id] ?? 0;
@@ -133,6 +161,13 @@ function SpendButton({ skill, char, label = false }: { skill: SkillDef; char: Ch
   );
 }
 
+function TreeBadge({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const total = treeTotalRanks(skill);
+  if (!total) return null;
+  const spent = treeSpent(skill, nodesOf(char, skill.id));
+  return <span class={cls('sk-tree-badge', spent > 0 && 'on')} aria-label={`Specialization ${spent} of ${total} ranks`}><IconDiamond size={9} />{spent}/{total}</span>;
+}
+
 function SkillCard({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
   const { selected, assign, mode } = useLocal(skillsUI, (s) => ({ selected: s.selected, assign: s.assign, mode: s.mode.kind }));
   const locked = skill.unlock > char.level;
@@ -143,7 +178,7 @@ function SkillCard({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
   const maxed = cur >= skill.tiers.length;
   const runeId = char.skills.runes[skill.id];
   const rune = skill.runes.find((r) => r.id === runeId);
-  const el = (collectSkillMods(skill, runeId, cur).element ?? skill.element);
+  const el = modsOf(skill, char).element ?? skill.element;
   const choose = () => {
     if (justDragged()) return;
     if (assign !== null && canDrag) { void run('skillSlot', { slot: assign, skill: skill.id }); skillsUI.set({ assign: null, selected: skill.id, mode: { kind: 'skill' } }); }
@@ -156,20 +191,53 @@ function SkillCard({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
       onPointerDown={canDrag ? (e) => beginDrag(e as PointerEvent, { kind: 'skill', skillId: skill.id }) : undefined}
       onClick={choose}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); } }}>
-      <div class="sk-card-ic"><SkillGlyph glyph={skill.icon.glyph} color={skill.icon.color} size={40} /></div>
+      <div class="sk-card-ic"><SkillGlyph glyph={skill.icon.glyph} color={skill.icon.color} size={36} /></div>
       <div class="sk-card-main">
-        <div class="sk-card-top"><b>{skill.name}</b>{primary ? <span class="sk-tag p">AUTO</span> : slot >= 0 ? <span class="sk-tag">{slot + 1}</span> : null}</div>
+        <div class="sk-card-top"><b>{skill.name}</b>{primary ? (char.skills.primary === skill.id ? <span class="sk-tag p">AUTO</span> : null) : slot >= 0 ? <span class="sk-tag">{slot + 1}</span> : null}</div>
         <div class="sk-card-sub">
           {locked ? <span class="sk-lock"><IconLock size={11} /> Unlocks at level {skill.unlock}</span>
             : <><span>{KIND_LABEL[skill.kind]}</span><i /><span style={{ color: ELEMENT_COLOR[el] }}>{cap(el)}</span></>}
         </div>
         {!locked && <div class="sk-card-foot">
           <TierPips skill={skill} char={char} />
+          <TreeBadge skill={skill} char={char} />
           {rune ? <span class="sk-rune-name">{rune.name}</span> : <span class="sk-rune-name none">{skill.runes.some((_, i) => runeUnlockLevel(skill, i) <= char.level) ? 'Rune available' : 'No rune yet'}</span>}
           {maxed ? <span class="chip good sk-max"><IconCheck size={10} /> Max</span> : <SpendButton skill={skill} char={char} />}
         </div>}
       </div>
     </div>
+  );
+}
+
+function SkillBrowser({ char, list }: { char: CharacterSave; list: SkillDef[] }) {
+  const { filter, page } = useLocal(skillsUI, (s) => ({ filter: s.filter, page: s.page }));
+  const order = [...new Set([...KIND_ORDER.flatMap((k) => list.filter((s) => s.kind === k).map(categoryOf))])];
+  const shown = filter === 'all' ? list : list.filter((s) => categoryOf(s) === filter);
+  const pages = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
+  const p = Math.min(page, pages - 1);
+  const unlocked = list.filter((s) => s.unlock <= char.level).length;
+  return (
+    <section class="sk-browser" aria-label="Skills">
+      <header class="sk-browser-h">
+        <span class="sk-browser-t" {...textTipHandlers(() => ({ title: 'How skills grow', lines: [
+          'One skill point per level: spend it with [+] on upgrade tiers (2, 4, 6 points).',
+          'One specialization point per level: buy node ranks in a skill’s tree (Specialization view).',
+          'Runes unlock as you level (each card shows its level) and change how the skill behaves.',
+          'Slotted skills cast on their own; slot order is priority. Right-click a slot to clear it. Refunds are free.',
+        ] }), 'sk-help')}>Skills <em>{unlocked} / {list.length} unlocked</em></span>
+        {pages > 1 && <span class="sk-pager" role="group" aria-label="Skill pages">
+          <button class="btn sm" disabled={p === 0} aria-label="Previous page" onClick={() => skillsUI.set({ page: p - 1 })}><IconChevron dir="left" /></button>
+          <span role="status">{p + 1} / {pages}</span>
+          <button class="btn sm" disabled={p === pages - 1} aria-label="Next page" onClick={() => skillsUI.set({ page: p + 1 })}><IconChevron dir="right" /></button>
+        </span>}
+      </header>
+      {list.length > PAGE_SIZE && <div class="sk-filters" role="tablist" aria-label="Skill categories">
+        <button role="tab" aria-selected={filter === 'all'} class={cls('st-chip', filter === 'all' && 'on')} onClick={() => skillsUI.set({ filter: 'all', page: 0 })}>All <em>{list.length}</em></button>
+        {order.map((c) => <button key={c} role="tab" aria-selected={filter === c} class={cls('st-chip', filter === c && 'on')}
+          onClick={() => skillsUI.set({ filter: c, page: 0 })}>{c} <em>{list.filter((s) => categoryOf(s) === c).length}</em></button>)}
+      </div>}
+      <div class="sk-cards">{shown.slice(p * PAGE_SIZE, (p + 1) * PAGE_SIZE).map((s) => <SkillCard key={s.id} skill={s} char={char} />)}</div>
+    </section>
   );
 }
 
@@ -180,16 +248,17 @@ function PassiveSlots({ char }: { char: CharacterSave }) {
   const slots = supported ? (char.passives?.slots ?? PASSIVE_SLOT_LEVELS.map(() => null)) : PASSIVE_SLOT_LEVELS.map(() => null);
   return (
     <section class="sk-passives" aria-label="Passive slots">
-      <header class="card-h"><span>Passives</span><em>Free to change · one passive per slot</em></header>
+      <header class="card-h"><span>Passives</span><em>Free to change · {list.length} to choose from</em></header>
       <div class="sk-pslots">
         {PASSIVE_SLOT_LEVELS.map((level, i) => {
           const locked = char.level < level, p = list.find((x) => x.id === slots[i]);
           const on = mode.kind === 'passive' && mode.slot === i;
           return (
             <button key={i} class={cls('sk-pslot', on && 'on', locked && 'locked', p && 'filled')} disabled={locked || !supported}
-              onClick={() => skillsUI.set({ mode: { kind: 'passive', slot: i } })}>
+              onClick={() => skillsUI.set({ mode: { kind: 'passive', slot: i } })}
+              {...textTipHandlers(() => (p ? { title: p.name, sub: `Passive slot ${i + 1}`, lines: [passiveEffect(p, char.level)] } : { title: `Passive slot ${i + 1}`, sub: locked ? `Unlocks at level ${level}` : 'Empty' }), `ps-${i}-${p?.id}`)}>
               <span class="sk-pslot-ic">{locked ? <IconLock size={13} /> : <IconStar4 size={14} />}</span>
-              <span class="sk-pslot-t"><b>{locked ? `Level ${level}` : p?.name ?? 'Empty slot'}</b><small>{locked ? 'Locked' : p ? `Slot ${i + 1} · equipped` : `Slot ${i + 1} · choose a passive`}</small></span>
+              <span class="sk-pslot-t"><b>{locked ? `Level ${level}` : p?.name ?? 'Empty slot'}</b><small>{locked ? 'Locked' : p ? `Slot ${i + 1} · equipped` : `Slot ${i + 1} · choose`}</small></span>
             </button>
           );
         })}
@@ -201,9 +270,7 @@ function PassiveSlots({ char }: { char: CharacterSave }) {
 // ───────────────────────── detail pane ─────────────────────────
 
 function Stats({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
-  const runeId = char.skills.runes[skill.id] ?? null;
-  const tiers = char.skills.tiers[skill.id] ?? 0;
-  const mods = collectSkillMods(skill, runeId, tiers);
+  const mods = modsOf(skill, char);
   const res = CLASSES[char.classId].resource.name;
   const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100));
   const cd = +(skill.cooldown * (1 + (mods.cooldown ?? 0) / 100)).toFixed(1);
@@ -247,13 +314,13 @@ function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
   const cur = char.skills.runes[skill.id] ?? null;
   const skillLocked = skill.unlock > char.level;
   return (
-    <div class="sk-runes">
+    <div class={cls('sk-runes', skill.runes.length > 3 && 'many')}>
       {skill.runes.map((r, i) => {
         const need = runeUnlockLevel(skill, i), locked = skillLocked || need > char.level, on = cur === r.id;
         return (
           <button key={r.id} class={cls('sk-rune', on && 'on', locked && 'locked')} disabled={locked} style={{ '--rc': hex(skill.icon.color) }}
             aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}>
-            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABC'[i]}</span><b>{r.name}</b></span>
+            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b></span>
             <p>{r.desc}</p>
             <em>{locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip'}</em>
           </button>
@@ -267,8 +334,7 @@ function Casting({ skill, char, slot }: { skill: SkillDef; char: CharacterSave; 
   const res = CLASSES[char.classId].resource.name;
   const mode = autoCastMode(char.skills, slot);
   return (
-    <details class="sk-casting">
-      <summary><span>Casting &amp; rules</span><em>Slot {slot + 1} · {AUTO_CAST_LABEL[mode]}</em></summary>
+    <div class="sk-casting open">
       <div class="sk-cast-body">
         <div class="sk-cast-modes" role="group" aria-label={`Auto-cast for slot ${slot + 1}`}>
           {AUTO_CAST_MODES.map((m) => <button key={m} class={cls('btn sm', mode === m && 'on')} aria-pressed={mode === m}
@@ -277,26 +343,118 @@ function Casting({ skill, char, slot }: { skill: SkillDef; char: CharacterSave; 
         <p class="pn-note">{AUTO_CAST_NOTE[mode]} {autoCastRuleText(skill, res)}</p>
         <AutoRuleEditor key={`${slot}:${skill.id}`} skill={skill} char={char} slot={slot} />
       </div>
-    </details>
+    </div>
   );
 }
 
-function SkillDetail({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
-  const runeId = char.skills.runes[skill.id] ?? null;
+// ───────────────────────── specialization tree ─────────────────────────
+
+function nodeState(skill: SkillDef, node: NodeDef, char: CharacterSave): 'max' | 'owned' | 'open' | 'locked' {
+  const rank = Math.min(node.maxRank, nodesOf(char, skill.id)[node.id] ?? 0);
+  if (rank >= node.maxRank) return 'max';
+  if (rank > 0) return 'owned';
+  const err = nodeBuyError(char, skill.id, node.id);
+  return !err || err === 'No specialization points left' ? 'open' : 'locked';
+}
+
+function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const nodes = skill.nodes ?? [];
+  const [focusId, setFocus] = useState(nodes[0]?.id ?? '');
+  const [busy, setBusy] = useState(false);
+  if (!nodes.length) return (
+    <div class="sk-tree-empty">
+      <IconDiamond size={22} />
+      <b>No specialization tree yet</b>
+      <p>This skill has no specialization nodes in this version. Trees arrive with the next skill content; your specialization points wait for them.</p>
+    </div>
+  );
+  const ranks = nodesOf(char, skill.id);
+  const focus = nodes.find((n) => n.id === focusId) ?? nodes[0];
+  const rank = Math.min(focus.maxRank, ranks[focus.id] ?? 0);
+  const buyErr = nodeBuyError(char, skill.id, focus.id), refundErr = nodeRefundError(char, skill.id, focus.id);
+  const act = async (delta: 1 | -1) => { setBusy(true); try { await run('skillNode', { skill: skill.id, node: focus.id, delta }); } finally { setBusy(false); } };
+  const spent = treeSpent(skill, ranks), total = treeTotalRanks(skill), left = specPointsAvailable(char);
+  const at = (n: NodeDef) => ({ x: ((n.pos.col + 0.5) / NODE_GRID.cols) * 100, y: ((n.pos.row + 0.5) / NODE_GRID.rows) * 100 });
+  const unlockAt = nodeUnlockLevel(skill, focus);
+  return (
+    <div class="sk-tree">
+      <div class="sk-tree-sum">
+        <span><IconDiamond size={11} /> <b>{spent}</b> of {total} ranks in this tree</span>
+        <span>{fmtInt(left)} specialization {left === 1 ? 'point' : 'points'} left</span>
+        <button class="btn sm" disabled={!spent || busy} onClick={() => void run('skillReset', { skill: skill.id })}
+          {...textTipHandlers(() => ({ title: `Reset ${skill.name}`, lines: ['Refunds this skill’s tiers and clears its tree. Free.'] }), 'tree-reset')}>Reset skill</button>
+      </div>
+      <div class="sk-tree-grid" style={{ '--cols': NODE_GRID.cols, '--rows': NODE_GRID.rows }}>
+        <svg class="sk-tree-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          {nodes.flatMap((n) => (n.requires ?? []).map((r) => {
+            const from = nodes.find((x) => x.id === r.node);
+            if (!from) return null;
+            const a = at(from), b = at(n), met = Math.min(from.maxRank, ranks[from.id] ?? 0) >= r.rank;
+            return <line key={`${from.id}-${n.id}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} class={met ? 'met' : ''} vector-effect="non-scaling-stroke" />;
+          }))}
+        </svg>
+        {nodes.map((n) => {
+          const r = Math.min(n.maxRank, ranks[n.id] ?? 0), st = nodeState(skill, n, char);
+          return (
+            <button key={n.id} class={cls('sk-node', st, focus.id === n.id && 'focus')} style={{ gridColumn: n.pos.col + 1, gridRow: n.pos.row + 1 }}
+              aria-pressed={focus.id === n.id} aria-label={`${n.name}, rank ${r} of ${n.maxRank}`} onClick={() => setFocus(n.id)}>
+              <b>{n.name}</b>
+              <span class="sk-node-pips">{Array.from({ length: n.maxRank }, (_, i) => <i key={i} class={i < r ? 'on' : ''} />)}<small>{st === 'locked' ? <IconLock size={10} /> : `${r}/${n.maxRank}`}</small></span>
+            </button>
+          );
+        })}
+      </div>
+      <div class="sk-node-detail">
+        <div class="sk-node-dh"><b>{focus.name}</b><em>Rank {rank} / {focus.maxRank}</em></div>
+        <dl class="sk-node-dl">
+          <dt>Now</dt><dd>{rank > 0 ? describeNode(focus, rank) : <span class="dim">Not learned</span>}</dd>
+          {rank < focus.maxRank && <><dt>Next</dt><dd class="next">{describeNode(focus, rank + 1)}</dd></>}
+          {(focus.requires?.length || unlockAt > skill.unlock) ? <><dt>Needs</dt><dd>
+            {focus.requires?.map((r) => {
+              const other = nodes.find((x) => x.id === r.node), ok = Math.min(other?.maxRank ?? 0, ranks[r.node] ?? 0) >= r.rank;
+              return <span key={r.node} class={cls('sk-need', ok && 'ok')}>{ok ? <IconCheck size={10} /> : <IconLock size={10} />} {other?.name ?? r.node} rank {r.rank}</span>;
+            })}
+            {unlockAt > skill.unlock && <span class={cls('sk-need', char.level >= unlockAt && 'ok')}>{char.level >= unlockAt ? <IconCheck size={10} /> : <IconLock size={10} />} Level {unlockAt}</span>}
+          </dd></> : null}
+        </dl>
+        <div class="sk-node-act">
+          <button class="btn primary sm" disabled={busy || !!buyErr} onClick={() => void act(1)}>
+            {rank >= focus.maxRank ? 'Highest rank' : <>Learn rank {rank + 1} · <IconDiamond size={9} /> {NODE_RANK_COST}</>}
+          </button>
+          <button class="btn sm" disabled={busy || !!refundErr} onClick={() => void act(-1)}>Refund rank</button>
+          {buyErr && rank < focus.maxRank && <span class="pn-note" role="status">{buyErr}</span>}
+          {!buyErr && refundErr && rank > 0 && <span class="pn-note" role="status">{refundErr}</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterSave; trees: boolean }) {
+  const tab = useLocal(skillsUI, (s) => s.tab);
   const tiers = char.skills.tiers[skill.id] ?? 0;
-  const mods = collectSkillMods(skill, runeId, tiers);
+  const mods = modsOf(skill, char);
   const locked = skill.unlock > char.level;
   const elem = mods.element ?? skill.element;
   const slotIdx = char.skills.slots.indexOf(skill.id);
+  const total = treeTotalRanks(skill);
+  // The Specialization view appears once the class has any tree (no dead feature before content ships).
+  const tabs: [SkillsTab, string][] = [['runes', 'Runes & tiers'], ...(trees ? [['tree', total ? `Specialization ${treeSpent(skill, nodesOf(char, skill.id))}/${total}` : 'Specialization'] as [SkillsTab, string]] : []), ['cast', 'Casting']];
+  const view = !trees && tab === 'tree' ? 'runes' : tab;
   return (
     <div class="sk-detail">
       <div class="sk-d-head">
-        <div class="sk-d-icon" style={{ '--sc': hex(skill.icon.color) }}><SkillGlyph glyph={skill.icon.glyph} color={skill.icon.color} size={56} /></div>
+        <div class="sk-d-icon" style={{ '--sc': hex(skill.icon.color) }}><SkillGlyph glyph={skill.icon.glyph} color={skill.icon.color} size={52} /></div>
         <div class="sk-d-titles">
           <h3>{skill.name}</h3>
           <div class="sk-d-sub"><span>{KIND_LABEL[skill.kind]}</span><i /><span style={{ color: ELEMENT_COLOR[elem] }}>{cap(elem)}</span>
-            {slotIdx >= 0 && <><i /><span class="sk-d-slot">Slot {slotIdx + 1}</span></>}{skill.kind === 'primary' && <><i /><span class="sk-d-slot">Always active</span></>}</div>
+            {slotIdx >= 0 && <><i /><span class="sk-d-slot">Slot {slotIdx + 1}</span></>}{skill.kind === 'primary' && char.skills.primary === skill.id && <><i /><span class="sk-d-slot">Always active</span></>}
+            {[...skillTags(skill, char.skills.runes[skill.id])].filter((t) => TAG_LABEL[t] && !(t === 'summon' && skill.kind === 'summon')).map((t) => <span key={t} class="sk-tag-word">{TAG_LABEL[t]}</span>)}
+            {locked && <><i /><span class="sk-lock"><IconLock size={11} /> Level {skill.unlock}</span></>}</div>
         </div>
+        {skill.kind === 'primary' && !locked && char.skills.primary !== skill.id && (
+          <button class="btn sm" onClick={() => void run('skillPrimary', { skill: skill.id })}>Use as primary attack</button>
+        )}
         {skill.kind !== 'primary' && !locked && (
           <div class="sk-d-assign" role="group" aria-label="Assign to slot">
             <span>Slot</span>
@@ -307,15 +465,22 @@ function SkillDetail({ skill, char }: { skill: SkillDef; char: CharacterSave }) 
           </div>
         )}
       </div>
-      {locked && <div class="sk-d-lock"><IconLock size={14} /> Reach level <b>{skill.unlock}</b> to unlock this skill. You can already read its tiers and runes.</div>}
       <p class="sk-d-desc">{describeSkill(skill, mods)}</p>
-      <Stats skill={skill} char={char} />
-      <div class="sk-d-sec"><span>Upgrade tiers</span><em>{tiers} of {skill.tiers.length} · costs {TIER_COSTS.join(' / ')} points</em></div>
-      <Tiers skill={skill} char={char} />
-      <div class="sk-d-sec"><span>Runes</span><em>Pick one · unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill</em></div>
-      <Runes skill={skill} char={char} />
-      {slotIdx >= 0 ? <Casting skill={skill} char={char} slot={slotIdx} />
-        : skill.kind !== 'primary' && !locked && <p class="pn-note sk-cast-hint">Put this skill in a slot to set when it casts automatically.</p>}
+      <div class="sk-d-bar">
+        <Stats skill={skill} char={char} />
+        <div class="co-seg sk-d-tabs" role="tablist" aria-label="Skill views">
+          {tabs.map(([id, label]) => <button key={id} role="tab" aria-selected={view === id} class={cls(view === id && 'on')} onClick={() => skillsUI.set({ tab: id })}>{label}</button>)}
+        </div>
+      </div>
+      {view === 'runes' && <>
+        <div class="sk-d-sec"><span>Upgrade tiers</span><em>{tiers} of {skill.tiers.length} · costs {TIER_COSTS.join(' / ')} skill points</em></div>
+        <Tiers skill={skill} char={char} />
+        <div class="sk-d-sec"><span>Runes</span><em>Pick one · unlock at levels {skill.runes.map((_, i) => runeUnlockLevel(skill, i)).join(', ')}</em></div>
+        <Runes skill={skill} char={char} />
+      </>}
+      {view === 'tree' && <NodeTree key={skill.id} skill={skill} char={char} />}
+      {view === 'cast' && (slotIdx >= 0 ? <Casting skill={skill} char={char} slot={slotIdx} />
+        : <p class="pn-note sk-cast-hint">{skill.kind === 'primary' ? 'The primary attack is always active; it needs no casting rules.' : locked ? `Reach level ${skill.unlock} to use this skill.` : 'Put this skill in a slot to set when it casts automatically.'}</p>)}
     </div>
   );
 }
@@ -340,7 +505,7 @@ function PassiveDetail({ char, slot }: { char: CharacterSave; slot: number }) {
         <div class="sk-d-titles"><h3>Passive slot {slot + 1}</h3><div class="sk-d-sub"><span>{current ? `Equipped: ${current.name}` : 'Empty'}</span><i /><span>Unlocked at level {PASSIVE_SLOT_LEVELS[slot]}</span></div></div>
         <button class="btn sm" onClick={() => skillsUI.set({ mode: { kind: 'skill' } })}>Back to skill</button>
       </div>
-      <div class="sk-plist">
+      <div class={cls('sk-plist', list.length > 9 && 'many', list.length > 15 && 'four')}>
         {list.map((p) => {
           const locked = char.level < p.unlock, elsewhere = slots.includes(p.id) && slots[slot] !== p.id;
           return (
@@ -380,30 +545,28 @@ export function SkillsPanel() {
   const list = skillsForClass(char.classId);
   const sel = SKILLS[selected ?? ''] && SKILLS[selected ?? ''].classId === char.classId ? SKILLS[selected!]
     : (list.find((s) => s.kind !== 'primary' && s.unlock <= char.level && nextTier(s, char)?.afford) ?? list.find((s) => s.kind !== 'primary' && s.unlock <= char.level) ?? list[0]);
-  const unlocked = list.filter((s) => s.unlock <= char.level).length;
+  const spec = specPointsAvailable(char);
+  const trees = list.some((s) => s.nodes?.length);
   return (
     <PanelFrame id="skills" title="Skills" width={1320}
-      sub={<>{CLASSES[char.classId].name} · Level {char.level}{char.skillPoints > 0 && <> · <span class="sk-sub-points">{char.skillPoints} unspent {char.skillPoints === 1 ? 'point' : 'points'}</span></>}</>}>
+      sub={<>{CLASSES[char.classId].name} · Level {char.level}{char.skillPoints > 0 && <> · <span class="sk-sub-points">{char.skillPoints} skill {char.skillPoints === 1 ? 'point' : 'points'}</span></>}{trees && SPEC_POINTS.source === 'separate' && spec > 0 && <> · <span class="sk-sub-spec">{spec} specialization</span></>}</>}>
       <div class="sk-top">
         <LoadoutBar char={char} />
-        <PointsAndTargets char={char} />
+        <PointsAndTargets char={char} trees={trees} />
       </div>
       <div class="sk-body">
         <div class="sk-left">
-          <header class="card-h"><span>Active skills</span><em>{unlocked} of {list.length} unlocked</em></header>
-          <div class="sk-cards">{list.map((s) => <SkillCard key={s.id} skill={s} char={char} />)}</div>
+          <SkillBrowser char={char} list={list} />
           <PassiveSlots char={char} />
-          <section class="sk-guide" aria-label="How skills grow">
-            <header class="card-h"><span>How skills grow</span></header>
+          {list.length <= 6 && <section class="sk-guide" aria-label="How skills grow">
             <ul>
-              <li><IconStar4 size={11} /> One skill point per level. Spend it with <b>[+]</b> on any unlocked skill.</li>
-              <li><IconStar4 size={11} /> Tiers cost {TIER_COSTS.join(', ')} points and stack. <b>Refund tiers</b> returns every point.</li>
-              <li><IconStar4 size={11} /> Runes unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill and change how it behaves.</li>
-              <li><IconStar4 size={11} /> Slotted skills cast on their own; slot order is priority. Right-click a slot to clear it.</li>
+              <li><IconStar4 size={11} /> One skill point per level. Spend it with <b>[+]</b> on any unlocked skill; tiers cost {TIER_COSTS.join(', ')}.</li>
+              <li><IconStar4 size={11} /> Runes unlock as you level (each card shows its level) and change how the skill behaves.</li>
+              <li><IconStar4 size={11} /> Slotted skills cast on their own; slot order is priority. <b>Refund all</b> is free.</li>
             </ul>
-          </section>
+          </section>}
         </div>
-        {mode.kind === 'passive' ? <PassiveDetail key={`p${mode.slot}`} char={char} slot={mode.slot} /> : <SkillDetail key={sel.id} skill={sel} char={char} />}
+        {mode.kind === 'passive' ? <PassiveDetail key={`p${mode.slot}`} char={char} slot={mode.slot} /> : <SkillDetail key={sel.id} skill={sel} char={char} trees={trees} />}
       </div>
     </PanelFrame>
   );

@@ -8,6 +8,7 @@ import { CLASSES } from './data/classes';
 import { BASES } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
 import { canClassUse, slotsForKind, starterItems } from './items';
+import { resetSkillNodes, savedNodeRanks } from './specialization';
 import { CHARM_SLOTS, gearLook, packGearFx } from './gearVisual';
 import { Rng } from './math';
 import { LOOK_SLOTS, type PlayerLook } from './protocol';
@@ -30,7 +31,7 @@ export function createCharacter(name: string, classId: ClassId, seed: number): C
     equipment: starterItems(rng, classId),
     inventory: Array.from({ length: INVENTORY_SIZE }, () => null),
     stash: Array.from({ length: STASH_SIZE }, () => null),
-    skills: { slots: [firstSkill?.id ?? null, null, null, null], runes: {}, tiers: {}, primary: cls.primary },
+    skills: { slots: [firstSkill?.id ?? null, null, null, null], runes: {}, tiers: {}, nodes: {}, primary: cls.primary },
     skillPoints: 0,
     paragon: { level: 0, xp: 0, spent: {} },
     cube: { level: 1, xp: 0, learned: [], equipped: [null, null, null] },
@@ -160,6 +161,18 @@ export function setSkillSlot(save: CharacterSave, slot: number, skillId: string 
   return null;
 }
 
+/** Choose the auto-attack (a class may have several primary skills, e.g. a second one at level 16). */
+export function setPrimarySkill(save: CharacterSave, skillId: unknown): string | null {
+  if (typeof skillId !== 'string' || !Object.hasOwn(SKILLS, skillId)) return 'Unknown skill';
+  const s = SKILLS[skillId];
+  if (s.classId !== save.classId) return 'Unknown skill';
+  if (s.kind !== 'primary') return 'Only a primary attack can be the auto-attack';
+  if (s.unlock > save.level) return `Unlocks at level ${s.unlock}`;
+  if (save.skills.primary === skillId) return 'Already your primary attack';
+  save.skills.primary = skillId;
+  return null;
+}
+
 export function setSkillRune(save: CharacterSave, skillId: string, runeId: string | null): string | null {
   const s = SKILLS[skillId];
   if (!s || s.classId !== save.classId) return 'Unknown skill';
@@ -190,7 +203,23 @@ export function resetSkillTiers(save: CharacterSave) {
   save.skills.tiers = {};
 }
 
+/**
+ * Free respec: refund tiers (skill points back) and clear specialization (derived points, nothing to give back), for
+ * one skill or for all. Returns what was freed; both zero means there was nothing to refund.
+ */
+export function resetSkillPoints(save: CharacterSave, skillId?: string): { tierPoints: number; nodePoints: number } {
+  let tierPoints = 0;
+  for (const [id, t] of Object.entries(save.skills.tiers)) {
+    if (skillId !== undefined && id !== skillId) continue;
+    for (let i = 0; i < t; i++) tierPoints += TIER_COSTS[i];
+    delete save.skills.tiers[id];
+  }
+  save.skillPoints += tierPoints;
+  const nodePoints = resetSkillNodes(save, skillId);
+  return { tierPoints, nodePoints };
+}
+
 export function loadoutMods(save: CharacterSave, skillId: string): SkillMods {
   const s = SKILLS[skillId];
-  return collectSkillMods(s, save.skills.runes[skillId], save.skills.tiers[skillId] ?? 0);
+  return collectSkillMods(s, save.skills.runes[skillId], save.skills.tiers[skillId] ?? 0, savedNodeRanks(save, skillId));
 }
