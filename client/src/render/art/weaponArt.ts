@@ -42,6 +42,8 @@ export interface WeaponModel {
 
 interface P {
   s: ItemStyle; g: number; r: number; sp: boolean; top: number; v: number;
+  /** Drawn for the hero rig (false: icons, where long thin shafts get a little thicker to read at 40 px). */
+  rig: boolean;
   metal: number; edge: number; dark: number; trim: number; wood: number; wrap: number;
   /** Light colour (0 = dormant). */
   L: number;
@@ -371,8 +373,8 @@ function staffFamily(c: Ctx, p: P, out: WFloat[]): void {
   const g = p.g, base = p.layer === 'base';
   const sTop = -36;
   if (base) {
-    if (g === 0) { line(c, (q) => q.moveTo(0, 22).quadraticCurveTo(-1.6, 6, 0.6, -10).quadraticCurveTo(2, -24, -0.4, sTop - 4), 3, p.wood, 2); ball(c, -0.4, sTop - 5, 2.6, 2.2, shade(p.wood, 0.1), { ow: 1.6 }); for (const y of [-6, 9]) ball(c, 0.4, y, 1.4, 1.1, shade(p.wood, 0.25), { ow: 0 }); }
-    else line(c, (q) => q.moveTo(0, 22).quadraticCurveTo(-0.8, 0, 0, sTop), 3, g >= 4 ? p.dark : p.wood, 2);
+    if (g === 0) { line(c, (q) => q.moveTo(0, 22).quadraticCurveTo(-1.6, 6, 0.6, -10).quadraticCurveTo(2, -24, -0.4, sTop - 4), p.rig ? 3 : 4.4, p.wood, 2); ball(c, -0.4, sTop - 5, 2.6, 2.2, shade(p.wood, 0.1), { ow: 1.6 }); for (const y of [-6, 9]) ball(c, 0.4, y, 1.4, 1.1, shade(p.wood, 0.25), { ow: 0 }); }
+    else line(c, (q) => q.moveTo(0, 22).quadraticCurveTo(-0.8, 0, 0, sTop), p.rig ? 3 : 4.2, g >= 4 ? p.dark : p.wood, 2);
     if (g >= 1) for (const y of [20, sTop + 2]) rbox(c, -2.2, y - 1.2, 4.4, 2.4, 1, g <= 1 ? p.metal : p.trim, { ow: 1.3 });
     if (g >= 1) for (let i = 0; i < 3; i++) crease(c, [-1.4, 9 - i * 2.2, 1.4, 8 - i * 2.2], 1, p.wrap, 1);
   }
@@ -870,7 +872,7 @@ export function weaponModel(look: ItemLook, s: ItemStyle, fam: WeaponFamily, rig
   const mk = (layer: WLayer): P => ({
     s, g: s.gen, r: s.rar, sp: s.special, top: s.top, v: look.variant,
     metal: s.metal, edge: s.edge, dark: s.dark, trim: s.trim, wood: s.wood, wrap: s.wrap,
-    L: s.light, edgeL: s.edgeLight, layer, sig: s.sig, motif: s.motif, look,
+    L: s.light, edgeL: s.edgeLight, layer, sig: s.sig, motif: s.motif, look, rig,
   });
   const run = (c: Ctx, layer: WLayer, out: WFloat[]) => {
     const p = mk(layer);
