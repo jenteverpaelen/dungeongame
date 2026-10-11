@@ -485,7 +485,8 @@ export function powerTextIssues(text: string, effects: readonly PowerEffect[], r
   const issues: string[] = [];
   const plain = text.replaceAll(',', '');
   const hasNumber = (tok: string) => /^[A-Z]/.test(tok) ? plain.includes(tok)
-    : new RegExp(`(^|[^0-9.])${tok.replace('.', '\\.')}([^0-9]|$)`).test(plain) || (Number.isInteger(+tok) && +tok <= 10 && new RegExp(`\\b${WORDS[+tok]}\\b`, 'i').test(plain));
+    : new RegExp(`(^|[^0-9.])${tok.replace('.', '\\.')}([^0-9]|$)`).test(plain) || (Number.isInteger(+tok) && +tok <= 10 && new RegExp(`\\b${WORDS[+tok]}\\b`, 'i').test(plain))
+      || (tok === '50' && /\bhalf\b/i.test(plain)) || (tok === '100' && /\bfull\b/i.test(plain));
   for (const e of effects) for (const tok of effectTokens(e)) if (!hasNumber(tok)) issues.push(`text does not mention ${tok} (${e.kind})`);
   const needsV = effects.some(usesRoll);
   if (rolled && needsV !== text.includes('{v}')) issues.push(needsV ? 'rolled effect but no {v} in text' : '{v} in text but no rolled effect');

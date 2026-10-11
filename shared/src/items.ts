@@ -6,6 +6,7 @@ import {
   AFFIXES, AFFIX_BY_STAT, BASES, GEM_IDS, LEGENDARIES, MAGIC_PREFIX, MAGIC_SUFFIX, RARE_PREFIX, RARE_SUFFIX, SETS,
   affixFits, affixScale, type AffixDef, type BaseItem,
 } from './data/items';
+import { inscriptionPool } from './itemGrades';
 import { Rng } from './math';
 import type { AffixRoll, AncientTier, ClassId, Element, Item, ItemKind, ItemLook, Rarity, Slot, StatId } from './types';
 
@@ -28,6 +29,8 @@ export const KIND_LABEL: Record<ItemKind, string> = {
   neck: 'Amulet', ring: 'Ring',
 };
 
+/** Legacy only: pre-grade Ancient / Primal items were rolled with ×1.3 (legacyGrade items, enchanting them). New items
+ *  get no grade multiplier (shared/src/itemGrades.ts). */
 export const ANCIENT_MULT = 1.3;
 export const UPGRADE_STEP = 0.06; // +6% per Cube upgrade tier (+10 = +60%)
 
@@ -107,11 +110,12 @@ export function makeLook(rng: Rng, base: BaseItem, rarity: Rarity, ancient: Anci
 
 // ─────────────────────────── Affixes ───────────────────────────
 
-function rollAffixValue(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, ancient: AncientTier): { value: number; min: number; max: number } {
+/** Roll an affix value. Grades no longer scale ranges; grade 2 (Fabled) rolls the maximum. `legacy`: the old ×1.3. */
+export function rollAffixValue(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, ancient: AncientTier, legacy = false): { value: number; min: number; max: number } {
   const range = def.ranges[kind]!;
   const s = affixScale(def.scale, ilvl);
-  const am = ancient ? ANCIENT_MULT : 1;
-  let min = range[0] * s * am, max = range[1] * s * am;
+  let min = range[0] * s, max = range[1] * s;
+  if (legacy && ancient) { min *= ANCIENT_MULT; max *= ANCIENT_MULT; }
   if (def.scale !== 'pct') { min = Math.max(1, Math.round(min)); max = Math.max(min, Math.round(max)); }
   else { min = Math.round(min * 10) / 10; max = Math.round(max * 10) / 10; }
   const v = ancient === 2 ? max : min + (max - min) * rng.next();
@@ -119,7 +123,7 @@ function rollAffixValue(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, a
   return { value, min, max };
 }
 
-function pickAffix(rng: Rng, base: BaseItem, primary: boolean, taken: Set<string>, takenGroups: Set<string>): AffixDef | null {
+export function pickAffix(rng: Rng, base: BaseItem, primary: boolean, taken: Set<string>, takenGroups: Set<string>): AffixDef | null {
   const pool = AFFIXES.filter((a) =>
     a.primary === primary && a.weight > 0 && affixFits(a, base) && !taken.has(a.stat) && !(a.group && takenGroups.has(a.group)));
   if (!pool.length) return null;
@@ -131,8 +135,8 @@ export function mainStatFor(rng: Rng, classId: ClassId, smart: boolean): StatId 
   return rng.pick(['str', 'dex', 'int'] as const);
 }
 
-function makeAffix(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, ancient: AncientTier, classId: ClassId): AffixRoll {
-  const { value, min, max } = rollAffixValue(rng, def, kind, ilvl, ancient);
+export function makeAffix(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, ancient: AncientTier, classId: ClassId, legacy = false): AffixRoll {
+  const { value, min, max } = rollAffixValue(rng, def, kind, ilvl, ancient, legacy);
   const roll: AffixRoll = { stat: def.stat, value, min, max, primary: def.primary };
   if (def.stat === 'skillDmg') {
     const skills = skillsForClass(classId).filter((s) => s.kind !== 'primary');
@@ -265,6 +269,9 @@ export function generateItem(rng: Rng, o: GenOptions): Item {
     for (let i = 0; i < nPrimary; i++) addAffix(pickAffix(rng, base, true, taken, takenGroups));
   }
   for (let i = 0; i < nSecondary; i++) addAffix(pickAffix(rng, base, false, taken, takenGroups));
+  // Kindled and Fabled: one extra primary affix from the slot's normal pool (the kindled affix).
+  let kindledAffix: number | undefined;
+  if (ancient) { const before = affixes.length; addAffix(pickAffix(rng, base, true, taken, takenGroups)); if (affixes.length > before) kindledAffix = before; }
 
   const tier = baseTierIndex(ilvl);
   let name = base.names[tier];
@@ -298,9 +305,11 @@ export function generateItem(rng: Rng, o: GenOptions): Item {
     bound: false,
     look: makeLook(rng, base, o.rarity, ancient, legendaryId, setId),
   };
+  if (kindledAffix !== undefined) item.kindledAffix = kindledAffix;
+  if (ancient === 2) { const pool = inscriptionPool(kind); if (pool.length) item.inscription = rng.pick(pool).id; }
 
   if (base.weapon) {
-    const avg = weaponAvgDamage(ilvl, base) * (ancient ? ANCIENT_MULT : 1) * (isLegend ? 1.1 : o.rarity === 'rare' ? 1.05 : 1);
+    const avg = weaponAvgDamage(ilvl, base) * (isLegend ? 1.1 : o.rarity === 'rare' ? 1.05 : 1);
     const spread = 0.35;
     const element: Element = 'physical';
     item.weapon = {
@@ -311,7 +320,7 @@ export function generateItem(rng: Rng, o: GenOptions): Item {
     };
   }
   if (base.armorMult) {
-    item.armor = Math.round(baseArmor(ilvl, base) * rng.range(0.9, 1.1) * (ancient ? ANCIENT_MULT : 1));
+    item.armor = Math.round(baseArmor(ilvl, base) * rng.range(0.9, 1.1));
   }
   if (legendaryId) {
     const def = LEGENDARIES[legendaryId];

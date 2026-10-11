@@ -1,6 +1,7 @@
 import { autoSlotSkills } from '../../shared/src/progression';
 import { ownedItems } from '../../shared/src/merchant';
 import { seedCollection } from '../../shared/src/itemCollection';
+import { GRADE_SAVE_VERSION, migrateItemGrade } from '../../shared/src/itemGrades';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -212,6 +213,9 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   // Quest rework (docs/rework/quests): legacy Silent Wheel record, reworked revisions, retired contracts; bounty boards.
   migrateQuests(save);
   normalizeBounties(save);
+  // v16: item grades (Kindled / Fabled). Pre-grade Ancient / Primal items keep their stored values (legacyGrade);
+  // old Primal items get their deterministic Inscription.
+  if ((save.version ?? 0) < GRADE_SAVE_VERSION) for (const item of ownedItems(save)) migrateItemGrade(item);
   // Preserve owned objects and saved combat preferences.
   seedCollection(save, ownedItems(save));
   save.version = SAVE_VERSION;

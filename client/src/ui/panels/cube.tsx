@@ -1,6 +1,7 @@
 // The Cube (U / E at the cube): Task Bar Hero style levelling Hero-dric Cube carrying the Kanai / Mystic /
 // Jeweler recipes. Cube level + XP, function tabs locked by level, an item chamber, costs, result feedback.
 
+import { canRekindle } from '@shared/itemGrades';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { itemProtectionReason } from '@shared/itemProtection';
@@ -172,6 +173,12 @@ function EnchantView({ item, char }: { item: Item | null; char: CharacterSave })
   const hasEnchant = item.enchanted !== undefined;
   return (
     <div class="cv">
+      {canRekindle(item) && (
+        <div class="cv-row">
+          <Note>This item is an old Ancient. The Mystic can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
+          <button class="btn sm" onClick={async () => { const r = await run('rekindle', { itemId: item.id }); if (r.ok) flash('success', 'Rekindled', 'The item now carries a Kindled property.'); }}>Rekindle</button>
+        </div>
+      )}
       <div class="cv-label">Choose a property to reroll</div>
       <div class="ench-list">
         {item.affixes.map((a, i) => {

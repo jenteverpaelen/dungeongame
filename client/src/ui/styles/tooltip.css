@@ -177,3 +177,10 @@
 .tt-lite .tl b { color: #fff; }
 .tt-lite .tl.note { color: var(--text-dim); font-style: italic; font-size: 13px; }
 .tt-rings { max-width: none; width: 696px; margin-bottom: 6px; padding: 8px 12px; }
+
+/* Item grades (ITEMS-SHARED.md §7): Kindled ember-orange, Fabled white-gold; minimal until the lead's tooltip pass. */
+.tt-grade { color: #f08a3c; font-weight: 600; margin-right: 4px; }
+.tt-grade.fabled { color: #fff0c2; }
+.af-ember { flex: none; width: 7px; height: 7px; margin: 0 4px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffd27a, #e8642a); box-shadow: 0 0 4px #ff8a3a; transform: translateY(5px); }
+.af-kindled .af-t { color: #ffd9b0; }
+.tt-inscription .pw-l { color: #fff0c2; }

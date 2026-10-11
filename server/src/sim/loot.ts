@@ -2,6 +2,7 @@
 // D3-style fountain around the corpse, visible to and collectable by their owner only.
 
 import { recordIntro } from '../../../shared/src/onboarding';
+import { GRADE_LABEL } from '../../../shared/src/itemGrades';
 import { ordinarySelected } from '../../../shared/src/itemCollection';
 import { gearLook } from '../../../shared/src/gearVisual';
 import { MATERIAL_NAMES } from '../../../shared/src/materialNames';
@@ -72,7 +73,7 @@ export function dropFor(inst: Instance, p: Player, x: number, y: number, level: 
   for (const d of drops) {
     spawnLoot(inst, p, payloadOf(d, difficulty), x, y);
     if (d.type === 'item' && (d.item.rarity === 'legendary' || d.item.rarity === 'set')) {
-      const prefix = d.item.ancient === 2 ? 'Primal Ancient ' : d.item.ancient === 1 ? 'Ancient ' : '';
+      const prefix = d.item.ancient ? `${GRADE_LABEL[d.item.ancient]} ` : '';
       inst.emitTo(p.id, { e: 'notice', text: `${prefix}${d.item.name}`, kind: 'legendary' });
     }
   }

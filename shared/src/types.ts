@@ -6,7 +6,8 @@ export const ELEMENTS: Element[] = ['physical', 'fire', 'cold', 'lightning', 'po
 
 /** Diablo 3 Loot 2.0 rarities. Ancient / Primal are a separate flag on legendary & set items. */
 export type Rarity = 'normal' | 'magic' | 'rare' | 'legendary' | 'set';
-export type AncientTier = 0 | 1 | 2; // 0 = none, 1 = Ancient, 2 = Primal Ancient
+/** Item grade (stored as `ancient`): 0 none, 1 Kindled, 2 Fabled (ITEMS-SHARED.md §7; shared/src/itemGrades.ts). */
+export type AncientTier = 0 | 1 | 2;
 
 export type Slot =
   | 'head' | 'shoulders' | 'chest' | 'hands' | 'wrists' | 'waist' | 'legs' | 'feet'
@@ -67,8 +68,12 @@ export interface Item {
   affixes: AffixRoll[];
   legendary?: { power: string; value: number; min: number; max: number };
   set?: string;
-  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. Generation / migration is not built yet. */
+  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. */
   inscription?: string;
+  /** Kindled and Fabled items: index in `affixes` of the extra (kindled) affix. */
+  kindledAffix?: number;
+  /** Graded before grades existed (save < 16): stored values keep the old ×1.3 / maximum rolls. */
+  legacyGrade?: true;
   weapon?: { min: number; max: number; aps: number; element: Element };
   armor?: number;
   sockets: (GemSocket | null)[];

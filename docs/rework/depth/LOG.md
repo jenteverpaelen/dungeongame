@@ -86,3 +86,26 @@
     new 1.07 / 1.27 / 1.39 ms; T3 rift 0.090 / 0.124 / 0.097 vs 0.094 / 0.116 / 0.107 ms.
   - An earlier single run under heavy machine load showed 3.2 ms (perf threshold), a load artefact.
   - Tests: `server/test/engineWave2.test.ts` (15). Test change: Cleave's tag set now includes `strike` (alias).
+## Shared-items wave (2026-10-11)
+
+- Merged claude/town-ui-rework (f3019b1, with engine wave 2 and the quest rework) by fast-forward.
+- Commit 624926a (engine only; sim.ts identical to the wave-2 baseline). Added:
+  - setReduce;
+  - noEnemyWithin and burning;
+  - attack trigger with every / repeat;
+  - kill-stack filter;
+  - cdRecovery;
+  - control immunity by kind;
+  - markSpread;
+  - consumable vulnerability;
+  - returning / range-ricochet projectiles;
+  - 22 affix stats as templates and gated hooks;
+  - non-extractable legendaries.
+- Commit b513b69 (content): 13 shared legendaries, Ouroboros 60-80, 38 bases, 22 affixes (weights 3/4 [P], see
+  FOUNDATION 12.3), names, off-hand rule as data. Equivalence proof restricted to the 22 converted legendaries;
+  loot pity fixture seed 27 to 6. Parity evidence regenerated. Sim 382/382 checks pass with the new RNG.
+- Grades: Kindled / Fabled generation, Inscription pool (10), save 16 migration plus golden fixture, Mystic rekindle,
+  tooltip grade / ember / Inscription.
+- Client: channel-speed prediction (MeState.ms), following ground visuals (aoe.f), charge badges, v2 tag labels.
+- Tests: server/test/sharedItems.test.ts (14).
+- Known: 2 gearVisual tests fail until claude/gear-v2 widens the legendary field (gear lane).

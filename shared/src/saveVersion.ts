@@ -1,2 +1,3 @@
-/** v15 adds specialization node ranks (skills.nodes); v14 added acquired item appearances and independent loot preferences. */
-export const SAVE_VERSION = 15;
+/** v16 marks pre-grade Ancient / Primal items legacyGrade (Kindled / Fabled, legacy Fabled get an Inscription);
+ *  v15 added specialization node ranks (skills.nodes); v14 acquired item appearances and independent loot preferences. */
+export const SAVE_VERSION = 16;
