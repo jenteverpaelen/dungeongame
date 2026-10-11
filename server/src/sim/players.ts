@@ -6,7 +6,8 @@ import type { PlayerLink } from '../contracts';
 import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
-import { OURO_CYCLE, healPlayer, talStacks } from './damage';
+import { healPlayer } from './damage';
+import { dropInactivePowerBuffs, elementStacks, firePowerProcs, updateOwnGround } from './powerRuntime';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
@@ -87,8 +88,7 @@ export function refreshPlayerStats(inst: Instance, p: Player, keepFraction: bool
   }
   if (p.channel && !has(p.channel.skill)) p.channel = null;
   for (const b of ['battle_rage', 'magic_weapon']) if (!has(b) && getBuff(p, b)) removeBuff(p, b);
-  if (!p.ctx.power('ouroboros_loop')) for (const b of [...p.buffs]) if (b.id.startsWith('ouroboros_')) removeBuff(p, b.id);
-  if (!p.ctx.power('hellforge_talisman')) removeBuff(p, 'hellforge');
+  dropInactivePowerBuffs(p);
   refreshLive(p);
 }
 
@@ -125,8 +125,7 @@ function onDash(inst: Instance, p: Player, sx: number, sy: number) {
   p.invulnMs = Math.max(p.invulnMs, DASH.invulnMs);
   const tx = sx + p.mv.dashDx * DASH.distance, ty = sy + p.mv.dashDy * DASH.distance;
   inst.emit({ e: 'dash', t: p.id, x: Math.round(sx), y: Math.round(sy), tx: Math.round(tx), ty: Math.round(ty) }, sx, sy, p.id);
-  const sw = p.ctx.power('stridewind');
-  if (sw) addBuff(p, { id: 'stridewind', ms: 3000, dmg: sw });
+  firePowerProcs(inst, p, 'dash');
   if (Math.abs(p.mv.dashDx) > 0.1) p.faceLeft = p.mv.dashDx < 0;
 }
 
@@ -151,33 +150,36 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   p.sinceHitMs += dtMs;
   p.sinceHurtMs += dtMs;
   tickBuffs(p, dtMs);
+  if (p.ctx.powers.watchGround || p.inOwnGround) updateOwnGround(inst, p);
 
-  // Ouroboros Loop: element rotates every 4 s.
-  const ouro = p.ctx.power('ouroboros_loop');
-  if (ouro) {
+  // Element cycle (Ouroboros Loop): the boosted element rotates every periodMs.
+  const cyc = p.ctx.powers.elementCycle;
+  if (cyc && cyc.pct) {
+    const len = cyc.elements.length;
     p.ouroMs -= dtMs;
     if (p.ouroMs <= 0) {
-      removeBuff(p, `ouroboros_${OURO_CYCLE[p.ouroIdx]}`);
-      p.ouroIdx = (p.ouroIdx + 1) % OURO_CYCLE.length;
-      p.ouroMs += 4000;
+      removeBuff(p, `${cyc.buffPrefix}_${cyc.elements[p.ouroIdx % len]}`);
+      p.ouroIdx = (p.ouroIdx + 1) % len;
+      p.ouroMs += cyc.periodMs;
     }
-    const id = `ouroboros_${OURO_CYCLE[p.ouroIdx]}`;
+    const id = `${cyc.buffPrefix}_${cyc.elements[p.ouroIdx % len]}`;
     const b = getBuff(p, id);
     if (b) b.ms = p.ouroMs; else addBuff(p, { id, ms: p.ouroMs });
   }
-  // Fallen Star 4pc: show the element stacks as a buff.
-  if (p.ctx.setCount('fallen_star') >= 4) {
-    const n = talStacks(inst, p, null);
-    const b = getBuff(p, 'fallen_star');
+  // Element stacks (Fallen Star 4pc): show the stacks as a buff.
+  const es = p.ctx.powers.elementStacks;
+  if (es?.buff) {
+    const n = elementStacks(inst, p, null);
+    const b = getBuff(p, es.buff);
     if (n > 0) {
       let oldest = Infinity;
-      for (const e of ['arcane', 'cold', 'fire', 'lightning']) {
+      for (const e of es.elements) {
         const at = p.lastEle[e];
-        if (at !== undefined && inst.t - at <= 8000) oldest = Math.min(oldest, at);
+        if (at !== undefined && inst.t - at <= es.windowMs) oldest = Math.min(oldest, at);
       }
-      const ms = Math.max(0, 8000 - (inst.t - oldest));
-      if (b) { b.st = n; b.ms = ms; } else addBuff(p, { id: 'fallen_star', ms, st: n });
-    } else if (b) removeBuff(p, 'fallen_star');
+      const ms = Math.max(0, es.windowMs - (inst.t - oldest));
+      if (b) { b.st = n; b.ms = ms; } else addBuff(p, { id: es.buff, ms, st: n });
+    } else if (b) removeBuff(p, es.buff);
   }
 
   // Life: regeneration affixes + out-of-combat regeneration.

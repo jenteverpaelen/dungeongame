@@ -8,7 +8,7 @@ import { XP_MULT } from '../server/src/config';
 import type { Loot } from '../server/src/sim/types';
 import type { PlayerLink } from '../server/src/contracts';
 import {
-  CollisionWorld, Rng, SKILLS, TILE, ZONES, computeStats,
+  CollisionWorld, Rng, SKILLS, TILE, ZONES, computeStats, runeUnlockLevel,
   createCharacter, generateItem, isBlockedTile, slotsForKind,
   F_CHANNEL, F_DEAD, STATE_STRIDE, type CharacterSave, type ClassId, type DerivedStats, type EntDesc, type GameEvent,
   type Item, type S2C, type Slot, type Snapshot,
@@ -155,7 +155,7 @@ function makeChar(cls: ClassId, level: number): CharacterSave {
     for (const [sk, rune] of Object.entries(b.runes)) {
       const def = SKILLS[sk];
       const i = def.runes.findIndex((r) => r.id === rune);
-      if (def.unlock + [2, 5, 9][i] <= level) save.skills.runes[sk] = rune;
+      if (i >= 0 && runeUnlockLevel(def, i) <= level) save.skills.runes[sk] = rune;
     }
     const tiered = [save.skills.primary, ...save.skills.slots.filter((s): s is string => !!s)];
     let pts = save.skillPoints;

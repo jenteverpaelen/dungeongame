@@ -6,7 +6,10 @@ import { upgradeMult } from './items';
 import { PARAGON_STATS } from './progression';
 import type { CharacterSave, DerivedStats, Element, Item, Slot, StatId } from './types';
 import { ELEMENTS } from './types';
-import {activePassives,passiveValue} from './passives';
+import {activePassives,passiveValue,passivePowerSources} from './passives';
+import { DASH } from './constants';
+import { amount } from './powers';
+import { allPowerSources } from './powerSources';
 import { combatInteger, boundedCombat } from './combatBounds';
 
 /** Life per point of Vitality: 10 until level 35, then rising to ~97 at 70 (D3 curve shape). */
@@ -66,6 +69,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
   const acc: Acc = {};
   const mults: Record<'cdr' | 'rcr', number[]> = { cdr: [], rcr: [] };
   for(const passive of activePassives(save)){
+    if(!passive.stat)continue; // template-only passives apply through the power sources below
     const value=passiveValue(passive,level);
     if(passive.stat==='cdr')mults.cdr.push(value);
     else add(acc,passive.stat==='skillDmg'?`skill:${passive.skill}`:passive.stat,value);
@@ -106,9 +110,18 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     else add(acc, d.stat, v);
   }
 
-  // Legendary stat-style powers
-  if (powers.witching_cord) { add(acc, 'chd', powers.witching_cord); add(acc, 'ias', 7); }
-  if (powers.mountain_fists) { add(acc, 'area', powers.mountain_fists); add(acc, 'ias', 15); }
+  // Stat-style power templates (sets → legendaries → passives → nodes, shared/src/powerSources.ts) and the dash.
+  let dashCdMs = DASH.cooldownMs;
+  const legendaryCount = Object.values(equipment).filter((it) => it?.rarity === 'legendary').length;
+  const setBonusActive = Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= b.count));
+  for (const src of allPowerSources(save, powers, sets, passivePowerSources(save))) for (const e of src.effects) {
+    if (e.kind === 'stat') {
+      if (e.noSetBonus && setBonusActive) continue;
+      let v = amount(e.value, src.roll);
+      if (e.perLegendary) v *= Math.min(e.perLegendary.max, legendaryCount);
+      if (e.stat === 'cdr' || e.stat === 'rcr') mults[e.stat].push(v); else add(acc, e.stat, v);
+    } else if (e.kind === 'dashCooldown') dashCdMs *= e.mult;
+  }
 
   const mainStatId = cls.mainStat;
   const attr = (k: 'str' | 'dex' | 'int' | 'vit') => cls.base[k] + cls.perLevel[k] * (level - 1) + (acc[k] ?? 0);
@@ -186,6 +199,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     recovery: boundedCombat(lifeRegen + lifePerHit * aps),
     armorDR, resDR,
     powers, sets,
+    dashCdMs,
   };
 }
 

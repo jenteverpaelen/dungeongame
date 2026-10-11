@@ -49,13 +49,13 @@ test('bad IDs, duplicate lookup keys, NaN quantities and reversed ranges are rej
 
 test('missing indexed values and unresolved player text fail before release', () => {
   const data=fixture();
-  data.runeOffsets.pop();
+  delete (data.skills.meteor.runes[2] as {unlock?:number}).unlock;
   data.tierCosts.pop();
   data.gems.ruby.weapon.values.pop();
   data.skills.meteor.desc+=' {missing_value}';
   data.sets.endless_storm.bonuses[0].count=data.sets.endless_storm.pieces.length+1;
   const errors=validateContent(data);
-  for(const path of ['skills.meteor.runes','skills.meteor.tiers','gems.ruby.weapon','skills.meteor.desc','sets.endless_storm.bonuses.count']) expectPath(errors,path);
+  for(const path of ['skills.meteor.runes[2].unlock','skills.meteor.tiers','gems.ruby.weapon','skills.meteor.desc','sets.endless_storm.bonuses.count']) expectPath(errors,path);
 });
 
 test('signature references survive display wording changes but reject missing/inherited/wrong-class identities', () => {

@@ -56,18 +56,18 @@
   --text-dim: #b9aa8f;
   --text-faint: #8e7f68;
   --text-bright: #f6eddb;
-  --affix: #6969ff;
-  --affix-text: #9a9aff;
-  --power: #bf642f;
-  --set-on: #00ff00;
+  --affix: #7a9cff;
+  --affix-text: #cdbd9f;
+  --power: #ef6c2a;
+  --set-on: #34c79a;
   --set-off: #6e6e6e;
   --enchanted: #d4a8ff;
-  /* Rarities (kept) */
-  --r-normal: #ffffff;
-  --r-magic: #6969ff;
-  --r-rare: #ffff00;
-  --r-legendary: #bf642f;
-  --r-set: #00ff00;
+  /* Rarities: Hearthfall palette, measured in docs/rework/TOOLTIP.md §4 (hue families are genre convention) */
+  --r-normal: #e6dfd0;
+  --r-magic: #7a9cff;
+  --r-rare: #f2d43c;
+  --r-legendary: #ef6c2a;
+  --r-set: #34c79a;
   --r-ancient: #e8902f;
   --r-primal: #e0302f;
   /* Resources */

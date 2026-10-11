@@ -18,6 +18,7 @@ import { normalizeBounties } from '../../shared/src/bounties';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
+import { normalizeSkillNodes } from '../../shared/src/specialization';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
@@ -190,6 +191,8 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   sk.runes ??= {};
   sk.tiers ??= {};
   sk.primary ||= CLASSES[save.classId].primary;
+  // v15: specialization ranks; illegal allocations reset (points are derived from the level, so nothing is lost).
+  normalizeSkillNodes(save);
 
   const p = (save.paragon ??= { level: 0, xp: 0, spent: {} });
   p.level = Math.floor(num(p.level, 0));
