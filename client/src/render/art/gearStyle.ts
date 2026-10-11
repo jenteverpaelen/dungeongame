@@ -47,11 +47,23 @@ export const GEN_MATERIAL: readonly GenMaterial[] = [
  *  one-handers climb the most (they are the hardest to read on a ~95 px hero); big two-handers climb least because
  *  their drawings already grow heads and edges per generation. Proposal [P]; owner decision how big endgame may get. */
 export const GEN_SCALE = {
-  small: [0.9, 0.97, 1.05, 1.15, 1.26, 1.38, 1.5],
-  mid: [0.9, 0.95, 1.02, 1.1, 1.18, 1.27, 1.36],
-  large: [0.88, 0.93, 0.98, 1.04, 1.1, 1.17, 1.24],
+  // pass 2.1: one-handers climb hardest at G5–G6 (the lead's hero-scale review); proposed cap ×1.8 before legendary /
+  // grade (×2.06 for a Fabled legendary). Owner decision 1 is open: the gallery shows ×1.5 / ×1.8 / ×2.1 (?cap=).
+  small: [0.9, 0.98, 1.08, 1.2, 1.36, 1.56, 1.8],
+  mid: [0.9, 0.96, 1.05, 1.16, 1.3, 1.46, 1.62],
+  large: [0.88, 0.94, 1, 1.07, 1.15, 1.24, 1.34],
 } as const;
 export type SizeClass = keyof typeof GEN_SCALE;
+
+/** Dev galleries only: show another one-hander cap (G6 small = cap; the other classes and generations scale along). */
+let sizeCap: number | null = null;
+export function setSizeCap(cap: number | null): void { sizeCap = cap; cache.clear(); }
+function genScale(cls: SizeClass, gen: number): number {
+  const v = GEN_SCALE[cls][gen];
+  if (sizeCap === null) return v;
+  const lo = GEN_SCALE[cls][0], hi = GEN_SCALE[cls][6], k = (sizeCap - 0.9) / (GEN_SCALE.small[6] - 0.9);
+  return lo + (v - lo) * (1 + (k - 1) * (hi - lo) / Math.max(1e-6, GEN_SCALE.small[6] - 0.9));
+}
 function sizeClassOf(shape: string): SizeClass {
   const rig = SHAPE_FAMILY[shape]?.rig;
   return rig === '1h' || rig === 'wand' || rig === 'hxbow' ? 'small' : rig === '2h' || rig === 'staff' ? 'large' : 'mid';
@@ -150,7 +162,7 @@ export function itemStyle(look: ItemLook | undefined): ItemStyle | null {
   const light = fx.top >= 2 ? FABLED_LIGHT : idLight;
   const lightK = !light ? 0 : (special ? 0.8 : rar === 2 ? 0.55 : 0.4) + gen * 0.05 + fx.temper * 0.14 + fx.top * 0.18;
   const gemDef = fx.gem ? GEMS[fx.gem] : undefined;
-  const scale = GEN_SCALE[sizeClassOf(look.shape)][gen] * (special ? 1.06 : 1) * (1 + 0.04 * fx.top);
+  const scale = genScale(sizeClassOf(look.shape), gen) * (special ? 1.06 : 1) * (1 + 0.04 * fx.top);
   const floats = (gen >= 6 ? (rar >= 2 ? 2 : 1) : gen >= 5 && rar >= 2 ? 1 : 0) + (special && gen >= 4 ? 1 : 0) + fx.top;
   const s: ItemStyle = {
     fx, gen, rar, special, top: fx.top, temper: fx.temper, mat,

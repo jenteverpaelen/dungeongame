@@ -16,7 +16,9 @@ import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx'
 import { backPieceFor, drawBackPiece, drawWing, shoulderScale, weaponScale } from './gearDecor';
 import { RARITY_LIGHT, SET_STYLE, TOP_COLORS, artLook, itemStyle } from './gearStyle';
 import { SHAPE_FAMILY } from './gearVisuals';
-import { weaponModel, type WFloat } from './weaponArt';
+import { weaponDrawing, type WFloat } from './weaponDrawing';
+import { weaponSkinOf, type WeaponSkin } from './weaponSkin';
+import { WeaponImpacts } from './weaponImpact';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -150,9 +152,8 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
   if (sl.mainhand) {
     add('weapon', (c) => drawWeapon(c, sl.mainhand!, true));
     // V2 held items: the light layer (additive, pulsing) and the floating pieces are parts of their own
-    const ws = itemStyle(sl.mainhand), fam = SHAPE_FAMILY[sl.mainhand.shape];
-    if (ws && fam) {
-      const m = weaponModel(sl.mainhand, ws, fam.family, true);
+    const m = weaponDrawing(sl.mainhand, true);
+    if (m) {
       if (m.lit) specs.push({ name: 'weaponL', draw: (c) => m.draw(c, 'light') });
       m.floats.forEach((f, i) => specs.push({ name: `wf${i}`, draw: (c) => f.draw(c), flash: true }));
     }
@@ -371,7 +372,9 @@ const p2 = (): P2 => ({ x: 0, y: 0, d: 0 });
 
 interface GlowFx { sprite: Sprite; base: number; phase: number; slot: string }
 interface Twinkle { s: Sprite; x: number; y: number; r: number; phase: number; speed: number; rise: boolean; color: number }
-interface Act { def: ActionDef; skill: string; start: number; cycle: number; alt: boolean; tx: number; ty: number; primary: boolean; shots: number[]; fired: number; notes: number[] }
+interface Act { def: ActionDef; skill: string; start: number; cycle: number; alt: boolean; tx: number; ty: number; primary: boolean; shots: number[]; fired: number; notes: number[]; /** strike flash played */ struck?: boolean }
+/** Melee poses whose strike moment gets the weapon's strike flash (weaponImpact.ts). */
+const STRIKE_POSES = new Set(['swing', 'double', 'leapSlam', 'overhead']);
 interface Fly { s: Sprite; streak: Sprite; vx: number; vy: number; t: number; life: number }
 interface Note { s: Sprite; t: number; x: number; y: number }
 
@@ -491,6 +494,11 @@ export class PlayerArt implements PlayerView {
   private wLight: Sprite | Graphics | null = null;
   private wFloats: { f: WFloat; s: Sprite | Graphics; g: Sprite | null }[] = [];
   private wTemper = 0;
+  /** Attack presentation from the weapon drawing (weaponSkin.ts): trails, strike flash, muzzle; VFX read it too. */
+  private skin: WeaponSkin | null = null;
+  private impacts: WeaponImpacts | null = null;
+  /** Wide soft trail behind the blade trail for strongly lit weapons. */
+  private ribbonG: Ribbon | null = null;
   private sx = 0; private sy = 0;      // last state position (for target directions)
 
   // per-frame scratch
@@ -542,7 +550,10 @@ export class PlayerArt implements PlayerView {
     this.padK = shoulderScale(sl.shoulders);
     this.offK = itemStyle(sl.offhand)?.scale ?? 1;
     this.wpnK = weaponScale(sl.mainhand);
-    { const r = reachOf(sl.mainhand?.shape); this.reach = { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
+    // the striking part (trail, strike flash) runs along the drawing's own light anchors (WeaponPresentation tip / base,
+    // hand-local at scale 1); bows keep the grip-relative reach (their anchors sit on the belly, not along the aim)
+    { const r = reachOf(sl.mainhand?.shape), p = wk !== 'bow' ? weaponSkinOf(sl.mainhand) : null;
+      this.reach = p ? { tip: Math.hypot(p.tip[0], p.tip[1]) * this.wpnK, base: Math.hypot(p.base[0], p.base[1]) * this.wpnK } : { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
     const glow = sl.mainhand?.glow ?? 0;
     const wst = itemStyle(sl.mainhand);
     // the swing trail carries the weapon's light (prestige lives in the attack in small sprites, REFERENCES-V2 V7)
@@ -582,7 +593,7 @@ export class PlayerArt implements PlayerView {
     // the light layer joins the additive group drawn last (one batch per hero instead of splitting the body batch)
     if (sheet.has('weaponL')) { const l = sheet.make('weaponL', 'n'); l.blendMode = 'add'; this.fxAdd.addChild(l); this.wLight = l; }
     if (wst && sl.mainhand && SHAPE_FAMILY[sl.mainhand.shape]) {
-      const fl = weaponModel(sl.mainhand, wst, SHAPE_FAMILY[sl.mainhand.shape].family, true).floats;
+      const fl = weaponDrawing(sl.mainhand, true)?.floats ?? [];
       let glows = 0;
       fl.forEach((f, i) => {
         if (!sheet.has(`wf${i}`)) return;
@@ -627,6 +638,14 @@ export class PlayerArt implements PlayerView {
     // trails, whirlwind blur, glows
     this.ribbonB.mesh.zIndex = -30; this.ribbonF.mesh.zIndex = 40;
     for (const r of [this.ribbonB, this.ribbonF]) { r.mesh.tint = this.trailColor; r.mesh.blendMode = this.trailAdd ? 'add' : 'normal'; this.body.addChild(r.mesh); }
+    this.skin = weaponSkinOf(sl.mainhand);
+    this.impacts = new WeaponImpacts(this.fxAdd);
+    this.ribbonG = null;
+    if (this.skin && this.skin.strength >= 0.6) {
+      this.ribbonG = new Ribbon(22);
+      this.ribbonG.mesh.blendMode = 'add'; this.ribbonG.mesh.tint = this.skin.core || this.skin.light;
+      this.fxAdd.addChild(this.ribbonG.mesh);
+    }
     this.whirlDisc = ringSprite(this.trailColor, 100, 0, true); this.whirlDisc.zIndex = -42; this.whirlDisc.blendMode = 'normal';
     this.whirlRing = ringSprite(this.trailColor, 100, 0); this.whirlRing.zIndex = -41; this.whirlRing.blendMode = 'normal';
     this.whirlDisc.visible = this.whirlRing.visible = false;
@@ -723,6 +742,9 @@ export class PlayerArt implements PlayerView {
   }
 
   private npcLook(): boolean { return !!(this.look as NpcBodyLook).npc; }
+
+  /** The equipped weapon's attack presentation (weaponSkin.ts) for the VFX layer (projectiles, cleave arcs, hits). */
+  weaponSkin(): WeaponSkin | null { return this.skin; }
 
   /** The weapon's light layer (same transform as the weapon, additive, pulsing with enhancement) and its floating
    *  pieces (hover / orbit in the weapon frame). 'off' keeps the floats at rest and hides the light layer. */
@@ -951,7 +973,7 @@ export class PlayerArt implements PlayerView {
 
     // ── pose
     const P = this.P;
-    basePose(P, this.kit, { t, walk: this.walk, move: this.moveBlend, dash: this.dashB, stun: this.stunB, cast: this.castB, turn: turning });
+    basePose(P, this.kit, { t, walk: this.walk, move: this.moveBlend, dash: this.dashB, stun: this.stunB, cast: this.castB, turn: turning, yaw: this.yawB });
     copyPose(this.baseCache, P);
     let actCtx: ActCtx | null = null;
     if (act) {
@@ -1423,7 +1445,10 @@ export class PlayerArt implements PlayerView {
     const act = this.act;
     const spinning = this.chan > 0.05;
     const wantAction = !!(c && act && P.trail > 0.01 && this.kit.wk !== 'bow');
-    if (!spinning && !wantAction) { this.ribbonF.hide(); this.ribbonB.hide(); this.whirlRing!.visible = false; this.whirlDisc!.visible = false; return; }
+    if (!spinning && !wantAction) { this.ribbonF.hide(); this.ribbonB.hide(); this.ribbonG?.hide(); this.whirlRing!.visible = false; this.whirlDisc!.visible = false; return; }
+    // the soft outer trail of strongly lit weapons (crowd budget: heroes with a presence slot, full effects)
+    const G = this.ribbonG && this.gearQ === 'full' && (this.gear?.rich ?? true) ? this.ribbonG : null;
+    if (!G) this.ribbonG?.hide();
     const col = (act && act.def.trail) || this.trailColor;
     const add = this.trailAdd || !!(act && act.def.trail && SPELL_POSES.has(act.def.pose));
     for (const r of [this.ribbonF, this.ribbonB]) {
@@ -1434,7 +1459,10 @@ export class PlayerArt implements PlayerView {
     this.ribbonF.begin(); this.ribbonB.begin();
     const Q = this.Q;
     const N = 20;
-    const span = spinning ? 0.45 / SPIN_RATE * 1000 : Math.max(60, Math.min(150, (act?.def.strikeMs ?? 70) * 1.6));
+    // later / stronger weapons keep a longer arc of trail (presentation strength from the drawing)
+    const sk = 1 + 0.22 * Math.min(1.6, this.skin?.strength ?? 0);
+    const span = spinning ? 0.45 / SPIN_RATE * 1000 : Math.max(60, Math.min(150, (act?.def.strikeMs ?? 70) * 1.6)) * sk;
+    G?.begin();
     const baseYaw = this.yawB;
     for (let j = 0; j < N; j++) {
       const back = (j / (N - 1)) * span;
@@ -1456,9 +1484,13 @@ export class PlayerArt implements PlayerView {
       const d = this.wTip.d;
       const fa = a * clamp((d + 3) / 6), ba = a * clamp((3 - d) / 6);
       this.ribbonF.push(this.wBase.x, this.wBase.y, this.wTip.x, this.wTip.y, fa);
+      if (G) {
+        const ex = this.wTip.x - this.wBase.x, ey = this.wTip.y - this.wBase.y;
+        G.push(this.wBase.x + ex * 0.3, this.wBase.y + ey * 0.3, this.wTip.x + ex * 0.32, this.wTip.y + ey * 0.32, a * 0.5 * Math.min(1, this.skin!.strength));
+      }
       this.ribbonB.push(this.wBase.x, this.wBase.y, this.wTip.x, this.wTip.y, ba);
     }
-    this.ribbonF.end(); this.ribbonB.end();
+    this.ribbonF.end(); this.ribbonB.end(); G?.end();
     // restore the current solve (sampling overwrote it)
     this.solveArms(P, yawB);
     // whirlwind blur disc + ring at blade height
@@ -1497,7 +1529,17 @@ export class PlayerArt implements PlayerView {
     const m = this.muzzle!;
     const rel = act && (act.def.pose === 'shoot' || act.def.pose === 'volley' || act.def.pose === 'lob' || act.def.pose === 'skyShot' || act.def.pose === 'flick') ? P.glowTip : 0;
     m.visible = rel > 0.05;
-    if (m.visible) { m.position.set(tx, ty); m.alpha = clamp(rel); m.scale.set(0.25 + 0.5 * (1 - clamp(rel))); m.rotation = t * 4; m.tint = act!.def.pose === 'flick' ? col : 0xfff4d0; }
+    if (m.visible) {
+      const sk = this.skin && this.skin.strength > 0 ? 1 + 0.35 * Math.min(1.6, this.skin.strength) : 1;
+      m.position.set(tx, ty); m.alpha = clamp(rel); m.scale.set((0.25 + 0.5 * (1 - clamp(rel))) * sk); m.rotation = t * 4;
+      m.tint = this.skin && this.skin.light ? this.skin.core : act!.def.pose === 'flick' ? col : 0xfff4d0;
+    }
+    // the weapon's strike flash at the moment a melee swing lands (presentation only; weaponImpact.ts)
+    if (act && c && this.skin && this.impacts && !act.struck && c.t >= act.def.strikeMs && STRIKE_POSES.has(act.def.pose)) {
+      act.struck = true;
+      if (this.gearQ !== 'off' && !this.flashing) this.impacts.burst(this.wTip.x, this.wTip.y, this.wDir.x, this.wDir.y, this.skin, this.gearQ === 'full' && (this.gear?.rich ?? true));
+    }
+    this.impacts?.update(adt);
     // aura (roar / level up)
     const au = this.aura!;
     au.alpha = clamp(P.aura) * 0.75;

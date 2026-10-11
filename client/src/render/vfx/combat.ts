@@ -83,6 +83,9 @@ export class Combat {
       const z = b.h * rand(0.38, 0.62);
       const jx = rand(-0.35, 0.35) * Math.max(10, b.r);
       this.sparks(b.x + jx, b.y + 2, z, ev.el, crit, mine || taken ? 1 : 0.6);
+      // the attacker's weapon flashes on the hit in its own light (gear V2 pass 2.1; presentation only)
+      const sk = taken ? null : V.skinOf(ev.s);
+      if (sk) V.sys.flash(b.x + jx, b.y + 2, z, (12 + 8 * Math.min(1.6, sk.strength)) * (mine ? 1 : 0.6), sk.light, 0.08, crit ? 0.7 : 0.45);
     }
     if (mine) V.sound(crit ? 'crit' : 'hit', b.x, b.y, crit ? 1 : 0.8);
     if (now > this.sweepAt) {

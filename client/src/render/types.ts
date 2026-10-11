@@ -36,6 +36,8 @@ export interface EntityView {
   /** Play a death animation styled by element index (ELEMENT_INDEX), then call done(). */
   die(element: number, done: () => void): void;
   destroy(): void;
+  /** Heroes: the equipped weapon's attack presentation (render/art/weaponSkin.ts), read by the VFX layer. */
+  weaponSkin?(): import('./art/weaponSkin').WeaponSkin | null;
 }
 
 export interface PlayerView extends EntityView {

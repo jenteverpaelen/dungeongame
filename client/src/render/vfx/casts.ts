@@ -44,7 +44,7 @@ export class Casts {
     switch (ev.sk) {
       case 'cleave': {
         const wide = hasFlag('cleave', ev.r, 'wideArc');
-        this.aoe.cleave(x, y, ev.rad ?? (wide ? 150 : 120), a, el, wide);
+        this.aoe.cleave(x, y, ev.rad ?? (wide ? 150 : 120), a, el, wide, V.skinOf(ev.s));
         V.mark('cleave', x, y);
         break;
       }
