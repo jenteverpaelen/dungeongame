@@ -103,6 +103,23 @@ override. The expensive parts are therefore power *behaviour* (server) and skill
 3. **Ranger and Mage** to the same level; shared legendaries and new bases/affixes; unlock cadence spread to L50.
 4. **M2** content waves, supports, balance pass with the leveling bot (`BALANCE.md` method).
 
+## 3.6 Owner direction and decisions (2026-10-11, after the content bible v1)
+
+Owner: "i also dont want us to already premake the sets and builds, when people join and start playing i want them to
+figure out whats best and then make builds on websites etc like all mmo games have now, but we just need to give them
+the ability to do that"; the remaining calls were delegated to the lead ("whatever u feel like that is best, with the
+research behind it").
+
+* **Principle:** the game ships building blocks and theorycrafting tools, never prescribed builds. Bible archetypes are
+  internal test fixtures; nothing shipped says "this is the X build". Most new powers key off skill **tags** or
+  mechanics (PoE-style) rather than one named skill; named-skill signatures stay a minority chase layer.
+* **Parity v2** guards diversity: a search picks the best kit per main skill from the item pool and checks how many main
+  skills per class land within 1.25× of the best, plus a dominance flag when one set or item is in every top kit.
+* **Build tools** (spec in `docs/rework/depth/BUILD-TOOLS.md`, bible v2): exact tooltips, damage breakdown, training
+  dummy, respec/loadouts, build codes, opt-in public build API and static data export for fan sites (GDPR: opt-in).
+* **Lead decisions:** (a) specialization points from a separate pool (Last Epoch model); (b) no Primal "chase"
+  multiplier (parity model; D3 history); (c) Ninefold Gale / Lantern Garden / Frost Nova changes approved.
+
 ## 4. Risks and open decisions
 
 * Every new skill needs server behaviour, client VFX, an icon, text, a rune set and tests; quality drifts if rushed (the

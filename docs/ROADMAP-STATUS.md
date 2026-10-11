@@ -85,4 +85,8 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 - Trading between players: yes or no
 - How long levelling to 70 should take for a normal player
 - What comes after build depth: endgame first, or a playtest with friends first
-- Build depth: skill-tree points separate from skill-tier points (proposed) or shared; whether Primal sets may be a stronger "chase" tier (the model says it breaks set-vs-legendary balance); OK to change the Ninefold Gale, Lantern Garden and Frost Nova sets as the design proposes
+
+**Decided 2026-10-11 (you left it to me):** no ready-made builds; players get building blocks and tools to work out and
+share builds themselves (exact tooltips, damage breakdown, training dummy, build codes, opt-in public build data for fan
+sites). Skill-tree points are a separate pool; Primal sets get no extra multiplier; the Ninefold Gale, Lantern Garden and
+Frost Nova changes go ahead.
