@@ -62,9 +62,9 @@ export function skillPct(p: Player, rt: SkillRuntime): number {
   return (rt.mods.dmg ?? 0) + (p.ctx.d.skillDmg[rt.def.id] ?? 0);
 }
 
-/** Resource cost after skill mods and resource cost reduction. */
+/** Resource cost after skill mods, resource cost reduction and buff cost factors (Kilnheart). */
 export function skillCost(p: Player, rt: SkillRuntime): number {
-  const c = rt.def.cost * Math.max(0, 1 + (rt.mods.cost ?? 0) / 100) * (1 - p.ctx.d.rcr / 100);
+  const c = rt.def.cost * Math.max(0, 1 + (rt.mods.cost ?? 0) / 100) * (1 - p.ctx.d.rcr / 100) * (p.live?.cost ?? 1);
   return Math.max(0, c);
 }
 

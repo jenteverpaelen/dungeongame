@@ -14,9 +14,12 @@ import { moveSummon, spawnSummon } from '../summons';
 import type { ChannelState, Mob, Player, SkillRuntime, Strike, Summon } from '../types';
 import { DEG, emitCast, face, strikeOf, type DeathHook, type SkillBehaviour, type SummonBehaviour } from './common';
 import {
-  chExtra, inOwnStandard, nearestMob, noteSpend, rageActive, reduceCooldowns, refundCooldownLater, refundDuringCast,
-  startRageLoop, warriorDeathHook, wHit, wPull, wPush, wStun, wstate, type ChannelExtra,
+  chExtra, deepEarth, hearthIas, hearthPrimary, inOwnStandard, nearestMob, noteSpend, rageActive, reduceCooldowns, refundCooldownLater,
+  refundDuringCast, startRageLoop, syncWarhorn, warriorDeathHook, wHit, wPull, wPush, wStun, wstate, type ChannelExtra,
 } from './warriorKit';
+import { placeGround } from '../groundFx';
+import { resolveStatus } from '../powerRuntime';
+import { applyStatus } from '../status';
 
 // ─────────────────────────── Primary helpers (shared with Tolling Blow) ───────────────────────────
 
@@ -62,8 +65,13 @@ function cleaveSwing(inst: Instance, p: Player, rt: SkillRuntime, ang: number, o
     if (bleed && !r.killed && !m.dead) addOwnedDot(p, m, makeDot(inst, p, { ...st, coef: 0.4, primary: false }, 'bleed', 2000, 500));
     hit++;
   }
-  if (hit && o.gen !== false) gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + (hit >= 3 ? modVar(rt.mods, 'crowdFury') : 0) + drillFury(inst, p));
+  const tx0 = p.x + Math.cos(ang) * radius * 0.6, ty0 = p.y + Math.sin(ang) * radius * 0.6;
+  const hearth = hit && o.momentum !== false ? hearthPrimary(inst, p, rt, tx0, ty0) : 0; // real swings only
+  if (hit && o.gen !== false) gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + (hit >= 3 ? modVar(rt.mods, 'crowdFury') : 0) + drillFury(inst, p) + hearth);
   if (hit) thresher(inst, p, rt, hit);
+  // Braced Swing: damage reduction per enemy hit for 2 s (at most 12 %).
+  const brace = modVar(rt.mods, 'bracedSwing');
+  if (brace > 0 && hit) addBuff(p, { id: 'braced_swing', ms: 2000, dr: Math.min(12, (getBuff(p, 'braced_swing')?.dr ?? 0) + hit * brace) });
   if (o.momentum !== false && rt.flags.has('momentum')) {
     const b = getBuff(p, 'momentum');
     addBuff(p, { id: 'momentum', ms: 3000, ias: 3, st: Math.min(5, (b?.st ?? 0) + 1) });
@@ -287,13 +295,16 @@ function groundStomp(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const stunMs = skillDurationMs(rt);
   let hits = 0, elites = 0;
   const hit = new Set<Mob>();
+  const concussion = modVar(rt.mods, 'concussion'); // Concussion: stunned enemies are weakened until 4 s after the stun
+  const weaken = concussion > 0 ? resolveStatus({ kind: 'weaken', pct: concussion, ms: stunMs + 4000 }, p.ctx.powers.index) : null;
   for (const m of inst.queryMobs(p.x, p.y, radius)) {
     if (m.dead) continue;
-    wStun(inst, p, m, stunMs, rt); // stun first so Ringing Stomp / Anvil vulnerability applies to the stomp itself
+    if (wStun(inst, p, m, stunMs, rt) && weaken) applyStatus(inst, p, m, weaken, p.x, p.y, 'ground_stomp'); // stun first so Ringing Stomp / Anvil vulnerability applies to the stomp itself
     wHit(inst, p, m, st, rt);
     hits++; hit.add(m);
     if (isEliteTier(m.tier)) elites++;
   }
+  deepEarth(inst, p, rt, p.x, p.y, radius);
   gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + elites * modVar(rt.mods, 'eliteFury')); // Fury Spring
   if (hits >= 5) refundCooldownLater(inst, p, 'ground_stomp', modVar(rt.mods, 'stompRefund') * 1000); // Sure Footing
   const echo = modVar(rt.mods, 'echoDelay'); // Echo Stomp
@@ -369,6 +380,18 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   ws.slamStacks = inst.t - ws.slamT <= 2000 ? Math.min(3, ws.slamStacks + 1) : 0;
   ws.slamT = inst.t;
   refundDuringCast(p, (targets.length >= 4 ? modVar(rt.mods, 'slamRefund') : 0) + ws.slamStacks * modVar(rt.mods, 'slamChain'), cost);
+  // Open Crack: each fissure leaves a crack; an enemy entering takes 40 % of the slam once (ground 'quake_crack').
+  const crack = modVar(rt.mods, 'crack');
+  if (crack > 0) {
+    const slam = expectedDamage(inst, p, st);
+    for (const a of fissures) {
+      const g = placeGround(inst, p, 'quake_crack', ox, oy, a);
+      if (!g?.fx) continue;
+      g.endT = inst.t + crack * 1000;
+      g.fx.bx = ox + Math.cos(a) * len; g.fx.by = oy + Math.sin(a) * len;
+      if (g.fx.unit > 0) g.fx.scale = 0.4 * slam / g.fx.unit;
+    }
+  }
   noteSpend(inst, p, cost);
   emitCast(inst, p, rt, ox + Math.cos(ang) * len, oy + Math.sin(ang) * len, len);
   for (const a of fissures) {
@@ -378,7 +401,9 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
 }
 
 function battleRage(inst: Instance, p: Player, rt: SkillRuntime): boolean {
-  addBuff(p, { id: 'battle_rage', ms: skillDurationMs(rt), ...skillBuffBonuses('battle_rage', rt.flags) });
+  const bonus = skillBuffBonuses('battle_rage', rt.flags);
+  addBuff(p, { id: 'battle_rage', ms: skillDurationMs(rt), ...bonus, ...(hearthIas(rt) ? { ias: hearthIas(rt) } : {}) });
+  syncWarhorn(p);
   const cost = skillCost(p, rt);
   refundDuringCast(p, modVar(rt.mods, 'castFury'), cost); // Red Tide
   startRageLoop(inst, p, rt);

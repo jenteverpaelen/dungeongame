@@ -220,7 +220,7 @@ export function removeBuff(p: Player, id: string) {
 export function refreshLive(p: Player) {
   const l = p.live;
   l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
-  let dr = 1, cci = false;
+  let dr = 1, cci = false, cost = 1;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
@@ -229,8 +229,9 @@ export function refreshLive(p: Player) {
     if (b.sdmg) l.dmg += b.sdmg * (b.st ?? 1);
     if (b.dr) dr *= 1 - Math.min(100, b.dr) / 100;
     if (b.cci) cci = true;
+    if (b.cost) cost *= Math.max(0, 1 + b.cost / 100);
   }
-  l.dr = dr; l.cci = cci;
+  l.dr = dr; l.cci = cci; l.cost = cost;
 }
 
 /** Advance buff timers; returns true if any expired. */

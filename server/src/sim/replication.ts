@@ -7,6 +7,7 @@ import {
   playerLook, type BuffView, type EntDesc, type GameEvent, type MeState, type Snapshot,
 } from '../shared';
 import { summonCount } from './brain';
+import { channelMoveFactor } from './powerActions';
 import type { Instance } from './instance';
 import type { Loot, Mob, Player, PortalEnt, Summon } from './types';
 
@@ -172,7 +173,9 @@ function meState(inst: Instance, p: Player): MeState {
     buffs.push(v);
   }
   const s = p.save;
+  const mvf = p.channel ? channelMoveFactor(p, p.channel.skill) : 1;
   return {
+    ...(mvf !== 1 ? { mvf } : {}),
     x: p.mv.x, y: p.mv.y, dashMs: p.mv.dashMs, dashCd: p.mv.dashCdMs,
     hp: Math.max(0, Math.round(p.hp)), mhp: Math.round(p.mhp), res: Math.floor(p.res), mres: Math.round(p.mres),
     cds, ch, buffs, xp: s.xp, lv: s.level, pxp: s.paragon.xp, pl: s.paragon.level, gold: s.gold,

@@ -7,7 +7,10 @@
 import { WARRIOR_FX, modVar } from '../../shared';
 import { anyEnemyWithin, bestConeAngle, bestPoint, pickTarget } from '../brain';
 import { expectedDamage, gainResource, healPlayer, hurtMob, isEliteTier, makeDot } from '../damage';
-import { addBuff, addOwnedDot, elIdx, shotBlockedAt } from '../effects';
+import { addBuff, addOwnedDot, elIdx, getBuff, shotBlockedAt } from '../effects';
+import { placeGround } from '../groundFx';
+import { resolveStatus } from '../powerRuntime';
+import { applyStatus } from '../status';
 import { addGround, newGround } from '../grounds';
 import type { Instance } from '../instance';
 import { spawnProj } from '../projectiles';
@@ -16,7 +19,8 @@ import type { ChannelState, Mob, Player, SkillRuntime, Strike } from '../types';
 import { DEG, emitCast, face, strikeOf, type SkillBehaviour } from './common';
 import { channelCommon, drillFury, drumbeat, thresher } from './warrior';
 import {
-  addCarriedDot, chExtra, mstate, nearestMob, noteSpend, reduceCooldowns, shareDot, wHit, wPull, wPush, wStun, wstate, type Standard,
+  addCarriedDot, chExtra, deepEarth, hearthIas, hearthPrimary, mstate, nearestMob, noteSpend, reduceCooldowns, shareDot, syncWarhorn, wHit, wPull,
+  wPush, wStun, wstate, type Standard,
 } from './warriorKit';
 
 const TAU = Math.PI * 2;
@@ -43,7 +47,7 @@ function tollingBlow(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
     }
     if (behind) { wHit(inst, p, behind, st, rt); hits++; }
   }
-  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + drillFury(inst, p));
+  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + drillFury(inst, p) + hearthPrimary(inst, p, rt, tgt.x, tgt.y));
   thresher(inst, p, rt, hits);
   emitCast(inst, p, rt, tgt.x, tgt.y, 40);
   inst.emit({ e: 'aoe', v: 'tollblow', x: Math.round(tgt.x), y: Math.round(tgt.y), r: 40, d: 260, el: elIdx(st.el), s: p.id, a: +ang.toFixed(3) }, tgt.x, tgt.y, p.id);
@@ -75,7 +79,14 @@ function toll(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number,
     if (ignite) addOwnedDot(p, m, makeDot(inst, p, { ...st, coef: 1.5, primary: false }, 'burn', 3000, 500)); // Furnace Clapper
   }
   inst.emit({ e: 'aoe', v: 'toll', x: Math.round(x), y: Math.round(y), r: Math.round(radius), d: 520, el: elIdx(st.el), s: p.id }, x, y, p.id);
+  if (stun) deepEarth(inst, p, rt, x, y, radius);
   if (!main) return;
+  // Watch Bell: 10 Fury and 4 % damage reduction for 3 s per toll (up to 3 stacks).
+  if (rt.flags.has('tollWatch')) {
+    gainResource(p, 10);
+    const n = Math.min(3, (getBuff(p, 'watch_bell')?.st ?? 0) + 1);
+    addBuff(p, { id: 'watch_bell', ms: 3000, dr: 4 * n, st: n });
+  }
   if (rt.flags.has('tollEcho')) inst.sched.schedule(inst.t + 500, () => { if (p.deadMs <= 0) toll(inst, p, rt, x, y, scale, false, false); });
   const twin = modVar(rt.mods, 'twinRing');
   if (twin > 0) toll(inst, p, rt, p.x, p.y, scale * twin / 100, false);
@@ -141,6 +152,7 @@ function launchHatchet(inst: Instance, p: Player, rt: SkillRuntime, ang: number,
   const keen = modVar(rt.mods, 'keenTeeth'), wake = modVar(rt.mods, 'wake'), splinters = modVar(rt.mods, 'splinters'), seek = modVar(rt.mods, 'seek');
   const kind = rt.flags.has('hatchetBurn') ? 'burn' as const : 'bleed' as const;
   const bleedOf = () => makeDot(inst, p, { ...st, coef: 2.4 * (1 + keen / 100) }, kind, skillDurationMs(rt), 500);
+  const rust = rt.flags.has('rustVuln') ? resolveStatus({ kind: 'vulnerable', pct: 10, ms: skillDurationMs(rt), tags: { anyOf: ['bleed'] } }, p.ctx.powers.index) : null;
   const passes = new Map<Mob, { last: number; n: number }>(); // per enemy: last pass that hit it, pass hits so far
   let x = p.x, y = p.y, leg = 0, pass = 0, legT = 0, grindT = 0, tx = p.x + ux * out, ty = p.y + uy * out;
   let seekTo: Mob | null = null, alive = 3000 + out / speed * 6000;
@@ -153,7 +165,10 @@ function launchHatchet(inst: Instance, p: Player, rt: SkillRuntime, ang: number,
     const r = wHit(inst, p, m, coefMul === 1 && mult === 1 ? st : { ...st, coef: st.coef * coefMul, mult: (st.mult ?? 1) * mult }, rt);
     passes.set(m, { last: pass, n: (seen?.n ?? 0) + (grind ? 0 : 1) });
     cast.hit.add(m);
-    if (!r.killed && !m.dead && !cast.bled.has(m)) { cast.bled.add(m); addOwnedDot(p, m, bleedOf()); }
+    if (!r.killed && !m.dead && !cast.bled.has(m)) {
+      cast.bled.add(m); addOwnedDot(p, m, bleedOf());
+      if (rust) applyStatus(inst, p, m, rust, p.x, p.y, 'sawtooth_hatchet'); // Rusted Edge: +10 % from your Bleed skills
+    }
     // Splinters: the first elite of a pass throws splinters that apply the bleed.
     if (splinters > 0 && !passElite && isEliteTier(m.tier)) {
       passElite = true;
@@ -251,11 +266,21 @@ function musterStandard(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   while (live.length >= max) {
     const old = live.shift()!;
     old.ended = true;
+    if (old.ground) old.ground.endT = 0;
     inst.emit({ e: 'aoe', v: 'standard_end', x: Math.round(old.x), y: Math.round(old.y), r: Math.round(old.r), d: 0, el: 0, s: p.id }, old.x, old.y, p.id);
   }
-  const r = skillRadius(rt), dur = skillDurationMs(rt), carry = rt.flags.has('standardCarry');
+  // Marching Orders carries it (radius −30 %); Hearthbanner 6 makes it follow you at full size.
+  const r = skillRadius(rt), dur = skillDurationMs(rt), carry = rt.flags.has('standardCarry') || rt.flags.has('hearthFollow');
   const s: Standard = { id: ++ws.standardSeq, x: p.x, y: p.y, r, endT: inst.t + dur, carry, inside: new Set(), ended: false };
   ws.standards = [...live, s];
+  // The standard is one of your Ground effects ("inside your Ground" conditions, Ground-tag items).
+  const g = placeGround(inst, p, carry ? 'muster_ground_carried' : 'muster_ground', s.x, s.y, 0);
+  if (g) { g.r = r; g.endT = s.endT; s.ground = g; }
+  // Taunting Colours: enemies within 300 units turn on the standard for 3 s.
+  if (rt.flags.has('standardTaunt')) {
+    const taunt = resolveStatus({ kind: 'taunt', ms: 3000 }, p.ctx.powers.index);
+    for (const m of inst.queryMobs(s.x, s.y, 300)) if (!m.dead) applyStatus(inst, p, m, taunt, s.x, s.y, 'muster_standard', { x: s.x, y: s.y, endT: s.endT });
+  }
   const pulse = rt.flags.has('standardPulse'), regen = rt.flags.has('standardRegen');
   const colour = modVar(rt.mods, 'colourGuard'), heal = modVar(rt.mods, 'plantHeal');
   const pulseSt: Strike = { ...strikeOf(p, rt, 0.6), noArea: true }; // Ember Pennant: 60 % weapon damage per second
@@ -276,7 +301,8 @@ function musterStandard(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     if (s.carry && p.deadMs <= 0) { s.x = p.x; s.y = p.y; }
     // You and allies inside: +15 % attack speed and 2 resource per second (each class's own resource).
     for (const q of inst.playersNear(s.x, s.y, s.r)) {
-      addBuff(q, { id: 'muster_standard', ms: 400, ias: 15 });
+      addBuff(q, { id: 'muster_standard', ms: 400, ias: 15 + (q === p ? hearthIas(rt) : 0) });
+      syncWarhorn(q);
       gainResource(q, 0.5);
       if (regen) healPlayer(inst, q, q.mhp * 0.0025, true); // Rallying Ground: 1 % per second
       s.inside.add(q);
@@ -409,6 +435,7 @@ function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
         if (stunned && rt.flags.has('cairnRefund') && refunded < 10) { refunded++; reduceCooldowns(inst, p, 1000, null, 'cairnfall'); }
       }
       if (hits && fury > 0) gainResource(p, fury); // Fury Cairn
+      deepEarth(inst, p, rt, pt.x, pt.y, radius);
       if (bounce > 0 && inst.rng.next() * 100 < bounce) { // Second Fall
         const t = nearestMob(inst, pt.x, pt.y, 150);
         if (t) {
@@ -441,6 +468,41 @@ function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   return true;
 }
 
+// ─────────────────────────── W12 Kilnheart (buff) ───────────────────────────
+
+function kilnheart(inst: Instance, p: Player, rt: SkillRuntime): boolean {
+  const dur = skillDurationMs(rt), ws = wstate(p);
+  // +20 % damage (generic bucket), +15 % attack speed (Banked Coals: none), Fury costs −50 %.
+  addBuff(p, { id: 'kilnheart', ms: dur, dmg: 20, cost: -50, ...(rt.flags.has('kilnNoIas') ? (hearthIas(rt) ? { ias: hearthIas(rt) } : {}) : { ias: 15 + hearthIas(rt) }) });
+  ws.kilnExtended = 0;
+  gainResource(p, modVar(rt.mods, 'kilnFill')); // Stoke the Fire
+  syncWarhorn(p);
+  const el = elIdx(skillElement(rt));
+  // Bellows Breath: a 90° cone of fire (250 units) for 600 % weapon damage on activation.
+  if (rt.flags.has('kilnBreath')) {
+    const a = bestConeAngle(inst, p.x, p.y, 250, 45 * DEG) ?? (p.faceLeft ? Math.PI : 0);
+    const st: Strike = { ...strikeOf(p, rt, 6.0), noArea: true };
+    for (const m of inst.queryMobs(p.x, p.y, 250)) if (!m.dead && inConeAt(m, p.x, p.y, a, 45 * DEG, 250)) wHit(inst, p, m, st, rt);
+    inst.emit({ e: 'aoe', v: 'kiln_breath', x: Math.round(p.x), y: Math.round(p.y), r: 250, d: 520, el, s: p.id, a: +a.toFixed(3) }, p.x, p.y, p.id);
+  }
+  // Cinder Prints (footprints) while it burns; Afterglow keeps part of the damage bonus for 8 s when it ends.
+  const prints = modVar(rt.mods, 'cinderPrints'), glow = modVar(rt.mods, 'afterglow');
+  let lastX = p.x, lastY = p.y;
+  const loop = () => {
+    if (inst.playerById(p.id) !== p) return;
+    const b = getBuff(p, 'kilnheart');
+    if (!b) { if (glow > 0 && p.deadMs <= 0) addBuff(p, { id: 'afterglow', ms: 8000, dmg: 20 * glow / 100 }); return; }
+    if (prints > 0 && (p.x - lastX) ** 2 + (p.y - lastY) ** 2 >= 36 * 36) {
+      lastX = p.x; lastY = p.y;
+      placeGround(inst, p, 'cinder_prints', p.x, p.y, 0, prints / 30); // 30 % per second at scale 1
+    }
+    inst.sched.schedule(inst.t + 250, loop);
+  };
+  if (prints > 0 || glow > 0) loop();
+  emitCast(inst, p, rt, p.x, p.y);
+  return true;
+}
+
 // ─────────────────────────── Registration ───────────────────────────
 
 export const WARRIOR_M1_BEHAVIOURS: Record<string, SkillBehaviour> = {
@@ -449,4 +511,5 @@ export const WARRIOR_M1_BEHAVIOURS: Record<string, SkillBehaviour> = {
   muster_standard: { cast: musterStandard },
   ironplough: { channelTick: ironploughTick },
   cairnfall: { cast: cairnfall },
+  kilnheart: { cast: kilnheart },
 };

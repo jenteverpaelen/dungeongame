@@ -103,6 +103,8 @@ export interface MeState {
   pl: number;
   gold: number;
   dead: number; // ms until respawn, 0 if alive
+  /** Movement factor while a channel slows you (Ironplough); absent = 1. Client prediction applies it (channelMsPct). */
+  mvf?: number;
 }
 
 export type GameEvent =

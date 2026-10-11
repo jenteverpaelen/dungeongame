@@ -109,6 +109,13 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
       check(Object.values(data.sets).some(set => set.classId === s.classId && set.bonuses.some(b => (b.effects ?? []).some(targets))), `${at}.parityReady`, 'only set-backed skills can be parity-ready');
     }
     validateNodes(s, at, check, number);
+    // Rune and node power templates: targets of the owner's class, legal buckets; a rune's desc names its numbers.
+    for (const [i, r] of s.runes.entries()) if (r.effects?.length) {
+      validateEffects(data, r.effects, `${at}.runes[${i}].effects`, [s.classId], check);
+      for (const issue of powerTextIssues(r.desc, r.effects, false)) check(false, `${at}.runes[${i}].desc`, issue);
+    }
+    for (const n of s.nodes ?? []) if (n.effects?.length) validateEffects(data, n.effects, `${at}.nodes.${n.id}.effects`, [s.classId], check);
+    for (const [k, v] of Object.entries(s.vars ?? {})) check(Number.isFinite(v), `${at}.vars.${k}`, 'expected finite value');
   }
   for (const base of Object.values(data.bases)) {
     const at = `bases.${base.id}`;
@@ -321,6 +328,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         if (e.status) { check(e.on === 'applyStatus' && e.status.length > 0, w, 'status filters need on: applyStatus and at least one kind'); e.status.forEach((k) => check(STATUS_KINDS.has(k), w, `unknown status ${k}`)); }
         if (e.minHitPct !== undefined) check(e.on === 'takeDamage' && e.minHitPct > 0 && e.minHitPct <= 100, w, 'minHitPct needs on: takeDamage and lies in (0, 100]');
         if (e.skills || e.tags) check(!['dash', 'takeDamage', 'applyStatus'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
+        if (e.when) validateCondition(e.when, ['dash', 'spend', 'cast'].includes(e.on) ? 'own' : 'hit', w, check);
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
         if (e.strike) {
           check(e.strike.id.length > 0 && !Object.hasOwn(data.skills, e.strike.id), w, 'proc strike needs an id of its own (not a skill id)');

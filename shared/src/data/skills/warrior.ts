@@ -43,6 +43,8 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'notched_edge', name: 'Notched Edge', text: 'A swing that hits 3 or more enemies generates {var:crowdFury} more Fury.', maxRank: 3, ranks: [{ vars: { crowdFury: 1 } }, { vars: { crowdFury: 1 } }, { vars: { crowdFury: 1 } }], pos: at(1, 0) },
       { id: 'reapers_rhythm', name: 'Reaper’s Rhythm', text: 'A Cleave kill starts a free swing at the nearest enemy (at most once every {var:reaperIcd} seconds).', maxRank: 3,
         ranks: [{ vars: { reaperIcd: 1.2 } }, { vars: { reaperIcd: -0.3 } }, { vars: { reaperIcd: -0.3 } }], pos: at(2, 0) },
+      { id: 'braced_swing', name: 'Braced Swing', text: 'Each enemy Cleave hits grants {var:bracedSwing}% damage reduction for 2 seconds (at most 12%).', maxRank: 3,
+        ranks: [{ vars: { bracedSwing: 1 } }, { vars: { bracedSwing: 1 } }, { vars: { bracedSwing: 1 } }], requires: needs('wide_stance'), pos: at(0, 1) },
       { id: 'opening_cut', name: 'Opening Cut', text: 'Cleave deals {var:openingCut}% more damage to enemies above 90% Life.', maxRank: 3,
         ranks: [{ vars: { openingCut: 40 } }, { vars: { openingCut: 40 } }, { vars: { openingCut: 40 } }], requires: needs('notched_edge'), pos: at(1, 1),
         effects: [more('cleave', 40, { targetLifeAbovePct: 90 })] },
@@ -123,6 +125,8 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'jarring_slam', name: 'Ringing Stomp', unlock: 11, desc: 'Stunned enemies take 30% more damage from all sources.', mods: { flags: ['vulnerable'] } },
       { id: 'foot_of_the_mountain', name: 'Kiln Heel', unlock: 15, desc: 'Deals 200% more damage as Fire and generates 10 more Fury.', mods: { dmg: 200, element: 'fire', gen: 10 } },
       { id: 'outward_tremor', name: 'Outward Tremor', unlock: 20, desc: 'After the stomp, a ring wave rolls out to 320 units, dealing 100% weapon damage and stunning enemies for 0.5 seconds.', mods: { flags: ['stompWave'] } },
+      { id: 'iron_root', name: 'Iron Root', unlock: 26, desc: 'For 3 seconds after stomping you cannot be stunned, frozen or pulled, and you take 20% less damage.', mods: {},
+        effects: [{ kind: 'proc', on: 'cast', skills: ['ground_stomp'], buff: { id: 'iron_root', ms: 3000, dr: 20, ccImmune: true } }] },
     ],
     tiers: [
       { name: 'Aftershock', desc: '+30% Ground Stomp damage.', mods: { dmg: 30 } },
@@ -137,6 +141,8 @@ export const WARRIOR_SKILLS: SkillDef[] = [
         ranks: [{ vars: { eliteFury: 5 } }, { vars: { eliteFury: 5 } }, { vars: { eliteFury: 5 } }], pos: at(1, 0) },
       { id: 'echo_stomp', name: 'Echo Stomp', text: '{var:echoDelay} seconds after the stomp, a second stomp with half the radius strikes for 50% damage without stunning.', maxRank: 3,
         ranks: [{ vars: { echoDelay: 1 } }, { vars: { echoDelay: -0.2 } }, { vars: { echoDelay: -0.2 } }], pos: at(2, 0) },
+      { id: 'concussion', name: 'Concussion', text: 'Enemies the stomp stuns deal {var:concussion}% less damage until 4 seconds after the stun ends.', maxRank: 3,
+        ranks: [{ vars: { concussion: 10 } }, { vars: { concussion: 10 } }, { vars: { concussion: 10 } }], requires: needs('heavy_heel'), pos: at(0, 1) },
       { id: 'sure_footing', name: 'Sure Footing', text: 'A stomp that hits 5 or more enemies reduces Ground Stomp’s cooldown by {var:stompRefund} seconds.', maxRank: 3,
         ranks: [{ vars: { stompRefund: 1 } }, { vars: { stompRefund: 1 } }, { vars: { stompRefund: 1 } }], requires: needs('fury_spring'), pos: at(1, 1) },
       { id: 'gather', name: 'Gather', text: 'Enemies at the edge of the stomp are dragged {var:gather} units inward before the stun.', maxRank: 3,
@@ -171,6 +177,8 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'splayed_fault', name: 'Splayed Fault', text: 'The fissure is {var:splay}° wider but 10% shorter.', maxRank: 3,
         ranks: [{ vars: { splay: 10, fissureLen: -10 } }, { vars: { splay: 10 } }, { vars: { splay: 10 } }], requires: needs('long_fissure'), pos: at(0, 1) },
       // Bible: "costs 3/6/9 less". Cost is read before the cast, so the discount is paid back as the cast resolves.
+      { id: 'open_crack', name: 'Open Crack', text: 'The fissure leaves a crack for {var:crack} seconds; an enemy entering it takes 40% of the slam once.', maxRank: 3,
+        ranks: [{ vars: { crack: 1 } }, { vars: { crack: 0.5 } }, { vars: { crack: 0.5 } }], requires: needs('heave'), pos: at(2, 1) },
       { id: 'bedrock_pace', name: 'Bedrock Pace', text: 'A Quakeline within 2 seconds of the last refunds {var:slamChain} Fury per chained cast (up to 3).', maxRank: 3,
         ranks: [{ vars: { slamChain: 3 } }, { vars: { slamChain: 3 } }, { vars: { slamChain: 3 } }], requires: needs('tremor_feed'), pos: at(1, 1) },
     ],
@@ -209,7 +217,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
         ranks: [{ vars: { longRinging: 10 } }, { vars: { longRinging: 10 } }, { vars: { longRinging: 10 } }], requires: needs('red_tide'), pos: at(2, 1) },
     ],
   },
-  // ─────────────────────────── M1 skills (bible W7–W11; Kilnheart W12 waits for engine wave 2) ───────────────────────────
+  // ─────────────────────────── M1 skills (bible W7–W12) ───────────────────────────
   {
     id: 'tolling_blow', classId: 'warrior', name: 'Tolling Blow', kind: 'primary', unlock: 16, element: 'physical', tags: ['strike', 'stun'], category: 'Strikes',
     coef: 2.0, cost: 0, gen: 6, cooldown: 0, range: 86, radius: 70, duration: 0.75, maxSummons: 0,
@@ -220,6 +228,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'double_peal', name: 'Double Peal', unlock: 18, desc: 'Tolls every second blow, but the toll stuns for one third less time.', mods: { duration: -33, flags: ['tollEvery2'] } },
       { id: 'bronze_echo', name: 'Bronze Echo', unlock: 21, desc: 'The toll repeats 0.5 seconds later at the same spot for 100% weapon damage, without the stun.', mods: { flags: ['tollEcho'] } },
       { id: 'furnace_clapper', name: 'Furnace Clapper', unlock: 25, tags: ['burn'], desc: 'Tolling Blow deals Fire damage, and tolls ignite enemies for 150% weapon damage over 3 seconds.', mods: { element: 'fire', flags: ['tollIgnite'] } },
+      { id: 'watch_bell', name: 'Watch Bell', unlock: 30, desc: 'Tolls generate 10 Fury and grant 4% damage reduction for 3 seconds (up to 3 stacks).', mods: { flags: ['tollWatch'] } },
       { id: 'iron_tongue', name: 'Iron Tongue', unlock: 36, desc: 'No tolls; every blow deals 50% more damage and passes through to the enemy behind the target.', mods: { dmg: 50, flags: ['noToll', 'tollPierce'] } },
     ],
     tiers: [
@@ -253,6 +262,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'lodged_teeth', name: 'Lodged Teeth', unlock: 25, desc: 'The hatchet stops at the first elite or boss in its path and grinds it for 1.5 seconds (4 hits at 60% damage) before returning.', mods: { flags: ['hatchetLodge'] } },
       { id: 'kiln_heated', name: 'Kiln-Heated', unlock: 29, tags: ['burn'], desc: 'Fire damage; the bleed becomes a burn that lasts 50% longer.', mods: { element: 'fire', duration: 50, flags: ['hatchetBurn'] } },
       { id: 'bloodtrail', name: 'Bloodtrail', unlock: 34, desc: 'When the hatchet returns, heal 1% of your maximum Life for each enemy bleeding from it (at most 10%).', mods: { flags: ['hatchetHeal'] } },
+      { id: 'rusted_edge', name: 'Rusted Edge', unlock: 40, desc: 'Enemies bleeding from the hatchet take 10% more damage from your Bleed skills.', mods: { flags: ['rustVuln'] } },
     ],
     tiers: [
       { name: 'Filed Teeth', desc: '+25% Sawtooth Hatchet damage.', mods: { dmg: 25 } },
@@ -283,7 +293,11 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     runes: [
       { id: 'ember_pennant', name: 'Ember Pennant', unlock: 28, tags: ['area'], desc: 'The standard pulses every second for 60% weapon damage as Fire to enemies within its radius.', mods: { element: 'fire', flags: ['standardPulse'] } },
       { id: 'rallying_ground', name: 'Rallying Ground', unlock: 31, desc: 'Everyone inside also regenerates 1% of maximum Life per second.', mods: { flags: ['standardRegen'] } },
+      { id: 'taunting_colours', name: 'Taunting Colours', unlock: 35, desc: 'On planting, enemies within 300 units turn on the standard for 3 seconds.', mods: { flags: ['standardTaunt'] } },
       { id: 'marching_orders', name: 'Marching Orders', unlock: 40, desc: 'The standard is carried: it follows you, but its radius is 30% smaller.', mods: { radius: -30, flags: ['standardCarry'] } },
+      // "Once per standard" = once per cooldown of the standard (20 s); the engine's cheat death has a time cooldown only.
+      { id: 'last_rampart', name: 'Last Rampart', unlock: 46, desc: 'Once every 20 seconds, fatal damage taken while you stand in a Muster Standard leaves you at 1% Life and invulnerable for 2 seconds.', mods: {},
+        effects: [{ kind: 'cheatDeath', lifePct: 1, invulnMs: 2000, cooldownMs: 20000, when: { buff: 'muster_standard' } }] },
     ],
     tiers: [
       { name: 'Taller Pole', desc: 'Radius increased by 20%.', mods: { radius: 20 } },
@@ -306,12 +320,17 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     id: 'ironplough', classId: 'warrior', name: 'Ironplough', kind: 'channel', unlock: 32, element: 'physical', tags: ['spender', 'strike', 'area', 'displace'], category: 'Steel Storm',
     coef: 2.6, cost: 12, gen: 0, cooldown: 0, range: 200, radius: 150, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 30, within: 200 },
-    desc: 'Drive forward behind your weapon, dealing {coef} weapon damage per second to enemies in front of you and pushing them back. Damage rises the longer you push, up to double. Costs {cost} Fury per second.',
+    desc: 'Drive forward behind your weapon, dealing {coef} weapon damage per second to enemies in front of you and pushing them back. Damage rises the longer you push, up to double. You move at 60% speed while pushing. Costs {cost} Fury per second.',
     icon: { glyph: 'plough', color: 0x8a6f4d },
+    // Bible W10: 60 % movement speed while channelling (powerActions.channelMoveFactor reads vars.channelMovePct).
+    vars: { channelMovePct: -40 },
     runes: [
       { id: 'deep_furrow', name: 'Deep Furrow', unlock: 34, desc: 'No pushback: enemies at the tip are held and dragged along with you, and Ironplough deals 25% more damage.', mods: { dmg: 25, flags: ['ploughHold'] } },
       { id: 'stone_spray', name: 'Stone Spray', unlock: 37, tags: ['projectile'], desc: 'Every 0.5 seconds the plough flings 3 stones forward for 60% weapon damage each.', mods: { flags: ['ploughStones'] } },
       { id: 'smouldering_share', name: 'Smouldering Share', unlock: 41, tags: ['burn'], desc: 'Fire damage; enemies hit burn for 50% of the damage over 2 seconds.', mods: { element: 'fire', flags: ['ploughBurn'] } },
+      { id: 'steady_oxen', name: 'Steady Oxen', unlock: 46, desc: 'The ramp builds twice as fast, but you move at 30% speed while channelling (instead of 60%).', mods: { flags: ['ploughFastRamp'], vars: { channelMovePct: -30 } } },
+      { id: 'breakwater', name: 'Breakwater', unlock: 52, desc: 'While you channel Ironplough, enemy projectiles entering the 90° cone in front of you (150 units) are destroyed.', mods: {},
+        effects: [{ kind: 'deflect', range: 150, halfAngleDeg: 45, when: { channeling: 'ironplough' } }] },
     ],
     tiers: [
       { name: 'Sharpened Share', desc: '+25% Ironplough damage.', mods: { dmg: 25 } },
@@ -357,6 +376,43 @@ export const WARRIOR_SKILLS: SkillDef[] = [
         ranks: [{ vars: { bounce: 30 } }, { vars: { bounce: 30 } }, { vars: { bounce: 30 } }], requires: needs('heavier_stones'), pos: at(0, 1) },
       { id: 'fury_cairn', name: 'Fury Cairn', text: 'Each cairn that hits generates {var:cairnFury} Fury.', maxRank: 3,
         ranks: [{ vars: { cairnFury: 2 } }, { vars: { cairnFury: 2 } }, { vars: { cairnFury: 2 } }], requires: needs('tight_ring'), pos: at(1, 1) },
+    ],
+  },
+  {
+    // Bible W12. A burst window: +20 % damage (generic bucket), +15 % attack speed, Fury costs −50 % (Buff.cost) and an
+    // ignite on every warrior hit (warriorKit.wHit) for 20 of 90 s.
+    id: 'kilnheart', classId: 'warrior', name: 'Kilnheart', kind: 'buff', unlock: 50, element: 'fire', tags: ['cooldown', 'burn'], category: 'Warcries',
+    coef: 0.6, cost: 0, gen: 0, cooldown: 90, range: 0, radius: 0, duration: 20, maxSummons: 0,
+    auto: { when: 'enemiesNear', count: 8, within: 300 },
+    desc: 'Stoke your heart like a kiln for {duration} seconds: deal 20% more damage, attack 15% faster, spend half as much Fury, and your hits ignite enemies for {coef} weapon damage over 2 seconds.',
+    icon: { glyph: 'furnace', color: 0xff6a1a },
+    runes: [
+      { id: 'banked_coals', name: 'Banked Coals', unlock: 52, desc: 'Kilnheart lasts 50% longer but grants no attack speed.', mods: { duration: 50, flags: ['kilnNoIas'] } },
+      { id: 'bellows_breath', name: 'Bellows Breath', unlock: 55, desc: 'On activation, exhale a 90° cone of fire (250 units) for 600% weapon damage.', mods: { flags: ['kilnBreath'] } },
+      // Bible: "melee attackers burn"; the takeDamage trigger does not know melee from ranged, so every attacker burns.
+      { id: 'slag_skin', name: 'Slag Skin', unlock: 59, desc: 'While Kilnheart is active, you take 30% less damage, and enemies that damage you burn for 100% weapon damage over 2 seconds.', mods: {},
+        effects: [{ kind: 'damageTaken', pct: -30, when: { buff: 'kilnheart' } }, { kind: 'proc', on: 'takeDamage', when: { buff: 'kilnheart' }, applyStatus: { kind: 'burn', coef: 1, ms: 2000 } }] },
+      { id: 'stoked', name: 'Stoked', unlock: 64, desc: 'Each kill while Kilnheart is active extends it by 0.5 seconds (up to 10 seconds in total).', mods: { flags: ['kilnExtend'] } },
+      { id: 'cold_forge', name: 'Cold Forge', unlock: 70, addTags: ['chill'], removeTags: ['burn'], desc: 'Cold instead of Fire: your hits chill instead of igniting, and chilled enemies take 10% more damage from you while Kilnheart is active.', mods: { element: 'cold', flags: ['kilnChill'] } },
+    ],
+    tiers: [
+      { name: 'Long Burn', desc: 'Lasts 30% longer.', mods: { duration: 30 } },
+      { name: 'Quick Kindling', desc: 'Cooldown reduced by 20%.', mods: { cooldown: -20 } },
+      { name: 'Fierce Draft', desc: '+25% ignite damage.', mods: { dmg: 25 } },
+    ],
+    nodes: [
+      { id: 'hotter_coals', name: 'Hotter Coals', text: 'The ignite deals {var:kilnIgnite}% more damage.', maxRank: 3,
+        ranks: [{ vars: { kilnIgnite: 20 } }, { vars: { kilnIgnite: 20 } }, { vars: { kilnIgnite: 20 } }], pos: at(0, 0) },
+      { id: 'draft_door', name: 'Draft Door', text: 'Every 50 Fury you spend reduces Kilnheart’s cooldown by {var:draftDoor} seconds.', maxRank: 3,
+        ranks: [{ vars: { draftDoor: 1 } }, { vars: { draftDoor: 1 } }, { vars: { draftDoor: 1 } }], pos: at(1, 0) },
+      { id: 'cinder_prints', name: 'Cinder Prints', text: 'While Kilnheart is active you leave burning footprints for 2 seconds that deal {var:cinderPrints}% weapon damage per second.', maxRank: 3,
+        ranks: [{ vars: { cinderPrints: 30 } }, { vars: { cinderPrints: 20 } }, { vars: { cinderPrints: 20 } }], pos: at(2, 0) },
+      { id: 'afterglow', name: 'Afterglow', text: 'When Kilnheart ends, you keep {var:afterglow}% of its damage bonus for 8 seconds.', maxRank: 3,
+        ranks: [{ vars: { afterglow: 30 } }, { vars: { afterglow: 20 } }, { vars: { afterglow: 20 } }], requires: needs('hotter_coals'), pos: at(0, 1) },
+      { id: 'stoke_the_fire', name: 'Stoke the Fire', text: 'Activating Kilnheart restores {var:kilnFill} Fury.', maxRank: 3,
+        ranks: [{ vars: { kilnFill: 25 } }, { vars: { kilnFill: 25 } }, { vars: { kilnFill: 25 } }], requires: needs('draft_door'), pos: at(1, 1) },
+      { id: 'heat_haze', name: 'Heat Haze', text: 'While Kilnheart is active, enemies within 150 units take {var:heatHaze}% more damage from you.', maxRank: 3,
+        ranks: [{ vars: { heatHaze: 5 } }, { vars: { heatHaze: 5 } }, { vars: { heatHaze: 5 } }], requires: needs('cinder_prints'), pos: at(2, 1) },
     ],
   },
 ];

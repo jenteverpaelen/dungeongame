@@ -4,7 +4,7 @@
 import { recordIntro } from '../../../shared/src/onboarding';
 import type { PlayerLink } from '../contracts';
 import {
-  CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
+  CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, channelMsPct, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
 import { channelMoveFactor, debtRegenFactor, powerTick } from './powerActions';
@@ -98,7 +98,7 @@ export function refreshPlayerStats(inst: Instance, p: Player, keepFraction: bool
 export function processInputs(inst: Instance, p: Player) {
   const blocked = p.deadMs > 0 || p.frozenMs > 0 || p.stunMs > 0;
   const chf = p.channel ? channelMoveFactor(p, p.channel.skill) : 1; // a channel's movement slow (skill var) and rule
-  const msPct = chf === 1 ? p.ctx.d.ms : (1 + p.ctx.d.ms / 100) * chf * 100 - 100;
+  const msPct = channelMsPct(p.ctx.d.ms, chf);
   const dashCd = p.ctx.dashCdMs;
   const x0 = p.mv.x, y0 = p.mv.y;
   let steps = 0;

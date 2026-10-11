@@ -8,10 +8,11 @@
 // data-driven grounds, compound conditions, statuses) are NOT re-implemented here; see docs/rework/depth/WARRIOR-PILOT.md.
 
 import { matchesTags, modVar, skillBuffBonuses, skillTags, type SkillTag } from '../../shared';
-import { dotStrike, gainResource, healPlayer, hurtMob, strikeMob, type HitResult } from '../damage';
-import { addBuff, ccFactor, dragMob, elIdx, getBuff, knockbackMob, refreshLive, stunMob } from '../effects';
+import { dotStrike, gainResource, healPlayer, hurtMob, makeDot, strikeMob, type HitResult } from '../damage';
+import { addBuff, addOwnedDot, ccFactor, chillMob, dragMob, elIdx, getBuff, knockbackMob, refreshLive, stunMob } from '../effects';
+import { placeGround } from '../groundFx';
 import type { Instance } from '../instance';
-import { skillMult, skillPct } from '../playerctx';
+import { skillElement, skillMult, skillPct } from '../playerctx';
 import type { ChannelState, Dot, Mob, Player, SkillRuntime, Strike } from '../types';
 import type { DeathHook } from './common';
 
@@ -28,6 +29,8 @@ export interface Standard {
   /** Everyone who stood inside at least once (Colour Guard). */
   inside: Set<Player>;
   ended: boolean;
+  /** The data ground that makes the standard count as one of your Ground effects. */
+  ground?: { endT: number } | null;
 }
 
 export interface WarriorState {
@@ -60,6 +63,11 @@ export interface WarriorState {
   /** Tremor Signet budget: seconds already refunded in the current cast. */
   signetCast: number;
   signetUsed: number;
+  /** Kilnheart Draft Door: Fury spent toward the next refund; Stoked: ms already added to the current Kilnheart. */
+  kilnSpent: number;
+  kilnExtended: number;
+  /** Hearthbanner 6: Primary hits toward the next shockwave. */
+  hearthHits: number;
 }
 
 const players = new WeakMap<Player, WarriorState>();
@@ -67,7 +75,8 @@ export function wstate(p: Player): WarriorState {
   let s = players.get(p);
   if (!s) {
     s = { toll: 0, carillon: 0, lastBlowT: -1e9, reaperT: -1e9, drumT: -1e9, healWinT: -1e9, healCount: 0, bleedFuryWinT: -1e9, bleedFuryGot: 0,
-      spent: 0, slamT: -1e9, slamStacks: 0, rampMs: 0, rampT: -1e9, rageGen: 0, standards: [], standardSeq: 0, signetCast: 0, signetUsed: 0 };
+      spent: 0, slamT: -1e9, slamStacks: 0, rampMs: 0, rampT: -1e9, rageGen: 0, standards: [], standardSeq: 0, signetCast: 0, signetUsed: 0,
+      kilnSpent: 0, kilnExtended: 0, hearthHits: 0 };
     players.set(p, s);
   }
   return s;
@@ -205,10 +214,22 @@ export function wHit(inst: Instance, p: Player, m: Mob, st: Strike, rt: SkillRun
     if (ms.prime.until >= inst.t) mult *= 1 + ms.prime.pct / 100;
     ms.prime = undefined;
   }
+  // Kilnheart: Heat Haze (enemies near you) and Cold Forge (chilled enemies) take more damage while it burns.
+  const kiln = getBuff(p, 'kilnheart') ? p.ctx.slotted('kilnheart') : null;
+  if (kiln) {
+    const haze = modVar(kiln.mods, 'heatHaze');
+    if (haze > 0 && (m.x - p.x) ** 2 + (m.y - p.y) ** 2 <= 150 * 150) mult *= 1 + haze / 100;
+    if (kiln.flags.has('kilnChill') && m.chillMs > 0) mult *= 1.1;
+  }
   const s = mult !== 1 ? { ...st, mult: (st.mult ?? 1) * mult } : st;
   const wasStunned = m.stunMs > 0;
   const r = strikeMob(inst, p, m, s);
   if (r.crit) hotBlood(inst, p);
+  // Kilnheart: every warrior hit ignites (60 % weapon damage over 2 s, refreshed) — or chills with Cold Forge.
+  if (kiln && !r.killed && !m.dead) {
+    if (kiln.flags.has('kilnChill')) chillMob(m, 1000, inst, p);
+    else addOwnedDot(p, m, makeDot(inst, p, { skill: 'kilnheart', coef: kiln.def.coef * (1 + modVar(kiln.mods, 'kilnIgnite') / 100), el: skillElement(kiln), pct: skillPct(p, kiln), mult: skillMult(p, 'kilnheart') }, 'burn', 2000, 500));
+  }
   if (!rt) return r;
   // Fault Warden 4: Spender hits on stunned enemies echo for 50 % of the hit one second later.
   if (wasStunned && r.amount > 0 && rt.flags.has('faultAftershock')) {
@@ -336,11 +357,56 @@ export function wPull(inst: Instance, p: Player, m: Mob, tx: number, ty: number,
 /** Fury actually spent (slot casts: their cost; channels: the drain). Bloodsong heals 2 % per 20 while raging. */
 export function noteSpend(inst: Instance, p: Player, amount: number) {
   if (amount <= 0) return;
-  const br = p.ctx.slotted('battle_rage');
-  if (!br || !br.flags.has('rageHeal') || !rageActive(p)) return;
   const ws = wstate(p);
-  ws.spent += amount;
-  while (ws.spent >= 20) { ws.spent -= 20; healPlayer(inst, p, p.mhp * 0.02, false); }
+  const br = p.ctx.slotted('battle_rage');
+  if (br && br.flags.has('rageHeal') && rageActive(p)) {
+    ws.spent += amount;
+    while (ws.spent >= 20) { ws.spent -= 20; healPlayer(inst, p, p.mhp * 0.02, false); }
+  }
+  // Kilnheart Draft Door: every 50 Fury spent shortens Kilnheart's cooldown.
+  const kh = p.ctx.slotted('kilnheart');
+  const door = kh ? modVar(kh.mods, 'draftDoor') : 0;
+  if (door > 0) {
+    ws.kilnSpent += amount;
+    while (ws.kilnSpent >= 50) { ws.kilnSpent -= 50; reduceCooldowns(inst, p, door * 1000, null, 'kilnheart'); }
+  }
+}
+
+/** "While a Buff skill is active" (WARRIOR_BUFF_ACTIVE in the data): the buff of Battle Rage, Muster Standard or Kilnheart. */
+export const buffUp = (p: Player): boolean => !!(getBuff(p, 'battle_rage') || getBuff(p, 'muster_standard') || getBuff(p, 'kilnheart'));
+
+/** Brass Warhorn Helm: attack speed while any Buff skill is active (lasts as long as the longest of them). */
+export function syncWarhorn(p: Player) {
+  const v = modVar(p.ctx.primary.mods, 'warhorn');
+  if (v <= 0) return;
+  let ms = 0;
+  for (const id of ['battle_rage', 'muster_standard', 'kilnheart']) ms = Math.max(ms, getBuff(p, id)?.ms ?? 0);
+  if (ms > 0) addBuff(p, { id: 'brass_warhorn', ms, ias: v });
+}
+
+/** Hearthbanner 2: each active Buff skill grants its owner 5 % attack speed. */
+export const hearthIas = (rt: SkillRuntime | null) => (rt?.flags.has('hearthIas') ? 5 : 0);
+
+/**
+ * Hearthbanner 4 / 6 on a Primary swing while a Buff skill is active: +3 Fury, and every third swing a shockwave
+ * (140 units, 100 % weapon damage) at (x, y). Returns the extra Fury.
+ */
+export function hearthPrimary(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number): number {
+  if (!buffUp(p)) return 0;
+  if (rt.flags.has('hearthShock') && ++wstate(p).hearthHits >= 3) {
+    wstate(p).hearthHits = 0;
+    const st: Strike = { skill: rt.def.id, coef: 1.0, el: skillElement(rt), pct: skillPct(p, rt), mult: skillMult(p, rt.def.id), primary: true, noArea: true };
+    for (const m of inst.queryMobs(x, y, 140)) if (!m.dead) wHit(inst, p, m, st, rt);
+    inst.emit({ e: 'aoe', v: 'hearth_shock', x: Math.round(x), y: Math.round(y), r: 140, d: 420, el: elIdx(st.el), s: p.id }, x, y, p.id);
+  }
+  return rt.flags.has('hearthGen') ? 3 : 0;
+}
+
+/** Deep Earth (passive): a Stun skill's area leaves tremor ground (data ground 'deep_tremor') of that radius. */
+export function deepEarth(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, r: number) {
+  if (!rt.flags.has('deepEarth')) return;
+  const g = placeGround(inst, p, 'deep_tremor', x, y, 0);
+  if (g) g.r = r;
 }
 
 /**
@@ -359,6 +425,7 @@ export function startRageLoop(inst: Instance, p: Player, rt: SkillRuntime) {
     const dmg = base + (p.res > 80 ? well : 0) + (p.res > 50 ? seething : 0);
     if (b.dmg !== dmg) { b.dmg = dmg; refreshLive(p); }
     if (share) for (const o of inst.playersNear(p.x, p.y, 400)) if (o !== p) addBuff(o, { id: 'shared_rage', ms: 600, dmg });
+    syncWarhorn(p);
     inst.sched.schedule(inst.t + 250, step);
   };
   step();
@@ -424,6 +491,11 @@ export function warriorDeathHook(freeSwing: (inst: Instance, p: Player, from: { 
           inst.emit({ e: 'beam', v: 'splinter', x: Math.round(m.x), y: Math.round(m.y), tx: Math.round(t.x), ty: Math.round(t.y), el: elIdx(dot.el), d: 200 }, t.x, t.y, killer.id);
         }
       }
+    }
+    // Kilnheart Stoked: each kill while it burns adds 0.5 s (up to 10 s per activation).
+    if (killer && killer.save.classId === 'warrior') {
+      const kb = getBuff(killer, 'kilnheart'), kh = killer.ctx.slotted('kilnheart'), ws = wstate(killer);
+      if (kb && kh?.flags.has('kilnExtend') && ws.kilnExtended < 10_000) { kb.ms += 500; ws.kilnExtended += 500; }
     }
     // Quick Muster: every death inside a standard shortens that standard's cooldown.
     for (const p of inst.players) {

@@ -464,7 +464,9 @@ function skillCoverage() {
         const p = inst.players[0];
         // tough targets so effects have time to play
         const x = p.x + (sk.kind === 'primary' || cls === 'warrior' ? 70 : 220), y = p.y;
-        for (let i = 0; i < 6; i++) {
+        // Enough enemies for the skill's own automatic rule (Kilnheart waits for 8).
+        const pack = Math.max(6, sk.auto.when === 'enemiesNear' ? Math.ceil(sk.auto.count) : 0);
+        for (let i = 0; i < pack; i++) {
           const m = createMob(inst, MONSTERS.gloomshroom, 60, x + (i % 3) * 30, y + Math.floor(i / 3) * 34 - 17, { players: 1 });
           m.mhp = m.hp = 1e13;
           m.state = 'chase'; m.target = p.id;

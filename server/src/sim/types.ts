@@ -30,10 +30,12 @@ export interface Buff {
   sdmg?: number;
   dr?: number;
   cci?: boolean;
+  /** Resource costs change by this % while the buff lasts (Kilnheart: -50). Multiplies with other buffs. */
+  cost?: number;
 }
 
 /** Live buff totals. `dr` (damage-taken factor) and `cci` (control immune) exist once a refresh ran. */
-export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean }
+export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean; /** resource-cost factor from buffs */ cost?: number }
 
 /** Per-player state of the wave-2 power primitives (created on first use; never persisted). */
 export interface PowerState {

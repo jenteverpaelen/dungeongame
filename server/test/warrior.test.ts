@@ -15,6 +15,8 @@ import type { PlayerLink } from '../src/contracts';
 import { Instance } from '../src/sim/instance';
 import { createMob, DUMMY_DEF } from '../src/sim/monsters';
 import { buildCtx, skillCost } from '../src/sim/playerctx';
+import { channelMoveFactor } from '../src/sim/powerActions';
+import { ownMultiplier } from '../src/sim/powerRuntime';
 import { getBuff } from '../src/sim/effects';
 import { castPrimary, castSkill, startChannel } from '../src/sim/skills';
 import type { Mob, Player } from '../src/sim/types';
@@ -72,13 +74,15 @@ test('warrior data: bible v2 tags (ITEMS-SHARED §1.2), NAMES.md display names, 
     rend: ['spender', 'area', 'bleed', 'physical'], sawtooth_hatchet: ['spender', 'projectile', 'piercing', 'bleed', 'physical'],
     ground_stomp: ['cooldown', 'area', 'stun', 'physical'], seismic_slam: ['spender', 'area', 'displace', 'physical'],
     cairnfall: ['cooldown', 'aerial', 'area', 'stun', 'physical'], battle_rage: ['buff', 'physical'], muster_standard: ['buff', 'cooldown', 'ground', 'physical'],
+    kilnheart: ['buff', 'cooldown', 'burn', 'fire'],
   };
   for (const [id, tags] of Object.entries(want)) assert.deepEqual([...skillTags(SKILLS[id])].sort(), [...tags].sort(), id);
   // Rune tag changes (ITEMS-SHARED §1.2).
   for (const [skill, rune, tag] of [['cleave', 'hemorrhage_arc', 'bleed'], ['whirlwind', 'dust_devils', 'summon'], ['whirlwind', 'gyre_of_ash', 'burn'], ['whirlwind', 'gyre_of_ash', 'ground'],
     ['whirlwind', 'tethered_spin', 'displace'], ['seismic_slam', 'permafrost', 'chill'], ['tolling_blow', 'furnace_clapper', 'burn'], ['sawtooth_hatchet', 'kiln_heated', 'burn'],
     ['muster_standard', 'ember_pennant', 'area'], ['ironplough', 'stone_spray', 'projectile'], ['ironplough', 'smouldering_share', 'burn'], ['cairnfall', 'waymarker', 'ground'],
-    ['cairnfall', 'kiln_stones', 'burn']] as const) assert(skillTags(SKILLS[skill], rune).has(tag), `${skill}/${rune} +${tag}`);
+    ['cairnfall', 'kiln_stones', 'burn'], ['kilnheart', 'cold_forge', 'chill']] as const) assert(skillTags(SKILLS[skill], rune).has(tag), `${skill}/${rune} +${tag}`);
+  assert(!skillTags(SKILLS.kilnheart, 'cold_forge').has('burn') && skillTags(SKILLS.kilnheart, 'cold_forge').has('cold'), 'Cold Forge −Burn, Cold');
   // NAMES.md: display renames, ids unchanged.
   assert.equal(SKILLS.seismic_slam.name, 'Quakeline');
   const rune = (s: string, r: string) => SKILLS[s].runes.find((x) => x.id === r)!.name;
@@ -88,7 +92,7 @@ test('warrior data: bible v2 tags (ITEMS-SHARED §1.2), NAMES.md display names, 
   assert(LEGENDARIES.faultcleaver.power.startsWith('Quakeline'));
   // Categories and unlocks.
   const list = skillsForClass('warrior');
-  assert.deepEqual(list.map((s) => s.unlock), [1, 2, 4, 6, 9, 12, 16, 20, 26, 32, 40]);
+  assert.deepEqual(list.map((s) => s.unlock), [1, 2, 4, 6, 9, 12, 16, 20, 26, 32, 40, 50]);
   assert.deepEqual([...new Set(list.map((s) => s.category))], ['Strikes', 'Steel Storm', 'Bloodletting', 'Earthshaker', 'Warcries']);
   // Bible rune levels: existing skills + 14 / + 20; new skills as authored.
   const at = (s: string, r: string) => SKILLS[s].runes.find((x) => x.id === r)!.unlock;
@@ -385,4 +389,96 @@ test('warrior legendaries: Stonecount stacks per stunned enemy, Red Ledger refun
     const m = g.posts[0]; m.hp = 1; g.tick(12);
     assert(m.dead && g.p.res >= 4, `Fury after the bleeding enemy died: ${g.p.res}`);
   } finally { g.inst.destroy(); }
+});
+
+// ─────────────────────────── Phase 2: engine wave 2 primitives ───────────────────────────
+
+test('Kilnheart: +20% damage, +15% attack speed, half-price Fury, and warrior hits ignite (Cold Forge chills instead)', () => {
+  const f = fixture({ slots: ['kilnheart', 'seismic_slam', null, null], posts: [[70, 0]] });
+  try {
+    const slam = f.p.ctx.slotted('seismic_slam')!, before = skillCost(f.p, slam);
+    assert(castSkill(f.inst, f.p, f.p.ctx.slotted('kilnheart')!));
+    const b = getBuff(f.p, 'kilnheart')!;
+    assert.deepEqual([b.dmg, b.ias, b.ms], [20, 15, 20000]);
+    assert.equal(skillCost(f.p, slam), before / 2, 'spend half as much Fury');
+    castSkill(f.inst, f.p, slam);
+    assert(f.posts[0].dots.some((d) => d.kind === 'burn' && d.skill === 'kilnheart'), 'the hit ignites');
+  } finally { f.inst.destroy(); }
+  const g = fixture({ slots: ['kilnheart', 'seismic_slam', null, null], runes: { kilnheart: 'cold_forge' }, posts: [[70, 0]] });
+  try {
+    castSkill(g.inst, g.p, g.p.ctx.slotted('kilnheart')!); castSkill(g.inst, g.p, g.p.ctx.slotted('seismic_slam')!);
+    assert(g.posts[0].chillMs > 0 && !g.posts[0].dots.some((d) => d.skill === 'kilnheart'), 'Cold Forge chills instead of igniting');
+  } finally { g.inst.destroy(); }
+});
+
+test('rune templates: Iron Root grants control immunity and damage reduction on stomp; Slag Skin only while Kilnheart burns', () => {
+  const f = fixture({ slots: ['ground_stomp', null, null, null], runes: { ground_stomp: 'iron_root' } });
+  try {
+    f.p.manualCast = { slot: 0, skill: 'ground_stomp' } as typeof f.p.manualCast;
+    f.tick();
+    const b = getBuff(f.p, 'iron_root');
+    assert(b && b.dr === 20 && b.cci, 'Iron Root buff after the cast');
+  } finally { f.inst.destroy(); }
+  const g = fixture({ slots: ['kilnheart', null, null, null], runes: { kilnheart: 'slag_skin' } });
+  try {
+    const dr = () => g.p.ctx.powers.defense?.takenTerms.length ?? 0;
+    assert(dr() >= 1, 'a damage-taken term from the rune');
+  } finally { g.inst.destroy(); }
+});
+
+test('wave-2 runes and nodes: Watch Bell, Rusted Edge, Taunting Colours, Concussion, Open Crack, Deep Earth, Ironplough movement', () => {
+  const f = fixture({ primary: 'tolling_blow', runes: { tolling_blow: 'watch_bell' } });
+  try { f.p.res = 0; for (let i = 0; i < 3; i++) castPrimary(f.inst, f.p, f.posts[0]); assert.equal(getBuff(f.p, 'watch_bell')?.dr, 4); assert(f.p.res >= 10 + 18); } finally { f.inst.destroy(); }
+  const g = fixture({ slots: ['sawtooth_hatchet', null, null, null], runes: { sawtooth_hatchet: 'rusted_edge' }, posts: [[150, 0]] });
+  try { castSkill(g.inst, g.p, g.p.ctx.slotted('sawtooth_hatchet')!); g.tick(10); assert(g.posts[0].ps?.vulns.some((v) => v.pct === 10 && v.scope?.has('rend')), 'scoped to Bleed skills'); } finally { g.inst.destroy(); }
+  const h = fixture({ slots: ['muster_standard', null, null, null], runes: { muster_standard: 'taunting_colours' }, posts: [[200, 0]] });
+  try {
+    castSkill(h.inst, h.p, h.p.ctx.slotted('muster_standard')!);
+    assert((h.posts[0].ps?.tauntMs ?? 0) > 0, 'taunted toward the standard');
+    assert(h.inst.grounds.some((x) => x.fx?.def.id === 'muster_ground' && x.owner === h.p), 'the standard is one of your grounds');
+  } finally { h.inst.destroy(); }
+  const k = fixture({ slots: ['ground_stomp', null, null, null], nodes: { ground_stomp: { heavy_heel: 2, concussion: 3 } } });
+  try { castSkill(k.inst, k.p, k.p.ctx.slotted('ground_stomp')!); assert.equal(k.posts[0].ps?.weakenPct, 30); } finally { k.inst.destroy(); }
+  const c = fixture({ slots: ['seismic_slam', null, null, null], nodes: { seismic_slam: { heave: 2, open_crack: 3 } } });
+  try {
+    castSkill(c.inst, c.p, c.p.ctx.slotted('seismic_slam')!);
+    const crack = c.inst.grounds.find((x) => x.fx?.def.id === 'quake_crack');
+    assert(crack && crack.endT - c.inst.t === 2000 && crack.fx!.scale > 0, 'a 2 s crack along the fissure');
+  } finally { c.inst.destroy(); }
+  const d = fixture({ slots: ['ground_stomp', null, null, null] });
+  try {
+    d.save.passives = { revision: 1, slots: [null, null, null, 'warrior_deep_earth'] };
+    d.setPowers({});
+    castSkill(d.inst, d.p, d.p.ctx.slotted('ground_stomp')!);
+    assert(d.inst.grounds.some((x) => x.fx?.def.id === 'deep_tremor'), 'Deep Earth: tremor ground');
+  } finally { d.inst.destroy(); }
+  const factor = (o: Parameters<typeof fixture>[0], sets: Record<string, number> = {}) => {
+    const x = fixture({ slots: ['ironplough', 'whirlwind', null, null], ...o });
+    try { x.setPowers({}, sets); return channelMoveFactor(x.p, 'ironplough') * 100; } finally { x.inst.destroy(); }
+  };
+  assert.equal(Math.round(factor({})), 60, 'Ironplough: 60% movement speed');
+  assert.equal(Math.round(factor({ runes: { ironplough: 'steady_oxen' } })), 30, 'Steady Oxen: 30%');
+  assert.equal(Math.round(factor({}, { endless_storm: 2 })), 75, 'Endless Storm 2: +15 points');
+});
+
+test('wave-2 passives and set bonuses: Bellwether on stuns, Fault Warden 6 fault lines, Hearthbanner 4 while a Buff skill is up', () => {
+  const f = fixture({ slots: ['ground_stomp', null, null, null], posts: [[40, 0], [-40, 0]] });
+  try {
+    f.save.passives = { revision: 1, slots: ['warrior_bellwether', null, null, null] };
+    f.setPowers({}, { fault_warden: 6 });
+    f.p.res = 0;
+    castSkill(f.inst, f.p, f.p.ctx.slotted('ground_stomp')!);
+    assert.equal(getBuff(f.p, 'bellwether')?.st, 1, 'one stack (internal cooldown 0.2 s)');
+    assert(f.p.res >= 15 + 2, `Fury ${f.p.res}`);
+    assert(f.inst.grounds.some((g) => g.fx?.def.id === 'fault_line'), 'fault lines under stunned enemies');
+  } finally { f.inst.destroy(); }
+  const h = fixture({ slots: ['battle_rage', null, null, null] });
+  try {
+    h.setPowers({}, { hearthbanner: 4 });
+    const p = h.p;
+    const before = ownMultiplier(p, 'cleave');
+    castSkill(h.inst, p, p.ctx.slotted('battle_rage')!);
+    assert.equal(ownMultiplier(p, 'cleave') / before, 1.25, 'Primary +25% while a Buff skill is active');
+    assert.equal(getBuff(p, 'battle_rage')?.ias, 5, 'Hearthbanner 2: +5% attack speed per active Buff');
+  } finally { h.inst.destroy(); }
 });

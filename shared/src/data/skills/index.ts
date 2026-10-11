@@ -66,6 +66,7 @@ export type NodeRanks = Record<string, number>;
  */
 export function collectSkillMods(skill: SkillDef, runeId: string | null | undefined, tiers: number, nodes?: NodeRanks | null): SkillMods {
   const out: SkillMods = { flags: [] };
+  if (skill.vars) addMods(out, { vars: skill.vars });
   const rune = skill.runes.find((r) => r.id === runeId);
   if (rune) addMods(out, rune.mods);
   for (let i = 0; i < Math.min(tiers, skill.tiers.length); i++) addMods(out, skill.tiers[i].mods);

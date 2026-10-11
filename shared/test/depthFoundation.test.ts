@@ -196,7 +196,10 @@ test('save normalisation keeps legal trees and clears illegal ones (free respec,
 
 test('passive data: still four slots at 10/20/30/70, six stat passives per class unchanged, template passives validate', () => {
   assert.deepEqual([...PASSIVE_SLOT_LEVELS], [10, 20, 30, 70]);
-  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.equal(passivesForClass(classId).length, 6);
+  // The six stat passives keep their place; the warrior pilot appends bible v2 rule passives.
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.deepEqual(passivesForClass(classId).slice(0, 6).map(p => !!p.stat), [true, true, true, true, true, true]);
+  assert.equal(passivesForClass('ranger').length, 6); assert.equal(passivesForClass('mage').length, 6);
+  assert(passivesForClass('warrior').slice(6).every(p => !p.stat && p.effects?.length), 'warrior rule passives are templates');
   const data = fixture();
   data.passives.push(...structuredClone(FIXTURE_PASSIVES));
   assert.deepEqual(validateContent(data), []);

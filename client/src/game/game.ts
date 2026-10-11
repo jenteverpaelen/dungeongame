@@ -4,6 +4,7 @@ import { funnel } from './funnel';
 import type { Application } from 'pixi.js';
 import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
+import { SKILLS } from '@shared/data/skills';
 import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
 import { cubeUI } from '../ui/panels/cubestate';
 import { CLIENT_OUTDATED_MESSAGE, F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
@@ -50,6 +51,8 @@ export class Game {
   private lastDungeonKey = '';
   private lastFieldEventKey = '';
   private whirl = false;
+  /** The channel skill the local player last started (the spin loop is Whirlwind's sound only). */
+  private myChannel = '';
   private observationPosition?:{x:number;y:number;dead:number};
 
   constructor(private app: Application) {
@@ -345,6 +348,7 @@ export class Game {
         this.scene.shake(ev.m, ev.d);
         break;
       case 'cast': {
+        if (ev.s === myId && SKILLS[ev.sk]?.kind === 'channel') this.myChannel = ev.sk;
         const v = this.world.entities.get(ev.s)?.view as (ActingView & Partial<PlayerView>) | null | undefined;
         const aps = ev.s === myId ? this.scene.myAps : 1.25;
         v?.playAction?.({ skill: ev.sk, rune: ev.r, tx: ev.tx, ty: ev.ty, cycleMs: 1000 / Math.max(0.3, aps) });
@@ -521,7 +525,7 @@ export class Game {
       this.scene.update(dtMs, me, { x: this.input.mouseX, y: this.input.mouseY });
       if (me) {sfx.setListener(me.x, me.y);const t=this.world.serverNow()/1000;this.townSound?.update(t,me.x,me.y);this.adventureSound?.update(t);}
       const myEnt = this.world.me;
-      const whirl = !!myEnt && (myEnt.flags & F_CHANNEL) !== 0;
+      const whirl = !!myEnt && (myEnt.flags & F_CHANNEL) !== 0 && this.myChannel !== 'ironplough';
       if (whirl !== this.whirl) { this.whirl = whirl; sfx.loop('whirlwind', whirl); }
       this.uiTick(st);
     }
