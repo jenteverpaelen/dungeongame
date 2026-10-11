@@ -1,0 +1,4242 @@
+{
+  "generated": "2026-10-11",
+  "scope": "Level 70, Torment II, actual 20 Hz, 3 encounters × 3 seeds per kit, infinite player HP, deterministic chase; mean-roll non-Ancient items, 48 tier points, no runes/gems/upgrades/Paragon; 120 s cap per encounter (timeouts are extrapolated from damage dealt and labelled).",
+  "window": 1.25,
+  "hybridTolerance": 0.05,
+  "parityReady": [],
+  "rows": [
+    {
+      "set": "endless_storm",
+      "classId": "warrior",
+      "skills": [
+        "whirlwind"
+      ],
+      "slots": [
+        "whirlwind",
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "ratio": 40.97741127348643,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 119750,
+          "estTotalMs": 119750,
+          "timeouts": 0,
+          "spec": {
+            "id": "endless_storm/set",
+            "classId": "warrior",
+            "mainSkills": [
+              "whirlwind"
+            ],
+            "slots": [
+              "whirlwind",
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "set": "endless_storm",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "endless_storm",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "endless_storm",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "set": "endless_storm",
+                "base": "hands_gauntlets"
+              },
+              "legs": {
+                "set": "endless_storm",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "set": "endless_storm",
+                "base": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "eternal_gyre"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "ninefold_gale",
+              "witching_cord",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 4050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 4050
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 9050,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 9050
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 31050,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 31050
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 3050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 3050
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 7550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 7550
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 26550,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 26550
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 3550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 3550
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 7850,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 7850
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 27050,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 27050
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 753450,
+          "estTotalMs": 3071048,
+          "timeouts": 4,
+          "spec": {
+            "id": "endless_storm/hybrid",
+            "classId": "warrior",
+            "mainSkills": [
+              "whirlwind"
+            ],
+            "slots": [
+              "whirlwind",
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "set": "endless_storm",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "endless_storm",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "endless_storm",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "endless_storm",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "eternal_gyre"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "ninefold_gale",
+              "witching_cord",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 18050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 18050
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 118750,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 118750
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3428252945,
+              "estMs": 821538
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 17050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 17050
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 99050,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 99050
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3806199659,
+              "estMs": 739961
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 20550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 20550
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7355707997,
+              "estMs": 147687
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2587659467,
+              "estMs": 1088412
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 805850,
+          "estTotalMs": 4907045,
+          "timeouts": 6,
+          "spec": {
+            "id": "endless_storm/legendary",
+            "classId": "warrior",
+            "mainSkills": [
+              "whirlwind"
+            ],
+            "slots": [
+              "whirlwind",
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "rare": "head_horned"
+              },
+              "shoulders": {
+                "rare": "shoulders_spiked"
+              },
+              "chest": {
+                "rare": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "eternal_gyre"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "ninefold_gale",
+              "witching_cord",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 24650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 24650
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4964003417,
+              "estMs": 218844
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2521163445,
+              "estMs": 1117119
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 24600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 24600
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4998867162,
+              "estMs": 217317
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2290978253,
+              "estMs": 1229361
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 36600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 36600
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3767300967,
+              "estMs": 288361
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1609216727,
+              "estMs": 1750193
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "siegebreaker",
+      "classId": "ranger",
+      "skills": [
+        "sentry",
+        "multishot",
+        "cluster_arrow"
+      ],
+      "slots": [
+        "sentry",
+        "multishot",
+        "cluster_arrow",
+        "companion"
+      ],
+      "ratio": 33.218178752107924,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 118600,
+          "estTotalMs": 118600,
+          "timeouts": 0,
+          "spec": {
+            "id": "siegebreaker/set",
+            "classId": "ranger",
+            "mainSkills": [
+              "sentry",
+              "multishot",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "sentry",
+              "multishot",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thunderhead"
+              },
+              "offhand": {
+                "legendary": "sappers_pack"
+              },
+              "head": {
+                "set": "siegebreaker",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "siegebreaker",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "set": "siegebreaker",
+                "base": "chest_leather"
+              },
+              "hands": {
+                "set": "siegebreaker",
+                "base": "hands_gloves"
+              },
+              "legs": {
+                "set": "siegebreaker",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "set": "siegebreaker",
+                "base": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              "gearwright_heart",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 1050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1050
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 11450,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 11450
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 35700,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 35700
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 500
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 7150,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 7150
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 22900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 22900
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 1100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1100
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 8600,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 8600
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 30150,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 30150
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 531550,
+          "estTotalMs": 1068915,
+          "timeouts": 3,
+          "spec": {
+            "id": "siegebreaker/hybrid",
+            "classId": "ranger",
+            "mainSkills": [
+              "sentry",
+              "multishot",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "sentry",
+              "multishot",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thunderhead"
+              },
+              "offhand": {
+                "legendary": "sappers_pack"
+              },
+              "head": {
+                "set": "siegebreaker",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "siegebreaker",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "legendary": "gearwright_heart"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "siegebreaker",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "set": "siegebreaker",
+                "base": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 9300,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 9300
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 43750,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 43750
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 10275350428,
+              "estMs": 274097
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 8200,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 8200
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 41400,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 41400
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 10198311364,
+              "estMs": 276167
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 9600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 9600
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 59300,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 59300
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8114184629,
+              "estMs": 347101
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 774950,
+          "estTotalMs": 3939676,
+          "timeouts": 6,
+          "spec": {
+            "id": "siegebreaker/legendary",
+            "classId": "ranger",
+            "mainSkills": [
+              "sentry",
+              "multishot",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "sentry",
+              "multishot",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thunderhead"
+              },
+              "offhand": {
+                "legendary": "sappers_pack"
+              },
+              "head": {
+                "rare": "head_hood"
+              },
+              "shoulders": {
+                "rare": "shoulders_pads"
+              },
+              "chest": {
+                "legendary": "gearwright_heart"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_leather"
+              },
+              "feet": {
+                "rare": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 16750,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 16750
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7093494619,
+              "estMs": 153146
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2538187510,
+              "estMs": 1109626
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 18350,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 18350
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8155404995,
+              "estMs": 133205
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2878329101,
+              "estMs": 978498
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 19850,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 19850
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6237718396,
+              "estMs": 174157
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2107965547,
+              "estMs": 1336094
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "fallen_star",
+      "classId": "mage",
+      "skills": [
+        "meteor"
+      ],
+      "slots": [
+        "meteor",
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "ratio": 27.444869762174406,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 44150,
+          "estTotalMs": 44150,
+          "timeouts": 0,
+          "spec": {
+            "id": "fallen_star/set",
+            "classId": "mage",
+            "mainSkills": [
+              "meteor"
+            ],
+            "slots": [
+              "meteor",
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "fallen_star",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "set": "fallen_star",
+                "base": "shoulders_mantle"
+              },
+              "chest": {
+                "set": "fallen_star",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "set": "fallen_star",
+                "base": "hands_wraps"
+              },
+              "legs": {
+                "set": "fallen_star",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "set": "fallen_star",
+                "base": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "cindervane",
+              "starfall_mantle",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 650,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 650
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 21300,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 21300
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 650,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 650
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 9850,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 9850
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 600,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 600
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 9450,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 9450
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 381750,
+          "estTotalMs": 426575,
+          "timeouts": 3,
+          "spec": {
+            "id": "fallen_star/hybrid",
+            "classId": "mage",
+            "mainSkills": [
+              "meteor"
+            ],
+            "slots": [
+              "meteor",
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "fallen_star",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "legendary": "starfall_mantle"
+              },
+              "chest": {
+                "set": "fallen_star",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "fallen_star",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "set": "fallen_star",
+                "base": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "cindervane",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 650
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 6800,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 6800
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 18659895252,
+              "estMs": 150935
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 650
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 6300,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 6300
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 23079373023,
+              "estMs": 122033
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 600
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 6750,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 6750
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 21359851913,
+              "estMs": 131857
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 523750,
+          "estTotalMs": 1211691,
+          "timeouts": 3,
+          "spec": {
+            "id": "fallen_star/legendary",
+            "classId": "mage",
+            "mainSkills": [
+              "meteor"
+            ],
+            "slots": [
+              "meteor",
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "rare": "head_wizard"
+              },
+              "shoulders": {
+                "legendary": "starfall_mantle"
+              },
+              "chest": {
+                "rare": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_cloth"
+              },
+              "feet": {
+                "rare": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "cindervane",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 1300,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1300
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 54800,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 54800
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8270188981,
+              "estMs": 340553
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 1400,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1400
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 53150,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 53150
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8565294298,
+              "estMs": 328820
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 1500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1500
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 51600,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 51600
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7439722428,
+              "estMs": 378568
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "cinder_oath",
+      "classId": "warrior",
+      "skills": [
+        "cleave",
+        "rend"
+      ],
+      "slots": [
+        "rend",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "ratio": 94.56295386657816,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 150650,
+          "estTotalMs": 150650,
+          "timeouts": 0,
+          "spec": {
+            "id": "cinder_oath/set",
+            "classId": "warrior",
+            "mainSkills": [
+              "cleave",
+              "rend"
+            ],
+            "slots": [
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "set": "cinder_oath",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "cinder_oath",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "cinder_oath",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "set": "cinder_oath",
+                "base": "hands_gauntlets"
+              },
+              "legs": {
+                "set": "cinder_oath",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "set": "cinder_oath",
+                "base": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              "mountain_fists",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 1150,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1150
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 10350,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 10350
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 48050,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 48050
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 8500,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 8500
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 38000,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 38000
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 50,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 50
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 5500,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 5500
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 38500,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 38500
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 897200,
+          "estTotalMs": 12381217,
+          "timeouts": 6,
+          "spec": {
+            "id": "cinder_oath/hybrid",
+            "classId": "warrior",
+            "mainSkills": [
+              "cleave",
+              "rend"
+            ],
+            "slots": [
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "set": "cinder_oath",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "cinder_oath",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "cinder_oath",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "cinder_oath",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 58200,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 58200
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2076785405,
+              "estMs": 523088
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 830456547,
+              "estMs": 3391436
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 45500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 45500
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2500132595,
+              "estMs": 434513
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 970203606,
+              "estMs": 2902937
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 73500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 73500
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1686068834,
+              "estMs": 644304
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 653809388,
+              "estMs": 4307739
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 947150,
+          "estTotalMs": 14245909,
+          "timeouts": 6,
+          "spec": {
+            "id": "cinder_oath/legendary",
+            "classId": "warrior",
+            "mainSkills": [
+              "cleave",
+              "rend"
+            ],
+            "slots": [
+              "rend",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "bloodwake"
+              },
+              "offhand": {
+                "legendary": "last_light"
+              },
+              "head": {
+                "rare": "head_horned"
+              },
+              "shoulders": {
+                "rare": "shoulders_spiked"
+              },
+              "chest": {
+                "rare": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 70500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 70500
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1357232283,
+              "estMs": 800409
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 808447524,
+              "estMs": 3483763
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 62800,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 62800
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1543821889,
+              "estMs": 703670
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 785248860,
+              "estMs": 3586685
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 93850,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 93850
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1245450511,
+              "estMs": 872248
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 616021357,
+              "estMs": 4571984
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "fault_warden",
+      "classId": "warrior",
+      "skills": [
+        "seismic_slam",
+        "ground_stomp"
+      ],
+      "slots": [
+        "seismic_slam",
+        "ground_stomp",
+        "battle_rage"
+      ],
+      "ratio": 18.590529644268774,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 126500,
+          "estTotalMs": 126500,
+          "timeouts": 0,
+          "spec": {
+            "id": "fault_warden/set",
+            "classId": "warrior",
+            "mainSkills": [
+              "seismic_slam",
+              "ground_stomp"
+            ],
+            "slots": [
+              "seismic_slam",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "faultcleaver"
+              },
+              "head": {
+                "set": "fault_warden",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "fault_warden",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "fault_warden",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "set": "fault_warden",
+                "base": "hands_gauntlets"
+              },
+              "legs": {
+                "set": "fault_warden",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "set": "fault_warden",
+                "base": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              "last_light",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 100
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 8400,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 8400
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 37200,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 37200
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 100
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 5850,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 5850
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 29900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 29900
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 100
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 6900,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 6900
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 37950,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 37950
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 760850,
+          "estTotalMs": 1871215,
+          "timeouts": 5,
+          "spec": {
+            "id": "fault_warden/hybrid",
+            "classId": "warrior",
+            "mainSkills": [
+              "seismic_slam",
+              "ground_stomp"
+            ],
+            "slots": [
+              "seismic_slam",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "faultcleaver"
+              },
+              "head": {
+                "set": "fault_warden",
+                "base": "head_horned"
+              },
+              "shoulders": {
+                "set": "fault_warden",
+                "base": "shoulders_spiked"
+              },
+              "chest": {
+                "set": "fault_warden",
+                "base": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "fault_warden",
+                "base": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              "last_light",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 14400,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 14400
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8923971631,
+              "estMs": 121733
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5064509856,
+              "estMs": 556113
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 17700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 17700
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 82550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 82550
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7350027888,
+              "estMs": 383188
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 46200,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 46200
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8295193351,
+              "estMs": 130960
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5433250849,
+              "estMs": 518371
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 886150,
+          "estTotalMs": 2351702,
+          "timeouts": 6,
+          "spec": {
+            "id": "fault_warden/legendary",
+            "classId": "warrior",
+            "mainSkills": [
+              "seismic_slam",
+              "ground_stomp"
+            ],
+            "slots": [
+              "seismic_slam",
+              "ground_stomp",
+              "battle_rage"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "faultcleaver"
+              },
+              "head": {
+                "rare": "head_horned"
+              },
+              "shoulders": {
+                "rare": "shoulders_spiked"
+              },
+              "chest": {
+                "rare": "chest_plate"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_plate"
+              },
+              "feet": {
+                "rare": "feet_greaves"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              "last_light",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 46500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 46500
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 9015888254,
+              "estMs": 120492
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4901458890,
+              "estMs": 574613
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 63700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 63700
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8566074113,
+              "estMs": 126819
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5028307443,
+              "estMs": 560117
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 55950,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 55950
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7801910655,
+              "estMs": 139240
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4239896389,
+              "estMs": 664271
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "farwatch",
+      "classId": "ranger",
+      "skills": [
+        "hungering_arrow",
+        "multishot"
+      ],
+      "slots": [
+        "multishot",
+        "rain_of_vengeance",
+        "companion"
+      ],
+      "ratio": 32.72297642056436,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 129350,
+          "estTotalMs": 129350,
+          "timeouts": 0,
+          "spec": {
+            "id": "farwatch/set",
+            "classId": "ranger",
+            "mainSkills": [
+              "hungering_arrow",
+              "multishot"
+            ],
+            "slots": [
+              "multishot",
+              "rain_of_vengeance",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "set": "farwatch",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "farwatch",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "set": "farwatch",
+                "base": "chest_leather"
+              },
+              "hands": {
+                "set": "farwatch",
+                "base": "hands_gloves"
+              },
+              "legs": {
+                "set": "farwatch",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "set": "farwatch",
+                "base": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "thunderhead",
+              "mountain_fists",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 250,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 250
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 2100,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 2100
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 41050,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 41050
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 250,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 250
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 1250,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 1250
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 31900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 31900
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 150,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 150
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 3850,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 3850
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 48550,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 48550
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 738100,
+          "estTotalMs": 2434122,
+          "timeouts": 5,
+          "spec": {
+            "id": "farwatch/hybrid",
+            "classId": "ranger",
+            "mainSkills": [
+              "hungering_arrow",
+              "multishot"
+            ],
+            "slots": [
+              "multishot",
+              "rain_of_vengeance",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "set": "farwatch",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "farwatch",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "set": "farwatch",
+                "base": "chest_leather"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "farwatch",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "rare": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "thunderhead",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 15700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 15700
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8307385501,
+              "estMs": 130768
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3857438232,
+              "estMs": 730132
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 10100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 10100
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 100850,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 100850
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5078303261,
+              "estMs": 554603
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 11450,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 11450
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8521640541,
+              "estMs": 127480
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3740099963,
+              "estMs": 753039
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 813950,
+          "estTotalMs": 4232717,
+          "timeouts": 6,
+          "spec": {
+            "id": "farwatch/legendary",
+            "classId": "ranger",
+            "mainSkills": [
+              "hungering_arrow",
+              "multishot"
+            ],
+            "slots": [
+              "multishot",
+              "rain_of_vengeance",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "rare": "head_hood"
+              },
+              "shoulders": {
+                "rare": "shoulders_pads"
+              },
+              "chest": {
+                "rare": "chest_leather"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_leather"
+              },
+              "feet": {
+                "rare": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "thunderhead",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 26650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 26650
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5741331180,
+              "estMs": 189214
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2752921684,
+              "estMs": 1023073
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 32400,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 32400
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5961278475,
+              "estMs": 182233
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2726365203,
+              "estMs": 1033038
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 34900,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 34900
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4496291485,
+              "estMs": 241608
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1916465897,
+              "estMs": 1469601
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "rainkeeper",
+      "classId": "ranger",
+      "skills": [
+        "rain_of_vengeance",
+        "cluster_arrow"
+      ],
+      "slots": [
+        "rain_of_vengeance",
+        "cluster_arrow",
+        "companion"
+      ],
+      "ratio": 31.63043739565943,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 149750,
+          "estTotalMs": 149750,
+          "timeouts": 0,
+          "spec": {
+            "id": "rainkeeper/set",
+            "classId": "ranger",
+            "mainSkills": [
+              "rain_of_vengeance",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "rain_of_vengeance",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "set": "rainkeeper",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "rainkeeper",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "set": "rainkeeper",
+                "base": "chest_leather"
+              },
+              "hands": {
+                "set": "rainkeeper",
+                "base": "hands_gloves"
+              },
+              "legs": {
+                "set": "rainkeeper",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "set": "rainkeeper",
+                "base": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              "mountain_fists",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 4050,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 4050
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 45900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 45900
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 500,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 500
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 4050,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 4050
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 41750,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 41750
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 2600,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 2600
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 49800,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 49800
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 782250,
+          "estTotalMs": 3376404,
+          "timeouts": 6,
+          "spec": {
+            "id": "rainkeeper/hybrid",
+            "classId": "ranger",
+            "mainSkills": [
+              "rain_of_vengeance",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "rain_of_vengeance",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "set": "rainkeeper",
+                "base": "head_hood"
+              },
+              "shoulders": {
+                "set": "rainkeeper",
+                "base": "shoulders_pads"
+              },
+              "chest": {
+                "set": "rainkeeper",
+                "base": "chest_leather"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "rainkeeper",
+                "base": "legs_leather"
+              },
+              "feet": {
+                "rare": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 27750,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 27750
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4928642450,
+              "estMs": 220414
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2884058028,
+              "estMs": 976555
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 15650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 15650
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6809237837,
+              "estMs": 159539
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3690135822,
+              "estMs": 763235
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 18850,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 18850
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4705934817,
+              "estMs": 230845
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2922933825,
+              "estMs": 963566
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 803000,
+          "estTotalMs": 4736658,
+          "timeouts": 6,
+          "spec": {
+            "id": "rainkeeper/legendary",
+            "classId": "ranger",
+            "mainSkills": [
+              "rain_of_vengeance",
+              "cluster_arrow"
+            ],
+            "slots": [
+              "rain_of_vengeance",
+              "cluster_arrow",
+              "companion"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "rainspindle"
+              },
+              "offhand": {
+                "rare": "quiver"
+              },
+              "head": {
+                "rare": "head_hood"
+              },
+              "shoulders": {
+                "rare": "shoulders_pads"
+              },
+              "chest": {
+                "rare": "chest_leather"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_leather"
+              },
+              "feet": {
+                "rare": "feet_boots"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "hunters_mark",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 25650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 25650
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4040014489,
+              "estMs": 268895
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2490158246,
+              "estMs": 1131028
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 18700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 18700
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4685617737,
+              "estMs": 231846
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2732377940,
+              "estMs": 1030765
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 38650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 38650
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3156923775,
+              "estMs": 344114
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1710031740,
+              "estMs": 1647010
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "glass_concord",
+      "classId": "mage",
+      "skills": [
+        "magic_missile",
+        "black_hole"
+      ],
+      "slots": [
+        "black_hole",
+        "frost_nova",
+        "magic_weapon"
+      ],
+      "ratio": 50.43827906976744,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 129000,
+          "estTotalMs": 129000,
+          "timeouts": 0,
+          "spec": {
+            "id": "glass_concord/set",
+            "classId": "mage",
+            "mainSkills": [
+              "magic_missile",
+              "black_hole"
+            ],
+            "slots": [
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "glass_concord",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "set": "glass_concord",
+                "base": "shoulders_mantle"
+              },
+              "chest": {
+                "set": "glass_concord",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "set": "glass_concord",
+                "base": "hands_wraps"
+              },
+              "legs": {
+                "set": "glass_concord",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "set": "glass_concord",
+                "base": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              "mountain_fists",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 2450,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 2450
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 13600,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 13600
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 35750,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 35750
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 1700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 1700
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 12400,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 12400
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 29900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 29900
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 700,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 700
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 9050,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 9050
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 23450,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 23450
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 825750,
+          "estTotalMs": 3465891,
+          "timeouts": 6,
+          "spec": {
+            "id": "glass_concord/hybrid",
+            "classId": "mage",
+            "mainSkills": [
+              "magic_missile",
+              "black_hole"
+            ],
+            "slots": [
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "glass_concord",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "set": "glass_concord",
+                "base": "shoulders_mantle"
+              },
+              "chest": {
+                "set": "glass_concord",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "glass_concord",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "rare": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 32900,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 32900
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6344794577,
+              "estMs": 171218
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4154009948,
+              "estMs": 678005
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 37000,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 37000
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4695556093,
+              "estMs": 231355
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2872047105,
+              "estMs": 980638
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 35850,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 35850
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4425474826,
+              "estMs": 245474
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2673536263,
+              "estMs": 1053451
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 902350,
+          "estTotalMs": 6506538,
+          "timeouts": 6,
+          "spec": {
+            "id": "glass_concord/legendary",
+            "classId": "mage",
+            "mainSkills": [
+              "magic_missile",
+              "black_hole"
+            ],
+            "slots": [
+              "black_hole",
+              "frost_nova",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "rare": "head_wizard"
+              },
+              "shoulders": {
+                "rare": "shoulders_mantle"
+              },
+              "chest": {
+                "rare": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_cloth"
+              },
+              "feet": {
+                "rare": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              null,
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 50950,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 50950
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3697596711,
+              "estMs": 293797
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1741667114,
+              "estMs": 1617094
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 37600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 37600
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 4860134470,
+              "estMs": 223521
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2690606501,
+              "estMs": 1046768
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 93800,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 93800
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2092120597,
+              "estMs": 519254
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1073438858,
+              "estMs": 2623754
+            }
+          ]
+        }
+      }
+    },
+    {
+      "set": "lantern_garden",
+      "classId": "mage",
+      "skills": [
+        "hydra",
+        "frost_nova"
+      ],
+      "slots": [
+        "hydra",
+        "frost_nova",
+        "black_hole",
+        "magic_weapon"
+      ],
+      "ratio": 26.264242852100246,
+      "hybridBetween": true,
+      "passes": false,
+      "enforced": false,
+      "kits": {
+        "set": {
+          "totalMs": 141650,
+          "estTotalMs": 141650,
+          "timeouts": 0,
+          "spec": {
+            "id": "lantern_garden/set",
+            "classId": "mage",
+            "mainSkills": [
+              "hydra",
+              "frost_nova"
+            ],
+            "slots": [
+              "hydra",
+              "frost_nova",
+              "black_hole",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "lantern_garden",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "set": "lantern_garden",
+                "base": "shoulders_mantle"
+              },
+              "chest": {
+                "set": "lantern_garden",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "set": "lantern_garden",
+                "base": "hands_wraps"
+              },
+              "legs": {
+                "set": "lantern_garden",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "set": "lantern_garden",
+                "base": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "lanternroot",
+              "mountain_fists",
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 850,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 850
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 5000,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 5000
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 56100,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 56100
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 650
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 2850,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 2850
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 37950,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 37950
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 450,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 450
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 2550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 2550
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 35250,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 35250
+            }
+          ]
+        },
+        "hybrid": {
+          "totalMs": 730250,
+          "estTotalMs": 2506765,
+          "timeouts": 4,
+          "spec": {
+            "id": "lantern_garden/hybrid",
+            "classId": "mage",
+            "mainSkills": [
+              "hydra",
+              "frost_nova"
+            ],
+            "slots": [
+              "hydra",
+              "frost_nova",
+              "black_hole",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "set": "lantern_garden",
+                "base": "head_wizard"
+              },
+              "shoulders": {
+                "set": "lantern_garden",
+                "base": "shoulders_mantle"
+              },
+              "chest": {
+                "set": "lantern_garden",
+                "base": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "set": "lantern_garden",
+                "base": "legs_cloth"
+              },
+              "feet": {
+                "rare": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "lanternroot",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 10900,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 10900
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 96150,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 96150
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 5046763490,
+              "estMs": 558069
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 13600,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 13600
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 117200,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 117200
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3745016237,
+              "estMs": 752050
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 12400,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 12400
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 9050228316,
+              "estMs": 120035
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3408243223,
+              "estMs": 826361
+            }
+          ]
+        },
+        "legendary": {
+          "totalMs": 772550,
+          "estTotalMs": 3720330,
+          "timeouts": 5,
+          "spec": {
+            "id": "lantern_garden/legendary",
+            "classId": "mage",
+            "mainSkills": [
+              "hydra",
+              "frost_nova"
+            ],
+            "slots": [
+              "hydra",
+              "frost_nova",
+              "black_hole",
+              "magic_weapon"
+            ],
+            "equipment": {
+              "mainhand": {
+                "legendary": "thousand_missiles"
+              },
+              "offhand": {
+                "legendary": "void_heart"
+              },
+              "head": {
+                "rare": "head_wizard"
+              },
+              "shoulders": {
+                "rare": "shoulders_mantle"
+              },
+              "chest": {
+                "rare": "chest_robe"
+              },
+              "hands": {
+                "legendary": "mountain_fists"
+              },
+              "legs": {
+                "rare": "legs_cloth"
+              },
+              "feet": {
+                "rare": "feet_shoes"
+              },
+              "wrists": {
+                "rare": "wrists_bracers"
+              },
+              "waist": {
+                "legendary": "witching_cord"
+              },
+              "neck": {
+                "legendary": "hellforge_talisman"
+              },
+              "ring1": {
+                "legendary": "ouroboros_loop"
+              },
+              "ring2": {
+                "legendary": "patient_thief"
+              }
+            },
+            "cube": [
+              "lanternroot",
+              null,
+              null
+            ]
+          },
+          "rows": [
+            {
+              "encounter": 0,
+              "seed": 101,
+              "hp": 1676452331,
+              "ms": 14650,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 14650
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8882764902,
+              "estMs": 122298
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3537012009,
+              "estMs": 796277
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 12000,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 12000
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 113550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 113550
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3421358711,
+              "estMs": 823193
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
+              "hp": 1676452331,
+              "ms": 32350,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 32350
+            },
+            {
+              "encounter": 1,
+              "seed": 303,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6023709542,
+              "estMs": 180344
+            },
+            {
+              "encounter": 2,
+              "seed": 303,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 1732481342,
+              "estMs": 1625668
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

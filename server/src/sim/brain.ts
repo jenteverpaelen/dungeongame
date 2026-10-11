@@ -8,6 +8,7 @@ import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
 import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
 import { castPrimary, castSkill, channelTick, endChannel, startChannel } from './skills';
+import { firePowerProcs } from './powerRuntime';
 import type { Mob, Player, SkillRuntime } from './types';
 
 /** Monster weight for auto-cast counting / ground targeting: elites 3×, bosses 10×. */
@@ -210,9 +211,9 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
   if (!castSkill(inst, p, rt)) return `No valid target for ${rt.def.name}`;
   p.res -= cost;
-  // Seal of the Patient Thief: every resource-spending cast shortens all active cooldowns.
-  const thief = cost > 0 ? p.ctx.power('patient_thief') : 0;
-  if (thief) for (const [k, v] of p.readyAt) p.readyAt.set(k, v - thief * 1000);
+  // Power procs: every resource-spending cast (Seal of the Patient Thief shortens all active cooldowns), every cast.
+  if (cost > 0) firePowerProcs(inst, p, 'spend');
+  firePowerProcs(inst, p, 'cast');
   const cd = skillCooldownMs(p, rt);
   if (cd > 0) p.readyAt.set(id, inst.t + cd);
   p.castFlagMs = 300;

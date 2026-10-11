@@ -8,7 +8,7 @@
 import type { InstanceApi, PlayerLink } from '../src/contracts';
 import {
   BASES, CLASSES, CollisionWorld, DIFFICULTIES, LEGENDARIES, MONSTERS, Rng, SETS, SKILLS, TILE, ZONES, computeStats,
-  createCharacter, generateItem, isBlockedTile, monsterHp, skillsForClass, slotsForKind, xpToNext, zoneSeed,
+  createCharacter, generateItem, isBlockedTile, monsterHp, runeUnlockLevel, skillsForClass, slotsForKind, xpToNext, zoneSeed,
   F_CHANNEL, F_DEAD, STATE_STRIDE, type CharacterSave, type ClassId, type DerivedStats, type EntDesc, type GameEvent,
   type Item, type ItemKind, type S2C, type Slot, type Snapshot,
 } from '../src/shared';
@@ -208,7 +208,7 @@ function makeChar(cls: ClassId, level: number, opts: { endgame?: boolean } = {})
     for (const [sk, rune] of Object.entries(b.runes)) {
       const def = SKILLS[sk];
       const i = def.runes.findIndex((r) => r.id === rune);
-      if (def.unlock + [2, 5, 9][i] <= level) save.skills.runes[sk] = rune;
+      if (i >= 0 && runeUnlockLevel(def, i) <= level) save.skills.runes[sk] = rune;
     }
     const tiered = [save.skills.primary, ...save.skills.slots.filter((s): s is string => !!s)];
     let pts = save.skillPoints;
@@ -1108,13 +1108,13 @@ function spendSkillPoints(save: CharacterSave, build?: { slots: string[]; runes:
     for (const [sk, rune] of Object.entries(build.runes)) {
       const def = SKILLS[sk];
       const i = def.runes.findIndex((r) => r.id === rune);
-      if (i >= 0 && def.unlock + [2, 5, 9][i] <= save.level && save.skills.runes[sk] !== rune) { save.skills.runes[sk] = rune; changed = true; }
+      if (i >= 0 && runeUnlockLevel(def, i) <= save.level && save.skills.runes[sk] !== rune) { save.skills.runes[sk] = rune; changed = true; }
     }
   } else {
     for (const id of [save.skills.primary, ...save.skills.slots.filter((x): x is string => !!x)]) {
       if (save.skills.runes[id] === undefined || save.skills.runes[id] === null) {
         const def = SKILLS[id];
-        const i = def.runes.findIndex((_, ri) => def.unlock + [2, 5, 9][ri] <= save.level);
+        const i = def.runes.findIndex((_, ri) => runeUnlockLevel(def, ri) <= save.level);
         if (i >= 0) { save.skills.runes[id] = def.runes[i].id; changed = true; }
       }
     }

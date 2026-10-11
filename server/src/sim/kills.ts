@@ -12,6 +12,7 @@ import type { Instance } from './instance';
 import { dropForMob } from './loot';
 import { grantXp, touchChar } from './players';
 import { skillDeathHooks } from './skills';
+import { firePowerProcs } from './powerRuntime';
 import type { Mob, Player } from './types';
 import { creditQuestKill } from '../quests';
 
@@ -56,8 +57,8 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
     if (!m.noReward && !riftGuardian) dropForMob(inst, p, m);
     if (p === killer) {
       if (p.ctx.d.lifePerKill > 0) healPlayer(inst, p, p.ctx.d.lifePerKill, true);
-      const hf = p.ctx.power('hellforge_talisman');
-      if (hf && eliteKill) addBuff(p, { id: 'hellforge', ms: 30000, dmg: hf });
+      if (eliteKill) firePowerProcs(inst, p, 'eliteKill');
+      firePowerProcs(inst, p, 'kill');
     }
     touchChar(p);
   }

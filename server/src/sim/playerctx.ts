@@ -1,73 +1,27 @@
 // Per-player combat context: derived stats + every slotted skill's merged mods (rune + tiers + legendary powers
 // + set bonuses). Rebuilt whenever the save changes (level-up, equipment, skills, paragon, cube).
 
-import { CLASSES, DASH, SKILLS, computeStats, loadoutMods, mergeMods, type DerivedStats, type SkillMods } from '../shared';
+import { CLASSES, SKILLS, computeStats, loadoutMods, mergeMods, type DerivedStats, type SkillMods } from '../shared';
+import { allPowerSources } from '../../../shared/src/powerSources';
+import { passivePowerSources } from '../../../shared/src/passives';
+import { buildPowerRuntime, ownMultiplier, tagIndexFor, type PowerRuntime } from './powerRuntime';
 import type { Player, PlayerCtx, SaveX, SkillRuntime } from './types';
-import { LEGENDARIES, SETS } from '../../../shared/src/data/items';
 
-/** Legendary-power and set-bonus modifications for one skill (ARCHITECTURE 1.5). */
-function extraMods(d: DerivedStats, skillId: string): SkillMods {
-  const m: SkillMods = { flags: [] };
-  const pw = d.powers, sets = d.sets;
-  const add = (k: 'dmg' | 'radius' | 'cost' | 'cooldown' | 'duration' | 'projectiles' | 'maxSummons', v: number) => { m[k] = (m[k] ?? 0) + v; };
-  switch (skillId) {
-    case 'whirlwind':
-      if (pw.eternal_gyre) { add('cost', -pw.eternal_gyre); m.flags!.push('gyre'); }
-      if (pw.ninefold_gale) m.flags!.push('dustDevils', 'ninefold');
-      if ((sets.endless_storm ?? 0) >= 2) m.flags!.push('dustDevils');
-      if ((sets.endless_storm ?? 0) >= 4) m.flags!.push('whirlRend', 'stormDR');
-      break;
-    case 'rend':
-      if (pw.bloodwake) add('dmg', pw.bloodwake);
-      break;
-    case 'ground_stomp':
-      if (pw.last_light) { add('dmg', pw.last_light); m.flags!.push('pull'); }
-      break;
-    case 'sentry':
-      if (pw.sappers_pack) { add('maxSummons', 2); add('dmg', pw.sappers_pack); }
-      if (pw.gearwright_heart) { add('cooldown', -pw.gearwright_heart); m.flags!.push('fastSentry'); }
-      if ((sets.siegebreaker ?? 0) >= 2) { add('maxSummons', 1); add('cooldown', -30); }
-      if ((sets.siegebreaker ?? 0) >= 4) m.flags!.push('sentryCasts');
-      break;
-    case 'multishot':
-      if (pw.thunderhead) { m.element = 'lightning'; add('dmg', pw.thunderhead); }
-      break;
-    case 'hungering_arrow':
-      if (pw.hunters_mark) m.flags!.push('huntersMark');
-      break;
-    case 'meteor':
-      if (pw.cindervane) { add('dmg', pw.cindervane); m.flags!.push('moltenDouble'); }
-      if (pw.starfall_mantle) { add('cost', -pw.starfall_mantle); m.flags!.push('fastMeteor'); }
-      if ((sets.fallen_star ?? 0) >= 2) m.flags!.push('secondMeteor');
-      break;
-    case 'black_hole':
-      if (pw.void_heart) { add('radius', 30); m.flags!.push('voidHeart'); }
-      break;
-    case 'magic_missile':
-      if (pw.thousand_missiles) { add('projectiles', 2); add('dmg', pw.thousand_missiles); }
-      break;
-  }
-  let result=m;
-  for(const [id,value] of Object.entries(pw)){
-    const e=LEGENDARIES[id]?.skillEffect;
-    if(e?.skill===skillId)result=mergeMods(result,mergeMods(e.mods??{}, {[e.rolled]:e.rolled==='cooldown'?-value:value}));
-  }
-  for(const [id,count] of Object.entries(sets))for(const e of SETS[id]?.effects??[])
-    if(count>=e.count&&e.skills.includes(skillId)&&e.mods)result=mergeMods(result,e.mods);
-  return result;
-}
+const NO_MODS: SkillMods = { flags: [] };
 
-function runtime(save: SaveX, d: DerivedStats, skillId: string): SkillRuntime {
+function runtime(save: SaveX, powers: PowerRuntime, skillId: string): SkillRuntime {
   const def = SKILLS[skillId];
-  const mods = mergeMods(loadoutMods(save, skillId), extraMods(d, skillId));
+  const mods = mergeMods(loadoutMods(save, skillId), powers.mods.get(skillId) ?? NO_MODS);
   return { def, mods, flags: new Set(mods.flags ?? []) };
 }
 
 export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save)): PlayerCtx {
+  // One interpreter for every power template (sets → legendaries → passives → nodes): shared/src/powerSources.ts.
+  const powers = buildPowerRuntime(allPowerSources(save, d.powers, d.sets, passivePowerSources(save)), tagIndexFor(save.classId, save.skills.runes));
   const cache = new Map<string, SkillRuntime>();
   const get = (id: string) => {
     let r = cache.get(id);
-    if (!r) { r = runtime(save, d, id); cache.set(id, r); }
+    if (!r) { r = runtime(save, powers, id); cache.set(id, r); }
     return r;
   };
   const slots = [0, 1, 2, 3].map((i) => {
@@ -82,7 +36,6 @@ export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save)): Pla
   const stomp = slots.find((s) => s?.def.id === 'ground_stomp');
   const nova = slots.find((s) => s?.def.id === 'frost_nova');
   const jarring = stomp && stomp.flags.has('vulnerable') ? 1.3 : 1;
-  const anvil = d.powers.anvil_vambraces ? 1 + d.powers.anvil_vambraces / 100 : 1;
   const boneChill = nova && nova.flags.has('vulnerable') ? 1.33 : 1;
 
   return {
@@ -92,10 +45,11 @@ export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save)): Pla
     slotted: (id) => slots.find((s) => s?.def.id === id) ?? null,
     setCount: (id) => d.sets[id] ?? 0,
     power: (id) => d.powers[id] ?? 0,
-    stunMult: jarring * anvil,
-    frozenMult: boneChill,
+    stunMult: jarring * powers.stunFactor,
+    frozenMult: boneChill * powers.frozenFactor,
+    powers,
     attackRange: CLASSES[save.classId].attackRange,
-    dashCdMs: d.powers.stridewind ? DASH.cooldownMs / 2 : DASH.cooldownMs,
+    dashCdMs: d.dashCdMs,
   };
 }
 
@@ -137,23 +91,7 @@ export function activeSentries(p: Player): number {
   return n;
 }
 
-/** Own-bucket multipliers (set bonuses). */
+/** Own-bucket multiplier (set bonuses, conditional power terms), capped by OWN_BUCKET_CAP. */
 export function skillMult(p: Player, skillId: string): number {
-  const c = p.ctx;
-  let authored=1;
-  for(const [id,count] of Object.entries(c.d.sets))for(const e of SETS[id]?.effects??[])
-    if(count>=e.count&&e.skills.includes(skillId)&&e.multiplier)authored*=e.multiplier;
-  if(authored!==1)return authored;
-  switch (skillId) {
-    case 'whirlwind':
-    case 'dust_devil':
-      return c.setCount('endless_storm') >= 6 ? 51 : 1;
-    case 'sentry':
-    case 'multishot':
-    case 'cluster_arrow':
-      return c.setCount('siegebreaker') >= 6 ? 1 + 2.5 * Math.min(4, activeSentries(p)) : 1;
-    case 'meteor':
-      return c.setCount('fallen_star') >= 6 ? 8 : 1;
-  }
-  return 1;
+  return ownMultiplier(p, skillId);
 }
