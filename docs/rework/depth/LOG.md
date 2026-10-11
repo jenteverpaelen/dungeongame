@@ -128,3 +128,23 @@
 - `server/test/sim.ts`: warrior fixture kit = the audit's best Endless Storm 6 Whirlwind kit (set spike ×25 [M]);
   warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
   Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).
+
+## Mage wave (2026-10-11, branch `claude/mage`)
+
+- Content: 12 skills (6 new: Rime Needles, Thrumming Ray, Cinderkin, Rimefield, Stormglass Orb, Orrery), 60 runes,
+  67 / 72 nodes, 14 passives (6 kept + 8 new), 5 sets (Regalia of the Fallen Star redesigned on tags; Glass Concord,
+  Lantern Garden, Hoarfrost Vigil, Hollowstar Choir new), 33 / 34 mage legendaries, 5 data grounds; NAMES.md rune
+  renames (ids unchanged). Details, blocked list (chosen-strength slow: 5 nodes; Rimewalker Slippers: movement-end
+  trigger) and deviations: `MAGE-PILOT.md`.
+- Narrow generic additions (tests in `server/test/engineMage.test.ts`): `Proj.hook`, negative `skillMore` ("less"),
+  `elementStacks.bucket: 'generic'`, rule `statusLonger`; harness-only `resetIdsForHarness`.
+- Parity: `MAGE-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on mage
+  items for the parity-ready mage skill Rime Needles. Fits from measurements: Hollowstar Choir 4 cost 30 → 10 %,
+  Hollowstar Choir 6 refraction 40 → 15 %, Hoarfrost Vigil 2 20/20 → 15/15 %, Spellwright's Circlet once every 0.5 s,
+  Stormglass extra orbs half damage. Mage items only, D3 0.49–3.44 → 0.50–1.40 and D6 2.54 → 1.49.
+- Client: `render/vfx/mage.ts` + routing, poses, three summon rigs, six icons, buff names, sounds, gallery scenes; no
+  filters, no Graphics, pooled particles only. Real-rift fixes: zap load window, orb glow crowding, Conductor tether as
+  the light zap (and a chain). Draw calls per frame stay in the base build's band (`MAGE-PILOT.md` §8).
+- `server/test/sim.ts`: mage endgame kit = the audit's best Fallen Star 6 Meteor kit (set spike ×13–22 [M]); mage
+  L70 Torment II rift is a 30 % progress floor like the warrior's (87.3–93.6 % rift-only, 35.3 % in the full stream).
+  Warrior and ranger field / signature / spike sections byte-identical to 343a5d5 with the mage out of the class loops.
