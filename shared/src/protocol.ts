@@ -32,6 +32,7 @@ export const F_BLEED = 1 << 12;
 export const F_POISON = 1 << 13;
 export const F_INVULN = 1 << 14;
 export const F_WINDUP = 1 << 15;   // monster telegraphing an attack
+export const F_SLOW = 1 << 16;     // power-status slow (movement only; chill has its own bit)
 
 /** Visible paper-doll slots. */
 export type LookSlot = 'head' | 'shoulders' | 'chest' | 'hands' | 'legs' | 'feet' | 'waist' | 'mainhand' | 'offhand';
@@ -187,7 +188,7 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item; build?: import('./buildCode').BuildCode }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
       /** v2 breakdown (F-MET-02): kills/min used, whether it is the hero's own measured rate, the offline share, cap hit. */
       rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
@@ -212,7 +213,7 @@ export type CmdOp = 'onboarding'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
-  | 'buildSheet' | 'bench' | 'loadout'
+  | 'buildSheet' | 'bench' | 'loadout' | 'applyBuild'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';
 

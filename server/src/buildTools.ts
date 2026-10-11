@@ -4,6 +4,7 @@
 
 import type { Session } from './net/session';
 import { LOADOUT_NAME_MAX, LOADOUT_SLOTS, applySetup, saveLoadout } from '../../shared/src/loadouts';
+import { buildToSetup, decodeBuild } from '../../shared/src/buildCode';
 import { fail, ok, type CmdResult } from './world';
 
 type Args = Record<string, unknown>;
@@ -80,4 +81,19 @@ export function loadoutCommand(s: Session, a: Args): CmdResult {
     }
     default: return fail('Unknown loadout action');
   }
+}
+
+/**
+ * `applyBuild { code }` (persisted): the skill part of an HF1 build code, through the same rules as a loadout (town
+ * only, free respec first, what this hero may not use is skipped and reported). Gear in the code is never granted.
+ */
+export function applyBuildCommand(s: Session, a: Args): CmdResult {
+  if (typeof a.code !== 'string') return fail('Paste a build code');
+  const d = decodeBuild(a.code);
+  if (!d.ok) return fail(d.err);
+  if (d.build.classId !== s.save.classId) return fail('That build is for another class');
+  if (s.rec?.kind !== 'town') return fail('Apply builds in Hearthmere');
+  const skipped = [...d.unknown.map((u) => `${u}: not in this version`), ...applySetup(s.save, buildToSetup(d.build))];
+  s.changed(true);
+  return ok({ skipped: skipped.slice(0, 12) });
 }

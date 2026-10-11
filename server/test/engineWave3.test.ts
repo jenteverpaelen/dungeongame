@@ -13,6 +13,7 @@ import { describeEffect, type PowerEffect } from '../../shared/src/powers';
 import { computeStats } from '../../shared/src/stats';
 import { combatInteger } from '../../shared/src/combatBounds';
 import type { ClassId } from '../../shared/src/types';
+import { F_CHILL, F_SLOW } from '../../shared/src/protocol';
 import type { PowerSource } from '../../shared/src/powerSources';
 import { brainForTest } from './fixtures/wave2';
 import { playerBrain } from '../src/sim/brain';
@@ -69,6 +70,7 @@ test('slow: chosen strength, the strongest wins, bosses ignore it, it slows move
     assert.equal(conditionCount(p, { targetState: 'slowed' }, undefined, a), 1, 'a slowed enemy counts as slowed');
     assert.equal(conditionCount(p, { targetState: 'slowed' }, undefined, b), 0);
     assert.equal(a.chillMs ?? 0, 0, 'a slow is not a chill (attack speed untouched)');
+    assert(mobStatusFlags(a) & F_SLOW, 'clients see the slow (F_SLOW tint)'); assert(!(mobStatusFlags(b) & F_SLOW)); assert(!(mobStatusFlags(a) & F_CHILL));
     for (const m of [a, b]) wakeMob(inst, m, p); // both chase the player from mirrored spots: only the slow differs
     const ax = a.x, bx = b.x;
     for (let t = 0; t < 400; t += 50) updateMonsters(inst, 50);
@@ -77,6 +79,7 @@ test('slow: chosen strength, the strongest wins, bosses ignore it, it slows move
     assert(Math.abs(da / db - 0.5) < 0.12, `the slowed enemy walked about half as far (${(da / db).toFixed(2)})`);
     for (let t = 0; t < 400; t += 50) updateMonsters(inst, 50);
     assert(a.ps!.slowMs <= 0, 'the slow ran out');
+    assert(!(mobStatusFlags(a) & F_SLOW), 'the tint ends with the slow');
     assert.equal(conditionCount(p, { targetState: 'slowed' }, undefined, a), 0);
   } finally { inst.destroy(); }
   assert.deepEqual(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'slow', pct: 30, ms: 1000 } }]), [], 'a slow validates');

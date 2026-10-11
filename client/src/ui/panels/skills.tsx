@@ -31,6 +31,7 @@ import { STAT_LABELS } from '@shared/stats';
 import { cls, run } from './util';
 import { pushNotice } from '../store';
 import { LOADOUT_NAME_MAX, LOADOUT_SLOTS } from '@shared/loadouts';
+import { BuildCodeRow } from './buildcode';
 import { AutoRuleEditor } from './autoRules';
 
 type Mode = { kind: 'skill' } | { kind: 'passive'; slot: number };
@@ -155,6 +156,7 @@ function LoadoutStrip({ char }: { char: CharacterSave }) {
         <b>{i + 1}</b></button>)}
         {sel === null && <span class="sk-lo-hint">{sets.some(Boolean) ? 'Pick a loadout' : 'Save up to five skill setups'}</span>}
         {sel !== null && <span class="sk-lo-cur">{cur ? cur.name : 'Empty slot'}</span>}</div>
+      {sel === null && <BuildCodeRow />}
       {sel !== null && <div class="sk-lo-act">
         {naming !== '' || !cur
           ? <><input class="sk-lo-name" maxLength={LOADOUT_NAME_MAX} placeholder={`Loadout ${sel + 1}`} value={naming} onInput={(e) => setNaming(e.currentTarget.value)} aria-label="Loadout name" />

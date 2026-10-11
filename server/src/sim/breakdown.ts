@@ -40,7 +40,7 @@ export function skillSheet(inst: Instance, p: Player, id: string): SkillSheet | 
     if (v) skill.push({ src: `${part.kind}:${part.id}`, name: part.name, value: v });
   }
   for (const t of pw.trace.mods.get(id) ?? []) skill.push({ src: t.src, value: t.value, text: textOf(p, t) });
-  if (d.skillDmg[id]) skill.push({ src: 'gear:skillDmg', name: 'Equipment, paragon and passives', value: d.skillDmg[id] });
+  if (d.skillDmg[id]) skill.push({ src: 'gear:skillDmg', name: 'Equipment, Lantern Ranks and passives', value: d.skillDmg[id] });
 
   const generic: SheetPart[] = [];
   if (d.dmgPct) generic.push({ src: 'gear:dmgPct', name: 'Damage bonus (character sheet)', value: d.dmgPct });

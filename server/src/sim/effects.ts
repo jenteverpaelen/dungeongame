@@ -1,6 +1,6 @@
 // Geometry helpers, crowd control on monsters/players, DoT bookkeeping and player buffs.
 
-import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TICK_MS, TILE, angleDiff, type Element } from '../shared';
+import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_SLOW, F_STUN, T_VOID, T_WALL, TICK_MS, TILE, angleDiff, type Element } from '../shared';
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
 import { adventureCover } from '../../../shared/src/adventureCover';
@@ -214,6 +214,7 @@ export function mobStatusFlags(m: Mob): number {
   if (m.stunMs > 0) f |= F_STUN;
   if (m.freezeMs > 0) f |= F_FROZEN;
   if (m.chillMs > 0) f |= F_CHILL;
+  if (m.ps && m.ps.slowMs > 0) f |= F_SLOW;
   for (let i = 0; i < m.dots.length; i++) {
     const k = m.dots[i].kind;
     if (k === 'bleed') f |= F_BLEED;

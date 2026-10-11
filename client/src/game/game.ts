@@ -257,7 +257,7 @@ export class Game {
         break;
       }
       case 'chat':
-        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item });
+        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item, build:m.build });
         break;
       case 'afk':
         ui.set({ afk: m });
