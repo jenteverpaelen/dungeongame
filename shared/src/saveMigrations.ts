@@ -12,7 +12,7 @@ import { SAVE_VERSION } from './saveVersion';
 import { validSocial } from './social';
 import { validLootRules } from './itemCollection';
 import { validBestiary } from './bestiary';
-import { validMerchant } from './merchant';
+import { ownedItems, validMerchant } from './merchant';
 import { validEconomy } from './economy';
 import { validCommandState } from './commandState';
 import { validIntro } from './onboarding';
@@ -71,8 +71,13 @@ export const SAVE_HISTORY: readonly SaveVersionStep[] = [
     // normalizeSkillNodes clears a tree that is illegal under the current data (a free respec), so the fixture's ranks
     // only survive once its skill has those nodes; the custody check still applies.
     mayRepair: 'skills.nodes are re-validated against the current skill trees on load',
-    fixture: 'v15-nodes', check: s => absentOr(s.skills.nodes, n => !!n && typeof n === 'object' && Object.values(n).every(r => !!r && typeof r === 'object'
+    fixture: 'v15-nodes',
+    extraFixtures: [{ fixture: 'v15-grades', note: 'input of the v16 grade migration (pre-grade Ancient / Primal items; sharedItems.test.ts)' }],
+    check: s => absentOr(s.skills.nodes, n => !!n && typeof n === 'object' && Object.values(n).every(r => !!r && typeof r === 'object'
       && Object.values(r).every(v => Number.isInteger(v) && v >= 0))) },
+  { version: 16, adds: 'Item grades (Kindled / Fabled): pre-grade Ancient / Primal items keep their stored values and get legacyGrade; old Primal items a deterministic Inscription.',
+    fields: ['legacyGrade', 'inscription'], fixture: 'v16-grades',
+    check: s => ownedItems(s).every(i => !i || !i.ancient || !!i.legacyGrade || i.kindledAffix !== undefined) },
 ];
 
 /** Problems with the history itself (gaps, order, missing current version). Empty when consistent. */

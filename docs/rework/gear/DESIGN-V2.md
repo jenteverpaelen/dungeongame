@@ -59,16 +59,25 @@ Colours live in one place (`gearStyle.ts TOP_COLORS / FABLED_LIGHT`).
 +4 / +7 / +10 (the existing Cube thresholds): the weapon's light layer pulses faster and brighter per step, the sheen
 sweep starts at +4, a star circles the tip at +10; icons show one star per step.
 
-### 2.6 Size (V7, owner decision)
+### 2.6 Size (V7, owner decision 1)
 Bounded per size class, because small one-handers are the hardest to read on a ~95 px hero [M] and big two-handers
 already grow heads and edges per generation in the drawing. Legendary ×1.06, each grade step ×1.04. Reach, hitboxes and
-collision are unchanged (the trail follows the drawn tip).
+collision are unchanged (the trail follows the drawn tip). Pass 2.1 (lead's hero-scale review): one-handers climb
+hardest at G5–G6; the ladder lives in `gearStyle.ts GEN_SCALE` and is independent of the drawings.
 
 | Class | G0 | G1 | G2 | G3 | G4 | G5 | G6 | Legendary + Fabled at G6 |
 |---|---|---|---|---|---|---|---|---|
-| small (1H, wand, hand crossbow) | 0.90 | 0.97 | 1.05 | 1.15 | 1.26 | 1.38 | 1.50 | 1.72 |
-| mid (bow, crossbow, off-hands) | 0.90 | 0.95 | 1.02 | 1.10 | 1.18 | 1.27 | 1.36 | 1.56 |
-| large (2H, staff) | 0.88 | 0.93 | 0.98 | 1.04 | 1.10 | 1.17 | 1.24 | 1.42 |
+| small (1H, wand, hand crossbow) | 0.90 | 0.98 | 1.08 | 1.20 | 1.36 | 1.56 | **1.80** | 2.06 |
+| mid (bow, crossbow, off-hands) | 0.90 | 0.96 | 1.05 | 1.16 | 1.30 | 1.46 | 1.62 | 1.85 |
+| large (2H, staff) | 0.88 | 0.94 | 1.00 | 1.07 | 1.15 | 1.24 | 1.34 | 1.53 |
+
+**Size cap proposal (owner decision 1 still open).** The gallery shows three caps for the one-hander ladder at the
+default camera (`?view=weapon-hero&cap=1.5|1.8|2.1`; the other classes scale along proportionally):
+`shots-v2/p21-cap-1.5.jpg`, `p21-cap-1.8.jpg`, `p21-cap-2.1.jpg`. Measured sword length at G6 [M, reach 31 units ×
+scale, 1.306 px / unit]: ×1.5 → 47 units (61 px), **×1.8 → 56 units (73 px)**, ×2.1 → 65 units (85 px, about the hero's
+own height). Proposal: **×1.8** — the G6 blade reads at a glance next to a ~95 px hero and still sits below the hero's
+height, while ×2.1 makes the Fabled legendary (×2.4, ~74 units) as tall as its bearer. Terraria's ±18 % (T1) bounds
+one modifier, not a 70-level climb, so it does not decide this; it is the owner's call.
 
 ### 2.7 Armour (weapons escalate the most; armour follows the same axes)
 * **Material by generation** (`gearStyle.ts artLook`): worked-metal shapes (helms, plate, spiked, gauntlets, sabatons,
@@ -82,6 +91,42 @@ collision are unchanged (the trail follows the drawn tip).
   line — lit in the item's light, dormant grooves on normal pieces.
 * Icons fill by generation (80 % → 91 %), off-hands scale by generation in the rig.
 
+### 2.8 Hold and show pose (pass 2.1; A1–A3, A6)
+One rest hold per animation grip (A1, A2: attack / stance sets belong to the weapon category, the item only swaps the
+drawing), so a new drawing never needs a new pose. Rule (A3): **the business end breaks the body silhouette at every
+facing yaw the game uses, and a weapon is drawn behind the torso only where a body would hide it.**
+* `choreo.ts basePose` receives the body yaw (`BaseIn.yaw`, from the rig). Light weapons (1H, wand, hand crossbow) use
+  `readableHold(yaw, down)`: forward in profile, out to the hand's side when facing the camera or away; its outward
+  (+z) part fades out in profile, because there the weapon hand is on the camera's side of the torso and +z pulls the
+  tip back over the body on screen (screen x ≈ 0.91·x − 0.42·z at yaw 65, A6). `lightHand` carries the hand further
+  forward and nearer the body line in profile. Wands point level in profile, slightly up facing the camera.
+* Bow (left hand, far side in profile): carried forward of the chest in profile; turned away (cos yaw < 0) it goes
+  further out to the side. Crossbow at the hip with the stock turned out. Two-handers and staves unchanged (approved by
+  the lead: rested at the side, head out behind the shoulder).
+* Measure [M] (`?view=weapon-pose`, `window.__pose`, five facings: side 65°, camera 20°, away 158°, side 115°, walk;
+  units at scale 1). **ext** = how far the weapon box breaks out of the torso box; **hidden** = its overlap with the
+  torso box when drawn behind it (in front, overlap is readable by contrast):
+
+| Family | G0 ext avg / min | G0 hidden avg / max | G6 rare ext avg / min | G6 hidden avg / max |
+|---|---|---|---|---|
+| sword | 20.6 / 16 | 0.08 / 0.38 | 55.8 / 52 | 0.06 / 0.16 |
+| axe | 17.8 / 12 | 0.07 / 0.36 | 56.8 / 52 | 0.06 / 0.16 |
+| mace | 17.8 / 13 | 0.08 / 0.40 | 52.8 / 48 | 0.08 / 0.21 |
+| wand | 7.8 / 3 | 0.10 / 0.49 | 30.6 / 22 | 0.12 / 0.32 |
+| hand crossbow | 13.8 / 7 | 0.06 / 0.29 | 33.4 / 25 | 0.07 / 0.17 |
+| bow | 8.2 / 3 | 0.27 / 0.50 | 22.6 / 12 | 0.12 / 0.21 |
+| crossbow | 19.4 / 12 | 0.06 / 0.31 | 49.0 / 34 | 0.04 / 0.09 |
+| greatsword | 13.8 / 0 | 0.06 / 0.28 | 38.2 / 18 | 0.02 / 0.10 |
+| great axe | 15.2 / 7 | 0.06 / 0.31 | 67.4 / 38 | 0.01 / 0.04 |
+| staff | 3.6 / 0 | 0.00 / 0.00 | 23.2 / 12 | 0.00 / 0.00 |
+
+  Step 2 of the pass (profile hands) at G0, side 65°: torso cover wand 1.00 → 0.88, hand crossbow 0.92 → 0.72, sword
+  0.56 → 0.50, bow (behind) 0.48 → 0.42. Honest limits: a G0 wand in profile still lies mostly over the robe (readable
+  only by contrast: the drawing must contrast with cloth); a bow seen from behind is half hidden (a left-hand bow at
+  arm's length cannot clear a 31-unit torso); staves are vertical props that read above the head, which the x-extent
+  measure does not count. Evidence: `shots-v2/p21-pose-g0.jpg`, `p21-pose-g6.jpg`, `p21-pose-zoom-g0.jpg`,
+  `p21-pose-zoom-g6.jpg`, every family on the hero `p21-hero-melee.jpg`, `p21-hero-ranged.jpg`.
+
 ## 3. Data format and how content gets its look
 **Wire:** `ItemLook.fx` (never stored) = mixed-radix pack of gen (8) · rarity (8) · grade (4) · upgrade (16) · filled
 sockets (4) · best gem (8) · gem rank (8) · enchanted (2) · Set id (32) · legendary id (256). Plain items stay below 2³²
@@ -90,21 +135,25 @@ Descriptor growth vs no fx [M, test]: +103 B (L70), +129 B (Fabled). `PROTOCOL_V
 quest agent).
 
 **Registry (`client/src/render/art/gearVisuals.ts`, data only, append-only):**
-* a new base shape → one line in `SHAPE_FAMILY` (family, animation grip, reach). The 11 planned bases of
-  ITEMS-SHARED.md §3.3 are already mapped to their nearest family (cleaver → axe, maul2h / polearm → great axe, longbow →
-  bow, sling → hand crossbow, sceptre → wand, censer → staff, warhorn / tome → orb, trap_kit → quiver), so they show the
-  full 7-generation progression on day one. A test fails if a weapon / off-hand base has no family.
+* a new base shape → one line in `SHAPE_FAMILY` (family, animation grip, reach). The shared-items wave (claude/depth)
+  gives its new bases existing shapes (cleaver → `axe`, maul2h / polearm → `axe2h`, longbow → `bow`, sling →
+  `handxbow`, rod / sceptre → `wand`, censer → `staff`, warhorn / trap_kit → `quiver`, tome → `orb`), so they show the
+  full 7-generation progression on day one; the planned own-shape keys stay in the registry for later. A test fails if a
+  weapon / off-hand base has no family.
 * a new legendary → optional line in `LEGENDARY_VISUAL` (`motif`, optional `sig`, optional `bespoke`). Unlisted
   legendaries still get the generic legendary treatment in their own `colors`. The motif table of ITEMS-SHARED.md §6
-  maps straight onto it.
+  maps straight onto it; the 13 shared legendaries of that wave are listed (Journeyman's Ring is not in the §6 table:
+  `gold` is a placeholder [P]).
 * a new Set → a line in `SET_STYLE` (motif, main / deep colour, signature text).
 * a fully bespoke silhouette → a function in `weaponArt.ts BESPOKE` keyed by the registry's `bespoke`.
 
-## 4. Silhouette families (`weaponArt.ts`)
+## 4. Silhouette families (`weaponArt.ts`, behind the interface of §11)
 blade, greatblade, axe, greataxe, mace, bow, crossbow, handxbow, staff, wand, shield, quiver, orb — one parametric
 drawing each with two layers: **base** (solid art; light painted lit, or dormant) and **light** (only the emissive
 parts, baked separately, drawn additively and pulsing by the hero rig, composited with a glow in icons), plus a list of
-**floating pieces** (the rig animates them; icons draw them at rest).
+**floating pieces** (the rig animates them; icons draw them at rest). Owner feedback 2026-10-11 ("it looks very ai
+made … it all looks the same"): these drawings are **placeholders** until the art-direction pass replaces them through
+`registerWeaponDrawing`; pass 2.1 added no drawing and no ornament.
 
 ## 5. Effects belong to items, not to a rank (V10)
 | Effect | Before (rank-driven) | Now (item-driven) | Evidence |
@@ -178,6 +227,29 @@ weapon / off-hand base has a client family, descriptor bytes). `npm run verify`:
 load-sensitive stages (connection drills timing out at 6 s, and the simulation's 3 ms tick-average threshold at
 3.01 ms; the base commit measured 2.6–4.3 ms on the same machine in interleaved runs); the rerun passed every stage.
 
+## 7c. Pass 2.1 evidence (1920×1080, visible page target, default camera unless noted, `shots-v2/p21-*.jpg`)
+| What | Files |
+|---|---|
+| Every family on the hero, L1 → L13 → L25 → L37 → L49 → L61 → L70 → signature → Fabled +10 | `p21-hero-melee.jpg`, `p21-hero-ranged.jpg` |
+| One-hander size cap ×1.5 / ×1.8 / ×2.1 (owner decision 1) | `p21-cap-1.5.jpg`, `p21-cap-1.8.jpg`, `p21-cap-2.1.jpg` |
+| Hold pose, every family × five facings, G0 and G6 (+ ×3 zoom of the light weapons) | `p21-pose-g0.jpg`, `p21-pose-g6.jpg`, `p21-pose-zoom-g0.jpg`, `p21-pose-zoom-g6.jpg` |
+| Combat strip per generation: Cleave with sword / great axe, bow shot, wand missile, frozen at fixed ms after the cast (hero art + the real Vfx module fed the server's events) | `p21-strike-gen.jpg` (L1 … L70 rare), `p21-strike-top.jpg` (L70 rare, legendary, signature, Kindled +7, Fabled +10) |
+| Newcomer vs endgame **without Set wings** (Set pieces shown as legendaries, `?noset=1`) | `p21-vs-warrior-fabled-noset.jpg`, `p21-vs-mage-fabled-noset.jpg`, `p21-vs-ranger-L70.jpg`, ×3 zoom all classes `p21-vs-all-fabled-noset-z3.jpg`, `p21-vs-all-L70-noset-z3.jpg` |
+| Real clients in a rift (isolated server, no page errors): L70 warrior, Fabled-set ranger | `p21-game-warrior-field-1.jpg`, `p21-game-ranger-field-4.jpg` |
+
+**Crowd A/B (pass 2.1 working tree vs HEAD cba0692 exported to `.local/base21`, own Vite, interleaved, two rounds,
+best / medians of 1-second samples).** The machine was again shared with other agents' processes (absolute fps are
+below this morning's table for both sides), so only the interleaved comparison counts:
+
+| Case | HEAD (V2) | Pass 2.1 | Draw calls / frame (HEAD → 2.1) |
+|---|---|---|---|
+| 30 heroes, Fabled stage, full effects | best 70 (medians 55 / 48) | best 75 (medians 59 / 72) | 181 → 176 |
+| 100 heroes, mixed stages, full | best 37 (medians 22 / 32) | best 35 (medians 22 / 33) | 337 → 326 |
+| 100 heroes, Fabled stage, full | best 31 (medians 25 / 30) | best 31 (medians 26 / 24) | 394 → 396 |
+
+[M] No regression within the noise (the perf gallery attacks through the rig: trails, glow ribbon and strike bursts are
+included; the Vfx-side skins are per-event tints plus one aura sprite per skinned projectile).
+
 ## 8. Decisions
 | # | What | Why | Evidence | Rollback |
 |---|---|---|---|---|
@@ -191,11 +263,80 @@ load-sensitive stages (connection drills timing out at 6 s, and the simulation's
 | V2-D8 | Tier strip, medal, crown, icon frames removed | owner request; reference games show rarity + enhancement only | M4, M5, X2 | tooltip / nameplates / icons |
 | V2-D9 | Mixed-radix pack, protocol 25 | room for 15 Sets / 120+ legendaries; plain items stay 5 bytes | B5 [M], test | `FIELDS` |
 | V2-D10 | Light as a separate baked layer + floats as parts | additive pulse and motion at sprite cost (no per-frame vector work) | perf budget of pass 1 | `weaponL` / `wf*` parts |
+| V2-D11 | One yaw-aware rest hold per grip; light weapons forward in profile, out to the side otherwise | readability rule A3; ext / hidden measure | A1–A3, A6, §2.8 [M] | `choreo.ts readableHold`, `lightHand` |
+| V2-D12 | One-hander ladder to ×1.8 (proposal), caps shown at 1.5 / 1.8 / 2.1 | lead's hero-scale review; owner decision 1 open | §2.6 [M], `p21-cap-*.jpg` | `GEN_SCALE` |
+| V2-D13 | Attacks read `WeaponPresentation` from the drawing (colours, anchors, strength), never motifs or rarity | art agent replaces drawings without touching VFX | A4, A5, §10 | `weaponSkin.ts`, VFX `skinOf` |
+| V2-D14 | Weapon drawings behind `weaponDrawing.ts` (family registry) | owner: current drawings feel generic; new art swaps in per family | §11 | `DEFAULT_WEAPON_DRAWINGS` |
 
 ## 9. Owner decisions (safe defaults chosen)
-1. **How big endgame weapons may get** (§2.6; default max ×1.5 one-handers, ×1.24 two-handers before legendary / grade).
+1. **How big endgame weapons may get** (§2.6; proposal ×1.8 one-handers, ×1.62 bows / off-hands, ×1.34 two-handers
+   before legendary / grade; compare `p21-cap-1.5|1.8|2.1.jpg`).
 2. Kindled / Fabled colours (ember-orange / white-gold starlight with a cool rim) and whether Fabled should replace the
    legendary's own core colour (default: yes, its colour moves to the rim).
 3. Whether the light column should return as part of a specific item family (default: removed).
 4. Whether transmog should hide generation / rarity art (default as before: shape from the wardrobe, generation, light and
    grade from the worn item).
+
+## 10. Attack presentation (pass 2.1; A4, A5, V7, V8)
+The attacks read **only** the drawing's `WeaponPresentation` (§11) through `weaponSkin.ts weaponSkinOf(look)`: light,
+core, edge colours, a strength, the light anchors (tip / base of the striking part) and an optional particle hint. No
+motif, rarity or legendary logic lives in the VFX code, so a new drawing changes its attacks by returning other data.
+Default drawings: strength 0 for unlit items (a newcomer's attacks look exactly as before), else
+0.25 + 0.1·generation + 0.35 signature + 0.2·grade + 0.05·temper (G3 rare 0.55, G6 rare 0.85, signature 1.2, Kindled +7
+≈ 1.75, Fabled +10 ≈ 2.1); every size saturates at 1.6, above that only colour and the hint change.
+
+| Consumer | What changes | Where |
+|---|---|---|
+| Swing trail | span × (1 + 0.22·s) along the drawing's anchors; a wide soft additive ribbon in `core` from s ≥ 0.6 | `player.ts updateTrail` |
+| Strike flash | at the action's strike moment (swing / double / leap slam / overhead): flash in `light`, core, a ring in `edge`, 2–7 sparks, 2 hint particles (ember / star / shard); pooled, ≤ 28 sprites per hero | `weaponImpact.ts` |
+| Muzzle (shots) | tinted `core`, × (1 + 0.35·s) | `player.ts` |
+| Projectiles | physical arrow / bolt / missile / spark take `light` (elemental shots keep the element colour, A4); a soft aura in `edge` / `light`; motes by the hint; size × (1 + min(0.4, 0.22·s)); impact flash | `vfx/projectiles.ts` |
+| Hit flash | on damage from a skinned hero, in `light`, radius 12 + 8·s | `vfx/combat.ts` |
+| Cleave arc | the physical arc mixes from the default cream towards `light` by 0.18 + 0.16·s (max 0.5); a thin inner arc in `edge` from s ≥ 0.8; **radius never changes** (it shows the real hit area) | `vfx/aoe.ts`, `casts.ts` |
+
+Restraint (G2 / V8, owner: no more glow): the first combat strip turned the Fabled hit into a white blob hiding the
+target, so flash sizes were cut by about a third, saturated at s = 1.6, hint particles 3 → 2, hit-flash alpha
+0.6 / 0.85 → 0.45 / 0.7, projectile aura 0.42 → 0.32. Evidence: `p21-strike-gen.jpg`, `p21-strike-top.jpg` (the white
+training dummy is its own existing hit flash).
+
+**Crowd budget.** The local hero always gets everything. Other players: the skin is dropped from the Vfx side while the
+particle budget is below 0.45 (`VfxCore.skinOf`; the budget already falls under load); their hit flash is × 0.6; the
+glow ribbon, the strike ring and sparks and decorative floats only for the 16 presence slots (`GearFx.rich`); the core
+strike flash for everyone whose gear effects are not off. Measured: §7c (no regression).
+
+## 11. The weapon-drawing interface (for the art-direction pass)
+`client/src/render/art/weaponDrawing.ts`. One function per silhouette family replaces the placeholder drawing; the
+rig, the poses, the size ladder, icons, ground loot, the attack presentation and the crowd budget stay untouched.
+
+```ts
+type WeaponDrawFn = (input: WeaponDrawInput) => WeaponDrawing;
+registerWeaponDrawing(family: WeaponFamily, fn: WeaponDrawFn): void;   // e.g. at module load of the new art file
+
+interface WeaponDrawInput {          // family × generation × rarity × signature × grade → drawing
+  look: ItemLook;                    // shape, stored colours (primary / secondary / glow), packed fx
+  style: ItemStyle;                  // gen 0..6, rar 0..4, special, top (1 Kindled, 2 Fabled), temper (+N step),
+                                     // legendary / set ids, sig / bespoke, motif, palette (metal, edge, dark, trim,
+                                     // wood, wrap), light colours (light, edgeLight), gem, floats budget
+  family: WeaponFamily; shape: string;
+  reach: { tip: number; base: number };   // canonical reach of the family (units along −y)
+  rig: boolean;                      // true: on the hero; false: icon (may thicken thin parts)
+}
+interface WeaponDrawing {
+  draw(c: Ctx, layer: 'base' | 'light'): void;  // 'base' = solid art, 'light' = emissive parts only (drawn additive, pulsed)
+  readonly floats: WFloat[];         // floating pieces {x, y, draw, bob, orbit, spin, phase, glow, glowR, deco}
+  readonly lit: boolean;             // has a light layer at all
+  readonly present: WeaponPresentation;  // what the attacks read (§10)
+}
+interface WeaponPresentation {
+  light: number; core: number; edge: number;   // 0xRRGGBB; light 0 = plain attacks
+  strength: number;                  // 0 plain … ~1.2 legendary … ~2 Fabled +10 (sizes saturate at 1.6)
+  tip: [number, number]; base: [number, number];  // the striking part's light anchors (the trail runs base → tip, the strike flash sits at the tip)
+  impact?: 'spark' | 'ember' | 'star' | 'shard';
+}
+```
+Frame: hand-local units at scale 1, **grip at the origin, business end towards −y** at the family's canonical reach
+(bows: limbs along ±y, belly +x). The rig applies `GEN_SCALE`, the pose, the rotation and depth sorting; do not scale by
+generation inside the drawing unless the silhouette itself grows. Floats with `deco: true` are dropped outside the
+16 presence slots. Results are cached per look (`weaponDrawing(look, rig)`), so a drawing must be pure and
+deterministic. Families: blade, greatblade, axe, greataxe, mace, bow, crossbow, handxbow, staff, wand, shield, quiver,
+orb. The pose readability limits of §2.8 (a G0 wand in profile reads by contrast with the robe) are inputs for the art.

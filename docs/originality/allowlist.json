@@ -62,11 +62,6 @@
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "client/src/i18n/gearMessages.ts",
-      "text": "a Primal Ancient item",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
       "file": "client/src/i18n/settingsMessages.ts",
       "text": "Paragon",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
@@ -202,11 +197,6 @@
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
-      "file": "server/src/sim/loot.ts",
-      "text": "Primal Ancient",
-      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
-    },
-    {
       "file": "server/src/sim/rift.ts",
       "text": "The Rift Guardian has appeared!",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
@@ -265,6 +255,16 @@
       "file": "shared/src/data/items.ts",
       "text": "Prism",
       "reason": "keep: generic English word (item-name tier); a D3 rune shares it by coincidence"
+    },
+    {
+      "file": "shared/src/data/items.ts",
+      "text": "Health globes heal  % more",
+      "reason": "Health globe is owner pick B6 (NAME-REGISTER.md); these shared-items affix labels follow the same term as the other allowlisted Health Globe uses until the pick is applied"
+    },
+    {
+      "file": "shared/src/data/items.ts",
+      "text": "Elites have  % more chance to drop a health globe",
+      "reason": "Health globe is owner pick B6 (NAME-REGISTER.md); these shared-items affix labels follow the same term as the other allowlisted Health Globe uses until the pick is applied"
     },
     {
       "file": "shared/src/data/items.ts",

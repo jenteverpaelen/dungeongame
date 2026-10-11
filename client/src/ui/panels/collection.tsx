@@ -139,7 +139,7 @@ export function CollectionPanel() {
               })}
             </>)}
           </div>
-          <p class="co-sub">Auto-salvage destroys eligible bag items when you open the nearby Blacksmith. It never touches worn gear or your stash. Protected, merchant, Ancient, empowered, enchanted and filled-socket items are excluded. Hidden drops still exist and expire normally.</p>
+          <p class="co-sub">Auto-salvage destroys eligible bag items when you open the nearby Blacksmith. It never touches worn gear or your stash. Protected, merchant, Kindled, Fabled, empowered, enchanted and filled-socket items are excluded. Hidden drops still exist and expire normally.</p>
           <p class="co-sub"><b>{char.inventory.filter(i => i && autoSalvageEligible(char, i, draft)).length}</b> bag items would be salvaged on your next visit after saving.</p>
           <div class="co-actions">
             <button class="btn primary" onClick={() => void run('collection', { action: 'rules', rules: draft }).then(r => { if (r.ok) setNotice('Loot rules saved.'); })}>Save loot rules</button>

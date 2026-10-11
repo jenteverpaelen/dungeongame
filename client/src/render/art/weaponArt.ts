@@ -1,4 +1,6 @@
-// Parametric weapon and off-hand art V2 (docs/rework/gear/DESIGN-V2.md §3–§4).
+// DEFAULT (procedural) weapon and off-hand drawings, behind the interface in weaponDrawing.ts (DESIGN-V2 §11): the
+// art-direction pass replaces families with `registerWeaponDrawing` and nothing else changes. Owner feedback
+// (2026-10-11): these look generic ("very ai made"); treat them as placeholders for the hand-authored series.
 //
 // One drawing per silhouette family (gearVisuals.ts SHAPE_FAMILY) that evolves over the seven generations in a
 // two-beat rhythm (REFERENCES-V2 V2): a new model at G0 / G2 / G4 / G6 (crude → forged → runic → zenith), a material
@@ -14,31 +16,12 @@
 import { GraphicsContext } from 'pixi.js';
 import type { ItemLook } from '@shared/types';
 import { OUT, ball, blob, crease, fill, gem, line, outline, poly, rbox, rivet, seg, spark, star, wash, inSilhouette, type Ctx } from './draw';
-import { TOP_COLORS, type ItemStyle } from './gearStyle';
+import { FABLED_LIGHT, TOP_COLORS, type ItemStyle } from './gearStyle';
 import type { Motif, Signature, WeaponFamily } from './gearVisuals';
+import type { WFloat, WLayer, WeaponDrawFn, WeaponDrawInput, WeaponDrawing, WeaponPresentation } from './weaponDrawing';
 import { light, mix, shade } from './util';
 
-export type WLayer = 'base' | 'light';
-
-/** A floating piece: drawn around its own origin, placed at (x, y) in the weapon frame. */
-export interface WFloat {
-  x: number; y: number;
-  /** Draw (base art with its light merged in; small parts read better solid). */
-  draw: (c: Ctx) => void;
-  /** Hover amplitude (units), orbit radius around (x, y) (0 = hover only), spin (rad/s), phase. */
-  bob: number; orbit: number; spin: number; phase: number;
-  /** Light colour of the piece's glow sprite (0 = none) and its size. */
-  glow: number; glowR: number;
-  /** Decorative (motif tokens, glints, embers): the crowd budget may hide it; structural pieces always show. */
-  deco: boolean;
-}
-
-export interface WeaponModel {
-  draw: (c: Ctx, layer: WLayer) => void;
-  floats: WFloat[];
-  /** Has a light layer worth baking (lit channels / signature light). */
-  lit: boolean;
-}
+export type { WFloat, WLayer } from './weaponDrawing';
 
 interface P {
   s: ItemStyle; g: number; r: number; sp: boolean; top: number; v: number;
@@ -863,54 +846,69 @@ function solidOf(p: P, x: number, y: number, draw: (c: Ctx) => void, bob: number
   return floatOf(p, x, y, draw, bob, orbit, spin, phase, glow, glowR, false);
 }
 
-/** Floats per look (the vector pass that finds them runs once per look, not per view rebuild). */
-const FLOAT_CACHE = new Map<string, WFloat[]>();
-
-/** Build the model of a held item (weapon or off-hand) for its family. `rig` thickens bow limbs for the hero. */
-export function weaponModel(look: ItemLook, s: ItemStyle, fam: WeaponFamily, rig = false): WeaponModel {
-  const emberColor = TOP_COLORS[1];
-  const mk = (layer: WLayer): P => ({
-    s, g: s.gen, r: s.rar, sp: s.special, top: s.top, v: look.variant,
-    metal: s.metal, edge: s.edge, dark: s.dark, trim: s.trim, wood: s.wood, wrap: s.wrap,
-    L: s.light, edgeL: s.edgeLight, layer, sig: s.sig, motif: s.motif, look, rig,
-  });
-  const run = (c: Ctx, layer: WLayer, out: WFloat[]) => {
-    const p = mk(layer);
-    const bespoke = s.bespoke ? BESPOKE[s.bespoke] : undefined;
-    if (bespoke) { bespoke(c, p, out); gradeMarks(c, p, fam, out, emberColor); return; }
-    switch (fam) {
-      case 'blade': bladeFamily(c, p, false, out); break;
-      case 'greatblade': bladeFamily(c, p, true, out); break;
-      case 'axe': axeFamily(c, p, false, out); break;
-      case 'greataxe': axeFamily(c, p, true, out); break;
-      case 'mace': maceFamily(c, p, out); break;
-      case 'staff': staffFamily(c, p, out); break;
-      case 'wand': wandFamily(c, p, out); break;
-      case 'bow': bowFamily(c, p, rig, out); break;
-      case 'crossbow': crossbowFamily(c, p, false, out); break;
-      case 'handxbow': crossbowFamily(c, p, true, out); break;
-      case 'shield': shieldFamily(c, p, out); break;
-      case 'quiver': quiverFamily(c, p, out); break;
-      case 'orb': orbFamily(c, p, out); break;
-    }
-    signature(c, p, fam, out);
-    gradeMarks(c, p, fam, out, emberColor);
-  };
-  const fkey = `${fam}|${rig ? 1 : 0}|${look.fx}|${look.primary}|${look.secondary}|${look.glow}|${look.variant}`;
-  let floats: WFloat[] | null = FLOAT_CACHE.get(fkey) ?? null;
+/** Presentation of the default drawings: the item's light, a strength from generation / rarity / grade / +N, the
+ *  family's reach as the light anchors, and the grade's particle hint (Kindled ember, Fabled star). */
+function defaultPresentation(input: WeaponDrawInput): WeaponPresentation {
+  const s = input.style, lit = !!s.light;
+  const tip: [number, number] = input.family === 'bow' ? [6, 0] : [0, -input.reach.tip];
+  const base: [number, number] = input.family === 'bow' ? [2.6, 0] : [0, -input.reach.base];
   return {
-    draw: (c, layer) => run(c, layer, []),
-    /** Floating pieces (found by a vector-only base pass into a scratch context; no render). */
-    get floats() {
-      if (!floats) {
-        const scratch = new GraphicsContext(); floats = []; run(scratch, 'base', floats); scratch.destroy();
-        if (FLOAT_CACHE.size > 400) FLOAT_CACHE.clear();
-        FLOAT_CACHE.set(fkey, floats);
-      }
-      return floats;
-    },
-    lit: !!s.light || !!s.edgeLight,
+    light: s.light,
+    core: lit ? light(s.top >= 2 ? FABLED_LIGHT : s.light, 0.45) : 0,
+    edge: s.edgeLight,
+    strength: !lit ? 0 : 0.25 + 0.1 * s.gen + (s.special ? 0.35 : 0) + 0.2 * s.top + 0.05 * s.temper,
+    tip, base,
+    impact: s.top >= 2 ? 'star' : s.top === 1 ? 'ember' : 'spark',
   };
 }
+
+/** The procedural drawing of one family as a WeaponDrawFn (the default registered in weaponDrawing.ts). */
+function proceduralDrawing(fam: WeaponFamily): WeaponDrawFn {
+  return (input: WeaponDrawInput): WeaponDrawing => {
+    const { look, style: s, rig } = input;
+    const emberColor = TOP_COLORS[1];
+    const mk = (layer: WLayer): P => ({
+      s, g: s.gen, r: s.rar, sp: s.special, top: s.top, v: look.variant,
+      metal: s.metal, edge: s.edge, dark: s.dark, trim: s.trim, wood: s.wood, wrap: s.wrap,
+      L: s.light, edgeL: s.edgeLight, layer, sig: s.sig, motif: s.motif, look, rig,
+    });
+    const run = (c: Ctx, layer: WLayer, out: WFloat[]) => {
+      const p = mk(layer);
+      const bespoke = s.bespoke ? BESPOKE[s.bespoke] : undefined;
+      if (bespoke) { bespoke(c, p, out); gradeMarks(c, p, fam, out, emberColor); return; }
+      switch (fam) {
+        case 'blade': bladeFamily(c, p, false, out); break;
+        case 'greatblade': bladeFamily(c, p, true, out); break;
+        case 'axe': axeFamily(c, p, false, out); break;
+        case 'greataxe': axeFamily(c, p, true, out); break;
+        case 'mace': maceFamily(c, p, out); break;
+        case 'staff': staffFamily(c, p, out); break;
+        case 'wand': wandFamily(c, p, out); break;
+        case 'bow': bowFamily(c, p, rig, out); break;
+        case 'crossbow': crossbowFamily(c, p, false, out); break;
+        case 'handxbow': crossbowFamily(c, p, true, out); break;
+        case 'shield': shieldFamily(c, p, out); break;
+        case 'quiver': quiverFamily(c, p, out); break;
+        case 'orb': orbFamily(c, p, out); break;
+      }
+      signature(c, p, fam, out);
+      gradeMarks(c, p, fam, out, emberColor);
+    };
+    let floats: WFloat[] | null = null;
+    return {
+      draw: (c, layer) => run(c, layer, []),
+      get floats() {
+        if (!floats) { const scratch = new GraphicsContext(); floats = []; run(scratch, 'base', floats); scratch.destroy(); }
+        return floats;
+      },
+      lit: !!s.light || !!s.edgeLight,
+      present: defaultPresentation(input),
+    };
+  };
+}
+
+const FAMILIES: WeaponFamily[] = ['blade', 'greatblade', 'axe', 'greataxe', 'mace', 'bow', 'crossbow', 'handxbow', 'staff', 'wand', 'shield', 'quiver', 'orb'];
+/** The default drawings per family (registered by weaponDrawing.ts; the art pass overrides them one by one). */
+export const DEFAULT_WEAPON_DRAWINGS = Object.fromEntries(FAMILIES.map((f) => [f, proceduralDrawing(f)])) as Record<WeaponFamily, WeaponDrawFn>;
 
 void rbox; void OUT;

@@ -126,3 +126,15 @@
   4×150 round avg 1.95 ms / p99 5.3 ms, 81.5 kB/s per client). Two earlier runs: one caught a real bug (the session's
   rate meter broke prototype-built test sessions; fixed d5d4e3a), one had `backup-runtime` time out at its 6 s
   startup deadline while other agents were loading the machine — the test passes alone (11 s) and in the clean run.
+- **Tick regression after the lead merge (d22ee7d), fixed.** Cause: the behaviour toolkit added `bh` (guardians, on
+  their first tick) and `summonedBy` (their adds) to monster objects *after* creation, so monsters stopped sharing one
+  V8 hidden class once a guardian had fought; every later monster property read in the run went polymorphic. Proof
+  (`--allow-natives-syntax` `%HaveSameMap`): plain monster vs guardian after a fight → different maps before, same map
+  after. Fix: both fields are always present in `createMob`'s literal (`bh: undefined`, `summonedBy: 0`). The `perf`
+  scenario run alone never showed it (no guardian runs before it; 10 interleaved rounds: median 2.03 vs 2.10 ms).
+  Three-way interleaved full `sim.ts`, 6 rounds on a loaded machine [M]: 4-player tick median pre 2.43 / unfixed 5.90 /
+  fixed 2.78 ms (min 1.90 / 3.48 / 1.91), total median 14.1 / 19.7 / 13.8 s (min 11.4 / 16.2 / 10.6 s).
+- **Post-merge gates (d22ee7d).** Save history gained v16 (Kindled / Fabled grades: legacyGrade, deterministic
+  Inscription) with golden fixture `v16-grades` (the lead's `v15-grades` normalised) and `v15-grades` registered as an
+  extra v15 fixture; content-id lock records the shared-items wave's 73 new ids; two new "health globe" affix labels
+  allowlisted under owner pick B6 (2 stale entries dropped).
