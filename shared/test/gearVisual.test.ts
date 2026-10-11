@@ -9,7 +9,7 @@ import { seedCollection } from '../src/itemCollection';
 import { baseTierIndex, generateItem } from '../src/items';
 import { Rng } from '../src/math';
 import {
-  FX_CAPACITY, GEAR_GEM_ORDER, GEAR_LEGENDARY_ORDER, GEAR_SET_ORDER, GEN_START, MAX_GEN, RARITY_ORDER, gearLook, gearProfile,
+  ART_SHAPE, FX_CAPACITY, GEAR_GEM_ORDER, GEAR_LEGENDARY_ORDER, GEAR_SET_ORDER, GEN_START, MAX_GEN, RARITY_ORDER, artShape, gearLook, gearProfile,
   itemGeneration, litLook, lookFromEquipment, lookFx, lookStage, packGearFx, temperOf, unpackGearFx,
 } from '../src/gearVisual';
 import { SHOWCASE_STAGES, showcaseEquipment } from '../src/gearShowcase';
@@ -143,6 +143,26 @@ test('every weapon / off-hand base shape has a silhouette family in the client r
     if (!b.weapon && b.kind !== 'offhand') continue;
     assert.ok(new RegExp(`\\b${b.shape}: F\\(`).test(src), `${b.id} (${b.shape}) has a family in SHAPE_FAMILY`);
   }
+});
+
+test('depth-wave bases draw with their own art shape, derived from the base id (stored looks unchanged)', () => {
+  const src = readFileSync(new URL('../../client/src/render/art/gearVisuals.ts', import.meta.url), 'utf8');
+  for (const [base, shape] of Object.entries(ART_SHAPE)) {
+    assert.ok(BASES[base], `${base} is a base`);
+    const held = !!BASES[base].weapon || BASES[base].kind === 'offhand';
+    // held art shapes have a family in SHAPE_FAMILY, armour art shapes a slot silhouette in ARMOUR_FAMILY
+    assert.ok(new RegExp(held ? `\\b${shape}: F\\(` : `\\b${shape}: '`).test(src), `${base} (${shape}) is mapped in the client registry`);
+    const it = generateItem(new Rng(5), { ilvl: 40, classId: 'warrior', rarity: 'rare', base });
+    assert.equal(it.look.shape, BASES[base].shape, 'the stored look keeps the base shape (the collection validates it)');
+    assert.equal(gearLook(it).shape, shape, `${base}: the wire look carries its art shape`);
+    assert.equal(artShape(base, it.look), shape);
+  }
+  // a wardrobe look keeps the shape of its own source base
+  const cleaver = generateItem(new Rng(6), { ilvl: 40, classId: 'warrior', rarity: 'rare', base: 'cleaver' });
+  const axe = generateItem(new Rng(7), { ilvl: 40, classId: 'warrior', rarity: 'rare', base: 'axe' });
+  assert.equal(gearLook(axe, cleaver.look, 'cleaver').shape, 'cleaver');
+  assert.equal(gearLook(cleaver, axe.look, 'axe').shape, 'axe');
+  assert.equal(gearLook(cleaver, axe.look).shape, axe.look.shape, 'an unknown source base keeps the stored shape');
 });
 
 test('descriptor bytes stay small (sent on enter / change, never per tick)', () => {
