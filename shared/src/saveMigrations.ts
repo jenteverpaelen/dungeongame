@@ -77,6 +77,7 @@ export const SAVE_HISTORY: readonly SaveVersionStep[] = [
       && Object.values(r).every(v => Number.isInteger(v) && v >= 0))) },
   { version: 16, adds: 'Item grades (Kindled / Fabled): pre-grade Ancient / Primal items keep their stored values and get legacyGrade; old Primal items a deterministic Inscription.',
     fields: ['legacyGrade', 'inscription'], fixture: 'v16-grades',
+    extraFixtures: [{ fixture: 'v16-legacy-rolls', note: 'legendary rolls of retired ranges rescale on load (shared/src/legendaryRolls.ts; saveMigrations.test.ts)' }],
     check: s => ownedItems(s).every(i => !i || !i.ancient || !!i.legacyGrade || i.kindledAffix !== undefined) },
 ];
 

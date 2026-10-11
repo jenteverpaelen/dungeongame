@@ -1,0 +1,884 @@
+{
+ "version": 16,
+ "id": "v16legacyrolls",
+ "name": "Vsixteenrolls",
+ "classId": "ranger",
+ "level": 70,
+ "xp": 0,
+ "gold": 0,
+ "materials": {
+  "scrap": 0,
+  "dust": 0,
+  "crystal": 0,
+  "soul": 0,
+  "deathsBreath": 0
+ },
+ "gems": {},
+ "equipment": {
+  "mainhand": {
+   "id": "oldrain35",
+   "base": "bow",
+   "kind": "weapon2h",
+   "name": "Rainspindle",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 1033,
+     "min": 939,
+     "max": 1125,
+     "primary": true
+    },
+    {
+     "stat": "weaponDmgPct",
+     "value": 7.4,
+     "min": 7,
+     "max": 10,
+     "primary": true
+    },
+    {
+     "stat": "area",
+     "value": 19.7,
+     "min": 16,
+     "max": 20,
+     "primary": true
+    },
+    {
+     "stat": "vsControlled",
+     "value": 5.1,
+     "min": 5,
+     "max": 8,
+     "primary": true
+    },
+    {
+     "stat": "chillOnHit",
+     "value": 7.4,
+     "min": 5,
+     "max": 10,
+     "primary": false
+    },
+    {
+     "stat": "lifePerKill",
+     "value": 7503,
+     "min": 6000,
+     "max": 10000,
+     "primary": false
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "bow",
+    "primary": 3689561,
+    "secondary": 11193035,
+    "glow": 12118000,
+    "variant": 1
+   },
+   "weapon": {
+    "min": 1974,
+    "max": 4379,
+    "aps": 1.4,
+    "element": "physical"
+   },
+   "legendary": {
+    "power": "rainspindle",
+    "value": 35,
+    "min": 30,
+    "max": 40
+   },
+   "flavor": "The string remembers every arrow still in the sky."
+  },
+  "offhand": {
+   "id": "1twcy2u2",
+   "base": "quiver",
+   "kind": "offhand",
+   "name": "Quiver",
+   "rarity": "normal",
+   "ancient": 0,
+   "ilvl": 1,
+   "reqLevel": 1,
+   "affixes": [],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "quiver",
+    "primary": 7035450,
+    "secondary": 4208163,
+    "glow": 0,
+    "variant": 0
+   },
+   "armor": 3
+  },
+  "chest": {
+   "id": "1o4yfb93",
+   "base": "chest_leather",
+   "kind": "chest",
+   "name": "Worn Jerkin",
+   "rarity": "normal",
+   "ancient": 0,
+   "ilvl": 1,
+   "reqLevel": 1,
+   "affixes": [],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "leather",
+    "primary": 6044964,
+    "secondary": 3613974,
+    "glow": 0,
+    "variant": 0
+   },
+   "armor": 8
+  },
+  "legs": {
+   "id": "7yc2k54",
+   "base": "legs_leather",
+   "kind": "legs",
+   "name": "Worn Breeches",
+   "rarity": "normal",
+   "ancient": 0,
+   "ilvl": 1,
+   "reqLevel": 1,
+   "affixes": [],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "leather",
+    "primary": 4863014,
+    "secondary": 2891543,
+    "glow": 0,
+    "variant": 2
+   },
+   "armor": 9
+  },
+  "feet": {
+   "id": "56tb7i5",
+   "base": "feet_boots",
+   "kind": "feet",
+   "name": "Worn Boots",
+   "rarity": "normal",
+   "ancient": 0,
+   "ilvl": 1,
+   "reqLevel": 1,
+   "affixes": [],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "boots",
+    "primary": 7035450,
+    "secondary": 4208163,
+    "glow": 0,
+    "variant": 2
+   },
+   "armor": 5
+  },
+  "ring1": {
+   "id": "oldvane60",
+   "base": "ring",
+   "kind": "ring",
+   "name": "Weathervane Ring",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 635,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "lifePct",
+     "value": 10.4,
+     "min": 10,
+     "max": 15,
+     "primary": true
+    },
+    {
+     "stat": "flatMin",
+     "value": 89,
+     "min": 84,
+     "max": 100,
+     "primary": true
+    },
+    {
+     "stat": "rcr",
+     "value": 5.4,
+     "min": 4,
+     "max": 8,
+     "primary": true
+    },
+    {
+     "stat": "resourceRegen",
+     "value": 1.3,
+     "min": 1,
+     "max": 2,
+     "primary": false
+    },
+    {
+     "stat": "xpPct",
+     "value": 6.5,
+     "min": 4,
+     "max": 8,
+     "primary": false
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "ring",
+    "primary": 5787720,
+    "secondary": 6982831,
+    "glow": 13689072,
+    "variant": 2
+   },
+   "legendary": {
+    "power": "weathervane_ring",
+    "value": 60,
+    "min": 60,
+    "max": 90
+   },
+   "flavor": "It points where the trouble is blowing."
+  }
+ },
+ "inventory": [
+  {
+   "id": "oldband90",
+   "base": "waist_belt",
+   "kind": "waist",
+   "name": "Bandolier Belt",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 680,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "allRes",
+     "value": 100,
+     "min": 91,
+     "max": 100,
+     "primary": true
+    },
+    {
+     "stat": "armor",
+     "value": 435,
+     "min": 397,
+     "max": 465,
+     "primary": true
+    },
+    {
+     "stat": "vit",
+     "value": 728,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "xpPct",
+     "value": 4.7,
+     "min": 4,
+     "max": 8,
+     "primary": false
+    },
+    {
+     "stat": "globeHeal",
+     "value": 22.4,
+     "min": 15,
+     "max": 25,
+     "primary": false
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "belt",
+    "primary": 4863526,
+    "secondary": 12088115,
+    "glow": 16760939,
+    "variant": 1
+   },
+   "armor": 1097,
+   "legendary": {
+    "power": "bandolier_belt",
+    "value": 90,
+    "min": 60,
+    "max": 90
+   },
+   "flavor": "Every loop full, every time."
+  },
+  {
+   "id": "oldvane62nr",
+   "base": "ring",
+   "kind": "ring",
+   "name": "Weathervane Ring",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 717,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "ias",
+     "value": 6.6,
+     "min": 5,
+     "max": 7,
+     "primary": true
+    },
+    {
+     "stat": "lifePct",
+     "value": 10.1,
+     "min": 10,
+     "max": 15,
+     "primary": true
+    },
+    {
+     "stat": "xpPct",
+     "value": 4.8,
+     "min": 4,
+     "max": 8,
+     "primary": false
+    },
+    {
+     "stat": "globeHeal",
+     "value": 15.7,
+     "min": 15,
+     "max": 25,
+     "primary": false
+    }
+   ],
+   "sockets": [
+    null
+   ],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "ring",
+    "primary": 5787720,
+    "secondary": 6982831,
+    "glow": 13689072,
+    "variant": 2
+   },
+   "legendary": {
+    "power": "weathervane_ring",
+    "value": 62
+   },
+   "flavor": "It points where the trouble is blowing."
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "stash": [
+  {
+   "id": "oldvane80",
+   "base": "ring",
+   "kind": "ring",
+   "name": "Weathervane Ring",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 656,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "lifeRegen",
+     "value": 2802,
+     "min": 2000,
+     "max": 4000,
+     "primary": true
+    },
+    {
+     "stat": "chc",
+     "value": 5.7,
+     "min": 4.5,
+     "max": 6,
+     "primary": true
+    },
+    {
+     "stat": "rcr",
+     "value": 6.7,
+     "min": 4,
+     "max": 8,
+     "primary": true
+    },
+    {
+     "stat": "globeHeal",
+     "value": 16.6,
+     "min": 15,
+     "max": 25,
+     "primary": false
+    },
+    {
+     "stat": "goldFind",
+     "value": 19.7,
+     "min": 15,
+     "max": 25,
+     "primary": false
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "ring",
+    "primary": 5787720,
+    "secondary": 6982831,
+    "glow": 13689072,
+    "variant": 2
+   },
+   "legendary": {
+    "power": "weathervane_ring",
+    "value": 80,
+    "min": 60,
+    "max": 90
+   },
+   "flavor": "It points where the trouble is blowing."
+  },
+  {
+   "id": "newrain170",
+   "base": "bow",
+   "kind": "weapon2h",
+   "name": "Rainspindle",
+   "rarity": "legendary",
+   "ancient": 0,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 951,
+     "min": 939,
+     "max": 1125,
+     "primary": true
+    },
+    {
+     "stat": "weaponDmgPct",
+     "value": 10,
+     "min": 7,
+     "max": 10,
+     "primary": true
+    },
+    {
+     "stat": "pierceChance",
+     "value": 10.2,
+     "min": 8,
+     "max": 12,
+     "primary": true
+    },
+    {
+     "stat": "ias",
+     "value": 5.3,
+     "min": 5,
+     "max": 7,
+     "primary": true
+    },
+    {
+     "stat": "chillOnHit",
+     "value": 6,
+     "min": 5,
+     "max": 10,
+     "primary": false
+    },
+    {
+     "stat": "goldFind",
+     "value": 20.1,
+     "min": 15,
+     "max": 25,
+     "primary": false
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "bow",
+    "primary": 3689561,
+    "secondary": 11193035,
+    "glow": 12118000,
+    "variant": 2
+   },
+   "weapon": {
+    "min": 1967,
+    "max": 4249,
+    "aps": 1.4,
+    "element": "physical"
+   },
+   "legendary": {
+    "power": "rainspindle",
+    "value": 170,
+    "min": 150,
+    "max": 200
+   },
+   "flavor": "The string remembers every arrow still in the sky."
+  },
+  {
+   "id": "sappers35",
+   "base": "quiver",
+   "kind": "offhand",
+   "name": "Sapper's Pack",
+   "rarity": "legendary",
+   "ancient": 1,
+   "ilvl": 70,
+   "reqLevel": 70,
+   "affixes": [
+    {
+     "stat": "dex",
+     "value": 682,
+     "min": 626,
+     "max": 750,
+     "primary": true
+    },
+    {
+     "stat": "rcr",
+     "value": 4.2,
+     "min": 4,
+     "max": 8,
+     "primary": true
+    },
+    {
+     "stat": "ias",
+     "value": 18.4,
+     "min": 15,
+     "max": 20,
+     "primary": true
+    },
+    {
+     "stat": "dotDmg",
+     "value": 18.3,
+     "min": 15,
+     "max": 20,
+     "primary": true
+    },
+    {
+     "stat": "resourceRegen",
+     "value": 1.7,
+     "min": 1,
+     "max": 2,
+     "primary": false
+    },
+    {
+     "stat": "thorns",
+     "value": 2404,
+     "min": 1500,
+     "max": 2500,
+     "primary": false
+    },
+    {
+     "stat": "skillDmg",
+     "value": 14.3,
+     "min": 10,
+     "max": 15,
+     "primary": true,
+     "param": "spring_snare"
+    }
+   ],
+   "sockets": [],
+   "upgrade": 0,
+   "upgradeFortune": 0,
+   "enchantCount": 0,
+   "bound": false,
+   "look": {
+    "shape": "quiver",
+    "primary": 8016432,
+    "secondary": 13214247,
+    "glow": 16757575,
+    "variant": 1
+   },
+   "kindledAffix": 6,
+   "armor": 782,
+   "legendary": {
+    "power": "sappers_pack",
+    "value": 35,
+    "min": 30,
+    "max": 40
+   },
+   "flavor": "Mostly gunpowder. Some arrows."
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "skills": {
+  "slots": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "runes": {},
+  "tiers": {},
+  "nodes": {},
+  "primary": "hungering_arrow",
+  "autoCast": [
+   "auto",
+   "auto",
+   "auto",
+   "auto"
+  ],
+  "targetPriority": "default",
+  "autoRules": [
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ "skillPoints": 0,
+ "paragon": {
+  "level": 0,
+  "xp": 0,
+  "spent": {}
+ },
+ "cube": {
+  "level": 1,
+  "xp": 0,
+  "learned": [],
+  "equipped": [
+   null,
+   null,
+   null
+  ]
+ },
+ "difficulty": 0,
+ "lastZone": "hearthmere",
+ "lastSeen": 1760000000000,
+ "stats": {
+  "kills": 0,
+  "elites": 0,
+  "legendaries": 0,
+  "rifts": 0,
+  "playMs": 0,
+  "deaths": 0
+ },
+ "collection": {
+  "revision": 1,
+  "looks": {
+   "base:bow": {
+    "name": "Short Bow",
+    "base": "bow",
+    "kind": "weapon2h",
+    "look": {
+     "shape": "bow",
+     "primary": 10253126,
+     "secondary": 6178090,
+     "glow": 0,
+     "variant": 3
+    }
+   },
+   "base:quiver": {
+    "name": "Quiver",
+    "base": "quiver",
+    "kind": "offhand",
+    "look": {
+     "shape": "quiver",
+     "primary": 7035450,
+     "secondary": 4208163,
+     "glow": 0,
+     "variant": 0
+    }
+   },
+   "base:chest_leather": {
+    "name": "Worn Jerkin",
+    "base": "chest_leather",
+    "kind": "chest",
+    "look": {
+     "shape": "leather",
+     "primary": 6044964,
+     "secondary": 3613974,
+     "glow": 0,
+     "variant": 0
+    }
+   },
+   "base:legs_leather": {
+    "name": "Worn Breeches",
+    "base": "legs_leather",
+    "kind": "legs",
+    "look": {
+     "shape": "leather",
+     "primary": 4863014,
+     "secondary": 2891543,
+     "glow": 0,
+     "variant": 2
+    }
+   },
+   "base:feet_boots": {
+    "name": "Worn Boots",
+    "base": "feet_boots",
+    "kind": "feet",
+    "look": {
+     "shape": "boots",
+     "primary": 7035450,
+     "secondary": 4208163,
+     "glow": 0,
+     "variant": 2
+    }
+   }
+  },
+  "wardrobe": {},
+  "loot": {
+   "hidden": [],
+   "leave": [],
+   "salvage": []
+  }
+ }
+}
