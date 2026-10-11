@@ -1,0 +1,60 @@
+/* Build tools M1 (docs/rework/depth/BUILD-TOOLS.md): exact numbers, damage breakdown, damage sheet, bench, loadouts,
+   build codes. Same layout language as the skills panel (panels.css .sk-*): wells on dark wood, gold section heads.
+   Nothing here scrolls; long part lists are cut with a "+N more" chip that holds the rest in its tooltip. */
+
+.sk-stats.exact .sk-stat { border-color: var(--line-2); }
+.sk-stats.exact .sk-stat label::after { content: ' ·'; color: var(--gold-dim); }
+.sk-adv { margin: 4px 0 0; font: 400 12px/1.35 var(--font-body); color: #b9d6a8; }
+
+/* Numbers tab of the skill detail */
+.sk-numbers { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; margin-top: 6px; }
+.sk-num-col { min-width: 0; }
+.sk-num-tags { margin: 0; font: 400 13px/1.4 var(--font-body); color: var(--t-2); }
+
+/* Breakdown (multiplier stack) */
+.bd { display: flex; flex-direction: column; gap: 6px; }
+.bd-rows { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.bd-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 3px 8px; border-radius: var(--r-1); background: rgba(0, 0, 0, 0.22); }
+.bd-row.dim { opacity: 0.55; }
+.bd-row dt { font: 700 12px/1.2 var(--font-body); letter-spacing: 0.03em; color: var(--t-3); }
+.bd-row dd { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; min-width: 0; }
+.bd-row dd > b { font: 400 15px/1 var(--font-num); color: #ffe6b0; }
+.bd-parts { display: contents; }
+.bd-part { font-size: 12px; color: var(--t-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.bd-part b { font: 400 12px/1 var(--font-num); color: var(--gold-hi); }
+.bd-part.more { color: var(--gold-dim); cursor: help; }
+.bd-total { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 3px 12px; padding: 6px 8px; border-top: 1px solid var(--line-2); align-items: baseline; }
+.bd-total span { font-size: 12px; color: var(--t-3); }
+.bd-total b { font: 400 17px/1 var(--font-num); color: #ffe6b0; }
+.bd.compact .bd-row { grid-template-columns: 138px minmax(0, 1fr); padding: 2px 6px; }
+.bd-conds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.bd-conds li { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 3px 8px; border-radius: var(--r-1); background: rgba(0, 0, 0, 0.2); font-size: 12px; color: var(--t-2); cursor: help; }
+.bd-conds li em { font-style: normal; color: var(--t-3); }
+.bd-conds li.on em { color: var(--good); }
+.bd-conds li b { font-weight: 700; color: var(--t-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-conds li span { font: 400 13px/1 var(--font-num); color: var(--gold-hi); }
+.bd-conds li.more { grid-template-columns: 1fr; color: var(--gold-dim); }
+.bd-none { margin: 0; }
+
+/* Item tooltip: advanced power lines */
+.pw-adv { margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+.pw-adv p { margin: 0; font-size: 12px; line-height: 1.35; color: var(--t-2); }
+.pw-adv .pw-k { display: inline-block; min-width: 62px; margin-right: 6px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: 10px; color: var(--gold-dim); }
+.pw-adv .pw-tpl { color: #b9d6a8; }
+
+/* Character panel: damage sheet */
+.dmg-sheet { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; margin-top: 8px; }
+.dmg-left { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.dmg-table { width: 100%; border-collapse: separate; border-spacing: 0 3px; font-size: 13px; }
+.dmg-table th { text-align: left; font: 700 11px/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-3); padding: 0 8px 2px; }
+.dmg-table td { padding: 6px 8px; background: rgba(0, 0, 0, 0.24); color: var(--t-2); white-space: nowrap; }
+.dmg-table td:first-child { border-radius: var(--r-2) 0 0 var(--r-2); color: var(--t-1); font-weight: 700; }
+.dmg-table td:last-child { border-radius: 0 var(--r-2) var(--r-2) 0; }
+.dmg-table td:nth-child(n+2) { font: 400 14px/1 var(--font-num); color: #ffe6b0; }
+.dmg-table tr { cursor: pointer; }
+.dmg-table tr.on td { background: color-mix(in srgb, var(--gold) 12%, rgba(0, 0, 0, 0.3)); box-shadow: inset 0 1px 0 var(--line-3), inset 0 -1px 0 var(--line-3); }
+.dmg-table td.dmg-delta { color: var(--gold-hi); }
+.dmg-pin { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dmg-pin .pn-note { margin: 0; }
+.dmg-right { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--line-1); border-radius: var(--r-3); background: linear-gradient(180deg, #1d1712, #16120e); }
+.dmg-h { margin: 0; font: 700 14px/1 var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-hi); }

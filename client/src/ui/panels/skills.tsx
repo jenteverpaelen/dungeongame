@@ -24,12 +24,15 @@ import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { IconCheck, IconChevron, IconDiamond, IconLock, IconStar4, hex } from './icons';
 import { SkillGlyph } from './skillicons';
 import { Local, useLocal, useU } from './state';
-import { textTipHandlers } from './tooltip';
+import { textTipHandlers, useAdvanced } from './tooltip';
+import { Breakdown, Conditions, modsText, sheetOf, sheetStats, sheetStore, tagWord, useSheet } from './sheet';
+import { describeEffect } from '@shared/powers';
+import { STAT_LABELS } from '@shared/stats';
 import { cls, run } from './util';
 import { AutoRuleEditor } from './autoRules';
 
 type Mode = { kind: 'skill' } | { kind: 'passive'; slot: number };
-export type SkillsTab = 'runes' | 'tree' | 'cast';
+export type SkillsTab = 'runes' | 'tree' | 'cast' | 'numbers';
 export type SkillsFilter = string; // 'all' or a category (SkillDef.category, else the kind's label)
 export const skillsUI = new Local<{ selected: string | null; assign: number | null; mode: Mode; tab: SkillsTab; filter: SkillsFilter; page: number }>(
   { selected: null, assign: null, mode: { kind: 'skill' }, tab: 'runes', filter: 'all', page: 0 });
@@ -67,6 +70,12 @@ function nextTier(skill: SkillDef, char: CharacterSave): { index: number; cost: 
 
 function buyTier(skill: SkillDef) { void run('skillTier', { skill: skill.id }); }
 
+/** One tooltip line with the server's exact numbers for a skill (build tools T1), when the sheet has it. */
+function exactLine(id: string, char: CharacterSave): string[] {
+  const s = sheetOf(sheetStore.get().sheet, id);
+  return s ? [sheetStats(s, char).map(([k, v]) => `${k} ${v}`).join(' · ')] : [];
+}
+
 // ───────────────────────── loadout ─────────────────────────
 
 function LoadoutBar({ char }: { char: CharacterSave }) {
@@ -83,7 +92,7 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
     <div class="sk-loadout" role="group" aria-label="Skill loadout">
       <div class="sk-slot primary" title={`${primary.name} · primary attack, always active`}
         onClick={() => skillsUI.set({ selected: primary.id, mode: { kind: 'skill' } })}
-        {...textTipHandlers(() => ({ title: primary.name, icon: <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={34} />, sub: 'Primary attack · always active', lines: [describeSkill(primary, modsOf(primary, char))] }), 'prim')}>
+        {...textTipHandlers(() => ({ title: primary.name, icon: <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={34} />, sub: 'Primary attack · always active', lines: [describeSkill(primary, modsOf(primary, char)), ...exactLine(primary.id, char)] }), 'prim')}>
         <SkillGlyph glyph={primary.icon.glyph} color={primary.icon.color} size={42} />
         <span class="sk-slot-key">AUTO</span>
       </div>
@@ -99,7 +108,7 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
             onClick={() => { if (!justDragged()) place(i); }}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); place(i); } }}
             onContextMenu={(e) => { e.preventDefault(); if (sk) void run('skillSlot', { slot: i, skill: null }); }}
-            {...textTipHandlers(() => (sk ? { title: sk.name, icon: <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={34} />, sub: `Slot ${i + 1} · ${AUTO_CAST_LABEL[mode]}`, lines: [describeSkill(sk, modsOf(sk, char))], note: 'Right-click to clear. Slot order is auto-cast priority.' } : { title: `Slot ${i + 1}`, sub: 'Empty', note: 'Click the slot, then a skill card — or drag a card here.' }), `slot-${i}-${id}`)}>
+            {...textTipHandlers(() => (sk ? { title: sk.name, icon: <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={34} />, sub: `Slot ${i + 1} · ${AUTO_CAST_LABEL[mode]}`, lines: [describeSkill(sk, modsOf(sk, char)), ...exactLine(sk.id, char)], note: 'Right-click to clear. Slot order is auto-cast priority.' } : { title: `Slot ${i + 1}`, sub: 'Empty', note: 'Click the slot, then a skill card — or drag a card here.' }), `slot-${i}-${id}`)}>
             {sk ? <SkillGlyph glyph={sk.icon.glyph} color={sk.icon.color} size={40} /> : <span class="sk-slot-plus">+</span>}
             <span class="sk-slot-key">{i + 1}</span>
             {mode !== 'auto' && <span class="sk-slot-mode">{mode === 'paused' ? 'Paused' : 'Still'}</span>}
@@ -275,6 +284,9 @@ function PassiveSlots({ char }: { char: CharacterSave }) {
 // ───────────────────────── detail pane ─────────────────────────
 
 function Stats({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const exact = sheetOf(useLocal(sheetStore, (s) => s.sheet), skill.id);
+  if (exact && skill.unlock <= char.level) return <div class="sk-stats exact" {...textTipHandlers(() => ({ title: 'Exact numbers', lines: ['From the server’s combat code: runes, tiers, nodes, items, sets, passives, cooldown and cost reduction included. Per hit = expected (crit-weighted) damage of one hit, without target conditions.'] }), 'sk-exact')}>
+    {sheetStats(exact, char).map(([k, v]) => <div class="sk-stat" key={k}><label>{k}</label><b>{v}</b></div>)}</div>;
   const mods = modsOf(skill, char);
   const res = CLASSES[char.classId].resource.name;
   const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100));
@@ -293,6 +305,7 @@ function Stats({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
 }
 
 function Tiers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const advanced = useAdvanced();
   const cur = char.skills.tiers[skill.id] ?? 0;
   const locked = skill.unlock > char.level;
   return (
@@ -303,6 +316,7 @@ function Tiers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
           <div key={i} class={cls('sk-tier', owned && 'owned', next && 'next', !owned && !next && 'future')}>
             <div class="sk-tier-top"><span class="sk-tier-n">{ROMAN[i]}</span><b>{t.name}</b></div>
             <p>{t.desc}</p>
+            {advanced && <p class="sk-adv">{modsText(t.mods)}</p>}
             <div class="sk-tier-act">
               {owned ? <span class="chip good"><IconCheck size={10} /> Active</span>
                 : next ? <SpendButton skill={skill} char={char} label />
@@ -316,6 +330,7 @@ function Tiers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
 }
 
 function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const advanced = useAdvanced();
   const cur = char.skills.runes[skill.id] ?? null;
   const skillLocked = skill.unlock > char.level;
   return (
@@ -327,6 +342,7 @@ function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
             aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}>
             <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b></span>
             <p>{r.desc}</p>
+            {advanced && <p class="sk-adv">{[modsText(r.mods), ...(r.effects ?? []).map((e) => describeEffect(e)), r.addTags?.length || r.tags?.length ? `adds tags: ${[...(r.addTags ?? r.tags ?? [])].map(tagWord).join(', ')}` : '', r.removeTags?.length ? `removes: ${r.removeTags.map(tagWord).join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
             <em>{locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip'}</em>
           </button>
         );
@@ -363,6 +379,7 @@ function nodeState(skill: SkillDef, node: NodeDef, char: CharacterSave): 'max' |
 }
 
 function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const advanced = useAdvanced();
   const nodes = skill.nodes ?? [];
   const [focusId, setFocus] = useState(nodes[0]?.id ?? '');
   const [busy, setBusy] = useState(false);
@@ -413,6 +430,7 @@ function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         <div class="sk-node-dh"><b>{focus.name}</b><em>Rank {rank} / {focus.maxRank}</em></div>
         <dl class="sk-node-dl">
           <dt>Now</dt><dd>{rank > 0 ? describeNode(focus, rank) : <span class="dim">Not learned</span>}</dd>
+          {advanced && <><dt>Data</dt><dd class="sk-adv">{[modsText(focus.ranks.slice(0, Math.max(1, rank)).reduce((m, r) => ({ ...m, ...Object.fromEntries(Object.entries(r).map(([k, v]) => [k, typeof v === 'number' ? ((m as Record<string, number>)[k] ?? 0) + v : v])) }), {})), ...(focus.effects ?? []).map((e) => describeEffect(e))].filter(Boolean).join(' · ') || 'no numeric mods'}</dd></>}
           {rank < focus.maxRank && <><dt>Next</dt><dd class="next">{describeNode(focus, rank + 1)}</dd></>}
           {(focus.requires?.length || unlockAt > skill.unlock) ? <><dt>Needs</dt><dd>
             {focus.requires?.map((r) => {
@@ -437,6 +455,9 @@ function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
 
 function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterSave; trees: boolean }) {
   const tab = useLocal(skillsUI, (s) => s.tab);
+  const advanced = useAdvanced();
+  const exact = sheetOf(useLocal(sheetStore, (s) => s.sheet), skill.id);
+  const sheetTags = exact?.tags ?? null;
   const tiers = char.skills.tiers[skill.id] ?? 0;
   const mods = modsOf(skill, char);
   const locked = skill.unlock > char.level;
@@ -444,7 +465,7 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
   const slotIdx = char.skills.slots.indexOf(skill.id);
   const total = treeBuyableRanks(skill);
   // The Specialization view appears once the class has any tree (no dead feature before content ships).
-  const tabs: [SkillsTab, string][] = [['runes', 'Runes & tiers'], ...(trees ? [['tree', total ? `Specialization ${treeSpent(skill, nodesOf(char, skill.id))}/${total}` : 'Specialization'] as [SkillsTab, string]] : []), ['cast', 'Casting']];
+  const tabs: [SkillsTab, string][] = [['runes', 'Runes & tiers'], ...(trees ? [['tree', total ? `Specialization ${treeSpent(skill, nodesOf(char, skill.id))}/${total}` : 'Specialization'] as [SkillsTab, string]] : []), ['cast', 'Casting'], ['numbers', 'Numbers']];
   const view = !trees && tab === 'tree' ? 'runes' : tab;
   return (
     <div class="sk-detail">
@@ -454,7 +475,7 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
           <h3>{skill.name}</h3>
           <div class="sk-d-sub"><span>{KIND_LABEL[skill.kind]}</span><i /><span style={{ color: ELEMENT_COLOR[elem] }}>{cap(elem)}</span>
             {slotIdx >= 0 && <><i /><span class="sk-d-slot">Slot {slotIdx + 1}</span></>}{skill.kind === 'primary' && char.skills.primary === skill.id && <><i /><span class="sk-d-slot">Always active</span></>}
-            {[...skillTags(skill, char.skills.runes[skill.id])].filter((t) => TAG_LABEL[t] && !(t === 'summon' && skill.kind === 'summon')).map((t) => <span key={t} class="sk-tag-word">{TAG_LABEL[t]}</span>)}
+            {(sheetTags ?? [...skillTags(skill, char.skills.runes[skill.id])]).filter((t) => (advanced ? tagWord(t) !== t : TAG_LABEL[t]) && !(t === 'summon' && skill.kind === 'summon')).map((t) => <span key={t} class="sk-tag-word">{advanced ? tagWord(t) : TAG_LABEL[t]}</span>)}
             {locked && <><i /><span class="sk-lock"><IconLock size={11} /> Level {skill.unlock}</span></>}</div>
         </div>
         {skill.kind === 'primary' && !locked && char.skills.primary !== skill.id && (
@@ -484,6 +505,7 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
         <Runes skill={skill} char={char} />
       </>}
       {view === 'tree' && <NodeTree key={skill.id} skill={skill} char={char} />}
+      {view === 'numbers' && <Numbers skill={skill} char={char} />}
       {view === 'cast' && (slotIdx >= 0 ? <Casting skill={skill} char={char} slot={slotIdx} />
         : <p class="pn-note sk-cast-hint">{skill.kind === 'primary' ? 'The primary attack is always active; it needs no casting rules.' : locked ? `Reach level ${skill.unlock} to use this skill.` : 'Put this skill in a slot to set when it casts automatically.'}</p>)}
     </div>
@@ -491,6 +513,7 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
 }
 
 function PassiveDetail({ char, slot }: { char: CharacterSave; slot: number }) {
+  const advanced = useAdvanced();
   const list = passivesForClass(char.classId);
   const supported = char.passives === undefined || validPassiveState(char.passives, char.classId);
   const slots = supported ? (char.passives?.slots ?? PASSIVE_SLOT_LEVELS.map(() => null)) : PASSIVE_SLOT_LEVELS.map(() => null);
@@ -524,6 +547,7 @@ function PassiveDetail({ char, slot }: { char: CharacterSave; slot: number }) {
       <div class="sk-pinfo">
         <p class="sk-d-desc">{selected.note}</p>
         <p class="sk-peffect">{passiveEffect(selected, char.level)}</p>
+        {advanced && selected.effects?.length ? <p class="sk-adv">{selected.effects.map((e) => describeEffect(e)).join(' · ')}</p> : null}
         <dl class="sk-pprev">
           {row('Life', before.life.toLocaleString(), after.life.toLocaleString())}
           {row('Armor / resistance', `${before.armor} / ${before.allRes}`, `${after.armor} / ${after.allRes}`)}
@@ -543,7 +567,32 @@ function PassiveDetail({ char, slot }: { char: CharacterSave; slot: number }) {
 
 // ───────────────────────── panel ─────────────────────────
 
+/** Numbers view (build tools T1 / T2): the server's multiplier stack and the conditional terms of one skill. */
+function Numbers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
+  const sheet = useLocal(sheetStore, (s) => s.sheet), err = useLocal(sheetStore, (s) => s.err);
+  const s = sheetOf(sheet, skill.id);
+  const derived = useU((u) => u.derived);
+  if (skill.unlock > char.level) return <p class="pn-note sk-cast-hint">Reach level {skill.unlock} to use this skill.</p>;
+  if (!s) return <p class="pn-note sk-cast-hint">{err ?? 'Reading the numbers…'}</p>;
+  return (
+    <div class="sk-numbers">
+      <div class="sk-num-col">
+        <div class="sk-d-sec"><span>One hit</span><em>in the order the combat code multiplies</em></div>
+        <Breakdown s={s} mainStatLabel={`Main stat (${STAT_LABELS[derived?.mainStatId ?? 'str'] ?? 'main'})`} />
+      </div>
+      <div class="sk-num-col">
+        <div class="sk-d-sec"><span>Conditions</span><em>terms that switch on or off</em></div>
+        <Conditions s={s} max={6} />
+        <div class="sk-d-sec"><span>Tags</span><em>what tag-keyed items see</em></div>
+        <p class="sk-num-tags">{s.tags.map(tagWord).join(' · ')}</p>
+        <p class="pn-note">Numbers from the server, refreshed after every change and every few seconds (live buffs count). For damage per second, test on the town’s training dummies.</p>
+      </div>
+    </div>
+  );
+}
+
 export function SkillsPanel() {
+  useSheet();
   const char = useU((s) => s.char);
   const { selected, mode } = useLocal(skillsUI, (s) => ({ selected: s.selected, mode: s.mode }));
   if (!char) return null;

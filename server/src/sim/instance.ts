@@ -26,6 +26,7 @@ import type { EvRec, Ground, Mob, Player, PortalEnt, Proj, Summon } from './type
 
 import { boundedCombat } from '../../../shared/src/combatBounds';
 import { addBuff } from './effects';
+import { buildSheet } from './breakdown';
 import { dropFor } from './loot';
 import { encounterDifficulty } from './monsters';
 /** Shrine and cache cooldowns per character, zone and object (wall clock), shared by every channel of a zone so hopping
@@ -229,6 +230,11 @@ export class Instance implements InstanceApi {
     return this.dungeon ? this.dungeon.activate(link,target) : 'Not in an objective dungeon';
   }
   activateFieldEvent(link:PlayerLink,target:string):string|null { return this.spawner.activateEvent(link,target); }
+
+  buildSheet(link: PlayerLink, skills?: readonly string[]) {
+    const p = this.byLink.get(link);
+    return p ? buildSheet(this, p, skills) : null;
+  }
 
   requestSkillCast(link: PlayerLink, slot: number, skill: string): string | null {
     const p = this.byLink.get(link);

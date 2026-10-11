@@ -22,6 +22,9 @@ import { itemStyle } from '../../render/art/gearStyle';
 import { text } from '../../i18n/messages';
 import { Local, useLocal, useU } from './state';
 import { preferences } from '../../game/preferences';
+import { describeEffect, resolveAmounts, type PowerEffect } from '@shared/powers';
+import type { TagQuery } from '@shared/data/skills';
+import { requestSheet, sheetStore, tagWord, touchedSkills } from './sheet';
 import {
   affixText, armorValue, cls, emphasize, fmtDeltaPct, fmtPowerValue, fmtRange, itemNoun, rarityClass, rollFraction,
   scaledAffix, slotName, targetSlot, weaponStats,
@@ -48,6 +51,13 @@ export const tipStore = new Local<{ content: TipContent | null; alt: boolean }>(
 
 export function useAlt(): boolean {
   return useLocal(tipStore, (s) => s.alt);
+}
+
+/** Advanced tooltips (build tools T1): the setting, or Alt held. */
+export function useAdvanced(): boolean {
+  const alt = useAlt();
+  const pref = useLocal(preferences, (s) => s.values.advancedTooltips);
+  return alt || pref;
 }
 
 /** Alt reveals affix ranges. Installed by PanelsRoot; returns the cleanup. */
@@ -226,7 +236,27 @@ function KeyStats({ item }: { item: Item }) {
   );
 }
 
-export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: CharacterSave | null; alt: boolean; delta?: Delta | null; tag?: string }) {
+/**
+ * Advanced view of a power (build tools T1): which tags it keys off, which of your bar skills it touches now (final
+ * tags from the server's damage sheet) and the template text with the server's numbers.
+ */
+function PowerDetail({ effects, char, brief = false }: { effects: readonly PowerEffect[]; char: CharacterSave | null; brief?: boolean }) {
+  const sheet = useLocal(sheetStore, (s) => s.sheet);
+  useEffect(() => { if (char && !sheet) requestSheet(char); }, [char?.id, !!sheet]);
+  const keys = [...new Set(effects.flatMap((e) => { const t = (e as { tags?: TagQuery }).tags; return [...(t?.anyOf ?? []), ...(t?.allOf ?? [])]; }))];
+  const named = [...new Set(effects.flatMap((e) => (e as { skills?: string[] }).skills ?? []))].filter((id) => SKILLS[id]).map((id) => SKILLS[id].name);
+  const touched = char ? touchedSkills(effects, char, sheet) : [];
+  return (
+    <div class="pw-adv">
+      {(keys.length > 0 || named.length > 0) && <p><span class="pw-k">Keys off</span>{[...keys.map(tagWord), ...named].join(' · ')}</p>}
+      {char && <p><span class="pw-k">Your bar</span>{touched.length ? touched.join(', ') : 'none of your bar skills'}</p>}
+      {!brief && effects.map((e, i) => <p key={i} class="pw-tpl">{describeEffect(e)}</p>)}
+    </div>
+  );
+}
+
+export function ItemCard({ item, char, alt: altHeld, delta, tag }: { item: Item; char: CharacterSave | null; alt: boolean; delta?: Delta | null; tag?: string }) {
+  const advanced = useAdvanced(), alt = altHeld || advanced;
   const leg = item.legendary ? LEGENDARIES[item.legendary.power] : null;
   const setDef = item.set ? SETS[item.set] : null;
   // Core properties first, then the minor ones; one list, no section headings.
@@ -288,6 +318,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
               ))}
               {alt && <span class="af-rng"> {fmtPowerValue(item.legendary.min)} – {fmtPowerValue(item.legendary.max)}</span>}
             </p>
+            {alt && <PowerDetail effects={leg.effects.map((e) => resolveAmounts(e, item.legendary!.value))} char={char} />}
           </section>
         )}
 
@@ -314,6 +345,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
                 </li>
               ))}
             </ul>
+            {alt && <PowerDetail effects={setDef.bonuses.flatMap((b) => b.effects ?? [])} char={char} brief />}
           </section>
         )}
 
@@ -370,7 +402,7 @@ export function toDelta(c: ReturnType<typeof compareItem>): Delta {
 /** Item tooltip. Renders in normal flow; use showItemTooltip()/itemHover() to attach it to the cursor. */
 export function ItemTooltip({ item, compare = false, equipped = false }: ItemTooltipProps) {
   const char = useU((s) => s.char);
-  const alt = useAlt();
+  const alt = useAdvanced();
   const eq: Item[] = [];
   let slot: Slot | null = null;
   if (compare && char) {

@@ -65,6 +65,8 @@ export interface InstanceApi {
   /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
   requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;
+  /** Build tools: the exact damage sheet of the player's skills (server/src/sim/breakdown.ts); null = not ready. */
+  buildSheet?(link: PlayerLink, skills?: readonly string[]): import('../../shared/src/buildSheet').BuildSheet | null;
   activateDungeon?(link: PlayerLink, target: string): string | null;
   activateFieldEvent?(link: PlayerLink, target: string): string | null;
   dungeonState?(): DungeonState | null;

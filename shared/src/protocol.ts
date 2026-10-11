@@ -212,6 +212,7 @@ export type CmdOp = 'onboarding'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
+  | 'buildSheet'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';
 

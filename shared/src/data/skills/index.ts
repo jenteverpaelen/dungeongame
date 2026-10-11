@@ -66,13 +66,23 @@ export type NodeRanks = Record<string, number>;
  */
 export function collectSkillMods(skill: SkillDef, runeId: string | null | undefined, tiers: number, nodes?: NodeRanks | null): SkillMods {
   const out: SkillMods = { flags: [] };
-  if (skill.vars) addMods(out, { vars: skill.vars });
+  for (const part of skillModParts(skill, runeId, tiers, nodes)) for (const m of part.mods) addMods(out, m);
+  return out;
+}
+
+/** One contributor to a skill's own mods, in merge order: base vars, the rune, each bought tier, each node's ranks. */
+export interface SkillModPart { kind: 'base' | 'rune' | 'tier' | 'node'; id: string; name: string; mods: SkillMods[] }
+
+/** The contributors collectSkillMods merges, in the same order (build tools show them one by one). */
+export function skillModParts(skill: SkillDef, runeId: string | null | undefined, tiers: number, nodes?: NodeRanks | null): SkillModPart[] {
+  const out: SkillModPart[] = [];
+  if (skill.vars) out.push({ kind: 'base', id: skill.id, name: skill.name, mods: [{ vars: skill.vars }] });
   const rune = skill.runes.find((r) => r.id === runeId);
-  if (rune) addMods(out, rune.mods);
-  for (let i = 0; i < Math.min(tiers, skill.tiers.length); i++) addMods(out, skill.tiers[i].mods);
+  if (rune) out.push({ kind: 'rune', id: rune.id, name: rune.name, mods: [rune.mods] });
+  for (let i = 0; i < Math.min(tiers, skill.tiers.length); i++) out.push({ kind: 'tier', id: String(i + 1), name: skill.tiers[i].name, mods: [skill.tiers[i].mods] });
   if (nodes) for (const node of skill.nodes ?? []) {
     const rank = Math.min(node.maxRank, node.ranks.length, Math.max(0, Math.floor(nodes[node.id] ?? 0)));
-    for (let r = 0; r < rank; r++) addMods(out, node.ranks[r]);
+    if (rank > 0) out.push({ kind: 'node', id: node.id, name: node.name, mods: node.ranks.slice(0, rank) });
   }
   return out;
 }

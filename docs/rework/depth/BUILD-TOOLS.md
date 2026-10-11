@@ -157,3 +157,44 @@ in this repo, [P] proposal.
   (`BUDGET.md` §4) is the counterweight: several main skills per class within 1.25× of the best, no item in every top kit.
 * **Data export licence:** decide whether fan tools may be commercial (sites with ads). PoE restricts commercial use of its
   IP [S]; that is the conservative default.
+
+## 4. M1 as built (2026-10-11, branch `claude/depth`)
+
+### T1 exact tooltips + T2 damage sheet
+
+* **One calculation.** Op `buildSheet { skills? }` is not persisted and is limited to 6 per second per session. It returns
+  `BuildSheet` (`shared/src/buildSheet.ts`), computed in `server/src/sim/breakdown.ts` on the live player.
+  * Cost, cooldown, radius and duration come from the playerctx functions.
+  * The strike is the skill module's own (`strikeOf`).
+  * `damage.expectedDamage` is called with a `BaseTerms` sink that records every factor in the order baseMult applies
+    it.
+  * The power runtime records where each number came from (`TermSource` on own / hit / target terms, `trace` for skill
+    bucket parts, static own factors and the stunned / frozen folds).
+  * Sheet reading is side-effect free: element stacks are read, never written; there is no random draw.
+  * Tests `server/test/buildTools.test.ts`:
+    * for every skill of every class, the sheet's per hit is `expectedDamage` and the factors multiply back to it;
+    * the skill-bucket parts add up;
+    * sources are named;
+    * nothing changes on read.
+* **Client** (`client/src/ui/panels/sheet.tsx`, display only).
+  * One store, refreshed after every character change and every 3 s while a view is open (live buffs count).
+  * Skills panel:
+    * the stat strip shows the exact final numbers (per hit, cost with resource cost reduction, cooldown with cooldown
+      reduction, duration, radius, summons, charges);
+    * a **Numbers** tab shows the multiplier stack, the conditional terms (active now / not now / vs target) and the
+      final tags (tag grants included);
+    * slot tooltips and the HUD skill tooltip show the same exact numbers.
+  * Character panel: a **Damage** tab lists every bar skill's per hit and vs-elite numbers, cost and cooldown, with the
+    stack of the selected skill. **Pin** compares two states ("vs pin" per skill).
+* **Advanced toggle.** Settings → Display → *Advanced tooltips*, or hold Alt. It adds:
+  * the raw mods of tiers, runes and nodes;
+  * rune and node templates (`describeEffect`) and rune tag changes;
+  * passive templates;
+  * the full tag line (elements included);
+  * on items: affix and power roll ranges, the tags a legendary or set keys off, which of your bar skills it touches now
+    (final tags from the sheet), and the template text with the server's numbers (`resolveAmounts`).
+* **Deviations from §1.**
+  * The sheet shows damage per hit, not per second. A per-second estimate would need a cast-rate model, which would be a
+    copy of the brain. Damage per second comes from the dummy bench (T3), the measurement players trust.
+  * Monsters have no armour or resistance model [M], so the trash / elite / boss profiles differ only by the elite bonus
+    (bosses count as elites) and target conditions. The sheet shows "vs elite", "vs stunned" and "vs frozen".

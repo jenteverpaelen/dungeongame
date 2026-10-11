@@ -19,6 +19,8 @@ import { bindings, CAST_ACTIONS } from '../../game/bindings';
 import { preferences } from '../../game/preferences';
 import { autoRuleForSlot, autoRuleSummary } from '@shared/autoCastRules';
 import { useLocal } from '../panels/state';
+import { fmtHit, fmtSec, requestSheet, sheetOf, sheetStore, tagWord } from '../panels/sheet';
+import { useAdvanced } from '../panels/tooltip';
 
 const ELEMENT_COLOR: Record<string, string> = {
   physical: '#e2d8c4', fire: '#ff8a3d', cold: '#7fd3ff', lightning: '#d6c2ff', poison: '#8fd16a', arcane: '#c39bff', holy: '#ffe9a0',
@@ -35,8 +37,13 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
   const rune = skill.runes.find((r) => r.id === p.runeId);
-  const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - p.rcr / 100));
-  const cd = +(skill.cooldown * (1 + (mods.cooldown ?? 0) / 100)).toFixed(1);
+  // Exact numbers from the server's damage sheet when it has them (items, sets, cooldown reduction included; T1).
+  const char = useUI((u) => u.char);
+  const exact = sheetOf(useLocal(sheetStore, (st) => st.sheet), skill.id);
+  const advanced = useAdvanced();
+  useEffect(() => { if (!exact) requestSheet(char); }, [skill.id]);
+  const cost = exact ? Math.round(exact.cost * 10) / 10 : Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - p.rcr / 100));
+  const cd = exact ? +(exact.cooldownMs / 1000).toFixed(1) : +(skill.cooldown * (1 + (mods.cooldown ?? 0) / 100)).toFixed(1);
   const el = mods.element ?? skill.element;
   const gen = skill.gen + (mods.gen ?? 0);
   return (
@@ -54,7 +61,10 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
         {cost > 0 && <span>Cost <b style={{ color: RESOURCE_STYLES[p.classId].hi }}>{cost}</b> {res}{skill.kind === 'channel' ? '/s' : ''}</span>}
         {skill.kind !== 'primary' && gen > 0 && <span>Generates <b style={{ color: RESOURCE_STYLES[p.classId].hi }}>{gen}</b> {res}</span>}
         {cd > 0 && <span>Cooldown <b>{cd}s</b></span>}
+        {exact && exact.coef > 0 && skill.kind !== 'buff' && <span>Per hit <b>{fmtHit(exact.perHit)}</b></span>}
+        {exact && exact.durationMs > 0 && <span>Duration <b>{fmtSec(exact.durationMs)}</b></span>}
       </div>
+      {advanced && exact && <div class="st-desc st-adv">Tags: {exact.tags.map(tagWord).join(' · ')}</div>}
       {rune && (
         <div class="st-rune">
           <div class="st-rune-name"><i />{rune.name}</div>
