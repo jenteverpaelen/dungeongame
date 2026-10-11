@@ -198,3 +198,66 @@ in this repo, [P] proposal.
     copy of the brain. Damage per second comes from the dummy bench (T3), the measurement players trust.
   * Monsters have no armour or resistance model [M], so the trash / elite / boss profiles differ only by the elite bonus
     (bosses count as elites) and target conditions. The sheet shows "vs elite", "vs stunned" and "vs frozen".
+
+### T3 training-dummy bench
+
+* **Server** (`server/src/sim/bench.ts`). Op `bench { start | stop | reset | status, seconds }` is not persisted.
+  * Start needs town and a dummy within 260 units. The length is 30, 60 or 120 s [P, the §1 spec].
+  * The clock starts at the first hit on any dummy. `damage.hurtMob` records every point dealt to dummies by strike id:
+    skills, sub-strikes, procs, ground effects and damage over time. The split therefore sums to the total.
+  * It also records hits, crit rate, damage-over-time share, time below the cheapest bar cost ("starved") and buff
+    uptimes.
+  * Training dummies now tick damage over time; they still never die.
+  * The elite dummy takes the elite bonus.
+* **Client** (`client/src/ui/panels/bench.tsx`). E beside a dummy ("Test damage on") opens the window.
+  * The window polls twice a second while a test runs.
+  * It shows the per-strike split: the largest eight, the rest in a tooltip.
+  * Copy result gives a text summary.
+  * A text-only HUD readout shows while the window is closed. It changes only text, with no paint animation.
+* **Deviations from §1.**
+  * There are no profile buttons. Monsters have no armour or resistance model [M], so the only real profile difference
+    is the elite bonus, which the elite dummy already gives.
+  * Not built: the pack-of-6 profile, a boss dummy and sparring mode (a dummy that hits back).
+  * The < 3 % repeatability target was not measured.
+
+### T4 respec and skill loadouts
+
+* **Shared rules** (`shared/src/loadouts.ts`). A setup holds primary, slots, runes, tiers, node ranks, passives and the
+  auto-cast settings. It never holds gear.
+  * Applying goes through the same shared rules as the single skill commands.
+  * It refunds every tier and node first, so respec stays free.
+  * It skips what the hero may not use yet (locked skills, runes or passives, too few points, unmet node requirements)
+    and reports each skip.
+* **Op** `loadout { save | apply | rename | delete }` is persisted. Save works anywhere; apply only in town.
+* **Save v17.** `CharacterSave.loadouts` holds five slots [P, D4 Armory has five]. It comes with a SAVE_HISTORY entry,
+  the golden fixture `v17-loadouts.json` and load-time repair (malformed entries are dropped).
+* **Skills window.** A loadout strip: five numbered chips, the name, and Apply / Save current here / Rename / Delete.
+* **Test.** Save → change everything → apply gives the identical skill state and identical derived stats.
+* **Deviations from §1.** Cube powers and equipment are not in M1 loadouts. Cube equips stay at the Cube, where the
+  server checks NPC proximity. Gear is M2.
+
+### T5 build codes
+
+* **Format** (`shared/src/buildCode.ts`). `HF1.` + base64url of a binary, ending in a CRC-16 checksum.
+  * Format version, class, level, primary and 4 slots (varints).
+  * Per bar skill: the rune, then 3 bytes that pack the tier and the ranks of the 9 node cells, 2 bits each.
+  * Passives, 3 Cube powers, and the equipped legendary / set ids per slot. No affix values, no player name.
+  * Ids are positions in the append-only `shared/src/data/buildCodeIds.json`.
+    * `content-ids --update` appends new ids and never reorders or drops one.
+    * content:check reports any id without a position.
+  * Unknown positions, from a newer game or a retired id, are reported and not guessed.
+  * A full warrior build is 55 characters [M]. The test caps random full builds of every class at 160.
+* **Chat.** The server decodes a message that is exactly a code and sends it as a card.
+  * The card shows class, level and the first bar skills. Its tooltip lists every part; gear is marked "shown, never
+    granted".
+  * Apply appears only for the same class; Copy is always there.
+  * The Skills window has Copy build code and a paste field with Apply code.
+* **Apply.** Op `applyBuild { code }`: in Hearthmere, same class, through the loadout rules (free respec, skips
+  reported).
+  * Gear and Cube powers are shown, never applied.
+* **Tests.** Lossless round trip for 75 random legal builds (25 per class); one changed character is rejected; gear is
+  untouched after Apply; another class is refused; a damaged code is refused.
+* **Deviations from §1.**
+  * The UI lives in the Skills window, not the Character panel, because that is where the skill part is.
+  * Cube powers are not applied (NPC proximity, as for T4).
+  * The web viewer is M2.

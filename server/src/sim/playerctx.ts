@@ -87,8 +87,13 @@ export function attackIntervalMs(p: Player): number {
  *   * with this floor, Sawtooth Hatchet fell from 2.42 to 1.13 casts per second, yet the kits cleared their encounters
  *     1.6 % faster in total (6979 → 6865 s): the bursts mostly wasted Fury on overlapping hatchets.
  * 250 ms = at most 4 casts per second per skill. The alternative is one cast per attack interval, the way D3, D4 and
- * PoE bind skills to attack speed [K]. In the pace sim it slowed the warrior's and the mage's level-25 champion kills
- * (one seed), so it is a balance decision, not a guard.
+ * PoE bind skills to attack speed [K] (the mage's Stormglass Orb uses it, mageM1.ts). Leveling sim, 9 seeds × 120 min
+ * per class, paired against no floor (FOUNDATION.md §13.14) [M]:
+ *   * this floor: levels reached and L25+ champion kill times within noise (warrior −0.7 ± 0.5 s, ranger −0.6 ± 0.5 s,
+ *     mage +0.7 ± 0.9 s);
+ *   * one cast per attack interval: kill times within noise as well, but one warrior run of nine collapsed (85 deaths,
+ *     level 17 instead of 25–30), warrior deaths 107 vs 21 (no floor) and mage deaths 27 vs 19, so it is a balance
+ *     decision, not this guard.
  */
 export const MIN_RECAST_MS = 250;
 

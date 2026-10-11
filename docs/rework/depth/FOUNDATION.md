@@ -979,3 +979,68 @@ The two outliers were 23.3 and 28.6 during the heaviest load.
 by a second (3:58 vs 3:59 [M]). Without a retry the output is unchanged.
 
 **Out of scope.** `scripts/perf-budget.ts` (4 × 150 monsters, < 10 ms) still uses absolute numbers.
+
+### 13.12 Class gate on item powers (mage-agent finding)
+
+* **Reachable in real play [M].** Any drop can be off-class: smart loot is 85 %, so 15 % of drops ignore the class. The
+  Cube extracts and equips any legendary power with no class check. A tag-keyed power of another class therefore reached
+  this class's skills, for example a warrior Buff-tag power on a mage.
+* **Gate.** `itemPowerSources(powers, sets, classId)`: class-specific legendaries and sets resolve only for their class;
+  shared items stay classless. The Character panel marks such a Cube power "inactive".
+* Sets were already unreachable, because `canClassUse` blocks wearing them. The gate covers them too.
+* **Test.** `engineWave3.test.ts`. The powerTemplates equivalence proof compares the old code on the part of each kit
+  the class can use.
+
+### 13.13 Pace gate: each class starts from the same seeded state (`server/test/sim.ts` leveling)
+
+* **The failure.** After wave 3 the pace gate failed: L25+ champion TTK median 6.65 s > 6.4 s.
+* **A/B against pre-wave-3 4356914 [M].**
+  * Engine-only commits: byte-identical.
+  * Without the two new warrior legendaries in the drop pool: byte-identical (3 seeds).
+  * The warrior run diverges at L15–20, when a different legendary drops. All classes shared one random stream, so the
+    ranger and mage runs after it started from a different state.
+* **Fix.** The leveling scenario now reseeds `Math.random`, the character seed counter and the instance counter per
+  class. No rule and no threshold changed.
+  * With the fix, pre-wave-3 and wave 3 both pass (6 bands, 0 misses).
+  * In isolation the ranger and mage runs are identical in 11 of 16 class-seed pairs. The other 5 differ only through
+    off-class legendary drops (4 faster, 1 slower).
+* **Caveat.** The gate is one seed. A single champion fight moves a band median by a second (§13.14), so single-seed
+  misses need a multi-seed A/B before they are called a rules change.
+
+### 13.14 Recast floor for skills without a cooldown, and the attack-interval alternative
+
+* **The problem [M].**
+  * Skills with no cooldown were cast on consecutive 50 ms ticks in bursts (Sawtooth Hatchet and Quakeline, warrior
+    parity kits).
+  * A resource-positive loop cast a Spender every tick. The mage agent measured Static Charge + Stormglass Orb at
+    184 casts and 78 orbs in 10 s, without debug resources.
+* **Rule.** `playerctx.MIN_RECAST_MS = 250` [P], through `Player.recastAt`: at most 4 casts per second per skill. It
+  covers bar casts and `castSkill` procs and shows no HUD cooldown.
+* **The D3 alternative.** "Every cast takes an attack's time": one cast per attack interval per skill. The mage's
+  Stormglass Orb uses it on its own (`mageM1.ts`).
+* **Measurement [M].**
+  * Setup: leveling sim, 120 min per class, 9 seeds (0xC0FFEE and 1–8), after the mage merge. Three variants with
+    everything else equal: no floor, the 250 ms floor, and one cast per attack interval (with 250 ms as the minimum).
+  * The differences below are paired per seed, ± one standard error.
+
+| | no floor | 250 ms floor | attack interval |
+|---|---|---|---|
+| levels reached, mean W / R / M | 27.2 / 28.0 / 26.1 | 27.3 / 28.4 / 26.2 | 26.2 (27.4 without the collapse) / 28.4 / 26.1 |
+| minute at L25, mean W / R / M | 100.9 / 97.5 / 106.4 | 97.0 / 95.3 / 106.5 | 98.9 / 95.5 / 108.0 |
+| L25+ champion TTK vs no floor, W / R / M | — | −0.7 ± 0.5 / −0.6 ± 0.5 / +0.7 ± 0.9 s | −1.1 ± 0.9 / −0.5 ± 0.7 / +0.0 ± 0.7 s |
+| deaths over 9 runs, W / R / M | 21 / 20 / 19 | 23 / 30 / 17 | **107** / 21 / 27 |
+| pace-gate misses, default seed / all 9 | 0 / 7 | **1** / 13 | 0 / 9 |
+
+* **Reading.**
+  * The floor changes no pace measure beyond noise.
+  * The attack interval changes kill times within noise too. But one warrior run collapsed: champion kills at L10–15
+    took 14.4 s against 9.8 s with the floor, and from L15 the run died 82 times and ended at level 17. Mage deaths
+    also rose. It is a balance decision for the owner, not a guard.
+* **The pace gate is one seed and fragile.**
+  * The L25+ band holds only the last 5–25 minutes of the run, so a few champion fights decide it.
+  * With no floor, 3 of the 8 seeds that reach that band with all three classes miss it.
+  * Any change that moves the random path therefore has roughly a one-in-three chance to flip the default seed.
+  * With the floor, the merged tree misses on the default seed: L25+ mage 7.35 s > 6.4 s; without the floor 5.45 s.
+    The paired mage difference over the other seeds is +0.7 ± 0.9 s, so this miss is the coin, not a trend.
+  * A multi-seed gate (for example the median of three seeds) would be a method change for the lead and owner. It is
+    not made here, and the baseline is not re-recorded.

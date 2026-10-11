@@ -180,6 +180,11 @@ export function buildCodeRegistryProblems(): string[] {
     for (const id of ids) if (!have.has(id)) out.push(`build codes: ${k} "${id}" has no position in shared/src/data/buildCodeIds.json; run npx tsx scripts/content-ids.ts --update`);
     if (have.size !== (REG[k] as string[]).length) out.push(`build codes: ${k} lists an id twice`);
   }
+  // The binary packs a node rank in 2 bits per grid cell (3 bytes with the tier): content must fit it.
+  for (const sk of Object.values(SKILLS)) for (const n of sk.nodes ?? []) {
+    if (n.maxRank > 3) out.push(`build codes: ${sk.id}.${n.id} has max rank ${n.maxRank}; HF1 codes hold ranks up to 3 (new format version needed)`);
+    if (n.pos.row * NODE_GRID.cols + n.pos.col >= CELLS) out.push(`build codes: ${sk.id}.${n.id} sits outside the node grid`);
+  }
   return out;
 }
 
