@@ -28,6 +28,7 @@ import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/
 import { gearFxStats } from '../render/art/gearFx';
 import { SET_STYLE, setSizeCap } from '../render/art/gearStyle';
 import { preferences } from '../game/preferences';
+import { applyWeaponArtPreview } from '../game/weaponArtPreview';
 import { Vfx } from '../render/vfx';
 
 const qs = new URLSearchParams(location.search);
@@ -45,6 +46,7 @@ const app = new Application();
 await app.init({ resizeTo: window, antialias: true, background: 0x2b2722, preference: 'webgl', resolution: 1 });
 document.getElementById('stage')!.appendChild(app.canvas);
 await document.fonts.load('700 14px "Alegreya Sans"').catch(() => undefined);
+applyWeaponArtPreview(); // ?weaponArt=series: the gallery (and its perf view) with the series art
 initArt(app.renderer);
 
 const world = new Container();

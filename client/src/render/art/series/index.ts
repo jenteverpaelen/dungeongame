@@ -26,8 +26,8 @@ import { KILNFOLK } from './kilnfolk';
 import { BRINEKEEPER } from './brinekeeper';
 import { WARDEN } from './warden';
 import { ARRAY } from './array';
-import { RIFTSTONE } from './riftstone';
-import { ANCIENTS } from './ancients';
+import { FAULTSTONE } from './faultstone';
+import { RELIQUARY } from './reliquary';
 
 export type Draw = (k: K) => void;
 
@@ -48,11 +48,13 @@ export interface SeriesInfo {
   motif: string;
   /** The late idea of the series: where its spectacle comes from instead of more glow. */
   late: string;
+  /** The series' own effect language (ART-DIRECTION §1.4b). */
+  effects?: string;
   draw: Partial<Record<WeaponFamily, Draw>>;
 }
 
 /** Index = generation. */
-export const SERIES: SeriesInfo[] = [MILLWRIGHT, KILNFOLK, BRINEKEEPER, WARDEN, ARRAY, RIFTSTONE, ANCIENTS];
+export const SERIES: SeriesInfo[] = [MILLWRIGHT, KILNFOLK, BRINEKEEPER, WARDEN, ARRAY, FAULTSTONE, RELIQUARY];
 
 export interface SeriesSpec {
   family: WeaponFamily;
@@ -64,6 +66,17 @@ export interface SeriesSpec {
   rig?: boolean;
   /** Accent colour override (legendary / Set colour on a series base); default the rarity token. */
   accent?: number;
+  /** Enhancement step 0..3 (+4 / +7 / +10). */
+  temper?: number;
+}
+
+/** Effect strength of an item (ART-DIRECTION §1.4, owner decision 2026-10-11): plain normal items, then rising with the
+ *  level band, rarity, legendary / Set, grade and +N. */
+export function effectStrength(spec: SeriesSpec): number {
+  const q = Q[spec.rarity];
+  if (q === 0 && !spec.grade) return 0;
+  const special = spec.rarity === 'legendary' || spec.rarity === 'set';
+  return Math.max(0, 0.2 + 0.15 * spec.gen + 0.25 * (q - 1) + (special ? 0.35 : 0) + 0.25 * (spec.grade ?? 0) + 0.08 * (spec.temper ?? 0));
 }
 
 const Q: Record<Rarity, 0 | 1 | 2> = { normal: 0, magic: 1, rare: 2, legendary: 2, set: 2 };
@@ -87,19 +100,22 @@ export interface SeriesModel {
   floats: WFloat[];
   lit: boolean;
   litColor: number;
+  /** Effect strength used for this model (see effectStrength). */
+  fx: number;
 }
 
 /** Build the held-item model for a spec (same contract as weaponArt.weaponModel). */
 export function seriesModel(spec: SeriesSpec): SeriesModel | null {
   const d = seriesDraw(spec);
   if (!d) return null;
-  const q = Q[spec.rarity], rig = !!spec.rig, seed = spec.seed ?? 1, grade = spec.grade ?? 0;
+  const q = Q[spec.rarity], rig = !!spec.rig, seed = spec.seed ?? 1, grade = spec.grade ?? 0, fx = effectStrength(spec);
   const run = (c: Ctx, layer: WLayer, floats: WFloat[]): K => {
     let last: K | null = null;
     const passes = layer === 'base' ? (['under', 'paint'] as const) : (['light'] as const);
     for (const pass of passes) {
       const k = newKit(c, pass, q, rig, seed, pass === 'paint' ? floats : []);
       k.accent = spec.accent ?? 0;
+      k.fx = fx;
       d(k);
       if (grade) gradeAccent(k, grade);
       last = k;
@@ -110,7 +126,7 @@ export function seriesModel(spec: SeriesSpec): SeriesModel | null {
   const floats: WFloat[] = [];
   scratch((c) => run(c, 'base', floats));
   const lk = scratch((c) => run(c, 'light', []));
-  return { draw: (c, layer) => { run(c, layer, []); }, floats, lit: lk.lit, litColor: lk.litCol };
+  return { draw: (c, layer) => { run(c, layer, []); }, floats, lit: lk.lit, litColor: lk.litCol, fx };
 }
 
 export { type K } from './kit';

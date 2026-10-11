@@ -4,7 +4,7 @@
 //             (the sparkle cap of the whole item, rule A6).
 
 import { OUT } from '../draw';
-import { disc, float, glowSpot, pole, type K } from './kit';
+import { disc, float, glowSpot, haze, mote, pole, type K } from './kit';
 import { light } from '../util';
 
 export const KINDLED_EMBER = 0xff7a2a;
@@ -20,6 +20,9 @@ export function gradeAccent(k: K, grade: 0 | 1 | 2): void {
     glowSpot(k, cx, cy, 1.5, KINDLED_EMBER, true);
     for (const dx of [-1.2, 0, 1.2]) pole(k, [cx + dx, cy - 2.4, cx + dx * 0.8, cy + 2.4], 0.55, CAGE, { flat: true, inner: true });
     pole(k, [cx - 2, cy - 2.3, cx + 2, cy - 2.3], 0.7, CAGE, { flat: true });
+    // the ember breathes: a warm haze and two embers drifting off the cage
+    haze(k, cx, cy, 4.6, 4.6, KINDLED_EMBER, 0.14);
+    for (let i = 0; i < 2; i++) mote(k, cx - 1 + i * 2, cy - 4 - i * 2, 0.55, KINDLED_EMBER, 'dot', { bob: 2.6, phase: i * 2.4 });
     return;
   }
   // Fabled
@@ -35,5 +38,8 @@ export function gradeAccent(k: K, grade: 0 | 1 | 2): void {
     }
   }, { bob: 0.4, spin: 0.6, glow: FABLED_STAR, glowR: 5 });
   glowSpot(k, x + r * 0.4, y - r * 0.5, 0.9, FABLED_STAR, true);
+  // starlight motes turning round the Inscription
+  haze(k, x, y, r + 5, r + 3, FABLED_STAR, 0.1);
+  for (let i = 0; i < 2; i++) mote(k, x, y, 0.6, FABLED_STAR, 'spark', { orbit: r + 6 + i * 1.5, spin: 0.9 + 0.3 * i, phase: i * Math.PI, bob: 0 });
   void OUT;
 }

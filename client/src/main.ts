@@ -23,6 +23,7 @@ import { App } from './ui/App';
 import { ui } from './ui/store';
 import { preferences } from './game/preferences';
 import { GraphicsController, resolutionFor } from './game/quality';
+import { applyWeaponArtPreview } from './game/weaponArtPreview';
 
 async function boot() {
   await Promise.all([
@@ -46,6 +47,7 @@ async function boot() {
     powerPreference: 'high-performance',
   });
   document.getElementById('game')!.appendChild(app.canvas);
+  applyWeaponArtPreview(); // before the first view or icon: the weapon drawings are chosen once per page load
   initArt(app.renderer);
 
   const game = new Game(app);

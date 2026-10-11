@@ -2,22 +2,26 @@
 // stages (early G0–G2, mid G3–G4, late G5–G6), the way Darkest Dungeon's upgrades add craft to the same weapon (DD1).
 // Each is a real object turned into a weapon, read from the item's own name and flavour (shared/src/data/powers), in
 // the item's own colours. Light is their core, not a halo (R6); the icon backdrop is the only halo they get.
-import { detail, disc, float, glowLine, glowSpot, lash, pole, qpts, ribbon, ring, slab, bevel, type K } from './kit';
+import { beam, bloom, detail, disc, float, fxCount, glowLine, glowSpot, haze, lash, mote, pole, qpts, ribbon, ring, slab, bevel, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { OUT } from '../draw';
 
 export interface LegendaryArt {
   family: 'blade' | 'axe' | 'bow' | 'staff' | 'wand';
   idea: string;
+  /** The bespoke effect language and the light colour its attacks take. */
+  effects?: string;
+  impact?: 'spark' | 'ember' | 'star' | 'shard';
   draw: (k: K, stage: 0 | 1 | 2) => void;
 }
 
 // ── Bloodwake (sword): "The blade weeps for every wound it opens." A one-sided flamberge: the edge is a wake of waves
 //    trailing down the blade, a blood gutter runs the spine and drips from every trough (flamberge: a real wavy-edged
 //    sword form [K]). Colours from the item: crimson 0x9e1b1b, near-black 0x3a0d0d, light 0xff3b3b.
-const BW = { steel: 0x7a3c3e, dark: 0x3a0d0d, red: 0x9e1b1b, glow: 0xff3b3b, edge: 0xf0d4cc, bone: 0xd8c8b4, gold: 0xc89a4e };
+const BW = { steel: 0x8a4446, dark: 0x3a0d0d, red: 0x9e1b1b, glow: 0xff3b3b, edge: 0xf0d4cc, bone: 0xd8c8b4, gold: 0xc89a4e };
 function bloodwake(k: K, st: 0 | 1 | 2): void {
-  const waves = 2 + st, base = -6.4, top = -31.4 - st * 1.8, A = 1.25 + st * 0.15;
+  // deep, few waves so the wake reads as a silhouette at 40 px (2 → 3 → 3, growing deeper)
+  const waves = st === 0 ? 2 : 3, base = -6.4, top = -31.4 - st * 1.8, A = 1.8 + st * 0.25;
   // the edge (+x): a sine wake that tapers into the point; the spine (-x) straight
   const edge: number[] = [], troughs: [number, number][] = [];
   const N = 44;
@@ -35,9 +39,8 @@ function bloodwake(k: K, st: 0 | 1 | 2): void {
   bevel(k, out, lit, BW.steel, { edgeCol: BW.edge, ridge: [0.6, base - 0.5, 0.6, top + 4.6] });
   if (k.pass === 'paint') detail(k, edge.map((v, i) => (i % 2 === 0 ? v - 0.75 : v)).slice(4, -6), BW.edge, 0.7, 0.9);
   // the blood gutter along the spine: a narrow channel, lit only in its lower two thirds
-  glowLine(k, [-1.2, base - 1.4, -1.2, base + (top - base) * 0.68], 0.65, BW.glow, true, BW.dark);
+  glowLine(k, [-1.2, base - 1.4, -1.2, base + (top - base) * 0.6], 0.55, BW.glow, true, BW.dark);
   for (const [x, y] of troughs) slab(k, [x - 0.65, y - 0.3, x + 0.55, y - 0.3, x + 0.65, y + 1.6, x, y + 2.7, x - 0.65, y + 1.6], BW.red, { smooth: true, line: 0.6 });
-  if (st === 2) for (let i = 0; i < 2; i++) float(k, troughs[i][0] + 0.4, troughs[i][1] + 4.6, (kk) => slab(kk, [-0.5, -0.8, 0.5, -0.8, 0.6, 0.6, 0, 1.4, -0.6, 0.6], BW.red, { smooth: true, line: 0.5 }), { bob: 1.8, phase: i * 2.2, glow: BW.glow, glowR: 2.5, deco: true });
   // guard: the wake's curl, swept up on the edge side (bigger with each stage)
   const g = 1 + st * 0.18;
   slab(k, [-5.0 * g, -5.2, 2.4, -5.6, 5.4 * g, -7.6, 7.2 * g, -10.8 * g, 6.0 * g, -11.8 * g, 4.4 * g, -9.2, 2.0, -7.4, -4.4 * g, -7.0, -6.2 * g, -5.8], BW.dark, { smooth: true, hi: [[-4.4, -6.2, 2.0, -6.6]] });
@@ -47,6 +50,11 @@ function bloodwake(k: K, st: 0 | 1 | 2): void {
   slab(k, [-2.2, 4.0, 2.4, 4.0, 2.0, 6.8, 0, 8.4, -1.8, 6.8], BW.bone, { smooth: true, hi: [[-1.4, 4.8, -0.2, 7.4]] });
   if (st >= 1) glowSpot(k, 0.1, 5.8, 0.7 + st * 0.2, BW.glow, true);
   k.anchor = { x: 0, y: -6.2, r: 3.2 };
+  // bespoke effects: the wake glows along its edge, blood drips from the troughs and hangs in the air
+  beam(k, edge.slice(4, -6), 0.5 + 0.2 * st, BW.glow);
+  haze(k, 1.4, (base + top) / 2, 5.0, 12.0, BW.glow, 0.06 + 0.03 * st);
+  const drops = fxCount(k, 1.6, 2 + st);
+  for (let i = 0; i < drops; i++) { const [x, y] = troughs[i % troughs.length]; mote(k, x + 0.4, y + 4.0 + (i >= troughs.length ? 3 : 0), 0.65, BW.glow, 'drop', { bob: 2.2, phase: i * 1.7 }); }
 }
 
 // ── Rainspindle (bow): "The string remembers every arrow still in the sky." The grip is a drop spindle — shaft, a
@@ -88,9 +96,14 @@ function rainspindle(k: K, st: 0 | 1 | 2): void {
   }
   if (!k.rig) pole(k, [-2.4, -21.4, -2.4, 21.4], 0.7, RS.thread, { flat: true });
   k.anchor = { x: 3.2, y: -1.2, r: 3 };
+  // bespoke effects: rain falling past the bow (the arrows still in the sky), the thread and whorl lit
+  beam(k, back, 0.35 + 0.15 * st, RS.glow);
+  haze(k, 3.2, -1.2, 7.0 + st, 3.4, RS.glow, 0.1);
+  const n = fxCount(k, 2, 3 + st);
+  for (let i = 0; i < n; i++) mote(k, 9.0 + (i % 3) * 2.4, -16 + i * 6.4, 0.6, RS.glow, 'drop', { bob: 3.2, phase: i * 1.3 });
 }
 
 export const LEGENDARY_ART: Record<string, LegendaryArt> = {
-  bloodwake: { family: 'blade', idea: 'a one-sided flamberge whose waves drip from a blood gutter', draw: bloodwake },
-  rainspindle: { family: 'bow', idea: 'a drop spindle for a grip, rain-drops threaded on its back', draw: rainspindle },
+  bloodwake: { family: 'blade', idea: 'a one-sided flamberge whose waves drip from a blood gutter', effects: 'a glowing wake along the edge, blood drops hanging in the air', impact: 'spark', draw: bloodwake },
+  rainspindle: { family: 'bow', idea: 'a drop spindle for a grip, rain-drops threaded on its back', effects: 'rain falling past the bow, the thread and whorl lit', impact: 'shard', draw: rainspindle },
 };

@@ -193,5 +193,6 @@ export const MILLWRIGHT: SeriesInfo = {
   palette: [{ name: 'birch bark', hex: BIRCH }, { name: 'heartwood', hex: HEART }, { name: 'strap iron', hex: STRAP }, { name: 'hemp', hex: CORD }, { name: 'mill red', hex: RED }],
   motif: 'the stamped mill wheel; lashings and square pegs at every joint',
   late: 'a paddle wheel that turns on the staff; rare pieces are "restored": filed teeth, strap guards, red paint',
+  effects: 'none by design: the first band stays plain (owner direction 2026-10-11); the wheel turns',
   draw: { blade: sword, axe, bow, staff, wand },
 };

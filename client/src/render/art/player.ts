@@ -557,8 +557,11 @@ export class PlayerArt implements PlayerView {
     const glow = sl.mainhand?.glow ?? 0;
     const wst = itemStyle(sl.mainhand);
     // the swing trail carries the weapon's light (prestige lives in the attack in small sprites, REFERENCES-V2 V7)
-    const wLit = !!wst && !!wst.light && (wst.special || wst.gen >= 3 || wst.top >= 1);
-    this.trailColor = wst ? (wLit ? light(wst.light, 0.12) : wst.light ? light(wst.light, 0.35) : 0xfff4dc) : glow ? light(glow, 0.25) : 0xfff4dc;
+    // the trail takes the DRAWING's light (weaponDrawing present.light; the default drawings report the item style's light,
+    // so the current art is unchanged), e.g. a series weapon trails in its ember / lamp / signal colour
+    const wL = wst ? (weaponSkinOf(sl.mainhand)?.light ?? wst.light) : 0;
+    const wLit = !!wst && !!wL && (wst.special || wst.gen >= 3 || wst.top >= 1);
+    this.trailColor = wst ? (wLit ? light(wL, 0.12) : wL ? light(wL, 0.35) : 0xfff4dc) : glow ? light(glow, 0.25) : 0xfff4dc;
     this.trailAdd = wst ? wLit : !!glow;
     this.trailBoost = !wst ? 1 : 1 + (wLit ? 0.06 * wst.gen : 0) + (wst.special ? 0.2 : 0) + wst.top * 0.15 + wst.temper * 0.05;
     { const pr = Object.values(sl).some((l) => typeof l?.fx === 'number') ? gearProfile(this.look) : null;
@@ -730,11 +733,12 @@ export class PlayerArt implements PlayerView {
       }
       const w = itemStyle(sl.mainhand);
       this.weaponGlow = null; this.tipSpark = null;
-      if (w && w.light && (w.special || w.gen >= 5 || w.top >= 1)) {
-        const ws = glowSprite(w.light, 30, 0.5, true);
+      const wl = this.skin ? this.skin.light : w?.light ?? 0;
+      if (w && wl && (w.special || w.gen >= 5 || w.top >= 1 || (this.skin?.rim ?? 0) > 0.4)) {
+        const ws = glowSprite(wl, 30, 0.5, true);
         ws.blendMode = 'normal'; ws.zIndex = 0;
         this.weaponGlow = ws; this.body.addChild(ws);
-        if (q === 'full' && (w.special || w.top >= 1)) { const tip = sparkleSprite(light(w.edgeLight || w.light, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
+        if (q === 'full' && (w.special || w.top >= 1)) { const tip = sparkleSprite(light(w.edgeLight || wl, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
       }
     }
     this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR, this.mode === 'scene');

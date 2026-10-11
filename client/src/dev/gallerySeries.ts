@@ -429,11 +429,14 @@ function rigHeroView(): void {
   const colW = Number(qs.get('colw') ?? 250), rowH = Number(qs.get('rowh') ?? 196), gx = 210, gy = 150;
   const bg = new Graphics(); holder.addChild(bg);
   const attack = qs.get('anim') === 'attack';
-  SERIES.forEach((s, ci) => label(`${s.name}  ·  L${s.levels}`, gx + ci * colW + 30, 10, 15));
-  FAMS.forEach((f, ri) => {
+  const gens = qs.get('gens')?.split(',').map(Number);
+  const cols = gens ? SERIES.filter((s) => gens.includes(s.gen)) : SERIES;
+  const fams = qs.get('fams')?.split(',');
+  cols.forEach((s, ci) => label(`${s.name}  ·  L${s.levels}`, gx + ci * colW + 30, 10, 15));
+  FAMS.filter((f) => !fams || fams.includes(f.fam)).forEach((f, ri) => {
     const y = gy + ri * rowH;
     label(f.label, 70, y - 40, 15, 0xc9b98f);
-    SERIES.forEach((s, ci) => {
+    cols.forEach((s, ci) => {
       const rar = rarityFor(s.gen);
       const look = playerLook(createCharacter('Board', f.cls, 7));
       look.slots.mainhand = gearLook(currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar, 11));

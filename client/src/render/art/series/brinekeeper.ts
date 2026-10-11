@@ -4,13 +4,15 @@
 // and Lockglass's green glass. Shape language: long, lean and tapering, whip curves, wrapped in black whippings; the
 // accents are hard little cubes (rule A1). No light yet (R6). Maker's mark: a stamped salt cube.
 import type { SeriesInfo } from './index';
-import { accentOf, cube, detail, disc, lash, pole, qpts, ribbon, ring, slab, bevel, type K } from './kit';
+import { accentOf, bloom, cube, detail, disc, fxCount, glowLine, glowSpot, haze, jit, lash, mote, pole, qpts, ribbon, ring, slab, bevel, withFx, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { localXf } from '../weaponArt';
 import { OUT } from '../draw';
 
 const TAR = 0x2c2b31, DRIFT = 0xcdc3ac, OILSKIN = 0xe2b22e, BRINE = 0xec9fad, SALT = 0xf3efe8, GLASS = 0x7fc4bc;
 const ROPE = 0xb99a68, STEEL = 0xa8b2b8, EDGE = 0xe2e8ea, BRASS = 0xc29a4e;
+/** The series' light (owner decision 2026-10-11): sea-glass, the lit Lockglass float and the glint of salt. */
+const SEA = 0x9ff0e0;
 
 /** Tarred whipping: tight black cord bands (the series' binding everywhere). */
 function whip(k: K, x: number, y0: number, y1: number, w: number): void { lash(k, x, y0, y1, w, TAR, { gap: 1.25, slant: 0.35, bulge: 0.3 }); }
@@ -75,7 +77,9 @@ function axe(k: K): void {
   slab(k, [-1.2, -24.4, -6.2, -25.2, -10.6, -23.2, -9.4, -22.4, -6.4, -23.0, -1.2, -21.6], q >= 1 ? BRASS : STEEL);
   slab(k, [-6.6, -23.4, -8.0, -20.2, -6.6, -18.8, -7.4, -21.2], q >= 1 ? BRASS : STEEL, { line: 0.75 });
   // socket whipping + a ring
-  whip(k, 0.1, -29.2, -18.4, 3.4);
+  // the socket: a plain tarred sleeve, whipped only at its two ends (the old full-length whipping read as a coil)
+  slab(k, [-1.7, -29.0, 1.9, -29.0, 1.9, -18.6, -1.7, -18.6], TAR, { hi: [[-1.1, -28.2, -1.1, -19.4]] });
+  whip(k, 0.1, -29.4, -27.2, 3.6); whip(k, 0.1, -20.6, -18.4, 3.6);
   if (q >= 1) ring(k, 0.1, -18.0, 2.0, 0.7, 0.9, BRASS);
   if (q >= 1) saltMark(k, 4.4, -21.6, 1.2, STEEL);
   if (q >= 1) salt(k, 0.2, -30.6, 1.2, q === 2 ? 4 : 2, 0, true);
@@ -166,11 +170,38 @@ function wand(k: K): void {
   k.anchor = { x: 0.3, y: 0.8, r: 1.8 };
 }
 
+
+// ── effect language: salt glitter, sea-spray mist, the lit Lockglass glass ──
+const glitter = (k: K, pts: [number, number][], per = 2, max = 4) => { const n = fxCount(k, per, max); for (let i = 0; i < n; i++) { const [x, y] = pts[i % pts.length]; mote(k, x + jit(k.seed, i, 1.0), y + jit(k.seed, i + 5, 1.0), 0.55, i % 2 ? SALT : SEA, 'spark', { bob: 0.5, spin: 2.4 + i * 0.4, phase: i * 1.3 }); } };
+function fxSword(k: K): void {
+  glowLine(k, qpts(-0.4, -7, -0.6, -22, -3.6, -31.6, 8), 0.35 + 0.25 * bloom(k), SEA, true, STEEL);
+  glitter(k, [[2.6, 9.0], [-2.4, 6.4], [-2.6, -16], [3.4, -24]]);
+}
+function fxAxe(k: K): void {
+  haze(k, 9.0, -17.0, 4.0, 7.0, SEA, 0.1);
+  glitter(k, [[9.6, -24], [8.0, -12], [-9.6, -21]]);
+}
+function fxBow(k: K): void {
+  for (const s of [-1, 1]) glowSpot(k, -2.6, s * 21.8, 1.2, SEA, true);
+  glitter(k, [[8.6, -10], [8.6, 10], [6.4, 0]]);
+}
+function fxStaff(k: K): void {
+  // the float sits in the head, which is drawn 1.4× round (0, -39)
+  glowSpot(k, -7.8, -31.4, 2.6 + bloom(k), SEA, true);
+  haze(k, -7.8, -31.4, 9.0, 7.0, SEA, 0.12);
+  glitter(k, [[2.6, -40], [-9.4, -31], [1.0, -55], [-8.0, -38]], 2.4, 5);
+}
+function fxWand(k: K): void {
+  glowSpot(k, -0.6, -18.6, 1.4 + bloom(k), SEA, true);
+  glitter(k, [[2.2, -22], [-3.4, -19], [0.4, -24.6]]);
+}
+
 export const BRINEKEEPER: SeriesInfo = {
   id: 'brinekeeper', gen: 2, name: 'Brinekeeper', maker: 'Saltwind brine keepers, Sablefen ferriers, the Lockglass cistern', zones: 'Sablefen, Saltwind Pans, Lockglass Cistern', levels: '25–36',
   shape: 'long, lean and tapering; whip curves; black whippings; hard little cubes as accents',
-  palette: [{ name: 'driftwood', hex: DRIFT }, { name: 'tar', hex: TAR }, { name: 'oilskin', hex: OILSKIN }, { name: 'brine salt', hex: BRINE }, { name: 'Lockglass', hex: GLASS }],
+  palette: [{ name: 'driftwood', hex: DRIFT }, { name: 'tar', hex: TAR }, { name: 'oilskin', hex: OILSKIN }, { name: 'brine salt', hex: BRINE }, { name: 'Lockglass', hex: GLASS }, { name: 'sea-glass (light)', hex: SEA }],
   motif: 'cubic salt crystals grown at the ends; tarred whipping at every binding',
   late: 'pink brine-grown crystal clusters; a glass float netted under a ferry hook',
-  draw: { blade: sword, axe, bow, staff, wand },
+  effects: 'salt glitter turning in the light, a sea-spray mist, the Lockglass float and beads lit sea-glass; shard impacts',
+  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
 };

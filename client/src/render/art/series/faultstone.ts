@@ -1,17 +1,17 @@
-// Series G5 · Riftstone (item levels 61–69): what the rifts give back. The material is the Rift Obelisk's own (town art,
-// npcs.ts: dark slate, rectangular rune slots, magenta runes #FF4A9A; ART-REFERENCES WR4), bound with bone. The slate is
-// lifted a step lighter than the obelisk so it separates from dark backgrounds (IL2). The series' idea — and its only
-// reason to float — is that a rift cracks matter and holds the pieces apart (R11): blades and heads come in segments
+// Series G5 · Faultstone (item levels 61–69): what the Faultline gives back. The material is the Faultstone obelisk's
+// own (town art, npcs.ts: dark slate, rectangular rune slots, magenta runes #FF4A9A; ART-REFERENCES WR4), bound with
+// bone. The slate is lifted a step lighter than the obelisk so it separates from dark backgrounds (IL2). The series'
+// idea — and its only reason to float — is that the Faultline cracks matter and holds the pieces apart (R11): blades and heads come in segments
 // with a gap between them, wider with craft. Shape language: monolithic tapered slabs, stepped bases, pyramidion tips,
 // hard angles (rule A1). Light: the rune slots only (R6). Rarity accent: a shard set in the bone (A5).
 import type { SeriesInfo } from './index';
-import { detail, float, glowPoly, pole, qpts, ring, slab, bevel, stone, type K } from './kit';
+import { detail, float, fxCount, glowPoly, haze, mote, pole, qpts, ring, slab, bevel, stone, withFx, zap, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { localXf } from '../weaponArt';
 
 const SLATE = 0x544a62, SLATE_L = 0x7c708a, BONE = 0xdcd3c2, RUNE = 0xff4a9a, VOID = 0x1c1622, BREAK = 0xb0a4ba;
 
-/** Gap between split pieces by craft (they touch on a normal piece, the rift holds them apart on better ones). */
+/** Gap between split pieces by craft (they touch on a normal piece, the Faultline holds them apart on better ones). */
 const gap = (k: K) => [0.5, 1.2, 1.8][k.q];
 
 /** A slab segment of an obelisk: two-tone faces split down the middle, fracture edges pale where it broke. */
@@ -29,7 +29,7 @@ function slot(k: K, x: number, y: number, w: number, h: number, on: boolean): vo
 
 const chip = (kk: K) => slab(kk, [-1.0, -0.6, 0.8, -1.0, 1.1, 0.6, -0.6, 0.9], SLATE_L, { line: 0.6 });
 
-// ── sword: an obelisk blade in three pieces, held apart by the rift ──
+// ── sword: an obelisk blade in three pieces, held apart by the Faultline ──
 function sword(k: K): void {
   const q = k.q, G = gap(k);
   k.anchor = { x: 0, y: -6.4, r: 3.4 };
@@ -117,12 +117,12 @@ function staff(k: K): void {
   for (const y of [20.2, 2.0]) ring(k, 0, y, 2.1, 0.7, 0.9, BONE);
   slab(k, [-1.9, -4.0, 1.9, -4.0, 1.9, 0.4, -1.9, 0.4], BONE, { line: 0.6 });
   stone(k, 0, -1.8, 0.8, BONE);
-  k.c.save(); localXf(k.c, 0, -33.0, 0, 0.95); localXf(k.c, 0, 33.0, 0, 1);
+  k.c.save(); localXf(k.c, 0, -33.0, 0, 0.82); localXf(k.c, 0, 33.0, 0, 1);
   slab(k, [-7.0, -32.8, 7.0, -32.8, 7.0, -35.2, 5.2, -35.2, 5.2, -37.4, -5.2, -37.4, -5.2, -35.2, -7.0, -35.2], SLATE_L, { hi: [[-6.6, -34.4, 6.6, -34.4], [-4.8, -36.9, 4.8, -36.9]] });
   segment(k, [-4.2, -37.2, 4.2, -37.2, 3.3, -51.6, 1.0, -52.4, -0.8, -51.4, -3.3, -51.8], [-4.2, -37.2, 0, -37.2, -0.2, -51.6, -3.3, -51.8], [[-3.1, -51.6, -0.8, -51.1, 1.0, -52.2, 3.1, -51.4]]);
   for (const [y, on] of [[-40.8, q >= 1], [-44.8, q >= 1], [-48.6, q === 2]] as const) slot(k, 0, y, 1.9, 2.8, on);
   k.c.restore();
-  const HK = 0.95, hy = (y: number) => -33.0 + (y + 33.0) * HK;
+  const HK = 0.82, hy = (y: number) => -33.0 + (y + 33.0) * HK;
   float(k, 0, hy(-52.4 - G * 1.2), (kk) => {
     kk.c.save(); localXf(kk.c, 0, 0, 0, HK);
     segment(kk, [-3.2, 0.3, -0.8, -0.5, 1.0, 0.2, 3.2, -0.3, 0, -5.6], [-3.2, 0.3, -0.8, -0.5, 0, -5.6], [[-3.0, 0, -0.8, -0.8, 1.0, -0.1, 3.0, -0.6]]);
@@ -146,11 +146,51 @@ function wand(k: K): void {
   k.anchor = { x: 0, y: -1.9, r: 2.6 };
 }
 
-export const RIFTSTONE: SeriesInfo = {
-  id: 'riftstone', gen: 5, name: 'Riftstone', maker: 'no maker: what the rifts crack and give back', zones: 'the rifts and the fields at their pitch', levels: '61–69',
+// ── effect language: magenta energy arcing across the split gaps, glowing chips, runes pulsing (the rig pulses the
+//    light layer) ──
+const sparksAcross = (k: K, gaps: [number, number, number, number][], per = 2) => {
+  const n = fxCount(k, per, gaps.length * 2);
+  for (let i = 0; i < n; i++) { const [x0, y0, x1, y1] = gaps[i % gaps.length], o = i >= gaps.length ? 1.6 : 0; zap(k, x0 - o, y0, x1 + o * 0.6, y1, RUNE, k.seed * 7 + i, 0.45 + 0.1 * (i % 2)); }
+};
+const chips = (k: K, pts: [number, number][], per = 1.4, max = 3) => { const n = fxCount(k, per, max); for (let i = 0; i < n; i++) mote(k, pts[i % pts.length][0], pts[i % pts.length][1], 0.55, RUNE, 'diamond', { bob: 1.3, spin: 0.8, phase: i * 2.3 }); };
+function fxSword(k: K): void {
+  const G = gap(k), b1 = -14.0, m1 = b1 - G - 7.6;
+  sparksAcross(k, [[-1.6, b1, 1.2, b1 - G], [1.4, m1, -1.2, m1 - G], [2.4, b1 + 0.2, -2.2, b1 - G - 0.2]]);
+  haze(k, 0, -22, 5.0, 14.0, RUNE, 0.07);
+  chips(k, [[5.6, -18], [-5.2, -26], [4.4, -32]]);
+}
+function fxAxe(k: K): void {
+  const G = gap(k);
+  sparksAcross(k, [[2.6, -25.0, 2.6 + G + 0.6, -23.6], [2.6, -19.6, 2.6 + G + 0.6, -20.8], [-2.6, -22.2, -2.6 - G - 0.6, -21.4]]);
+  chips(k, [[15.6, -24], [14.6, -16], [-9.6, -26]]);
+}
+function fxBow(k: K): void {
+  const G = [0.4, 1.0, 1.5][k.q];
+  const gaps: [number, number, number, number][] = [];
+  for (const s of [-1, 1]) {
+    const cl = qpts(3.0, s * 4.2, 9.2, s * 13.0, -2.4, s * 21.2, 50), total = cl.length / 2 - 1;
+    for (const i of [1, 3]) { const j = Math.round((i / 5) * total), x = cl[j * 2], y = cl[j * 2 + 1], x2 = cl[(j + 2) * 2], y2 = cl[(j + 2) * 2 + 1], dx = x2 - x, dy = y2 - y, d = Math.hypot(dx, dy) || 1; gaps.push([x - (dx / d) * G, y - (dy / d) * G, x + (dx / d) * G, y + (dy / d) * G]); }
+  }
+  sparksAcross(k, gaps, 2.4);
+  chips(k, [[11.0, -12], [11.0, 12]]);
+}
+function fxStaff(k: K): void {
+  const G = gap(k), HK = 0.82, hy = (y: number) => -33.0 + (y + 33.0) * HK, top = hy(-52.0), py = hy(-52.4 - G * 1.2);
+  sparksAcross(k, [[-1.6, top, 1.2, py], [1.8, top, -0.8, py], [0, top + 0.4, 0, py]]);
+  haze(k, 0, hy(-46), 6.0, 9.0, RUNE, 0.08);
+  chips(k, [[-6.2, hy(-50)], [6.0, hy(-44)], [0, hy(-62)]], 1.8, 3);
+}
+function fxWand(k: K): void {
+  const G = gap(k);
+  sparksAcross(k, [[-1.2, -15.4, 1.0, -15.8 - G * 1.2], [1.2, -15.4, -0.8, -15.8 - G * 1.2]]);
+  chips(k, [[3.4, -19], [-3.0, -12]], 1.2, 2);
+}
+export const FAULTSTONE: SeriesInfo = {
+  id: 'faultstone', gen: 5, name: 'Faultstone', maker: 'no maker: what the Faultline cracks and gives back', zones: 'the Faultline and the fields at its pitch', levels: '61–69',
   shape: 'monolithic tapered slabs, stepped bases, pyramidion tips; split into pieces held apart',
-  palette: [{ name: 'obelisk slate', hex: SLATE }, { name: 'slate face', hex: SLATE_L }, { name: 'bone', hex: BONE }, { name: 'fracture', hex: BREAK }, { name: 'rift rune (light)', hex: RUNE }],
+  palette: [{ name: 'obelisk slate', hex: SLATE }, { name: 'slate face', hex: SLATE_L }, { name: 'bone', hex: BONE }, { name: 'fracture', hex: BREAK }, { name: 'Faultstone rune (light)', hex: RUNE }],
   motif: 'rectangular rune slots; the split with a gap',
   late: 'blades and heads in pieces that hover apart, wider with craft; runes light slot by slot',
-  draw: { blade: sword, axe, bow, staff, wand },
+  effects: 'magenta energy arcing across the split gaps, glowing chips, the runes pulsing; shard impacts',
+  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
 };

@@ -5,12 +5,12 @@
 // pale wavy temper line splits the hard edge from the dark back (ART-REFERENCES RW2). The one light is an ember kept in
 // a crucible (R6). Maker's mark: a stamped kiln cone (RW1).
 import type { SeriesInfo } from './index';
-import { accentOf, detail, disc, float, glowSpot, jit, lash, pole, qpts, ribbon, ring, slab, type K } from './kit';
+import { accentOf, bloom, detail, disc, float, fxCount, glowLine, glowSpot, haze, jit, lash, mote, pole, qpts, ribbon, ring, slab, withFx, type K } from './kit';
 import { mix, shade, light } from '../util';
 import { OUT } from '../draw';
 
 const IRON = 0x403a3a, EDGE = 0xb8b4ae, TERRA = 0xb3603c, CLAY = 0xd9a070, CELADON = 0x86b29c, TENMOKU = 0x5c2a1c;
-const EMBER = 0xff8a3a, ASH = 0x6a5646, SOOT = 0x2c2426, LEATHER = 0x4e3a30;
+const EMBER = 0xff8a3a, ASH = 0x7a6450, SOOT = 0x2c2426, LEATHER = 0x4e3a30;
 
 /** Glaze drips hanging from a lip at y (kiln-fired upright, so they run towards +y). */
 function drips(k: K, xs: number[], y: number, lens: number[], col: number, w = 0.9, inner = false): void {
@@ -110,7 +110,7 @@ function bow(k: K): void {
   const up = qpts(-2.4, -21.0, 7.8, -12.8, 3.4, -3.0, 12), lo = qpts(-2.4, 21.0, 7.8, 12.8, 3.4, 3.0, 12);
   for (const cl of [up, lo]) {
     const n = cl.length / 2;
-    const ws: number[] = []; for (let i = 0; i < n; i++) { const t = i / (n - 1); ws.push(1.7 + Math.sin(t * Math.PI) * 2.0 + t * 0.6); }
+    const ws: number[] = []; for (let i = 0; i < n; i++) { const t = i / (n - 1); ws.push(2.4 + Math.sin(t * Math.PI) * 2.3 + t * 0.8); }
     slab(k, ribbon(cl, ws), ASH, { line: 0, flat: true });
     if (k.pass === 'paint') {
       slab(k, ribbon(cl, ws, 0, -1, 0.05), mix(ASH, 0xfff4d6, 0.18), { line: 0, flat: true, inner: true });
@@ -173,11 +173,38 @@ function wand(k: K): void {
   glazeEye(k, 0.0, -14.3, 1.0);
 }
 
+
+// ── effect language: embers — sparks drifting off hot iron, the clay-quench line glowing, heat over the crucible ──
+const embers = (k: K, pts: [number, number][], per = 2, max = 4) => { const n = fxCount(k, per, max); for (let i = 0; i < n; i++) { const [x, y] = pts[i % pts.length]; mote(k, x + jit(k.seed, i, 1.2), y + jit(k.seed, i + 7, 1.2), 0.5 + 0.15 * (i % 2), EMBER, 'dot', { bob: 2.4, phase: i * 1.9 }); } };
+function fxSword(k: K): void {
+  glowLine(k, [3.1, -6.9, 1.5, -8.6, 2.3, -10.8, 1.6, -13.2, 2.7, -15.6, 2.0, -18.4, 3.1, -20.8, 2.6, -23.6, 2.7, -26.4, 1.0, -28.9], 0.45 + 0.35 * bloom(k), EMBER, true, IRON);
+  embers(k, [[5.6, -14], [6.0, -22], [3.8, -29]]);
+}
+function fxAxe(k: K): void {
+  glowLine(k, [9.8, -27.0, 11.2, -24.2, 10.2, -21.6, 11.0, -19.4, 10.4, -17.0, 9.8, -14.6], 0.45 + 0.3 * bloom(k), EMBER, true, IRON);
+  embers(k, [[14.0, -22], [12.6, -14], [11.6, -29]]);
+}
+function fxBow(k: K): void {
+  // crazing: the glaze's fine crack network glowing on the clay grip
+  glowLine(k, [1.6, 0.4, 2.8, 1.4, 2.4, 2.6, 3.8, 3.4, 4.8, 2.8], 0.35 + 0.2 * bloom(k), EMBER, true, TERRA);
+  glowLine(k, [2.8, 1.4, 4.4, 0.6, 5.6, 1.2], 0.3, EMBER, true, TERRA);
+  embers(k, [[8.4, -2], [7.8, 4], [9.2, 0]], 1.5, 3);
+}
+function fxStaff(k: K): void {
+  haze(k, 0.4, -58.0, 6.6, 4.6, EMBER, 0.12);
+  embers(k, [[1.2, -60], [-2.4, -62], [3.0, -64], [-0.6, -66]], 2.4, 5);
+}
+function fxWand(k: K): void {
+  if (k.q === 2) glowSpot(k, 3.4, -17.2, 1.1, EMBER, true);
+  embers(k, [[3.6, -20], [-2.0, -19]], 1.2, 2);
+}
+
 export const KILNFOLK: SeriesInfo = {
   id: 'kilnfolk', gen: 1, name: 'Kilnfolk', maker: 'the firekeepers of Cinderwash and the Kilnwatch', zones: 'Cinderwash Kilns, Kilnwatch Crown (Sablefen road)', levels: '13–24',
   shape: 'round and heavy: collars, bellies, thumb-pressed rims, blunt tips; glaze drips break the lower edges',
   palette: [{ name: 'fire-scaled iron', hex: IRON }, { name: 'terracotta', hex: TERRA }, { name: 'celadon glaze', hex: CELADON }, { name: 'tenmoku glaze', hex: TENMOKU }, { name: 'ember (light)', hex: EMBER }],
   motif: 'the glazed collar with drips at the junction; the stamped kiln cone',
   late: 'clay-quenched temper lines, a celadon window in the axe, a crucible that keeps an ember, a cone that slumps',
-  draw: { blade: sword, axe, bow, staff, wand },
+  effects: 'embers drifting off hot iron, the quench line and glaze crazing glowing, heat haze over the crucible; ember impacts',
+  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
 };

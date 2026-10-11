@@ -7,7 +7,7 @@
 //   the material, never ink.
 // * Light as a material (R6): the 'light' pass draws only emissive parts (an ember, a lamp window, rune slots); the
 //   hero rig adds it additively, icons composite it with a glow. Base passes paint the same parts lit or dormant.
-// * Floating parts only with a cause (R11): `float()` records them for the rig (orrery rings, rift-split shards).
+// * Floating parts only with a cause (R11): `float()` records them for the rig (orrery rings, Faultline-split shards).
 //
 // Hand-local frame (same as gear.ts / weaponArt.ts): grip at the origin, the business end towards -y; bows have their
 // limbs along y with the nock points at (-2.4, ±21) where the rig ties the string.
@@ -43,12 +43,16 @@ export interface K {
   litCol: number;
   /** Override of the rarity accent colour (a legendary / Set drawn on a series base carries its own colour there). */
   accent: number;
+  /** Effect strength 0..~2 (ART-DIRECTION §1.4, owner decision 2026-10-11): 0 on normal items, rising with the level
+   *  band, rarity, legendary, grade and +N. Light blooms scale with it and effect parts (motes, rays, arcs, glints)
+   *  appear above thresholds. */
+  fx: number;
   /** Junction of grip and head: where the series motif and the grade accents sit (set by the drawing). */
   anchor: { x: number; y: number; r: number };
 }
 
 export function newKit(c: Ctx, pass: Pass, q: 0 | 1 | 2, rig: boolean, seed: number, floats: WFloat[]): K {
-  return { c, pass, q, rig, seed, floats, lit: false, litCol: 0, accent: 0, anchor: { x: 0, y: -6, r: 3 } };
+  return { c, pass, q, rig, seed, floats, lit: false, litCol: 0, accent: 0, fx: 0, anchor: { x: 0, y: -6, r: 3 } };
 }
 
 // ───────────────────────── tones ─────────────────────────
@@ -157,7 +161,7 @@ export function disc(k: K, x: number, y: number, rx: number, ry: number, col: nu
   if (lw > 0) { c.ellipse(x, y, rx, ry); c.stroke({ width: lw, color: OUT }); }
 }
 
-/** An isometric cube (salt crystals, the Ancients' blocks): top face lightest, left face lit, right face in shade,
+/** An isometric cube (salt crystals): top face lightest, left face lit, right face in shade,
  *  matching the upper-left light. `s` = half height. `rot` rotates the whole cube (crystals grow at angles). */
 export function cube(k: K, x: number, y: number, s: number, col: number, o: { rot?: number; line?: number; inner?: boolean; topK?: number } = {}): void {
   const c = k.c;
@@ -313,9 +317,10 @@ export function glowLine(k: K, pts: number[], w: number, col: number, on: boolea
   }
   if (!on) return;
   k.lit = true; k.litCol = k.litCol || col;
-  stroke(c, pts, w * 3, col, 0.16);
-  stroke(c, pts, w * 1.6, col, 0.5);
-  stroke(c, pts, w * 0.6, light(col, 0.6), 0.75);
+  const b = bloom(k);
+  stroke(c, pts, w * (3 + 2.2 * b), col, 0.12 + 0.08 * b);
+  stroke(c, pts, w * (1.6 + 0.6 * b), col, 0.45 + 0.15 * b);
+  stroke(c, pts, w * 0.6, light(col, 0.6), 0.75 + 0.2 * b);
 }
 
 /** An emissive spot (ember, lamp flame, lens). */
@@ -330,9 +335,10 @@ export function glowSpot(k: K, x: number, y: number, r: number, col: number, on:
   }
   if (!on) return;
   k.lit = true; k.litCol = k.litCol || col;
-  c.circle(x, y, r * 2.3).fill({ color: col, alpha: 0.14 });
-  c.circle(x, y, r * 1.35).fill({ color: col, alpha: 0.42 });
-  c.circle(x, y, r * 0.6).fill({ color: light(col, 0.6), alpha: 0.7 });
+  const b = bloom(k);
+  c.circle(x, y, r * (2.3 + 1.6 * b)).fill({ color: col, alpha: 0.1 + 0.06 * b });
+  c.circle(x, y, r * (1.35 + 0.3 * b)).fill({ color: col, alpha: 0.42 + 0.12 * b });
+  c.circle(x, y, r * 0.6).fill({ color: light(col, 0.6), alpha: 0.7 + 0.2 * b });
 }
 
 /** An emissive area (window, slot). */
@@ -352,16 +358,83 @@ export function glowPoly(k: K, pts: number[], col: number, on: boolean, dormant:
   c.poly(pts, true); fill(c, col, 0.5);
 }
 
+/** Bloom factor 0..1 from the effect strength. */
+export const bloom = (k: K): number => Math.max(0, Math.min(1, k.fx / 1.4));
+
+// ───────────────────────── effect parts (ART-DIRECTION §1.4b: each series its own effect language) ─────────────────
+
+/** Light-layer rays from (x, y) over the angle range (lamp light, relic glare): thin additive wedges. */
+export function rays(k: K, x: number, y: number, n: number, len: number, a0: number, a1: number, col: number, w = 0.9): void {
+  if (k.pass !== 'light' || n <= 0) return;
+  k.lit = true; k.litCol = k.litCol || col;
+  for (let i = 0; i < n; i++) {
+    const a = n === 1 ? (a0 + a1) / 2 : a0 + ((a1 - a0) * i) / (n - 1), L = len * (i % 2 ? 0.72 : 1);
+    const ca = Math.cos(a), sa = Math.sin(a), px = -sa * w, py = ca * w;
+    k.c.poly([x + px, y + py, x + ca * L, y + sa * L, x - px, y - py], true).fill({ color: col, alpha: 0.22 + 0.12 * bloom(k) });
+  }
+}
+
+/** Light-layer energy arc between two points (a jagged bolt with a soft bloom), deterministic per seed. */
+export function zap(k: K, x0: number, y0: number, x1: number, y1: number, col: number, seed: number, w = 0.6): void {
+  if (k.pass !== 'light') return;
+  k.lit = true; k.litCol = k.litCol || col;
+  const n = 5, pts: number[] = [x0, y0], dx = x1 - x0, dy = y1 - y0, d = Math.hypot(dx, dy) || 1, nx = -dy / d, ny = dx / d;
+  for (let i = 1; i < n; i++) { const t = i / n, o = jit(seed, i, d * 0.32); pts.push(x0 + dx * t + nx * o, y0 + dy * t + ny * o); }
+  pts.push(x1, y1);
+  stroke(k.c, pts, w * 4, col, 0.14); stroke(k.c, pts, w * 1.6, col, 0.6); stroke(k.c, pts, w * 0.55, light(col, 0.7), 0.95);
+}
+
+/** A soft light-layer haze (heat shimmer, spray mist, relic glare): stacked ellipses. */
+export function haze(k: K, x: number, y: number, rx: number, ry: number, col: number, a = 0.14): void {
+  if (k.pass !== 'light') return;
+  k.lit = true; k.litCol = k.litCol || col;
+  for (const f of [1, 0.66, 0.38]) k.c.ellipse(x, y, rx * f, ry * f).fill({ color: col, alpha: a * (0.6 + 0.4 * bloom(k)) });
+}
+
+export type MoteShape = 'dot' | 'spark' | 'diamond' | 'drop' | 'chip';
+/** A decorative effect mote (ember, glitter, star mote, chip, drop) as a float: the rig animates it (bob / orbit /
+ *  spin), gives it a glow sprite and drops it outside the presence slots (deco). Icons draw it at rest. */
+export function mote(k: K, x: number, y: number, r: number, col: number, shape: MoteShape, m: { bob?: number; orbit?: number; spin?: number; phase?: number; glow?: boolean } = {}): void {
+  float(k, x, y, (kk) => {
+    if (kk.pass !== 'paint' || inSilhouette()) return;
+    const c = kk.c;
+    if (shape === 'dot') { c.circle(0, 0, r * 1.5).fill({ color: col, alpha: 0.35 }); c.circle(0, 0, r).fill(light(col, 0.35)); c.circle(-r * 0.25, -r * 0.25, r * 0.45).fill(light(col, 0.85)); }
+    else if (shape === 'spark') { const q = r * 0.28; c.poly([0, -r * 1.6, q, -q, r * 1.6, 0, q, q, 0, r * 1.6, -q, q, -r * 1.6, 0, -q, -q], true).fill(light(col, 0.55)); c.circle(0, 0, r * 0.35).fill(0xffffff); }
+    else if (shape === 'diamond') { c.poly([0, -r * 1.3, r * 0.8, 0, 0, r * 1.3, -r * 0.8, 0], true).fill(light(col, 0.4)); c.poly([0, -r * 1.3, r * 0.8, 0, 0, 0], true).fill(light(col, 0.75)); c.poly([0, -r * 1.3, r * 0.8, 0, 0, r * 1.3, -r * 0.8, 0], true).stroke({ width: 0.4, color: OUT, alpha: 0.6 }); }
+    else if (shape === 'drop') { c.moveTo(0, -r * 1.6).quadraticCurveTo(r, 0, 0, r).quadraticCurveTo(-r, 0, 0, -r * 1.6).fill(light(col, 0.25)); c.circle(-r * 0.3, 0, r * 0.3).fill(0xffffff); }
+    else { c.poly([-r, -r * 0.5, r * 0.7, -r, r, r * 0.4, -r * 0.5, r], true).fill(col); c.poly([-r, -r * 0.5, r * 0.7, -r, r, r * 0.4, -r * 0.5, r], true).stroke({ width: 0.5, color: OUT, alpha: 0.85 }); }
+  }, { bob: m.bob ?? 1.2, orbit: m.orbit ?? 0, spin: m.spin ?? 0, phase: m.phase ?? 0, glow: m.glow === false ? 0 : col, glowR: r * 2.6, deco: true });
+}
+
+/** A light-only stroke (a scanning arc, a lit edge seen as glow without a painted core). */
+export function beam(k: K, pts: number[], w: number, col: number): void {
+  if (k.pass !== 'light') return;
+  k.lit = true; k.litCol = k.litCol || col;
+  const b = bloom(k);
+  stroke(k.c, pts, w * (3 + 2 * b), col, 0.1 + 0.08 * b); stroke(k.c, pts, w * 1.2, col, 0.4 + 0.2 * b); stroke(k.c, pts, w * 0.45, light(col, 0.7), 0.8);
+}
+
+/** Points along a circle arc (angles in radians, y down). */
+export function arcAt(cx: number, cy: number, r: number, a0: number, a1: number, n = 12, ry = r): number[] {
+  const o: number[] = []; for (let i = 0; i <= n; i++) { const a = a0 + ((a1 - a0) * i) / n; o.push(cx + Math.cos(a) * r, cy + Math.sin(a) * ry); } return o;
+}
+
+/** Compose a drawing with its effect layer. */
+export const withFx = (d: (k: K) => void, e: (k: K) => void) => (k: K): void => { d(k); if (k.fx > 0) e(k); };
+
+/** How many effect parts an item gets at this effect strength (0 on plain items). */
+export const fxCount = (k: K, perUnit: number, max: number): number => (k.fx <= 0 ? 0 : Math.max(0, Math.min(max, Math.round(k.fx * perUnit))));
+
 // ───────────────────────── floats (R11) ─────────────────────────
 
 /** Record a floating part (only in the 'paint' pass; nothing is drawn into the weapon itself). The part draws itself
  *  in both base passes around its own origin. */
 export function float(k: K, x: number, y: number, draw: (kk: K) => void, m: { bob?: number; orbit?: number; spin?: number; phase?: number; glow?: number; glowR?: number; deco?: boolean } = {}): void {
   if (k.pass !== 'paint') return;
-  const q = k.q, rig = k.rig, seed = k.seed, accent = k.accent;
+  const q = k.q, rig = k.rig, seed = k.seed, accent = k.accent, fx = k.fx;
   k.floats.push({
     x, y, bob: m.bob ?? 0.8, orbit: m.orbit ?? 0, spin: m.spin ?? 0, phase: m.phase ?? 0, glow: m.glow ?? 0, glowR: m.glowR ?? 6, deco: m.deco ?? false,
-    draw: (c: Ctx) => { for (const pass of ['under', 'paint'] as const) draw({ ...newKit(c, pass, q, rig, seed, []), accent }); },
+    draw: (c: Ctx) => { for (const pass of ['under', 'paint'] as const) draw({ ...newKit(c, pass, q, rig, seed, []), accent, fx }); },
   });
 }
 

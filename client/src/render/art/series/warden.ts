@@ -5,7 +5,7 @@
 // pennants flying off the weapon (asymmetric) (rule A1). Light: only the beacon lamp of the staff (R6).
 // Maker's mark: a stamped key ward.
 import type { SeriesInfo } from './index';
-import { detail, disc, glowPoly, glowSpot, lash, pole, ring, slab, bevel, stone, type K } from './kit';
+import { bloom, detail, disc, fxCount, glowLine, glowPoly, glowSpot, haze, jit, lash, mote, pole, rays, ring, slab, bevel, stone, withFx, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { OUT } from '../draw';
 
@@ -184,11 +184,37 @@ function wand(k: K): void {
   k.anchor = { x: 0, y: 1.6, r: 1.8 };
 }
 
+// ── effect language: lantern light — lamp rays and a flicker (the rig pulses the light layer), lamp-lit edges, glints ──
+const glints = (k: K, pts: [number, number][], per = 1.6, max = 3) => { const n = fxCount(k, per, max); for (let i = 0; i < n; i++) { const [x, y] = pts[i % pts.length]; mote(k, x, y, 0.6, i % 2 ? FROST : LAMP, 'spark', { bob: 0.3, spin: 1.8, phase: i * 2.1 }); } };
+function fxSword(k: K): void {
+  glowLine(k, [-1.9, -7, -1.9, -27, -0.2, -31.4], 0.4 + 0.3 * bloom(k), LAMP, true, STEEL);
+  glints(k, [[0.4, -34.2], [-3.4, -18], [3.6, -24]]);
+}
+function fxAxe(k: K): void {
+  glowLine(k, [10.0, -27.0, 10.0, -17.2], 0.45 + 0.3 * bloom(k), LAMP, true, STEEL);
+  glints(k, [[11.6, -28.8], [0.2, -34.6], [11.6, -16.0]]);
+}
+function fxBow(k: K): void {
+  for (const s of [-1, 1]) glowSpot(k, 4.8, s * 6.2, 0.7 + 0.4 * bloom(k), LAMP, true);
+  glints(k, [[6.8, -13.0], [6.8, 13.0], [-3.6, -22.4]]);
+}
+function fxStaff(k: K): void {
+  const n = 4 + fxCount(k, 3, 6);
+  rays(k, 0, -44.8, n, 9 + 7 * bloom(k), -Math.PI, Math.PI * (1 - 2 / n), LAMP, 0.9);
+  haze(k, 0, -44.8, 9, 8, LAMP, 0.12);
+  glints(k, [[-8.6, -34.4], [8.6, -34.4], [0, -60.4]]);
+}
+function fxWand(k: K): void {
+  glowLine(k, [4.4, -10.6, 4.4, -12.2, 3.0, -12.2, 3.0, -13.4, 4.4, -13.4, 4.4, -15.8], 0.35 + 0.2 * bloom(k), LAMP, true, STEEL);
+  glints(k, [[5.6, -17.4], [-3.2, 6.2]]);
+}
+void jit;
 export const WARDEN: SeriesInfo = {
   id: 'warden', gen: 3, name: 'Warden', maker: 'the Shiverline signallers and the Beaconbreak ward', zones: 'Shiverline Escarpment, Beaconbreak Ward', levels: '37–48',
   shape: 'tall, upright and rectilinear; crisp key-ward steps; swallowtail pennants flying off one side',
   palette: [{ name: 'ward crimson', hex: CRIMSON }, { name: 'white enamel', hex: ENAMEL }, { name: 'brass', hex: BRASS }, { name: 'bright steel', hex: STEEL }, { name: 'ridge frost', hex: FROST }],
   motif: 'key-ward steps and a swallowtail pennant at the junction; the stamped ward',
   late: 'a beacon lamp whose shutters open with craft; frost-etched steel; signal flags',
-  draw: { blade: sword, axe, bow, staff, wand },
+  effects: 'lamp rays and a beacon flicker, lamp-lit edges, frost and lamp glints; spark impacts',
+  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
 };

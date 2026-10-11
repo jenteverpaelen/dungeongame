@@ -4,7 +4,7 @@
 // graduated ticks, precise and symmetric — the first series whose precision is earned (R10). Light: a lilac signal in
 // the graduated channels and lenses, rare pieces only (R6). Maker's mark: a graduated ring.
 import type { SeriesInfo } from './index';
-import { detail, disc, float, glowLine, glowSpot, pole, qpts, ribbon, ring, slab, bevel, stone, type K } from './kit';
+import { arcAt, beam, bloom, detail, disc, float, fxCount, glowLine, glowSpot, mote, pole, qpts, ribbon, ring, slab, bevel, stone, withFx, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { OUT } from '../draw';
 
@@ -152,12 +152,37 @@ function wand(k: K): void {
   k.anchor = { x: 0, y: 0.4, r: 2.2 };
 }
 
+// ── effect language: star motes orbiting the instruments, a scanning arc sweeping their scales ──
+const motes = (k: K, cx: number, cy: number, orbit: number, per = 2, max = 4) => { const n = fxCount(k, per, max); for (let i = 0; i < n; i++) mote(k, cx, cy, 0.55 + 0.15 * (i % 2), i % 3 === 2 ? DIAL : SIGNAL, 'spark', { orbit: orbit * (1 + 0.18 * (i % 2)), spin: 1.1 + 0.25 * i, phase: (i / Math.max(1, n)) * Math.PI * 2, bob: 0 }); };
+function fxSword(k: K): void {
+  beam(k, arcAt(0, -7.4, 6.4, -2.6, -0.6), 0.55, SIGNAL);
+  glowLine(k, [0.25, -11.6, 0.25, -26.8], 0.4 + 0.2 * bloom(k), SIGNAL, true, COPPER);
+  motes(k, 0, -7.4, 8.0);
+}
+function fxAxe(k: K): void {
+  beam(k, arcAt(0.4, -21.8, 11.6, -0.8, 0.5), 0.6, SIGNAL);
+  motes(k, 0.4, -21.8, 10.0);
+}
+function fxBow(k: K): void {
+  beam(k, arcAt(7.6, 0, 4.4, -2.4, 0.6), 0.5, SIGNAL);
+  motes(k, 7.6, 0, 6.0, 1.6, 3);
+}
+function fxStaff(k: K): void {
+  beam(k, arcAt(0, -48.6, 11.0, -2.8, -0.4), 0.6, SIGNAL);
+  motes(k, 0, -48.6, 15.0, 2.4, 5);
+}
+function fxWand(k: K): void {
+  beam(k, arcAt(-1.7, -20.6, 5.6, -2.6, -0.6), 0.45, SIGNAL);
+  motes(k, -1.7, -20.6, 5.0, 1.6, 3);
+}
+void float;
 export const ARRAY: SeriesInfo = {
-  id: 'array', gen: 4, name: 'Array', maker: 'the readers of the Hollowstar Array', zones: 'Hollowstar Array, the first rifts', levels: '49–60',
+  id: 'array', gen: 4, name: 'Array', maker: 'the readers of the Hollowstar Array', zones: 'Hollowstar Array, the first Faultlines', levels: '49–60',
   shape: 'circles, rings and arcs; horn bells; graduated ticks; precise and symmetric',
   palette: [{ name: 'blued star-iron', hex: STAR }, { name: 'copper', hex: COPPER }, { name: 'verdigris', hex: VERDI }, { name: 'enamel dial', hex: DIAL }, { name: 'lilac signal (light)', hex: SIGNAL }],
   motif: 'the graduated ring at the junction',
   late: 'an orrery staff with turning planets, a sextant axe, a sighting-ring bow; the signal lights the scales',
-  draw: { blade: sword, axe, bow, staff, wand },
+  effects: 'star motes orbiting the instruments, a scanning arc over the scales, the signal in the channels; star impacts',
+  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
 };
 void qpts; void light;

@@ -46,9 +46,14 @@ export interface Preferences {
   colorVision: ColorVision;
   /** A small shape on every item slot (◆ magic, ▲ rare, ★ legendary, ⬢ set) so rarity never relies on colour. */
   rarityShapes: boolean;
+  /** Weapon art preview (docs/rework/gear/ART-DIRECTION.md): the current drawings or the new maker series. Local only,
+   *  applied when the page loads; `?weaponArt=series|current` overrides it for one page load. */
+  weaponArt: WeaponArt;
 }
 
 export type GearEffects = 'full' | 'reduced' | 'off';
+export type WeaponArt = 'current' | 'series';
+export const WEAPON_ART_MODES: readonly WeaponArt[] = ['current', 'series'];
 export const GEAR_EFFECT_LEVELS: readonly GearEffects[] = ['full', 'reduced', 'off'];
 export type GraphicsPreset = 'low' | 'medium' | 'high' | 'custom';
 export type Density = 'full' | 'reduced' | 'minimal';
@@ -92,7 +97,7 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   contextualHints: true, manualSkills: false,
   gearEffects: 'full', otherGearEffects: 'full',
   graphicsPreset: 'high', ...GRAPHICS_PRESETS.high, maxFps: 0, backgroundFps: 0, lowSpecHint: true,
-  motion: 'system', colorVision: 'default', rarityShapes: true,
+  motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'current',
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -119,6 +124,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
   value.numberSize = pick(input.numberSize, NUMBER_SIZES) ?? value.numberSize;
   value.motion = pick(input.motion, MOTION_PREFS) ?? value.motion;
   value.colorVision = pick(input.colorVision, COLOR_VISIONS) ?? value.colorVision;
+  value.weaponArt = pick(input.weaponArt, WEAPON_ART_MODES) ?? value.weaponArt;
   // The preset label always describes the values (a hand-edited value turns it into "custom").
   value.graphicsPreset = presetOf(value);
   return Object.freeze(value);

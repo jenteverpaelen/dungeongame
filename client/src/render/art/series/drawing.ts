@@ -7,7 +7,7 @@
 // legendary / Set → rare craft carrying the item's own colour as the accent, or the bespoke drawing when one exists),
 // style.top → grade accents, look.variant → wear placement, rig → bows without string.
 // Presentation: the trails, strike flash and projectile tint take the series' own light (ember, beacon lamp, signal
-// lilac, rift rune, Cube teal); series without light give plain attacks (light 0), as REFERENCES-V2 V3 asks.
+// lilac, Faultstone rune, relic glow); series without light give plain attacks (light 0), as REFERENCES-V2 V3 asks.
 
 import type { ItemLook, Rarity } from '@shared/types';
 import type { WeaponFamily } from '../gearVisuals';
@@ -25,6 +25,8 @@ export interface SeriesDrawInput {
 
 export interface SeriesPresentation {
   light: number; core: number; edge: number; strength: number;
+  /** Icon rim light 0..1 (weaponDrawing.ts WeaponPresentation.rim). */
+  rim: number;
   tip: [number, number]; base: [number, number];
   impact?: 'spark' | 'ember' | 'star' | 'shard';
 }
@@ -38,7 +40,7 @@ export interface SeriesDrawing {
 
 const RAR: Rarity[] = ['normal', 'magic', 'rare', 'legendary', 'set'];
 /** Impact hint per series (grades override: Kindled ember, Fabled star). */
-const IMPACT: SeriesPresentation['impact'][] = ['spark', 'ember', 'shard', 'spark', 'spark', 'shard', 'spark'];
+const IMPACT: SeriesPresentation['impact'][] = ['spark', 'ember', 'shard', 'spark', 'star', 'shard', 'shard'];
 
 export function seriesSpecOf(input: SeriesDrawInput): SeriesSpec {
   const s = input.style, rarity = RAR[Math.max(0, Math.min(4, s.rar))];
@@ -47,7 +49,7 @@ export function seriesSpecOf(input: SeriesDrawInput): SeriesSpec {
     family: input.family, gen: Math.max(0, Math.min(SERIES.length - 1, s.gen)), rarity,
     legendary: s.legendary && LEGENDARY_ART[s.legendary] ? s.legendary : undefined,
     grade: (Math.max(0, Math.min(2, s.top)) as 0 | 1 | 2),
-    seed: input.look.variant + 1, rig: input.rig,
+    seed: input.look.variant + 1, rig: input.rig, temper: Math.max(0, Math.min(3, s.temper)),
     accent: special && input.look.glow ? input.look.glow : undefined,
   };
 }
@@ -64,11 +66,13 @@ export function seriesDrawing(input: SeriesDrawInput): SeriesDrawing | null {
       light: L,
       core: L ? light(L, 0.45) : 0,
       edge: s.edgeLight,
-      // the same scale as the default drawings, so the attack presentation keeps its calibration
-      strength: !L ? 0 : 0.25 + 0.1 * s.gen + (s.special ? 0.35 : 0) + 0.2 * s.top + 0.05 * s.temper,
+      // effect strength drives the trails (glow ribbon from 0.6, cleave arcs from 0.8), strike flash and projectiles:
+      // plain early items, unmistakable endgame rares / legendaries (owner decision 2026-10-11, ART-DIRECTION §1.4)
+      strength: !L ? 0 : m.fx,
+      rim: !L ? 0 : Math.max(0, Math.min(1, (m.fx - 0.3) / 1.2)),
       tip: bow ? [6, 0] : [0, -input.reach.tip],
       base: bow ? [2.6, 0] : [0, -input.reach.base],
-      impact: s.top >= 2 ? 'star' : s.top === 1 ? 'ember' : IMPACT[spec.gen],
+      impact: s.top >= 2 ? 'star' : s.top === 1 ? 'ember' : (spec.legendary && LEGENDARY_ART[spec.legendary].impact) || IMPACT[spec.gen],
     },
   };
 }
