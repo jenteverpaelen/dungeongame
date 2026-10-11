@@ -18,7 +18,7 @@ re-fitted by playtests), **[B]** taken from the bible.
 |---|---|---|
 | Skills | 12 / 12 | 6 existing + Skipstone Bolt (16), Spring Snare (20), Overcast Volley (26), Quarry Mark (32), Pitch Mortar (40), Murmuration (50) |
 | Runes | 60 / 60 | runes 4–5 of the existing skills at the bible's levels; Badger and Heron are new companion animals |
-| Specialization nodes | 68 / 72 | every tree holds 12–18 ranks for a cap of 10 |
+| Specialization nodes | 72 / 72 | every tree holds 12–18 ranks for a cap of 10; the last four shipped in phase 2 (§2) |
 | Passives | 14 (6 kept + 8 new) | Engineer's Margin, Kinship, Long Shot, Weather Eye, Trapper's Instinct, Hatred Well, Second Skin, Hunter's Accord |
 | Sets | 5 / 5 | Siegebreaker's Arsenal, Farwatch, Rainkeeper redesigned on tags; Thicket Kin and Snarewright new |
 | Ranger legendaries | 35 / 35 | 5 existing (levers above; texts use the new names) + 30 new (7 named, 23 tag-keyed) |
@@ -33,14 +33,20 @@ the tick and death hooks). Tests `server/test/ranger.test.ts`, `server/test/rang
 sim skill coverage for every new skill × rune. New legendaries and set pieces drop through normal loot (test "ranger
 loot"); debug `legendaries` / `set` grant them.
 
-## 2. Still blocked (phase 2: engine wave 3 or later)
+## 2. Phase 2 (engine wave 3, merged from claude/town-ui-rework 7faa331): nothing left blocked
 
-| Content | Missing primitive |
+| Content | Shipped with |
 |---|---|
-| Tracking Arrow N6 Gut Hook (slow 10 / 20 / 30 %), Skipstone N6 Wake (chill 20 / 30 / 40 %), Pitch Mortar N4 Tar Pit (slow 15 / 30 / 45 %), Murmuration N4 Feather Storm (chill 20 / 35 / 50 %) | a slow of chosen strength (engine wave 3); the one chill is 40 % [M] |
-| Wingbeat Boots part 2: "after a Movement skill your Beasts dash to your side" | the Movement-end trigger (engine wave 3); part 1 (+v % to elites) ships |
-| Quarry Mark N2 Tracker: the movement-speed half (+5 / 10 / 15 %) | a movement-speed buff (not in wave 3); the attack-speed half ships |
-| Weather Eye, Flood Plain, Ripple, Bloodhound: their bible chill / slow of 30 % | they ship with the engine's one chill (40 % [M], §4); re-fit with the slow of chosen strength (engine wave 3) |
+| Tracking Arrow N6 Gut Hook: pierced enemies slowed 10 / 20 / 30 % for 2 s | status `slow` from the Tracking Arrow hooks |
+| Skipstone N6 Wake: each skip leaves a 1 s puddle that slows 20 / 30 / 40 % | a `wet` puddle visual (radius [P] 50 = Ripple's) and 250 ms slow pulses (class code, no data ground: Skipstone is not a Ground skill) |
+| Pitch Mortar N4 Tar Pit: pitch slows 15 / 30 / 45 % | slow pulses on the pitch ground's live radius (Tar-Stained Jerkin growth included) |
+| Murmuration N4 Feather Storm: enemies inside slowed 20 / 35 / 50 % | every flock tick refreshes a 0.5 s slow [P] |
+| Ripple 30 % for 1 s, Flood Plain 30 % (wet ground), Bloodhound 30 % (quarry), Weather Eye 30 % for 2 s | the slow at the bible's strength instead of the engine's one chill (40 %, movement and attacks); Weather Eye's +15 % and Trapper's Instinct's +15 % now count `slowed` (chilled or slowed) |
+| Wingbeat Boots part 2: "after a Movement skill your Beasts dash to your side" | the tick your dash ends (the moment of the engine's `dashEnd` trigger, read in the ranger tick: a proc has no class-code action) the beasts run to your side at your dash's speed (230 units / 170 ms [M]) for up to 0.6 s [P], then fight on |
+| Quarry Mark N2 Tracker: +5 / 10 / 15 % movement speed | buff `mv` (`live.mv`, client prediction via `MeState.ms`) next to the attack speed |
+
+Texts say "slowed by N %" (the warrior's wave-3 wording): the slow is movement only, the engine's chill also slows
+attacks. Tests: `server/test/ranger.test.ts` (phase 2).
 
 ## 3. Narrow generic additions (each its own commit, tests in `server/test/rangerEngine.test.ts`)
 
@@ -64,7 +70,7 @@ loot"); debug `legendaries` / `set` grant them.
 | Farwatch 4 | Projectile Spenders cost 30 % less | 15 % | measured ×1.92 (Burst Arrow) and ×1.42 (Multishot) for the cut alone: a Hatred-limited Spender turns a cost cut into casts 1 : 1/(1−x) (the warrior's Cinder Oath 4 rule) |
 | Rainkeeper 4 | Spender skills cost 30 % less | every skill costs 15 % less while an Aerial / Ground effect is active | measured ×1.57 on Overcast Volley; a buff's cost factor (`Buff.cost`) applies to every skill |
 | Farwatch 6 | "every 5th Projectile cast is a farwatch shot … releases a free cast of your most recent Projectile Spender" | the 5th cast is replaced by the shot (the bible's "is"); the free cast deals 50 % [M fit] | as an extra shot with a full free cast the transform measured ×1.59 on Burst Arrow; BUDGET R1 allows ×1.10 — now ×1.10 (Burst Arrow), ×0.97 (Multishot) |
-| Weather Eye, Flood Plain, Ripple, Bloodhound | chill 30 % / slow 30 % | the engine's one chill (40 % [M]); Weather Eye's chill lasts 2 s [P] (Freezing Drizzle's duration) | no slow of chosen strength until wave 3 |
+| Weather Eye, Flood Plain, Ripple, Bloodhound, Wake, Feather Storm | "chill N %" | a slow of N % (movement only); Weather Eye's lasts 2 s [P] (Freezing Drizzle's duration) | the engine's chill has one strength (40 %, movement and attacks); a chill of chosen strength is the wave-3 slow |
 | Trapper's Instinct | Stun and Chill effects last 20 % longer | Stun and Freeze (the engine's control-duration stat) | chill has no duration stat |
 | Engineer's Margin | each Device deals 15 % less | −15 points in the additive bucket | power multipliers only grow (validation: 1..127) |
 | Siegebreaker 4 | "your Devices also fire your Spender Projectile skills" | Sentries and Pitch Mortars (the Devices that fire) | a snare has no aim |
@@ -223,6 +229,19 @@ interleaved runs under heavier load: head 3.1–6.4 ms, base 2.4–5.3 ms (simul
 (+8.6 %), this wave with the Arbalest piercing every enemy 96.2 (+18.1 %, over the +15 % gate: the Sentry kit's damage
 events ×1.6), with the cap at 2 91.2 KB/s (+11.9 %; gate passes). The mage wave adds to the same budget.
 
+**After merging claude/town-ui-rework 7faa331 (engine wave 3) and phase 2:**
+
+* Snapshot bandwidth (perf budget, deterministic): merged base 88.5 KB/s per client (+8.6 % over the recorded 81.5), this
+  branch 91.2 (+11.9 %; gate +15 %). Phase 2 adds no events to the budget scenario. Baseline not re-recorded.
+* Pace (`bot-metrics.ts check 120`, targets not re-recorded): the merged base misses "L25+ champion TTK median 6.65 s
+  > 6.4 s" (the ranger's 6.65 s is that median); this branch passes (ranger 4.45 s). Ranger A/B over 4 seeds
+  (`sim.ts leveling 120`, the default seed + 3 offsets): L1–L10 unchanged; from L10 kills/min +29 / +27 / +4 / +29 %
+  (L10 / L15 / L20 / L25 bands), champion TTK 8.4 → 6.6, 5.8 → 4.3, 4.8 → 4.3, 5.9 → 4.1 s; level after 120 minutes
+  30.75 vs 28.75 on average, deaths 2 vs 7 in total. Damage with fixed level rares is identical at L15 / L20 / L25 (same
+  per-skill breakdown against 8 targets), so the shift is inferred to come from the drops: legendaries drop 7–12 per hour
+  from L5, and the ranger's pool holds 35 class legendaries instead of 5. The pass therefore partly hides the
+  engine-side cause of the L25 miss; the mage's bands also move because its drop stream follows the ranger's.
+
 ## 9. Owner-visible changes
 
 * Names: Hungering Arrow → **Tracking Arrow**, Cluster Arrow → **Burst Arrow**, Rain of Vengeance → **Arrowfall**, 13
@@ -235,8 +254,9 @@ events ×1.6), with the cap at 2 91.2 KB/s (+11.9 %; gate passes). The mage wave
   II in 12 minutes (57.1 %) until the Torment re-fit.
 * Bolt-Thrower's Arbalest: Device projectiles pierce up to 2 enemies (the bible says "pierce"; capped for bandwidth, §8).
 * Redesigned sets: existing Siegebreaker's Arsenal, Farwatch and Rainkeeper pieces get the new tag-keyed bonuses.
-* Changed legendaries keep their stored roll: a Rainspindle rolled before the wave keeps its 30–40 value, which now reads
-  as "+30–40 % damage" next to the fixed 35 % cooldown cut and 40 % radius (fresh drops roll 150–200 % damage; an old roll above 35 loses up to 5 points of
-  cooldown cut); an old Weathervane Ring or Bandolier Belt keeps its 60–90 roll and its old effect (fresh drops 75–105).
-  A load-time rescale of stored rolls to the new range is possible (items store their min / max) — an owner decision.
+* Old rolls are rescaled when a save loads (owner decision via the lead): a Rainspindle rolled at 30–40 moves to the same
+  place in 150–200 (35 → 175), an old Weathervane Ring or Bandolier Belt from 60–90 to 75–105 (60 → 75, 90 → 105).
+  Idempotent, no save-version bump (`shared/src/legendaryRolls.ts`, golden fixture `v16-legacy-rolls`).
+* Phase 2: four new tree nodes (Gut Hook, Wake, Tar Pit, Feather Storm), Tracker also moves you faster, Wingbeat Boots
+  bring your beasts back after a dash, and Ripple, Flood Plain, Bloodhound and Weather Eye slow at the bible strengths.
 * Sentries and the new device / beast summons play a short action pose when they fire (the hydra is excluded).
