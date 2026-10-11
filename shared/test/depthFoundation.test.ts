@@ -10,7 +10,9 @@ import {
   NODE_RANK_COST, TREE_RANKS_TARGET, buySkillNode, nodeBuyError, normalizeSkillNodes, refundSkillNode, resetSkillNodes,
   specPointsAvailable, specPointsForLevel, specPointsSpent, treeTotalRanks,
 } from '../src/specialization';
-import { FIXTURE_NODES, installFixtureNodes } from './fixtures/depthContent';
+import { FIXTURE_NODES, FIXTURE_PASSIVES, installFixtureNodes, installFixturePassives } from './fixtures/depthContent';
+import { PASSIVE_SLOT_LEVELS, passiveEffect, passivePowerSources as passiveSources, passivesForClass, setPassive } from '../src/passives';
+import { computeStats } from '../src/stats';
 
 function fixture(): ContentData {
   const { affixes, ...clonable } = CONTENT_DATA;
@@ -180,5 +182,39 @@ test('save normalisation keeps legal trees and clears illegal ones (free respec,
     for (const raw of [undefined, null, 5, 'x', []]) {
       (save.skills as { nodes?: unknown }).nodes = raw; normalizeSkillNodes(save); assert.deepEqual(save.skills.nodes, {});
     }
+  } finally { undo(); }
+});
+
+// ─────────────────────────── Passives ───────────────────────────
+
+test('passive data: still four slots at 10/20/30/70, six stat passives per class unchanged, template passives validate', () => {
+  assert.deepEqual([...PASSIVE_SLOT_LEVELS], [10, 20, 30, 70]);
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.equal(passivesForClass(classId).length, 6);
+  const data = fixture();
+  data.passives.push(...structuredClone(FIXTURE_PASSIVES));
+  assert.deepEqual(validateContent(data), []);
+  const bad = fixture();
+  bad.passives.push({ ...structuredClone(FIXTURE_PASSIVES[0]), text: 'Placeholder: 99% increased damage.' });
+  expectPath(validateContent(bad), 'passives.fx_warrior_vortex.text');
+  const wrong = fixture();
+  wrong.passives.push({ ...structuredClone(FIXTURE_PASSIVES[0]), id: 'fx_wrong', effects: [{ kind: 'skillMods', skills: ['meteor'], mods: { dmg: 5 } }], text: undefined });
+  expectPath(validateContent(wrong), 'passives.fx_wrong.effects[0]');
+  const empty = fixture();
+  empty.passives.push({ id: 'fx_empty', classId: 'mage', name: 'Empty', unlock: 10, note: 'x' });
+  expectPath(validateContent(empty), 'passives.fx_empty');
+});
+
+test('a template passive in a slot reaches the character sheet; its text is authored or generated', () => {
+  const undo = installFixturePassives();
+  try {
+    const save = createCharacter('PassiveTemplate', 'warrior', 3); save.level = 30;
+    const before = computeStats(save);
+    assert.equal(setPassive(save, 0, 'fx_warrior_vortex'), null);
+    const after = computeStats(save);
+    assert.equal(after.ias, before.ias + 4);
+    assert.equal(passiveSources(save).length, 1);
+    assert.match(passiveEffect(FIXTURE_PASSIVES[0], 30), /20% increased damage/);
+    assert.match(passiveEffect(FIXTURE_PASSIVES[1], 30), /250|10% increased damage for each active Sentry/);
+    save.level = 9; assert.equal(passiveSources(save).length, 0, 'locked slot stays dormant');
   } finally { undo(); }
 });

@@ -229,3 +229,19 @@ test('procs: chance uses the RNG only when authored; grants cooldown, resource a
   assert.equal(p.readyAt.get('meteor'), 4500, 'failed chance');
   firePowerProcs(counting, p, 'dash'); assert.equal(draws, 1, 'no procs, no draws');
 });
+
+test('template passives join the same interpreter (slot order, after items) and leave stat passives untouched', async () => {
+  const { installFixturePassives } = await import('../../shared/test/fixtures/depthContent');
+  const { setPassive } = await import('../../shared/src/passives');
+  const undo = installFixturePassives();
+  try {
+    const save = createCharacter('PassiveCtx', 'ranger', 5); save.level = 30; save.skills.slots = ['sentry', null, null, null];
+    assert.equal(setPassive(save, 0, 'ranger_sentry'), null);
+    assert.equal(setPassive(save, 1, 'fx_ranger_kennel'), null);
+    const ctx = buildCtx(save);
+    const p = { ctx, summons: [{ type: 'sentry', dead: false }, { type: 'sentry', dead: false }] } as unknown as Player;
+    assert.equal(ownMultiplier(p, 'sentry'), 1 + 0.1 * 2);
+    assert.equal(ownMultiplier(p, 'multishot'), 1);
+    assert.equal(ctx.d.skillDmg.sentry, computeStats(save).skillDmg.sentry, 'stat passive unchanged');
+  } finally { undo(); }
+});

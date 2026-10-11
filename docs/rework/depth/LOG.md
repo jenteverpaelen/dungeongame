@@ -25,3 +25,7 @@
   `compose`). `OWN_BUCKET_CAP = 127` (non-binding). `DerivedStats.dashCdMs` (client prediction reads it).
   Proof: powerTemplates equivalence test (all kits strictly equal), sim identical, item audit rows byte-identical.
   Pre-existing failures (baseline too, not in verify): `server/test/midgame.test.ts` 2 story-XP tests (balance pass).
+- Step 5: passives per class in `shared/src/data/passives/*.ts` (18 identical: data, values L1–70, texts); `PassiveDef`
+  gains optional `effects` + `text` (stat optional); template passives flow through `passivePowerSources` into the
+  same interpreter; validation for passives. Tests: depthFoundation (passives), powerTemplates (passive in ctx).
+  Sim identical.

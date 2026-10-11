@@ -2,9 +2,9 @@ import { MAX_LEVEL } from './constants';
 import { CLASSES } from './data/classes';
 import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS } from './data/items';
 import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
-import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, SKILLS, TIER_COSTS, describeNode, describeSkill, nodeModsAt, type SkillDef, type SkillMods } from './data/skills';
+import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, NUMERIC_MOD_KEYS, SKILLS, TIER_COSTS, describeNode, describeSkill, nodeModsAt, type SkillDef, type SkillMods } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
-import { NUMERIC_MOD_KEYS } from './data/skills';
+import { PASSIVES } from './passives';
 import { OWN_BUCKET_CAP, SUB_STRIKES, powerTextIssues, type PowerEffect } from './powers';
 
 /** Typed registries remain the source of truth; this checks semantic relationships. */
@@ -12,7 +12,7 @@ export const CONTENT_DATA = {
   classes: CLASSES, skills: SKILLS, bases: BASES, affixes: AFFIXES,
   legendaries: LEGENDARIES, sets: SETS, gems: GEMS, gemRanks: GEM_RANKS,
   monsters: MONSTERS, guardians: RIFT_GUARDIANS, eliteAffixes: ELITE_AFFIXES,
-  zones: ZONES, fieldIds: FIELD_IDS, maxRunes: MAX_RUNES, tierCosts: TIER_COSTS,
+  zones: ZONES, fieldIds: FIELD_IDS, maxRunes: MAX_RUNES, tierCosts: TIER_COSTS, passives: PASSIVES,
 };
 export type ContentData = typeof CONTENT_DATA;
 
@@ -142,6 +142,17 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
       validateEffects(data, b.effects ?? [], `${at}.bonuses[${b.count}].effects`, [s.classId], check);
       for (const issue of powerTextIssues(b.text, b.effects ?? [], false)) check(false,`${at}.bonuses[${b.count}].text`,issue);
     }
+  }
+  ids(data.passives.map(p=>p.id),'passives');
+  for (const p of data.passives) {
+    const at=`passives.${p.id}`;
+    classRefs([p.classId],`${at}.classId`);
+    number(p.unlock,`${at}.unlock`,1,true);
+    check(p.unlock <= MAX_LEVEL,`${at}.unlock`,'exceeds the current level cap');
+    check(!!p.stat || !!p.effects?.length,`${at}`,'needs a stat or power templates');
+    if (p.stat === 'skillDmg') check(data.skills[p.skill ?? '']?.classId === p.classId,`${at}.skill`,'unknown or wrong-class skill');
+    validateEffects(data, p.effects ?? [], `${at}.effects`, [p.classId], check);
+    if (p.text !== undefined) for (const issue of powerTextIssues(p.text, p.effects ?? [], false)) check(false,`${at}.text`,issue);
   }
   for (const gem of Object.values(data.gems)) for (const slot of ['weapon','head','armor'] as const) {
     check(gem[slot].values.length === data.gemRanks.length,`gems.${gem.id}.${slot}`,'value count must match gem ranks');

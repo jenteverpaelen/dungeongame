@@ -69,6 +69,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
   const acc: Acc = {};
   const mults: Record<'cdr' | 'rcr', number[]> = { cdr: [], rcr: [] };
   for(const passive of activePassives(save)){
+    if(!passive.stat)continue; // template-only passives apply through the power sources below
     const value=passiveValue(passive,level);
     if(passive.stat==='cdr')mults.cdr.push(value);
     else add(acc,passive.stat==='skillDmg'?`skill:${passive.skill}`:passive.stat,value);

@@ -5,6 +5,7 @@
 import type { NodeDef, SkillDef } from '../../src/data/skills/types';
 import { SKILLS } from '../../src/data/skills';
 import type { ClassId } from '../../src/types';
+import { PASSIVES, type PassiveDef } from '../../src/passives';
 
 /** Placeholder trees: Whirlwind (warrior) and Meteor (mage). 6 nodes each, 15 ranks per tree. */
 export const FIXTURE_NODES: Record<string, NodeDef[]> = {
@@ -25,6 +26,23 @@ export const FIXTURE_NODES: Record<string, NodeDef[]> = {
     { id: 'fx_star', name: 'Placeholder Star', text: 'Meteor deals {dmg}% more damage.', maxRank: 3, ranks: [{ dmg: 12 }, { dmg: 12 }, { dmg: 12 }], requires: [{ node: 'fx_comet', rank: 1 }], unlock: 40, pos: { col: 1, row: 1 } },
   ],
 };
+
+/** Placeholder build-defining passives (power templates), one per class. */
+export const FIXTURE_PASSIVES: PassiveDef[] = [
+  { id: 'fx_warrior_vortex', classId: 'warrior', name: 'Placeholder Vortex', unlock: 10, note: 'Placeholder build-defining passive.',
+    effects: [{ kind: 'conditional', when: { channeling: 'whirlwind' }, bucket: 'hit', pct: 20 }, { kind: 'stat', stat: 'ias', value: 4 }],
+    text: 'Placeholder: while channelling Whirlwind you deal 20% increased damage, and attack speed +4%.' },
+  { id: 'fx_ranger_kennel', classId: 'ranger', name: 'Placeholder Kennel', unlock: 20, note: 'Placeholder build-defining passive.',
+    effects: [{ kind: 'conditional', when: { perSummon: 'sentry', max: 3 }, bucket: 'own', pct: 10, skills: ['sentry'] }] },
+  { id: 'fx_mage_glacier', classId: 'mage', name: 'Placeholder Glacier', unlock: 30, note: 'Placeholder build-defining passive.',
+    effects: [{ kind: 'conditional', when: { targetState: 'chilled' }, bucket: 'hit', pct: 15 }, { kind: 'proc', on: 'kill', resource: 3 }] },
+];
+
+/** Add the placeholder passives to the live catalogue; returns an undo function. */
+export function installFixturePassives(): () => void {
+  PASSIVES.push(...FIXTURE_PASSIVES);
+  return () => { for (const p of FIXTURE_PASSIVES) PASSIVES.splice(PASSIVES.indexOf(p), 1); };
+}
 
 /** Install the placeholder trees into the live registry; returns an undo function. */
 export function installFixtureNodes(): () => void {
