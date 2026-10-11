@@ -459,7 +459,8 @@ export class Scene {
       if(cachePose&&pose) {
         if(!v.root.isCachedAsTexture)v.root.cacheAsTexture({resolution:2,antialias:true});
         pose.elapsed+=viewDt;const slot=Math.floor((now+e.id*13)/(1000/24));
-        if(slot!==pose.slot){v.update(pose.elapsed,st);pose.elapsed=0;pose.slot=slot;v.root.updateCacheTexture();}
+        // between slots the rig is not updated; a replaced or destroyed sheet must still be swapped in before rendering
+        if(slot!==pose.slot||(v as {stale?:boolean}).stale){v.update(pose.elapsed,st);pose.elapsed=0;pose.slot=slot;v.root.updateCacheTexture();}
       } else {
         if(v.root.isCachedAsTexture){v.root.cacheAsTexture(false);if(e.kind==='player')v.root.isRenderGroup=true;}
         v.update(viewDt+(pose?.elapsed??0),st);if(pose)pose.elapsed=0;

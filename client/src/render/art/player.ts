@@ -920,6 +920,14 @@ export class PlayerArt implements PlayerView {
 
   // ─────────────────────────── per frame ───────────────────────────
 
+  /** The sheet this rig draws from was replaced or destroyed, so the next update() rebuilds the rig. Pose-cached crowd
+   *  heroes (scene.ts) skip updates between their 24 Hz slots and must update now: a destroyed placeholder sheet leaves
+   *  live parts without shapes, and rendering them threw inside Pixi and stopped the render loop. */
+  get stale(): boolean {
+    const cur = this.entry?.sheet;
+    return this.sheet.destroyed || (!!cur && !cur.destroyed && cur !== this.sheet);
+  }
+
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
     pumpBakes();

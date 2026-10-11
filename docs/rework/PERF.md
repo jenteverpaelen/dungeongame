@@ -71,6 +71,13 @@ draw order stays the same. With a single render group (the stage) one change any
 | H5 | Cooldown sweep is its own compositor layer (`will-change: transform`), so its 10 Hz repaint no longer re-rasterises the drop-shadowed skill icons | `client/src/ui/styles/hud.css` | GPU process −13 %, fps +5 % (paired, 3 rounds) | ≤ 12/255 in 1,381 px of the sweep wedge; promoting the seconds too moved their glyphs 1 px, so they stay unpromoted |
 | D1 | First run on a software rasteriser (SwiftShader / llvmpipe / Basic Render Driver) starts on the Low preset | `client/src/game/quality.ts`, `main.ts` | SwiftShader fight 2.7 → 3.6 fps (+33 %) | Low preset (only on those machines, only without saved settings) |
 
+**Bug found on the way (pre-existing, fixed):** in a crowded town (more than 40 active entities) remote heroes are
+pose-cached and only updated in 24 Hz slots. When a class placeholder sheet finished baking, the old sheet was destroyed
+4 s later while cached heroes could still be drawing from it; the next frame threw inside Pixi (`buildContextBatches`,
+destroyed GraphicsContext) and the game's render loop could stop. Reproduced with the town-crowd replay and the cache
+forced on (`scripts/perf/crowd-cache-check.mjs`): before the fix 7 of 11 runs, after it 0 of 9. Fix: `PlayerArt.stale` and an off-slot update for stale cached
+heroes (`scene.ts`).
+
 Tried and dropped: a render group per monster / prop (+30 draw calls, no CPU win, paired); the Medium / Low presets on
 a real GPU (−1 to −4 % CPU: this fight is CPU-bound on rig and scene work, not on particles or pixels) [M].
 
