@@ -69,5 +69,35 @@
 .ac-hero-t b { display: block; font-family: var(--font-display); font-size: var(--f-l); letter-spacing: 0.04em; color: var(--text-bright); }
 .ac-hero-t small { display: block; margin-top: 2px; font-size: var(--f-s); color: var(--text-dim); }
 .ac-div { width: 70%; height: calc(var(--u) * 14); margin: 0 auto; }
+
+/* Heroes: delete with a grace period / restore (state = word + dimming, never colour alone) */
+.ac-hero-act { display: flex; gap: calc(var(--u) * 6); }
+.ac-heroes li.ac-pending .ac-hero-ico, .ac-heroes li.ac-pending .ac-hero-t b { opacity: 0.55; }
+.ac-heroes li.ac-pending .ac-hero-t small { color: #f0c27a; }
+.ac-confirm { grid-column: 1 / -1; display: flex; flex-direction: column; gap: calc(var(--u) * 8); padding-top: calc(var(--u) * 8); border-top: 1px solid rgba(140, 106, 56, 0.3); }
+.ac-confirm p { margin: 0; font-size: var(--f-s); line-height: 1.4; color: var(--text-dim); }
+.ac-inline { display: flex; align-items: flex-end; gap: calc(var(--u) * 10); }
+.ac-inline .ac-field { flex: 1; min-width: 0; }
+.ac-inline .btn { height: calc(var(--u) * 44); }
+.btn.danger { color: #ffd9cf; background: linear-gradient(180deg, #6b2a1d, #3d150d); box-shadow: inset 0 0 0 1px #c0563f, 0 1px 2px rgba(0, 0, 0, 0.5); }
+.btn.danger:hover:not(:disabled) { box-shadow: inset 0 0 0 1px #ff8a6e, 0 0 12px rgba(239, 107, 91, 0.35); }
+/* Pending account deletion banner */
+.ac-warn { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u) * 12); padding: calc(var(--u) * 10) calc(var(--u) * 14); border-radius: 4px;
+  font-size: var(--f-m); line-height: 1.4; color: #ffe2c2; background: linear-gradient(180deg, rgba(107, 42, 29, 0.55), rgba(61, 21, 13, 0.55)); box-shadow: inset 0 0 0 1px #c0563f; }
+.ac-warn::before { content: '!'; flex: none; width: calc(var(--u) * 24); height: calc(var(--u) * 24); display: grid; place-items: center; border-radius: 50%;
+  font-family: var(--font-display); font-weight: 900; color: #1a0b06; background: #f0907a; }
+.ac-warn span { flex: 1; }
+/* Devices & activity */
+.ac-pane { display: flex; flex-direction: column; gap: calc(var(--u) * 10); }
+.ac-devices, .ac-activity { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 6); }
+.ac-devices li { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u) * 10); padding: calc(var(--u) * 8) calc(var(--u) * 12); border-radius: 4px;
+  background: linear-gradient(180deg, #221a11, #120d09); box-shadow: 0 0 0 1px #000, inset 0 0 0 1px rgba(140, 106, 56, 0.45); }
+.ac-dev-t b { display: flex; align-items: center; gap: calc(var(--u) * 8); font-family: var(--font-display); font-size: var(--f-m); color: var(--text-bright); }
+.ac-dev-t small { display: block; margin-top: 2px; font-size: var(--f-s); color: var(--text-dim); }
+.ac-badge { padding: 1px calc(var(--u) * 8); border-radius: 999px; font-style: normal; font-family: var(--font-body); font-size: var(--f-xs); letter-spacing: 0.06em; text-transform: uppercase;
+  color: #0d2514; background: #71d18c; }
+.ac-activity li { display: flex; justify-content: space-between; gap: calc(var(--u) * 12); font-size: var(--f-s); color: var(--text); padding: 0 calc(var(--u) * 4); }
+.ac-activity time { flex: none; color: var(--text-dim); }
+.ac-note.ac-low { color: #f0c27a; }
 .ac-foot { display: flex; justify-content: space-between; gap: calc(var(--u) * 10); margin-top: calc(var(--u) * 4); padding-top: calc(var(--u) * 14); border-top: 1px solid rgba(140, 106, 56, 0.35); }
 @media (prefers-reduced-motion: reduce) { .ac-veil { animation: none; } }

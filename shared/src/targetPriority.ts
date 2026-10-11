@@ -5,9 +5,9 @@ export const TARGET_PRIORITY_LABEL: Record<TargetPriority, string> = {
   default: 'Default', nearest: 'Nearest', elites: 'Elites first', lowestLife: 'Lowest life',
 };
 export const TARGET_PRIORITY_NOTE: Record<TargetPriority, string> = {
-  default: 'Nearest enemy, with a preference for nearby elites, bosses and treasure goblins.',
+  default: 'Nearest enemy, with a preference for nearby elites, bosses and hoardlings.',
   nearest: 'The enemy whose body is closest to the attacker.',
-  elites: 'The nearest elite, boss or treasure goblin in range; otherwise the nearest enemy.',
+  elites: 'The nearest elite, boss or hoardling in range; otherwise the nearest enemy.',
   lowestLife: 'The enemy with the lowest percentage of life remaining. Ties favour the nearest.',
 };
 

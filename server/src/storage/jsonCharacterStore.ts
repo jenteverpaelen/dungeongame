@@ -50,6 +50,19 @@ export class JsonCharacterStore implements CharacterStore {
     await fsp.rename(source, destination);
     return path.basename(destination);
   }
+  async erase(id: string): Promise<number> {
+    const file = this.file(id), base = path.basename(file);
+    let removed = 0;
+    for (const name of await fsp.readdir(this.directory)) {
+      if (name !== base && !name.startsWith(`${base}.corrupt-`) && !(name.startsWith(`${base}.`) && name.endsWith('.tmp'))) continue;
+      await fsp.rm(path.join(this.directory, name), { force: true });
+      removed++;
+    }
+    return removed;
+  }
+  async list(): Promise<string[]> {
+    return (await fsp.readdir(this.directory)).filter(n => n.endsWith('.json')).map(n => n.slice(0, -5)).filter(validCharacterId).sort();
+  }
   /** Caller owns the write barrier; another independent process is not supported. */
   async snapshot(): Promise<Map<string, Buffer>> {
     const result = new Map<string, Buffer>();

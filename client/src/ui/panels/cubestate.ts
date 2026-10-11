@@ -32,3 +32,6 @@ export const invUI = new Local<{
   salvageMenu: boolean;
   protectMode: boolean;
 }>({ tab: 'items', confirm: null, salvageMenu: false, protectMode: false });
+
+/** Stash window: the open tab (0-based). Deposits from the bag go to it first (shared/src/stash.ts). */
+export const stashUI = new Local<{ tab: number; buying: boolean }>({ tab: 0, buying: false });

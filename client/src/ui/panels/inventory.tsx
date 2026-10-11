@@ -12,7 +12,7 @@ import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types
 import { pushNotice, togglePanel, ui } from '../store';
 import { characterText } from '@shared/data/characterMessages';
 import { Check, PanelFrame, Wealth } from './common';
-import { cubeUI, invUI, setCubeItem } from './cubestate';
+import { cubeUI, invUI, setCubeItem, stashUI } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { SlotGlyph } from './glyphs';
 import { GemIcon, IconDelta, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
@@ -21,6 +21,7 @@ import { hideTip, ItemVisual, itemHover, textTipHandlers } from './tooltip';
 import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util';
 import { ITEM_PROTECTION_REASON } from '@shared/itemProtection';
 import { ProtectionBadge, ProtectionButton, toggleItemProtection } from './itemProtection';
+import { RarityMark } from './rarityMark';
 
 // ───────────────────────────── paperdoll ─────────────────────────────
 
@@ -141,6 +142,7 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
       </div>
       {item && badgeOf(item)}
       {item && <ProtectionBadge item={item} />}
+      {item && <RarityMark item={item} />}
       {item && <SocketDots item={item} />}
     </div>
   );
@@ -243,13 +245,14 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
       onClick={() => {
         if (!item || justDragged()) return;
         if (protectMode) toggleItemProtection(item);
-        else if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id });
+        else if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id, tab: stashUI.get().tab });
         else if (cubeOpen) setCubeItem(item.id);
       }}
       {...(item ? hover : {})}
     >
       {item && <ItemVisual item={item} size={32} />}
       {item && <ProtectionBadge item={item} />}
+      {item && <RarityMark item={item} />}
       {item && badgeOf(item)}
       {item && <SocketDots item={item} />}
       {item && flag && <i class="cell-flag"><IconDelta up size={8} /></i>}

@@ -70,6 +70,12 @@
   --r-set: #34c79a;
   --r-ancient: #e8902f;
   --r-primal: #e0302f;
+  /* Rarity shapes (original glyphs, light fill + dark edge so the shape reads on any rarity colour):
+     magic diamond, rare triangle, legendary star, set hexagon. Colour-vision presets override --r-* only. */
+  --glyph-magic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 .9 9.1 5 5 9.1.9 5z' fill='%23f6f1e6' stroke='%23140d07' stroke-width='1.1' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --glyph-rare: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 1 9.2 8.8H.8z' fill='%23f6f1e6' stroke='%23140d07' stroke-width='1.1' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --glyph-legendary: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 .5 6.12 3.46 9.28 3.61 6.81 5.59 7.65 8.64 5 6.9 2.35 8.64 3.19 5.59.72 3.61 3.88 3.46z' fill='%23f6f1e6' stroke='%23140d07' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --glyph-set: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 .7 8.72 2.85v4.3L5 9.3 1.28 7.15v-4.3z' fill='%23f6f1e6' stroke='%23140d07' stroke-width='1.1' stroke-linejoin='round'/%3E%3C/svg%3E");
   /* Resources */
   --life: #c0281c;
   --life-hi: #ff5a46;
@@ -179,6 +185,11 @@ kbd, .kbd {
 
 .scroll { overflow-y: visible; }
 
+/* Reduce motion (Settings → Accessibility; follows the operating system unless the player chooses). The client sets
+   :root[data-motion]; before it does, the operating system preference applies. */
+:root[data-motion="reduced"] *, :root[data-motion="reduced"] *::before, :root[data-motion="reduced"] *::after {
+  animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important;
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+  :root:not([data-motion]) *, :root:not([data-motion]) *::before, :root:not([data-motion]) *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }

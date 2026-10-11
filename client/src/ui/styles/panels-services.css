@@ -27,7 +27,7 @@
 .mx-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; font: 700 13.5px/1.15 var(--font-body);
   color: var(--t-1); }
 .mx-name.r-magic { color: var(--r-magic); }
-.mx-name.r-rare { color: #f2e04a; }
+.mx-name.r-rare { color: var(--r-rare); }
 .mx-name.r-legendary { color: var(--r-legendary); }
 .mx-name.r-set { color: var(--r-set); }
 .mx-price { display: inline-flex; align-items: center; justify-content: center; gap: 4px; font: 400 14px/1 var(--font-num); color: var(--gold-hi); }
@@ -219,4 +219,22 @@
 .st-key.on { color: var(--gold-hi); box-shadow: inset 0 0 0 1px var(--gold), 0 0 12px rgba(214, 170, 90, 0.3); }
 .st-clear { padding: 6px 0; }
 .st-status { min-height: 1.4em; color: var(--t-2); }
+/* Graphics / Accessibility / Gamepad (partials, 2026-10-11) */
+/* Choices stack: label line, then a full-width segmented control (no wrapping inside the control). */
+.pn-settings .st-choice { grid-template-columns: 1fr; gap: 6px; }
+.pn-settings .st-choice .co-seg { display: flex; width: 100%; }
+.pn-settings .st-choice .co-seg button { flex: 1 1 0; min-width: 0; padding-left: 4px; padding-right: 4px; white-space: nowrap; }
+.pn-settings .st-choice.bare > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.st-now { margin: 0; font: 400 15px/1 var(--font-num); color: var(--gold-hi); }
+.st-access .st-numbers { grid-column: 1 / -1; }
+.st-access .st-numbers .st-two { gap: 8px 26px; }
+.st-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.st-swatch { aspect-ratio: auto !important; display: flex !important; flex-direction: column; align-items: center; gap: 4px; padding: 16px 2px 6px; }
+.st-swatch i { width: 70%; height: 6px; border-radius: 3px; box-shadow: 0 0 0 1px #000; }
+.st-swatch b { font: 700 12px/1 var(--font-body); color: var(--t-1); letter-spacing: 0.02em; }
+.st-pad-dev { margin: 0; display: flex; align-items: center; gap: 10px; font: 700 15px/1.2 var(--font-body); color: var(--t-2); }
+.st-pad-dev.on { color: var(--good, #71d18c); }
+.pn-settings .st-pad-row { grid-template-columns: minmax(0, 1fr) 110px 30px; }
+/* Gamepad focus: a ring that reads on every surface (also outside Settings). */
+#ui .pad-focus:focus, .ac-card .pad-focus:focus { outline: 3px solid #fff3c8 !important; outline-offset: 3px; box-shadow: 0 0 0 6px rgba(242, 213, 140, 0.35), 0 0 18px rgba(242, 213, 140, 0.45) !important; }
 .st-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; }

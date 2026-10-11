@@ -78,3 +78,41 @@ test('interface size persists, snaps to hundredths and is clamped to the support
   const old = new PreferenceStore({getItem:()=>JSON.stringify({version:1,values:{muted:true}}),setItem(){}});
   assert.equal(old.get().values.uiScale, DEFAULT_UI_SCALE, 'preferences saved before this setting existed default to 100%');
 });
+
+test('graphics presets apply their values, a hand edit turns the label into custom, and unknown values are refused', async () => {
+  const { GRAPHICS_PRESETS, presetOf } = await import('./preferences');
+  const data = new Map<string,string>();
+  const storage = { getItem:(k:string)=>data.get(k)??null, setItem:(k:string,v:string)=>{data.set(k,v);} };
+  const store = new PreferenceStore(storage);
+  assert.equal(store.get().values.graphicsPreset, 'high', 'the default is today\'s look');
+  store.set({ graphicsPreset: 'low' });
+  assert.deepEqual({ ...store.get().values }, { ...DEFAULT_PREFERENCES, ...GRAPHICS_PRESETS.low, graphicsPreset: 'low' });
+  store.set({ effectsDensity: 'full' });
+  assert.equal(store.get().values.graphicsPreset, 'custom');
+  assert.equal(new PreferenceStore(storage).get().values.graphicsPreset, 'custom', 'custom survives a reload');
+  store.set({ graphicsPreset: 'medium' });
+  assert.equal(presetOf(store.get().values), 'medium');
+  const bad = new PreferenceStore({getItem:()=>JSON.stringify({version:1,values:{renderScale:3,maxFps:61,backgroundFps:-1,effectsDensity:'ultra',motion:'fast',colorVision:'x',numberSize:'huge',graphicsPreset:'low'}}),setItem(){}});
+  const v = bad.get().values;
+  assert.deepEqual([v.renderScale, v.maxFps, v.backgroundFps, v.effectsDensity, v.motion, v.colorVision, v.numberSize, v.graphicsPreset], [0, 0, 0, 'full', 'system', 'default', 'normal', 'high'],
+    'a stored label never overrides the stored values');
+});
+
+test('reduce motion follows the system unless the player decides, and caps gear effects', async () => {
+  const { motionReduced, gearEffectLevel } = await import('./preferences');
+  const base = { ...DEFAULT_PREFERENCES };
+  assert.equal(motionReduced(base, true), true); assert.equal(motionReduced(base, false), false);
+  assert.equal(motionReduced({ ...base, motion: 'reduce' }, false), true);
+  assert.equal(motionReduced({ ...base, motion: 'full' }, true), false, 'an explicit "full" overrides the system setting');
+  assert.equal(gearEffectLevel(true, { ...base, motion: 'reduce' }), 'reduced');
+});
+
+test('new audio and accessibility values persist and clamp', () => {
+  const data = new Map<string,string>();
+  const storage = { getItem:(k:string)=>data.get(k)??null, setItem:(k:string,v:string)=>{data.set(k,v);} };
+  const store = new PreferenceStore(storage);
+  store.set({ alertsVolume: 2, shakeStrength: -1, muteInBackground: true, rarityShapes: false, colorVision: 'tritan', numberSize: 'large', numbersOthers: false, numbersCritsOnly: true, maxFps: 60, backgroundFps: 15 });
+  const v = new PreferenceStore(storage).get().values;
+  assert.deepEqual([v.alertsVolume, v.shakeStrength, v.muteInBackground, v.rarityShapes, v.colorVision, v.numberSize, v.numbersOthers, v.numbersCritsOnly, v.maxFps, v.backgroundFps],
+    [1, 0, true, false, 'tritan', 'large', false, true, 60, 15]);
+});

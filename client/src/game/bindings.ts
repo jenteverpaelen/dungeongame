@@ -1,5 +1,6 @@
 // Physical keyboard bindings. Labels are separate from key identity/layout.
 import { text } from '../i18n/messages';
+import { PAD_ACTIONS, padBindings, type PadAction } from './gamepad';
 export const ACTIONS = [
   ['up', text('controls.up.label')], ['left', text('controls.left.label')],
   ['down', text('controls.down.label')], ['right', text('controls.right.label')],
@@ -71,7 +72,10 @@ function parseBindings(input: unknown): Bindings | undefined {
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
 interface BindingState {
   values: Bindings; labels: Readonly<Record<string, string>>; retained: boolean; capturing: boolean; layoutAvailable: boolean;
+  /** Last device used: prompts (HUD, Help, hints) show that device's button. */
+  device: 'keyboard' | 'gamepad';
 }
+const MOVE_ACTIONS = new Set(['up', 'down', 'left', 'right']);
 export class BindingStore {
   private state: BindingState;
   private listeners = new Set<() => void>();
@@ -91,8 +95,10 @@ export class BindingStore {
         }
       }
     } catch { retained = false; /* Invalid storage cannot prevent boot; session changes still work. */ }
-    this.state = { values, labels: Object.freeze(labels), retained, capturing: false, layoutAvailable: false };
+    this.state = { values, labels: Object.freeze(labels), retained, capturing: false, layoutAvailable: false, device: 'keyboard' };
+    padBindings.subscribe(() => { if (this.state.device === 'gamepad') this.publish({}); });
   }
+  setDevice(device: 'keyboard' | 'gamepad') { if (device !== this.state.device) this.publish({ device }); }
   get() { return this.state; }
   subscribe(fn: () => void) { this.listeners.add(fn); return () => { this.listeners.delete(fn); }; }
   private publish(patch: Partial<BindingState>) {
@@ -100,7 +106,14 @@ export class BindingStore {
   }
   capture(capturing: boolean) { if (capturing !== this.state.capturing) this.publish({ capturing }); }
   action(code: string): Action | undefined { return ACTIONS.find(([a]) => this.state.values[a].includes(code))?.[0]; }
-  label(action: Action) { return keyLabel(this.state.values[action][0], this.state.labels); }
+  label(action: Action) {
+    if (this.state.device === 'gamepad') {
+      if (MOVE_ACTIONS.has(action)) return 'Left stick';
+      const pad = (PAD_ACTIONS as readonly string[]).includes(action) ? padBindings.label(action as PadAction) : null;
+      if (pad) return pad;
+    }
+    return keyLabel(this.state.values[action][0], this.state.labels);
+  }
   assign(action: Action, slot: 0 | 1, code: string | null, printed?: string): string | null {
     if (code === null && slot === 0) return text('controls.keepPrimary');
     if (code !== null && !allowedCode(code)) return text('controls.allowedKey');

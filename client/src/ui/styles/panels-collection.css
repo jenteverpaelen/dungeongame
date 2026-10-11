@@ -67,8 +67,8 @@
 .co-matrix > b { font: 700 12.5px/1.2 var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--t-3); text-align: center; }
 .co-rar { font: 700 16px/1 var(--font-display); letter-spacing: 0.04em; }
 .co-rar.r-normal { color: #e6e1d6; }
-.co-rar.r-magic { color: #8f8fff; }
-.co-rar.r-rare { color: #f2e04a; }
+.co-rar.r-magic { color: var(--r-magic); }
+.co-rar.r-rare { color: var(--r-rare); }
 .co-switch { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 7px 10px; cursor: pointer; border: 0; border-radius: 999px; color: var(--t-3);
   background: #0b0806; box-shadow: inset 0 0 0 1px #3a2c1c; font: 700 12.5px/1 var(--font-display); letter-spacing: 0.05em; transition: background var(--dur-1), color var(--dur-1); }
 .co-switch i { width: 34px; height: 16px; border-radius: 999px; background: #2a2118; position: relative; box-shadow: inset 0 1px 2px #000; transition: background var(--dur-1); }

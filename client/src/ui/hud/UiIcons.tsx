@@ -6,7 +6,7 @@ export type UiIconName =
   | 'bag' | 'skills' | 'character' | 'journal' | 'map' | 'social' | 'party' | 'settings' | 'paragon' | 'cube' | 'stash'
   | 'collection' | 'waypoint' | 'obelisk' | 'merchant' | 'inspect' | 'hourglass' | 'shield' | 'wrench' | 'help'
   | 'pin' | 'pinOff' | 'quest' | 'turnin' | 'anvil' | 'gem' | 'eye' | 'chat' | 'star' | 'scroll'
-  | 'lock' | 'gate' | 'house' | 'field' | 'sound' | 'display' | 'keys';
+  | 'lock' | 'gate' | 'house' | 'field' | 'sound' | 'display' | 'keys' | 'gamepad' | 'access' | 'graphics';
 
 const INK = '#120b06';
 
@@ -21,6 +21,23 @@ const ICONS: Record<UiIconName, { f: string[]; d?: string[]; l?: string[] }> = {
     f: ['M3.4 5h17.2a1.4 1.4 0 0 1 1.4 1.4v9.2a1.4 1.4 0 0 1-1.4 1.4H3.4A1.4 1.4 0 0 1 2 15.6V6.4A1.4 1.4 0 0 1 3.4 5z', 'M8.4 18.2h7.2l.9 2.2H7.5z'],
     d: ['M4.6 7.6h14.8', 'M4.6 14.4h14.8'],
     l: ['M4.4 9v4'],
+  },
+  gamepad: {
+    // Original controller silhouette: body with two grips, d-pad cross and two face buttons.
+    f: ['M7 7h10c2.6 0 4.2 2.2 4.8 5.4l.8 4.2c.4 2.2-1.8 3.4-3.2 1.8L17.2 16H6.8l-2.2 2.4c-1.4 1.6-3.6.4-3.2-1.8l.8-4.2C2.8 9.2 4.4 7 7 7z'],
+    d: ['M7.2 10.4v3.4M5.5 12.1h3.4', 'M16.2 11.2h.2M18.2 12.8h.2'],
+    l: ['M9.6 8.6h4.8'],
+  },
+  access: {
+    // An open hand-held sun: comfort and visibility options.
+    f: ['M12 3.6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z', 'M5.2 8.6l6.8 1.6 6.8-1.6.5 1.8-5.2 1.6v3l2.2 6h-2l-2.3-5-2.3 5h-2l2.2-6v-3L4.7 10.4z'],
+    l: ['M9 10.6h1.2'],
+  },
+  graphics: {
+    // A framed landscape (mountain and sun) for picture quality.
+    f: ['M3.4 4.8h17.2a1.4 1.4 0 0 1 1.4 1.4v11.6a1.4 1.4 0 0 1-1.4 1.4H3.4A1.4 1.4 0 0 1 2 17.8V6.2a1.4 1.4 0 0 1 1.4-1.4z'],
+    d: ['M4.2 16.6l4.6-5.2 3.4 3.6 2.4-2.4 5.2 4', 'M16.6 8.6a1.4 1.4 0 1 1 0 .1'],
+    l: ['M4.2 6.8h4'],
   },
   keys: {
     f: ['M3.2 6.6h17.6a1.4 1.4 0 0 1 1.4 1.4v8a1.4 1.4 0 0 1-1.4 1.4H3.2A1.4 1.4 0 0 1 1.8 16V8a1.4 1.4 0 0 1 1.4-1.4z'],

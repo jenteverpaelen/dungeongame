@@ -9,7 +9,8 @@ import { createMob } from './monsters';
 import { touchChar } from './players';
 import { spawnProj } from './projectiles';
 import { nearPlayer, playerZoneLevel, themeMonsters, zoneDifficulty } from './spawner';
-import { BOSS_ADDS_MS, BOSS_RING_COUNT, BOSS_RING_MS, RIFT_KILL_FRACTION } from './tuning';
+import { BOSS_RING_COUNT, BOSS_RING_MS, RIFT_KILL_FRACTION } from './tuning';
+import { BOSS_ADDS, BOSS_ENRAGE, enrage, stateOf, summon } from './behaviours';
 import { fractureLine } from './fracture';
 import type { Mob, Pack, Player } from './types';
 import { creditQuestRift } from '../quests';
@@ -116,11 +117,7 @@ export function riftTick(r: RiftRuntime, _dtMs: number) {
 /** Rift Guardian abilities on top of its slam: projectile ring, adds, enrage. */
 export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   const b = m.boss!;
-  if (!b.enraged && m.hp < m.mhp * 0.3) {
-    b.enraged = true;
-    m.speed *= 1.3;
-    inst.notice(`${m.name} is enraged!`, 'boss');
-  }
+  enrage(inst, m, BOSS_ENRAGE, b); // behaviour toolkit (behaviours.ts), the guardian's original numbers
   const dist = Math.hypot(p.x - m.x, p.y - m.y);
   b.ringMs -= dtMs;
   if (b.ringMs <= 0 && dist < 900) {
@@ -145,21 +142,8 @@ export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
   }
   b.addsMs -= dtMs;
   if (b.addsMs <= 0) {
-    b.addsMs = BOSS_ADDS_MS;
-    const roster = themeMonsters(inst.zone.theme).filter((d) => d.attack.kind !== 'explode');
-    m.attackSeq++;
-    m.attackFlagMs = 400;
-    inst.emit({ e: 'aoe', v: 'nova', x: Math.round(m.x), y: Math.round(m.y), r: Math.round(m.r + 90), d: 500, el: elIdx('arcane'), s: m.id }, m.x, m.y);
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
-      const x = m.x + Math.cos(a) * (m.r + 70), y = m.y + Math.sin(a) * (m.r + 70);
-      if (!inst.cw.isFree(x, y, 18)) continue;
-      const def = roster[Math.floor(inst.rng.next() * roster.length)];
-      const add = createMob(inst, def, m.level, x, y, { players: Math.max(1, Math.min(4, inst.players.length)), difficulty: m.diff });
-      add.state = 'chase';
-      add.target = p.id;
-      inst.emit({ e: 'aoe', v: 'explode', x: Math.round(x), y: Math.round(y), r: 40, d: 400, el: elIdx('arcane'), s: m.id }, x, y);
-    }
+    b.addsMs = BOSS_ADDS.everyMs;
+    summon(inst, m, p, BOSS_ADDS, stateOf(m).minions);
   }
 }
 

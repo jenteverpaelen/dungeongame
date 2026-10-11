@@ -5,6 +5,10 @@ export interface CharacterStore {
   write(id: string, json: string): Promise<void>;
   quarantine(id: string): Promise<string>;
   snapshot(): Promise<Map<string, Buffer>>;
+  /** Permanent erasure (privacy purge): the save, its quarantined copies and stray temp files. Returns files removed. */
+  erase(id: string): Promise<number>;
+  /** Ids of every stored character (for re-applying erasures after a restore). */
+  list(): Promise<string[]>;
 }
 
 export const INCOMPLETE_RESTORE = '.hearthfall-restore-incomplete';

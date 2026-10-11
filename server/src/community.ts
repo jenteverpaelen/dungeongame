@@ -47,6 +47,18 @@ export class Community {
   private serial<T>(work:()=>Promise<T>):Promise<T>{const next=this.tail.then(work,work);this.tail=next.catch(()=>{});return next;}
   private mutate(work:(state:Ledger)=>CmdResult){return this.serial(async()=>{const next=structuredClone(this.state),result=work(next);if(result.ok){await this.persist(next);this.state=next;}return result;});}
   async flush(){await this.tail;}
+  /** Privacy export: this character's guild membership and the reports it filed (not reports others filed about it). */
+  exportFor(id:string){const g=this.guild(id);return {guild:g?{name:g.name,rank:g.members.find(m=>m.id===id)!.rank,motd:g.motd}:null,
+    reportsFiled:this.state.reports.filter(r=>r.reporter===id).map(r=>({target:r.target,category:r.category,description:r.description,at:new Date(r.at).toISOString(),resolved:r.resolved}))};}
+  /** Privacy erasure: leave the guild (an officer, else the oldest member, inherits a leader's guild; an empty guild
+   *  closes) and drop pending invitations. Reports keep their 30-day retention for moderation, then expire. */
+  forget(id:string):Promise<CmdResult>{
+    this.invites=this.invites.filter(i=>i.from!==id&&i.to!==id);this.evidence.delete(id);this.budgets.delete(id);
+    if(!this.guild(id))return Promise.resolve({ok:true});
+    return this.mutate(s=>{const g=this.guild(id,s);if(!g)return {ok:true};const was=g.members.find(m=>m.id===id)!;
+      g.members=g.members.filter(m=>m.id!==id);if(was.rank==='leader'&&g.members.length){(g.members.find(m=>m.rank==='officer')??g.members[0]).rank='leader';}
+      s.guilds=s.guilds.filter(x=>x.members.length);return {ok:true};});
+  }
   async shutdown(){this.stopped=true;await this.maintenance;await this.flush();}
   async prune(now=Date.now()){
     if(!this.state.reports.some(r=>r.at<=now-REPORT_RETENTION_MS)&&!this.state.audit.some(r=>r.at<=now-REPORT_RETENTION_MS)&&!this.state.sanctions.some(s=>s.until!==0&&s.until<=now))return;

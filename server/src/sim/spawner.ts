@@ -349,7 +349,7 @@ export function spawnGoblin(inst: Instance, x: number, y: number, level: number,
   const pack: Pack = { id: packSeq++, kind: 'goblin', alive: 1, slot: -1 };
   const m = createMob(inst, MONSTERS.treasure_goblin, level, pos.x, pos.y, { tier: 5, pack, dormant, players: playersFor(inst, x, y), difficulty });
   inst.counters.goblins++;
-  for (const p of inst.playersNear(x, y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'A Treasure Goblin appears!', kind: 'info' });
+  for (const p of inst.playersNear(x, y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'A Hoardling appears!', kind: 'info' });
   return m;
 }
 

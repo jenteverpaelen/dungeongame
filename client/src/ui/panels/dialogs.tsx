@@ -247,7 +247,7 @@ const TOOLS: { label: string; hint: string; op: string; n?: number }[] = [
   { label: 'Materials', hint: 'All crafting materials', op: 'mats' },
   { label: 'Legendaries', hint: 'A handful of class legendaries', op: 'legendaries' },
   { label: 'Full Set', hint: 'Class set + legendaries at item level 70', op: 'set' },
-  { label: 'Spawn Goblin', hint: 'Treasure goblin nearby', op: 'goblin' },
+  { label: 'Spawn Hoardling', hint: 'Hoardling nearby', op: 'goblin' },
   { label: 'Spawn Elite', hint: 'A rare pack nearby', op: 'elite' },
   { label: 'Heal', hint: 'Full life and resource', op: 'heal' },
   { label: 'Infinite HP', hint: 'Test only: toggle damage immunity; resets on travel or reconnect', op: 'infhp' },

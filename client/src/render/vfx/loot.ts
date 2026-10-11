@@ -48,11 +48,14 @@ function beamStyle(l: LootView): BeamStyle | null {
 
 function beamStyleByRarity(l: LootView): BeamStyle | null {
   if (l.rarity !== 'legendary' && l.rarity !== 'set') return null;
-  // Fabled: white-gold starlight with a cool rim; Kindled: the rarity beam with an ember core
-  if (l.ancient === 2) return { outer: FABLED_LIGHT, core: 0xffffff, width: 74, height: 540, glow: TOP_COLORS[2] };
+  // Fabled: white-gold starlight with a cool rim; Kindled: the rarity beam with an ember core.
+  // Outer colour follows RARITY_COLORS so a colour-vision preset recolours beams too (default = #ef6c2a / #34c79a).
   const set = l.rarity === 'set';
-  if (l.ancient === 1) return { outer: set ? 0x34c79a : 0xef6c2a, core: 0xffc48a, width: 64, height: 520, glow: TOP_COLORS[1] };
-  return set ? { outer: 0x34c79a, core: 0xc8f5e6, width: 54, height: 450, glow: 0x3ad6a6 } : { outer: 0xef6c2a, core: 0xffd8a8, width: 54, height: 450, glow: 0xf07a34 };
+  const c = cssToInt(set ? RARITY_COLORS.set : RARITY_COLORS.legendary);
+  if (l.ancient === 2) return { outer: FABLED_LIGHT, core: 0xffffff, width: 74, height: 540, glow: TOP_COLORS[2] };
+  if (l.ancient === 1) return { outer: c, core: 0xffc48a, width: 64, height: 520, glow: TOP_COLORS[1] };
+  const glow = c === (set ? 0x34c79a : 0xef6c2a) ? (set ? 0x3ad6a6 : 0xf07a34) : lerpColor(c, 0xffffff, 0.06);
+  return { outer: c, core: set ? 0xc8f5e6 : 0xffd8a8, width: 54, height: 450, glow };
 }
 
 export function labelColor(l: LootView): number {
@@ -265,8 +268,9 @@ class LootItemView implements EntityView {
         this.art.push(icon);
         this.shadowW = 28;
         const r = l.rarity ?? 'normal';
-        if (r === 'rare') this.addGlow(0xffe040, 46, 0.22);
-        else if (r === 'magic') this.addGlow(0x7a9cff, 42, 0.2);
+        const cvd = preferences.get().values.colorVision !== 'default';
+        if (r === 'rare') this.addGlow(cvd ? cssToInt(RARITY_COLORS.rare) : 0xffe040, 46, 0.22);
+        else if (r === 'magic') this.addGlow(cssToInt(RARITY_COLORS.magic), 42, 0.2);
         if (this.beamStyle) this.addGlow(this.beamStyle.glow, 70, 0.55);
       }
     }

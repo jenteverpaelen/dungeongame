@@ -198,6 +198,24 @@ export interface Mob extends Hashed {
   /** Molten affix: where the last trail patch was dropped. */
   trailX: number;
   trailY: number;
+  /** Behaviour toolkit runtime (server/src/sim/behaviours.ts); created on the first behaviour tick. */
+  bh?: BehaviourState;
+  /** Summoned by this monster's `summon` behaviour (its id), for the summoner's alive cap. */
+  summonedBy?: number;
+}
+
+export interface BehaviourState {
+  /** Enrage multipliers once triggered (1 = calm). */
+  enraged: boolean;
+  speedMul: number;
+  cooldownMul: number;
+  /** ms in combat (enrage timers): since startT, the first fighting tick after spawning or a leash reset. */
+  fightMs: number;
+  startT: number;
+  /** Per-behaviour countdowns (summon), indexed like def.behaviours. */
+  timers: number[];
+  /** Ids of monsters this one summoned and that may still be alive. */
+  minions: number[];
 }
 
 /** Statuses applied by power primitives (server/src/sim/status.ts). */

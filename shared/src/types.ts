@@ -174,6 +174,10 @@ export interface CharacterSave {
   equipment: Partial<Record<Slot, Item>>;
   inventory: (Item | null)[];
   stash: (Item | null)[];
+  /** Own measured field kill rate for offline gains (server/src/afk.ts); absent = none measured yet. */
+  afk?: { rate: number; level: number; at: number };
+  /** Stash tabs owned (1 … MAX_STASH_TABS, 60 slots each); absent = 1. Optional: no save rewrite needed. */
+  stashTabs?: number;
   skills: SkillLoadout;
   skillPoints: number;
   paragon: ParagonState;

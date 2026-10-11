@@ -14,6 +14,9 @@ export const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR
 export const BACKUP_DIR = process.env.BACKUP_DIR ? path.resolve(process.env.BACKUP_DIR) : undefined;
 export const BACKUP_KEEP = parseBackupKeep(process.env.BACKUP_KEEP);
 if (BACKUP_KEEP > 0 && !BACKUP_DIR) throw new Error('BACKUP_KEEP requires an explicit BACKUP_DIR');
+/** Optional second copy of every verified backup (another disk, share or synced folder). Must differ from BACKUP_DIR. */
+export const BACKUP_MIRROR_DIR = process.env.BACKUP_MIRROR_DIR ? path.resolve(process.env.BACKUP_MIRROR_DIR) : undefined;
+if (BACKUP_MIRROR_DIR && (!BACKUP_DIR || path.relative(BACKUP_DIR, BACKUP_MIRROR_DIR) === '')) throw new Error('BACKUP_MIRROR_DIR needs BACKUP_DIR and must be a different directory');
 export const CLIENT_DIR = path.join(ROOT_DIR, 'dist', 'client');
 
 /**
