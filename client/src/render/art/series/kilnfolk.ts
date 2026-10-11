@@ -80,16 +80,18 @@ function axe(k: K): void {
   const q = k.q;
   pole(k, [0.2, 7.6, 0.2, -14], 3.0, ASH);
   for (const y of [2.4, -2.6]) ring(k, 0.2, y, 1.9, 0.6, 0.8, SOOT, { inner: true });
-  const blade = [2.0, -26.0, 6.4, -28.8, 10.4, -27.2, 12.4, -21.6, 10.6, -15.6, 6.6, -13.6, 2.0, -16.2];
+  const blade = [2.0, -26.4, 6.0, -29.6, 10.4, -29.6, 13.0, -24.0, 13.2, -18.4, 10.6, -13.0, 6.2, -12.0, 2.0, -16.0];
   slab(k, blade, IRON, { inset: 0.86 });
   if (k.pass === 'paint') {
-    const zone = [9.0, -27.9, 10.4, -27.2, 12.4, -21.6, 10.6, -15.6, 8.6, -14.4, 9.6, -16.6, 10.1, -19.2, 9.4, -21.6, 10.6, -24.0, 9.2, -25.8];
+    const zone = [9.0, -29.6, 10.4, -29.6, 13.0, -24.0, 13.2, -18.4, 10.6, -13.0, 8.4, -12.4, 9.8, -14.6, 10.4, -17.0, 11.0, -19.4, 10.2, -21.6, 11.2, -24.2, 9.8, -27.0];
     k.c.poly(zone, true).fill(EDGE);
-    detail(k, [10.6, -26.4, 12.0, -21.6, 10.4, -16.2], light(EDGE, 0.7), 0.7);
+    k.c.poly(zone.map((v, i) => (i % 2 === 0 ? v + 0.5 : v)), true).fill(shade(EDGE, 0.15));
+    detail(k, [10.8, -28.6, 12.4, -24.0, 12.6, -18.4, 10.4, -13.8], light(EDGE, 0.7), 0.7);
+    detail(k, [9.8, -27.0, 11.2, -24.2, 10.2, -21.6, 11.0, -19.4, 10.4, -17.0, 9.8, -14.6], light(EDGE, 0.45), 0.55);
     k.c.poly(blade, true).stroke({ width: 0.95, color: OUT, join: 'round' });
-    k.c.circle(6.6, -21.2, 1.9).fill(q === 2 ? CELADON : 0x1b1410);
-    if (q === 2) k.c.circle(6.2, -21.7, 0.8).fill(light(CELADON, 0.55));
-    k.c.circle(6.6, -21.2, 1.9).stroke({ width: 0.8, color: OUT });
+    k.c.circle(6.4, -20.8, 2.0).fill(q === 2 ? CELADON : 0x1b1410);
+    if (q === 2) k.c.circle(6.0, -21.3, 0.8).fill(light(CELADON, 0.55));
+    k.c.circle(6.4, -20.8, 2.0).stroke({ width: 0.8, color: OUT });
   }
   const hook = [-1.8, -22.6, -5.6, -22.2, -7.8, -20.0, -8.0, -14.6, -6.6, -14.0, -6.4, -18.4, -5.2, -19.6, -1.8, -19.4];
   slab(k, hook, IRON, { smooth: true });

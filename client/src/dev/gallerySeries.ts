@@ -15,10 +15,13 @@ import type { ClassId, Item, ItemKind, Rarity } from '@shared/types';
 import { createPlayerView, initArt, itemIconUrl } from '../render/art';
 import { getRenderer } from '../render/art/fx';
 import { paint } from '../render/art/draw';
-import { localXf, type WFloat } from '../render/art/weaponArt';
+import { localXf } from '../render/art/weaponArt';
+import type { WFloat } from '../render/art/weaponDrawing';
 import type { WeaponFamily } from '../render/art/gearVisuals';
 import { SERIES, seriesModel, type SeriesSpec } from '../render/art/series';
 import { LEGENDARY_ART } from '../render/art/series/legendary';
+import { registerSeriesDrawings } from '../render/art/series/register';
+import { F_ATTACK } from '@shared/protocol';
 import { hex } from '../render/art/util';
 import type { PlayerView } from '../render/types';
 
@@ -240,7 +243,7 @@ function rarityView(): void {
 
 const world = new Container();
 app.stage.addChild(world);
-interface Hero { view: PlayerView; x: number; y: number; over?: Overlay }
+interface Hero { view: PlayerView; x: number; y: number; over?: Overlay; attack?: boolean }
 interface Overlay { spec: SeriesSpec; base: GraphicsContext; light: GraphicsContext | null; floats: { f: WFloat; ctx: GraphicsContext }[]; holder?: Container; fl: Graphics[] }
 const heroes: Hero[] = [];
 
@@ -396,9 +399,62 @@ function extentsView(): void {
   (window as unknown as { __extents: unknown }).__extents = out;
 }
 
+/** ?view=rig: the series drawings registered with the real gear rig (weaponDrawing.ts) and rendered by the game's own
+ *  icon pipeline (icons.ts) at 64 and 40 px — what the bag and the item card would show today if the game switched. */
+function rigIconsView(): void {
+  showSheet();
+  const wrap = el('div', `display:grid;grid-template-columns:70px repeat(${SERIES.length}, 130px);gap:10px 8px;padding:10px 14px;align-items:center`);
+  sheet.appendChild(wrap);
+  wrap.appendChild(el('div', '', '<div class=lbl style="text-align:left">real icon pipeline</div>'));
+  for (const s of SERIES) wrap.appendChild(el('div', 'text-align:center', `<div style="font-weight:700;font-size:14px;color:#f0dfb4">${s.name}</div><div class=lbl>L${s.levels} · ${rarityFor(s.gen)}</div>`));
+  for (const f of FAMS) {
+    wrap.appendChild(el('div', 'font-weight:700;font-size:13px;color:#c9b98f', f.label));
+    for (const s of SERIES) {
+      const rar = rarityFor(s.gen);
+      const it = currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar, 11);
+      const cell = el('div', 'display:flex;gap:4px;align-items:flex-end;justify-content:center');
+      cell.appendChild(iconCell(itemIconUrl(gearLook(it), kindOf(f.base), 64), 64, RC[rar]));
+      cell.appendChild(iconCell(itemIconUrl(gearLook(it), kindOf(f.base), 40), 40, RC[rar], 4));
+      wrap.appendChild(cell);
+    }
+  }
+}
+
+/** ?view=rig-hero[&anim=attack]: heroes through the real rig with the series registered (pose, size ladder, light
+ *  layer, floats, attack presentation from `present`). */
+function rigHeroView(): void {
+  const z = Number(qs.get('zoom') ?? (1080 / 620) * 0.75);
+  const holder = new Container();
+  world.addChild(holder);
+  const colW = Number(qs.get('colw') ?? 250), rowH = Number(qs.get('rowh') ?? 196), gx = 210, gy = 150;
+  const bg = new Graphics(); holder.addChild(bg);
+  const attack = qs.get('anim') === 'attack';
+  SERIES.forEach((s, ci) => label(`${s.name}  ·  L${s.levels}`, gx + ci * colW + 30, 10, 15));
+  FAMS.forEach((f, ri) => {
+    const y = gy + ri * rowH;
+    label(f.label, 70, y - 40, 15, 0xc9b98f);
+    SERIES.forEach((s, ci) => {
+      const rar = rarityFor(s.gen);
+      const look = playerLook(createCharacter('Board', f.cls, 7));
+      look.slots.mainhand = gearLook(currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar, 11));
+      delete look.slots.offhand;
+      const v = createPlayerView(look);
+      const x = gx + ci * colW + 34;
+      v.root.position.set(x / z, y / z);
+      holder.addChild(v.root);
+      heroes.push({ view: v, x: x / z, y: y / z, attack });
+    });
+  });
+  bg.rect(0, 0, 4000 / z, 4000 / z).fill(Number(qs.get('bg') ?? 0x3a3a2e));
+  holder.scale.set(z);
+}
+
 // ─────────────────────────── run ───────────────────────────
 
+if (VIEW.startsWith('rig')) registerSeriesDrawings();
 switch (VIEW) {
+  case 'rig': rigIconsView(); break;
+  case 'rig-hero': rigHeroView(); break;
   case 'zoom': zoomView(); break;
   case 'rarity': rarityView(); break;
   case 'hero': heroView(); break;
@@ -412,7 +468,7 @@ app.ticker.add((tk) => {
   const dt = Math.min(0.05, tk.deltaMS / 1000);
   time += dt;
   for (const h of heroes) {
-    h.view.update(dt, { x: h.x, y: h.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time, aps: 1.2 });
+    h.view.update(dt, { x: h.x, y: h.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: h.attack ? F_ATTACK : 0, attackSeq: h.attack ? Math.floor(time * 1.2) : 0, hpFrac: 1, time, aps: 1.2 });
     syncOverlay(h, time);
   }
 });

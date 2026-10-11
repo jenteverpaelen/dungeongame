@@ -1,22 +1,23 @@
 // Weapon series (docs/rework/gear/ART-DIRECTION.md): one maker per level band, each with its own silhouette language,
 // palette and motif; rarity adds craftsmanship inside a series; legendaries are bespoke one-offs; Kindled / Fabled are
-// small grade accents. NOT wired into the game yet — the gear rig calls `seriesModel()` in place of
-// `weaponArt.weaponModel()` once it switches (the return type is the same WeaponModel).
+// small grade accents. NOT wired into the game: the gear rig's interface (weaponDrawing.ts, DESIGN-V2 §11) reaches this
+// art through drawing.ts (adapter) and register.ts (registration, called only by the series gallery).
 //
-// Plug-in contract (what the gear rig passes, what it gets back):
-//   seriesModel({ family, gen, rarity, legendary?, grade?, seed?, rig? }) → WeaponModel | null
+//   seriesModel({ family, gen, rarity, legendary?, grade?, seed?, rig?, accent? }) → SeriesModel | null
 //     family  — gearVisuals.ts WeaponFamily (13 families; the sample implements blade, axe, bow, staff, wand)
 //     gen     — generation 0..6 (gearVisual.ts name bands); selects the series
 //     rarity  — craftsmanship (normal 0 / magic 1 / rare 2); legendary → bespoke drawing when one exists
 //     grade   — 0 none / 1 Kindled / 2 Fabled (accents at the drawing's anchor)
 //     seed    — per-item wear placement; rig — hero rig (bows: no string; the rig ties its own at (-2.4, ±21))
-//   The model draws 'base' (ink contour + tones) and 'light' (emissive only) in the hand-local frame of weaponArt.ts,
-//   lists floating parts (WFloat) for the rig to animate, and `lit` says whether a light layer exists.
-//   null = no series drawing for this family yet → the caller keeps the old parametric art.
+//     accent  — colour of the one accent (default the rarity token; legendary / Set colour on a series base)
+//   The model draws 'base' (ink contour + tones) and 'light' (emissive only) in the hand-local frame, lists floating
+//   parts (WFloat) for the rig, says whether a light layer exists and which colour it has.
+//   null = no series drawing for this family yet → the caller keeps the default drawing.
 
 import type { Rarity } from '@shared/types';
 import type { WeaponFamily } from '../gearVisuals';
-import type { WFloat, WLayer, WeaponModel } from '../weaponArt';
+import type { WFloat, WLayer } from '../weaponDrawing';
+import type { Ctx } from '../draw';
 import { newKit, scratch, type K } from './kit';
 import { gradeAccent } from './grade';
 import { LEGENDARY_ART } from './legendary';
@@ -80,15 +81,20 @@ export function seriesDraw(spec: SeriesSpec): Draw | null {
   return s?.draw[spec.family] ?? null;
 }
 
-/** The rig's WeaponModel plus the colour of the item's own light (icons tint their glow with it). */
-export interface SeriesModel extends WeaponModel { litColor: number }
+/** A series drawing: base + light layers, floating parts, whether it has light, and the colour of that light. */
+export interface SeriesModel {
+  draw: (c: Ctx, layer: WLayer) => void;
+  floats: WFloat[];
+  lit: boolean;
+  litColor: number;
+}
 
 /** Build the held-item model for a spec (same contract as weaponArt.weaponModel). */
 export function seriesModel(spec: SeriesSpec): SeriesModel | null {
   const d = seriesDraw(spec);
   if (!d) return null;
   const q = Q[spec.rarity], rig = !!spec.rig, seed = spec.seed ?? 1, grade = spec.grade ?? 0;
-  const run = (c: import('../draw').Ctx, layer: WLayer, floats: WFloat[]): K => {
+  const run = (c: Ctx, layer: WLayer, floats: WFloat[]): K => {
     let last: K | null = null;
     const passes = layer === 'base' ? (['under', 'paint'] as const) : (['light'] as const);
     for (const pass of passes) {

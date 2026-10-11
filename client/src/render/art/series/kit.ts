@@ -15,7 +15,7 @@
 import { GraphicsContext } from 'pixi.js';
 import { OUT, blobPath, fill, inSilhouette, outline, type Ctx } from '../draw';
 import { light, mix, shade } from '../util';
-import type { WFloat } from '../weaponArt';
+import type { WFloat } from '../weaponDrawing';
 
 export type Pass = 'under' | 'paint' | 'light';
 
