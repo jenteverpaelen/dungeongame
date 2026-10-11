@@ -198,10 +198,12 @@ export interface Mob extends Hashed {
   /** Molten affix: where the last trail patch was dropped. */
   trailX: number;
   trailY: number;
-  /** Behaviour toolkit runtime (server/src/sim/behaviours.ts); created on the first behaviour tick. */
-  bh?: BehaviourState;
-  /** Summoned by this monster's `summon` behaviour (its id), for the summoner's alive cap. */
-  summonedBy?: number;
+  /** Behaviour toolkit runtime (server/src/sim/behaviours.ts); created on the first behaviour tick. Always present on the
+   *  object (undefined until then) so every monster keeps one hidden class: adding it lazily made monster property reads
+   *  polymorphic once a guardian had fought (full sim run measurably slower, d22ee7d). */
+  bh: BehaviourState | undefined;
+  /** Id of the monster whose `summon` behaviour called this one up (0 = not summoned). */
+  summonedBy: number;
 }
 
 export interface BehaviourState {
