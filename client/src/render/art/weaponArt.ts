@@ -29,6 +29,8 @@ export interface WFloat {
   bob: number; orbit: number; spin: number; phase: number;
   /** Light colour of the piece's glow sprite (0 = none) and its size. */
   glow: number; glowR: number;
+  /** Decorative (motif tokens, glints, embers): the crowd budget may hide it; structural pieces always show. */
+  deco: boolean;
 }
 
 export interface WeaponModel {
@@ -191,7 +193,7 @@ function bladeFamily(c: Ctx, p: P, big: boolean, out: WFloat[]): void {
       // a wing-blade either side of the core: broad at the guard, sweeping up to a point at mid-blade
       const segPts = [k * W * 1.2, Y(0.03), k * W * 3.2, Y(0.08), k * W * 2.7, Y(0.22), k * W * 1.3, Y(0.5), k * W * 1.1, Y(0.22)];
       const cx = k * W * 2, cy = Y(0.2);
-      out.push(floatOf(p, cx, cy, (q) => {
+      out.push(solidOf(p, cx, cy, (q) => {
         const loc = segPts.map((v, i) => (i % 2 === 0 ? v - cx : v - cy));
         poly(q, loc, p.metal, { hl: 0, inset: 0.82 });
         wash(q, (kk) => kk.poly(shrink(loc, 0.55), true), p.edge, 0.45);
@@ -284,7 +286,7 @@ function axeFamily(c: Ctx, p: P, big: boolean, out: WFloat[]): void {
   if (g === 6) {
     const edgeArc = [E * 0.82, hy - H * 1.05, E * 1.05, hy - H * 1.2, E * 1.32, hy, E * 1.05, hy + H * 1.2, E * 0.82, hy + H * 1.05, E * 1.02, hy];
     const cx = E * 1.05, cy = hy;
-    out.push(floatOf(p, cx, cy, (q) => {
+    out.push(solidOf(p, cx, cy, (q) => {
       const loc = edgeArc.map((v, i) => (i % 2 === 0 ? v - cx : v - cy));
       poly(q, loc, p.metal, { hl: 0, inset: 0.8 });
       wash(q, (kk) => kk.poly(loc.map((v, i) => (i % 2 === 0 ? Math.max(0, v) : v)), true), p.edge, 0.55);
@@ -294,7 +296,7 @@ function axeFamily(c: Ctx, p: P, big: boolean, out: WFloat[]): void {
     }, 0.9, 0, 0, 0, p.L, 14 * k));
     if (big) { // and the poll mirrors it
       const cx2 = -E * 1.0;
-      out.push(floatOf(p, cx2, cy, (q) => {
+      out.push(solidOf(p, cx2, cy, (q) => {
         const loc = edgeArc.map((v, i) => (i % 2 === 0 ? -(v - cx) * 0.85 : v - cy));
         poly(q, loc, shade(p.metal, 0.08), { hl: 0, inset: 0.8 });
         q.poly(loc, true); outline(q, 1.9);
@@ -351,7 +353,7 @@ function maceFamily(c: Ctx, p: P, out: WFloat[]): void {
     if (base) for (let i = 0; i < 3; i++) crease(c, [-R * 0.9, hy + (i - 1) * 2.2, R * 0.9, hy + (i - 1) * 2.2], 0.6, p.edge, 0.4);
     for (let i = 0; i < 6; i++) {
       const a = -Math.PI / 2 + (i / 6) * Math.PI * 2, r = R + 4.6;
-      out.push(floatOf(p, Math.cos(a) * r, hy + Math.sin(a) * r, (q) => {
+      out.push(solidOf(p, Math.cos(a) * r, hy + Math.sin(a) * r, (q) => {
         q.save?.(); localXf(q, 0, 0, a + Math.PI / 2);
         poly(q, [-2.8, 3, 0, -6.2, 2.8, 3, 0, 1.4], p.metal, { ow: 1.5, hl: 0.3 });
         if (p.L) crease(q, [0, 1.4, 0, -3.6], 1.2, LIT(p), 1);
@@ -401,7 +403,7 @@ function staffFamily(c: Ctx, p: P, out: WFloat[]): void {
     }
     case 5: {
       if (base) { line(c, (q) => q.ellipse(0, hy + 1, 8.4, 9.4), 2.4, p.trim, 1.8); line(c, (q) => q.moveTo(0, sTop).lineTo(0, sTop - 1.6), 2, p.trim, 1.4); star(c, 0, hy - 9.8, 4, 3.4, 1.3, p.trim, 1.2); }
-      out.push(floatOf(p, 0, hy + 1, (q) => { poly(q, [0, -5.6, 3.2, 0, 0, 5.6, -3.2, 0], p.L ? LIT(p) : p.edge, { ow: 1.5, hl: 0.6 }); }, 1.1, 0, 0.8, 0, p.L, 14));
+      out.push(solidOf(p, 0, hy + 1, (q) => { poly(q, [0, -5.6, 3.2, 0, 0, 5.6, -3.2, 0], p.L ? LIT(p) : p.edge, { ow: 1.5, hl: 0.6 }); }, 1.1, 0, 0.8, 0, p.L, 14));
       break;
     }
     default: {
@@ -412,7 +414,7 @@ function staffFamily(c: Ctx, p: P, out: WFloat[]): void {
       }
       lightLine(c, p, [-8.8, sTop - 6, -9.4, hy - 4, -6.6, hy - 9], 1);
       lightLine(c, p, [8.8, sTop - 6, 9.4, hy - 4, 6.6, hy - 9], 1);
-      out.push(floatOf(p, 0, hy - 3, (q) => { ball(q, 0, 0, 3.8, 3.8, p.L ? LIT(p) : p.edge, { hl: 0.7, ow: 1.4 }); }, 1, 0, 0, 0, p.L, 18));
+      out.push(solidOf(p, 0, hy - 3, (q) => { ball(q, 0, 0, 3.8, 3.8, p.L ? LIT(p) : p.edge, { hl: 0.7, ow: 1.4 }); }, 1, 0, 0, 0, p.L, 18));
       for (let i = 0; i < 2; i++) out.push(floatOf(p, 0, hy - 3, (q) => { poly(q, [0, -2.8, 1.4, 0, 0, 2.8, -1.4, 0], p.edge, { ow: 1.1, hl: 0.5 }); }, 0.6, 8.6, 1.4, i * Math.PI, p.L, 6));
     }
   }
@@ -437,11 +439,11 @@ function wandFamily(c: Ctx, p: P, out: WFloat[]): void {
     case 3: if (base) for (const s of [1, -1]) line(c, (q) => q.moveTo(s * 1.2, -14).quadraticCurveTo(s * 4, -17, s * 1.4, -21), 1.1, p.trim, 1); lightGem(c, p, 0, ty - 0.6, 2.8, p.L || 0); break;
     case 4: if (base) for (const s of [1, -1]) poly(c, [s * 0.8, -13.6, s * 4.6, -18.6, s * 3, -22.4, s * 1.6, -17.6], p.metal, { ow: 1.3 }); lightPoly(c, p, [0, -23, 1.8, -18.6, 0, -14.6, -1.8, -18.6]); lightLine(c, p, [0, 2, 0, -12], 0.8); break;
     case 5: if (base) for (const s of [1, -1]) poly(c, [s * 0.8, -13.6, s * 4.2, -16, s * 2.4, -18], p.trim, { ow: 1.2 }); lightLine(c, p, [0, 2, 0, -12], 0.8);
-      out.push(floatOf(p, 0, -21.6, (q) => star(q, 0, 0, 5, 4.4, 1.9, p.L ? LIT(p) : p.edge, 1.3), 1, 0, 1.2, 0, p.L, 12)); break;
+      out.push(solidOf(p, 0, -21.6, (q) => star(q, 0, 0, 5, 4.4, 1.9, p.L ? LIT(p) : p.edge, 1.3), 1, 0, 1.2, 0, p.L, 12)); break;
     default:
       if (base) blob(c, [-1, -13.4, -5.6, -15.6, -6.8, -20.6, -3.6, -17.8, 0, -16.6, 3.6, -17.8, 6.8, -20.6, 5.6, -15.6, 1, -13.4], p.trim, { ow: 1.4, hl: 0.35 });
       lightLine(c, p, [0, 2, 0, -12], 1);
-      out.push(floatOf(p, 0, -23.4, (q) => { poly(q, [0, -6.2, 2.2, 0, 0, 3.6, -2.2, 0], p.L ? LIT(p) : p.edge, { ow: 1.4, hl: 0.6 }); }, 1.2, 0, 0, 0, p.L, 14));
+      out.push(solidOf(p, 0, -23.4, (q) => { poly(q, [0, -6.2, 2.2, 0, 0, 3.6, -2.2, 0], p.L ? LIT(p) : p.edge, { ow: 1.4, hl: 0.6 }); }, 1.2, 0, 0, 0, p.L, 14));
       out.push(floatOf(p, 0, -21.4, (q) => { ball(q, 0, 0, 1.2, 1.2, p.edge, { ow: 1 }); }, 0.4, 6.4, 1.8, 0, p.L, 5));
   }
   if (p.sp && g < 4) lightLine(c, p, [0, 2, 0, -12], 0.8, 0.7);
@@ -479,7 +481,7 @@ function bowFamily(c: Ctx, p: P, rig: boolean, out: WFloat[]): void {
   lightGem(c, p, 2.5, 0, g >= 4 ? 2 : 1.5, p.L || 0);
   if (p.edgeL) for (const s of [1, -1]) edgeLight(c, p, limbPts(s, 0, 0.9));
   if (g >= 5) out.push(floatOf(p, 8.4, 0, (q) => poly(q, [0, -3.6, 2.2, 0, 0, 3.6, -2.2, 0], p.L ? LIT(p) : p.edge, { ow: 1.3, hl: 0.6 }), 1, 0, 0, 0, p.L, 11));
-  if (g === 6) for (const s of [1, -1]) out.push(floatOf(p, 10.6, s * 15.6, (q) => {
+  if (g === 6) for (const s of [1, -1]) out.push(solidOf(p, 10.6, s * 15.6, (q) => {
     blob(q, [-2, s * -3.4, 3.4, s * -1.2, 5.2, s * 3, 1.4, s * 2, -2.2, s * 1.2], p.metal, { ow: 1.4, hl: 0.4 });
     if (p.L) crease(q, [-0.8, s * -1.6, 3, s * 1.2], 1, LIT(p), 1);
   }, 0.8, 0, 0, s > 0 ? 0 : 2, p.L, 8));
@@ -511,7 +513,7 @@ function crossbowFamily(c: Ctx, p: P, hand: boolean, out: WFloat[]): void {
   if (p.sp && g < 4) lightLine(c, p, [0, sy0 - 3, 0, py + 6 * k], 1);
   edgeLight(c, p, [-pw, py + 4 * k, 0, py - 4 * k, pw, py + 4 * k]);
   if (g >= 5) out.push(floatOf(p, 0, sy1 - 9 * k, (q) => poly(q, [0, -3.4, 2, 0, 0, 3.4, -2, 0], p.L ? LIT(p) : p.edge, { ow: 1.2, hl: 0.6 }), 1, 0, 0, 0, p.L, 10));
-  if (g === 6) for (const s of [1, -1]) out.push(floatOf(p, s * (pw + 5 * k), py - 2 * k, (q) => {
+  if (g === 6) for (const s of [1, -1]) out.push(solidOf(p, s * (pw + 5 * k), py - 2 * k, (q) => {
     blob(q, [0, -3, s * 4.6, -4.4, s * 6, 0.6, s * 2, 2.2], p.metal, { ow: 1.3, hl: 0.4 });
     if (p.L) crease(q, [s * 0.8, -1.4, s * 4.4, -0.6], 1, LIT(p), 1);
   }, 0.8, 0, 0, s > 0 ? 0 : 2, p.L, 8));
@@ -519,22 +521,27 @@ function crossbowFamily(c: Ctx, p: P, hand: boolean, out: WFloat[]): void {
 
 // ─────────────────────────── off-hands ───────────────────────────
 
+/** Shield outline by generation ([] = the round G0 buckler): buckler → kite → tower → heater → faceted → winged → zenith
+ *  centre plate (its side plates float). Shared with the shield's back view (heroParts.ts). */
+export function shieldOutline(g: number): number[] {
+  switch (g) {
+    case 0: return [];
+    case 1: return [-10.2, -11.4, 10.2, -11.4, 10.2, 0, 0, 13.6, -10.2, 0];
+    case 2: return [-9.6, -13.8, 9.6, -13.8, 10, 11, 0, 14.6, -10, 11];
+    case 3: return [-11, -12.4, 11, -12.4, 10.6, 1, 0, 15.4, -10.6, 1];
+    case 4: return [-11.6, -12, -6, -14.6, 6, -14.6, 11.6, -12, 10.8, 3, 0, 16, -10.8, 3];
+    case 5: return [-14.6, -15.4, -9, -12.6, 9, -12.6, 14.6, -15.4, 11.4, 2, 0, 16.6, -11.4, 2];
+    default: return [-7.6, -13.6, 7.6, -13.6, 8, 4, 0, 17.4, -8, 4];
+  }
+}
+
 function shieldFamily(c: Ctx, p: P, out: WFloat[]): void {
   const g = p.g, base = p.layer === 'base', v = p.v;
   const HERALD = [0x9a3b30, 0x2f5a8a, 0x8a6236, 0x3f6a3a];
   const face = p.sp ? p.look.primary : p.r === 1 ? 0x34509e : p.r === 2 ? 0x7a2420 : HERALD[v];
   const rim = g <= 1 ? p.metal : p.trim;
   const emb = p.L ? LIT(p) : g >= 3 ? light(p.trim, 0.3) : 0xe6d6ae;
-  let outer: number[] = [];
-  switch (g) {
-    case 0: break; // round buckler
-    case 1: outer = [-10.2, -11.4, 10.2, -11.4, 10.2, 0, 0, 13.6, -10.2, 0]; break; // kite
-    case 2: outer = [-9.6, -13.8, 9.6, -13.8, 10, 11, 0, 14.6, -10, 11]; break; // tower
-    case 3: outer = [-11, -12.4, 11, -12.4, 10.6, 1, 0, 15.4, -10.6, 1]; break; // heater
-    case 4: outer = [-11.6, -12, -6, -14.6, 6, -14.6, 11.6, -12, 10.8, 3, 0, 16, -10.8, 3]; break; // faceted
-    case 5: outer = [-14.6, -15.4, -9, -12.6, 9, -12.6, 14.6, -15.4, 11.4, 2, 0, 16.6, -11.4, 2]; break; // winged top
-    default: outer = [-7.6, -13.6, 7.6, -13.6, 8, 4, 0, 17.4, -8, 4]; // zenith centre plate (side plates float)
-  }
+  const outer = shieldOutline(g);
   if (base) {
     if (g === 0) {
       ball(c, 0, 0, 12, 12, p.wood, { hl: 0.3 });
@@ -554,7 +561,7 @@ function shieldFamily(c: Ctx, p: P, out: WFloat[]): void {
   }
   if (g >= 4) lightLine(c, p, shrink(outer, 0.86).concat(shrink(outer, 0.86).slice(0, 2)), 1);
   lightGem(c, p, 0, g === 0 ? 0 : -6, g >= 4 ? 2.6 : 2, p.L || 0);
-  if (g === 6) for (const s of [1, -1]) out.push(floatOf(p, s * 12.4, -1, (q) => {
+  if (g === 6) for (const s of [1, -1]) out.push(solidOf(p, s * 12.4, -1, (q) => {
     const pl = [s * -3, -12, s * 3.6, -14.4, s * 4.6, 6, s * -2.4, 12.4];
     poly(q, pl, p.trim, { ow: 1.8, hl: 0.35 });
     if (p.L) crease(q, [s * 0.2, -9, s * 1.2, 4], 1.2, LIT(p), 1);
@@ -762,7 +769,7 @@ function gradeMarks(c: Ctx, p: P, fam: WeaponFamily, out: WFloat[], ember: numbe
   if (p.top < 2) return;
   const [hx, hy, hr] = anchorsOf(fam).head;
   const R = hr + 6;
-  out.push(floatOf(p, hx, hy, (q) => {
+  out.push(solidOf(p, hx, hy, (q) => {
     line(q, (k) => k.ellipse(0, 0, R, R * 0.36), 1.1, 0xfff0c4, 0.8, false);
     if (!inSilhouette()) {
       // glyphs: short original strokes set around the ring
@@ -784,9 +791,11 @@ const BESPOKE: Record<string, (c: Ctx, p: P, out: WFloat[]) => void> = {
   ninefold_gale: (c, p, out) => {
     const base = p.layer === 'base', hy = -36, L = p.L || 0x9fe3ff;
     if (base) { line(c, (q) => q.moveTo(0, 11).lineTo(0, -46), 3.2, p.dark, 2); for (let i = 0; i < 3; i++) crease(c, [-1.6, 6 - i * 2.4, 1.6, 5 - i * 2.4], 1.1, p.trim, 1); }
-    for (let i = 0; i < 9; i++) {
-      const a = -Math.PI * 0.95 + (i / 8) * Math.PI * 1.9, side = Math.cos(a) >= 0 ? 1 : -1;
-      const r0 = 5, r1 = 15 + (i % 3) * 2.6;
+    // the axe grows into its name: 5 wind blades early, 7 from G2, all nine from runesteel (G4) on, longer each step
+    const nb = p.g >= 4 ? 9 : p.g >= 2 ? 7 : 5;
+    for (let i = 0; i < nb; i++) {
+      const a = -Math.PI * 0.95 + (i / (nb - 1)) * Math.PI * 1.9, side = Math.cos(a) >= 0 ? 1 : -1;
+      const r0 = 5, r1 = 10.4 + p.g * 0.8 + (i % 3) * 2.6;
       const ax = Math.cos(a), ay = Math.sin(a), px = -ay, py = ax;
       const f = [ax * r0 + px * 2, hy + ay * r0 + py * 2, ax * r1 + px * 4 * side, hy + ay * r1 + py * 4 * side, ax * (r1 + 3), hy + ay * (r1 + 3) - 1, ax * r0 - px * 1.4, hy + ay * r0 - py * 1.4];
       if (base) poly(c, f, i % 2 ? light(p.metal, 0.08) : p.metal, { ow: 1.5, hl: 0.3 });
@@ -812,7 +821,8 @@ const BESPOKE: Record<string, (c: Ctx, p: P, out: WFloat[]) => void> = {
       poly(c, [1.6, -31, 4.6, -33.6, 3.2, -29.6], p.metal, { ow: 1.3 }); // wake hook
     }
     lightLine(c, { ...p, L }, [0, -7, 0.4, -18, 0.6, -28], 1.4);
-    if (base) for (const y of [-11, -16, -21]) poly(c, [3.4, y, 6.6, y - 1.8, 3.4, y - 3], shade(p.metal, 0.1), { ow: 1.1 });
+    // the wake of serrations lengthens with the generation (1 → 4 teeth)
+    if (base) for (const y of [-11, -16, -21, -26].slice(0, 1 + Math.floor(p.g / 2))) poly(c, [3.4, y, 6.6, y - 1.8, 3.4, y - 3], shade(p.metal, 0.1), { ow: 1.1 });
     guard(c, { ...p, g: Math.max(4, p.g) }, -5, 1, 3.6);
     edgeLight(c, p, right);
     for (let i = 0; i < Math.max(1, p.s.floats); i++) out.push(floatOf(p, 4, -20 - i * 4, (q) => poly(q, [0, -2.6, 1.6, 0.6, 0, 2.4, -1.6, 0.6], 0xc8141e, { ow: 1, hl: 0.5 }), 1.4, 0, 0, i * 1.7, L, 6));
@@ -825,7 +835,9 @@ const BESPOKE: Record<string, (c: Ctx, p: P, out: WFloat[]) => void> = {
     // cross-arms of the vane
     if (base) { seg(c, -9, -42, 9, -42, 1.4, p.trim, 1.2); for (const s of [1, -1]) ball(c, s * 9.6, -42, 1.5, 1.5, p.trim, { ow: 1 }); }
     // the fire vane
-    const vane = [0, -40, 3, -46, 12, -50, 9, -45, 15, -44, 8, -40.6, 12, -37.6, 3, -38];
+    // the fire vane grows with the generation (×0.7 → ×1)
+    const vk = 0.7 + p.g * 0.05;
+    const vane = [0, -40, 3, -46, 12, -50, 9, -45, 15, -44, 8, -40.6, 12, -37.6, 3, -38].map((v, i) => (i % 2 === 0 ? v * vk : -40 + (v + 40) * vk));
     if (base) blob(c, vane, mix(L, 0xff3a1a, 0.4), { ow: 1.5, hl: 0.35 });
     lightPoly(c, { ...p, L }, shrink(vane, 0.6));
     // ember arrow
@@ -838,10 +850,19 @@ const BESPOKE: Record<string, (c: Ctx, p: P, out: WFloat[]) => void> = {
 
 // ─────────────────────────── entry ───────────────────────────
 
-function floatOf(p: P, x: number, y: number, draw: (c: Ctx) => void, bob: number, orbit: number, spin: number, phase: number, glow: number, glowR: number): WFloat {
+function floatOf(p: P, x: number, y: number, draw: (c: Ctx) => void, bob: number, orbit: number, spin: number, phase: number, glow: number, glowR: number, deco = true): WFloat {
   void p;
-  return { x, y, draw, bob, orbit, spin, phase, glow, glowR };
+  return { x, y, draw, bob, orbit, spin, phase, glow, glowR, deco };
 }
+
+/** A floating piece that is part of the silhouette (zenith segments, floating heads, the Fabled Inscription): always
+ *  shown, also for crowds; decorative floats (motif tokens, glints, embers) may be dropped by the crowd budget. */
+function solidOf(p: P, x: number, y: number, draw: (c: Ctx) => void, bob: number, orbit: number, spin: number, phase: number, glow: number, glowR: number): WFloat {
+  return floatOf(p, x, y, draw, bob, orbit, spin, phase, glow, glowR, false);
+}
+
+/** Floats per look (the vector pass that finds them runs once per look, not per view rebuild). */
+const FLOAT_CACHE = new Map<string, WFloat[]>();
 
 /** Build the model of a held item (weapon or off-hand) for its family. `rig` thickens bow limbs for the hero. */
 export function weaponModel(look: ItemLook, s: ItemStyle, fam: WeaponFamily, rig = false): WeaponModel {
@@ -873,12 +894,17 @@ export function weaponModel(look: ItemLook, s: ItemStyle, fam: WeaponFamily, rig
     signature(c, p, fam, out);
     gradeMarks(c, p, fam, out, emberColor);
   };
-  let floats: WFloat[] | null = null;
+  const fkey = `${fam}|${rig ? 1 : 0}|${look.fx}|${look.primary}|${look.secondary}|${look.glow}|${look.variant}`;
+  let floats: WFloat[] | null = FLOAT_CACHE.get(fkey) ?? null;
   return {
     draw: (c, layer) => run(c, layer, []),
     /** Floating pieces (found by a vector-only base pass into a scratch context; no render). */
     get floats() {
-      if (!floats) { const scratch = new GraphicsContext(); floats = []; run(scratch, 'base', floats); scratch.destroy(); }
+      if (!floats) {
+        const scratch = new GraphicsContext(); floats = []; run(scratch, 'base', floats); scratch.destroy();
+        if (FLOAT_CACHE.size > 400) FLOAT_CACHE.clear();
+        FLOAT_CACHE.set(fkey, floats);
+      }
       return floats;
     },
     lit: !!s.light || !!s.edgeLight,

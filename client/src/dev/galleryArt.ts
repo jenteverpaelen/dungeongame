@@ -636,7 +636,7 @@ function stageLook(cls: ClassId, stage: ShowcaseStage, seedN = 3): PlayerLook {
   if (qs.get('legacy')) { delete look.jw; for (const l of Object.values(look.slots)) if (l) delete l.fx; }
   return look;
 }
-const STAGE_LABEL: Record<ShowcaseStage, string> = { starter: 'Starter', L10: 'Level 10', L20: 'Level 20', L30: 'Level 30', L40: 'Level 40', L50: 'Level 50', L60: 'Level 60', L70: 'Level 70', set: 'Full set', ancient: 'Ancient set', primal: 'Primal set' };
+const STAGE_LABEL: Record<ShowcaseStage, string> = { starter: 'Starter', L10: 'Level 10', L20: 'Level 20', L30: 'Level 30', L40: 'Level 40', L50: 'Level 50', L60: 'Level 60', L70: 'Level 70', set: 'Full set', ancient: 'Kindled set', primal: 'Fabled set' };
 
 /** ?view=gear-ladder: each class from starter rags to a Primal set (the contact sheet of DESIGN.md §1). */
 function gearLadderView() {
@@ -663,7 +663,9 @@ function gearLadderView() {
 function gearVsView() {
   const cls = (qs.get('cls') ?? 'warrior') as ClassId;
   const vet = (qs.get('vet') ?? 'primal') as ShowcaseStage;
-  const map = generateMap('hearthmere', 1234);
+  const newbie = (qs.get('newbie') ?? 'starter') as ShowcaseStage;
+  // ?map=<zone id> puts the pair on another ground (a field, e.g. whispering_glade)
+  const map = generateMap(qs.get('map') ?? 'hearthmere', 1234);
   const layers = buildMapLayers(map);
   const ents = new Container(); ents.sortableChildren = true;
   world.addChild(layers.ground, layers.decals, ents);
@@ -673,7 +675,7 @@ function gearVsView() {
   const moving = !!qs.get('walk');
   classes.forEach((c, i) => {
     const x = fx0 - (classes.length - 1) * 80 + i * 160;
-    ([['starter', 0], [vet, 1]] as const).forEach(([stg, k]) => {
+    ([[newbie, 0], [vet, 1]] as const).forEach(([stg, k]) => {
       const v = createPlayerView(stageLook(c, stg));
       const hx = x - 30 + k * 60, hy = fy0 + 30 + k * 4;
       addActor(v, hx, hy, moving ? st({ moving: true, vx: 220, flags: F_MOVING }) : st({}), 1.2, ents);
@@ -1058,5 +1060,6 @@ app.ticker.add((tk) => {
 });
 const frameWin: number[] = [];
 (window as unknown as { __pages: unknown }).__pages = bakedPages;
+(window as unknown as { __app: unknown }).__app = app; // display-object counts in perf scenarios
 (window as unknown as { __ready: boolean; __info: string }).__ready = true;
 (window as unknown as { __info: string }).__info = mapInfo;

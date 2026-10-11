@@ -20,6 +20,8 @@ import {
 } from './draw';
 import { rarityOf, trim, type Body } from './gear';
 import { decorBelt, decorHead, decorLeg, decorTorsoFront } from './gearDecor';
+import { itemStyle } from './gearStyle';
+import { shieldOutline } from './weaponArt';
 import { BLUSH, BONE, GOLD, OUTFIT } from './palette';
 import { clamp, lerp, light, mix, shade } from './util';
 
@@ -1007,10 +1009,16 @@ export function drawHairCurtain(c: Ctx, b: Body, head: ItemLook | undefined): bo
 
 /** The inside of a shield (seen when it faces away): rim, planks, straps. */
 export function drawShieldBack(c: Ctx, l: ItemLook): void {
-  const r = rarityOf(l), v = l.variant;
-  const rim = r === 'legend' ? trim(l) : r === 'rare' ? 0xd4b13a : l.primary;
+  const st = itemStyle(l);
+  const r = rarityOf(l), v = st ? (st.gen === 0 ? 0 : 1) : l.variant;
+  const rim = st ? (st.gen <= 1 ? st.metal : st.trim) : r === 'legend' ? trim(l) : r === 'rare' ? 0xd4b13a : l.primary;
   const wood = 0x7a5232;
-  if (v === 0) {
+  const v2 = st ? shieldOutline(st.gen) : null;
+  if (v2 && v2.length) {
+    // V2 shields (weaponArt.ts): the back follows the generation's outline
+    poly(c, v2, shade(rim, 0.15), { hl: 0 });
+    poly(c, v2.map((q, i) => (i % 2 === 0 ? q * 0.82 : q * 0.84 - 0.3)), wood, { ow: 1.4, hl: 0.1 });
+  } else if (v === 0) {
     ball(c, 0, 0, 12.4, 12.4, shade(rim, 0.15), { hl: 0.2 });
     ball(c, 0, 0, 10, 10, wood, { hl: 0.1, ow: 1.4 });
   } else {

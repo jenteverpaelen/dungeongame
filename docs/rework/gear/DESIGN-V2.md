@@ -70,6 +70,18 @@ collision are unchanged (the trail follows the drawn tip).
 | mid (bow, crossbow, off-hands) | 0.90 | 0.95 | 1.02 | 1.10 | 1.18 | 1.27 | 1.36 | 1.56 |
 | large (2H, staff) | 0.88 | 0.93 | 0.98 | 1.04 | 1.10 | 1.17 | 1.24 | 1.42 |
 
+### 2.7 Armour (weapons escalate the most; armour follows the same axes)
+* **Material by generation** (`gearStyle.ts artLook`): worked-metal shapes (helms, plate, spiked, gauntlets, sabatons,
+  mail) take the generation's metal — scrap iron → iron → steel → bright steel → runesteel (blued) → starmetal (lilac
+  silver) → zenith pearl; every piece takes the generation's fittings as trim; early cloth / leather dyes are dulled
+  (G0–G2), later ones kept as made; magic / rare trims carry their light; legendary / Set pieces keep their palette.
+* **Structure by generation, embellishment by rarity** (`ItemStyle.orn`, internal 0–9, never shown): rims and rivets
+  from G2, rivet rows from G3, raised plates / crests from G4, motif spikes and medallions on legendary / Set pieces,
+  crowns at G6 legendary, filigree and helm wings on graded pieces.
+* **Light channels from runesteel (G4)**: pauldron rims, twin chest channels, a brow band on helms / hoods / caps, a knee
+  line — lit in the item's light, dormant grooves on normal pieces.
+* Icons fill by generation (80 % → 91 %), off-hands scale by generation in the rig.
+
 ## 3. Data format and how content gets its look
 **Wire:** `ItemLook.fx` (never stored) = mixed-radix pack of gen (8) · rarity (8) · grade (4) · upgrade (16) · filled
 sockets (4) · best gem (8) · gem rank (8) · enchanted (2) · Set id (32) · legendary id (256). Plain items stay below 2³²

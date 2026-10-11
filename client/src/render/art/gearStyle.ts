@@ -165,6 +165,27 @@ export function itemStyle(look: ItemLook | undefined): ItemStyle | null {
   return s;
 }
 
+/** Armour shapes that are worked metal (they take the generation's metal; cloth and leather keep their dye). */
+const METAL_ARMOUR = new Set(['helm', 'helm_horned', 'plate', 'spiked', 'gauntlets', 'greaves', 'mail', 'coif', 'tassets', 'girdle', 'vambraces', 'clogs']);
+/** Early cloth / leather is dull, later dyes are kept as made (generation finish). */
+const DULL = [0.42, 0.26, 0.12, 0, 0, 0, 0];
+
+/** The colours armour is drawn with (DESIGN-V2 §2.7): metal pieces take the generation's metal (scrap iron → runesteel →
+ *  starmetal → zenith pearl), every piece takes the generation's fittings as its trim, magic / rare trims carry their
+ *  light, legendary / Set pieces keep their own palette with the generation's finish. Held items and looks without
+ *  identity (townsfolk) are returned unchanged. */
+export function artLook(l: ItemLook | undefined): ItemLook | undefined {
+  const s = itemStyle(l);
+  if (!l || !s || SHAPE_FAMILY[l.shape]) return l;
+  const metal = METAL_ARMOUR.has(l.shape);
+  const primary = s.special ? (metal ? mix(l.primary, s.mat.metal, 0.25) : l.primary)
+    : metal ? mix(s.mat.metal, l.primary, 0.22) : mix(l.primary, 0x6a5e50, DULL[s.gen]);
+  const secondary = s.special ? mix(l.secondary, s.mat.trim, 0.3)
+    : s.rar === 1 ? mix(s.mat.trim, s.light, 0.6) : s.rar === 2 ? mix(s.mat.trim, s.light, 0.45) : s.mat.trim;
+  if (primary === l.primary && secondary === l.secondary) return l;
+  return { ...l, primary, secondary };
+}
+
 /** Ornament level 0..6 of a look (its generation; 0 for looks without identity). */
 export function ornament(look: ItemLook | undefined): number {
   return itemStyle(look)?.gen ?? 0;

@@ -14,7 +14,7 @@ import { gearProfile, unpackGearFx, type GearProfile } from '@shared/gearVisual'
 import { LEGENDARIES } from '@shared/data/items';
 import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx';
 import { backPieceFor, drawBackPiece, drawWing, shoulderScale, weaponScale } from './gearDecor';
-import { RARITY_LIGHT, SET_STYLE, TOP_COLORS, itemStyle } from './gearStyle';
+import { RARITY_LIGHT, SET_STYLE, TOP_COLORS, artLook, itemStyle } from './gearStyle';
 import { SHAPE_FAMILY } from './gearVisuals';
 import { weaponModel, type WFloat } from './weaponArt';
 import {
@@ -120,7 +120,8 @@ function backOf(look: PlayerLook) {
 
 /** Every part a look needs (names must match the rig below). */
 export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSpec[] {
-  const sl = look.slots;
+  // armour is drawn in its generation's materials (artLook); held items keep their own art
+  const sl: PlayerLook['slots'] = Object.fromEntries(Object.entries(look.slots).map(([k, l]) => [k, artLook(l)]));
   const specs: PartSpec[] = [];
   const add = (name: string, draw: PartSpec['draw'], flash = true) => specs.push({ name, draw, flash });
   for (const deg of HEAD_VIEWS) add(`head@${deg}`, (c) => drawHeadView(c, body, sl.head, deg), HEAD_FLASH_VIEWS.includes(deg));
@@ -578,13 +579,16 @@ export class PlayerArt implements PlayerView {
     // V2 held items: additive light layer + floating pieces (weaponArt.ts), each with a soft glow
     this.wFloats = [];
     this.wLight = null;
-    if (sheet.has('weaponL')) { const l = mk('weaponL', 'weaponL'); l.blendMode = 'add'; this.wLight = l; }
+    // the light layer joins the additive group drawn last (one batch per hero instead of splitting the body batch)
+    if (sheet.has('weaponL')) { const l = sheet.make('weaponL', 'n'); l.blendMode = 'add'; this.fxAdd.addChild(l); this.wLight = l; }
     if (wst && sl.mainhand && SHAPE_FAMILY[sl.mainhand.shape]) {
       const fl = weaponModel(sl.mainhand, wst, SHAPE_FAMILY[sl.mainhand.shape].family, true).floats;
+      let glows = 0;
       fl.forEach((f, i) => {
         if (!sheet.has(`wf${i}`)) return;
         const s = mk(`wf${i}`, `wf${i}`);
-        const g = f.glow ? glowSprite(f.glow, f.glowR * 2.2, 0, true) : null;
+        // at most three soft glows per weapon (crowd budget); the pieces themselves carry their light
+        const g = f.glow && glows++ < 3 ? glowSprite(f.glow, f.glowR * 2.2, 0, true) : null;
         if (g) this.fxAdd.addChild(g);
         this.wFloats.push({ f, s, g });
       });
@@ -724,7 +728,7 @@ export class PlayerArt implements PlayerView {
    *  pieces (hover / orbit in the weapon frame). 'off' keeps the floats at rest and hides the light layer. */
   private placeWeaponFx(wpn: Sprite, bow: boolean, t: number): void {
     if (!this.wLight && !this.wFloats.length) return;
-    const q = this.gearQ, moving = q === 'full';
+    const q = this.gearQ, moving = q === 'full', rich = moving && (this.gear?.rich ?? true);
     let a: number, b: number, c: number, d: number;
     if (bow) { const m = this.bowM; a = m.a; b = m.b; c = m.c; d = m.d; }
     else { const r = wpn.rotation, sx = wpn.scale.x, sy = wpn.scale.y, cs = Math.cos(r), sn = Math.sin(r); a = cs * sx; b = sn * sx; c = -sn * sy; d = cs * sy; }
@@ -735,22 +739,26 @@ export class PlayerArt implements PlayerView {
       L.visible = wpn.visible && q !== 'off' && !this.flashing;
       if (bow) L.setFromMatrix(this.bowM);
       else { L.position.copyFrom(wpn.position); L.rotation = wpn.rotation; L.scale.copyFrom(wpn.scale); L.skew.set(0, 0); }
-      L.zIndex = wpn.zIndex + 0.001;
-      L.alpha = clamp(pulse, 0, 1);
+      // drawn with the additive group: dimmed while the weapon is behind the body
+      const behind = !!this.parts.torso && wpn.zIndex < this.parts.torso.zIndex;
+      L.alpha = clamp(pulse, 0, 1) * (behind ? 0.35 : 1);
     }
+    const rot = bow ? Math.atan2(b, a) : wpn.rotation, k = Math.hypot(a, b);
     for (const { f, s, g } of this.wFloats) {
+      const vis = wpn.visible && (!f.deco || rich);
+      s.visible = vis;
+      if (g) g.visible = vis && rich;
+      if (!vis) continue;
       const ang = f.phase + (moving ? t * f.spin : 0);
-      let lx = f.x, ly = f.y;
-      if (f.orbit) { lx += Math.cos(ang) * f.orbit; ly += Math.sin(ang) * f.orbit * 0.4; }
-      if (moving) ly += Math.sin(t * 2.1 + f.phase * 1.7) * f.bob;
+      let lx = f.x, ly = f.y, sa = 0;
+      if (f.orbit) { sa = Math.sin(ang); lx += Math.cos(ang) * f.orbit; ly += sa * f.orbit * 0.4; }
+      if (moving && f.bob) ly += Math.sin(t * 2.1 + f.phase * 1.7) * f.bob;
       const x = a * lx + c * ly + tx, y = b * lx + d * ly + ty;
-      s.visible = wpn.visible;
       s.position.set(x, y);
-      s.rotation = (bow ? Math.atan2(b, a) : wpn.rotation) + (!f.orbit && f.spin && moving ? t * f.spin : 0);
-      const k = Math.hypot(a, b);
+      s.rotation = rot + (!f.orbit && f.spin && moving ? t * f.spin : 0);
       s.scale.set(k, k);
-      s.zIndex = wpn.zIndex + (f.orbit && Math.sin(ang) < 0 ? -0.01 : 0.003);
-      if (g) { g.visible = s.visible && q !== 'off'; g.position.set(x, y); g.alpha = (0.32 + 0.18 * Math.sin(t * 3 + f.phase)) * (moving ? 1 : 0.8); }
+      s.zIndex = wpn.zIndex + (sa < 0 ? -0.01 : 0.003);
+      if (g && rich) { g.position.set(x, y); g.alpha = 0.32 + 0.18 * Math.sin(t * 3 + f.phase); }
     }
   }
 

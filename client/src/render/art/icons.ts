@@ -14,7 +14,7 @@ import {
 } from './gear';
 import { rgba } from './util';
 import { lookFx } from '@shared/gearVisual';
-import { SET_STYLE, TOP_COLORS, TOP_CORE, itemStyle } from './gearStyle';
+import { SET_STYLE, TOP_COLORS, TOP_CORE, artLook, itemStyle } from './gearStyle';
 import { SHAPE_FAMILY } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
 import { drawHeldV2 } from './gear';
@@ -24,7 +24,8 @@ const MANNEQUIN: Body = { cls: 'warrior', skin: 0x2b2220, hair: 0, hairStyle: 'n
 
 /** Draw the icon pose of an item into a context (origin roughly at the item's centre). The 'light' layer holds only the
  *  emissive parts of held items (composited with a glow, DESIGN-V2 §6). */
-function drawIcon(c: Ctx, look: ItemLook, kind: ItemKind, layer: WLayer = 'base'): void {
+function drawIcon(c: Ctx, raw: ItemLook, kind: ItemKind, layer: WLayer = 'base'): void {
+  const look = artLook(raw) ?? raw; // armour in its generation's materials (held items unchanged)
   const shape = look.shape;
   if (layer === 'light') {
     if (kind === 'offhand') drawHeldV2(c, look, false, 'light', false);

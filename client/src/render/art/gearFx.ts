@@ -1,8 +1,10 @@
-// Live gear effects (docs/rework/gear/DESIGN.md §2–§5): the animated layer on top of the baked ornaments.
-//   • ground layer (drawn BENEATH enemy telegraphs when the scene provides an underlay): rotating sigil with Set
-//     sockets, the rank light column (Primal embers), the movement ribbon, footprints, rank-up rings;
-//   • body layer: aura, per-piece glows (player.ts), motif particles, orbiting tokens and ring gems, halo, weapon sheen,
-//     motif flames, swing sparks, the Primal heartbeat and the full-Set idle flourish.
+// Live gear effects (docs/rework/gear/DESIGN-V2.md §5): the animated layer on top of the baked art. Every effect belongs
+// to an item or item family, never to a rank:
+//   • ground layer (drawn BENEATH enemy telegraphs when the scene provides an underlay): the Set sigil with one socket
+//     per worn piece, the boots' afterimage band and footprints, item-moment rings;
+//   • body layer: the legendary-jewellery aura, per-piece glows (player.ts), motif particles, Set orbit tokens and ring
+//     gems, the graded helm's halo, weapon sheen / signature particles / swing sparks, the Fabled chest's heartbeat and
+//     the full-Set idle flourish. The weapon's own light layer and floating pieces live in player.ts (weaponArt.ts).
 // Sprites are created once per look and pooled; per frame only positions / alphas change. A shared budget thins
 // particles when many heroes are on screen; quality 'reduced' keeps steady glows (no particles, no motion), 'off'
 // shows nothing.
@@ -235,8 +237,7 @@ export class GearFx {
   private sigil: Sprite | null = null;
   private sigilRing: Sprite | null = null;
   private nodes: Sprite[] = [];
-  private column: Sprite | null = null;
-  private columnCore: Sprite | null = null;
+
   private ribbon: Ribbon | null = null;
   private trailPts: { x: number; y: number; t: number }[] = [];
   private aura: Sprite | null = null;
@@ -253,7 +254,7 @@ export class GearFx {
   private burstColumn: Sprite | null = null;
   private burstFired = -1;
   private spawnAcc = 0;
-  private columnAcc = 0;
+
   private sparkAcc = 0;
   private stepPhase = 0;
   private idleBurstAt = 7;
@@ -278,6 +279,8 @@ export class GearFx {
   private readonly jewels: number;
   private readonly jewelColor: number;
   private readonly prim: boolean;
+  /** This hero got a presence slot last frame (the local hero always): the rig shows decorative weapon floats. */
+  rich = true;
 
   /** `world`: the view lives in the game scene (its ground effects go to the scene underlay); previews and galleries
    *  keep everything inside the view. Every effect here belongs to an item or item family (DESIGN-V2 §5): Set pieces
@@ -440,6 +443,7 @@ export class GearFx {
     const t = a.t, dt = a.dt, full = this.quality === 'full';
     const k = full ? crowdFactor() : 0;
     const rich = full && presenceSlot(a.local);
+    this.rich = rich;
     this.flareT = Math.max(0, this.flareT - dt / 1.2);
     const cel = a.celebrate >= 0 && a.celebrate < 1.6 ? 1 - a.celebrate / 1.6 : 0;
     const fl = 1 + this.flareT * 1.6 + cel * 1.4;
@@ -462,17 +466,7 @@ export class GearFx {
         n.alpha = i < this.setN ? clamp((0.75 + 0.25 * Math.sin(t * 3 + i)) * fl, 0, 1) : 0.25;
       }
     }
-    if (this.column) {
-      const pulse = full ? 0.85 + 0.15 * Math.sin(t * 1.7) : 1;
-      this.column.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.column.alpha = clamp((prim ? 0.46 : 0.38) * pulse * fl * calm, 0, 0.8);
-      this.columnCore!.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.columnCore!.alpha = clamp((prim ? 0.7 : 0.58) * pulse * fl * calm, 0, 0.95);
-      if (rich && prim) {
-        this.columnAcc += dt * 7 * k;
-        while (this.columnAcc >= 1) { this.columnAcc -= 1; this.spawnColumnEmber(a); }
-      }
-    }
+
     if (this.aura) {
       this.aura.position.set(0, -30);
       this.aura.alpha = clamp((0.1 + this.jewels * 0.05) * breath * fl, 0, 0.5);
@@ -524,7 +518,7 @@ export class GearFx {
         while (this.sparkAcc >= 1) { this.sparkAcc -= 1; this.spawnSpark(a); }
       }
     }
-    // Primal heartbeat
+    // Fabled chest heartbeat
     if (this.pulse) {
       this.pulseT += dt;
       const u = (this.pulseT % 1.3) / 0.7;
@@ -536,7 +530,7 @@ export class GearFx {
     // the burst is motion: 'reduced' (and reduced-motion) keep only the aura / sigil flare above
     if (full) this.updateCelebration(a, full);
     if (!full) return;
-    // ambient particles (+ an amber ember stream for Ancients worn under a Set identity)
+    // ambient particles (+ the Kindled ember accent)
     this.spawnAcc += dt * this.rate * k;
     while (this.spawnAcc >= 1) {
       this.spawnAcc -= 1;
@@ -580,7 +574,8 @@ export class GearFx {
     r.end();
   }
 
-  /** Rank-up / first full Set: expanding rings, a column of light and a fountain of the hero's motif (~1.5 s). */
+  /** Item moment (a new best weapon look, a first full Set): expanding rings, a column of light and a fountain of the
+   *  hero's motif (~1.5 s). */
   private updateCelebration(a: GearAnchors, full: boolean): void {
     const c = a.celebrate;
     if (c < 0 || c > 1.7) {
@@ -653,17 +648,6 @@ export class GearFx {
     p.s.visible = true;
   }
 
-  /** Primal: embers rising along the light column (ground layer). */
-  private spawnColumnEmber(a: GearAnchors): void {
-    const p = this.take(true);
-    if (!p) return;
-    const r = Math.random;
-    p.kind = 'column'; p.t = 0; p.life = 1.4 + r() * 0.6; p.a = 1;
-    p.x = a.wx + (r() - 0.5) * 14; p.y = a.wy - r() * 20; p.vx = (r() - 0.5) * 6; p.vy = -70 - r() * 40;
-    p.s.texture = fx().flame; p.s.anchor.set(0.5, 0.85); p.s.tint = r() < 0.4 ? PRIMAL_CORE : PRIMAL_RED; p.s.rotation = 0;
-    p.size = 6; p.rot = 0;
-    p.s.visible = true;
-  }
 
   /** A spark shed from the swinging blade tip (body layer). */
   private spawnSpark(a: GearAnchors): void {

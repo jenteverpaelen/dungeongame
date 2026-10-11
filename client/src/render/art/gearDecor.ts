@@ -1,17 +1,20 @@
-// Baked gear ornaments (docs/rework/gear/DESIGN.md §2): overlays drawn on top of the base item drawings, so every
-// tier step changes the SILHOUETTE (spikes, plates, crests, crowns, wings, charms) and the FINISH (trims, studs,
-// runes, filigree, gems), not just the colour. They are baked into the hero sheet (and icons) like the base art,
-// so they cost nothing per frame. Looks without progression (townsfolk) get no ornaments.
+// Baked armour ornaments (docs/rework/gear/DESIGN-V2.md §2.7): overlays drawn on top of the base armour drawings. Their
+// complexity (`ItemStyle.orn`, internal) comes from the item: structure from its generation, embellishment from its
+// rarity, filigree from its grade; light channels from runesteel on. They change the SILHOUETTE (spikes, plates, crests,
+// crowns, charms) and the FINISH (trims, studs, light channels, filigree, gems). Baked into the hero sheet (and icons)
+// like the base art, so they cost nothing per frame. Looks without identity (townsfolk) get no ornaments.
+// Held items (weapons, off-hands) draw their own progression in weaponArt.ts.
 
 import type { ItemLook } from '@shared/types';
 import { OUT, OW, ball, blob, crease, fill, gem, line, outline, poly, rbox, rivet, spark, star, inSilhouette, type Ctx } from './draw';
+import { unpackGearFx } from '@shared/gearVisual';
 import { itemStyle, motifColor, type ItemStyle, type Motif } from './gearStyle';
 import { clamp, light, mix, shade } from './util';
 
 const D2R = Math.PI / 180;
 type Pt = { x: number; y: number; d: number };
 
-/** Filigree swirl: a short S curve of emissive metal (Ancient amber / Primal crimson). */
+/** Filigree swirl: a short S curve of emissive metal (the grade colour on Kindled / Fabled pieces). */
 export function filigree(c: Ctx, x: number, y: number, s: number, col: number, flip = 1): void {
   if (inSilhouette()) return;
   c.moveTo(x - 3 * s * flip, y + 1.5 * s).bezierCurveTo(x - 1 * s * flip, y - 2.5 * s, x + 1 * s * flip, y + 2.5 * s, x + 3 * s * flip, y - 1.5 * s);
@@ -105,6 +108,17 @@ export function decorShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
   }
   if (T >= 7 && !isBack) gem(c, 0.6, -1.2, 2.2, light(s.accent, 0.2), 1.1);
   if (T >= 8 && !isBack) { filigree(c, -4.6, 0.6, 0.9, s.orMetal); filigree(c, 5.6, 0.6, 0.9, s.orMetal, -1); }
+  // runesteel and later: a light channel along the pauldron rim (lit pieces only; normal pieces keep a dark groove)
+  if (s.gen >= 4 && !isBack) armourLight(c, s, [-7.4, 1.6, 0.6, 3.6, 8.4, 1.8], 1.1);
+}
+
+/** A baked light channel on armour (late generations): the item's light, or a dormant groove on normal pieces. */
+export function armourLight(c: Ctx, s: ItemStyle, pts: number[], w: number): void {
+  if (inSilhouette()) return;
+  crease(c, pts, w + 0.9, shade(s.dark, 0.45), 0.9);
+  if (!s.light) return;
+  crease(c, pts, w + 1.6, s.light, 0.35);
+  crease(c, pts, w, mix(s.light, 0xffffff, 0.3), 1);
 }
 
 /** How much bigger the pauldrons get (rig scale factor). */
@@ -127,7 +141,7 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
   const up = vec(0, 1, 0, yaw);
   const top = shape === 'wizard_hat' ? 0 : 1;
   const rr = shape === 'hood' ? R + 3.4 : R + 2.2;
-  // side wings / horns (Ancient and Primal)
+  // side wings / horns (Kindled and Fabled helms)
   if (T >= 8) for (const side of [1, -1]) {
     const base = sph(side * 82 * D2R, 18 * D2R, yaw, rr);
     if ((base.d < -0.05) !== back) continue;
@@ -155,6 +169,12 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
     }
   }
   if (back) return;
+  // runesteel and later: a light band across the brow of helms, hoods and caps
+  if (s.gen >= 4 && (shape === 'helm' || shape === 'helm_horned' || shape === 'hood' || shape === 'cap')) {
+    const band: number[] = [];
+    for (let k = -3; k <= 3; k++) { const q = sph(k * 22 * D2R, (shape === 'cap' ? 18 : 12) * D2R, yaw, rr + 0.2); if (q.d > 0.12) band.push(q.x, q.y); }
+    if (band.length >= 4) armourLight(c, s, band, 0.9);
+  }
   // crest along the crown (Runic+): motif fin / plume
   if (T >= 5 && top && shape !== 'circlet') {
     const H = 5 + (T - 5) * 2.2;
@@ -206,7 +226,7 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
   if (shape === 'circlet' && T >= 5) {
     for (const lon of [-30, 30]) { const q = sph(lon * D2R, 20 * D2R, yaw, R + 2.3); if (q.d > 0.25) gem(c, q.x, q.y, 1.5, s.orMetal, 0.9); }
   }
-  // Ancient / Primal filigree on the dome
+  // Kindled / Fabled filigree on the dome
   if (T >= 8 && (shape === 'helm' || shape === 'helm_horned')) {
     const q = sph(-28 * D2R, 30 * D2R, yaw, rr), q2 = sph(28 * D2R, 30 * D2R, yaw, rr);
     if (q.d > 0.3) filigree(c, q.x, q.y, 0.85, s.orMetal);
@@ -230,14 +250,16 @@ export function decorTorsoFront(c: Ctx, chest: ItemLook | undefined, neck: numbe
       if (T >= 7) { crease(c, [-7, -14.6, -3.4, -11.4], 1.3, s.orMetal, 1); crease(c, [7, -14.6, 3.4, -11.4], 1.3, s.orMetal, 1); }
     }
     if (T >= 8) { filigree(c, -5.4, -4.6, 1, s.orMetal); filigree(c, 5.4, -4.6, 1, s.orMetal, -1); }
+    // runesteel and later: twin light channels down the chest
+    if (s.gen >= 4) for (const k of [-1, 1]) armourLight(c, s, [k * 3.6, -15.8, k * 4.4, -9, k * 3.2, -3.4], 0.9);
   }
   if (neck !== undefined && neck > 0) {
-    // pendant: a chain V and a jewel in the jewellery's colour, larger for higher tiers
-    const t = neck & 15;
-    if (t >= 2) {
-      const r = 1.4 + Math.min(1.6, (t - 2) * 0.25);
-      if (!inSilhouette()) { c.moveTo(-4.4, -21.4).quadraticCurveTo(-1.4, -16.6, 0, -15.6 + (t >= 6 ? 0.6 : 0)).quadraticCurveTo(1.4, -16.6, 4.4, -21.4); c.stroke({ width: 0.9, color: 0xe8c66a, alpha: 0.95 }); }
-      gem(c, 0, -14.6 + (t >= 6 ? 0.6 : 0), r, light(neckColor, 0.15), 0.9);
+    // pendant: a chain V and a jewel in the jewellery's colour, larger for later generations and legendaries
+    const n = unpackGearFx(neck), big = n.gen + (n.rarity === 'legendary' || n.rarity === 'set' ? 2 : 0) + n.top;
+    if (n.gen >= 1 || n.rarity !== 'normal') {
+      const r = 1.4 + Math.min(1.8, big * 0.24);
+      if (!inSilhouette()) { c.moveTo(-4.4, -21.4).quadraticCurveTo(-1.4, -16.6, 0, -15.6 + (big >= 6 ? 0.6 : 0)).quadraticCurveTo(1.4, -16.6, 4.4, -21.4); c.stroke({ width: 0.9, color: 0xe8c66a, alpha: 0.95 }); }
+      gem(c, 0, -14.6 + (big >= 6 ? 0.6 : 0), r, light(neckColor, 0.15), 0.9);
     }
   }
 }
@@ -287,6 +309,7 @@ export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | un
     if (ls.orn === 0 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
     if (ls.orn >= 6 && cs > -0.3) poly(c, [0.7 * sn - 1.8, 2.6, 0.7 * sn + 2.2 * sn, -0.6, 0.7 * sn + 1.8, 2.6], light(ls.orMetal, 0.1), { ow: 1.3 });
     if (ls.orn >= 4) crease(c, [-3.4, 8, 3.4, 8], 1.1, ls.orMetal, 0.9);
+    if (ls.gen >= 4 && cs > -0.3) armourLight(c, ls, [0.4 * sn - 0.4, -6, 0.6 * sn, 0.4], 0.8);
   }
   if (fs && fs.orn >= 5) {
     crease(c, [-4.4, 3.1, 4.4, 3.1], 1.3, fs.orMetal, 1);
@@ -316,8 +339,9 @@ export function weaponScale(l: ItemLook | undefined): number {
 
 // ═══════════════════════════════ BACK PIECES ═══════════════════════════════
 
-/** Cloth back piece seen from behind (pivot at the nape, hangs +y): a short cape (Storied), a long trimmed mantle
- *  (Heroic+). Colours from the chest, trim in tier metal, a motif medallion and an emissive hem on Ancient+. */
+/** Cloth back piece seen from behind (pivot at the nape, hangs +y): a short cape (a late legendary / graded chest), a
+ *  long trimmed mantle (4 Set pieces). Colours from the chest, trim in its fittings, a motif medallion and an emissive
+ *  hem on graded chests (`tier` = the chest's ornament level). */
 export function drawBackPiece(c: Ctx, kind: 'cape' | 'mantle', primary: number, metal: number, accent: number, motif: Motif | null, tier: number, k = 1): void {
   c.save?.(); c.scale(k, k);
   drawBackShape(c, kind, primary, metal, accent, motif, tier);
