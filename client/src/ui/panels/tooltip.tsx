@@ -257,7 +257,8 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
   const rar = RARITY_LABEL[item.rarity];
   const grade = item.ancient ? GRADE_LABEL[item.ancient] : '';
   const ins = item.inscription && Object.hasOwn(INSCRIPTIONS, item.inscription) ? INSCRIPTIONS[item.inscription] : null;
-  const insActive = !!ins && !!char && activeInscription(char.equipment)?.def.id === ins.id && Object.values(char.equipment).includes(item);
+  const worn = !!char && Object.values(char.equipment).includes(item);
+  const insActive = !!ins && worn && activeInscription(char!.equipment)?.def.id === ins.id;
   // Journeyman's Ring: set bonuses need fewer worn pieces (shared rule, powerSources.setThreshold).
   const setRed = char ? setReduction(Object.fromEntries(Object.values(char.equipment).filter((e) => e?.legendary).map((e) => [e!.legendary!.power, 1]))) : null;
 
@@ -305,7 +306,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
 
         {ins && (
           <section class="tt-power tt-inscription">
-            <span class="pw-l">Inscription{char && !insActive ? ' · inactive (only one Inscription works at a time)' : ''}</span>
+            <span class="pw-l">Inscription{worn && !insActive ? ' · inactive: another worn Inscription is active' : ''}</span>
             <p><b>{ins.name}.</b> {ins.text}</p>
           </section>
         )}
