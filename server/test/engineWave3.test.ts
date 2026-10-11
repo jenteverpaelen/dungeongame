@@ -15,6 +15,7 @@ import { combatInteger } from '../../shared/src/combatBounds';
 import type { ClassId } from '../../shared/src/types';
 import type { PowerSource } from '../../shared/src/powerSources';
 import { brainForTest } from './fixtures/wave2';
+import { playerBrain } from '../src/sim/brain';
 import { damagePlayer, defenseMult, makeDot, skillGain, strikeMob } from '../src/sim/damage';
 import { addOwnedDot, getBuff, mobStatusFlags } from '../src/sim/effects';
 import { updateGrounds } from '../src/sim/grounds';
@@ -282,4 +283,40 @@ test('setReduce in the runtime: 5 pieces + Journeyman\'s Ring give the 6-piece p
   p.ctx = ctx({ fallen_star: 5 }, { journeymans_ring: 1 }); const ring = ownMultiplier(p, 'meteor');
   assert(six > five, 'the 6-piece power multiplies Meteor');
   assert.equal(ring, six, '5 + ring = 6 pieces');
+});
+
+// ─────────────── class gate on item powers (lead finding, mage agent) ───────────────
+
+test('class gate: an off-class legendary power (Cube-extracted from an off-class drop) or set never resolves; shared powers do', async () => {
+  const { LEGENDARIES, SETS } = await import('../../shared/src/data/items');
+  const { allPowerSources } = await import('../../shared/src/powerSources');
+  // A tag-keyed class power (Rally Knot: casting a Buff skill grants Fury) on a mage, and the same for the warrior.
+  const tagKeyed = Object.values(LEGENDARIES).find((l) => l.classes?.length === 1 && l.classes[0] === 'warrior' && l.effects.some((e) => !!(e as { tags?: unknown }).tags));
+  assert(tagKeyed, 'a tag-keyed warrior legendary exists');
+  const shared = Object.values(LEGENDARIES).find((l) => !l.classes && l.effects.length)!;
+  const mageSet = Object.values(SETS).find((s) => s.classId === 'mage' && s.bonuses.some((b) => b.effects?.length))!;
+  for (const cls of ['warrior', 'mage'] as const) {
+    const save = createCharacter('Gate', cls, 3); save.level = 70;
+    const ids: string[] = allPowerSources(save, { [tagKeyed.id]: 1, [shared.id]: 1 }, { [mageSet.id]: 6 }).map((x) => x.id);
+    assert.equal(ids.includes(tagKeyed.id), cls === 'warrior', `${cls}: the warrior power resolves only for warriors`);
+    assert.equal(ids.some((id: string) => id.startsWith(`set:${mageSet.id}:`)), cls === 'mage', `${cls}: the mage set only for mages`);
+    assert(ids.includes(shared.id), `${cls}: shared powers stay classless`);
+  }
+});
+
+// ─────────────── recast floor for skills without a cooldown (lead finding, mage agent) ───────────────
+
+test('recast floor: a cooldown-less spender with unlimited resource casts at most 4 times per second', async () => {
+  const { MIN_RECAST_MS } = await import('../src/sim/playerctx');
+  const { inst, p, mob } = world('warrior', [], { slots: ['seismic_slam', null, null, null] });
+  try {
+    for (let i = 0; i < 8; i++) mob(60 + i * 8, 0);
+    p.save.skills.autoCast = ['auto', 'paused', 'paused', 'paused'];
+    let casts = 0;
+    const emit = inst.emit.bind(inst);
+    inst.emit = ((ev: { e: string; sk?: string }, x: number, y: number, s: number) => { if (ev.e === 'cast' && ev.sk === 'seismic_slam') casts++; return emit(ev as never, x, y, s); }) as typeof inst.emit;
+    for (let t = 0; t < 40; t++) { p.res = p.mres; p.atkCdMs = 1e9; inst.t += 50; playerBrain(inst, p, 50); }
+    assert.equal(MIN_RECAST_MS, 250);
+    assert(casts >= 7 && casts <= 8, `2 s at 50 ms ticks: ${casts} casts (one per 250 ms), not 40`);
+  } finally { inst.destroy(); }
 });

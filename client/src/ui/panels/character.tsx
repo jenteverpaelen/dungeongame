@@ -135,6 +135,7 @@ export function CharacterPanel() {
       <Paged size={3} label="Legendary power pages">{Object.entries(d.powers).map(([id,value])=><div class="quest-dialogue" key={id}>
         <strong>{LEGENDARIES[id]?.name??id}</strong>
         <small> · {t(Object.values(save.equipment).some(item=>item?.legendary?.power===id)?'gear':'cube')}</small>
+        {LEGENDARIES[id]?.classes&&!LEGENDARIES[id].classes!.includes(save.classId)&&<small class="bad"> · inactive: a {CLASSES[LEGENDARIES[id].classes![0]].name} power</small>}
         <p>{LEGENDARIES[id]?.power.replaceAll('{v}',fmtPowerValue(value))??String(value)}</p>
       </div>)}
       </Paged><p class="pn-note">{t('powerNote')}</p></>}

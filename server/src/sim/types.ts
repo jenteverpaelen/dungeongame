@@ -494,6 +494,8 @@ export interface Player extends Hashed {
   atkCdMs: number;
   /** Simulation time at which each skill is off cooldown. */
   readyAt: Map<string, number>;
+  /** Earliest time a skill without a cooldown may be cast again (playerctx.MIN_RECAST_MS after its last cast; no HUD cooldown). */
+  recastAt: Map<string, number>;
   attackFlagMs: number;
   castFlagMs: number;
   buffs: Buff[];

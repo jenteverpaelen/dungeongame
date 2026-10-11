@@ -73,6 +73,25 @@ export function skillCooldownMs(p: Player, rt: SkillRuntime): number {
   return rt.def.cooldown * 1000 * Math.max(0.05, f);
 }
 
+/** One attack at the player's current attack speed (the primary attack's interval). */
+export function attackIntervalMs(p: Player): number {
+  const aps = Math.max(0.2, p.ctx.d.aps * (1 + p.live.ias / 100));
+  return 1000 / aps;
+}
+
+/**
+ * [P] Shortest time between two casts of one skill that has no cooldown.
+ * Measured [M] in all 216 kits of WARRIOR-PARITY.json (one encounter each, seed 101):
+ *   * without a floor, Sawtooth Hatchet and Quakeline were cast on consecutive 50 ms ticks in bursts, and with
+ *     unlimited resource a spender was cast every tick (20 per second);
+ *   * with this floor, Sawtooth Hatchet fell from 2.42 to 1.13 casts per second, yet the kits cleared their encounters
+ *     1.6 % faster in total (6979 → 6865 s): the bursts mostly wasted Fury on overlapping hatchets.
+ * 250 ms = at most 4 casts per second per skill. The alternative is one cast per attack interval, the way D3, D4 and
+ * PoE bind skills to attack speed [K]. In the pace sim it slowed the warrior's and the mage's level-25 champion kills
+ * (one seed), so it is a balance decision, not a guard.
+ */
+export const MIN_RECAST_MS = 250;
+
 export function skillRadius(rt: SkillRuntime): number {
   return rt.def.radius * Math.max(0.2, 1 + (rt.mods.radius ?? 0) / 100);
 }
