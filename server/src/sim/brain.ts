@@ -219,9 +219,6 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   const cast = castSkill(inst, p, rt);
   p.acting = undefined;
   if (!cast) { if (tracked) p.pw!.cast = null; return `No valid target for ${rt.def.name}`; }
-  // Cheat death "once per <skill>": casting the skill makes it ready again.
-  const cheats = p.ctx.powers.defense?.cheat;
-  if (cheats) cheats.forEach((c, i) => { if (c.rearm?.includes(id) && p.pw) p.pw.cheatAt[i] = -Infinity; });
   p.res -= cost;
   // Power procs: every resource-spending cast (Seal of the Patient Thief shortens all active cooldowns), every cast.
   if (cost > 0) firePowerProcs(inst, p, 'spend', { skill: id });

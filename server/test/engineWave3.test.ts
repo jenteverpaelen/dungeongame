@@ -98,6 +98,9 @@ test('directional damage taken: only attackers in front (or behind) of you, haza
     assert.equal(damagePlayer(inst, p, raw, 'physical', null, 70), combatInteger(raw * base), 'a hazard has no direction');
     p.mv.faceX = -1;
     assert.equal(damagePlayer(inst, p, raw, 'physical', back, 70), combatInteger(raw * (base * 0.7)), 'turning around swaps front and back');
+    p.channel = { skill: 'ironplough', graceMs: 600, tickMs: 0, devilMs: 0, spunMs: 0, aim: 0 };
+    assert.equal(damagePlayer(inst, p, raw, 'physical', front, 70), combatInteger(raw * (base * 0.7)), 'an aiming channel faces its aim, not the movement facing');
+    p.channel = null;
   } finally { inst.destroy(); }
   assert(valid([{ kind: 'damageTaken', pct: -5, when: { targetInFront: 200 } }]).length > 0, 'half angle above 180 rejected');
 });

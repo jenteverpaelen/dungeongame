@@ -797,7 +797,8 @@ placeholders.
 ### 13.2 Directional damage taken
 
 * **Conditions `{ targetInFront: deg }` and `{ targetBehind: deg }`.** Half angles in (0, 180], measured from your
-  facing (`p.mv.faceX / faceY`).
+  facing: the movement facing (`p.mv.faceX / faceY`), or while an aiming channel runs its `ChannelState.aim` (radians;
+  Ironplough sets it to its cone angle).
   * On `damageTaken` they test the attacker.
   * On hit terms they test the enemy hit.
   * A hazard (no attacker) never counts.
@@ -861,7 +862,8 @@ placeholders.
 
 ### 13.7 Cheat death once per cast
 
-* **`cheatDeath.rearmOnCast: string[]`.** Casting one of these skills (brain cast) re-arms that cheat-death entry.
+* **`cheatDeath.rearmOnCast: string[]`.** Every successful cast of one of these skills (`skills/index.castSkill`: bar
+  casts and `castSkill` procs) re-arms that cheat-death entry.
 * **"Once per standard".** Combine it with `cooldownMs: Infinity`.
 * **`lifePct: 0`.** Leaves you at 1 Life (the text says "1 Life").
 * **Example** (Last Rampart):

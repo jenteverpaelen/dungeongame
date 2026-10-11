@@ -422,7 +422,8 @@ export interface PortalEnt {
 
 export interface InputMsg { seq: number; mx: number; my: number; dash: boolean }
 
-export interface ChannelState { skill: string; graceMs: number; tickMs: number; devilMs: number; spunMs: number; manual?: boolean }
+/** `aim`: the angle (radians) an aiming channel faces (Ironplough's cone); facing conditions use it while it is set. */
+export interface ChannelState { skill: string; graceMs: number; tickMs: number; devilMs: number; spunMs: number; manual?: boolean; aim?: number }
 
 export interface SkillRuntime {
   def: SkillDef;

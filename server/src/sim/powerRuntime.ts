@@ -520,7 +520,7 @@ export function conditionCount(p: Player, w: RCondition, el: Element | undefined
   if ('noEnemyWithin' in w) return (p.pw?.nearDist ?? Infinity) > w.noEnemyWithin ? 1 : 0;
   if ('targetInFront' in w || 'targetBehind' in w) {
     if (!m) return 0;
-    const face = Math.atan2(p.mv.faceY, p.mv.faceX), to = Math.atan2(m.y - p.y, m.x - p.x);
+    const face = p.channel?.aim ?? Math.atan2(p.mv.faceY, p.mv.faceX), to = Math.atan2(m.y - p.y, m.x - p.x);
     let d = Math.abs(to - face) % (Math.PI * 2);
     if (d > Math.PI) d = Math.PI * 2 - d;
     return 'targetInFront' in w ? (d <= w.targetInFront * Math.PI / 180 ? 1 : 0) : (Math.PI - d <= w.targetBehind * Math.PI / 180 ? 1 : 0);
