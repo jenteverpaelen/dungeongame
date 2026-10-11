@@ -128,3 +128,20 @@
 - `server/test/sim.ts`: warrior fixture kit = the audit's best Endless Storm 6 Whirlwind kit (set spike ×25 [M]);
   warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
   Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).
+
+## Ranger wave (2026-10-11, branch `claude/ranger` from `claude/town-ui-rework` 343a5d5)
+
+- BUDGET.md §4 levers first (Gearwright's Heart 50 → 30 % faster, Weathervane Ring / Bandolier Belt 60–90 → 75–105, Rainspindle
+  rolls 150–200 % damage). Content: 12 skills (6 new), 60 runes, 68 / 72 nodes, 14 passives (8 new), 5 sets (3
+  redesigned on tags, 2 new), 35 ranger legendaries (30 new), 4 data grounds; NAMES.md renames (Tracking Arrow, Burst
+  Arrow, Arrowfall; ids unchanged); original icons, VFX (performance rules: no filters, baked glows, pooled sprites, one
+  ParticleContainer per flock) and sounds. Details, blocked list and deviations: `RANGER-WAVE.md`.
+- Narrow generic additions, each its own commit with tests (`server/test/rangerEngine.test.ts`): projectile hooks and a
+  reach override (a0168b6), condition `targetWithin` (29b31e0), `perSummon` by type / skill / tag (c6d096c).
+- Parity: `RANGER-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on ranger
+  items for Arrowfall, Pitch Mortar, Companion and Murmuration. Fits from measurements: Farwatch 4 and Rainkeeper 4 cost
+  cuts 30 → 15 %, Farwatch 6 replaces the 5th cast with a 50 % free cast. Open: Sentry outlier (D1 1/11, D6 1.94; the
+  Arbalest roll), Burst Arrow D4 1.27 (Farwatch 6's range condition), shared legendaries D3 up to 1.86.
+- `server/test/sim.ts`: ranger fixture kit = the audit's Siegebreaker 6 Sentry kit (set spike ×17, was ×348); ranger
+  L70 Torment II rift on the 30 % progress floor like the warrior (64.6 % measured). Mage byte-identical against 343a5d5
+  with the ranger out of the class loops (spike, field, rift).
