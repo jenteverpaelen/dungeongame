@@ -13,6 +13,7 @@ import type { Combat } from './combat';
 import type { Fx } from './particles';
 import type { Slashes } from './slash';
 import type { WeaponSkin } from '../art/weaponSkin';
+import { RANGER_AOE, RangerFx } from './ranger';
 import {
   EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, angDiff, clamp, easeIn, easeOut, easeOut3, easeOutBack, lerpColor, pal, rand,
 } from './util';
@@ -45,13 +46,19 @@ export class AoeFx {
   /** Live Kilnheart auras by owner (a recast replaces the running one). */
   private kilns = new Map<number, () => void>();
 
+  /** Ranger M1 variants (vfx/ranger.ts). */
+  private ranger: RangerFx;
+
   constructor(private V: VfxCore, private combat: Combat, private slashes: Slashes) {
     V.layers.groundFx.addChild(this.low);
     V.layers.aboveFx.addChild(this.high);
+    this.ranger = new RangerFx(V, combat, this);
   }
 
   handle(ev: Aoe): void {
     const V = this.V;
+    // ranger M1 variants schedule their own delay (falling arrows / the falcon start early so they land on time)
+    if (RANGER_AOE.has(ev.v)) { this.ranger.handle(ev); return; }
     const delay = (ev.delay ?? 0) / 1000;
     if (ev.v === 'meteorSmall' || ev.v === 'meteor') {
       if (delay > 0.12) { this.smallFall(ev.x, ev.y, ev.r, delay, ev.el, ev.v === 'meteor'); return; }

@@ -378,10 +378,10 @@ const STRIKE_POSES = new Set(['swing', 'double', 'leapSlam', 'overhead']);
 interface Fly { s: Sprite; streak: Sprite; vx: number; vy: number; t: number; life: number }
 interface Note { s: Sprite; t: number; x: number; y: number }
 
-const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick', 'toll']);
+const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick', 'toll', 'sidearm']);
 /** Non-directional skills (or their gather phase) turn the hero towards the camera so the whole-body pose
  *  reads: ms the hero presents before turning to the target. */
-const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175, plant: 1e9 };
+const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175, plant: 1e9, release: 1e9 };
 const presents = (pose: string, t: number) => t < (PRESENT_MS[pose] ?? -1);
 const SPELL_POSES = new Set(['flick', 'callDown', 'thrust', 'groundBurst', 'summon', 'empower']);
 
@@ -857,6 +857,9 @@ export class PlayerArt implements PlayerView {
       case 'lob': shots.push(def.strikeMs); break;
       case 'skyShot': shots.push(def.strikeMs, def.strikeMs + 25, def.strikeMs + 50); break;
       case 'whistle': notes.push(def.strikeMs, def.strikeMs + 110); break;
+      // ranger M1: Overcast Volley looses two arrows skyward; Quarry Mark whistles once (Skipstone's stone is VFX)
+      case 'loft': shots.push(def.strikeMs, def.strikeMs + 70); break;
+      case 'point': notes.push(def.strikeMs); break;
     }
     if (this.act) this.lastAct = this.act;
     this.act = { def, skill: a.skill, start: now, cycle: Math.max(180, a.cycleMs || 800), alt, tx: a.tx, ty: a.ty, primary, shots, fired: 0, notes };

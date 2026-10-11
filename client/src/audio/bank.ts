@@ -356,6 +356,176 @@ export const SOUNDS: Record<string, SoundDef> = {
     ],
   },
 
+  // ── ranger M1 (docs/rework/depth/RANGER.md §3 "VFX / icon / sound") ──
+  // Skipstone Bolt: "tk-tk-tk" stone-on-stone ricochet clicks rising in pitch (one variant per skip), a soft plip.
+  ...Object.fromEntries([0, 1, 2, 3].map((i): [string, SoundDef] => [`skip_tk${i}`, {
+    gain: 0.24, max: 3, vary: 0.05,
+    layers: [
+      { p: { freq: 1500 + i * 420, release: 0.022, shape: 5, curve: 0.5, filter: -(3800 + i * 500) }, gain: 0.7 },
+      { p: { freq: 520 + i * 140, release: 0.045, shape: 0, slide: -6 }, gain: 0.5, exp: 0.02 },
+    ],
+  }])),
+  skip_plip: {
+    gain: 0.2, max: 3, vary: 0.12,
+    layers: [
+      { p: { freq: 520, attack: 0.002, release: 0.09, shape: 0, slide: 18 }, exp: 0.04 },
+      { p: { freq: 1200, release: 0.03, shape: 0, slide: 20 }, gain: 0.2 },
+    ],
+  },
+  skip_heavy: { gain: 0.26, max: 2, vary: 0.08, layers: [{ p: { freq: 300, attack: 0.02, release: 0.14, shape: 4, slide: -2, filter: -900 } }] },
+  skip_thock: {
+    gain: 0.38, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 160, release: 0.12, shape: 0, slide: -5 }, exp: 0.05 },
+      { p: { freq: 900, release: 0.03, shape: 5, curve: 0.5, filter: -2600 }, gain: 0.5 },
+    ],
+  },
+  dart: { gain: 0.14, max: 3, vary: 0.15, layers: [{ p: { freq: 900, attack: 0.005, release: 0.06, shape: 4, slide: 6, filter: -3000 } }] },
+  // Spring Snare: a metallic click when it arms; a hard snap and a spring "boing" on trigger.
+  snare_arm: {
+    gain: 0.3, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 2600, release: 0.018, shape: 5, curve: 0.4, filter: -5000 }, gain: 0.6 },
+      ...bell(2200, 0.01, 0.15, 0.18),
+    ],
+  },
+  snare_snap: {
+    gain: 0.5, max: 2, vary: 0.05,
+    layers: [
+      { p: { freq: 1100, release: 0.04, shape: 4, filter: -3400 }, gain: 0.8 },
+      { p: { freq: 140, release: 0.12, shape: 0, slide: -6 }, gain: 0.8, exp: 0.05 },
+      { p: { freq: 1900, release: 0.03, shape: 5, curve: 0.5, filter: -4000 }, gain: 0.4 },
+      { p: { freq: 190, attack: 0.004, sustain: 0.06, release: 0.32, shape: 1, slide: 1.2, repeat: 0.045 }, at: 0.02, gain: 0.4, exp: 0.16 },
+    ],
+  },
+  snare_shrapnel: {
+    gain: 0.3, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 2400, release: 0.08, shape: 4, filter: -4200 }, gain: 0.5, exp: 0.03 },
+      { p: { freq: 3100, release: 0.05, shape: 5, curve: 0.5, filter: -5000 }, at: 0.02, gain: 0.2 },
+      { p: { freq: 300, release: 0.1, shape: 4, filter: -900 }, gain: 0.4 },
+    ],
+  },
+  rope_whip: {
+    gain: 0.3, max: 2, vary: 0.1,
+    layers: [
+      { p: { freq: 400, attack: 0.03, release: 0.09, shape: 4, slide: 6, filter: -1800 }, gain: 0.7 },
+      { p: { freq: 1400, release: 0.03, shape: 4, filter: -3200 }, at: 0.1, gain: 0.6 },
+    ],
+  },
+  // Overcast Volley: an upward "fwip", a beat of silence, then a patter of thunks like hail (one per arrow).
+  overcast_fwip: {
+    gain: 0.34, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 300, attack: 0.02, release: 0.18, shape: 4, slide: 9, filter: -2200 } },
+      { p: { freq: 600, attack: 0.01, release: 0.12, shape: 0, slide: 12 }, gain: 0.12, exp: 0.06 },
+    ],
+  },
+  overcast_thunk: {
+    gain: 0.22, max: 4, vary: 0.2,
+    layers: [
+      { p: { freq: 210, release: 0.05, shape: 0, slide: -8 }, exp: 0.025 },
+      { p: { freq: 900, release: 0.02, shape: 4, filter: -2400 }, gain: 0.5 },
+    ],
+  },
+  overcast_heavy: {
+    gain: 0.45, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 95, release: 0.3, shape: 0, slide: -1.5 }, exp: 0.1 },
+      { p: { freq: 160, release: 0.25, shape: 4, filter: -1100 }, gain: 0.7, exp: 0.08 },
+      { p: { freq: 1200, release: 0.03, shape: 4, filter: -3000 }, gain: 0.4 },
+    ],
+  },
+  // Quarry Mark: a sharp descending hawk cry; a soft chime when the mark jumps. Falcon Strike: the stoop's impact.
+  quarry_cry: {
+    gain: 0.3, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 2400, attack: 0.015, sustain: 0.09, release: 0.32, shape: 1, slide: -3, noise: 0.12, filter: -5200 }, gain: 0.8 },
+      { p: { freq: 4800, attack: 0.015, sustain: 0.06, release: 0.22, shape: 0, slide: -6 }, gain: 0.1 },
+    ],
+  },
+  quarry_chime: { gain: 0.3, max: 1, vary: 0.02, layers: [...bell(N(24), 0, 0.3, 0.6), ...bell(N(31), 0.05, 0.2, 0.5)] },
+  falcon_strike: {
+    gain: 0.45, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 500, attack: 0.02, release: 0.1, shape: 4, slide: -4, filter: -2000 }, gain: 0.6 },
+      { p: { freq: 110, release: 0.2, shape: 0, slide: -3 }, at: 0.06, exp: 0.07 },
+      { p: { freq: 900, release: 0.03, shape: 4, filter: -3000 }, at: 0.07, gain: 0.4 },
+    ],
+  },
+  // Pitch Mortar: a deep "thoomp", a short falling whistle, then a splat and sizzle.
+  mortar_thoomp: {
+    gain: 0.6, max: 2, vary: 0.05,
+    layers: [
+      { p: { freq: 58, attack: 0.005, release: 0.35, shape: 0, slide: -1 }, exp: 0.12 },
+      { p: { freq: 90, release: 0.25, shape: 4, filter: -500 }, gain: 0.8, exp: 0.08 },
+      { p: { freq: 200, release: 0.06, shape: 4, filter: -1200 }, gain: 0.4 },
+    ],
+  },
+  mortar_whistle: {
+    gain: 0.2, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 1400, attack: 0.05, sustain: 0.16, release: 0.12, shape: 0, slide: -2.6 }, gain: 0.5 },
+      { p: { freq: 1400, attack: 0.05, sustain: 0.16, release: 0.12, shape: 4, slide: -2.6, filter: 1800 }, gain: 0.1 },
+    ],
+  },
+  pitch_splat: {
+    gain: 0.5, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 160, release: 0.1, shape: 4, slide: -2, filter: -900 }, gain: 0.9 },
+      { p: { freq: 90, release: 0.12, shape: 0, slide: -3 }, gain: 0.6, exp: 0.05 },
+      { p: { freq: 3200, attack: 0.03, sustain: 0.3, release: 0.4, shape: 4, filter: 2600 }, at: 0.05, gain: 0.18, exp: 0.25 },
+    ],
+  },
+  // Murmuration: a rushing wing-flutter with chatter; it swells when the flock dives.
+  flock_flutter: {
+    gain: 0.34, max: 1, vary: 0.06,
+    layers: [
+      { p: { freq: 160, attack: 0.1, sustain: 0.5, release: 0.35, shape: 4, filter: -1100, tremolo: 0.7, repeat: 0.055 } },
+      { p: { freq: 400, attack: 0.08, sustain: 0.45, release: 0.3, shape: 4, filter: -2400, tremolo: 0.6, repeat: 0.037 }, gain: 0.4 },
+      { p: { freq: 3000, release: 0.03, shape: 0, slide: 25 }, at: 0.1, gain: 0.06 },
+      { p: { freq: 3300, release: 0.03, shape: 0, slide: 25 }, at: 0.26, gain: 0.05 },
+      { p: { freq: 2800, release: 0.03, shape: 0, slide: 25 }, at: 0.41, gain: 0.05 },
+    ],
+  },
+  flock_dive: {
+    gain: 0.42, max: 1, vary: 0.05,
+    layers: [
+      { p: { freq: 200, attack: 0.28, release: 0.22, shape: 4, slide: 2, filter: -1600 } },
+      { p: { freq: 300, attack: 0.25, release: 0.2, shape: 4, filter: -2200, tremolo: 0.7, repeat: 0.045 }, gain: 0.5 },
+    ],
+  },
+  badger_burst: {
+    gain: 0.48, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 75, release: 0.3, shape: 0, slide: -1 }, exp: 0.1 },
+      { p: { freq: 220, release: 0.22, shape: 4, filter: -1000 }, gain: 0.8, exp: 0.08 },
+      { p: { freq: 600, release: 0.05, shape: 4, filter: -2000 }, at: 0.04, gain: 0.3 },
+    ],
+  },
+  heron_spear: {
+    gain: 0.3, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 700, attack: 0.005, release: 0.06, shape: 4, slide: -6, filter: -2500 }, gain: 0.6 },
+      { p: { freq: 240, release: 0.06, shape: 0, slide: -8 }, at: 0.05, gain: 0.7, exp: 0.03 },
+      { p: { freq: 900, attack: 0.002, release: 0.05, shape: 0, slide: 14 }, at: 0.06, gain: 0.15 },
+    ],
+  },
+  sentry_flame: {
+    gain: 0.34, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 160, attack: 0.03, sustain: 0.12, release: 0.2, shape: 4, slide: -0.5, filter: -1300, tremolo: 0.3, repeat: 0.04 } },
+      { p: { freq: 80, attack: 0.03, sustain: 0.1, release: 0.2, shape: 0 }, gain: 0.3 },
+    ],
+  },
+  kestrel_kee: {
+    gain: 0.14, max: 1, vary: 0.08,
+    layers: [
+      { p: { freq: 3000, attack: 0.01, sustain: 0.03, release: 0.06, shape: 1, slide: -1, filter: -6000 } },
+      { p: { freq: 3000, attack: 0.01, sustain: 0.03, release: 0.06, shape: 1, slide: -1, filter: -6000 }, at: 0.11 },
+    ],
+  },
+
   // ── deaths ──
   die: {
     gain: 0.28, max: 3, vary: 0.15,

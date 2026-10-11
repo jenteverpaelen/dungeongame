@@ -155,6 +155,16 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   iron_root: { name: 'Iron Root', shape: 'shield', color: '#b08850' },
   bellwether: { name: 'Bellwether', shape: 'bolt', color: '#e0b84a' },
   brass_warhorn: { name: 'Brass Warhorn', shape: 'star', color: '#d9a63a' },
+  // Ranger M1 (docs/rework/depth/RANGER.md §5–§8): glyphs follow the source skill / set motif (Murmuration's own buff
+  // shows its skill glyph through SKILLS).
+  second_skin: { name: 'Second Skin', shape: 'hide', color: '#c8a27a' },
+  rainkeeper: { name: 'Rainkeeper', shape: 'drop', color: '#6aa6d8' },
+  huntsman: { name: 'Huntsman’s Trophy', shape: 'antler', color: '#e6c35c' },
+  alpha_howl: { name: 'Alpha Howl', shape: 'howl', color: '#b8c4d0' },
+  hunting_horn: { name: 'Hunting Horn', shape: 'horn', color: '#e0b060' },
+  snare_guard: { name: 'Snare Guard', shape: 'jaws', color: '#9a7b4f' },
+  tracker: { name: 'Tracker', shape: 'eye', color: '#e6c35c' },
+  starling_shield: { name: 'Starling Shield', shape: 'wing', color: '#8e9cb0' },
 };
 
 function buffMeta(id: string): BuffMeta {

@@ -5,6 +5,27 @@ import type { CubeOp } from '@shared/cube';
 
 // ─────────────────────────── Skill glyphs ───────────────────────────
 
+/** Murmuration: a small starling silhouette (shallow V) centred at (x, y), half-span s. */
+function bird32(x: number, y: number, s: number): string {
+  const f = (v: number) => v.toFixed(2);
+  return `M${f(x - s)} ${f(y - s * 0.45)}Q${f(x - s * 0.35)} ${f(y - s * 0.75)} ${f(x)} ${f(y)}Q${f(x + s * 0.35)} ${f(y - s * 0.75)} ${f(x + s)} ${f(y - s * 0.45)}`
+    + `Q${f(x + s * 0.4)} ${f(y + s * 0.05)} ${f(x)} ${f(y + s * 0.42)}Q${f(x - s * 0.4)} ${f(y + s * 0.05)} ${f(x - s)} ${f(y - s * 0.45)}Z`;
+}
+/** Tiny birds along a folding S-ribbon, dense in the middle (deterministic). */
+const FLOCK32: [number, number, number][] = (() => {
+  let seed = 11;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const out: [number, number, number][] = [];
+  for (let i = 0; i < 26; i++) {
+    const w = (rnd() - 0.5) * 2;
+    const cx = 16 + w * 12, cy = 18 + Math.sin(w * 2.6 + 0.4) * 5.5;
+    const th = 0.8 + 2.8 * (1 - w * w);
+    const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * th;
+    out.push([cx + Math.cos(a) * d * 0.7, cy + Math.sin(a) * d, 1.3 + rnd() * 0.9 * (1 - 0.4 * Math.abs(w))]);
+  }
+  return out;
+})();
+
 export function SkillGlyph({ glyph, color, size = 40 }: { glyph: string; color: number; size?: number }) {
   const c = hex(color), hi = lighten(color, 0.5), lo = darken(color, 0.45);
   const sw = { stroke: lo, 'stroke-width': 1.2, 'stroke-linejoin': 'round' as const };
@@ -282,6 +303,104 @@ export function SkillGlyph({ glyph, color, size = 40 }: { glyph: string; color: 
           <path d="M16 25.6 C13 24.4 12.6 21.6 14.4 19.6 C14.4 21 15.2 21.4 15.8 20.6 C15.8 19 15.2 17.8 16 16.6 C19 18.4 19.6 21.8 18.2 23.8 C17.6 24.9 16.9 25.6 16 25.6 Z" fill="#ffd36a" />
           <rect x="2.4" y="25.6" width="27.2" height="4" rx="1.4" fill={hi} {...sw} />
           <path d="M8 11.4 C9.6 9.4 11.6 8.6 13.4 8.4" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6" />
+        </>
+      );
+      break;
+    // ── ranger M1 (docs/rework/depth/RANGER.md §3) ──
+    case 'skip': // Skipstone Bolt: a flat slate skimming off, receding ripples where it skipped
+      body = (
+        <>
+          <ellipse cx="6.5" cy="27" rx="5" ry="1.8" fill="none" stroke={c} stroke-width="1.3" />
+          <ellipse cx="15.5" cy="23.5" rx="4" ry="1.5" fill="none" stroke={c} stroke-width="1.2" opacity=".85" />
+          <ellipse cx="23" cy="20.5" rx="3" ry="1.1" fill="none" stroke={c} stroke-width="1" opacity=".7" />
+          <path d="M6.5 26C8.5 19.5 13.5 19 15.5 22.5C17 18.5 21.5 17 23 19.5C24 16.5 25 15 26 14" fill="none" stroke="#fff" stroke-width=".9" stroke-dasharray="1.3 2" stroke-linecap="round" opacity=".6" />
+          <g transform="rotate(-18 25 9.5)">
+            <path d="M18.5 10C19 7 23 5.5 27 5.8C30.5 6 32 8 31.2 10.2C30.5 12.5 26.5 13.8 23 13.5C20 13.2 18.2 12 18.5 10Z" fill={c} {...sw} />
+            <path d="M20 8.8C21.6 7.2 25 6.7 28 7" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".7" />
+          </g>
+          <path d="M13 10.5H17M11.5 13.8H15.5" stroke={hi} stroke-width="1.2" stroke-linecap="round" opacity=".8" />
+        </>
+      );
+      break;
+    case 'snare': // Spring Snare: open toothed iron jaws on their plate, a coil of rope
+      body = (
+        <>
+          <path d="M4 23.5C0.5 21 3 17 7 18C10.5 19 9.5 23.5 5.5 23.2C2.6 23 2.6 20 5.5 19.5M8.6 21.8C10 22.4 10.8 22.8 11.6 22.8" fill="none" stroke={c} stroke-width="1.8" stroke-linecap="round" />
+          <ellipse cx="20.5" cy="22" rx="4" ry="1.8" fill="#4a4e56" stroke={lo} stroke-width=".9" />
+          <ellipse cx="20.5" cy="22" rx="9.8" ry="5" fill="none" stroke="#1e1a16" stroke-width="4.4" />
+          <ellipse cx="20.5" cy="22" rx="9.8" ry="5" fill="none" stroke="#c4c1b9" stroke-width="2.6" />
+          <g fill="#e6e3dc" stroke="#1e1a16" stroke-width=".7" stroke-linejoin="round">
+            {[205, 245, 285, 325, 25, 65, 105, 145].map((deg) => {
+              const a = (deg * Math.PI) / 180, co = Math.cos(a), si = Math.sin(a);
+              const bx = 20.5 + 8.4 * co, by = 22 + 3.9 * si, tx = 20.5 + 5.6 * co, ty = 22 + 2.1 * si, ux = -si * 1.3, uy = co * 0.65;
+              return <path d={`M${(bx + ux).toFixed(1)} ${(by + uy).toFixed(1)}L${tx.toFixed(1)} ${ty.toFixed(1)}L${(bx - ux).toFixed(1)} ${(by - uy).toFixed(1)}Z`} />;
+            })}
+          </g>
+          <path d="M26 7l.9 2 2 .9-2 .9-.9 2-.9-2-2-.9 2-.9Z" fill="#fff" opacity=".85" />
+        </>
+      );
+      break;
+    case 'overcast': // Overcast Volley: a shot climbing into a grey cloud, thin shafts falling out onto dust puffs
+      body = (
+        <>
+          <path d="M4.5 30V20" stroke={c} stroke-width="1.2" stroke-dasharray="1 2" stroke-linecap="round" opacity=".8" />
+          <path d="M4.5 20V12" stroke="#c9b48a" stroke-width="1.4" stroke-linecap="round" />
+          <path d="M4.5 6.8L7 12.4H2Z" fill={hi} {...sw} />
+          <path d="M10.5 16.5C6.5 16.5 6 11.5 10 10.5C10.5 6.5 16.5 5 19 8.5C23 6 29 8.5 28 13C31 14 30.5 17.5 27 17.5H11.5Z" fill={c} {...sw} />
+          <path d="M11 13C10.5 11 11.5 10.2 13.5 10.3" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".7" />
+          {[[13.5, 20], [19, 22], [24.5, 19.5]].map(([x, y]) => (
+            <g>
+              <path d={`M${x + 1} ${y}L${x - 1} ${y + 6}`} stroke="#ece4d0" stroke-width="1.2" stroke-linecap="round" />
+              <path d={`M${x - 4} ${y + 8.5}c.8-1.3 2-1.3 2.5 0c.5-1.3 1.7-1.3 2.5 0`} fill="none" stroke={c} stroke-width="1.1" stroke-linecap="round" />
+            </g>
+          ))}
+        </>
+      );
+      break;
+    case 'eye': // Quarry Mark: a pale feather-and-eye sigil with a golden iris
+      body = (
+        <>
+          {[1, -1].map((sx) => (
+            <g transform={`translate(16 0) scale(${sx} 1)`}>
+              <path d="M4.5 15.5C10.5 16.5 13 22 12.5 30C8 27 5 23 3 18.5Z" fill="#f2e8cc" stroke={lo} stroke-width=".9" stroke-linejoin="round" />
+              <path d="M4 16.5C8 19 11 23 12 29" fill="none" stroke={c} stroke-width=".9" stroke-linecap="round" />
+            </g>
+          ))}
+          <path d="M1.5 14C8.5 4 23.5 4 30.5 14C23.5 24 8.5 24 1.5 14Z" fill="#f6eed6" stroke={lo} stroke-width="1.1" stroke-linejoin="round" />
+          <circle cx="16" cy="14" r="6" fill={c} {...sw} />
+          <ellipse cx="16" cy="14" rx="1.7" ry="4.5" fill="#20160c" />
+          <circle cx="13.8" cy="11.7" r="1.3" fill="#fff" opacity=".9" />
+          <path d="M16 .6L18 3L16 5.4L14 3Z" fill={hi} {...sw} />
+        </>
+      );
+      break;
+    case 'mortar': // Pitch Mortar: a squat iron mortar on a sled, a burning pitch pot arcing out of a smoke puff
+      body = (
+        <>
+          <path d="M18.5 10.5C21 5.5 25.5 3.5 28.5 5" fill="none" stroke="#e8d3a2" stroke-width="1" stroke-dasharray="1 2" stroke-linecap="round" opacity=".85" />
+          <circle cx="27.5" cy="7.5" r="2.9" fill="#8a5a3a" stroke="#1e1a16" stroke-width=".9" />
+          <path d="M27.5 4.6C26.5 3.5 27 1.9 28.2 1.1C28.3 2.1 29.2 2.4 29 3.6C28.9 4.3 28.3 4.8 27.5 4.6Z" fill="#ffc048" />
+          <path d="M15 12.5C13 11.5 13.5 8.5 16 8.5C16.5 6.5 19.5 6.5 20 8.5C22 8.5 22.5 11 20.5 12Z" fill="#d6d0c4" stroke="#1e1a16" stroke-width=".9" />
+          <g transform="rotate(-40 14 20)">
+            <rect x="7" y="15.5" width="13.5" height="9" rx="3.5" fill="#6a6e76" stroke="#1e1a16" stroke-width="1" />
+            <rect x="10" y="15.2" width="1.8" height="9.6" rx=".8" fill="#3a3e44" />
+            <rect x="15" y="15.2" width="1.8" height="9.6" rx=".8" fill="#3a3e44" />
+            <ellipse cx="20.5" cy="20" rx="1.8" ry="4.7" fill="#7e828a" stroke="#1e1a16" stroke-width=".9" />
+            <ellipse cx="20.9" cy="20" rx=".9" ry="3.2" fill="#1e1a16" />
+          </g>
+          <path d="M7 26.5L9 20.5H18L20 26.5Z" fill={hi} {...sw} />
+          <rect x="2" y="26" width="25" height="3" rx="1.3" fill={hi} {...sw} />
+          <path d="M2 30.5H25C27.5 30.5 29 29.5 30 27.5" fill="none" stroke="#a87a4a" stroke-width="1.4" stroke-linecap="round" />
+        </>
+      );
+      break;
+    case 'flock': // Murmuration: a folding ribbon of tiny starlings against a pale dusk sky
+      body = (
+        <>
+          <circle cx="16" cy="16" r="14" fill="#cbd6e0" opacity=".16" />
+          <path d="M4 20C8 11 13 23 17 17C21 11 25 15 29 12" fill="none" stroke="#cbd6e0" stroke-opacity=".22" stroke-width="6" stroke-linecap="round" />
+          <g fill={c} stroke="#d6dee6" stroke-width=".55" stroke-linejoin="round" paint-order="stroke">{FLOCK32.map(([x, y, s]) => <path d={bird32(x, y, s)} />)}</g>
+          <g fill={c} stroke="#d6dee6" stroke-width=".6" stroke-linejoin="round" paint-order="stroke">{([[25, 6, 2.5], [28.5, 9.5, 2], [21.5, 3.6, 1.8]] as const).map(([x, y, s]) => <path d={bird32(x, y, s)} />)}</g>
         </>
       );
       break;

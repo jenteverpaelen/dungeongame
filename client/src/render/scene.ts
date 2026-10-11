@@ -219,7 +219,7 @@ export class Scene {
         if (!def) return createNpcView('dummy', d.n ?? 'Training Dummy');
         return createMonsterView(d.t, (d.el ?? 0) as EliteTier, d.af ?? [], d.sc ?? def.scale);
       }
-      case 'summon': return createSummonView(d.t);
+      case 'summon': return createSummonView(d.t, d.r);
       case 'loot': return this.vfx.createLootView(d);
       case 'npc': return createNpcView(d.t as NpcRole, d.n ?? '');
       case 'portal': return createPortalView(d.n ?? 'Portal', d.t === 'rift' ? 'rift' : 'town');
@@ -241,6 +241,8 @@ export class Scene {
           }
         }
       }
+      // Re-described summon (Murmuration's flock radius changes): resize in place.
+      if (e.kind === 'summon') (e.view as EntityView & { setRadius?(r: number): void }).setRadius?.(e.desc.r);
       return;
     }
     e.view = this.createView(e.desc);

@@ -29,7 +29,12 @@ export type Pose =
   | 'toll'       // overhead two-handed strike brought straight down (Tolling Blow, a primary)
   | 'throw'      // arm cocks back over the shoulder and whips forward (Sawtooth Hatchet)
   | 'plant'      // both hands drive a pole straight down into the ground (Muster Standard)
-  | 'plough';    // channel: weapon held low and forward, leaning in (Ironplough; driven by F_CHANNEL)
+  | 'plough'     // channel: weapon held low and forward, leaning in (Ironplough; driven by F_CHANNEL)
+  | 'sidearm'    // low flat sidearm flick, bow canted flat (Skipstone Bolt, a primary)
+  | 'setTrap'    // kneel and set a device on the ground with both hands (Spring Snare, Pitch Mortar)
+  | 'loft'       // loose a steep volley up toward the target area (Overcast Volley)
+  | 'point'      // point at the quarry and whistle (Quarry Mark)
+  | 'release';   // the arm sweeps up high and opens, releasing birds (Murmuration)
 
 export interface ActionDef {
   pose: Pose;
@@ -68,6 +73,13 @@ export const ACTIONS: Record<string, ActionDef> = {
   cluster_arrow: A('lob', 50, 320, 0),
   rain_of_vengeance: A('skyShot', 80, 480, 0),
   companion: A('whistle', 150, 420, 0),
+  // Ranger M1 (docs/rework/depth/RANGER.md §3)
+  skipstone_bolt: A('sidearm', 40, 280, 0),
+  spring_snare: A('setTrap', 200, 480, 0),
+  overcast_volley: A('loft', 70, 400, 0),
+  quarry_mark: A('point', 130, 520, 0),
+  pitch_mortar: A('setTrap', 240, 560, 0),
+  murmuration: A('release', 230, 720, 0),
   // Mage
   magic_missile: A('flick', 40, 240, 0, 0xb388ff),
   meteor: A('callDown', 260, 620, 0, 0xff8a3d),

@@ -43,9 +43,11 @@ export function createMonsterView(defId: string, elite: EliteTier, affixes: stri
   return new MonsterArt(defId, elite, affixes, scale);
 }
 
-/** Summons: 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'molten_pool' etc. */
-export function createSummonView(type: string): EntityView {
-  return new SummonArt(type);
+/** Summons: 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'molten_pool' | ranger M1 'snare' | 'mortar' |
+ *  'flock' | 'flock_guard' | 'badger' | 'heron'. `radius` (EntDesc.r) sizes the flocks; a re-described entity calls the
+ *  view's setRadius(r). */
+export function createSummonView(type: string, radius?: number): EntityView {
+  return new SummonArt(type, radius);
 }
 
 export function createNpcView(role: NpcRole | string, name: string, look?: import('@shared/townTypes').TownData['npcs'][number]['look'], radius?: number, clueKind?:import('@shared/adventureTypes').AdventureData['interactions'][number]['kind'], where?: { zone?: string; id?: string; title?: string }): EntityView {
