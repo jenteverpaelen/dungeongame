@@ -13,7 +13,7 @@ import {
 } from '@shared/data/skills';
 import { PASSIVE_SLOT_LEVELS, passiveEffect, passivesForClass, setPassive, validPassiveState } from '@shared/passives';
 import {
-  NODE_RANK_COST, SPEC_POINTS, nodeBuyError, nodeRefundError, nodeUnlockLevel, savedNodeRanks, specPointsAvailable, treeSpent, treeTotalRanks,
+  NODE_RANK_COST, SPEC_POINTS, nodeBuyError, nodeRefundError, nodeUnlockLevel, savedNodeRanks, specPointsAvailable, treeBuyableRanks, treeSpent, treeTotalRanks,
 } from '@shared/specialization';
 import { computeStats } from '@shared/stats';
 import { skillPointsSpent } from '@shared/character';
@@ -120,7 +120,7 @@ function PointsAndTargets({ char, trees }: { char: CharacterSave; trees: boolean
         <b>{fmtInt(char.skillPoints)}</b>
         <span>{char.skillPoints === 1 ? 'skill point' : 'skill points'}</span>
       </div>
-      {trees && SPEC_POINTS.source === 'separate' && <div class={cls('sk-points spec', spec > 0 && 'has')} {...textTipHandlers(() => ({ title: 'Specialization points', lines: ['One per level. Each node rank in a skill’s specialization tree costs one.', `Spent: ${specSpent}. Refunds are free.`] }), 'spec')}>
+      {trees && SPEC_POINTS.source === 'separate' && <div class={cls('sk-points spec', spec > 0 && 'has')} {...textTipHandlers(() => ({ title: 'Specialization points', lines: [`One per level from level ${SPEC_POINTS.fromLevel}. Each node rank in a skill’s specialization tree costs one${Number.isFinite(SPEC_POINTS.treeRankCap) ? `; a tree holds at most ${SPEC_POINTS.treeRankCap} ranks` : ''}.`, `Spent: ${specSpent}. Refunds are free.`] }), 'spec')}>
         <IconDiamond size={14} />
         <b>{fmtInt(spec)}</b>
         <span>specialization</span>
@@ -162,10 +162,10 @@ function SpendButton({ skill, char, label = false }: { skill: SkillDef; char: Ch
 }
 
 function TreeBadge({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
-  const total = treeTotalRanks(skill);
+  const total = treeBuyableRanks(skill);
   if (!total) return null;
   const spent = treeSpent(skill, nodesOf(char, skill.id));
-  return <span class={cls('sk-tree-badge', spent > 0 && 'on')} aria-label={`Specialization ${spent} of ${total} ranks`}><IconDiamond size={9} />{spent}/{total}</span>;
+  return <span class={cls('sk-tree-badge', spent > 0 && 'on')} aria-label={`Specialization ${spent} of at most ${total} ranks`}><IconDiamond size={9} />{spent}/{total}</span>;
 }
 
 function SkillCard({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
@@ -373,13 +373,13 @@ function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
   const rank = Math.min(focus.maxRank, ranks[focus.id] ?? 0);
   const buyErr = nodeBuyError(char, skill.id, focus.id), refundErr = nodeRefundError(char, skill.id, focus.id);
   const act = async (delta: 1 | -1) => { setBusy(true); try { await run('skillNode', { skill: skill.id, node: focus.id, delta }); } finally { setBusy(false); } };
-  const spent = treeSpent(skill, ranks), total = treeTotalRanks(skill), left = specPointsAvailable(char);
+  const spent = treeSpent(skill, ranks), total = treeBuyableRanks(skill), all = treeTotalRanks(skill), left = specPointsAvailable(char);
   const at = (n: NodeDef) => ({ x: ((n.pos.col + 0.5) / NODE_GRID.cols) * 100, y: ((n.pos.row + 0.5) / NODE_GRID.rows) * 100 });
   const unlockAt = nodeUnlockLevel(skill, focus);
   return (
     <div class="sk-tree">
       <div class="sk-tree-sum">
-        <span><IconDiamond size={11} /> <b>{spent}</b> of {total} ranks in this tree</span>
+        <span><IconDiamond size={11} /> <b>{spent}</b> of {total} ranks{all > total ? ` (the tree holds ${all})` : ' in this tree'}</span>
         <span>{fmtInt(left)} specialization {left === 1 ? 'point' : 'points'} left</span>
         <button class="btn sm" disabled={!spent || busy} onClick={() => void run('skillReset', { skill: skill.id })}
           {...textTipHandlers(() => ({ title: `Reset ${skill.name}`, lines: ['Refunds this skill’s tiers and clears its tree. Free.'] }), 'tree-reset')}>Reset skill</button>
@@ -437,7 +437,7 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
   const locked = skill.unlock > char.level;
   const elem = mods.element ?? skill.element;
   const slotIdx = char.skills.slots.indexOf(skill.id);
-  const total = treeTotalRanks(skill);
+  const total = treeBuyableRanks(skill);
   // The Specialization view appears once the class has any tree (no dead feature before content ships).
   const tabs: [SkillsTab, string][] = [['runes', 'Runes & tiers'], ...(trees ? [['tree', total ? `Specialization ${treeSpent(skill, nodesOf(char, skill.id))}/${total}` : 'Specialization'] as [SkillsTab, string]] : []), ['cast', 'Casting']];
   const view = !trees && tab === 'tree' ? 'runes' : tab;

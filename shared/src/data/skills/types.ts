@@ -14,10 +14,18 @@ export const SKILL_TAGS = [
   'physical', 'fire', 'cold', 'lightning', 'poison', 'arcane', 'holy',
   'primary', 'spender', 'channel', 'cooldown', 'buff', 'summon',
   'projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura',
+  // Bible v2 vocabulary (docs/rework/depth/ITEMS-SHARED.md §1.1): delivery and effect tags.
+  'strike', 'piercing', 'aerial', 'device', 'beast', 'trap', 'bleed', 'burn', 'chill', 'stun', 'displace',
 ] as const;
 export type SkillTag = (typeof SKILL_TAGS)[number];
-/** Tags authored in data (`SkillDef.tags`, `RuneDef.tags`); the others are derived. */
-export const MECHANIC_TAGS: readonly SkillTag[] = ['projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura', 'summon'];
+/**
+ * Tags authored in data (`SkillDef.tags`, `RuneDef.tags`); the others are derived: the kind, the element after the rune,
+ * Spender for every Channel skill and Cooldown for every skill with a cooldown (ITEMS-SHARED.md §1.2).
+ */
+export const MECHANIC_TAGS: readonly SkillTag[] = [
+  'projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura', 'summon',
+  'strike', 'piercing', 'aerial', 'device', 'beast', 'trap', 'bleed', 'burn', 'chill', 'stun', 'displace',
+];
 /** Matches a skill when it has any of `anyOf` (if given), all of `allOf` and none of `noneOf`. */
 export interface TagQuery { anyOf?: SkillTag[]; allOf?: SkillTag[]; noneOf?: SkillTag[] }
 

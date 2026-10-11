@@ -29,7 +29,7 @@ test('visual tier ladder follows rarity, item-level bands and Ancient / Primal',
   assert.deepEqual([0, 3, 4, 6, 7, 9, 10].map(temperOf), [0, 0, 1, 1, 2, 2, 3]);
 });
 
-test('packed progression round-trips, fits 28 bits and is deterministic', () => {
+test('packed progression round-trips, fits 31 bits and is deterministic', () => {
   const rng = new Rng(7);
   for (let i = 0; i < 400; i++) {
     const rarity = (['normal', 'magic', 'rare', 'legendary', 'set'] as const)[i % 5];
@@ -38,7 +38,7 @@ test('packed progression round-trips, fits 28 bits and is deterministic', () => 
     if (it.sockets.length) it.sockets[0] = { gem: GEAR_GEM_ORDER[i % GEAR_GEM_ORDER.length], rank: 1 + (i % 6) };
     if (i % 4 === 0 && it.affixes.length) it.enchanted = 0;
     const n = packGearFx(it);
-    assert.ok(Number.isInteger(n) && n >= 0 && n < 2 ** 28, `fits: ${n}`);
+    assert.ok(Number.isInteger(n) && n >= 0 && n < 2 ** 31, `fits: ${n}`);
     assert.equal(packGearFx(structuredClone(it)), n);
     const fx = unpackGearFx(n);
     assert.equal(fx.tier, itemVisualTier(it));
@@ -53,11 +53,12 @@ test('packed progression round-trips, fits 28 bits and is deterministic', () => 
 });
 
 test('packed id orders are append-only (other clients decode the same set / legendary / gem)', () => {
-  assert.deepEqual(GEAR_SET_ORDER, ['endless_storm', 'siegebreaker', 'fallen_star', 'cinder_oath', 'fault_warden', 'farwatch', 'rainkeeper', 'glass_concord', 'lantern_garden']);
+  // Append-only: the shipped ids keep their positions; new content (class waves) appends after them.
+  assert.deepEqual(GEAR_SET_ORDER.slice(0, 9), ['endless_storm', 'siegebreaker', 'fallen_star', 'cinder_oath', 'fault_warden', 'farwatch', 'rainkeeper', 'glass_concord', 'lantern_garden']);
   assert.deepEqual(GEAR_LEGENDARY_ORDER.slice(0, 6), ['faultcleaver', 'rainspindle', 'lanternroot', 'ninefold_gale', 'bloodwake', 'eternal_gyre']);
-  assert.equal(GEAR_LEGENDARY_ORDER.length, 22);
+  assert.deepEqual(GEAR_LEGENDARY_ORDER.slice(16, 22), ['ouroboros_loop', 'patient_thief', 'hellforge_talisman', 'witching_cord', 'stridewind', 'mountain_fists']);
   assert.deepEqual(GEAR_GEM_ORDER, ['pearlglass', 'ruby', 'emerald', 'topaz', 'amethyst', 'diamond']);
-  assert.ok(GEAR_SET_ORDER.length <= 15 && GEAR_LEGENDARY_ORDER.length <= 31 && GEAR_GEM_ORDER.length <= 7, 'packed field widths');
+  assert.ok(GEAR_SET_ORDER.length <= 15 && GEAR_LEGENDARY_ORDER.length <= 255 && GEAR_GEM_ORDER.length <= 7, 'packed field widths');
 });
 
 test('player looks carry progression without touching stored items or the collection', () => {

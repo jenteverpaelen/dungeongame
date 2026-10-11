@@ -49,7 +49,7 @@ test('manual intent validates slot, skill, unlock, control state and one pending
   } finally { f.inst.destroy(); }
 });
 
-test('all fifteen slotted skills use their real cast paths, costs and cooldowns with automatic casts paused', () => {
+test('every slotted (non-primary) skill uses its real cast path, cost and cooldown with automatic casts paused', () => {
   const results: string[] = [];
   for (const skill of Object.values(SKILLS).filter(s => s.kind !== 'primary')) {
     const f = fixture(skill.id);
@@ -62,7 +62,7 @@ test('all fifteen slotted skills use their real cast paths, costs and cooldowns 
       results.push(skill.id);
     } finally { f.inst.destroy(); }
   }
-  assert.equal(results.length,15); console.log('Manual cast paths:',results.join(', '));
+  assert.equal(results.length,Object.values(SKILLS).filter(s => s.kind !== 'primary').length); console.log('Manual cast paths:',results.join(', '));
 });
 
 test('execution rejects loadout/CC races and forgotten intent never casts after recovery or travel', () => {

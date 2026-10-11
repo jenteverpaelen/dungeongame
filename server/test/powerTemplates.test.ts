@@ -90,13 +90,15 @@ function legacyMult(sets: Record<string, number>, sentries: number, skillId: str
 
 const STRIKES = [...Object.keys(SKILLS), 'dust_devil'];
 const numeric = ['dmg', 'radius', 'cost', 'cooldown', 'duration', 'projectiles', 'pierce', 'gen', 'maxSummons'] as const;
+/** Items converted 1:1 and unchanged since (the warrior pilot redesigned the warrior items: WARRIOR.md §7–§8). */
+const LEGACY_ITEM = (classes?: readonly string[]) => !classes || !classes.includes('warrior');
 function kits(): { powers: Record<string, number>; sets: Record<string, number>; label: string }[] {
   const out: { powers: Record<string, number>; sets: Record<string, number>; label: string }[] = [];
-  for (const l of Object.values(LEGENDARIES)) for (const v of [l.range[0], (l.range[0] + l.range[1]) / 2, l.range[1], l.range[0] + (l.range[1] - l.range[0]) * 0.3719])
+  for (const l of Object.values(LEGENDARIES).filter((x) => LEGACY_ITEM(x.classes))) for (const v of [l.range[0], (l.range[0] + l.range[1]) / 2, l.range[1], l.range[0] + (l.range[1] - l.range[0]) * 0.3719])
     out.push({ powers: { [l.id]: v }, sets: {}, label: `${l.id}=${v}` });
-  for (const s of Object.values(SETS)) for (const n of [1, 2, 3, 4, 5, 6]) out.push({ powers: {}, sets: { [s.id]: n }, label: `${s.id}×${n}` });
+  for (const s of Object.values(SETS).filter((x) => x.classId !== 'warrior')) for (const n of [1, 2, 3, 4, 5, 6]) out.push({ powers: {}, sets: { [s.id]: n }, label: `${s.id}×${n}` });
   // Mixed kits: every class legendary of a class + its sets at 6 / 4+2.
-  for (const classId of ['warrior', 'ranger', 'mage'] as const) {
+  for (const classId of ['ranger', 'mage'] as const) {
     const pw = Object.fromEntries(Object.values(LEGENDARIES).filter((l) => !l.classes || l.classes.includes(classId)).map((l) => [l.id, l.range[0] + (l.range[1] - l.range[0]) * 0.6131]));
     const own = Object.values(SETS).filter((s) => s.classId === classId).map((s) => s.id);
     for (const id of own) out.push({ powers: pw, sets: { [id]: 6 }, label: `${classId} all + ${id}×6` });
@@ -130,8 +132,9 @@ test('every legendary and set: template mods, own-bucket multiplier, stun factor
   assert(compared > 3000, `compared ${compared}`);
 });
 
-test('legendary vars carry the rolled value the behaviour code reads (Ninefold Gale, Hunter’s Mark, Heart of the Void)', () => {
-  for (const [power, skill, v] of [['ninefold_gale', 'whirlwind', 'dustDevilPct'], ['hunters_mark', 'hungering_arrow', 'markPct'], ['void_heart', 'black_hole', 'voidPct']] as const) {
+test('legendary vars carry the rolled value the behaviour code reads (Hunter’s Mark, Heart of the Void, warrior vars)', () => {
+  for (const [power, skill, v] of [['hunters_mark', 'hungering_arrow', 'markPct'], ['void_heart', 'black_hole', 'voidPct'], ['threshers_knot', 'cleave', 'thresher'],
+    ['threshers_knot', 'tolling_blow', 'thresher'], ['tremor_signet', 'seismic_slam', 'tremorSignet'], ['tremor_signet', 'ironplough', 'tremorSignet']] as const) {
     const rt = buildPowerRuntime([{ kind: 'legendary', id: power, roll: 173.25, effects: LEGENDARIES[power].effects }]);
     assert.equal(rt.mods.get(skill)?.vars?.[v], 173.25, power);
   }
@@ -279,20 +282,22 @@ test('skillMore: unconditional own bucket (rolled), cast-time conditions with st
 });
 
 test('tag queries resolve once per character (equipped runes re-derive the element) for skills, sets and conditions', () => {
-  assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'melee', 'physical', 'primary']);
+  assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'physical', 'primary', 'strike']);
+  assert.deepEqual([...skillTags(SKILLS.whirlwind)].sort(), ['area', 'channel', 'physical', 'spender', 'strike'], 'Channel skills are Spenders (derived)');
+  assert(skillTags(SKILLS.cairnfall).has('cooldown') && skillTags(SKILLS.muster_standard).has('cooldown') && !skillTags(SKILLS.battle_rage).has('cooldown'), 'Cooldown is derived from a cooldown');
   assert(skillTags(SKILLS.cleave, 'gathering_storm').has('lightning') && !skillTags(SKILLS.cleave, 'gathering_storm').has('physical'));
   assert(skillTags(SKILLS.whirlwind, 'dust_devils').has('summon'), 'rune tags join while equipped');
   assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'area'], noneOf: ['melee'] }));
   const effects: PowerEffect[] = [
     { kind: 'skillMore', tags: { anyOf: ['lightning'] }, pct: 30 },
-    { kind: 'skillMods', tags: { allOf: ['melee', 'area'] }, mods: { radius: 10 } },
+    { kind: 'skillMods', tags: { allOf: ['strike', 'area'] }, mods: { radius: 10 } },
     { kind: 'conditional', when: { channeling: { anyOf: ['channel'] } }, bucket: 'own', pct: 20, tags: { anyOf: ['area'] } },
   ];
   const plain = buildPowerRuntime([{ kind: 'set', id: 'fx', roll: 1, effects }], tagIndexFor('warrior', {}));
   const storm = buildPowerRuntime([{ kind: 'set', id: 'fx', roll: 1, effects }], tagIndexFor('warrior', { cleave: 'gathering_storm' }));
   assert.equal(plain.ownStatic.get('cleave'), undefined);
   assert.equal(storm.ownStatic.get('cleave'), 1.3, 'Gathering Storm makes Cleave a lightning skill');
-  assert.deepEqual([...plain.mods.keys()].sort(), ['cleave', 'cleave_rupture', 'dust_devil', 'ground_stomp', 'rend', 'whirlwind'], 'melee+area skills and their sub-strikes');
+  assert.deepEqual([...plain.mods.keys()].sort(), ['cleave', 'cleave_rupture', 'dust_devil', 'ironplough', 'whirlwind'], 'strike+area skills and their sub-strikes');
   const p = { ctx: { powers: plain }, summons: [], buffs: [], channel: { skill: 'whirlwind' } } as unknown as Player;
   assert.equal(ownMultiplier(p, 'rend'), 1.2, 'channelling a [channel] skill; Rend is an area skill');
   assert.equal(ownMultiplier(p, 'battle_rage'), 1, 'not an area skill');

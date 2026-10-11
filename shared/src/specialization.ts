@@ -21,20 +21,22 @@ export interface SpecEconomy {
 }
 
 /**
- * THE switch for the point economy (owner decision pending). Shipped [P]: separate pool, 1 per level from level 2
- * (69 at 70), whole trees. Content bible proposal (ITEMS-SHARED.md §0): `{ source: 'separate', perLevel: 1,
- * fromLevel: 10, treeRankCap: 10 }` (61 points, ≤10 of 18 ranks per tree ≈ 6 trees). Sharing tier points:
- * `source: 'shared'`. Changing it after release needs a save migration for allocations made under the old rule.
+ * THE switch for the point economy. Lead decision (d) after bible v2 (plan §3.6, ITEMS-SHARED.md §0): a separate pool,
+ * 1 point per level from level 21 (50 at level 70) and at most 10 ranks per tree. The bar holds 5 skills (primary +
+ * four slots) and 5 × 10 = 50, so every active tree fills exactly at level 70 while the choice stays inside each tree
+ * (10 of its up to 18 ranks, prerequisites); while levelling (20 points at level 40) players pick which trees to deepen.
+ * Re-tune after playtests. `source: 'shared'` would draw node ranks from the tier points instead. Changing the rule
+ * later is safe for saves: normalizeSkillNodes clears trees that became illegal (points are derived, a free respec).
  */
-export const SPEC_POINTS: SpecEconomy = { source: 'separate', perLevel: 1, fromLevel: 2, treeRankCap: Infinity };
+export const SPEC_POINTS: SpecEconomy = { source: 'separate', perLevel: 1, fromLevel: 21, treeRankCap: 10 };
 /** [P] Every node rank costs one point. */
 export const NODE_RANK_COST = 1;
 /**
- * [P] Target size of a full tree in ranks (class average over skills with trees, after `treeRankCap`). With 69 points at
- * level 70 a player completes 69/17 = 4.1 to 69/14 = 4.9 trees: about the five skills of one bar (primary + four
- * slots), never all of a class's trees. Checked by shared/test/depthFoundation.test.ts once a class ships trees.
+ * Target size of a full tree in buyable ranks (class average over skills with trees, after `treeRankCap`). With 50
+ * points at level 70 and 10-rank trees a player completes 50 / 10 = 5 trees: the five skills of one bar, never all of a
+ * class's trees. Checked by shared/test/depthFoundation.test.ts for every class that ships trees.
  */
-export const TREE_RANKS_TARGET = { min: 14, max: 17 } as const;
+export const TREE_RANKS_TARGET = { min: 10, max: 10 } as const;
 
 /** Separate-pool points at `level` (0 in shared mode: tiers and nodes then draw from `skillPoints`). */
 export function specPointsForLevel(level: number, eco: SpecEconomy = SPEC_POINTS): number {

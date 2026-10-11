@@ -456,6 +456,7 @@ function skillCoverage() {
         const inst = newField('whispering_glade');
         const save = makeChar(cls, 70, { endgame: true });
         save.skills.slots = sk.kind === 'primary' ? [null, null, null, null] : [sk.id, null, null, null];
+        if (sk.kind === 'primary') save.skills.primary = sk.id; // second primaries (Tolling Blow) are exercised as the auto-attack
         save.skills.runes = { [sk.id]: rune };
         save.skills.tiers = { [sk.id]: 3 };
         const link = new FakeLink(save);
@@ -484,7 +485,8 @@ function skillCoverage() {
             check(el, `${tag}: rune effect fired`);
           }
         } else if (sk.kind === 'channel') {
-          check(channelSeen && link.n('aoe:whirl') > 4, `${tag}: channel ticks (${link.n('aoe:whirl')})`);
+          const tickEv = sk.id === 'ironplough' ? 'aoe:plough' : 'aoe:whirl';
+          check(channelSeen && link.n(tickEv) > 4, `${tag}: channel ticks (${link.n(tickEv)})`);
           if (rune === 'dust_devils') check(link.sawSummon('dust_devil') && link.n('dmgsrc:summon:dust_devil') > 0, `${tag}: dust devils spawn and hit`);
         } else {
           check(casts > 0, `${tag}: cast (${casts})`);

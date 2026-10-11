@@ -9,6 +9,7 @@ import { RANGER_SKILLS } from './ranger';
 import { MAGE_SKILLS } from './mage';
 
 export * from './types';
+export { WARRIOR_FX } from './warrior';
 
 export const SKILLS: Record<string, SkillDef> = Object.fromEntries(
   [...WARRIOR_SKILLS, ...RANGER_SKILLS, ...MAGE_SKILLS].map((s) => [s.id, s]),
@@ -24,12 +25,16 @@ export function runeUnlockLevel(skill: SkillDef, runeIndex: number): number {
 }
 
 /**
- * Effective tags of a skill with an equipped rune: the kind, the element after the rune's conversion, the authored
- * mechanic tags and the rune's tags. (Item conversions do not re-tag: tags are resolved before item powers apply.)
+ * Effective tags of a skill with an equipped rune: the kind, the element after the rune's conversion, Spender for
+ * Channel skills (they drain resource), Cooldown for skills with a cooldown, the authored mechanic tags and the rune's
+ * tags (ITEMS-SHARED.md §1.2). Item conversions do not re-tag: tags are resolved before item powers apply.
  */
 export function skillTags(skill: SkillDef, runeId?: string | null): Set<SkillTag> {
   const rune = runeId ? skill.runes.find((r) => r.id === runeId) : undefined;
-  return new Set<SkillTag>([skill.kind, rune?.mods.element ?? skill.element, ...(skill.tags ?? []), ...(rune?.tags ?? [])]);
+  const out = new Set<SkillTag>([skill.kind, rune?.mods.element ?? skill.element, ...(skill.tags ?? []), ...(rune?.tags ?? [])]);
+  if (skill.kind === 'channel') out.add('spender');
+  if (skill.cooldown > 0) out.add('cooldown');
+  return out;
 }
 
 export function matchesTags(tags: ReadonlySet<SkillTag>, q: TagQuery): boolean {

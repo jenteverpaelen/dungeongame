@@ -60,7 +60,7 @@ export function temperOf(upgrade: number): number {
 
 const bits = (v: number, n: number) => Math.max(0, Math.min((1 << n) - 1, v | 0));
 
-/** Pack an item's visual progression into one small non-negative integer (28 bits; msgpack uint32). */
+/** Pack an item's visual progression into one small non-negative integer (31 bits; msgpack uint32). */
 export function packGearFx(item: Item): number {
   const tier = itemVisualTier(item);
   const set = item.set ? GEAR_SET_ORDER.indexOf(item.set) + 1 : 0;
@@ -76,17 +76,19 @@ export function packGearFx(item: Item): number {
     | (bits(item.ancient, 2) << 4)
     | (bits(item.upgrade, 4) << 6)
     | (bits(set, 4) << 10)
-    | (bits(leg, 5) << 14)
+    | ((leg & 31) << 14)
     | (bits(filled, 2) << 19)
     | (bits(best, 3) << 21)
     | (bits(bestRank, 3) << 24)
-    | ((item.enchanted !== undefined ? 1 : 0) << 27);
+    | ((item.enchanted !== undefined ? 1 : 0) << 27)
+    // Legendary index high bits (warrior pilot: more than 31 legendaries; superseded by the gear-v2 packing rewrite).
+    | (bits(leg >> 5, 3) << 28);
 }
 
 export function unpackGearFx(n: number): GearFx {
   const v = Math.max(0, Math.floor(n)) >>> 0;
   const upgrade = (v >>> 6) & 15;
-  const set = (v >>> 10) & 15, leg = (v >>> 14) & 31, gem = (v >>> 21) & 7;
+  const set = (v >>> 10) & 15, leg = ((v >>> 14) & 31) | (((v >>> 28) & 7) << 5), gem = (v >>> 21) & 7;
   return {
     tier: Math.min(MAX_GEAR_TIER, v & 15),
     ancient: Math.min(2, (v >>> 4) & 3) as 0 | 1 | 2,
