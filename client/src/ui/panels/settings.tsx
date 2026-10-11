@@ -130,6 +130,7 @@ function DisplaySettings() {
       <section class="so-card">
         <h4>{text('set.display.guidance')}</h4>
         <Check k="contextualHints" label={text('guide.show')} note={text('guide.settingNote')} />
+        <Check k="advancedTooltips" label={text('set.display.advanced')} note={text('set.display.advancedNote')} />
       </section>
     </div>
   </>;

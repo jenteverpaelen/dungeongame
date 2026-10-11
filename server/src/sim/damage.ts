@@ -9,10 +9,11 @@ import { killMob } from './kills';
 import { onMobHit, wakeMob } from './monsters';
 import { skillPct } from './playerctx';
 import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './powerActions';
-import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor } from './powerRuntime';
+import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor, type HitTerm } from './powerRuntime';
 import { consumeVulns, scopedVulnerability, weakenFactor } from './status';
 import { mFreeze } from './skills/mageKit';
 import { killPlayer } from './players';
+import { benchHit } from './bench';
 import type { Dot, DotKind, Mob, Player, SkillRuntime, Strike } from './types';
 
 export interface HitResult { amount: number; crit: boolean; killed: boolean }
@@ -32,25 +33,36 @@ export function vulnerability(p: Player, m: Mob, skill?: string): number {
   return v;
 }
 
+/**
+ * The factors of one strike in the order baseMult applies them (build tools, server/src/sim/breakdown.ts): filled only
+ * when a sink is passed, so the game path computes exactly what it always did.
+ */
+export interface BaseTerms { coef: number; mainStat: number; skill: number; element: number; generic: number; own: number; hit: { term: HitTerm; factor: number }[] }
+
 /** Everything except the weapon roll, crit and target-dependent factors. */
-function baseMult(inst: Instance, p: Player, st: Strike): number {
+function baseMult(inst: Instance, p: Player, st: Strike, sink?: BaseTerms): number {
   const d = p.ctx.d;
   let m = st.coef;
-  m *= 1 + d.mainStat / 100;
-  m *= 1 + st.pct / 100;
-  m *= 1 + (d.ele[st.el] ?? 0) / 100;
-  m *= 1 + (d.dmgPct + p.live.dmg + (st.gen ?? 0)) / 100;
+  const main = 1 + d.mainStat / 100, skill = 1 + st.pct / 100, ele = 1 + (d.ele[st.el] ?? 0) / 100, gen = 1 + (d.dmgPct + p.live.dmg + (st.gen ?? 0)) / 100;
+  m *= main;
+  m *= skill;
+  m *= ele;
+  m *= gen;
   if (st.mult) m *= st.mult;
+  if (sink) { sink.coef = st.coef; sink.mainStat = main; sink.skill = skill; sink.element = ele; sink.generic = gen; sink.own = st.mult || 1; }
   // Power templates per hit, in canonical order (Fallen Star element stacks, Ouroboros cycle, conditionals).
-  if (p.ctx.powers.hitTerms.length) m = applyHitTerms(inst, p, m, st.skill, st.el);
+  if (p.ctx.powers.hitTerms.length) m = applyHitTerms(inst, p, m, st.skill, st.el, sink?.hit);
   return m;
 }
+
+/** Bonus damage against elites (champions, rares, bosses), as rollDamage applies it. */
+export const eliteFactor = (p: Player) => 1 + p.ctx.d.elite / 100;
 
 /** Roll the final damage of a strike against `m` (null = target-independent). */
 export function rollDamage(inst: Instance, p: Player, m: Mob | null, st: Strike): { amount: number; crit: boolean } {
   const d = p.ctx.d;
   let dmg = (d.weaponMin + (d.weaponMax - d.weaponMin) * inst.rng.next()) * baseMult(inst, p, st);
-  if (m && isEliteTier(m.tier)) dmg *= 1 + d.elite / 100;
+  if (m && isEliteTier(m.tier)) dmg *= eliteFactor(p);
   let crit = false;
   if (!st.noCrit) {
     const chc = Math.min(100, d.chc + p.live.chc + (st.chc ?? 0));
@@ -60,12 +72,12 @@ export function rollDamage(inst: Instance, p: Player, m: Mob | null, st: Strike)
   return { amount: combatInteger(dmg), crit };
 }
 
-/** Expected (average, crit-weighted) damage of a strike, used for DoTs and ground effects. */
-export function expectedDamage(inst: Instance, p: Player, st: Strike): number {
+/** Expected (average, crit-weighted) damage of a strike, used for DoTs and ground effects. `sink`: build tools. */
+export function expectedDamage(inst: Instance, p: Player, st: Strike, sink?: BaseTerms): number {
   const d = p.ctx.d;
   const avg = (d.weaponMin + d.weaponMax) / 2;
   const chc = Math.min(100, d.chc + p.live.chc) / 100;
-  return boundedCombat(avg * baseMult(inst, p, st) * (1 + chc * (d.chd + p.live.chd) / 100));
+  return boundedCombat(avg * baseMult(inst, p, st, sink) * (1 + chc * (d.chd + p.live.chd) / 100));
 }
 
 /** Deal a direct hit from a player (or one of their summons) to a monster. */
@@ -91,6 +103,7 @@ export function hurtMob(inst: Instance, m: Mob, amount: number, el: Element, att
   if (attacker) { attacker.dealt = boundedCombat(attacker.dealt+a); attacker.sinceHitMs = 0; }
   if (inst.dmgBySkill) inst.dmgBySkill.set(skill, boundedCombat((inst.dmgBySkill.get(skill) ?? 0) + a));
   if (m.dummy) {
+    if (attacker?.bench) benchHit(inst, attacker, skill, a, crit, dot); // build tools T3
     m.hp = Math.max(1, m.hp - a);
     emitDmg(inst, m, a, el, crit, dot, src, false, attacker);
     return false;

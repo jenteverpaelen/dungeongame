@@ -494,6 +494,8 @@ export interface Player extends Hashed {
   pw?: PowerState;
   /** The skill (or proc strike / ground id) whose cast, tick or hit is running: statuses it applies report it. */
   acting?: string;
+  /** Build tools T3: the training-dummy test of this player (server/src/sim/bench.ts), null = none. */
+  bench: import('./bench').BenchRun | null;
   kind: 'player';
   id: number;
   link: PlayerLink;
@@ -518,6 +520,8 @@ export interface Player extends Hashed {
   atkCdMs: number;
   /** Simulation time at which each skill is off cooldown. */
   readyAt: Map<string, number>;
+  /** Earliest time a skill without a cooldown may be cast again (playerctx.MIN_RECAST_MS after its last cast; no HUD cooldown). */
+  recastAt: Map<string, number>;
   attackFlagMs: number;
   castFlagMs: number;
   buffs: Buff[];

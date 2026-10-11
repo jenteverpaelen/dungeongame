@@ -23,6 +23,8 @@ export interface Preferences {
   numbersHealing: boolean;
   numbersCritsOnly: boolean;
   contextualHints: boolean;
+  /** Build tools T1: exact template numbers, bucket breakdowns, tags and ranges in tooltips without holding Alt. */
+  advancedTooltips: boolean;
   manualSkills: boolean;
   /** Gear effects (docs/rework/gear/DESIGN.md §6): your hero, and other heroes. Baked ornaments always show. */
   gearEffects: GearEffects;
@@ -94,7 +96,7 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, alertsVolume: 1, muted: false, muteInBackground: false,
   cameraShake: true, shakeStrength: 1, cameraZoom: DEFAULT_CAMERA_ZOOM, uiScale: DEFAULT_UI_SCALE, reduceFlashes: false, lootQualityLabels: false,
   combatNumbers: true, numberSize: 'normal', numbersOthers: true, numbersTaken: true, numbersHealing: true, numbersCritsOnly: false,
-  contextualHints: true, manualSkills: false,
+  contextualHints: true, advancedTooltips: false, manualSkills: false,
   gearEffects: 'full', otherGearEffects: 'full',
   graphicsPreset: 'high', ...GRAPHICS_PRESETS.high, maxFps: 0, backgroundFps: 0, lowSpecHint: true,
   motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'series',
@@ -104,7 +106,7 @@ interface StorageAccess { getItem(key: string): string | null; setItem(key: stri
 interface PreferenceState { values: Readonly<Preferences>; retained: boolean }
 
 const BOOLEAN_KEYS = ['muted', 'muteInBackground', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'numbersOthers', 'numbersTaken',
-  'numbersHealing', 'numbersCritsOnly', 'contextualHints', 'manualSkills', 'antialias', 'lowSpecHint', 'rarityShapes'] as const;
+  'numbersHealing', 'numbersCritsOnly', 'contextualHints', 'advancedTooltips', 'manualSkills', 'antialias', 'lowSpecHint', 'rarityShapes'] as const;
 const pick = <T>(v: unknown, allowed: readonly T[]): T | undefined => (allowed.includes(v as T) ? v as T : undefined);
 
 function normalize(input: Partial<Preferences>): Readonly<Preferences> {

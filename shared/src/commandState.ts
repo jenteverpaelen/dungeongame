@@ -36,6 +36,6 @@ const persisted:Record<CmdOp,boolean>={
   adventure:true,quest:true,salvage:true,salvageAll:true,enchantRoll:true,enchantPick:true,rekindle:true,upgrade:true,transmute:true,extract:true,cubeEquip:true,
   reforge:true,socket:true,insertGem:true,removeGem:true,fuseGem:true,skillSlot:true,skillRune:true,skillTier:true,skillReset:true,skillNode:true,skillPrimary:true,
   skillAutoCast:true,targetPriority:true,skillCast:false,skillAutoRule:true,paragon:true,paragonReset:true,
-  travel:false,riftOpen:false,riftEnter:false,leave:false,channel:false,debug:true,
+  buildSheet:false,bench:false,loadout:true,applyBuild:true,travel:false,riftOpen:false,riftEnter:false,leave:false,channel:false,debug:true,
 };
 export function isPersistedCommand(op:string):boolean {return Object.hasOwn(persisted,op)&&persisted[op as CmdOp];}

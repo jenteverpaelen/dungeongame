@@ -114,8 +114,12 @@ test('every legendary and set: template mods, own-bucket multiplier, stun factor
     const base = computeStats(save);
     const d: DerivedStats = { ...base, powers: kit.powers, sets: kit.sets, dashCdMs: kit.powers.stridewind ? DASH.cooldownMs / 2 : DASH.cooldownMs };
     const ctx = buildCtx(save, d);
+    // The old code had no class gate; class-specific powers and sets now resolve only for their class (shared ones for
+    // all), so the old code is compared on the kit's part this class can use.
+    const powers = Object.fromEntries(Object.entries(kit.powers).filter(([id]) => !LEGENDARIES[id]?.classes || LEGENDARIES[id].classes!.includes(classId)));
+    const sets = Object.fromEntries(Object.entries(kit.sets).filter(([id]) => SETS[id]?.classId === classId));
     for (const id of Object.keys(SKILLS)) {
-      const now = ctx.modsOf(id).mods, then = mergeMods(loadoutMods(save, id), legacyExtraMods(kit.powers, kit.sets, id));
+      const now = ctx.modsOf(id).mods, then = mergeMods(loadoutMods(save, id), legacyExtraMods(powers, sets, id));
       for (const k of numeric) assert.equal(now[k], then[k], `${kit.label} ${id}.${k}`);
       assert.equal(now.element, then.element, `${kit.label} ${id}.element`);
       assert.deepEqual(new Set(now.flags), new Set(then.flags), `${kit.label} ${id}.flags`);
@@ -123,9 +127,9 @@ test('every legendary and set: template mods, own-bucket multiplier, stun factor
     }
     for (const sentries of [0, 1, 3, 5]) for (const id of STRIKES) {
       const p = { ctx, summons: Array.from({ length: sentries }, () => ({ type: 'sentry', dead: false })) } as unknown as Player;
-      assert.equal(ownMultiplier(p, id), legacyMult(kit.sets, sentries, id), `${kit.label} mult ${id} @${sentries}`);
+      assert.equal(ownMultiplier(p, id), legacyMult(sets, sentries, id), `${kit.label} mult ${id} @${sentries}`);
     }
-    assert.equal(ctx.stunMult, 1 * (kit.powers.anvil_vambraces ? 1 + kit.powers.anvil_vambraces / 100 : 1), `${kit.label} stun`);
+    assert.equal(ctx.stunMult, 1 * (powers.anvil_vambraces ? 1 + powers.anvil_vambraces / 100 : 1), `${kit.label} stun`);
   }
   assert(compared > 3000, `compared ${compared}`);
 });

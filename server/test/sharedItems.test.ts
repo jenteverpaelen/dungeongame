@@ -288,13 +288,13 @@ test('grades: Kindled adds one kindled affix at normal ranges, Fabled rolls maxi
 });
 
 test('save 16: legacy Ancient / Primal items keep their values, get legacyGrade; Primal gets the same Inscription every load', async () => {
-  assert.equal(SAVE_VERSION, 16);
+  assert.equal(SAVE_VERSION, 17); // v17: skill loadouts (build tools)
   const raw = await fs.readFile(new URL('./fixtures/saves/v15-grades.json', import.meta.url), 'utf8');
   const before = JSON.parse(raw) as CharacterSave;
   const a = normalizeSave(JSON.parse(raw)), b = normalizeSave(JSON.parse(raw));
   const oldK = before.equipment.neck!, oldF = before.inventory.find((i) => i?.id === 'legacyprimal01')!;
   const k = a.equipment.neck!, f = a.inventory.find((i) => i?.id === 'legacyprimal01')!;
-  assert.equal(a.version, 16);
+  assert.equal(a.version, SAVE_VERSION, 'loads to the current version');
   assert(k.legacyGrade && f.legacyGrade);
   assert.deepEqual(k.affixes, oldK.affixes, 'stored values and ranges exactly'); assert.deepEqual(f.affixes, oldF.affixes);
   assert.equal(f.inscription, deterministicInscription(f)); assert.equal(f.inscription, b.inventory.find((i) => i?.id === 'legacyprimal01')!.inscription, 'deterministic');

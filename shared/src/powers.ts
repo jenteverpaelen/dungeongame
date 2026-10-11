@@ -258,6 +258,24 @@ export function amount(a: Amount | undefined, roll: number): number {
   return typeof a === 'number' ? a : a.roll * roll;
 }
 
+/**
+ * The effect with every rolled amount ({ roll: k }) replaced by its value at `roll` (amount() semantics), so
+ * describeEffect prints the numbers the server uses (build tools: advanced tooltips).
+ */
+export function resolveAmounts(e: PowerEffect, roll: number): PowerEffect {
+  const walk = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') {
+      const o = v as Record<string, unknown>;
+      const keys = Object.keys(o);
+      if (keys.length === 1 && keys[0] === 'roll' && typeof o.roll === 'number') return amount(o as { roll: number }, roll);
+      return Object.fromEntries(keys.map((k) => [k, walk(o[k])]));
+    }
+    return v;
+  };
+  return walk(e) as PowerEffect;
+}
+
 export const usesRoll = (e: PowerEffect): boolean => {
   const r = (a: Amount | undefined) => typeof a === 'object' && a !== null;
   switch (e.kind) {

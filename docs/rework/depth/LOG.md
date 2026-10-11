@@ -217,3 +217,30 @@
   14). Parity (mage items only): D3 0.50–1.40 → 0.52–1.42, D4 1.00–1.20 → 0.95–1.21, D6 1.49 → 2.14; only Rime Needles
   stays parity-ready. Pace: the L25+ champion-TTK miss is identical on the merged base (not the mage). Content-id lock
   updated. Details: `MAGE-PILOT.md` §2, §6, §7.
+
+## Build tools M1 + engine follow-ups (2026-10-11, branch `claude/depth`)
+
+- **Pace gate (lead request).** The L25+ champion-TTK miss came from the random stream the classes shared, not from a
+  rule: c18b4a6 reseeds the leveling sim per class. With the reseed, the lead's "ranger 6.65 s" is 5.05 s and the
+  warrior's 7.10 s is unchanged. FOUNDATION.md §13.13.
+- **Class gate on item powers** (mage-agent finding, reachable through off-class drops and the Cube): d462807,
+  FOUNDATION.md §13.12.
+- **Recast floor** of 250 ms for skills without a cooldown (d462807). It was measured over 9 seeds against no floor and
+  against one cast per attack interval (the D3 rule):
+  - the floor is pace-neutral within noise;
+  - the attack interval collapsed one warrior run of nine (85 deaths) and stays a balance decision.
+  - The single-seed gate now misses on the default seed with the floor (L25+ mage 7.35 s > 6.4 s). Over the paired
+    seeds that miss is noise; the gate is fragile.
+  - Details in FOUNDATION.md §13.14.
+  - Lead decision: the floor stays, and `pace-targets` now checks the median of 3 seeds (0xC0FFEE, +1, +2, in parallel,
+    57 s). Targets are unchanged. Each single seed misses one band; the median passes all 6.
+- **Build tools M1.** Notes in BUILD-TOOLS.md §4.
+  - T1 / T2: exact numbers, the damage-breakdown sheet and the advanced toggle (2e1e6d1).
+  - T3: training-dummy bench (d105cae, 0061b67).
+  - T4: five skill loadouts, SAVE_VERSION 17 (505a9bd).
+  - T5: HF1 build codes in chat with a server-checked Apply (efbdc38).
+- **Cleanups.**
+  - `F_SLOW` status bit and a [P] tint for power-slowed monsters.
+  - `passives.test.ts` counts by class.
+  - Stable ids recorded; the build-code registry is append-only and checked by content:check.
+- Merged `claude/town-ui-rework` 27f7e0c (mage wave): 56b2bf3.

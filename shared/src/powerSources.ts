@@ -8,7 +8,7 @@ import { LEGENDARIES, SETS } from './data/items';
 import { SKILLS } from './data/skills';
 import type { PowerEffect } from './powers';
 import { savedNodeRanks } from './specialization';
-import type { CharacterSave, DerivedStats } from './types';
+import type { CharacterSave, ClassId, DerivedStats } from './types';
 
 export interface PowerSource {
   kind: 'set' | 'legendary' | 'inscription' | 'passive' | 'node' | 'rune' | 'affix';
@@ -33,17 +33,23 @@ export function setReduction(powers: Readonly<Record<string, number>>): { by: nu
 export const setThreshold = (count: number, red: { by: number; min: number } | null): number =>
   red ? Math.max(Math.min(count, red.min), count - red.by) : count;
 
-/** Set bonuses and legendary powers from equipped / Cube-equipped items (DerivedStats.powers / .sets). */
-export function itemPowerSources(powers: Readonly<Record<string, number>>, sets: Readonly<Record<string, number>>): PowerSource[] {
+/**
+ * Set bonuses and legendary powers from equipped / Cube-equipped items (DerivedStats.powers / .sets). With `classId`, a
+ * class-specific power or set only resolves for its own class (shared items stay classless): a Cube power extracted
+ * from another class's legendary (any drop can be off-class) is learned but inactive, so a tag-keyed one cannot reach
+ * this class's skills.
+ */
+export function itemPowerSources(powers: Readonly<Record<string, number>>, sets: Readonly<Record<string, number>>, classId?: ClassId): PowerSource[] {
   const out: PowerSource[] = [];
   const red = setReduction(powers);
   for (const set of Object.values(SETS)) {
     const n = sets[set.id] ?? 0;
-    if (!n) continue;
+    if (!n || (classId && set.classId !== classId)) continue;
     for (const b of set.bonuses) if (n >= setThreshold(b.count, red) && b.effects?.length) out.push({ kind: 'set', id: `set:${set.id}:${b.count}`, roll: 1, effects: b.effects });
   }
   for (const l of Object.values(LEGENDARIES)) {
     const v = powers[l.id];
+    if (classId && l.classes && !l.classes.includes(classId)) continue;
     if (v && l.effects.length) out.push({ kind: 'legendary', id: l.id, roll: v, effects: l.effects });
   }
   return out;
@@ -113,5 +119,5 @@ export function inscriptionPowerSources(equipment: CharacterSave['equipment'] | 
  */
 export function allPowerSources(save: Pick<CharacterSave, 'classId' | 'level' | 'skills'> & { equipment?: CharacterSave['equipment'] }, powers: Readonly<Record<string, number>>,
   sets: Readonly<Record<string, number>>, passives: readonly PowerSource[] = []): PowerSource[] {
-  return [...itemPowerSources(powers, sets), ...inscriptionPowerSources(save.equipment), ...passives, ...nodePowerSources(save)];
+  return [...itemPowerSources(powers, sets, save.classId), ...inscriptionPowerSources(save.equipment), ...passives, ...nodePowerSources(save)];
 }

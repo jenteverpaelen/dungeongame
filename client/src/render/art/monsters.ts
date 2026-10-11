@@ -5,7 +5,7 @@
 import { Container, Sprite } from 'pixi.js';
 import { MONSTERS, ELITE_AFFIXES, RIFT_GUARDIANS, type MonsterDef } from '@shared/data/monsters';
 import type { EliteTier } from '@shared/items';
-import { F_ATTACK, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, F_WINDUP } from '@shared/protocol';
+import { F_ATTACK, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_SLOW, F_STUN, F_WINDUP } from '@shared/protocol';
 import type { ActionSpec } from '../actions';
 import type { ActingView, ViewState } from '../types';
 import { SheetSlice, bakeSheet, type PartSpec, type Sheet, type SheetLike } from './bake';
@@ -1191,6 +1191,7 @@ export class RigArt implements ActingView {
       if (frozen) tint = 0x8fd0ff;
       else if (chill) tint = 0xc4e4ff;
       else if (flags & F_POISON) tint = 0xc8eea8;
+      else if (flags & F_SLOW) tint = 0xd8ccb8; // [P] slowed (movement only): a dusty grey-brown, apart from chill's blue
       else if (flags & F_BURN) tint = (Math.sin(this.t * 20) > 0 ? 0xffd2b0 : 0xffffff);
       if (this.wind > 0.05) tint = mix(tint, 0xffb4a0, this.wind * (0.5 + 0.5 * Math.sin(this.t * 22)) * 0.6);
     }

@@ -179,7 +179,8 @@ export function updateMonsters(inst: Instance, dtMs: number) {
   for (let i = 0; i < n; i++) {
     const m = list[i];
     if (m.dead) continue;
-    if (m.dummy) { dummyTick(inst, m); continue; }
+    // Training dummies take damage over time too (build tools T3 measures bleeds, burns, poisons); they never die.
+    if (m.dummy) { if (m.dots.length) dots(inst, m, dtMs); dummyTick(inst, m); continue; }
     if (m.dormant) {
       if ((inst.tickNo + m.id) % 10 === 0 && inst.nearestPlayer(m.x, m.y, DORMANT_RANGE)) wakeFromDormant(inst, m, null);
       else continue;
