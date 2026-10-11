@@ -169,3 +169,7 @@
   `townProgress.test.ts` 2/2 (one prop per unlock, every prop on an authored NPC, off the approach point). Evidence:
   `shots/town-progress-{west,east}-{fresh,progressed}-1920.jpg` (fresh hero vs Reliquary 8 + five tabs bought through
   `stashBuyTab`).
+- **Verify after the owner-decision pass:** passed, 33/33 stages (new: `served-build`, `pace-targets`), server 769/0,
+  simulation 455/455, perf budget 4/4, pace targets 0 misses over 7 bands, served build reaches the game in ~9 s with
+  0 page errors. One earlier run failed only the sim's absolute 3 ms tick check (3.06 ms) on a loaded machine; five
+  samples right after ranged 1.7–8.1 ms (load), the clean rerun measured 2.69 ms.
