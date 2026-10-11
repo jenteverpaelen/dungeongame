@@ -155,6 +155,8 @@ export interface FxTextures {
   shadow: Texture; pixel: Texture;
   /** Fallback ground-loot icons keyed by item shape or kind (greyscale, tint with the item colour). */
   icons: Record<string, Texture>;
+  /** Mage M1: rime needle (+x), orrery planet, Lantern Garden lantern (full colour, foot at the bottom), stormglass shell. */
+  needle: Texture; planet: Texture; lantern: Texture; glassOrb: Texture;
 }
 
 let fxCache: FxTextures | null = null;
@@ -690,6 +692,65 @@ function bakeFxAtlas(): FxTextures {
     c.fillStyle = W(0.75); c.beginPath(); c.ellipse(19, 17.5, 5, 3, -0.7, 0, TAU); c.fill();
   });
 
+  // ---- mage M1 sprites (docs/rework/depth/MAGE.md §3 "VFX / icon / sound") ----
+  // Rime needle: a thin tapered ice spike pointing +x (greyscale, tint with the element colour).
+  const needle = A.add(44, 10, (c) => {
+    c.translate(0, 5);
+    c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(43, 0); c.lineTo(10, -2.6); c.lineTo(2, -1); c.lineTo(0.8, 0); c.lineTo(2, 1); c.lineTo(10, 2.6); c.closePath();
+    const g = c.createLinearGradient(0, -3, 0, 3);
+    g.addColorStop(0, W(1)); g.addColorStop(0.5, 'rgb(226,236,246)'); g.addColorStop(1, 'rgb(150,172,196)');
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = 'rgba(30,50,80,0.55)'; c.lineWidth = 0.9; c.stroke();
+    c.strokeStyle = W(1); c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(41, -0.2); c.lineTo(10, -1.6); c.stroke();
+    c.fillStyle = W(0.9); poly(c, [[6, -2], [11, -2.5], [9, 0]]); c.fill();
+  });
+  // Orrery planet: a shaded sphere with an equator band (greyscale; tinted brass, or ice for Frozen Moons).
+  const planet = A.add(40, 40, (c) => {
+    c.fillStyle = radial(c, 15, 14, 22, [[0, '#ffffff'], [0.35, '#e4e4e4'], [0.75, '#9a9a9a'], [1, '#5e5e5e']]);
+    c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.fill();
+    c.save(); c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.clip();
+    c.strokeStyle = 'rgba(40,30,20,0.45)'; c.lineWidth = 2.2;
+    c.beginPath(); c.ellipse(20, 21, 18, 5, -0.25, 0, TAU); c.stroke();
+    c.strokeStyle = W(0.35); c.lineWidth = 1;
+    c.beginPath(); c.ellipse(20, 19.4, 18, 5, -0.25, Math.PI * 1.05, Math.PI * 1.7); c.stroke();
+    c.restore();
+    c.strokeStyle = 'rgba(30,22,14,0.85)'; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.stroke();
+    c.fillStyle = W(0.85); c.beginPath(); c.ellipse(14, 12.5, 4.6, 2.6, -0.7, 0, TAU); c.fill();
+  });
+  // Lantern Garden lantern: brass cap and foot, a ribbed paper body lit from inside (full colour, anchor at the foot).
+  const lantern = A.add(36, 52, (c) => {
+    c.lineJoin = 'round'; c.lineCap = 'round';
+    c.strokeStyle = '#2a1a0c'; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(18, 6, 4, Math.PI, 0); c.stroke();
+    const brass = (y0: number, y1: number) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#f6dc8a'); g.addColorStop(0.5, '#c99a3a'); g.addColorStop(1, '#7a5418'); return g; };
+    c.beginPath(); c.moveTo(9, 13); c.lineTo(13, 7); c.lineTo(23, 7); c.lineTo(27, 13); c.closePath();
+    c.fillStyle = brass(7, 13); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(9, 13); c.bezierCurveTo(3, 20, 3, 33, 9, 41); c.lineTo(27, 41); c.bezierCurveTo(33, 33, 33, 20, 27, 13); c.closePath();
+    c.fillStyle = radial(c, 18, 28, 17, [[0, '#fff6c8'], [0.45, '#ffcf6a'], [0.85, '#e8822c'], [1, '#b8521c']]);
+    c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(120,52,14,0.55)'; c.lineWidth = 1.1;
+    for (const x of [12.5, 18, 23.5]) { c.beginPath(); c.moveTo(x, 14); c.quadraticCurveTo(x + (x - 18) * 0.5, 27, x, 40); c.stroke(); }
+    c.beginPath(); c.moveTo(5.4, 27); c.lineTo(30.6, 27); c.stroke();
+    c.strokeStyle = '#2a1a0c'; c.lineWidth = 1.6;
+    c.beginPath(); c.roundRect(10, 41, 16, 5, 1.6); c.fillStyle = brass(41, 46); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(14, 46); c.lineTo(13, 50.5); c.lineTo(23, 50.5); c.lineTo(22, 46); c.closePath(); c.fillStyle = '#6a4614'; c.fill(); c.stroke();
+    c.fillStyle = W(0.7); c.beginPath(); c.ellipse(12, 21, 1.8, 4.4, 0.2, 0, TAU); c.fill();
+  });
+  // Stormglass orb shell: clear glass with a bright rim, a dark hairline and two speculars (greyscale, tint).
+  const glassOrb = A.add(64, 64, (c) => {
+    c.fillStyle = radial(c, 32, 32, 28, [[0, W(0.06)], [0.62, W(0.14)], [0.86, W(0.5)], [0.97, W(0.95)], [1, W(0)]]);
+    c.beginPath(); c.arc(32, 32, 28, 0, TAU); c.fill();
+    c.strokeStyle = 'rgba(20,40,70,0.7)'; c.lineWidth = 1.4;
+    c.beginPath(); c.arc(32, 32, 27.6, 0, TAU); c.stroke();
+    c.strokeStyle = W(0.95); c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath(); c.arc(32, 32, 21, Math.PI * 1.08, Math.PI * 1.42); c.stroke();
+    c.lineWidth = 1.6; c.beginPath(); c.arc(32, 32, 22, Math.PI * 0.16, Math.PI * 0.3); c.stroke();
+    c.fillStyle = W(0.95); c.beginPath(); c.ellipse(22, 19, 3.2, 1.8, -0.7, 0, TAU); c.fill();
+  });
+
   // ---- fallback item icons (48x48, greyscale; tint with the item's primary colour) ----
   const ICON: Record<string, Draw> = {
     head: (c) => { c.beginPath(); c.moveTo(8, 34); c.bezierCurveTo(8, 10, 40, 10, 40, 34); c.lineTo(40, 38); c.lineTo(8, 38); c.closePath(); inkShape(c, 10, 38); c.fillStyle = 'rgba(0,0,0,0.35)'; c.fillRect(14, 28, 20, 4); },
@@ -733,6 +794,7 @@ function bakeFxAtlas(): FxTextures {
     coin: t(coin), gem: t(gem), globe: t(globe),
     beam: t(beam), beamCore: t(beamCore), line: t(line), drip: t(drip), flake: t(flake), plus: t(plus),
     shadow: t(shadow), pixel: t(pixel), icons,
+    needle: t(needle), planet: t(planet), lantern: t(lantern), glassOrb: t(glassOrb),
   };
 }
 

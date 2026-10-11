@@ -557,6 +557,20 @@ Search, stub-level, following the BUDGET.md §4 method:
 * The warrior's Ringing Ears mark and returning hatchet are class code (built before the shared-items wave's
   `vulnerable.consume` and `returns` projectiles; they can move onto those later). Still not built: recast elsewhere,
   directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.
+### 11.15 Mage wave additions (`MAGE-PILOT.md` §3)
+
+* `Proj.hook` (`ProjHook`): `hit(inst, pr, p, m)` replaces the kind's hit rule, `tick(inst, pr, dtMs)` runs after each
+  move, `end(inst, pr, why: 'hit' | 'life' | 'wall')` runs once (not on bounces / returns, which carry the hook);
+  `spawnProj({ keepLife })` skips the reach clamp; `endProjectile(inst, pr, hit)` ends one from class code.
+* `skillMore` pct may be negative: a "less" multiplier in (−100, cap], generated text "less damage".
+* `elementStacks.bucket: 'generic'`: no per-hit term; the stacks buff carries +perStack % per element in the generic
+  damage bucket (`sdmg`), recorded in `strikeMob`.
+* Rule `{ id: 'statusLonger', status: 'chill' | 'stun' | 'freeze', pct }`: chills / stuns / freezes you apply last
+  longer (`effects.ruleLonger`).
+* `aoe` events may carry `n` (a count, e.g. Orrery spheres).
+* Harnesses: `ids.resetIdsForHarness()` before each fresh Instance (monster separation breaks exact overlaps by id).
+* Still not built: a chosen-strength slow, a Movement-end trigger, a class filter on tag-keyed item powers.
+
 ## 12. Shared-items wave (ITEMS-SHARED.md §2, §3, §5, §7)
 
 ### 12.1 Shared legendaries (`shared/src/data/powers/shared.ts`, appended after the six v1 items)

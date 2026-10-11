@@ -44,9 +44,9 @@ export function createMonsterView(defId: string, elite: EliteTier, affixes: stri
 }
 
 /** Summons: 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'molten_pool' | ranger M1 'snare' | 'mortar' |
- *  'flock' | 'flock_guard' | 'badger' | 'heron'. `radius` (EntDesc.r) sizes the flocks; a re-described entity calls the
- *  view's setRadius(r). */
-export function createSummonView(type: string, radius?: number): EntityView {
+ *  'flock' | 'flock_guard' | 'badger' | 'heron' | mage 'cinderkin' | 'frostkin' | 'ember_sprite'. `radius` (EntDesc.r) sizes
+ *  the flocks and picks a big variant where one exists (Bonfire Kin); a re-described entity calls the view's setRadius(r). */
+export function createSummonView(type: string, radius = 0): EntityView {
   return new SummonArt(type, radius);
 }
 

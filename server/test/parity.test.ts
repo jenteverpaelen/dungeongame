@@ -8,6 +8,7 @@ import { SETS } from '../../shared/src/data/items';
 import { PARITY_WINDOW, kitSave, measureProfile, parityProfiles, parityReadySkills, planKit, setSkills } from './parity/harness';
 import { WARRIOR_MAIN, warriorDiversity } from './parity/warrior';
 import { RANGER_MAIN, rangerDiversity } from './parity/ranger';
+import { MAGE_MAIN, mageDiversity } from './parity/mage';
 
 assert(process.env.DATA_DIR, 'isolated DATA_DIR required');
 
@@ -29,8 +30,8 @@ test('every set names set-backed skills of its class; every planned kit is plain
   for (const id of ['ground_stomp', 'cairnfall', 'tolling_blow']) assert(setSkills(SETS.fault_warden).includes(id), `Fault Warden backs ${id}`);
 });
 
-test('parity rule (1.25) holds for every parity-ready set-backed skill (the warrior and the ranger use the D-checks below)', () => {
-  const dChecks = new Set(['warrior', 'ranger']);
+test('parity rule (1.25) holds for every parity-ready set-backed skill (the warrior, the ranger and the mage use the D-checks below)', () => {
+  const dChecks = new Set(['warrior', 'ranger', 'mage']);
   const ready = new Set(parityReadySkills().filter((id) => !dChecks.has(SKILLS[id].classId)));
   const profiles = parityProfiles().filter((p) => !dChecks.has(p.classId) && p.skills.some((id) => ready.has(id)));
   const backed = new Set(parityProfiles().flatMap((p) => p.skills));
@@ -70,6 +71,21 @@ test('ranger: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready 
     const leg = r.factor.legendary, set6 = r.factor[r.bestSet6], hyb = r.factor[r.bestHybrid];
     const d3 = leg / set6, lo = Math.min(leg, set6), hi = Math.max(leg, set6);
     console.log(`ranger ${r.main}: legendary ×${leg.toFixed(2)}, best 6-piece ×${set6.toFixed(2)} (${r.bestSet6}), hybrid ×${hyb.toFixed(2)} (${r.bestHybrid}); D3 ${d3.toFixed(2)}`);
+    assert(d3 >= 0.8 && d3 <= 1.25, `${r.main}: D3 legendary-only ÷ best 6-piece = ${d3.toFixed(2)} (hard 0.80–1.25)`);
+    assert(hyb >= lo * 0.9 && hyb <= hi * 1.1, `${r.main}: D4 best hybrid ×${hyb.toFixed(2)} outside ±10% of [${lo.toFixed(2)}, ${hi.toFixed(2)}]`);
+  }
+});
+
+test('mage: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready mage main skill', () => {
+  // Same gate as the warrior's: planned kits without the search, mage items only (the shared legendaries are the
+  // shared-items lane's), one seed. Full report: scripts/audit-mage-parity.ts (docs/rework/depth/MAGE-PARITY.md).
+  const ready = MAGE_MAIN.filter((id) => SKILLS[id].parityReady);
+  assert(ready.length > 0, 'the mage wave flags its passing main skills');
+  const d = mageDiversity({ seeds: [101], mains: ready, excludeShared: true });
+  for (const r of d.rows) {
+    const leg = r.factor.legendary, set6 = r.factor[r.bestSet6], hyb = r.factor[r.bestHybrid];
+    const d3 = leg / set6, lo = Math.min(leg, set6), hi = Math.max(leg, set6);
+    console.log(`mage ${r.main}: legendary ×${leg.toFixed(2)}, best 6-piece ×${set6.toFixed(2)} (${r.bestSet6}), hybrid ×${hyb.toFixed(2)} (${r.bestHybrid}); D3 ${d3.toFixed(2)}`);
     assert(d3 >= 0.8 && d3 <= 1.25, `${r.main}: D3 legendary-only ÷ best 6-piece = ${d3.toFixed(2)} (hard 0.80–1.25)`);
     assert(hyb >= lo * 0.9 && hyb <= hi * 1.1, `${r.main}: D4 best hybrid ×${hyb.toFixed(2)} outside ±10% of [${lo.toFixed(2)}, ${hi.toFixed(2)}]`);
   }

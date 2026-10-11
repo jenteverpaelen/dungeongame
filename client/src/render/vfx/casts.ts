@@ -7,6 +7,7 @@ import type { VfxCore } from './core';
 import type { AoeFx } from './aoe';
 import type { Telegraphs } from './telegraphs';
 import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, TAU, clamp, pal, rand } from './util';
+import type { MageFx } from './mage';
 
 type Cast = Extract<GameEvent, { e: 'cast' }>;
 type Dash = Extract<GameEvent, { e: 'dash' }>;
@@ -29,6 +30,9 @@ function hasFlag(sk: string, rune: string | undefined, flag: string): boolean {
 }
 
 export class Casts {
+  /** Mage M1 cast flourishes (mage.ts), injected by Vfx. */
+  mage: MageFx | null = null;
+
   constructor(private V: VfxCore, private aoe: AoeFx, private tele: Telegraphs) {}
 
   cast(ev: Cast): void {
@@ -41,6 +45,7 @@ export class Casts {
     const hx = x + dir * 14, hz = HAND;
     const mine = V.isMine(ev.s);
     const vol = mine ? 1 : 0.5;
+    if (this.mage?.cast(ev, el, mine)) return;
     switch (ev.sk) {
       case 'cleave': {
         const wide = hasFlag('cleave', ev.r, 'wideArc');

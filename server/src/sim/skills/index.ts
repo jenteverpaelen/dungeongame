@@ -9,6 +9,8 @@ import { skillCost, skillRadius } from '../playerctx';
 import type { Mob, Player, SkillRuntime } from '../types';
 import { emitCast, face, type DeathHook, type OwnerSummonHook, type SkillBehaviour, type SummonBehaviour } from './common';
 import { MAGE_BEHAVIOURS, MAGE_SUMMONS, shatterHook } from './mage';
+import { MAGE_OWNER_HOOK, mageDeathHook } from './mageKit';
+import { MAGE_M1_BEHAVIOURS, MAGE_M1_SUMMONS } from './mageM1';
 import { RANGER_BEHAVIOURS, RANGER_OWNER_HOOKS, RANGER_SUMMONS } from './ranger';
 import { RANGER_M1_BEHAVIOURS, RANGER_M1_SUMMONS } from './rangerM1';
 import { rangerDeathHook } from './rangerKit';
@@ -24,23 +26,24 @@ let behaviours: Record<string, SkillBehaviour> | null = null;
 let summonKinds: Record<string, SummonBehaviour> | null = null;
 
 export function skillBehaviour(id: string): SkillBehaviour | undefined {
-  behaviours ??= { ...WARRIOR_BEHAVIOURS, ...WARRIOR_M1_BEHAVIOURS, ...RANGER_BEHAVIOURS, ...RANGER_M1_BEHAVIOURS, ...MAGE_BEHAVIOURS };
+  behaviours ??= { ...WARRIOR_BEHAVIOURS, ...WARRIOR_M1_BEHAVIOURS, ...RANGER_BEHAVIOURS, ...RANGER_M1_BEHAVIOURS, ...MAGE_BEHAVIOURS, ...MAGE_M1_BEHAVIOURS };
   return Object.hasOwn(behaviours, id) ? behaviours[id] : undefined;
 }
 
 export function summonBehaviour(type: string): SummonBehaviour | undefined {
-  summonKinds ??= { ...WARRIOR_SUMMONS, ...RANGER_SUMMONS, ...RANGER_M1_SUMMONS, ...MAGE_SUMMONS };
+  summonKinds ??= { ...WARRIOR_SUMMONS, ...RANGER_SUMMONS, ...RANGER_M1_SUMMONS, ...MAGE_SUMMONS, ...MAGE_M1_SUMMONS };
   return Object.hasOwn(summonKinds, type) ? summonKinds[type] : undefined;
 }
 
-/** Owner hooks after summon movement, in registration order. */
+/** Owner hooks after summon movement, in registration order (the mage hook also runs without summons: per-tick rules). */
+let ownerHooks: readonly OwnerSummonHook[] | null = null;
 export function ownerSummonHooks(): readonly OwnerSummonHook[] {
-  return RANGER_OWNER_HOOKS;
+  return (ownerHooks ??= [...RANGER_OWNER_HOOKS, MAGE_OWNER_HOOK]);
 }
 
 /** Death hooks in a fixed order (the order is observable through RNG use, so append new hooks at the end). */
 function deathHooks(): readonly DeathHook[] {
-  return [contagionHook, shatterHook, ruptureHook, warriorDepthHook, rangerDeathHook];
+  return [contagionHook, shatterHook, ruptureHook, warriorDepthHook, rangerDeathHook, mageDeathHook];
 }
 
 // ─────────────────────────── Primary attacks ───────────────────────────

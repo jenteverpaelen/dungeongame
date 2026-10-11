@@ -404,6 +404,103 @@ export function SkillGlyph({ glyph, color, size = 40 }: { glyph: string; color: 
         </>
       );
       break;
+    // ── Mage M1 (docs/rework/depth/MAGE.md §3 "VFX / icon / sound") ──
+    case 'needle': // Rime Needles: three thin needles of rime in a tight fan, frost glitter in their wake
+      body = (
+        <>
+          {[14, 0, -14].map((a, i) => (
+            <g transform={`translate(${3 + i * 1.6} ${27.6 - i * 0.6}) rotate(${-45 + a})`}>
+              <path d="M-1.6 0 H6" stroke={c} stroke-width="1.2" stroke-linecap="round" opacity=".5" />
+              <path d="M25 0 L8.6 -1.9 L3 -0.8 L1.6 0 L3 0.8 L8.6 1.9 Z" fill={c} {...sw} />
+              <path d="M23.4 -0.3 L8.6 -1.1" stroke="#fff" stroke-width=".8" stroke-linecap="round" opacity=".85" />
+            </g>
+          ))}
+          <path d="M26.4 3 l.9 2 2 .9 -2 .9 -.9 2 -.9 -2 -2 -.9 2 -.9 z" fill="#fff" opacity=".9" />
+          <path d="M28.6 15 l.6 1.4 1.4 .6 -1.4 .6 -.6 1.4 -.6 -1.4 -1.4 -.6 1.4 -.6 z" fill={hi} />
+          <circle cx="7" cy="20" r=".9" fill={hi} /><circle cx="11" cy="25.6" r=".8" fill={hi} /><circle cx="4.6" cy="24" r=".7" fill="#fff" opacity=".8" />
+        </>
+      );
+      break;
+    case 'ray': // Thrumming Ray: a beam with standing-wave ripples crossing at the nodes, a flare at the end
+      body = (
+        <g transform="rotate(-26 16 16)">
+          <path d="M3.6 16 H27" stroke={lo} stroke-width="7.4" stroke-linecap="round" opacity=".6" />
+          <path d="M3.6 16 H27" stroke={c} stroke-width="4.2" stroke-linecap="round" />
+          <path d="M4 16 C6.4 10.4 9.6 10.4 12 16 C14.4 21.6 17.6 21.6 20 16 C22.4 10.4 25.6 10.4 28 16" stroke={hi} stroke-width="1.3" fill="none" />
+          <path d="M4 16 C6.4 21.6 9.6 21.6 12 16 C14.4 10.4 17.6 10.4 20 16 C22.4 21.6 25.6 21.6 28 16" stroke={hi} stroke-width="1.3" fill="none" opacity=".75" />
+          <path d="M3.6 16 H27" stroke="#fff" stroke-width="1.4" stroke-linecap="round" />
+          <circle cx="3.8" cy="16" r="2.8" fill={c} {...sw} />
+          <circle cx="27.6" cy="16" r="3.2" fill={hi} />
+          <path d="M27.6 8.6 L28.7 14.9 L31.6 16 L28.7 17.1 L27.6 23.4 L26.5 17.1 L23.6 16 L26.5 14.9 Z" fill="#fff" />
+        </g>
+      );
+      break;
+    case 'ember_kin': // Cinderkin: a round coal-chunk ember creature with lantern eyes, a flame tuft and sparks behind
+      body = (
+        <>
+          <circle cx="4.6" cy="12" r="1.1" fill={hi} /><circle cx="3" cy="17.6" r=".9" fill={c} /><circle cx="6.4" cy="7.4" r=".8" fill={hi} opacity=".8" />
+          <path d="M15.6 9.6 C13 7.4 13.4 4.4 15 2.4 C15.4 4.4 16.4 4.8 17 4 C17.2 2.6 17.8 1.6 18.6 1 C19.6 3 21.4 4.6 20.4 7.4 C19.8 9 18 10 15.6 9.6 Z" fill={c} {...sw} />
+          <path d="M16.6 9 C15.4 7.8 15.6 6.2 16.6 5.2 C16.8 6.2 17.4 6.4 17.8 6 C18.6 7 18.6 8.4 16.6 9 Z" fill={hi} />
+          <path d="M6.6 19 L8.2 12.6 L13 9.2 L20.4 9.4 L25.6 13.6 L26.4 20.4 L22.6 26.6 L14.4 28.2 L8.6 25.4 Z" fill="#3b2c26" stroke="#150c07" stroke-width="1.3" stroke-linejoin="round" />
+          <path d="M13 9.2 L15 14.6 L22.6 26.6 M15 14.6 L6.6 19 M15 14.6 L25.6 13.6" stroke="#6a5446" stroke-width=".9" fill="none" />
+          <path d="M8.8 21.6 L11.6 19.4 L10.8 16 M24.6 16.6 L21.8 20.4 L23.2 24" stroke={c} stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          <ellipse cx="16.4" cy="23.4" rx="4.6" ry="2.4" fill={c} opacity=".45" />
+          <ellipse cx="13.6" cy="15.6" rx="1.9" ry="2.6" fill="#ffe27a" stroke="#150c07" stroke-width=".7" />
+          <ellipse cx="19.8" cy="15.4" rx="1.7" ry="2.4" fill="#ffe27a" stroke="#150c07" stroke-width=".7" />
+          <circle cx="14.2" cy="14.7" r=".6" fill="#fff" /><circle cx="20.3" cy="14.6" r=".55" fill="#fff" />
+          <path d="M14.6 20 C15.8 21.2 17.4 21.2 18.6 19.8" stroke="#150c07" stroke-width=".9" fill="none" stroke-linecap="round" />
+        </>
+      );
+      break;
+    case 'rime': // Rimefield: frost spreading over the ground, cracks of rime, crystals grown along the rim
+      body = (
+        <>
+          <ellipse cx="16" cy="21.6" rx="14.4" ry="7.6" fill={c} opacity=".3" stroke={c} stroke-width="1.3" />
+          <ellipse cx="16" cy="21.6" rx="9" ry="4.6" fill={hi} opacity=".3" />
+          <path d="M16 21.6 L9.4 18.6 L6.4 19.6 M16 21.6 L22.4 18 L25.6 19 M16 21.6 L12.4 26.6 M16 21.6 L22.6 25.4 M9.4 18.6 L8.8 16.4" stroke="#fff" stroke-width=".9" fill="none" opacity=".85" stroke-linecap="round" />
+          {[[4.4, 17.6, 5], [9.2, 14.6, 7], [16, 13.8, 8.4], [22.8, 14.6, 7], [27.6, 17.6, 5]].map(([x, y, h]) => (
+            <path d={`M${x - 1.7} ${y} L${x - 0.3} ${y - h} L${x + 1.7} ${y} Z`} fill={hi} {...sw} />
+          ))}
+          {[[6.4, 26.4, 4.6], [16, 29.4, 5.2], [25.6, 26.4, 4.6]].map(([x, y, h]) => (
+            <path d={`M${x - 1.8} ${y} L${x} ${y - h} L${x + 1.8} ${y} Z`} fill={c} {...sw} />
+          ))}
+          <path d="M5 4 l.8 1.8 1.8 .8 -1.8 .8 -.8 1.8 -.8 -1.8 -1.8 -.8 1.8 -.8 z" fill="#fff" opacity=".9" />
+          <path d="M26 3.6 l.6 1.3 1.3 .6 -1.3 .6 -.6 1.3 -.6 -1.3 -1.3 -.6 1.3 -.6 z" fill={hi} />
+        </>
+      );
+      break;
+    case 'stormglass': // Stormglass Orb: a glass sphere with lightning trapped inside, one arc leaping out
+      body = (
+        <>
+          <circle cx="15" cy="17" r="12.4" fill={c} opacity=".22" />
+          <circle cx="15" cy="17" r="8" fill={hi} opacity=".22" />
+          <path d="M9.4 12.6 L13.4 16.4 L11.2 18 L16.6 22.4 M13.4 16.4 L18.8 14.2 L17.6 17.6 L21.6 19.4" stroke={c} stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75" />
+          <path d="M9.4 12.6 L13.4 16.4 L11.2 18 L16.6 22.4 M13.4 16.4 L18.8 14.2 L17.6 17.6 L21.6 19.4" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M24.6 9.6 L27 7.4 L26.2 5.2 L29.6 2.4" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="15" cy="17" r="12.4" fill="none" stroke={lo} stroke-width="2.6" />
+          <circle cx="15" cy="17" r="12.4" fill="none" stroke={c} stroke-width="1.3" />
+          <path d="M7.4 11 C8.6 8.4 11 6.6 14 6.2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".9" />
+          <path d="M22.4 23.6 C21.4 25 20 25.8 18.6 26.2" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6" />
+        </>
+      );
+      break;
+    case 'orrery': // Orrery: brass rings with planets turning about a small sun
+      body = (
+        <>
+          <ellipse cx="16" cy="16" rx="14" ry="6.6" transform="rotate(-18 16 16)" fill="none" stroke={lo} stroke-width="3" opacity=".7" />
+          <ellipse cx="16" cy="16" rx="14" ry="6.6" transform="rotate(-18 16 16)" fill="none" stroke={c} stroke-width="1.4" />
+          <ellipse cx="16" cy="16" rx="8.4" ry="12.6" transform="rotate(32 16 16)" fill="none" stroke={c} stroke-width="1" opacity=".7" />
+          <circle cx="16" cy="16" r="4.4" fill={hi} {...sw} />
+          <circle cx="15" cy="15" r="1.5" fill="#fff" opacity=".9" />
+          <circle cx="3.6" cy="20" r="3.2" fill={c} {...sw} />
+          <circle cx="2.8" cy="19.1" r="1" fill="#fff" opacity=".7" />
+          <circle cx="27.8" cy="11.2" r="2.6" fill={c} {...sw} />
+          <ellipse cx="27.8" cy="11.2" rx="4.6" ry="1.4" transform="rotate(-18 27.8 11.2)" fill="none" stroke={hi} stroke-width=".9" />
+          <circle cx="21" cy="26.4" r="1.8" fill={hi} {...sw} />
+          <circle cx="11.6" cy="4.8" r="1.4" fill={hi} {...sw} />
+        </>
+      );
+      break;
     default: // rune
       body = (
         <>

@@ -14,6 +14,7 @@ import type { Fx } from './particles';
 import type { Slashes } from './slash';
 import type { WeaponSkin } from '../art/weaponSkin';
 import { RANGER_AOE, RangerFx } from './ranger';
+import { MAGE_AOE, type MageFx } from './mage';
 import {
   EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, angDiff, clamp, easeIn, easeOut, easeOut3, easeOutBack, lerpColor, pal, rand,
 } from './util';
@@ -45,6 +46,10 @@ export class AoeFx {
   private ploughs = new Map<number, { x: number; y: number; t: number; snd: number }>();
   /** Live Kilnheart auras by owner (a recast replaces the running one). */
   private kilns = new Map<number, () => void>();
+  /** Live black holes (Black Hole · Wandering Void moves the owner's hole with `blackhole_at`). */
+  private holes: Hole[] = [];
+  /** Mage M1 area visuals (mage.ts), injected by Vfx. */
+  mage: MageFx | null = null;
 
   /** Ranger M1 variants (vfx/ranger.ts). */
   private ranger: RangerFx;
@@ -66,6 +71,7 @@ export class AoeFx {
       V.after(delay, () => this.handle({ ...ev, delay: 0 }));
       return;
     }
+    if (this.mage && MAGE_AOE.has(ev.v)) { this.mage.aoe(ev, V.isMine(ev.s)); return; }
     const covers = COVERED_BY[ev.v];
     if (covers) {
       if (covers.some((k) => V.consume('tele:' + k, ev.x, ev.y, 0.4, 70))) return;
@@ -80,7 +86,8 @@ export class AoeFx {
       case 'molten': this.pool(ev.x, ev.y, r, Math.max(0.5, d), ev.el === EL_COLD ? 'frost' : 'lava', ev.f ? ev.s : undefined); break;
       case 'molten_trail': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'lava', ev.f ? ev.s : undefined); break;
       case 'poison_pool': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'goo', ev.f ? ev.s : undefined); break;
-      case 'blackhole': this.blackhole(ev.x, ev.y, r, Math.max(0.4, d), ev.el); break;
+      case 'blackhole': this.blackhole(ev.x, ev.y, r, Math.max(0.4, d), ev.el, ev.s); break;
+      case 'blackhole_at': this.blackholeAt(ev.s ?? -1, ev.x, ev.y, Math.max(0.1, d)); break;
       case 'nova': this.nova(ev.x, ev.y, r, ev.el, mine); break;
       case 'stomp': this.stomp(ev.x, ev.y, r, ev.el, mine); break;
       case 'rend':
@@ -340,8 +347,11 @@ export class AoeFx {
 
   // ─────────────────────────── black hole ───────────────────────────
 
-  blackhole(x: number, y: number, r: number, d: number, el: number): void {
+  blackhole(x: number, y: number, r: number, d: number, el: number, owner = -1): void {
     const V = this.V, s = V.sys, T = s.T;
+    const H: Hole = { owner, x, y, tx: x, ty: y, v: 0, alive: true };
+    this.holes.push(H);
+    if (this.holes.length > 32) this.holes.shift();
     const cold = el === EL_COLD;
     const main = cold ? 0x7fd8ff : 0xa45cff, hot = cold ? 0xe8fbff : 0xf0d8ff;
     const z = 4;
@@ -371,6 +381,12 @@ export class AoeFx {
     V.add({
       update: (dt) => {
         age += dt;
+        // Wandering Void: glide toward the latest `blackhole_at` point (arrives in about one server step)
+        if (H.v > 0) {
+          const dx = H.tx - x, dy = H.ty - y, dist = Math.hypot(dx, dy), step = H.v * dt;
+          if (dist <= step) { x = H.tx; y = H.ty; H.v = 0; } else { x += (dx / dist) * step; y += (dy / dist) * step; }
+          H.x = x; H.y = y;
+        }
         const open = easeOut(clamp(age / 0.25, 0, 1));
         const collapse = clamp((age - (d - 0.18)) / 0.18, 0, 1);
         const sc = open * (1 - easeIn(collapse) * 0.9);
@@ -406,10 +422,25 @@ export class AoeFx {
         return true;
       },
       kill: () => {
+        H.alive = false;
+        const i = this.holes.indexOf(H);
+        if (i >= 0) this.holes.splice(i, 1);
         for (const p of parts) s.aAdd.kill(p);
         for (const m of motes) s.aAdd.kill(m.p);
       },
     });
+  }
+
+  /** Black Hole · Wandering Void: the owner's nearest live hole glides to (x, y) over `secs`. */
+  private blackholeAt(owner: number, x: number, y: number, secs: number): void {
+    let best: Hole | null = null, bd = Infinity;
+    for (const h of this.holes) {
+      if (!h.alive || h.owner !== owner) continue;
+      const d = Math.hypot(h.x - x, h.y - y);
+      if (d < bd) { bd = d; best = h; }
+    }
+    if (!best || bd > 600) return;
+    best.tx = x; best.ty = y; best.v = Math.max(20, bd / secs);
   }
 
   // ─────────────────────────── frost nova ───────────────────────────
@@ -1654,6 +1685,7 @@ export class AoeFx {
 // shown as Sprites / a MeshPlane in AoeFx's own prop layers (the shared particle atlas stays untouched).
 
 interface Hatchet { owner: number; x: number; y: number; leg: number; seek: { x: number; y: number } | null; done: boolean }
+interface Hole { owner: number; x: number; y: number; tx: number; ty: number; v: number; alive: boolean }
 interface Banner { owner: number; x: number; y: number; carry: boolean; born: number; alive: boolean; end: () => void }
 
 const PROP_RES = 3;

@@ -245,7 +245,7 @@ export interface MobPowerStatus {
 
 // ─────────────────────────── Summons ───────────────────────────
 
-export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'snare' | 'mortar' | 'flock' | 'flock_guard' | 'badger' | 'heron';
+export type SummonType = 'sentry' | 'hydra' | 'wolf' | 'bat' | 'raven' | 'dust_devil' | 'snare' | 'mortar' | 'flock' | 'flock_guard' | 'badger' | 'heron' | 'cinderkin' | 'frostkin' | 'ember_sprite';
 
 export interface Summon extends Hashed {
   kind: 'summon';
@@ -353,6 +353,19 @@ export interface Proj {
   life0?: number;
   /** Class behaviour hooks (ranger wave); kept by bounces, returns and ricochets. */
   hooks?: ProjHooks;
+  /**
+   * Class-module behaviour (mage pilot): `hit` replaces the kind's hit rule (the hook strikes, pierces or ends the
+   * projectile itself), `tick` runs after every movement step of the update, `end` runs once when the projectile ends
+   * for good (a hit, its life, a wall). A bounced continuation carries the same hook object (and its state).
+   */
+  hook?: ProjHook;
+}
+
+/** See `Proj.hook`. `why`: hit = ended by a hit, life = ran out, wall = stopped by a wall without bounces left. */
+export interface ProjHook {
+  hit?(inst: import('./instance').Instance, pr: Proj, p: Player, m: Mob): void;
+  tick?(inst: import('./instance').Instance, pr: Proj, dtMs: number): void;
+  end?(inst: import('./instance').Instance, pr: Proj, why: 'hit' | 'life' | 'wall'): void;
 }
 
 /**

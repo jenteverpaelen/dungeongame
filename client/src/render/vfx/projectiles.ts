@@ -8,11 +8,12 @@ import type { Fx } from './particles';
 import type { Combat } from './combat';
 import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, angDiff, clamp, lerpColor, pal, rand } from './util';
 import type { WeaponSkin } from '../art/weaponSkin';
+import { MAGE_PROJ, type MageFx } from './mage';
 
 type ProjEv = Extract<GameEvent, { e: 'proj' }>;
 type PEnd = Extract<GameEvent, { e: 'pend' }>;
 
-interface Proj {
+export interface Proj {
   id: number; v: string; el: number; mine: boolean; sz: number; src: number;
   x: number; y: number; z: number; vx: number; vy: number; speed: number;
   age: number; life: number; h: number; turn: number;
@@ -23,6 +24,8 @@ interface Proj {
    *  trail motes in it; null for monsters and plain weapons. */
   skin: WeaponSkin | null;
   aura: Fx | null;
+  /** Scratch timers for visuals that pulse or crackle on their own clock (stormglass lightning, hum). */
+  aux: number; aux2: number;
 }
 
 const MAX = 600;
@@ -44,6 +47,8 @@ export class Projectiles {
   private byId = new Map<number, Proj>();
   /** Skipstone Bolt: consecutive skips per shooter (the ricochet clicks rise in pitch). */
   private skips = new Map<number, { n: number; at: number }>();
+  /** Mage M1 visuals (needle, needle_spine, stormglass, kinbolt) live in mage.ts. */
+  mage: MageFx | null = null;
 
   constructor(private V: VfxCore, private combat: Combat) {}
 
@@ -66,7 +71,7 @@ export class Projectiles {
       x: ev.x, y: ev.y, z: 26, vx: ev.vx, vy: ev.vy, speed,
       age: 0, life, h: ev.h ?? 0, turn: 6,
       lob, x0: ev.x, y0: ev.y, tx: ev.x + ev.vx * life, ty: ev.y + ev.vy * life, H: 0,
-      parts: [], acc: 0, spin: rand(0, TAU), phase: rand(0, TAU), color, hot, skin, aura: null,
+      parts: [], acc: 0, spin: rand(0, TAU), phase: rand(0, TAU), color, hot, skin, aura: null, aux: 0, aux2: 0,
     };
     if (lob) p.H = clamp(Math.hypot(p.tx - p.x, p.ty - p.y) * 0.42, 50, 190);
     this.build(p);
@@ -80,6 +85,9 @@ export class Projectiles {
       // ranger M1: a flat stone leaves the hand with a click; the long Farwatch shaft twangs like an arrow
       farwatch: 'arrow', skip_heavy: 'skip_heavy', dart: 'dart',
     };
+    // an Orrery sphere's missile (Frozen Moons: needles) chimes instead of the usual launch sound
+    if ((p.v === 'missile' || p.v === 'needle') && this.mage?.orreryChime(p.x, p.y, mine)) return;
+    if (MAGE_PROJ.has(p.v)) { this.mage?.projSound(p); return; }
     const s = snd[p.v];
     if (s) V.sound(s, p.x, p.y, vol * (p.v === 'spark' ? 0.4 : p.v === 'dart' ? 0.5 : 1));
     // a fresh Skipstone bolt (not a skip leg) restarts the rising ricochet clicks
@@ -122,6 +130,7 @@ export class Projectiles {
       p.parts.push(f);
       return f;
     };
+    if (MAGE_PROJ.has(p.v) && this.mage) { this.mage.projBuild(p, add); this.place(p, 0); return; }
     switch (p.v) {
       case 'arrow': {
         p.z = 28; p.turn = 6;
@@ -314,6 +323,7 @@ export class Projectiles {
     p.spin += dt;
     const parts = p.parts;
     const t = p.age;
+    if (MAGE_PROJ.has(p.v) && this.mage) { this.mage.projPlace(p, dt, ang); return; }
     switch (p.v) {
       case 'arrow': case 'shard': {
         const [tr, body] = parts;
@@ -450,7 +460,7 @@ export class Projectiles {
   /** Emit trail particles every few units travelled. */
   private trail(p: Proj, ox: number, oy: number, oz: number, dist: number): void {
     const s = this.V.sys, T = s.T;
-    const step = (p.v === 'rocket' ? 8 : p.v === 'fireball' ? 7 : p.v === 'firebolt' ? 8 : 12) / Math.max(0.3, s.budget);
+    const step = (p.v === 'rocket' ? 8 : p.v === 'fireball' ? 7 : p.v === 'firebolt' || p.v === 'kinbolt' ? 8 : p.v === 'stormglass' ? 9 : 12) / Math.max(0.3, s.budget);
     if (this.list.length > 220 && p.v !== 'rocket' && p.v !== 'fireball' && p.v !== 'cluster') { p.acc = 0; return; }
     const inv = dist > 0.001 ? 1 / dist : 0;
     while (p.acc >= step) {
@@ -458,6 +468,7 @@ export class Projectiles {
       // Spread emissions along this frame's path segment (no clumping at low frame rates).
       const f = clamp(1 - p.acc * inv, 0, 1);
       const x = ox + (p.x - ox) * f + rand(-2, 2), y = oy + (p.y - oy) * f, z = oz + (p.z - oz) * f + rand(-2, 2);
+      if (MAGE_PROJ.has(p.v) && this.mage) { this.mage.projTrail(p, x, y, z); continue; }
       switch (p.v) {
         case 'arrow':
           if (p.el !== EL_PHYS && Math.random() < 0.5) s.glint(x, y, z, 8, pal(p.el).main, 0.25, 0.8);
@@ -566,6 +577,7 @@ export class Projectiles {
     const V = this.V, s = V.sys, T = s.T;
     const z = p.lob ? 6 : p.z;
     if (hit && p.skin) s.flash(x, y, z, 12 + 8 * Math.min(1.6, p.skin.strength), p.skin.light, 0.08, 0.55);
+    if (MAGE_PROJ.has(p.v) && this.mage) { this.mage.projImpact(p, hit, x, y, z); return; }
     switch (p.v) {
       case 'arrow': {
         if (hit) {

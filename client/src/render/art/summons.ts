@@ -8,7 +8,7 @@ import { effectsFactor } from '../../game/quality';
 import type { ActionSpec } from '../actions';
 import type { ActingView, EntityView, ViewState } from '../types';
 import { OUT, arcPts, ball, blob, blobPath, crease, eye, fill, gloss, line, outline, poly, rbox, rivet, seg, wash, type Ctx } from './draw';
-import { fx, glowSprite } from './fx';
+import { fx, glowSprite, sparkleSprite } from './fx';
 import { P, RigArt, atkCurve, rigSheet, type C, type Family, type Nodes } from './monsters';
 import { PNode } from './puppet';
 import { TAU, clamp, lerp, light, shade } from './util';
@@ -239,6 +239,142 @@ const RAVEN: Family = {
     n.root.set(strike * 10, -30 + Math.sin(s.t * 3) * 3 - wind * 4 + strike * 12, 0.05 + strike * 0.45 - wind * 0.2);
     n.wingF.set(-1, -3, 0.3 - flap * 0.6); n.wingF.c.scale.y = 0.5 + 0.55 * (0.5 + 0.5 * flap);
     n.wingB.set(1, -4, 0.8 - flap * 0.5); n.wingB.c.scale.set(-0.85, 0.5 + 0.45 * (0.5 + 0.5 * flap));
+  },
+};
+
+// ─────────────────────────── cinderkin / frostkin / ember sprite (Mage M9) ───────────────────────────
+// docs/rework/depth/MAGE.md §3 M9: small round ember sprites with coal-chunk bodies and flickering eyes, sparks
+// behind them. Frostkin is the same creature cut from ice. They hop to enemies and claw (F_ATTACK).
+
+const KIN_COL: C = { body: 0x3b2c26, accent: 0xff8a3d, eye: 0xffe27a };
+const FROSTKIN_COL: C = { body: 0x5f8eae, accent: 0xcff2ff, eye: 0xf2fdff };
+const SPRITE_COL: C = { body: 0xff8a3d, accent: 0xffe08a, eye: 0x3a1a0c };
+
+function kinBody(c: Ctx, col: C, frost: boolean): void {
+  // a faceted lump of coal (frost: a chunk of blue ice), facet edges, glowing seams, a lit belly
+  const pts = [-10.6, -1, -9.8, -8.8, -3.8, -12.8, 4.4, -12.8, 10.2, -7.8, 11, 0.4, 7.6, 7.2, -1, 8.6, -8.4, 6];
+  poly(c, pts, col.body, { hl: frost ? 0.5 : 0.22, inset: 0.8 });
+  const edge = frost ? light(col.body, 0.45) : light(col.body, 0.18);
+  crease(c, [-3.8, -12.8, -1.6, -5.6, 7.6, 7.2], 1, edge, 0.75);
+  crease(c, [-1.6, -5.6, -10.6, -1], 1, edge, 0.6);
+  crease(c, [-1.6, -5.6, 10.2, -7.8], 1, edge, 0.6);
+  wash(c, (k) => k.ellipse(1.6, 3.4, 6, 3.4), col.accent, frost ? 0.45 : 0.4);
+  // seams: dark-edged, bright-cored cracks
+  const seams = [[-8.6, 2.6, -5, -0.8, -6, -5.4], [9.2, -3.4, 5.8, 0.8, 7.4, 5], [-2.4, 7.6, -0.6, 4.4]];
+  for (const s of seams) { crease(c, s, 2.4, frost ? 0x2c5a7a : 0x1a0c08, 0.7); crease(c, s, 1.3, col.accent, 1); }
+  // face: two lantern eyes and a small grin
+  eye(c, 1.6, -5, 2.1, 2.9, col.eye);
+  eye(c, 7.2, -5.2, 1.8, 2.6, col.eye);
+  c.moveTo(2.6, -0.6).quadraticCurveTo(4.6, 1, 6.6, -0.8); outline(c, 1.2);
+}
+function kinTuft(c: Ctx, col: C, frost: boolean): void {
+  // a flame (frost: a frost wisp) licking off the crown; base at (0, 0)
+  const pts = [0, 1.4, -4.6, -1.4, -5, -6, -2.4, -9.6, -1.4, -6.4, 0.4, -12.6, 2.2, -6.8, 3.8, -9, 5, -4.4, 4.4, -0.6];
+  blob(c, pts, frost ? light(col.accent, 0.2) : col.accent, { hl: 0.55, ow: 1.8 });
+  wash(c, (k) => blobPath(k, [0, 0, -2.4, -2, -2, -5.6, 0.2, -8.4, 2.2, -5, 2, -1.4]), frost ? 0xffffff : 0xffe08a, 0.9);
+}
+function kinArm(c: Ctx, col: C, isBack: boolean): void {
+  // a stubby coal arm ending in three little claws (origin at the shoulder, pointing down/forward)
+  const b = isBack ? shade(col.body, 0.25) : col.body;
+  rbox(c, -2, -1.4, 4, 7.4, 2, b, { ow: 1.8, hl: 0 });
+  for (const dx of [-1.6, 0.4, 2.2]) poly(c, [dx - 0.9, 5.4, dx + 0.9, 5.4, dx + 0.6, 8.8], isBack ? shade(col.accent, 0.3) : col.accent, { ow: 1.2 });
+}
+
+function kinFamily(frost: boolean): Family {
+  return {
+    base: 1, height: 30, shadow: 24, atkDur: 0.42, eyes: ['body', 4.4, -5],
+    parts: (col) => [P('armB', (c) => kinArm(c, col, true)), P('body', (c) => kinBody(c, col, frost)), P('tuft', (c) => kinTuft(c, col, frost)), P('armF', (c) => kinArm(c, col, false))],
+    rig: (p) => {
+      const root = p.add(null, null, 0, -9);
+      const armB = p.add('armB', root, -6, -2);
+      const body = p.add('body', root);
+      const tuft = p.add('tuft', root, 1, -12);
+      const armF = p.add('armF', root, 7, -1);
+      return { root, armB, body, tuft, armF };
+    },
+    setup: (p, _n, v) => {
+      // the ember glow on the ground and the sparks streaming off behind (frost: glittering flakes): all additive and
+      // all in p.under, so a kin costs one extra blend run like the hydra's pool glow (the baked eyes glow on wind-ups
+      // through the family's `eyes` hook)
+      const glow = glowSprite(frost ? 0x9fdcff : 0xff7a1a, 46, 0.5, true);
+      glow.scale.y *= 0.42;
+      p.under.addChild(glow);
+      v.extra.glow = glow;
+      for (let i = 0; i < 3; i++) { const s = sparkleSprite(frost ? 0xe8fbff : 0xffb050, 7, 0); p.under.addChild(s); v.extra[`mote${i}`] = s; }
+    },
+    pose: (n, s, v) => {
+      // hop when moving (squash on landing), bob when idle, both arms rake on an attack
+      const hop = Math.abs(Math.sin(s.walk * 0.9)) * s.move;
+      const land = s.move > 0.2 ? Math.max(0, 1 - Math.abs(Math.sin(s.walk * 0.9)) * 4) : 0;
+      const { wind, strike } = atkCurve(s.atk, 0.35, 0.55);
+      n.root.set(strike * 4 - wind * 1.5, -9 - hop * 7 + Math.sin(s.t * 3.4) * 0.8 * (1 - s.move), strike * 0.22 - wind * 0.15 + s.move * 0.08);
+      n.root.scale(1 + 0.12 * land + 0.04 * wind, 1 - 0.14 * land + 0.03 * Math.sin(s.t * 5));
+      n.armF.rot = -0.3 - wind * 1.6 + strike * 1.9 + Math.sin(s.walk) * 0.4 * s.move;
+      n.armB.rot = 0.2 - wind * 1.2 + strike * 1.5 - Math.sin(s.walk) * 0.4 * s.move;
+      const fl = Math.sin(s.t * 17) * 0.5 + Math.sin(s.t * 29) * 0.5;
+      n.tuft.set(1 - s.move * 1.5, -12, -0.12 * s.move + fl * 0.06);
+      n.tuft.scale(1 + fl * 0.06, 1 + fl * 0.12 + wind * 0.3);
+      const g = v.extra.glow;
+      if (g) g.alpha = 0.42 + 0.12 * Math.abs(fl) + 0.2 * strike;
+      const dir = Math.sign(s.face) || 1, S = v.S;
+      for (let i = 0; i < 3; i++) {
+        const sp = v.extra[`mote${i}`];
+        if (!sp) continue;
+        const u = (s.t * (1.6 + i * 0.3) + i / 3) % 1;
+        sp.position.set((-6 - u * (10 + 10 * s.move)) * dir * S, (-12 - u * 18 + Math.sin(u * 9 + i) * 2) * S);
+        sp.alpha = Math.sin(u * Math.PI) * (0.55 + 0.35 * s.move);
+        sp.scale.set((0.32 - u * 0.18) * Math.max(1, S * 0.8));
+        sp.visible = sp.alpha > 0.02;
+      }
+    },
+  };
+}
+
+function spriteBody(c: Ctx, col: C): void {
+  // a tiny flying flame: a teardrop of fire with a hot core and a small face
+  const pts = [0, 7, -6.4, 3.4, -7, -3, -4, -8, -2, -6, 0, -14, 2.4, -7.4, 4.8, -9.6, 7, -3, 6.4, 3.4];
+  blob(c, pts, col.body, { hl: 0.45, ow: 2 });
+  wash(c, (k) => blobPath(k, [0, 5, -4, 2.4, -4, -2.4, -1, -5.6, 1, -3, 3.4, -5, 4.4, -1.4, 4, 2.6]), col.accent, 0.95);
+  eye(c, -1.6, -0.6, 1.1, 1.6, col.eye); eye(c, 2.4, -0.6, 1.1, 1.6, col.eye);
+}
+function spriteWing(c: Ctx, col: C): void {
+  blob(c, [0, 0, -3, -4, -8, -6, -10, -3, -6, 0.6], light(col.accent, 0.4), { ow: 1.4, hl: 0.4 });
+}
+const EMBER_SPRITE: Family = {
+  base: 1, height: 40, shadow: 14, fly: 26, atkDur: 0.38,
+  parts: (col) => [P('wingB', (c) => spriteWing(c, col)), P('body', (c) => spriteBody(c, col)), P('wingF', (c) => spriteWing(c, col))],
+  rig: (p) => {
+    const root = p.add(null, null, 0, -26);
+    const wingB = p.add('wingB', root, -2, -3); const body = p.add('body', root); const wingF = p.add('wingF', root, -1, -1);
+    return { root, wingB, body, wingF };
+  },
+  setup: (p, _n, v) => {
+    // additive glow and sparks in p.under (one blend run), the glow positioned on the flying body each frame
+    const g = glowSprite(0xff8a3d, 36, 0.7);
+    p.under.addChild(g);
+    v.extra.glow = g;
+    for (let i = 0; i < 2; i++) { const s = sparkleSprite(0xffc060, 6, 0); p.under.addChild(s); v.extra[`mote${i}`] = s; }
+  },
+  pose: (n, s, v) => {
+    const flap = Math.sin(s.t * 22);
+    const { wind, strike } = atkCurve(s.atk, 0.3, 0.5);
+    n.root.set(strike * 8, -26 + Math.sin(s.t * 4.2) * 2.4 - wind * 3 + strike * 8, strike * 0.35 + s.move * 0.18);
+    n.wingF.set(-1, -1, 0.4 - flap * 0.5); n.wingF.c.scale.y = 0.6 + 0.4 * (0.5 + 0.5 * flap);
+    n.wingB.set(-2, -3, 0.9 - flap * 0.4); n.wingB.c.scale.set(-0.8, 0.55 + 0.4 * (0.5 + 0.5 * flap));
+    const fl = Math.sin(s.t * 19) * 0.5 + Math.sin(s.t * 31) * 0.5;
+    n.body.scale(1 + fl * 0.05, 1 + fl * 0.1);
+    const g = v.extra.glow;
+    if (g) { g.alpha = 0.55 + 0.25 * fl; g.position.set(n.root.x * (Math.sign(s.face) || 1) * v.S, (n.root.y - 2) * v.S); }
+    const dir = Math.sign(s.face) || 1;
+    for (let i = 0; i < 2; i++) {
+      const sp = v.extra[`mote${i}`];
+      if (!sp) continue;
+      const u = (s.t * 2.2 + i * 0.5) % 1;
+      sp.position.set((-4 - u * 14) * dir, -24 - u * 6 + Math.sin(u * 8) * 2);
+      sp.alpha = Math.sin(u * Math.PI) * 0.8;
+      sp.scale.set(0.3 - u * 0.15);
+      sp.visible = sp.alpha > 0.02;
+    }
   },
 };
 
@@ -807,6 +943,7 @@ class OrbSummon implements EntityView {
 
 // ─────────────────────────── factory ───────────────────────────
 
+const KIN = kinFamily(false), FROSTKIN = kinFamily(true);
 const RIGS: Record<string, { fam: Family; col: C; scale?: number }> = {
   sentry: { fam: SENTRY, col: { body: WOODC, accent: BRASS, eye: 0 } },
   hydra: { fam: HYDRA, col: HYDRA_COL },
@@ -818,22 +955,34 @@ const RIGS: Record<string, { fam: Family; col: C; scale?: number }> = {
   mortar: { fam: MORTAR, col: { body: 0x50545c, accent: WOODC, eye: 0 }, scale: 1.3 },
   badger: { fam: BADGER, col: BADGER_COL, scale: 1.25 },
   heron: { fam: HERON, col: HERON_COL, scale: 1.12 },
+  cinderkin: { fam: KIN, col: KIN_COL },
+  frostkin: { fam: FROSTKIN, col: FROSTKIN_COL },
+  ember_sprite: { fam: EMBER_SPRITE, col: SPRITE_COL },
+};
+/** Summons whose replicated radius selects a big variant (Cinderkin · Bonfire Kin: radius 36 instead of 14). */
+const BIG: Record<string, { minRadius: number; scale: number }> = {
+  cinderkin: { minRadius: 28, scale: 2.1 },
+  frostkin: { minRadius: 28, scale: 2.1 },
 };
 
 /** Default flock radius (RANGER.md R12) when the description carries none. */
 const FLOCK_R = 120, GUARD_R = 60;
+/** The ranger's summons that play an action pose on their own shots (playAction); other classes' summons are unchanged. */
+const ACTING_SUMMONS = new Set(['sentry', 'wolf', 'bat', 'raven', 'snare', 'mortar', 'flock', 'flock_guard', 'badger', 'heron']);
 
 export class SummonArt implements ActingView {
   private inner: EntityView;
-  /** Rigs that react to their own shots (ranger devices and beasts); the mage's hydra keeps its look (out of this wave). */
+  /** Rigs that react to their own shots (the ranger's devices and beasts); other summons keep their look. */
   private acts: boolean;
-  constructor(type: string, radius?: number) {
-    this.acts = type !== 'hydra';
+  /** `radius`: the summon's replicated radius (EntDesc.r): sizes the flocks and picks the big variant where one exists. */
+  constructor(type: string, radius = 0) {
+    this.acts = ACTING_SUMMONS.has(type);
     const r = RIGS[type];
+    const big = BIG[type] && radius >= BIG[type].minRadius ? BIG[type] : null;
     if (type === 'dust_devil') this.inner = new DustDevil();
-    else if (type === 'flock' || type === 'flock_guard') this.inner = new FlockView(radius && radius > 8 ? radius : type === 'flock' ? FLOCK_R : GUARD_R, type === 'flock_guard');
+    else if (type === 'flock' || type === 'flock_guard') this.inner = new FlockView(radius > 8 ? radius : type === 'flock' ? FLOCK_R : GUARD_R, type === 'flock_guard');
     else if (r) {
-      const o = { key: `summon:${type}`, fam: r.fam, colors: r.col, scale: r.scale ?? 1, shadowAlpha: type === 'snare' ? 0.3 : 0.6 };
+      const o = { key: big ? `summon:${type}:big` : `summon:${type}`, fam: r.fam, colors: r.col, scale: big ? big.scale : r.scale ?? 1, shadowAlpha: type === 'snare' ? 0.3 : 0.6 };
       this.inner = type === 'snare' ? new TrapArt(o) : new RigArt(o);
     } else this.inner = new OrbSummon(type.includes('molten') ? 0xff7a1a : 0x9fe3ff);
   }
@@ -854,5 +1003,7 @@ export class SummonArt implements ActingView {
 
 /** Summon rigs, for baking into the map's shared rig atlas. */
 export function summonRigs(): { key: string; colors: C; fam: Family; scale: number }[] {
-  return Object.entries(RIGS).map(([type, r]) => ({ key: `summon:${type}`, colors: r.col, fam: r.fam, scale: r.scale ?? 1 }));
+  const out = Object.entries(RIGS).map(([type, r]) => ({ key: `summon:${type}`, colors: r.col, fam: r.fam, scale: r.scale ?? 1 }));
+  for (const [type, b] of Object.entries(BIG)) out.push({ key: `summon:${type}:big`, colors: RIGS[type].col, fam: RIGS[type].fam, scale: b.scale });
+  return out;
 }

@@ -9,6 +9,7 @@ import type { Element } from '../types';
 import type { SkillTag } from './skills';
 import { WARRIOR_GROUNDS } from './groundsWarrior';
 import { RANGER_GROUNDS } from './groundsRanger';
+import { MAGE_GROUNDS } from './groundsMage';
 
 export interface GroundDef {
   id: string;
@@ -44,7 +45,7 @@ export interface GroundDef {
 }
 
 /** Shipped grounds (class content files, appended per class). Tests install fixtures with registerGroundDefs. */
-export const GROUND_DEFS: Record<string, GroundDef> = Object.fromEntries([...WARRIOR_GROUNDS, ...RANGER_GROUNDS].map((d) => [d.id, d]));
+export const GROUND_DEFS: Record<string, GroundDef> = Object.fromEntries([...WARRIOR_GROUNDS, ...RANGER_GROUNDS, ...MAGE_GROUNDS].map((d) => [d.id, d]));
 
 /** Install ground definitions (content modules and test fixtures). Returns a function that removes them again. */
 export function registerGroundDefs(defs: readonly GroundDef[]): () => void {
