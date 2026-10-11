@@ -10,7 +10,12 @@ import { SKILLS, mergeMods, type SkillMods } from '../../shared/src/data/skills'
 import { DASH } from '../../shared/src/constants';
 import { computeStats } from '../../shared/src/stats';
 import { OWN_BUCKET_CAP, describeEffect, powerText, powerTextIssues, type PowerEffect } from '../../shared/src/powers';
-import { buildPowerRuntime, firePowerProcs, ownMultiplier, applyHitTerms, vulnTermsFactor } from '../src/sim/powerRuntime';
+import { buildPowerRuntime, firePowerProcs, ownMultiplier, applyHitTerms, vulnTermsFactor, tagIndexFor } from '../src/sim/powerRuntime';
+import { ITEM_COUNT_CAP } from '../../shared/src/powers';
+import { matchesTags, skillTags } from '../../shared/src/data/skills';
+import { PASSIVES, setPassive } from '../../shared/src/passives';
+import { generateItem } from '../../shared/src/items';
+import { Rng } from '../../shared/src/math';
 import { buildCtx } from '../src/sim/playerctx';
 import type { DerivedStats } from '../../shared/src/types';
 import type { Mob, Player } from '../src/sim/types';
@@ -244,4 +249,84 @@ test('template passives join the same interpreter (slot order, after items) and 
     assert.equal(ownMultiplier(p, 'multishot'), 1);
     assert.equal(ctx.d.skillDmg.sentry, computeStats(save).skillDmg.sentry, 'stat passive unchanged');
   } finally { undo(); }
+});
+
+// ─────────────── content-bible vocabulary: skillMore, shared condition predicate, tags, count cap, per-legendary stat ───────────────
+test('skillMore: unconditional own bucket (rolled), cast-time conditions with stacks, target conditions per hit', () => {
+  const powers = buildPowerRuntime([{ kind: 'legendary', id: 'fx', roll: 30, effects: [
+    { kind: 'skillMore', skills: ['meteor'], pct: { roll: 1 } },
+    { kind: 'skillMore', skills: ['meteor'], pct: 6, when: { buffStacks: 'fx_stack', max: 5 } },
+    { kind: 'skillMore', skills: ['meteor'], pct: 20, when: { standingStill: true } },
+    { kind: 'skillMore', skills: ['meteor'], pct: 25, when: { targetState: 'immobilised' } },
+    { kind: 'skillMore', skills: ['hydra'], pct: 10, when: { targetFartherThan: 300 } },
+    { kind: 'skillMore', skills: ['hydra'], pct: 15, when: { targetLifeAbovePct: 75 } },
+    { kind: 'skillMore', skills: ['black_hole'], pct: 40, when: { targetState: 'inBlackHole' } },
+    { kind: 'skillMore', skills: ['frost_nova'], pct: 50, when: { inOwnGround: true } },
+  ] }]);
+  const p = { ctx: { powers }, summons: [], buffs: [{ id: 'fx_stack', ms: 1000, st: 7 }], moving: true, inOwnGround: false, x: 0, y: 0, hp: 1, mhp: 1 } as unknown as Player;
+  const mut = p as unknown as { moving: boolean; inOwnGround: boolean };
+  assert.equal(ownMultiplier(p, 'meteor'), 1.3 * (1 + 0.06 * 5), 'rolled 30% more and 5 capped stacks; moving');
+  mut.moving = false;
+  assert.equal(ownMultiplier(p, 'meteor'), 1.3 * (1 + 0.06 * 5) * 1.2);
+  assert.equal(powers.watchGround, true);
+  assert.equal(ownMultiplier(p, 'frost_nova'), 1); mut.inOwnGround = true; assert.equal(ownMultiplier(p, 'frost_nova'), 1.5);
+  const mob = (o: Record<string, unknown>) => ({ stunMs: 0, freezeMs: 0, chillMs: 0, inHoleMs: 0, dots: [], x: 0, y: 0, hp: 100, mhp: 100, ...o }) as unknown as Mob;
+  assert.equal(vulnTermsFactor(p, mob({ freezeMs: 10 }), 'meteor'), 1.25, 'immobilised = frozen or stunned');
+  assert.equal(vulnTermsFactor(p, mob({}), 'meteor'), 1);
+  assert.equal(vulnTermsFactor(p, mob({ x: 400, hp: 80 }), 'hydra'), 1.1 * 1.15);
+  assert.equal(vulnTermsFactor(p, mob({ x: 100, hp: 70 }), 'hydra'), 1);
+  assert.equal(vulnTermsFactor(p, mob({ inHoleMs: 150 }), 'black_hole'), 1.4);
+});
+
+test('tag queries resolve once per character (equipped runes re-derive the element) for skills, sets and conditions', () => {
+  assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'melee', 'physical', 'primary']);
+  assert(skillTags(SKILLS.cleave, 'gathering_storm').has('lightning') && !skillTags(SKILLS.cleave, 'gathering_storm').has('physical'));
+  assert(skillTags(SKILLS.whirlwind, 'dust_devils').has('summon'), 'rune tags join while equipped');
+  assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'area'], noneOf: ['melee'] }));
+  const effects: PowerEffect[] = [
+    { kind: 'skillMore', tags: { anyOf: ['lightning'] }, pct: 30 },
+    { kind: 'skillMods', tags: { allOf: ['melee', 'area'] }, mods: { radius: 10 } },
+    { kind: 'conditional', when: { channeling: { anyOf: ['channel'] } }, bucket: 'own', pct: 20, tags: { anyOf: ['area'] } },
+  ];
+  const plain = buildPowerRuntime([{ kind: 'set', id: 'fx', roll: 1, effects }], tagIndexFor('warrior', {}));
+  const storm = buildPowerRuntime([{ kind: 'set', id: 'fx', roll: 1, effects }], tagIndexFor('warrior', { cleave: 'gathering_storm' }));
+  assert.equal(plain.ownStatic.get('cleave'), undefined);
+  assert.equal(storm.ownStatic.get('cleave'), 1.3, 'Gathering Storm makes Cleave a lightning skill');
+  assert.deepEqual([...plain.mods.keys()].sort(), ['cleave', 'cleave_rupture', 'dust_devil', 'ground_stomp', 'rend', 'whirlwind'], 'melee+area skills and their sub-strikes');
+  const p = { ctx: { powers: plain }, summons: [], buffs: [], channel: { skill: 'whirlwind' } } as unknown as Player;
+  assert.equal(ownMultiplier(p, 'rend'), 1.2, 'channelling a [channel] skill; Rend is an area skill');
+  assert.equal(ownMultiplier(p, 'battle_rage'), 1, 'not an area skill');
+});
+
+test('count cap: extra summons / projectiles from items and sets are capped per skill; other sources are not counted', () => {
+  const rt = buildPowerRuntime([
+    { kind: 'set', id: 'siegebreaker:2', roll: 1, effects: [{ kind: 'skillMods', skills: ['sentry'], mods: { maxSummons: 1, cooldown: -30 } }] },
+    { kind: 'legendary', id: 'sappers_pack', roll: 35, effects: LEGENDARIES.sappers_pack.effects },
+    { kind: 'legendary', id: 'fx_more', roll: 1, effects: [{ kind: 'skillMods', skills: ['sentry', 'multishot'], mods: { maxSummons: 2, projectiles: 5 } }] },
+    { kind: 'node', id: 'sentry:fx', roll: 1, effects: [{ kind: 'skillMods', skills: ['sentry'], mods: { maxSummons: 1 } }] },
+  ]);
+  assert.equal(rt.mods.get('sentry')?.maxSummons, ITEM_COUNT_CAP.maxSummons + 1, 'items capped at the constant, node on top');
+  assert.equal(rt.mods.get('sentry')?.cooldown, -30);
+  assert.equal(rt.mods.get('multishot')?.projectiles, ITEM_COUNT_CAP.projectiles);
+  assert.deepEqual(ITEM_COUNT_CAP, { maxSummons: 3, projectiles: 2 }, 'non-binding for shipped items (largest today: 3 / 2)');
+});
+
+test('per-legendary stat while no set bonus is active (Patchwork Signet pattern) on the character sheet', () => {
+  const fx = { id: 'fx_patchwork', classId: 'warrior' as const, name: 'Placeholder Patchwork', unlock: 10, note: 'x',
+    effects: [{ kind: 'stat' as const, stat: 'dmgPct' as const, value: 2, perLegendary: { max: 3 }, noSetBonus: true }] };
+  PASSIVES.push(fx);
+  try {
+    const save = createCharacter('Patchwork', 'warrior', 4); save.level = 70; save.equipment = {};
+    assert.equal(setPassive(save, 0, fx.id), null);
+    const rng = new Rng(5), leg = (id: string) => generateItem(rng, { ilvl: 70, classId: 'warrior', rarity: 'legendary', legendary: id });
+    assert.equal(computeStats(save).dmgPct, 0);
+    save.equipment.mainhand = leg('bloodwake'); save.equipment.waist = leg('eternal_gyre');
+    assert.equal(computeStats(save).dmgPct, 4);
+    save.equipment.wrists = leg('anvil_vambraces'); save.equipment.offhand = leg('last_light');
+    assert.equal(computeStats(save).dmgPct, 6, 'max 3 legendaries');
+    save.equipment.head = generateItem(rng, { ilvl: 70, classId: 'warrior', rarity: 'set', set: 'endless_storm', base: 'head_horned' });
+    save.equipment.shoulders = generateItem(rng, { ilvl: 70, classId: 'warrior', rarity: 'set', set: 'endless_storm', base: 'shoulders_spiked' });
+    assert.equal(computeStats(save).sets.endless_storm, 2);
+    assert.equal(computeStats(save).dmgPct, 0, 'a set bonus is active');
+  } finally { PASSIVES.splice(PASSIVES.indexOf(fx), 1); }
 });

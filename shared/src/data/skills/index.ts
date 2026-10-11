@@ -2,7 +2,7 @@
 // mage, each in file order), plus the helpers every consumer uses. Import from 'shared/src/data/skills'.
 
 import type { ClassId } from '../../types';
-import type { NodeDef, SkillDef, SkillMods } from './types';
+import type { NodeDef, SkillDef, SkillMods, SkillTag, TagQuery } from './types';
 import { NUMERIC_MOD_KEYS } from './types';
 import { WARRIOR_SKILLS } from './warrior';
 import { RANGER_SKILLS } from './ranger';
@@ -21,6 +21,22 @@ export function skillsForClass(classId: ClassId): SkillDef[] {
 /** Character level at which rune `runeIndex` of `skill` unlocks (authored per rune; never below the skill itself). */
 export function runeUnlockLevel(skill: SkillDef, runeIndex: number): number {
   return Math.max(skill.unlock, skill.runes[runeIndex]?.unlock ?? Infinity);
+}
+
+/**
+ * Effective tags of a skill with an equipped rune: the kind, the element after the rune's conversion, the authored
+ * mechanic tags and the rune's tags. (Item conversions do not re-tag: tags are resolved before item powers apply.)
+ */
+export function skillTags(skill: SkillDef, runeId?: string | null): Set<SkillTag> {
+  const rune = runeId ? skill.runes.find((r) => r.id === runeId) : undefined;
+  return new Set<SkillTag>([skill.kind, rune?.mods.element ?? skill.element, ...(skill.tags ?? []), ...(rune?.tags ?? [])]);
+}
+
+export function matchesTags(tags: ReadonlySet<SkillTag>, q: TagQuery): boolean {
+  if (q.anyOf?.length && !q.anyOf.some((t) => tags.has(t))) return false;
+  if (q.allOf && !q.allOf.every((t) => tags.has(t))) return false;
+  if (q.noneOf && q.noneOf.some((t) => tags.has(t))) return false;
+  return true;
 }
 
 /** Add `m` into `out` in place: numbers and vars are summed, the element is replaced, flags are appended. */

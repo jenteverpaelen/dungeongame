@@ -5,7 +5,7 @@ import type { SkillDef } from './types';
 /** Order matters: it is the registry order (skill pickers, affix rolls), so append new skills at the end. */
 export const RANGER_SKILLS: SkillDef[] = [
   {
-    id: 'hungering_arrow', classId: 'ranger', name: 'Hungering Arrow', kind: 'primary', unlock: 1, element: 'physical',
+    id: 'hungering_arrow', classId: 'ranger', name: 'Hungering Arrow', kind: 'primary', unlock: 1, element: 'physical', tags: ['projectile'],
     coef: 1.55, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire a magically imbued arrow that seeks out enemies for {coef} weapon damage, with a 35% chance to pierce. Generates {gen} Hatred.',
@@ -22,13 +22,13 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'sentry', classId: 'ranger', name: 'Sentry', kind: 'summon', unlock: 2, element: 'physical',
+    id: 'sentry', classId: 'ranger', name: 'Sentry', kind: 'summon', unlock: 2, element: 'physical', tags: ['summon', 'projectile'],
     coef: 2.8, cost: 20, gen: 0, cooldown: 8, range: 380, radius: 380, duration: 30, maxSummons: 2,
     auto: { when: 'maintainSummon' },
     desc: 'Deploy a turret at your feet that fires bolts at enemies for {coef} weapon damage each second. Up to {max} Sentries; lasts {duration} seconds.',
     icon: { glyph: 'turret', color: 0xc9a227 },
     runes: [
-      { id: 'spitfire', name: 'Spitfire Turret', unlock: 4, desc: 'The turret also fires homing rockets dealing 120% weapon damage as Fire.', mods: { flags: ['rockets'] } },
+      { id: 'spitfire', name: 'Spitfire Turret', unlock: 4, tags: ['projectile'], desc: 'The turret also fires homing rockets dealing 120% weapon damage as Fire.', mods: { flags: ['rockets'] } },
       { id: 'chain_of_torment', name: 'Chain of Torment', unlock: 7, desc: 'Lightning chains form between your Sentries, dealing 300% weapon damage per second to enemies that cross them.', mods: { flags: ['chains'] } },
       { id: 'polar_station', name: 'Polar Station', unlock: 11, desc: 'Bolts deal Cold damage and chill enemies by 60%.', mods: { element: 'cold', flags: ['chill'] } },
     ],
@@ -39,14 +39,14 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'multishot', classId: 'ranger', name: 'Multishot', kind: 'spender', unlock: 4, element: 'physical',
+    id: 'multishot', classId: 'ranger', name: 'Multishot', kind: 'spender', unlock: 4, element: 'physical', tags: ['projectile', 'area'],
     coef: 3.6, cost: 25, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 2, within: 380 },
     desc: 'Fire a massive volley of arrows in a wide arc, dealing {coef} weapon damage to every enemy hit.',
     icon: { glyph: 'fan', color: 0x9bd36f },
     runes: [
       { id: 'fire_at_will', name: 'Fire at Will', unlock: 6, desc: 'Deals Lightning damage and costs 40% less Hatred.', mods: { element: 'lightning', cost: -40 } },
-      { id: 'arsenal', name: 'Arsenal', unlock: 9, desc: 'Also fires 3 rockets at nearby enemies for 300% weapon damage as Fire.', mods: { flags: ['rockets'] } },
+      { id: 'arsenal', name: 'Arsenal', unlock: 9, tags: ['projectile'], desc: 'Also fires 3 rockets at nearby enemies for 300% weapon damage as Fire.', mods: { flags: ['rockets'] } },
       { id: 'full_broadside', name: 'Full Broadside', unlock: 13, desc: 'Multishot deals 50% more damage.', mods: { dmg: 50 } },
     ],
     tiers: [
@@ -56,13 +56,13 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'cluster_arrow', classId: 'ranger', name: 'Cluster Arrow', kind: 'spender', unlock: 6, element: 'fire',
+    id: 'cluster_arrow', classId: 'ranger', name: 'Cluster Arrow', kind: 'spender', unlock: 6, element: 'fire', tags: ['projectile', 'area'],
     coef: 6.5, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 110, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 380 },
     desc: 'Lob an explosive arrow into the densest pack. It detonates for {coef} weapon damage as Fire, then releases 4 grenades for 210% weapon damage each.',
     icon: { glyph: 'cluster', color: 0xe67e22 },
     runes: [
-      { id: 'maelstrom', name: 'Maelstrom', unlock: 8, desc: 'Releases 3 homing rockets instead of grenades.', mods: { flags: ['rockets'] } },
+      { id: 'maelstrom', name: 'Maelstrom', unlock: 8, tags: ['projectile'], desc: 'Releases 3 homing rockets instead of grenades.', mods: { flags: ['rockets'] } },
       { id: 'shooting_stars', name: 'Shooting Stars', unlock: 11, desc: 'Deals Lightning damage; grenades become falling stars.', mods: { element: 'lightning' } },
       { id: 'loaded_for_bear', name: 'Loaded for Bear', unlock: 15, desc: 'Explosion radius +40% and +80% damage, but no grenades.', mods: { radius: 40, dmg: 80, flags: ['noGrenades'] } },
     ],
@@ -73,7 +73,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'rain_of_vengeance', classId: 'ranger', name: 'Rain of Vengeance', kind: 'cooldown', unlock: 9, element: 'physical',
+    id: 'rain_of_vengeance', classId: 'ranger', name: 'Rain of Vengeance', kind: 'cooldown', unlock: 9, element: 'physical', tags: ['area', 'ground'],
     coef: 15, cost: 0, gen: 0, cooldown: 30, range: 380, radius: 240, duration: 5, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 5, within: 380 },
     desc: 'Call down a storm of arrows on a large area, dealing {coef} weapon damage over {duration} seconds.',
@@ -90,7 +90,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'companion', classId: 'ranger', name: 'Companion', kind: 'summon', unlock: 12, element: 'physical',
+    id: 'companion', classId: 'ranger', name: 'Companion', kind: 'summon', unlock: 12, element: 'physical', tags: ['summon', 'melee'],
     coef: 1.5, cost: 0, gen: 0, cooldown: 0, range: 320, radius: 0, duration: 0, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'A loyal wolf fights at your side, biting enemies for {coef} weapon damage.',

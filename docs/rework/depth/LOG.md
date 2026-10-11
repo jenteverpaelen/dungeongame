@@ -29,3 +29,10 @@
   gains optional `effects` + `text` (stat optional); template passives flow through `passivePowerSources` into the
   same interpreter; validation for passives. Tests: depthFoundation (passives), powerTemplates (passive in ctx).
   Sim identical.
+- Lead requests (bible + tags): `skillMore` template; one shared condition predicate (target: stunned/frozen/chilled/
+  bleeding/immobilised/inBlackHole, life above, farther than; player: channelling incl. tag query, buff, buff stacks,
+  summons, standing still, in own ground, life); tag model (derived kind + element, authored mechanic tags on skills and
+  runes; templates and conditions target skills or tag queries, resolved once per stat build); `ITEM_COUNT_CAP` (3/2,
+  non-binding, bible wants 2/2); `stat.perLegendary` + `noSetBonus` (Patchwork Signet); economy switch `SPEC_POINTS`
+  (shipped separate from L2; bible preset L10 + cap 10; shared mode supported); `skillPrimary` command; `category`.
+  Sim identical, item audit rows identical, powerTemplates 12, depthFoundation 16.

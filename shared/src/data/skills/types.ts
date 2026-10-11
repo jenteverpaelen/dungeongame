@@ -6,6 +6,21 @@ import type { PowerEffect } from '../../powers';
 
 export type SkillKind = 'primary' | 'spender' | 'channel' | 'cooldown' | 'buff' | 'summon';
 
+/**
+ * Skill tags (PoE-style) that power templates can target instead of naming skills. Element and kind tags are derived
+ * (the effective element after the equipped rune, the skill's kind); authored data adds the mechanic tags.
+ */
+export const SKILL_TAGS = [
+  'physical', 'fire', 'cold', 'lightning', 'poison', 'arcane', 'holy',
+  'primary', 'spender', 'channel', 'cooldown', 'buff', 'summon',
+  'projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura',
+] as const;
+export type SkillTag = (typeof SKILL_TAGS)[number];
+/** Tags authored in data (`SkillDef.tags`, `RuneDef.tags`); the others are derived. */
+export const MECHANIC_TAGS: readonly SkillTag[] = ['projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura', 'summon'];
+/** Matches a skill when it has any of `anyOf` (if given), all of `allOf` and none of `noneOf`. */
+export interface TagQuery { anyOf?: SkillTag[]; allOf?: SkillTag[]; noneOf?: SkillTag[] }
+
 export type AutoRule =
   | { when: 'always' }
   | { when: 'enemiesNear'; count: number; within: number }
@@ -37,6 +52,8 @@ export interface RuneDef {
   unlock: number;
   desc: string;
   mods: SkillMods;
+  /** Mechanic tags this rune adds while equipped (its element conversion re-derives the element tag). */
+  tags?: SkillTag[];
 }
 
 export interface TierDef {
@@ -65,10 +82,19 @@ export interface SkillDef {
   auto: AutoRule;
   desc: string;
   icon: { glyph: string; color: number };
+  /** Authored mechanic tags (projectile, area, melee, ground, movement, mark, aura, summon); kind and element are derived. */
+  tags?: SkillTag[];
+  /** Display group in the Skills window (D3-style category); defaults to the kind. */
+  category?: string;
   runes: RuneDef[];
   tiers: TierDef[];
   /** Specialization tree (Last Epoch-style), bought with specialization points. Absent = no tree yet. */
   nodes?: NodeDef[];
+  /**
+   * Set-backed skills only: the set-vs-legendary parity rule (legendary-only kit within 1.25× of the set kit) is
+   * enforced by `npm run verify` (server/test/parity.test.ts). Flip to true once the skill has enough legendaries.
+   */
+  parityReady?: boolean;
 }
 
 /** One specialization node. Ranks are bought one at a time; ranks[i] is the increment granted by rank i + 1. */

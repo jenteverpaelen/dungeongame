@@ -5,7 +5,7 @@ import type { SkillDef } from './types';
 /** Order matters: it is the registry order (skill pickers, affix rolls), so append new skills at the end. */
 export const MAGE_SKILLS: SkillDef[] = [
   {
-    id: 'magic_missile', classId: 'mage', name: 'Magic Missile', kind: 'primary', unlock: 1, element: 'arcane',
+    id: 'magic_missile', classId: 'mage', name: 'Magic Missile', kind: 'primary', unlock: 1, element: 'arcane', tags: ['projectile'],
     coef: 2.3, cost: 0, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Launch a missile of arcane energy, dealing {coef} weapon damage as Arcane.',
@@ -22,7 +22,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'meteor', classId: 'mage', name: 'Meteor', kind: 'spender', unlock: 2, element: 'fire',
+    id: 'meteor', classId: 'mage', name: 'Meteor', kind: 'spender', unlock: 2, element: 'fire', tags: ['area', 'ground'],
     coef: 7.4, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 130, duration: 3, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 1, within: 380 },
     desc: 'Summon a meteor onto the densest pack. After a short delay it impacts for {coef} weapon damage as Fire and leaves molten ground that burns for 235% weapon damage over {duration} seconds.',
@@ -39,7 +39,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'black_hole', classId: 'mage', name: 'Black Hole', kind: 'cooldown', unlock: 4, element: 'arcane',
+    id: 'black_hole', classId: 'mage', name: 'Black Hole', kind: 'cooldown', unlock: 4, element: 'arcane', tags: ['area', 'ground'],
     coef: 5.4, cost: 20, gen: 0, cooldown: 12, range: 380, radius: 220, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 380 },
     desc: 'Tear open a black hole that pulls enemies within {radius} units to its centre and deals {coef} weapon damage as Arcane over {duration} seconds. Pairs perfectly with Meteor.',
@@ -56,7 +56,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'frost_nova', classId: 'mage', name: 'Frost Nova', kind: 'cooldown', unlock: 6, element: 'cold',
+    id: 'frost_nova', classId: 'mage', name: 'Frost Nova', kind: 'cooldown', unlock: 6, element: 'cold', tags: ['area'],
     coef: 1.75, cost: 0, gen: 0, cooldown: 11, range: 180, radius: 190, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 170 },
     desc: 'Blast a ring of frost, dealing {coef} weapon damage as Cold and freezing nearby enemies for {duration} seconds.',
@@ -73,7 +73,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'hydra', classId: 'mage', name: 'Hydra', kind: 'summon', unlock: 9, element: 'fire',
+    id: 'hydra', classId: 'mage', name: 'Hydra', kind: 'summon', unlock: 9, element: 'fire', tags: ['summon', 'projectile'],
     coef: 2.8, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 380, duration: 9, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'Summon a Hydra that attacks for {coef} weapon damage per second as {element}. Lasts {duration} seconds.',
@@ -90,7 +90,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'magic_weapon', classId: 'mage', name: 'Magic Weapon', kind: 'buff', unlock: 12, element: 'arcane',
+    id: 'magic_weapon', classId: 'mage', name: 'Magic Weapon', kind: 'buff', unlock: 12, element: 'arcane', tags: ['aura'],
     coef: 0, cost: 25, gen: 0, cooldown: 0, range: 0, radius: 0, duration: 60, maxSummons: 0,
     auto: { when: 'maintainBuff' },
     desc: 'Imbue your weapon with arcane power, increasing damage by {buffDamage} for {duration} seconds. Recast automatically.',

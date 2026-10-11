@@ -205,7 +205,7 @@ export type CmdOp = 'onboarding'
   | 'quest'
   | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
-  | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
+  | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';

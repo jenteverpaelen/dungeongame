@@ -69,7 +69,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     flags: 0, attackSeq: 0, state: 'idle', target: 0,
     x, y, r: def.radius, hCell: -1, hIdx: -1, homeX: x, homeY: y, pack: o.pack ?? null,
     stateMs: 0, atkCdMs: inst.rng.next() * 600, attackFlagMs: 0,
-    stunMs: 0, freezeMs: 0, chillMs: 0, markMs: 0, markPct: 0, holeMs: 0, holePct: 0, kbX: 0, kbY: 0, kbMs: 0,
+    stunMs: 0, freezeMs: 0, chillMs: 0, markMs: 0, markPct: 0, holeMs: 0, holePct: 0, inHoleMs: 0, kbX: 0, kbY: 0, kbMs: 0,
     dots: [], dead: false, dummy: !!o.dummy, dormant: o.dormant ?? false, lastHitBy: 0, lastDamagedT: -1e9,
     atkX: x, atkY: y,
     aff: {
@@ -215,6 +215,7 @@ function timers(m: Mob, dtMs: number) {
   if (m.chillMs > 0) m.chillMs -= dtMs;
   if (m.markMs > 0) m.markMs -= dtMs;
   if (m.holeMs > 0) m.holeMs -= dtMs;
+  if (m.inHoleMs > 0) m.inHoleMs -= dtMs;
   if (m.goldPileMs > 0) m.goldPileMs -= dtMs;
   if (m.aff.electrified > 0) m.aff.electrified -= dtMs;
   const slow = m.chillMs > 0 ? 0.6 : 1;

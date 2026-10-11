@@ -3,14 +3,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CONTENT_DATA, validateContent, type ContentData } from '../src/contentValidation';
-import { createCharacter, loadoutMods, resetSkillPoints, setSkillRune } from '../src/character';
-import { MAX_RUNES, SKILLS, collectSkillMods, describeNode, runeUnlockLevel, skillsForClass } from '../src/data/skills';
+import { createCharacter, loadoutMods, resetSkillPoints, setPrimarySkill, setSkillRune } from '../src/character';
+import { MAX_RUNES, SKILLS, collectSkillMods, describeNode, runeUnlockLevel, skillTags, skillsForClass } from '../src/data/skills';
 import { MAX_LEVEL } from '../src/constants';
 import {
-  NODE_RANK_COST, TREE_RANKS_TARGET, buySkillNode, nodeBuyError, normalizeSkillNodes, refundSkillNode, resetSkillNodes,
-  specPointsAvailable, specPointsForLevel, specPointsSpent, treeTotalRanks,
+  NODE_RANK_COST, SPEC_POINTS, TREE_RANKS_TARGET, buySkillNode, type SpecEconomy, nodeBuyError, normalizeSkillNodes, refundSkillNode, resetSkillNodes,
+  specPointsAvailable, specPointsForLevel, specPointsSpent, treeBuyableRanks,
 } from '../src/specialization';
-import { FIXTURE_NODES, FIXTURE_PASSIVES, installFixtureNodes, installFixturePassives } from './fixtures/depthContent';
+import { FIXTURE_NODES, FIXTURE_PASSIVES, installFixtureNodes, installFixturePassives, installFixtureSkills } from './fixtures/depthContent';
 import { PASSIVE_SLOT_LEVELS, passiveEffect, passivePowerSources as passiveSources, passivesForClass, setPassive } from '../src/passives';
 import { computeStats } from '../src/stats';
 
@@ -109,7 +109,7 @@ test('shipped trees respect the economy target per class (no-op until a class sh
   for (const classId of ['warrior', 'ranger', 'mage'] as const) {
     const trees = skillsForClass(classId).filter(s => s.nodes?.length);
     if (!trees.length) continue;
-    const avg = trees.reduce((n, s) => n + treeTotalRanks(s), 0) / trees.length;
+    const avg = trees.reduce((n, s) => n + treeBuyableRanks(s), 0) / trees.length; // after SPEC_POINTS.treeRankCap
     assert(avg >= TREE_RANKS_TARGET.min && avg <= TREE_RANKS_TARGET.max, `${classId} average tree ${avg} ranks`);
     assert(trees.length * avg > specPointsForLevel(MAX_LEVEL), `${classId}: every tree must not be affordable at level 70`);
   }
@@ -217,4 +217,67 @@ test('a template passive in a slot reaches the character sheet; its text is auth
     assert.match(passiveEffect(FIXTURE_PASSIVES[1], 30), /250|10% increased damage for each active Sentry/);
     save.level = 9; assert.equal(passiveSources(save).length, 0, 'locked slot stays dormant');
   } finally { undo(); }
+});
+
+// ─────────────────────────── Economy switch, tags, validation of the new vocabulary ───────────────────────────
+
+test('the point economy flips by one config: separate from L2 (shipped), bible preset (L10, cap 10), shared tier points', () => {
+  assert.deepEqual(SPEC_POINTS, { source: 'separate', perLevel: 1, fromLevel: 2, treeRankCap: Infinity });
+  const bible: SpecEconomy = { source: 'separate', perLevel: 1, fromLevel: 10, treeRankCap: 10 };
+  assert.equal(specPointsForLevel(70, bible), 61); assert.equal(specPointsForLevel(9, bible), 0); assert.equal(specPointsForLevel(10, bible), 1);
+  const shared: SpecEconomy = { source: 'shared', perLevel: 1, fromLevel: 2, treeRankCap: Infinity };
+  const undo = installFixtureNodes();
+  try {
+    const save = createCharacter('EcoShared', 'warrior', 2); save.level = 40; save.skillPoints = 3;
+    assert.equal(specPointsAvailable(save, shared), 3);
+    for (let i = 0; i < 3; i++) assert.equal(buySkillNode(save, 'whirlwind', 'fx_gale', shared), null);
+    assert.equal(save.skillPoints, 0);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_reach', shared) ?? '', /No skill points left/);
+    assert.equal(refundSkillNode(save, 'whirlwind', 'fx_gale', shared), null); assert.equal(save.skillPoints, 1);
+    save.skills.nodes = { whirlwind: { fx_gale: 2, gone: 2 } };
+    normalizeSkillNodes(save, shared);
+    assert.deepEqual(save.skills.nodes, {}); assert.equal(save.skillPoints, 5, 'shared mode refunds every stored rank of a cleared tree');
+    save.skills.nodes = { whirlwind: { fx_gale: 2 } };
+    assert.equal(resetSkillNodes(save, undefined, shared), 2); assert.equal(save.skillPoints, 7);
+    const capped = createCharacter('EcoCap', 'warrior', 2); capped.level = 70;
+    for (const n of ['fx_gale', 'fx_gale', 'fx_gale', 'fx_reach', 'fx_reach', 'fx_thrift', 'fx_thrift', 'fx_thrift', 'fx_devils', 'fx_edge']) assert.equal(buySkillNode(capped, 'whirlwind', n, bible), null, n);
+    assert.match(buySkillNode(capped, 'whirlwind', 'fx_edge', bible) ?? '', /tree is full \(at most 10 ranks\)/);
+    capped.skills.nodes!.whirlwind.fx_edge = 2;
+    normalizeSkillNodes(capped, bible); assert.deepEqual(capped.skills.nodes, {}, 'over the tree cap is illegal');
+  } finally { undo(); }
+});
+
+test('the economy target holds for the shipped switch with the tree cap applied (bible preset reported, not enforced)', () => {
+  for (const eco of [SPEC_POINTS]) {
+    const trees = specPointsForLevel(MAX_LEVEL, eco);
+    assert(trees / TREE_RANKS_TARGET.max >= 4 && trees / TREE_RANKS_TARGET.min <= 5);
+  }
+});
+
+test('skills carry derived and authored tags; validation rejects unknown tags, empty queries and illegal buckets', () => {
+  for (const s of Object.values(SKILLS)) { const t = skillTags(s); assert(t.has(s.kind) && t.has(s.element), s.id); }
+  const bad = fixture();
+  (bad.skills.meteor as { tags?: string[] }).tags = ['fire'];
+  expectPath(validateContent(bad), 'skills.meteor.tags');
+  const effects = (e: unknown[]) => { const d = fixture(); d.legendaries.cindervane.effects = e as typeof d.legendaries.cindervane.effects; d.legendaries.cindervane.power = 'Meteor {v}.'; return validateContent(d); };
+  expectPath(effects([{ kind: 'skillMore', tags: { anyOf: ['nonsense'] }, pct: { roll: 1 } }]), 'legendaries.cindervane.effects[0]');
+  expectPath(effects([{ kind: 'skillMore', tags: {}, pct: { roll: 1 } }]), 'legendaries.cindervane.effects[0]');
+  expectPath(effects([{ kind: 'skillMods', mods: { dmg: 5 }, roll: { field: 'dmg' } }]), 'legendaries.cindervane.effects[0]');
+  expectPath(effects([{ kind: 'conditional', bucket: 'own', when: { targetState: 'frozen' }, pct: { roll: 1 } }]), 'legendaries.cindervane.effects[0]');
+  expectPath(effects([{ kind: 'skillMore', skills: ['meteor'], pct: { roll: 1 }, when: { buffStacks: 'x', max: 0 } }]), 'legendaries.cindervane.effects[0]');
+  assert.deepEqual(effects([{ kind: 'skillMore', tags: { anyOf: ['fire'] }, pct: { roll: 1 }, when: { targetState: 'inBlackHole' } }]), []);
+});
+
+test('a class may own several primary attacks; the auto-attack is chosen on the authoritative save path', () => {
+  const save = createCharacter('TwoPrimaries', 'warrior', 2);
+  assert.match(setPrimarySkill(save, 'whirlwind') ?? '', /Only a primary/);
+  assert.match(setPrimarySkill(save, 'cleave') ?? '', /Already/);
+  assert.match(setPrimarySkill(save, 'magic_missile') ?? '', /Unknown skill/);
+  const undo = installFixtureSkills(12);
+  try {
+    assert.match(setPrimarySkill(save, 'fx_warrior_primary2') ?? '', /level 16/);
+    save.level = 16; assert.equal(setPrimarySkill(save, 'fx_warrior_primary2'), null); assert.equal(save.skills.primary, 'fx_warrior_primary2');
+    assert.equal(skillsForClass('warrior').length, 12);
+  } finally { undo(); }
+  assert.equal(skillsForClass('warrior').length, 6, 'fixture removed');
 });

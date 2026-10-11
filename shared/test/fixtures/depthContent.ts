@@ -38,10 +38,16 @@ export const FIXTURE_PASSIVES: PassiveDef[] = [
     effects: [{ kind: 'conditional', when: { targetState: 'chilled' }, bucket: 'hit', pct: 15 }, { kind: 'proc', on: 'kill', resource: 3 }] },
 ];
 
-/** Add the placeholder passives to the live catalogue; returns an undo function. */
-export function installFixturePassives(): () => void {
-  PASSIVES.push(...FIXTURE_PASSIVES);
-  return () => { for (const p of FIXTURE_PASSIVES) PASSIVES.splice(PASSIVES.indexOf(p), 1); };
+/** Add the placeholder passives to the live catalogue (`perClass` fills each class up to that many, e.g. 14 = M1). */
+export function installFixturePassives(perClass = 0): () => void {
+  const added: PassiveDef[] = [...FIXTURE_PASSIVES];
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) {
+    const have = PASSIVES.filter((p) => p.classId === classId).length + FIXTURE_PASSIVES.filter((p) => p.classId === classId).length;
+    for (let i = have; i < perClass; i++) added.push({ id: `fx_${classId}_passive_${i}`, classId, name: `Placeholder Passive ${i + 1}`, unlock: Math.min(70, 10 + i * 4),
+      note: 'Placeholder passive for layout checks; not a design value.', effects: [{ kind: 'stat', stat: 'chc', value: 1 }] });
+  }
+  PASSIVES.push(...added);
+  return () => { for (const p of added) PASSIVES.splice(PASSIVES.indexOf(p), 1); };
 }
 
 /** Install the placeholder trees into the live registry; returns an undo function. */
@@ -72,9 +78,22 @@ export function fixtureSkills(classId: ClassId, total: number): SkillDef[] {
   });
 }
 
-/** Add placeholder skills to the live registry (gallery / UI tests). Returns an undo function. */
+/** Placeholder display categories (the bible authors five real ones per class). */
+const FIXTURE_CATEGORY: Record<SkillDef['kind'], string> = { primary: 'Primary', spender: 'Strikes', channel: 'Strikes', cooldown: 'Control', buff: 'Rally', summon: 'Allies' };
+
+/**
+ * Add placeholder skills to the live registry (gallery / UI tests): extra skills up to `totalPerClass`, a second
+ * primary at level 16 and placeholder categories. Returns an undo function.
+ */
 export function installFixtureSkills(totalPerClass: number): () => void {
-  const added: string[] = [];
-  for (const classId of ['warrior', 'ranger', 'mage'] as const) for (const s of fixtureSkills(classId, totalPerClass)) { SKILLS[s.id] = s; added.push(s.id); }
-  return () => { for (const id of added) delete SKILLS[id]; };
+  const added: string[] = [], categorized: SkillDef[] = [];
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) {
+    const primary = Object.values(SKILLS).find((s) => s.classId === classId && s.kind === 'primary')!;
+    const second: SkillDef = { ...structuredClone(primary), id: `fx_${classId}_primary2`, name: 'Placeholder Second Primary', unlock: 16 };
+    second.runes = second.runes.map((r, i) => ({ ...r, id: `fx_p${i}`, unlock: 18 + i * 3 }));
+    const extra = [second, ...fixtureSkills(classId, totalPerClass - 1)];
+    for (const s of extra) { SKILLS[s.id] = s; added.push(s.id); }
+    for (const s of Object.values(SKILLS)) if (s.classId === classId && !s.category) { s.category = FIXTURE_CATEGORY[s.kind]; categorized.push(s); }
+  }
+  return () => { for (const id of added) delete SKILLS[id]; for (const s of categorized) delete s.category; };
 }

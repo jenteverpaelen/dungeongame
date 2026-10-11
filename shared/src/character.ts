@@ -161,6 +161,18 @@ export function setSkillSlot(save: CharacterSave, slot: number, skillId: string 
   return null;
 }
 
+/** Choose the auto-attack (a class may have several primary skills, e.g. a second one at level 16). */
+export function setPrimarySkill(save: CharacterSave, skillId: unknown): string | null {
+  if (typeof skillId !== 'string' || !Object.hasOwn(SKILLS, skillId)) return 'Unknown skill';
+  const s = SKILLS[skillId];
+  if (s.classId !== save.classId) return 'Unknown skill';
+  if (s.kind !== 'primary') return 'Only a primary attack can be the auto-attack';
+  if (s.unlock > save.level) return `Unlocks at level ${s.unlock}`;
+  if (save.skills.primary === skillId) return 'Already your primary attack';
+  save.skills.primary = skillId;
+  return null;
+}
+
 export function setSkillRune(save: CharacterSave, skillId: string, runeId: string | null): string | null {
   const s = SKILLS[skillId];
   if (!s || s.classId !== save.classId) return 'Unknown skill';

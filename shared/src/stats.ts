@@ -112,9 +112,13 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
 
   // Stat-style power templates (sets → legendaries → passives → nodes, shared/src/powerSources.ts) and the dash.
   let dashCdMs = DASH.cooldownMs;
+  const legendaryCount = Object.values(equipment).filter((it) => it?.rarity === 'legendary').length;
+  const setBonusActive = Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= b.count));
   for (const src of allPowerSources(save, powers, sets, passivePowerSources(save))) for (const e of src.effects) {
     if (e.kind === 'stat') {
-      const v = amount(e.value, src.roll);
+      if (e.noSetBonus && setBonusActive) continue;
+      let v = amount(e.value, src.roll);
+      if (e.perLegendary) v *= Math.min(e.perLegendary.max, legendaryCount);
       if (e.stat === 'cdr' || e.stat === 'rcr') mults[e.stat].push(v); else add(acc, e.stat, v);
     } else if (e.kind === 'dashCooldown') dashCdMs *= e.mult;
   }

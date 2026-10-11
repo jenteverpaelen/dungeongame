@@ -4,7 +4,7 @@
 import { CLASSES, SKILLS, computeStats, loadoutMods, mergeMods, type DerivedStats, type SkillMods } from '../shared';
 import { allPowerSources } from '../../../shared/src/powerSources';
 import { passivePowerSources } from '../../../shared/src/passives';
-import { buildPowerRuntime, ownMultiplier, type PowerRuntime } from './powerRuntime';
+import { buildPowerRuntime, ownMultiplier, tagIndexFor, type PowerRuntime } from './powerRuntime';
 import type { Player, PlayerCtx, SaveX, SkillRuntime } from './types';
 
 const NO_MODS: SkillMods = { flags: [] };
@@ -17,7 +17,7 @@ function runtime(save: SaveX, powers: PowerRuntime, skillId: string): SkillRunti
 
 export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save)): PlayerCtx {
   // One interpreter for every power template (sets → legendaries → passives → nodes): shared/src/powerSources.ts.
-  const powers = buildPowerRuntime(allPowerSources(save, d.powers, d.sets, passivePowerSources(save)));
+  const powers = buildPowerRuntime(allPowerSources(save, d.powers, d.sets, passivePowerSources(save)), tagIndexFor(save.classId, save.skills.runes));
   const cache = new Map<string, SkillRuntime>();
   const get = (id: string) => {
     let r = cache.get(id);

@@ -20,6 +20,7 @@ export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
     effects: [rolledDamage('ground_stomp', { flags: ['pull'] })] },
 ];
 
+// parityLoadout: the P11 build-audit profiles (scripts/audit-item-builds.ts), reused by the parity harness.
 export const WARRIOR_SETS: SetDef[] = [
   {
     id: 'endless_storm', name: 'Raiment of the Endless Storm', classId: 'warrior',
@@ -34,9 +35,10 @@ export const WARRIOR_SETS: SetDef[] = [
       { count: 6, text: "Whirlwind, Dust Devils and Whirlwind's bleeds deal 5,000% increased damage.", effects: [ownMult(['whirlwind', 'dust_devil'], 51)] },
     ],
     colors: { primary: 0x4a5a6a, secondary: 0x9fe3ff, glow: 0x3cff6e },
+    parityLoadout: ['whirlwind', 'rend', 'ground_stomp', 'battle_rage'],
   },
-  alternativeSet('cinder_oath', 'Cinder Oath', 'warrior', WARRIOR_SET_BASES, 0x773e35, ['cleave', 'rend'],
-    { radius: 40 }, 'Cleave and Rend reach 40% further.', { cost: -40 }, 'Rend costs 40% less Fury.', 127),
-  alternativeSet('fault_warden', 'Fault Warden', 'warrior', WARRIOR_SET_BASES, 0x726549, ['seismic_slam', 'ground_stomp'],
-    { radius: 40 }, 'Seismic Slam and Ground Stomp have 40% increased radius.', { cooldown: -30 }, 'Ground Stomp cooldown is reduced by 30%.', 22),
+  { ...alternativeSet('cinder_oath', 'Cinder Oath', 'warrior', WARRIOR_SET_BASES, 0x773e35, ['cleave', 'rend'],
+    { radius: 40 }, 'Cleave and Rend reach 40% further.', { cost: -40 }, 'Rend costs 40% less Fury.', 127), parityLoadout: ['rend', 'ground_stomp', 'battle_rage'] },
+  { ...alternativeSet('fault_warden', 'Fault Warden', 'warrior', WARRIOR_SET_BASES, 0x726549, ['seismic_slam', 'ground_stomp'],
+    { radius: 40 }, 'Seismic Slam and Ground Stomp have 40% increased radius.', { cooldown: -30 }, 'Ground Stomp cooldown is reduced by 30%.', 22), parityLoadout: ['seismic_slam', 'ground_stomp', 'battle_rage'] },
 ];

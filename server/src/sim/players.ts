@@ -7,7 +7,7 @@ import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
-import { dropInactivePowerBuffs, elementStacks, firePowerProcs } from './powerRuntime';
+import { dropInactivePowerBuffs, elementStacks, firePowerProcs, updateOwnGround } from './powerRuntime';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
@@ -150,6 +150,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   p.sinceHitMs += dtMs;
   p.sinceHurtMs += dtMs;
   tickBuffs(p, dtMs);
+  if (p.ctx.powers.watchGround || p.inOwnGround) updateOwnGround(inst, p);
 
   // Element cycle (Ouroboros Loop): the boosted element rotates every periodMs.
   const cyc = p.ctx.powers.elementCycle;

@@ -61,6 +61,7 @@ function blackhole(inst: Instance, g: Ground, dtMs: number) {
     const d = Math.hypot(m.x - g.x, m.y - g.y);
     if (d > 12) dragMob(inst, m, g.x, g.y, Math.min(step, d - 10));
     if (g.voidPct > 0) { m.holeMs = 200; m.holePct = g.voidPct; }
+    m.inHoleMs = 200;
     if (g.caught && g.caught.size < 40) g.caught.add(m.id);
   }
   if (inst.t >= g.nextT) {

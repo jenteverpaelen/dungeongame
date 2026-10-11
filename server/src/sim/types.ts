@@ -114,6 +114,8 @@ export interface Mob extends Hashed {
   /** Heart of the Void: inside a black hole. */
   holeMs: number;
   holePct: number;
+  /** Inside any Black Hole (power condition `inBlackHole`); holeMs/holePct stay the Heart of the Void vulnerability. */
+  inHoleMs: number;
   kbX: number;
   kbY: number;
   kbMs: number;
@@ -364,6 +366,8 @@ export interface Known { ver: number; seen: number }
 export interface Player extends Hashed {
   /** Debug-only, instance-local; never written to a character save. */
   debugInfiniteHp?: boolean;
+  /** Standing in one of the player's own ground effects (only tracked while a power condition needs it). */
+  inOwnGround?: boolean;
   kind: 'player';
   id: number;
   link: PlayerLink;

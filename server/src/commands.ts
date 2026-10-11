@@ -30,7 +30,7 @@ import { SKILLS, skillsForClass } from '../../shared/src/data/skills';
 import { buySkillNode, refundSkillNode } from '../../shared/src/specialization';
 import { Rng } from '../../shared/src/math';
 import {
-  addToInventory, buySkillTier, equipItem, findEquipped, findInventory, resetSkillPoints, setSkillRune, setSkillSlot, unequipItem,
+  addToInventory, buySkillTier, equipItem, findEquipped, findInventory, resetSkillPoints, setPrimarySkill, setSkillRune, setSkillSlot, unequipItem,
 } from '../../shared/src/character';
 import {
   BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, addCubeXp, canAfford, canEnchantAffix, cubeSlotOf, cubeUnlocked, enchantCost, enchantPool,
@@ -593,6 +593,12 @@ const skillReset: Handler = (s, a) => {
   return done(s, true, freed);
 };
 
+/** Choose the auto-attack among the class's unlocked primary skills. */
+const skillPrimary: Handler = (s, a) => {
+  const err = setPrimarySkill(s.save, str(a, 'skill'));
+  return err ? fail(err) : done(s, true);
+};
+
 /** Buy (delta 1) or refund (delta -1) one specialization rank. Same persisted-command custody as skillTier. */
 const skillNode: Handler = (s, a) => {
   const skill = str(a, 'skill'), node = str(a, 'node'), delta = int(a, 'delta', -1, 1);
@@ -787,7 +793,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
-  skillSlot, skillRune, skillTier, skillReset, skillNode, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
+  skillSlot, skillRune, skillTier, skillReset, skillNode, skillPrimary, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
   paragon, paragonReset,
   travel, riftOpen, riftEnter, leave, channel,
   debug,

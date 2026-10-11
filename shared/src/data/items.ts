@@ -194,6 +194,8 @@ export interface SetDef {
   /** Bonus thresholds: player text plus the power templates active from `count` equipped pieces. */
   bonuses: { count: number; text: string; effects?: PowerEffect[] }[];
   colors: { primary: number; secondary: number; glow: number };
+  /** Loadout the parity harness plays for this set (server/test/parity); default: the skills its top bonus names. */
+  parityLoadout?: string[];
 }
 
 /** Historical registry order (loot rolls pick from `Object.values`, so this order is part of the RNG contract). */

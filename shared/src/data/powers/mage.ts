@@ -18,6 +18,7 @@ export const MAGE_LEGENDARIES: LegendaryDef[] = [
     effects: [rolledDamage('magic_missile', { projectiles: 2 })] },
 ];
 
+// parityLoadout: the P11 build-audit profiles (scripts/audit-item-builds.ts), reused by the parity harness.
 export const MAGE_SETS: SetDef[] = [
   {
     id: 'fallen_star', name: 'Regalia of the Fallen Star', classId: 'mage',
@@ -33,9 +34,10 @@ export const MAGE_SETS: SetDef[] = [
       { count: 6, text: 'Meteor deals 700% increased damage.', effects: [ownMult(['meteor'], 8)] },
     ],
     colors: { primary: 0x23154a, secondary: 0xff9a3c, glow: 0x3cff6e },
+    parityLoadout: ['meteor', 'black_hole', 'frost_nova', 'magic_weapon'],
   },
-  alternativeSet('glass_concord', 'Glass Concord', 'mage', MAGE_SET_BASES, 0x667996, ['magic_missile', 'black_hole'],
-    { dmg: 40 }, 'Magic Missile and Black Hole deal 40% increased damage.', { cooldown: -30 }, 'Black Hole cooldown is reduced by 30%.', 24),
-  alternativeSet('lantern_garden', 'Lantern Garden', 'mage', MAGE_SET_BASES, 0x536745, ['hydra', 'frost_nova'],
-    { duration: 40 }, 'Hydras last 40% longer and Frost Nova freezes last 40% longer.', { cooldown: -30 }, 'Frost Nova cooldown is reduced by 30%.', 24),
+  { ...alternativeSet('glass_concord', 'Glass Concord', 'mage', MAGE_SET_BASES, 0x667996, ['magic_missile', 'black_hole'],
+    { dmg: 40 }, 'Magic Missile and Black Hole deal 40% increased damage.', { cooldown: -30 }, 'Black Hole cooldown is reduced by 30%.', 24), parityLoadout: ['black_hole', 'frost_nova', 'magic_weapon'] },
+  { ...alternativeSet('lantern_garden', 'Lantern Garden', 'mage', MAGE_SET_BASES, 0x536745, ['hydra', 'frost_nova'],
+    { duration: 40 }, 'Hydras last 40% longer and Frost Nova freezes last 40% longer.', { cooldown: -30 }, 'Frost Nova cooldown is reduced by 30%.', 24), parityLoadout: ['hydra', 'frost_nova', 'black_hole', 'magic_weapon'] },
 ];

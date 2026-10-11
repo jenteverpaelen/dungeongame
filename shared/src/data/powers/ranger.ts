@@ -18,6 +18,7 @@ export const RANGER_LEGENDARIES: LegendaryDef[] = [
     effects: [skillMods(['hungering_arrow'], { flags: ['huntersMark'] }, { field: 'var:markPct' })] },
 ];
 
+// parityLoadout: the P11 build-audit profiles (scripts/audit-item-builds.ts), reused by the parity harness.
 export const RANGER_SETS: SetDef[] = [
   {
     id: 'siegebreaker', name: "Siegebreaker's Arsenal", classId: 'ranger',
@@ -33,9 +34,10 @@ export const RANGER_SETS: SetDef[] = [
         effects: [conditional({ perSummon: 'sentry', max: 4 }, 'own', 250, ['sentry', 'multishot', 'cluster_arrow'])] },
     ],
     colors: { primary: 0x3d4a2f, secondary: 0xc9a227, glow: 0x3cff6e },
+    parityLoadout: ['sentry', 'multishot', 'cluster_arrow', 'companion'],
   },
-  alternativeSet('farwatch', 'Farwatch', 'ranger', RANGER_SET_BASES, 0x3a6170, ['hungering_arrow', 'multishot'],
-    { pierce: 50 }, 'Hungering Arrow gains 50% pierce chance.', { cost: -40 }, 'Multishot costs 40% less Hatred.', 30),
-  alternativeSet('rainkeeper', 'Rainkeeper', 'ranger', RANGER_SET_BASES, 0x64546c, ['rain_of_vengeance', 'cluster_arrow'],
-    { radius: 40 }, 'Rain of Vengeance and Cluster Arrow have 40% increased radius.', { cooldown: -30 }, 'Rain of Vengeance cooldown is reduced by 30%.', 30),
+  { ...alternativeSet('farwatch', 'Farwatch', 'ranger', RANGER_SET_BASES, 0x3a6170, ['hungering_arrow', 'multishot'],
+    { pierce: 50 }, 'Hungering Arrow gains 50% pierce chance.', { cost: -40 }, 'Multishot costs 40% less Hatred.', 30), parityLoadout: ['multishot', 'rain_of_vengeance', 'companion'] },
+  { ...alternativeSet('rainkeeper', 'Rainkeeper', 'ranger', RANGER_SET_BASES, 0x64546c, ['rain_of_vengeance', 'cluster_arrow'],
+    { radius: 40 }, 'Rain of Vengeance and Cluster Arrow have 40% increased radius.', { cooldown: -30 }, 'Rain of Vengeance cooldown is reduced by 30%.', 30), parityLoadout: ['rain_of_vengeance', 'cluster_arrow', 'companion'] },
 ];

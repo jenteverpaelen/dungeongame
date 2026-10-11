@@ -5,13 +5,13 @@ import type { SkillDef } from './types';
 /** Order matters: it is the registry order (skill pickers, affix rolls), so append new skills at the end. */
 export const WARRIOR_SKILLS: SkillDef[] = [
   {
-    id: 'cleave', classId: 'warrior', name: 'Cleave', kind: 'primary', unlock: 1, element: 'physical',
+    id: 'cleave', classId: 'warrior', name: 'Cleave', kind: 'primary', unlock: 1, element: 'physical', tags: ['melee', 'area'],
     coef: 1.6, cost: 0, gen: 5, cooldown: 0, range: 86, radius: 110, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Swing in a wide arc, dealing {coef} weapon damage to all enemies caught in the swing. Generates {gen} Fury per swing.',
     icon: { glyph: 'arc', color: 0xd9d2c5 },
     runes: [
-      { id: 'rupture', name: 'Rupture', unlock: 3, desc: 'Enemies slain by Cleave explode, dealing 120% weapon damage to nearby enemies.', mods: { flags: ['explodeOnKill'] } },
+      { id: 'rupture', name: 'Rupture', unlock: 3, tags: ['area'], desc: 'Enemies slain by Cleave explode, dealing 120% weapon damage to nearby enemies.', mods: { flags: ['explodeOnKill'] } },
       { id: 'broad_sweep', name: 'Broad Sweep', unlock: 6, desc: 'The swing covers a much wider arc and deals 30% more damage.', mods: { radius: 25, dmg: 30, flags: ['wideArc'] } },
       { id: 'gathering_storm', name: 'Gathering Storm', unlock: 10, desc: 'Cleave deals Lightning damage and generates 3 additional Fury.', mods: { element: 'lightning', gen: 3 } },
     ],
@@ -22,13 +22,13 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'whirlwind', classId: 'warrior', name: 'Whirlwind', kind: 'channel', unlock: 2, element: 'physical',
+    id: 'whirlwind', classId: 'warrior', name: 'Whirlwind', kind: 'channel', unlock: 2, element: 'physical', tags: ['melee', 'area'],
     coef: 3.4, cost: 10, gen: 0, cooldown: 0, range: 260, radius: 100, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 25, within: 240 },
     desc: 'Become a whirling storm of steel, dealing {coef} weapon damage per second to all enemies around you while you move. Costs {cost} Fury per second. Starts automatically at 25 Fury when enemies are near.',
     icon: { glyph: 'spiral', color: 0xe6e0d0 },
     runes: [
-      { id: 'dust_devils', name: 'Dust Devils', unlock: 4, desc: 'Every second you whirl, unleash a Dust Devil that wanders through enemies for 3 seconds, dealing 120% weapon damage per second.', mods: { flags: ['dustDevils'] } },
+      { id: 'dust_devils', name: 'Dust Devils', unlock: 4, tags: ['summon'], desc: 'Every second you whirl, unleash a Dust Devil that wanders through enemies for 3 seconds, dealing 120% weapon damage per second.', mods: { flags: ['dustDevils'] } },
       { id: 'blood_funnel', name: 'Blood Funnel', unlock: 7, desc: 'Critical hits heal you for 1.5% of your maximum Life.', mods: { flags: ['critHeal'] } },
       { id: 'volcanic_eruption', name: 'Volcanic Eruption', unlock: 11, desc: 'Whirlwind deals Fire damage and its radius is increased by 30%.', mods: { element: 'fire', radius: 30 } },
     ],
@@ -39,7 +39,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'rend', classId: 'warrior', name: 'Rend', kind: 'spender', unlock: 4, element: 'physical',
+    id: 'rend', classId: 'warrior', name: 'Rend', kind: 'spender', unlock: 4, element: 'physical', tags: ['melee', 'area'],
     coef: 6.0, cost: 20, gen: 0, cooldown: 0, range: 150, radius: 150, duration: 5, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 150 },
     desc: 'Tear into all nearby enemies, causing them to bleed for {coef} weapon damage over {duration} seconds. Cast automatically when 3+ unbleeding enemies are near.',
@@ -56,7 +56,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'ground_stomp', classId: 'warrior', name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical',
+    id: 'ground_stomp', classId: 'warrior', name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['melee', 'area'],
     coef: 2.4, cost: 0, gen: 15, cooldown: 12, range: 170, radius: 170, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 170 },
     desc: 'Smash the ground, dealing {coef} weapon damage and stunning nearby enemies for {duration} seconds. Generates {gen} Fury.',
@@ -73,7 +73,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'seismic_slam', classId: 'warrior', name: 'Seismic Slam', kind: 'spender', unlock: 9, element: 'physical',
+    id: 'seismic_slam', classId: 'warrior', name: 'Seismic Slam', kind: 'spender', unlock: 9, element: 'physical', tags: ['area'],
     coef: 7.55, cost: 30, gen: 0, cooldown: 0, range: 336, radius: 60, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 304 },
     desc: 'Send a fissure through the earth, dealing {coef} weapon damage to all enemies in a 60° cone.',
@@ -90,7 +90,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'battle_rage', classId: 'warrior', name: 'Battle Rage', kind: 'buff', unlock: 12, element: 'physical',
+    id: 'battle_rage', classId: 'warrior', name: 'Battle Rage', kind: 'buff', unlock: 12, element: 'physical', tags: ['aura'],
     coef: 0, cost: 20, gen: 0, cooldown: 0, range: 0, radius: 0, duration: 60, maxSummons: 0,
     auto: { when: 'maintainBuff' },
     desc: 'Enter a rage that increases damage by {buffDamage} and Critical Hit Chance by {buffCritChance}{buffCritDamage} for {duration} seconds. Recast automatically.',
