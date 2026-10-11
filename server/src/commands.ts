@@ -15,7 +15,7 @@ import { questCommand, creditQuestService } from './quests';
 import { QUESTS } from '../../shared/src/data/quests';
 import { questState, writeQuestState } from '../../shared/src/quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
-import { transferStash } from '../../shared/src/stash';
+import { MAX_STASH_TABS, buyStashTab, moveStashItem, stashTabs, transferStash } from '../../shared/src/stash';
 import { MATERIAL_NAMES } from '../../shared/src/materialNames';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
 import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
@@ -201,8 +201,17 @@ const destroy: Handler = (s, a) => {
 };
 
 const stashDeposit: Handler = (s, a) => {
-  const err = transferStash(s.save, str(a, 'itemId'), true);
+  // `tab` (0-based, optional): the open tab is tried first, then the following tabs.
+  const err = transferStash(s.save, str(a, 'itemId'), true, int(a, 'tab', 0, MAX_STASH_TABS - 1, 0));
   return err ? fail(err) : done(s, false);
+};
+const stashMove: Handler = (s, a) => {
+  const err = moveStashItem(s.save, str(a, 'itemId'), int(a, 'tab', 0, MAX_STASH_TABS - 1));
+  return err ? fail(err) : done(s, false);
+};
+const stashBuyTab: Handler = (s, a) => {
+  const err = buyStashTab(s.save, int(a, 'tab', 2, MAX_STASH_TABS), int(a, 'price', 0, Number.MAX_SAFE_INTEGER));
+  return err ? fail(err) : done(s, false, { tabs: stashTabs(s.save) });
 };
 const stashWithdraw: Handler = (s, a) => {
   const err = transferStash(s.save, str(a, 'itemId'), false);
@@ -792,7 +801,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   onboarding: onboardingCommand,
   adventure: adventureCommand,
   quest: questCommand,
-  equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
+  equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw, stashMove, stashBuyTab,
   salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
   skillSlot, skillRune, skillTier, skillReset, skillNode, skillPrimary, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,

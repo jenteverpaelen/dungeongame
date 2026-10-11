@@ -160,6 +160,8 @@ export interface CharacterSave {
   equipment: Partial<Record<Slot, Item>>;
   inventory: (Item | null)[];
   stash: (Item | null)[];
+  /** Stash tabs owned (1 … MAX_STASH_TABS, 60 slots each); absent = 1. Optional: no save rewrite needed. */
+  stashTabs?: number;
   skills: SkillLoadout;
   skillPoints: number;
   paragon: ParagonState;

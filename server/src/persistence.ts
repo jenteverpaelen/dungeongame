@@ -14,6 +14,7 @@ import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
 import { migrateSteps } from '../../shared/src/saveMigrations';
+import { stashCapacity, stashTabs } from '../../shared/src/stash';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
@@ -180,7 +181,9 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   while (save.inventory.length < INVENTORY_SIZE) save.inventory.push(null);
   if (!Array.isArray(save.stash)) save.stash = [];
   save.stash = save.stash.map(i => i && typeof i === 'object' ? i : null);
-  while (save.stash.length < STASH_SIZE) save.stash.push(null);
+  // Stash tabs (optional): a malformed count falls back to the clamped owned count; the array grows to the capacity.
+  if (save.stashTabs !== undefined) { const tabs = stashTabs(save); if (tabs > 1) save.stashTabs = tabs; else delete save.stashTabs; }
+  while (save.stash.length < Math.max(STASH_SIZE, stashCapacity(save))) save.stash.push(null);
   // Preserve any future/oversized save entries; never truncate player-owned items.
   // v2: absence remains unprotected. A malformed present flag errs toward safety;
   // the player can explicitly remove protection after loading.
