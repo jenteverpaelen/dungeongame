@@ -41,6 +41,7 @@ export class TownLife {
   private walkers: { data: NonNullable<TownData['villagers']>[number]; view: PlayerArt; state: ViewState }[] = [];
   private residents: { view: NpcArt; x: number; y: number; state: ViewState }[] = [];
   private lightSprites: { data: TownData['lights'][number]; view: Sprite }[] = [];
+  private active = true;
   constructor(private town: TownData, private entities: Container) {
     for (const l of town.lights) {
       const glow = glowSprite(l.color, l.radius * 2, 0.2, true); glow.position.set(...l.position); glow.scale.y *= 0.65; this.ground.addChild(glow); this.lightSprites.push({ data: l, view: glow });
@@ -104,7 +105,13 @@ export class TownLife {
       if (lines) this.speakers.push(Object.defineProperties({ key: `villager:${d.id}`, height: 68 * (preset.scale ?? 1), lines } as unknown as Speaker, { x: { get: () => state.x }, y: { get: () => state.y } }));
     }
   }
+  /** Phased populations (docs/rework/quests/DESIGN.md §7) are hidden and frozen while their world state is off. */
+  setActive(on: boolean) {
+    this.active = on; this.ground.visible = on; this.above.visible = on;
+    if (!on) { for (const r of this.residents) r.view.root.visible = false; for (const w of this.walkers) w.view.root.visible = false; for (const m of this.motions) if (m.root.parent === this.entities) m.root.visible = false; }
+  }
   update(dt: number, time: number, cx: number, cy: number, halfWidth: number, halfHeight: number) {
+    if (!this.active) return;
     for (const l of this.lightSprites) {
       l.view.visible = Math.abs(l.data.position[0] - cx) < halfWidth + l.data.radius && Math.abs(l.data.position[1] - cy) < halfHeight + l.data.radius;
       l.view.alpha = 0.12 * (1 + l.data.flicker * Math.sin(time * 7 + l.data.position[0]));

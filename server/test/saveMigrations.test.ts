@@ -24,10 +24,10 @@ test('the save history is gap-free and ends at SAVE_VERSION', () => {
 
 test('one golden fixture per version, and no orphan fixtures', async () => {
   const files = (await fs.readdir(dir)).filter(f => f.endsWith('.json')).map(f => f.slice(0, -5)).sort();
-  assert.deepEqual(files, SAVE_HISTORY.map(s => s.fixture).sort());
-  for (const step of SAVE_HISTORY) {
-    const save = await read(step.fixture);
-    assert.equal(save.version ?? 0, step.version, `${step.fixture} declares version ${step.version}`);
+  assert.deepEqual(files, SAVE_HISTORY.flatMap(s => [s.fixture, ...(s.extraFixtures ?? []).map(e => e.fixture)]).sort());
+  for (const step of SAVE_HISTORY) for (const name of [step.fixture, ...(step.extraFixtures ?? []).map(e => e.fixture)]) {
+    const save = await read(name);
+    assert.equal(save.version ?? 0, step.version, `${name} declares version ${step.version}`);
   }
 });
 
@@ -42,13 +42,33 @@ test('every version migrates to the current version with zero custody loss, keep
       if (field === 'version' || field === 'protected' || field === 'vendorStock') continue; // item flags / the version itself are covered elsewhere
       if (step.mayRepair) continue; // validity is checked below instead (see the step's note)
       const was = get(original, field);
-      if (was !== undefined) assert.deepEqual(get(migrated, field), was, `${step.fixture}: ${field} preserved`);
+      if (was === undefined) continue;
+      // A later load-time migration may rewrite the values on purpose (see the step's note); nothing may disappear.
+      if (step.rewrites?.[field] && was && typeof was === 'object') {
+        for (const key of Object.keys(was)) assert.ok(get(migrated, `${field}.${key}`) !== undefined, `${step.fixture}: ${field}.${key} survives`);
+      } else assert.deepEqual(get(migrated, field), was, `${step.fixture}: ${field} preserved`);
     }
     // Fields of every version up to this one stay valid after loading.
     for (const s of SAVE_HISTORY) if (s.check) assert.ok(s.check(migrated), `${step.fixture}: v${s.version} fields valid after load`);
     assert.deepEqual(normalizeSave(structuredClone(migrated)), migrated, `${step.fixture}: migration is idempotent`);
     await saveCharacter(migrated); await flushSaves();
     assert.deepEqual(await loadCharacter(migrated.id), migrated, `${step.fixture}: save/reload preserves the migrated state`);
+  }
+});
+
+test('extra fixtures of unversioned load-time migrations lose nothing and reload identically', async () => {
+  for (const step of SAVE_HISTORY) for (const extra of step.extraFixtures ?? []) {
+    const original = await read(extra.fixture);
+    const migrated = normalizeSave(structuredClone(original));
+    assert.equal(migrated.version, SAVE_VERSION, extra.fixture);
+    const noGold = (s: CharacterSave) => custodySummary({ ...s, gold: 0 });
+    assert.deepEqual(noGold(migrated), noGold(original), `${extra.fixture}: items, gems and materials survive`);
+    if (extra.goldMayRise) assert.ok(migrated.gold >= original.gold, `${extra.fixture}: gold never falls (${extra.note})`);
+    else assert.equal(migrated.gold, original.gold, extra.fixture);
+    for (const s of SAVE_HISTORY) if (s.check) assert.ok(s.check(migrated), `${extra.fixture}: v${s.version} fields valid after load`);
+    assert.deepEqual(normalizeSave(structuredClone(migrated)), migrated, `${extra.fixture}: migration is idempotent`);
+    await saveCharacter(migrated); await flushSaves();
+    assert.deepEqual(await loadCharacter(migrated.id), migrated, `${extra.fixture}: save/reload preserves the migrated state`);
   }
 });
 

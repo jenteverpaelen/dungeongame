@@ -7,6 +7,7 @@ import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
+import { channelMoveFactor, debtRegenFactor, powerTick } from './powerActions';
 import { dropInactivePowerBuffs, elementStacks, firePowerProcs, updateOwnGround } from './powerRuntime';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
 import { nextId } from './ids';
@@ -48,7 +49,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     inQ: [], lastIn: { mx: 0, my: 0 }, ack: 0,
     faceLeft: false, moving: false, faceLockMs: 0,
     atkCdMs: 0, readyAt: new Map(), attackFlagMs: 0, castFlagMs: 0,
-    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0 },
+    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false },
     summons: [], channel: null,
     deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500,
     sinceHitMs: 1e9, sinceHurtMs: 1e9,
@@ -56,7 +57,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     lastEle: {}, ouroIdx: 0, ouroMs: 4000, noticeFullAt: -1e9,
     critHealMs: 0, critHealCount: 0, dealt: 0, kills: 0,
     ffTile: -1, ffT: -1e9, ff: null, ffX0: 0, ffY0: 0,
-    lastVortexT: -1e9, respawnTick: -1, taken: 0,
+    lastVortexT: -1e9, respawnTick: -1, taken: 0, pw: undefined,
   };
   return p;
 }
@@ -96,7 +97,8 @@ export function refreshPlayerStats(inst: Instance, p: Player, keepFraction: bool
 
 export function processInputs(inst: Instance, p: Player) {
   const blocked = p.deadMs > 0 || p.frozenMs > 0 || p.stunMs > 0;
-  const msPct = p.ctx.d.ms;
+  const chf = p.channel ? channelMoveFactor(p, p.channel.skill) : 1; // a channel's movement slow (skill var) and rule
+  const msPct = chf === 1 ? p.ctx.d.ms : (1 + p.ctx.d.ms / 100) * chf * 100 - 100;
   const dashCd = p.ctx.dashCdMs;
   const x0 = p.mv.x, y0 = p.mv.y;
   let steps = 0;
@@ -132,7 +134,7 @@ function onDash(inst: Instance, p: Player, sx: number, sy: number) {
 // ─────────────────────────── Per-tick timers / regeneration ───────────────────────────
 
 export function playerTick(inst: Instance, p: Player, dtMs: number) {
-  if(p.debugInfiniteHp && p.deadMs<=0)p.hp=p.mhp;
+  if(p.debugInfiniteHp && p.deadMs<=0)p.hp=p.debugPinLifePct===undefined?p.mhp:Math.max(1,p.mhp*p.debugPinLifePct/100);
   if (p.deadMs > 0) {
     p.deadMs -= dtMs;
     if (p.deadMs <= 0) respawn(inst, p);
@@ -151,6 +153,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   p.sinceHurtMs += dtMs;
   tickBuffs(p, dtMs);
   if (p.ctx.powers.watchGround || p.inOwnGround) updateOwnGround(inst, p);
+  if (p.ctx.powers.ticks) powerTick(inst, p, dtMs);
 
   // Element cycle (Ouroboros Loop): the boosted element rotates every periodMs.
   const cyc = p.ctx.powers.elementCycle;
@@ -191,8 +194,10 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   const cls = CLASSES[p.save.classId].resource;
   let rr = p.ctx.d.resourceRegen;
   for (const s of p.summons) if (s.type === 'bat' && !s.dead) rr += 1;
+  if (p.res < 0 && p.ctx.powers.debt.length) rr *= debtRegenFactor(p); // resource debt (engine wave 2)
   if (rr > 0) p.res = Math.min(p.mres, p.res + rr * dt);
-  if (cls.decayPerSec > 0 && p.sinceHitMs > FURY_DECAY_DELAY_MS && !p.channel) p.res = Math.max(0, p.res - cls.decayPerSec * dt);
+  // Decay never pushes a debt (negative resource) back up to zero.
+  if (cls.decayPerSec > 0 && p.sinceHitMs > FURY_DECAY_DELAY_MS && !p.channel && p.res > 0) p.res = Math.max(0, p.res - cls.decayPerSec * dt);
   if ((p.save as { debugInfRes?: boolean }).debugInfRes) p.res = p.mres; // F2 prototype toggle
 
   updateLoot(inst, p, dtMs);

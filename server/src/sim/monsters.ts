@@ -16,6 +16,7 @@ import { dropGoldPile } from './loot';
 import { spawnProj } from './projectiles';
 import { bossTick } from './rift';
 import { fractureLine } from './fracture';
+import { tickMobStatus } from './status';
 import {
   AGGRO_RANGE, DORMANT_RANGE, GOBLIN_ESCAPE_MS, eliteToughness, levelDamage, levelToughness, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
   PACK_ALERT_RANGE, WINDUP_MULT,
@@ -69,7 +70,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     flags: 0, attackSeq: 0, state: 'idle', target: 0,
     x, y, r: def.radius, hCell: -1, hIdx: -1, homeX: x, homeY: y, pack: o.pack ?? null,
     stateMs: 0, atkCdMs: inst.rng.next() * 600, attackFlagMs: 0,
-    stunMs: 0, freezeMs: 0, chillMs: 0, markMs: 0, markPct: 0, holeMs: 0, holePct: 0, inHoleMs: 0, kbX: 0, kbY: 0, kbMs: 0,
+    stunMs: 0, freezeMs: 0, chillMs: 0, markMs: 0, markPct: 0, holeMs: 0, holePct: 0, inHoleMs: 0, ctrlAgo: undefined, ps: undefined, kbX: 0, kbY: 0, kbMs: 0,
     dots: [], dead: false, dummy: !!o.dummy, dormant: o.dormant ?? false, lastHitBy: 0, lastDamagedT: -1e9,
     atkX: x, atkY: y,
     aff: {
@@ -220,6 +221,9 @@ function timers(m: Mob, dtMs: number) {
   if (m.aff.electrified > 0) m.aff.electrified -= dtMs;
   const slow = m.chillMs > 0 ? 0.6 : 1;
   if (m.atkCdMs > 0 && m.stunMs <= 0 && m.freezeMs <= 0) m.atkCdMs -= dtMs * slow;
+  // Power primitives (engine wave 2): "controlled within" clock and power statuses; untouched monsters skip both.
+  if (m.ctrlAgo !== undefined) m.ctrlAgo = m.stunMs > 0 || m.freezeMs > 0 || m.kbMs > 0 ? 0 : m.ctrlAgo + dtMs;
+  if (m.ps) tickMobStatus(m, dtMs);
 }
 
 /** Tick DoTs; returns true if the monster died. */
@@ -283,6 +287,11 @@ function think(inst: Instance, m: Mob, dtMs: number) {
       return;
     case 'chase':
     case 'flee': {
+      if (m.ps && m.ps.tauntMs > 0 && m.state === 'chase' && m.ps.tauntTo) {
+        const to = m.ps.tauntTo;
+        if (to.kind === 'player' && to.id) m.target = to.id; // taunted by a player: fight that player
+        else { tauntStep(inst, m, to, m.speed * slow, dtS); return; }
+      }
       let p = targetOf(inst, m);
       if (!p) {
         p = inst.nearestPlayer(m.x, m.y, 900);
@@ -315,6 +324,15 @@ function think(inst: Instance, m: Mob, dtMs: number) {
       return;
     }
   }
+}
+
+/**
+ * Taunted (power status): walk to the taunting entity / point and stay at it instead of fighting. Monster AI proper
+ * (F-MON-02) may replace this with attacking the taunting entity; it is the only behaviour change and only for taunts.
+ */
+function tauntStep(inst: Instance, m: Mob, to: { x: number; y: number }, speed: number, dtS: number) {
+  if (Math.hypot(to.x - m.x, to.y - m.y) > m.r + 24) step(inst, m, to.x, to.y, speed, dtS, null);
+  else { m.faceLeft = to.x < m.x; separateOnly(inst, m); }
 }
 
 /** Move towards (tx, ty) with separation steering; uses the flow field when the straight line is blocked. */

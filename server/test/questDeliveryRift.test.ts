@@ -34,7 +34,7 @@ async function fixture() {
 }
 const catalog=QUESTS as QuestDef[];
 function definition(id:string):QuestDef {
-  return {...structuredClone(QUESTS[1]),id,requires:[],unlocks:undefined};
+  return {...structuredClone(QUESTS[1]),revision:1,id,requires:[],unlocks:undefined};
 }
 
 test('delivery rejects invalid, stale, partial, protected and ambiguous inputs before any item or quest mutation',async()=>{
@@ -87,7 +87,7 @@ test('delivery consumes exactly the reviewed batch, returns gems and preserves r
 
 test('rift objective follows completion membership and minimum difficulty once, with partial persistence and no retrospective credit',async()=>{
   const f=await fixture(),q=definition('rift_complete_fixture'),late=definition('rift_late_fixture');
-  q.steps=[{id:'clear',kind:'rift',zone:'rift',target:'completion',text:'quest.wheel.warden',minDifficulty:1,count:2}];
+  q.steps=[{id:'clear',kind:'rift',zone:'rift',target:'completion',text:'q.silent_wheel.warden',minDifficulty:1,count:2}];
   late.steps=structuredClone(q.steps);catalog.push(q,late);
   try {
     const heroes=[f,f.add(),f.add(),f.add()];

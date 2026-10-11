@@ -1,3 +1,4 @@
+import { activeWorldStates } from '../worldStateFlags';
 import { Container, Graphics } from 'pixi.js';
 import type { AdventureData } from '@shared/adventureTypes';
 import { groundBoundary, type Edge } from '@shared/townGeometry';
@@ -116,12 +117,30 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
       // Sealed firing mouth, not a walkable doorway. Its entire footprint is solid.
       const mw=w*.4,mh=h*.6,cx=w/2;
       g.roundRect(cx-mw/2,-mh,mw,mh,18).fill(0x2a1a16).stroke({color:0x6b5a48,width:8});
-      g.roundRect(cx-mw*.4,-mh*.8,mw*.8,mh*.7,10).fill(0xb24e27);
-      g.ellipse(cx,-mh*.3,mw*.22,mh*.2).fill(0xff7a1a);
-      for(let xx=cx-mw*.35;xx<cx+mw*.4;xx+=16)g.rect(xx,-mh*.82,5,mh*.82).fill(0x302c23);
-      g.rect(cx-mw*.45,-mh*.36,mw*.9,7).fill(0x302c23);
-      g.ellipse(cx,-h-d*.5,w*.25,d*.3).fill(0x2a1a16).stroke({color:0x6b5a48,width:9});
-      g.ellipse(cx,-h-d*.5,w*.15,d*.16).fill(0x5a1a10);
+      // A kiln with a `cold` world state draws its fire as a separate layer so the mouth can go dark (DESIGN.md §7).
+      const fire=kiln.cold?new Graphics():g,cold=kiln.cold?new Graphics():undefined;
+      cold?.roundRect(cx-mw*.4,-mh*.8,mw*.8,mh*.7,10).fill(0x3a3430).ellipse(cx,-mh*.18,mw*.3,mh*.1).fill(0x6c6959);
+      fire.roundRect(cx-mw*.4,-mh*.8,mw*.8,mh*.7,10).fill(0xb24e27);
+      fire.ellipse(cx,-mh*.3,mw*.22,mh*.2).fill(0xff7a1a);
+      const bars=kiln.cold?new Graphics():g;
+      for(let xx=cx-mw*.35;xx<cx+mw*.4;xx+=16)bars.rect(xx,-mh*.82,5,mh*.82).fill(0x302c23);
+      bars.rect(cx-mw*.45,-mh*.36,mw*.9,7).fill(0x302c23);
+      const top=kiln.cold?new Graphics():g;
+      top.ellipse(cx,-h-d*.5,w*.25,d*.3).fill(0x2a1a16).stroke({color:0x6b5a48,width:9});
+      fire.ellipse(cx,-h-d*.5,w*.15,d*.16).fill(0x5a1a10);
+      if(kiln.cold&&cold){
+        // Untended: flames lick out of the chimney until the state turns the kiln cold.
+        const key=kiln.cold,root=new Container(),flames=new Graphics();root.position.set(x,y);g.position.set(0,0);
+        flames.position.set(cx,-h-d*.5);
+        for(const i of [-1,0,1]){
+          const bx=i*w*.07,fh=h*(.62-Math.abs(i)*.18),fw=w*.06;
+          flames.poly([bx-fw,0,bx-fw*.5,-fh*.45,bx,-fh,bx+fw*.45,-fh*.5,bx+fw,0]).fill({color:0xff7a1a,alpha:.92});
+          flames.poly([bx-fw*.5,0,bx-fw*.2,-fh*.4,bx,-fh*.62,bx+fw*.25,-fh*.38,bx+fw*.5,0]).fill(0xffd060);
+        }
+        root.addChild(g,top,cold,fire,bars,flames);
+        root.onRender=()=>{const off=activeWorldStates.has(key);fire.visible=flames.visible=!off;cold.visible=off;if(!off)flames.scale.y=1+Math.sin(performance.now()/140)*.08;};
+        out.push({view:root,y});continue;
+      }
     }
     out.push({view:g,y});
   }
@@ -133,8 +152,13 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
   }
   const w=a.wheel;if(!w)return out;
   const root=new Container();root.position.set(w.x,w.y);
-  const wheel=new Graphics().ellipse(0,-48,w.radius,62).stroke({color:0x332d23,width:14}).ellipse(0,-48,w.radius,62).stroke({color:0x9a8054,width:5});
-  for(let i=0;i<10;i++){const a=i*Math.PI/5;wheel.moveTo(0,-48).lineTo(Math.cos(a)*w.radius,-48+Math.sin(a)*62).stroke({color:0x786545,width:6});}
-  wheel.circle(0,-48,8).fill(0x303b35);root.addChild(wheel);out.push({view:root,y:w.y});
+  const rim=new Graphics().ellipse(0,-48,w.radius,62).stroke({color:0x332d23,width:14}).ellipse(0,-48,w.radius,62).stroke({color:0x9a8054,width:5});
+  // Spokes are drawn round and squashed, so rotating them reads as the wheel turning (docs/rework/quests/DESIGN.md §7).
+  const axle=new Container();axle.position.set(0,-48);axle.scale.set(1,62/w.radius);
+  const spokes=new Graphics();for(let i=0;i<10;i++){const a=i*Math.PI/5;spokes.moveTo(0,0).lineTo(Math.cos(a)*w.radius,Math.sin(a)*w.radius).stroke({color:0x786545,width:6});}
+  for(let i=0;i<10;i++){const a=i*Math.PI/5+Math.PI/10;spokes.rect(Math.cos(a)*w.radius-5,Math.sin(a)*w.radius-5,10,10).fill(0x5a4a34);}
+  axle.addChild(spokes);root.addChild(rim,axle,new Graphics().circle(0,-48,8).fill(0x303b35));
+  if(w.spin){const key=w.spin;let last=performance.now();root.onRender=()=>{const now=performance.now();if(activeWorldStates.has(key))spokes.rotation+=(now-last)/1000*1.1;last=now;};}
+  out.push({view:root,y:w.y});
   return out;
 }

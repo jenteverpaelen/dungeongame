@@ -1,41 +1,55 @@
-import type { QuestDef, QuestStep, QuestTarget } from '../questTypes';
-import type { QuestMessageKey } from './questMessages';
-import { storyXp } from '../storyBudget';
+import type { QuestDef, QuestStep } from '../questTypes';
+import { storyMainXp, storyXp } from '../storyBudget';
+import { contact, quest } from './questKit';
 
-const contact=(zone:string,target:string):QuestTarget=>({zone,target});
-const venn=contact('kilnwatch_crown','watchkeeper'),sera=contact('sablefen_causeway','ferrier'),neris=contact('saltwind_pans','briner');
-const aven=contact('lockglass_cistern','lockkeeper'),tallis=contact('shiverline_escarpment','lookout'),mera=contact('beaconbreak_ward','quartermaster');
-const eris=contact('hollowstar_array','west_reader'),daro=contact('hollowstar_array','east_reader');
-type Id='salt_bound'|'broken_toll'|'bitter_measure'|'sealed_brine'|'borrowed_pressure'|'lockglass_heart'|'ridge_trace'|'open_beacon'|'ward_gate'|'false_command'|'first_answer'|'two_voices'|'last_transmission';
-type Step=[id:string,kind:QuestStep['kind'],target:string];
-function quest(id:Id,from:number,to:number,start:QuestTarget,finish:QuestTarget,requires:string,chapter:string,steps:Step[],unlocks?:string,weapon=false):QuestDef {
-  return {id,revision:1,chapter,title:`mid.${id}.title`,offer:`mid.${id}.offer`,complete:`mid.${id}.complete`,
-    rewardText:weapon?'quest.reward.weapon':'mid.reward.progress',start,finish,requires:[requires],unlocks,
-    reward:{xp:storyXp(from,to),...(weapon?{item:'magic_weapon' as const}:{})},
-    steps:steps.map(([step,kind,target])=>({id:step,kind,target,zone:finish.zone,text:`mid.${id}.${step}` as QuestMessageKey}))};
-}
-export const MIDGAME_QUESTS:readonly QuestDef[]=[
-  quest('salt_bound',20,23,venn,sera,'last_draw','salt_road',[['manifest','interact','manifest'],['toll','kill','toll']]),
-  quest('broken_toll',23,25,sera,sera,'salt_bound','salt_road',[['writ','interact','false_writ'],['guard','kill','chainwatch'],['chain','interact','chain']],'saltwind_pans',true),
-  quest('bitter_measure',25,28,sera,neris,'broken_toll','salt_road',[['inlet','interact','inlet'],['boiler','kill','boiler']]),
-  quest('sealed_brine',28,30,neris,neris,'bitter_measure','salt_road',[['spill','interact','spill'],['watch','kill','dispatch_watch'],['dispatch','interact','dispatch']],'lockglass_cistern',true),
-  quest('borrowed_pressure',30,33,neris,aven,'sealed_brine','lockglass',[['intake','wave','intake'],['filters','wave','filters']]),
-  quest('lockglass_heart',33,35,aven,aven,'borrowed_pressure','lockglass',[['heart','wave','heart'],['archive','interact','archive']],'shiverline_escarpment',true),
-  quest('ridge_trace',35,38,aven,tallis,'lockglass_heart','ridge_signals',[['flag','interact','lower_flag'],['intercept','kill','interceptor'],['slate','interact','intercept']]),
-  quest('open_beacon',38,40,tallis,tallis,'ridge_trace','ridge_signals',[['code','interact','code'],['watch','kill','beacon_watch'],['light','interact','beacon']],'beaconbreak_ward',true),
-  quest('ward_gate',40,43,tallis,mera,'open_beacon','ridge_signals',[['orders','interact','gate_orders'],['guard','kill','gatekeeper']]),
-  quest('false_command',43,45,mera,mera,'ward_gate','ridge_signals',[['stores','interact','stores'],['cistern','interact','cistern'],['keeper','kill','relay_keeper'],['book','interact','relay_book']],'hollowstar_array',true),
-  quest('first_answer',45,47,mera,eris,'false_command','hollowstar',[['west','wave','west']]),
-  quest('two_voices',47,49,eris,daro,'first_answer','hollowstar',[['east','wave','east'],['strip','interact','contradiction']]),
-  {...quest('last_transmission',49,50,daro,daro,'two_voices','hollowstar',[['conductor','wave','conductor'],['record','interact','final_record']],undefined,true),grantsFlags:['relay_network_restored']},
+// Acts II–III (docs/rework/quests/DESIGN.md; LOG.md "Quest list"). Same ids, contacts, bosses and story beats; reworked
+// objectives (repairs that change the world, hand-overs, gathers) and shorter text.
+const SF = 'sablefen_causeway', SW = 'saltwind_pans', LG = 'lockglass_cistern', SL = 'shiverline_escarpment', BW = 'beaconbreak_ward', HS = 'hollowstar_array';
+const venn = contact('kilnwatch_crown', 'watchkeeper'), sera = contact(SF, 'ferrier'), neris = contact(SW, 'briner');
+const aven = contact(LG, 'lockkeeper'), tallis = contact(SL, 'lookout'), mera = contact(BW, 'quartermaster');
+const eris = contact(HS, 'west_reader'), daro = contact(HS, 'east_reader');
+const hold = (ms: number): Partial<QuestStep> => ({ hold: ms });
+
+export const MIDGAME_QUESTS: readonly QuestDef[] = [
+  // Act II · The Salt Road
+  quest({ id: 'salt_bound', revision: 2, chapter: 'salt_road', zone: SF, start: venn, finish: sera, requires: ['last_draw'], reward: { xp: storyMainXp(20, 23) },
+    steps: [['manifest', 'interact', 'manifest'], ['toll', 'kill', 'toll'], ['gate', 'interact', 'toll_gate', hold(2000)]] }),
+  quest({ id: 'broken_toll', chapter: 'salt_road', zone: SF, start: sera, finish: sera, requires: ['salt_bound'], unlocks: SW, reward: { item: 'magic_weapon', pick: true, xp: storyMainXp(23, 25) },
+    steps: [['writ', 'interact', 'false_writ'], ['guard', 'kill', 'chainwatch'], ['chain', 'interact', 'chain', hold(3000)]] }),
+  quest({ id: 'bitter_measure', revision: 2, chapter: 'salt_road', zone: SW, start: sera, finish: neris, requires: ['broken_toll'], reward: { xp: storyMainXp(25, 28) },
+    steps: [['inlet', 'interact', 'inlet'], ['boiler', 'kill', 'boiler'], ['damper', 'interact', 'boiler_damper', hold(2000)]] }),
+  quest({ id: 'sealed_brine', chapter: 'salt_road', zone: SW, start: neris, finish: neris, requires: ['bitter_measure'], unlocks: LG, reward: { item: 'magic_weapon', pick: true, xp: storyMainXp(28, 30) },
+    steps: [['spill', 'interact', 'spill', hold(2500)], ['watch', 'kill', 'dispatch_watch'], ['dispatch', 'interact', 'dispatch']] }),
+  // Act II · Borrowed Water (private dungeon)
+  quest({ id: 'borrowed_pressure', chapter: 'lockglass', zone: LG, start: neris, finish: aven, requires: ['sealed_brine'], reward: { xp: storyXp(30, 33) },
+    steps: [['intake', 'wave', 'intake'], ['filters', 'wave', 'filters']] }),
+  quest({ id: 'lockglass_heart', chapter: 'lockglass', zone: LG, start: aven, finish: aven, requires: ['borrowed_pressure'], unlocks: SL, reward: { item: 'magic_weapon', pick: true, xp: storyXp(33, 35) },
+    steps: [['heart', 'wave', 'heart'], ['archive', 'interact', 'archive']] }),
+  // Act III · The Ridge Signals
+  quest({ id: 'ridge_trace', chapter: 'ridge_signals', zone: SL, start: aven, finish: tallis, requires: ['lockglass_heart'], reward: { xp: storyMainXp(35, 38) },
+    steps: [['flag', 'interact', 'lower_flag'], ['intercept', 'kill', 'interceptor'], ['slate', 'interact', 'intercept']] }),
+  quest({ id: 'open_beacon', chapter: 'ridge_signals', zone: SL, start: tallis, finish: tallis, requires: ['ridge_trace'], unlocks: BW, reward: { item: 'magic_weapon', pick: true, xp: storyMainXp(38, 40) },
+    steps: [['code', 'interact', 'code'], ['watch', 'kill', 'beacon_watch'], ['light', 'interact', 'beacon', hold(3000)]] }),
+  quest({ id: 'ward_gate', revision: 2, chapter: 'ridge_signals', zone: BW, start: tallis, finish: mera, requires: ['open_beacon'], reward: { xp: storyMainXp(40, 43) },
+    steps: [['orders', 'interact', 'gate_orders'], ['guard', 'kill', 'gatekeeper'], ['bar', 'interact', 'west_bar', hold(2000)]] }),
+  quest({ id: 'false_command', chapter: 'ridge_signals', zone: BW, start: mera, finish: mera, requires: ['ward_gate'], unlocks: HS, reward: { item: 'magic_weapon', pick: true, xp: storyMainXp(43, 45) },
+    steps: [['stores', 'interact', 'stores'], ['cistern', 'interact', 'cistern', hold(2500)], ['keeper', 'kill', 'relay_keeper'], ['book', 'interact', 'relay_book']] }),
+  // Act III · The Last Transmission (private dungeon)
+  quest({ id: 'first_answer', chapter: 'hollowstar', zone: HS, start: mera, finish: eris, requires: ['false_command'], reward: { xp: storyXp(45, 47) },
+    steps: [['west', 'wave', 'west']] }),
+  quest({ id: 'two_voices', chapter: 'hollowstar', zone: HS, start: eris, finish: daro, requires: ['first_answer'], reward: { xp: storyXp(47, 49) },
+    steps: [['east', 'wave', 'east'], ['strip', 'interact', 'contradiction']] }),
+  quest({ id: 'last_transmission', chapter: 'hollowstar', zone: HS, start: daro, finish: daro, requires: ['two_voices'], grantsFlags: ['relay_network_restored'],
+    reward: { item: 'magic_weapon', pick: true, xp: storyXp(49, 50) },
+    steps: [['conductor', 'wave', 'conductor'], ['record', 'interact', 'final_record']] }),
 ];
 
-/** Optional gifts preserve all mandatory story XP/weapon rewards and old claimed histories. */
-export const MIDGAME_GIFTS:readonly QuestDef[]=[
-  {id:'keepers_mantle',revision:1,title:'mid.giftShoulders.title',offer:'mid.giftShoulders.offer',complete:'mid.giftShoulders.complete',rewardText:'mid.giftShoulders.reward',
-    start:neris,finish:neris,requires:['sealed_brine'],reward:{item:'class_set_shoulders'},
-    steps:[{id:'kit',kind:'talk',...neris,text:'mid.giftShoulders.talk'}]},
-  {id:'ridgeward_treads',revision:1,title:'mid.giftFeet.title',offer:'mid.giftFeet.offer',complete:'mid.giftFeet.complete',rewardText:'mid.giftFeet.reward',
-    start:aven,finish:aven,requires:['lockglass_heart'],reward:{item:'class_set_feet'},
-    steps:[{id:'kit',kind:'talk',...aven,text:'mid.giftFeet.talk'}]},
+/** Optional gifts preserve all mandatory story XP/weapon rewards and old claimed histories. Lessons category: a gift. */
+export const MIDGAME_GIFTS: readonly QuestDef[] = [
+  { id: 'keepers_mantle', revision: 1, category: 'lesson', title: 'mid.giftShoulders.title', offer: 'mid.giftShoulders.offer', complete: 'mid.giftShoulders.complete', rewardText: 'mid.giftShoulders.reward',
+    start: neris, finish: neris, requires: ['sealed_brine'], reward: { item: 'class_set_shoulders' },
+    steps: [{ id: 'kit', kind: 'talk', ...neris, text: 'mid.giftShoulders.talk' }] },
+  { id: 'ridgeward_treads', revision: 1, category: 'lesson', title: 'mid.giftFeet.title', offer: 'mid.giftFeet.offer', complete: 'mid.giftFeet.complete', rewardText: 'mid.giftFeet.reward',
+    start: aven, finish: aven, requires: ['lockglass_heart'], reward: { item: 'class_set_feet' },
+    steps: [{ id: 'kit', kind: 'talk', ...aven, text: 'mid.giftFeet.talk' }] },
 ];

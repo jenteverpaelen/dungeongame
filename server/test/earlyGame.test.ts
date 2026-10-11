@@ -5,7 +5,9 @@ import { computeStats } from '../../shared/src/stats';
 import { recordCreature } from '../../shared/src/bestiary';
 import { salePrice, ownedItems, BUYBACK_CAPACITY } from '../../shared/src/merchant';
 import { QUESTS } from '../../shared/src/data/quests';
-import { questState, writeQuestState } from '../../shared/src/quests';
+import { contactSpot, questState, writeQuestState } from '../../shared/src/quests';
+import { CACHE_GOLD_UNITS, boardUnlocked, bountyGold, drawBounties } from '../../shared/src/bounties';
+import { xpToNext } from '../../shared/src/progression';
 import { questRequest } from '../../shared/src/questRequests';
 import { Instance } from '../src/sim/instance';
 import { killMob } from '../src/sim/kills';
@@ -30,13 +32,18 @@ function fixture(){
     s.entityId=inst.addPlayer(s);const p=inst.playerById(s.entityId)!;p.debugInfiniteHp=true;
     const at=(x:number,y:number)=>{p.x=p.mv.x=x;p.y=p.mv.y=y;};
     const cmd=(op:Parameters<typeof runCommand>[2],a:Record<string,unknown>)=>runCommand(s,{} as World,op,a);
-    const quest=(id:string,action:string)=>{const q=QUESTS.find(q=>q.id===id)!;return cmd('quest',questRequest(q,questState(save,id),'tender',action));};
+    const quest=(id:string,action:string,target='tender')=>{const q=QUESTS.find(q=>q.id===id)!;return cmd('quest',questRequest(q,questState(save,id),target,action));};
     const trade=(action:string,itemId:string,extra:Record<string,unknown>={})=>cmd('merchant',{merchant:'orren',action,itemId,sequence:save.merchant?.sequence??0,price:action==='sell'?salePrice(save.inventory.find(i=>i?.id===itemId)!):save.merchant?.items.find(e=>e.item.id===itemId)?.price,...extra});
     return {save,s,p,at,cmd,quest,trade};
   };
   return {inst,add,...add()};
 }
 function complete(save:ReturnType<typeof createCharacter>,id:string){const q=QUESTS.find(q=>q.id===id)!;writeQuestState(save,id,{revision:q.revision,step:q.steps.length,claimed:true});}
+const xpTotal=(level:number)=>{let t=0;for(let l=1;l<level;l++)t+=xpToNext(l);return t;};
+/** A contact's approach where this character sees it (phasing moves Orren to the mill). */
+const spot=(inst:Instance,id:string,save:ReturnType<typeof createCharacter>):[number,number]=>{const c=contactSpot(inst.map.adventure,id,save)!;
+  for(let n=0;n<16;n++){const x=c.x+70*Math.cos(n*Math.PI/8),y=c.y+70*Math.sin(n*Math.PI/8);if(inst.cw.isFree(x,y,18)&&!inst.cw.segmentBlocked(x,y,c.x,c.y))return [x,y];}
+  throw new Error('no approach to '+id);};
 
 test('bestiary records actual eligible nearby deaths once and preserves future records',async()=>{
   const f=fixture(),other=f.add();
@@ -87,28 +94,52 @@ test('full buyback and unsupported records never evict retained items or consume
   }finally{f.inst.destroy();}
 });
 
-test('live contract uses actual authored deaths, physical claim and a fresh saved cycle',async()=>{
+test('bounty board: actual authored deaths progress a hunt, each bounty pays once, the cache spills loot and posts a new set',async()=>{
   const f=fixture();
   try{
-    f.at(...app(f.inst,'tender'));assert(!f.quest('contract_road','accept').ok);complete(f.save,'silent_wheel');assert(f.quest('contract_road','accept').ok);
-    for(const m of f.inst.mobs.filter(m=>m.adventureSite==='road'&&m.def.id==='bog_slime')){f.at(m.x,m.y+40);killMob(f.inst,m,f.p,'physical','fixture');}
-    assert.equal(questState(f.save,'contract_road')!.step,1);assert(!f.quest('contract_road','claim').ok);f.at(...app(f.inst,'tender'));
-    const gold=f.save.gold;assert(f.quest('contract_road','claim').ok);assert.equal(f.save.gold,gold+54);assert(!f.quest('contract_road','claim').ok);
-    assert(f.quest('contract_road','accept').ok);assert.equal(questState(f.save,'contract_road')!.step,0);assert.equal(questState(f.save,'contract_road')!.cycle,1);
-    await saveCharacter(f.save);await flushSaves();assert.deepEqual((await loadCharacter(f.save.id))!.quests,f.save.quests);
+    const zone='rillwake_crossing';
+    // Locked until the zone's story is done; kills before that never count.
+    const slime=f.inst.mobs.find(m=>m.adventureSite==='road'&&m.def.id==='bog_slime')!;f.at(slime.x,slime.y+40);killMob(f.inst,slime,f.p,'physical','fixture');
+    assert.equal(f.save.bounties,undefined,'no board progress before the board opens');
+    complete(f.save,'silent_wheel');complete(f.save,'high_water');assert(boardUnlocked(f.save,zone));
+    // A known set for the fixture: a slime hunt, the overlook alarm and Brackjaw.
+    f.save.bounties={[zone]:{cycle:0,picks:['hunt_slime','ev_survey_alarm','rare_brackjaw'],progress:[0,0,0],done:0}};
+    const gold0=f.save.gold,xp0=f.save.xp+xpTotal(f.save.level);
+    for(let round=0;round<8&&!(f.save.bounties[zone].done&1);round++){
+      for(const m of f.inst.mobs.filter(m=>!m.dead&&m.adventureSite&&!m.adventureTarget&&m.def.family==='slime')){f.at(m.x,m.y+40);killMob(f.inst,m,f.p,'physical','fixture');if(f.save.bounties[zone].done&1)break;}
+      f.at(0,0);f.inst.t+=f.inst.def.respawnSec*1000+2000;f.inst.spawner.tick(50);
+    }
+    assert.equal(f.save.bounties[zone].progress[0],12);assert.equal(f.save.bounties[zone].done,1,'hunt paid');
+    assert.equal(f.save.gold-gold0,bountyGold(zone),'gold paid once on completion');assert(f.save.xp+xpTotal(f.save.level)>xp0,'XP paid');
+    const paidGold=f.save.gold;
+    const extra=f.inst.mobs.find(m=>!m.dead&&m.def.family==='slime'&&m.adventureSite);if(extra){f.at(extra.x,extra.y+40);killMob(f.inst,extra,f.p,'physical','fixture');}
+    assert.equal(f.save.gold,paidGold,'a finished bounty never pays again');
+    // The board refuses the cache until all three are done, and only in person.
+    f.at(...app(f.inst,'bounty_board'));assert(!f.cmd('quest',{action:'bountyClaim',target:'bounty_board'}).ok);
+    f.save.bounties[zone]={...f.save.bounties[zone],progress:[12,1,1],done:7};
+    f.at(...app(f.inst,'tender'));assert(!f.cmd('quest',{action:'bountyClaim',target:'bounty_board'}).ok,'not in person');
+    f.at(...app(f.inst,'bounty_board'));const before=f.p.loot.size,goldBefore=f.save.gold;
+    assert(f.cmd('quest',{action:'bountyClaim',target:'bounty_board'}).ok);
+    assert.equal(f.p.loot.size-before,2,'one rare and one magic item spilled at the board');
+    assert.deepEqual([...f.p.loot].slice(-2).map(l=>l.payload.type==='item'?l.payload.item.rarity:'').sort(),['magic','rare']);
+    assert.equal(f.save.gold-goldBefore,bountyGold(zone,CACHE_GOLD_UNITS));
+    assert.equal(f.save.bounties[zone].cycle,1);assert.equal(f.save.bounties[zone].done,0);assert.deepEqual(f.save.bounties[zone].picks,drawBounties(f.save.id,zone,1));
+    assert(!f.cmd('quest',{action:'bountyClaim',target:'bounty_board'}).ok,'no second cache');
+    await saveCharacter(f.save);await flushSaves();assert.deepEqual((await loadCharacter(f.save.id))!.bounties,f.save.bounties);
   }finally{f.inst.destroy();}
 });
 
 test('field event requires physical enrollment and actual whole-pack deaths; cooldown cannot spawn on players',()=>{
   const f=fixture(),other=f.add();
   try{
-    for(const h of [f,other]){complete(h.save,'silent_wheel');complete(h.save,'high_water');h.at(...app(f.inst,'tender'));assert(h.quest('contract_alarm','accept').ok);}
+    for(const h of [f,other]){complete(h.save,'silent_wheel');h.at(...spot(f.inst,'tender',h.save));assert(h.quest('high_water','accept').ok);h.at(...app(f.inst,'survey'));assert(h.quest('high_water','inspect','survey').ok);}
+    assert.equal(questState(f.save,'high_water')!.step,1,'the alarm is the current objective');
     assert(!f.inst.mobs.some(m=>m.adventureSite==='overlook'));
     const start=()=>f.cmd('quest',{action:'activateField',target:'survey'});
-    assert(!start().ok);f.at(...app(f.inst,'survey'));f.p.deadMs=1;assert(!start().ok);f.p.deadMs=0;assert(start().ok);assert(start().ok);
+    f.at(...app(f.inst,'tender'));assert(!start().ok);f.at(...app(f.inst,'survey'));f.p.deadMs=1;assert(!start().ok);f.p.deadMs=0;assert(start().ok);assert(start().ok);
     const pack=f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook');assert.equal(pack.length,6);other.at(f.p.x,f.p.y);
     for(const m of pack)killMob(f.inst,m,f.p,'physical','fixture');
-    assert.equal(questState(f.save,'contract_alarm')!.step,1);assert.equal(questState(other.save,'contract_alarm')!.step,0,'nearby but never enrolled');
+    assert.equal(questState(f.save,'high_water')!.step,2);assert.equal(questState(other.save,'high_water')!.step,1,'nearby but never enrolled');
     assert(!start().ok);f.inst.t+=19000;f.inst.spawner.tick(50);assert(!start().ok,'must leave the view before re-arming');
     f.at(...app(f.inst,'tender'));other.at(...app(f.inst,'tender'));f.inst.t+=1000;f.inst.spawner.tick(50);assert.equal(f.inst.spawner.eventStates(f.p.id).find(e=>e.id==='survey_alarm')!.phase,'ready');
     f.at(...app(f.inst,'survey'));assert(start().ok);assert.equal(f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook').length,6);
@@ -118,10 +149,11 @@ test('field event requires physical enrollment and actual whole-pack deaths; coo
 test('a despawned event member invalidates completion; finishing survivors lets the event re-arm',()=>{
   const f=fixture();
   try{
-    complete(f.save,'silent_wheel');complete(f.save,'high_water');f.at(...app(f.inst,'tender'));assert(f.quest('contract_alarm','accept').ok);f.at(...app(f.inst,'survey'));
+    complete(f.save,'silent_wheel');f.at(...spot(f.inst,'tender',f.save));assert(f.quest('high_water','accept').ok);
+    f.at(...app(f.inst,'survey'));assert(f.quest('high_water','inspect','survey').ok);
     assert(f.cmd('quest',{action:'activateField',target:'survey'}).ok);
     const pack=f.inst.mobs.filter(m=>m.adventureSite==='overlook');f.inst.removeEntity(pack[0].id);
     for(const m of pack.slice(1))killMob(f.inst,m,f.p,'physical','fixture');f.inst.spawner.tick(50);
-    assert.equal(questState(f.save,'contract_alarm')!.step,0);assert.equal(f.inst.spawner.eventStates(f.p.id).find(e=>e.id==='survey_alarm')!.phase,'recovering');
+    assert.equal(questState(f.save,'high_water')!.step,1);assert.equal(f.inst.spawner.eventStates(f.p.id).find(e=>e.id==='survey_alarm')!.phase,'recovering');
   }finally{f.inst.destroy();}
 });

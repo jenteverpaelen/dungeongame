@@ -65,6 +65,8 @@ export interface Item {
   affixes: AffixRoll[];
   legendary?: { power: string; value: number; min: number; max: number };
   set?: string;
+  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. Generation / migration is not built yet. */
+  inscription?: string;
   weapon?: { min: number; max: number; aps: number; element: Element };
   armor?: number;
   sockets: (GemSocket | null)[];
@@ -142,11 +144,16 @@ export interface CharacterSave {
   merchant?: import('./merchant').MerchantState;
   appearance?: import('./appearance').HeroAppearance;
   onboarding?: import('./onboarding').IntroState;
-  /** Optional adventure state; old saves require no rewrite to participate. */
+  /** Legacy (C070) storage of The Silent Wheel; migrated into `quests.silent_wheel` by `migrateQuests` on load. */
   rillwake?: import('./adventureTypes').RillwakeQuest;
   quests?: Record<string, import('./questTypes').QuestState>;
-  /** Empty string is an explicit untrack; undefined keeps legacy automatic selection. */
+  /** Focused (pinned) quest that drives the floor trail and the big minimap diamond. Empty string: no focus;
+   *  undefined keeps the automatic choice (docs/rework/quests/DESIGN.md §3). */
   trackedQuest?: string;
+  /** Quests the player removed from the HUD tracker; a hidden quest returns when it progresses. Normalised, bounded. */
+  questHidden?: string[];
+  /** Bounty boards per zone (docs/rework/quests/DESIGN.md §5). Optional; absent means no board progress yet. */
+  bounties?: Record<string, import('./bounties').BountyBoardState>;
   /** Absent only in legacy saves; normalized by the server before use. */
   version?: number;
   id: string;

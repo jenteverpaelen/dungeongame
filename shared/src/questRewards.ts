@@ -1,6 +1,6 @@
 import type { CharacterSave } from './types';
 import type { QuestDef, QuestState } from './questTypes';
-import { questHasItem, writeQuestState } from './quests';
+import { questHasItem, questHasPick, writeQuestState } from './quests';
 import { SET_REWARD_SLOTS } from './campaignSets';
 import { addToInventory } from './character';
 import { addXp, xpToNext } from './progression';
@@ -13,7 +13,8 @@ export function questRewardError(q:QuestDef):string|undefined {
   const r=q.reward;
   if(typeof r==='string')return r==='magic_weapon'||r==='passage'?undefined:'Unknown reward';
   if(!r||typeof r!=='object'||Array.isArray(r))return 'Invalid reward';
-  if(Object.keys(r).some(k=>!['xp','gold','item','unlocks','cubeLevel'].includes(k)))return 'Unknown reward field';
+  if(Object.keys(r).some(k=>!['xp','gold','item','unlocks','cubeLevel','pick'].includes(k)))return 'Unknown reward field';
+  if(r.pick!==undefined&&(r.pick!==true||r.item!=='magic_weapon'))return 'A reward pick needs the class weapon as its first choice';
   if(r.cubeLevel!==undefined&&(!Number.isInteger(r.cubeLevel)||r.cubeLevel<2||r.cubeLevel>6||q.repeat))return 'Invalid one-time workshop training';
   for(const [key,max] of [['xp',MAX_QUEST_XP],['gold',Number.MAX_SAFE_INTEGER]] as const) {
     if(r[key]!==undefined&&(!Number.isSafeInteger(r[key])||r[key]!<0||r[key]!>max))return `Invalid ${key} award`;
@@ -23,7 +24,7 @@ export function questRewardError(q:QuestDef):string|undefined {
 }
 
 /** Prepare all owned state before committing any field. Full bags/overflow leave the live save intact. */
-export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState):{save:CharacterSave;levels:number;paragons:number}|{error:string} {
+export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState,pick:'main'|'alt'='main'):{save:CharacterSave;levels:number;paragons:number}|{error:string} {
   const invalid=questRewardError(q);if(invalid)return {error:invalid};
   if(state.claimed||state.step!==q.steps.length)return {error:'Finish the objectives before claiming'};
   const cycle=state.cycle??0;
@@ -34,15 +35,17 @@ export function planQuestReward(save:CharacterSave,q:QuestDef,state:QuestState):
   const next=structuredClone(save);
   if(reward.cubeLevel!==undefined)next.cube.level=Math.max(next.cube.level,reward.cubeLevel);
   if(questHasItem(q)) {
-    if(!state.reward)return {error:'Your reserved reward could not be read'};
-    if(ownedItems(next).some(i=>i?.id===state.reward!.id))return {error:'This reward is already owned'};
-    if(addToInventory(next,structuredClone(state.reward))<0)return {error:'Make room in your inventory, then speak with the quest giver again'};
+    // A reward pick (docs/rework/quests/DESIGN.md §6): the chosen item goes to the bag, the other reservation is discarded.
+    const item=pick==='alt'&&questHasPick(q)?state.rewardAlt:state.reward;
+    if(!item)return {error:'Your reserved reward could not be read'};
+    if(ownedItems(next).some(i=>i?.id===item.id))return {error:'This reward is already owned'};
+    if(addToInventory(next,structuredClone(item))<0)return {error:'Make room in your inventory, then speak with the quest giver again'};
   }
   next.gold=gold;
   const xp=addXp(next,reward.xp??0);
   if(!Number.isSafeInteger(next.paragon.level)||!Number.isSafeInteger(next.skillPoints)||!Number.isFinite(next.paragon.xp))return {error:'This reward would exceed your progression capacity'};
   // Once claimed the item belongs only to inventory/equipment/stash, not a second stored copy.
-  const {reward:_reserved,...history}=state;
+  const {reward:_reserved,rewardAlt:_alt,parts:_parts,...history}=state;
   writeQuestState(next,q.id,{...history,claimed:true,completions:cycle+1});
   if(next.trackedQuest===q.id)delete next.trackedQuest;
   return {save:next,...xp};

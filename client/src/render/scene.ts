@@ -1,9 +1,12 @@
 // Scene graph, camera and entity-view lifecycle. Layers (bottom → top):
 // ground tiles → decals → groundFx → entities (y-sorted, incl. tall props) → aboveFx → text.
 
-import { Application, Container, type Text } from 'pixi.js';
+import { Application, Container, Sprite } from 'pixi.js';
 import type { CharacterSave } from '@shared/types';
-import { questMarker, questState, trackedQuest } from '@shared/quests';
+import { contactSpot, questMarker, questState, trackerQuests, stepTargets } from '@shared/quests';
+import { questBadgeTexture } from './art/questBadges';
+import { WorldPhases } from './worldPhases';
+import { boardComplete, boardState, boardUnlocked } from '@shared/bounties';
 import { QUESTS } from '@shared/data/quests';
 import { ui } from '../ui/store';
 import { ordinarySelected } from '@shared/itemCollection';
@@ -34,7 +37,7 @@ import { BARKS } from '@shared/data/barks';
 /** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
 
-interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questLabel?:Text; poiId?: string }
+interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; name: string; r: number; portalTo?: string; npcId?: string; questBadge?:Sprite; poiId?: string; hidden?: boolean }
 
 export interface LocalPlayerState { x: number; y: number; vx: number; vy: number; facingLeft: boolean; moving: boolean; dashing: boolean }
 
@@ -76,6 +79,10 @@ export class Scene {
   private buildingBounds=new Map<string,{x0:number;y0:number;x1:number;y1:number}>();
   private questStamp:CharacterSave|null=null;
   private questGuide=new QuestGuide();
+  private phases:WorldPhases|null=null;
+  /** Story presentation (F-QST-08): a short camera pan to a world change that just happened (docs/rework/quests/DESIGN.md §7). */
+  private revealPan:{x:number;y:number;t:number}|null=null;
+  onReveal:((key:string)=>void)|null=null;
   private barks=new BarkBubbles();
   /** Ambient speakers: statics with lines plus visual-only residents (filled by setMap / TownLife). */
   private speakers:Speaker[]=[];
@@ -130,6 +137,7 @@ export class Scene {
     this.townLife?.destroy();this.townLife=null;
     this.adventureLife?.destroy();this.adventureLife=null;
     this.critters?.destroy();this.critters=null;
+    this.phases?.destroy();this.phases=null;this.revealPan=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
@@ -160,8 +168,9 @@ export class Scene {
       view.root.position.set(n.x, n.y);
       view.root.zIndex = n.y;
       this.entities.addChild(view.root);
-      const questLabel=nameLabel('',-view.height-40,0xffdb83);questLabel.style.fontSize=24;questLabel.style.stroke={color:0x140e0a,width:5,join:'round'};questLabel.visible=false;view.root.addChild(questLabel);
-      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: n.r, npcId:n.id,questLabel });
+      // Category badge over the head (docs/rework/quests/DESIGN.md §2): crest = story, disc = side, + = lesson, pin = bounty.
+      const questBadge=new Sprite();questBadge.anchor.set(0.5,1);questBadge.position.set(0,-view.height-26);questBadge.visible=false;view.root.addChild(questBadge);
+      this.statics.push({ view, x: n.x, y: n.y, role: n.role, name: n.name, r: Math.max(n.r,18), npcId:n.id,questBadge });
     }
     for (const p of map.portals) {
       const view = createPortalView(p.label, 'town');
@@ -191,6 +200,10 @@ export class Scene {
     if(map.adventure?.ambience) {
       this.adventureLife=new AdventureLife(map.adventure);
       this.groundFx.addChildAt(this.adventureLife.ground,0);
+    }
+    if(map.adventure?.paint) {
+      this.phases=new WorldPhases(map.adventure,this.entities);
+      this.groundFx.addChildAt(this.phases.ground,0);
     }
     this.cam.x = map.entry.x;
     this.cam.y = map.entry.y;
@@ -308,7 +321,13 @@ export class Scene {
       : this.cam.zoom + (targetZoom - this.cam.zoom) * (1 - Math.exp(-dtMs / 90));
     if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     // Camera follows the predicted player with a small movement lead.
-    if (me) {
+    if (this.revealPan) {
+      // Pan out, hold, then hand the camera back to the hero; moving cancels the hold.
+      const t = (now - this.revealPan.t) / 1000, k = 1 - Math.exp(-dtMs / 260);
+      if (t > 2.6 || (t > 0.6 && me?.moving)) this.revealPan = null;
+      else { this.cam.x += (this.revealPan.x - this.cam.x) * k; this.cam.y += (this.revealPan.y - this.cam.y) * k; }
+    }
+    if (me && !this.revealPan) {
       const lead = 0.14;
       const tx = me.x + Math.max(-70, Math.min(70, me.vx * lead));
       const ty = me.y + Math.max(-50, Math.min(50, me.vy * lead));
@@ -361,23 +380,33 @@ export class Scene {
     }
     const questSave=ui.get().char;
     if(questSave!==this.questStamp) {
+      const firstStamp=this.questStamp===null;
       this.questGuide.refresh(this.map,questSave,this.world.collision);
-      for(const s of this.statics)if(s.questLabel&&s.npcId&&this.map) {
-        const marker=questSave&&questMarker(questSave,this.map.zone,s.npcId);
-        s.questLabel.text=marker??'';s.questLabel.visible=!!marker;
+      // World states first: people may have moved, appeared or gone (phasing), and changes may deserve a reveal.
+      const turnedOn=this.phases?.refresh(questSave)??[];
+      if(!firstStamp&&turnedOn.length&&this.phases){const at=this.phases.revealPoint(turnedOn[0]);if(at)this.reveal(at.x,at.y);this.onReveal?.(turnedOn[0]);}
+      const zone=this.map?.zone??'',rows=questSave?trackerQuests(questSave,zone):[];
+      for(const s of this.statics)if(s.questBadge&&s.npcId&&this.map) {
+        const spot=contactSpot(this.map.adventure,s.npcId,questSave);
+        if(spot){s.hidden=!spot.present;s.view.root.visible=spot.present;if(spot.x!==s.x||spot.y!==s.y){s.x=spot.x;s.y=spot.y;s.view.root.position.set(spot.x,spot.y);s.view.root.zIndex=spot.y;}}
+        const board=s.npcId==='bounty_board'&&!!questSave&&boardUnlocked(questSave,zone),boardReady=board&&boardComplete(boardState(questSave!,zone));
+        const marker=board?{cat:'bounty' as const,glyph:boardReady?'!':''}:questSave&&!s.hidden?questMarker(questSave,this.map.zone,s.npcId):undefined;
+        if(marker){s.questBadge.texture=questBadgeTexture(marker.cat,marker.glyph);s.questBadge.scale.set(marker.glyph==='◆'?0.8:board&&!boardReady?0.7:1);}
+        s.questBadge.visible=!!marker;
         if(s.role==='clue'&&questSave&&'setClueState' in s.view) {
-          // Tracked: the tracked quest's current step is this object. Used: any quest already finished a step here.
-          const zone=this.map.zone,id=s.npcId,tq=trackedQuest(questSave),ts=tq&&questState(questSave,tq.id),step=tq&&ts&&!ts.claimed?tq.steps[ts.step]:undefined;
-          const tracked=!!step&&step.zone===zone&&step.target===id;
-          const used=QUESTS.some(q=>{const st=questState(questSave,q.id);return !!st&&q.steps.some((x,i)=>x.zone===zone&&x.target===id&&(i<st.step||st.claimed));});
+          // Tracked: a tracked quest's current step uses this object. Used: a quest already finished a step (or gather part) here.
+          const id=s.npcId;
+          const tracked=boardReady||rows.some(q=>{const st=questState(questSave,q.id),step=st&&!st.claimed?q.steps[st.step]:undefined;return !!step&&step.zone===zone&&stepTargets(step,st!.parts).includes(id);});
+          const used=QUESTS.some(q=>{const st=questState(questSave,q.id);return !!st&&q.steps.some((x,i)=>x.zone===zone&&(x.targets?x.targets.includes(id)&&(i<st.step||st.claimed||i===st.step&&!!((st.parts??0)&(1<<x.targets.indexOf(id)))):x.target===id&&(i<st.step||st.claimed)));});
           (s.view as unknown as { setClueState(t:boolean,u:boolean):void }).setClueState(tracked,used);
         }
       }
       this.questStamp=questSave;
     }
     this.questGuide.update(me,ui.get().screen==='game');
+    this.phases?.update(viewDt,this.time,this.cam.x,this.cam.y,halfW,halfH);
     for (const s of this.statics) {
-      const vis = s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
+      const vis = !s.hidden && s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
       s.view.root.visible = vis;
       if (vis) s.view.update(viewDt, { x: s.x, y: s.y, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: this.map?.town ? townTime : this.time, aps: 1 });
     }
@@ -448,9 +477,16 @@ export class Scene {
   }
 
   /** Nearest static NPC / map portal within interaction range of (x, y). */
+  /** Pan the camera to a world change for a moment (F-QST-08 story presentation); skipped for reduced motion. */
+  reveal(x: number, y: number) {
+    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    this.revealPan = { x, y, t: performance.now() };
+  }
+
   nearestInteractable(x: number, y: number): StaticView | null {
     let best: StaticView | null = null, bd = 1e9;
     for (const s of this.statics) {
+      if (s.hidden) continue;
       const d = Math.hypot(s.x - x, s.y - y) - s.r;
       const n = this.map?.town?.npcs.find(n => n.role === s.role);
       const a=this.map?.adventure?.interactions.find(i=>i.id===s.npcId);

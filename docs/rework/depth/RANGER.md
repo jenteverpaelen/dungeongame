@@ -1,7 +1,15 @@
 # Ranger — content bible (M1: 12 skills, 5 runes, 6 nodes, 14 passives, 5 sets, 35 legendaries)
 
+> **v2 (2026-10-11).** Builds are no longer authored.
+> * §2 is an internal test-fixture list.
+> * §7 sets and §8 legendaries key off tags (`ITEMS-SHARED.md` §1); named-skill signatures are the minority.
+> * Shipping text describes mechanics only (`ITEMS-SHARED.md` §0).
+> * Skill and rune names here are working names and ids; shipping display names are in `NAMES.md` (e.g. Hungering Arrow →
+>   Tracking Arrow, Rain of Vengeance → Arrowfall).
+> * Tags of every skill and the runes that change them: `ITEMS-SHARED.md` §1.2.
+
 Design document for the class agent. Approved plan: `docs/rework/ITEMS-AND-SKILLS-PLAN.md`. Shared conventions, templates,
-bases and affixes: `ITEMS-SHARED.md`. Parity arithmetic: `BUDGET.md`. Reference patterns: `REFERENCES.md`.
+bases and affixes: `ITEMS-SHARED.md`. Parity and diversity arithmetic: `BUDGET.md`; build tools: `BUILD-TOOLS.md`; names: `NAMES.md`. Reference patterns: `REFERENCES.md`.
 
 **Labels and notation** are the same as `WARRIOR.md` (top): **[M]** measured in this repo, **[P]** proposal,
 **[NEW-BEHAVIOUR]** needs new server code, `{field:±n}` = `SkillMods`, `flag:x` = behaviour flag, `x(r)` = flag with the
@@ -22,36 +30,33 @@ generates 3 per shot [M]. Weapons: bow and crossbow (2H, quiver allowed), hand c
 | Devices | Sentry (2), **Spring Snare (20)**, **Pitch Mortar (40)** |
 | Beasts | Companion (12), **Quarry Mark (32)**, **Murmuration (50)** |
 
-## 2. Build archetypes
+## 2. Internal test fixtures (never shipped)
 
-Requested playstyles: sentries, arrows, rain, companion, trap/control — one archetype each, plus a legendary-native
-skip-shot build with no set.
+These labels exist **only for the parity harness**. No item, set, skill text, tooltip or UI may use them or describe
+"a build" (`ITEMS-SHARED.md` §0 rule 1).
 
-| # | Archetype | Playstyle | Core skills (primary in italics) | Set | Relevant legendaries | Passives |
-|---|---|---|---|---|---|---|
-| R-A | **Siege** | sentries | Sentry, Multishot, Cluster Arrow, Pitch Mortar, *Hungering Arrow* | Siegebreaker | Bolt-Thrower's Arbalest (crossbow), Sapper's Pack (quiver), Gearwright's Heart (chest), Bowyer's Gloves (hands), Thunderhead (bow, Cube) | Watchmaker, Engineer's Margin, Hatred Well, Quiet Reserve |
-| R-B | **Farwatch** | arrows | Multishot, Quarry Mark, Companion, Rain of Vengeance, *Hungering Arrow / Skipstone Bolt* | Farwatch | Thunderhead (bow), Hunter's Mark (hand crossbow, Cube), Hawkfeather Cap (head), Featherguard Cuffs (bracers), Bowyer's Gloves (hands) | Wide Horizon, Long Shot, Hunter's Accord, Hatred Well |
-| R-C | **Stormwatch** | rain | Rain of Vengeance, Overcast Volley, Cluster Arrow, Quarry Mark, *Hungering Arrow* | Rainkeeper | Rainspindle (bow), Highcloud Longbow (bow, Cube), Squallcatcher Pauldrons (shoulders), Overcast Hood (head), Powder Horn (amulet) | Weather Eye, Patient Timing, Hatred Well, Weathered Guard |
-| R-D | **Packmaster** | companion | Companion, Murmuration, Quarry Mark, Sentry, *Hungering Arrow* | Thicket Kin (new) | Kennel-Wood Bow, Trailhide Breeches (legs), Huntsman's Pauldrons (shoulders), Wingbeat Boots (feet), Whistle Charm (amulet) | Kinship, Hunter's Accord, Trail Heart, Patient Timing |
-| R-E | **Trapper** | trap/control | Spring Snare, Pitch Mortar, Quarry Mark, Overcast Volley (Pinning Shower), *Skipstone Bolt (Ripple)* | Snarewright (new) | Tripline Crossbow, Snarehand Gloves (hands), Tar-Stained Jerkin (chest), Mortarman's Pack (quiver), Coiled Wire Bracers | Trapper's Instinct, Engineer's Margin, Second Skin, Quiet Reserve |
-| R-F | **Skipshot** | ricochet gunner, legendary-native | Skipstone Bolt, Multishot, Cluster Arrow, Quarry Mark | none (Patchwork Signet) | Riverstone Repeater (hand crossbow), Skimmer's Leggings (legs), Skipping-Stone Quiver, Powderkeg Crossbow (Cube), Fuse-Burnt Boots (feet) | Long Shot, Hatred Well, Trapper's Instinct |
+v2 replaces the v1 hand-picked kits with a search over the whole item pool (`budget-model.mjs`, `BUDGET.md` §4). The
+labels stay as named regression cases. All five requested playstyles (sentries, arrows, rain, companion, trap/control)
+remain covered.
 
-* **Siege.** Up to four Sentries and a Pitch Mortar hold a position while Multishot and Cluster Arrow spend Hatred. Set
-  kit: Siegebreaker's Sentries repeat your volleys (now at 25%) and grow stronger per Sentry. Legendary kit: Gearwright's
-  Heart and Bowyer's Gloves sit in the footprint, the Bolt-Thrower's Arbalest makes bolts explode.
-* **Farwatch.** Long-range archer: piercing or skipping primary shots, Multishot volleys, Quarry Mark on the biggest
-  target. Set kit: every fifth shot is a farwatch shot that triggers a free Multishot. Legendary kit: Hawkfeather Cap
-  (second target), Featherguard Cuffs (*more* per pierce), Bowyer's Gloves.
-* **Stormwatch.** Rain of Vengeance on cooldown, Overcast Volley as the spender, Cluster Arrow to feed the rain's
-  cooldown. Set kit: the rain follows you and drops free volleys. Legendary kit: Squallcatcher Pauldrons and the Overcast
-  Hood (both *more*), Powder Horn and Weathervane Ring shorten the rain.
-* **Packmaster.** Two companions, a mark they focus, and Murmuration as the cooldown. Set kit: bites leap to two more
-  enemies. Legendary kit: Trailhide Breeches (bites splash, *more* vs the mark), Huntsman's Pauldrons, Wingbeat Boots.
-* **Trapper.** Snares where packs walk, the Mortar shells immobilised enemies, Skipstone's *Ripple* chills, Quarry Mark
-  on the elite. Set kit: Snarewright re-arms snares and multiplies damage on immobilised enemies. Snarewright covers belt
-  and bracers instead of legs and feet (slot puzzle, `ITEMS-SHARED.md` §4).
-* **Skipshot.** A 1H hand crossbow + quiver gunner whose bolts skip through packs; no set exists for it on purpose, the
-  shared Patchwork Signet is its "set".
+| Label (internal) | Main skill | Support found by the search | Best configuration found (paper) | Playstyle covered |
+|---|---|---|---|---|
+| Siege | Sentry | Spring Snare | no set (best hybrid: Siegebreaker 3 + ring) | sentries |
+| Farwatch | Multishot | Rain of Vengeance | Farwatch 5 + Journeyman's Ring | arrows |
+| Stormwatch | Rain of Vengeance | Overcast Volley | Rainkeeper 5 + ring | rain |
+| Packmaster | Companion | Pitch Mortar | Thicket Kin 5 + ring | companion |
+| Trapper | Spring Snare | Pitch Mortar | no set (best hybrid: Snarewright 3 + ring) | trap / control |
+| Skipshot | Skipstone Bolt | Hungering Arrow | Farwatch 5 + ring | ricochet primary |
+
+Other main skills in the same search found these best kits:
+
+| Main skill | Best kit |
+|---|---|
+| Hungering Arrow | Farwatch 5 + ring |
+| Cluster Arrow | no set |
+| Overcast Volley | Rainkeeper 5 + ring |
+| Pitch Mortar | Siegebreaker 5 + ring |
+| Murmuration | Thicket Kin 5 + ring |
 
 ## 3. New skills (6)
 
@@ -114,7 +119,7 @@ arc (Multishot) and 6.5 + 4 × 2.1 grenades / 40 Hatred (Cluster Arrow); cooldow
 | spender | physical | 1.1 per arrow × 8 | 30 | 0 | 0 | 380 | 140 (scatter), 35 per arrow | 1.2 | 0 | `enemiesNear {count:3, within:380}` |
 
 * *Anchor:* between Multishot (3.6 / 25) and Cluster Arrow (6.5 + grenades / 40) [M]: an enemy in the cloud takes ~2–3
-  arrows (2.2–3.3), a lone target can take up to 8.8, for 30 Hatred [P]. It is the spammable rain for the rain archetype.
+  arrows (2.2–3.3), a lone target can take up to 8.8, for 30 Hatred [P]: a spammable Aerial Spender next to the Cooldown rain (design note, not shipping text).
 * **Behaviour.** Arrows go up, then 8 impacts land at random points inside `radius` around the best point over
   `duration` s (scheduler + `aoe` events, the Meteor Shower pattern [M]).
 * **Desc:** "Loose arrows into the sky; they fall over {duration} seconds across {radius} units, each dealing {coef}
@@ -216,11 +221,11 @@ avoid those.
 | Multishot | **Fanning Hail** (18) | A full 180° fan of 15 arrows, 25% less damage. | `{projectiles:+6, dmg:-25}`, `flag:multiWide` |
 | Multishot | **Gale Shot** (24) | Arrows push enemies 40 units and restore 1 Hatred per enemy hit (max 10). | `flag:multiPush`, `flag:multiGen` |
 | Cluster Arrow | **Barrel Bomb** (20) | The arrow rolls along the ground leaving 3 small blasts (50% each) before it detonates. | `flag:clusterRoll` |
-| Cluster Arrow | **Cold Snap Charge** (26) | Cold; grenades freeze for 0.75 s. | `{element:'cold'}`, `flag:clusterFreeze` |
+| Cluster Arrow | **Freezing Charge** (26) | Cold; grenades freeze for 0.75 s. | `{element:'cold'}`, `flag:clusterFreeze` |
 | Rain of Vengeance | **Flood Plain** (23) | Rain leaves wet ground that chills 30% for 3 s after it ends. | `flag:rainWet` |
 | Rain of Vengeance | **Kestrel Column** (29) | A column of diving kestrels: radius −50%, duration −50%, same total damage. | `{radius:-50, duration:-50}`, `flag:rainFocus` |
 | Companion | **Badger Sett** (26) | A badger replaces the wolf; every 4 s it bursts up under enemies, stunning those within 70 for 0.75 s. | `flag:badgerCompanion` [NEW-BEHAVIOUR] summon type |
-| Companion | **Heron Companion** (32) | A heron replaces the wolf; it spears from 200 units for 40% more damage and its strikes chill. | `{dmg:+40}`, `flag:heronCompanion` [NEW-BEHAVIOUR] summon type |
+| Companion | **Heron** (32) | A heron replaces the wolf; it spears from 200 units for 40% more damage and its strikes chill. | `{dmg:+40}`, `flag:heronCompanion` [NEW-BEHAVIOUR] summon type |
 
 ## 5. Specialization nodes
 
@@ -347,119 +352,119 @@ avoid those.
 ## 6. Passives (6 existing kept + 8 new)
 
 Existing [M]: Wide Horizon (Multishot damage, L10), Watchmaker (Sentry damage, L10), Quiet Reserve (resource regeneration,
-L20), Patient Timing (cooldown reduction, L30), Trail Heart (Life, L40), Weathered Guard (Armor, L50).
+L20), Patient Timing (cooldown reduction, L30), Trail Heart (Life, L40), Weathered Guard (Armor, L50). v2 keys the new
+passives to tags.
 
-| Passive (unlock) | Effect | Archetypes | Template / behaviour |
-|---|---|---|---|
-| **Engineer's Margin** (14) | Sentry, Spring Snare and Pitch Mortar get +1 maximum each, but each deals 15% less damage. | Siege, Trapper | maxSummons + skill penalty |
-| **Kinship** (18) | Companions deal +1% damage per 5 Hatred you hold (max +25%); their bites heal you 0.2% of maximum Life. | Packmaster | [NEW-BEHAVIOUR] resource-scaled summon bonus |
-| **Long Shot** (24) | Your projectiles deal up to +20% damage by distance flown (0% at 0, +20% at 400 units). | Farwatch, Skipshot | [NEW-BEHAVIOUR] distance tracked on projectiles |
-| **Weather Eye** (28) | Rain of Vengeance and Overcast Volley chill 30%; you deal 15% more damage to chilled enemies. | Stormwatch | vs-chilled bonus |
-| **Trapper's Instinct** (36) | Immobilised, stunned and frozen enemies take 15% more damage from you; your control effects last 20% longer. | Trapper, Skipshot | vulnerability (controlled) + duration |
-| **Hatred Well** (45) | Hatred regeneration is doubled below 40 Hatred; every 100 Hatred spent reduces all cooldowns by 1 s. | Siege, Farwatch, Stormwatch, Skipshot | resource rule |
-| **Second Skin** (55) | A hit above 25% of your maximum Life grants 50% damage reduction for 2 s and drops a Spring Snare at your feet (once per 20 s). | defensive, all | [NEW-BEHAVIOUR] big-hit hook |
-| **Hunter's Accord** (64) | Quarry Mark also applies at half strength to enemies within 150 of the quarry, and jumps instantly on death. | Packmaster, Farwatch | mark splash |
+| Passive (unlock) | Effect (shipping text) | Template / behaviour |
+|---|---|---|
+| **Engineer's Margin** (14) | Your Device skills get +1 maximum each, but each deals 15% less damage. | maxSummons + skill penalty |
+| **Kinship** (18) | Your Beasts deal 1% more damage per 5 Hatred you hold (max 25%); their attacks heal you for 0.2% of maximum Life. | [NEW-BEHAVIOUR] resource-scaled summon bonus |
+| **Long Shot** (24) | Your Projectiles deal up to 20% more damage by distance flown (0% at 0, 20% at 400 units). | [NEW-BEHAVIOUR] distance tracked on projectiles |
+| **Weather Eye** (28) | Your Aerial skills Chill (30%); you deal 15% more damage to Chilled enemies. | tag grant (Aerial → Chill) + conditional |
+| **Trapper's Instinct** (36) | Stunned and Chilled enemies take 15% more damage from you; your Stun and Chill effects last 20% longer. | vulnerability (controlled) + duration |
+| **Hatred Well** (45) | Hatred regeneration is doubled below 40 Hatred; every 100 Hatred spent reduces your Cooldown skills' cooldowns by 1 s. | resource rule |
+| **Second Skin** (55) | A hit above 25% of your maximum Life grants 50% damage reduction for 2 s and releases a burst that stuns enemies within 120 units for 1 s (once per 20 s). | [NEW-BEHAVIOUR] big-hit hook |
+| **Hunter's Accord** (64) | Your Marks also apply at half strength to enemies within 150 units of the Marked enemy, and move at once when it dies. | mark splash |
 
-## 7. Sets: three redesigned, two new
+## 7. Sets: building blocks keyed on tags
 
-Cap rule [P] (`BUDGET.md` §3): whole set ≤ ×2.5 per skill including transforms; the 6-piece is a transform (damage value
-≤ ×1.10) plus ×1.25 own bucket (×1.35 while a condition holds), hard cap ×1.3 effective; the 2- and 4-piece carry ≈×1.5–1.7. Today's 6-pieces
-[M]: Siegebreaker up to ×11 (+250% per Sentry, max 4), Farwatch ×30, Rainkeeper ×30. Standard ranger footprint [M]: hood,
-pads, jerkin, gloves, breeches, boots.
+Structure, the set-reduction ring and evidence: `ITEMS-SHARED.md` §4, `REFERENCES.md` §7.
+* **Cap rule [P]:** the 6-piece is a transform (damage value ≤ ×1.10) plus ×1.25 own bucket, or ×1.35 while a condition
+  holds; hard cap ×1.3 effective.
+* The 2- and 4-piece carry most of the value. A whole set is at most ×2.5 per skill.
+* Today's 6-pieces [M]: Siegebreaker up to ×11, Farwatch ×30, Rainkeeper ×30.
+* Standard ranger footprint [M]: hood, pads, jerkin, gloves, breeches, boots.
+* Texts are shipping text: mechanics only.
 
-### Siegebreaker's Arsenal (redesign) — motif *cog* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | +1 maximum Sentry; Sentry cooldown −30%. | unchanged. | `{maxSummons:+1, cooldown:-30}` |
-| 4 | Sentries also cast your Multishot and Cluster Arrow. | Sentries also fire your Multishot and Cluster Arrow **at 25% damage**. | `sentryCasts` + strike scale 0.25 [NEW-BEHAVIOUR: a scale on the repeated cast] |
-| 6 | +250% per active Sentry (max 4) to Sentries, Multishot, Cluster Arrow. | **Transform:** with 4 Sentries active they also fire a rocket salvo every 3 s (the *Spitfire* rockets). Sentries, Multishot and Cluster Arrow deal **×(1 + 0.1 per active Sentry)**, max ×1.4 at 4 (≈×1.32 at the modeled 3.2 average). | `sentrySalvo`, per-Sentry multiplier |
-
-### Farwatch (redesign) — motif *feather* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Hungering Arrow +50% pierce chance. | Hungering Arrow +50% pierce chance; Skipstone Bolt +1 skip. | `{pierce:+50}`, `skipPlus` |
-| 4 | Multishot costs 40% less Hatred. | Multishot costs 40% less Hatred; enemies your primary pierces or skips are *spotted* for 3 s and Multishot arrows bend toward them. | `{cost:-40}`, `spotted` [NEW-BEHAVIOUR] |
-| 6 | Hungering Arrow and Multishot +2,900% (×30). | **Transform:** every 5th primary attack is a farwatch shot: it flies 900 units, pierces everything and releases a free Multishot where it ends. Primary attacks and Multishot deal **×1.35 to enemies farther than 200 units**. | `farwatchShot` [NEW-BEHAVIOUR], conditional multiplier |
-
-### Rainkeeper (redesign) — motif *rain* (unchanged; its "personal rain cloud" orbiter now matches the 6-piece)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Rain and Cluster Arrow +40% radius. | Rain of Vengeance and Overcast Volley +30% radius; Rain cooldown −20%. | `{radius:+30}`, `{cooldown:-20}` |
-| 4 | Rain cooldown −30%. | You take 20% less damage while standing in your Rain; Cluster Arrow detonations inside it release 2 more grenades; while it is active Overcast Volley costs 30% less and enemies inside it take 15% more damage from Overcast Volley. | `rainDR`, `rainGrenades`, `{cost:-30}` while active, conditional multiplier |
-| 6 | Rain and Cluster Arrow +2,900% (×30). | **Transform:** your Rain becomes a personal storm that moves with you and drops a free Overcast Volley on the densest pack inside it every 3 s. Rain, Overcast Volley and Cluster Arrow deal **×1.35 to enemies inside the storm**. | `rainFollowSelf`, `stormVolley` [NEW-BEHAVIOUR], conditional multiplier |
-
-### Thicket Kin (new) — motif *antler* (new)
-Footprint: standard ranger. Colours primary 0x4b5a32 (moss), secondary 0xb59a6a (antler), glow 0x3cff6e. Pieces: Antler
-Hood, Bramble Pauldrons, Thicket Jerkin, Kinhand Gloves, Deer-Trail Breeches, Soft-Pad Boots.
+### Siegebreaker's Arsenal — keys off **Device, Spender** — motif *cog*
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | Companion attacks generate 1 Hatred and companions move 30% faster. | `compGen`, `compSpeed` |
-| 4 | +1 maximum Companion; companions apply Quarry Mark with their bite when no quarry is marked; you take 10% less damage per living companion (max 20%). | `{maxSummons:+1}`, `compMark`, `compGuard` |
-| 6 | **Transform:** each bite leaps to 2 nearby enemies for 25% damage. Companions and Murmuration deal **×1.25**. | `compLeapBite` [NEW-BEHAVIOUR], `multiplier:1.25` |
+| 2 | Your Device skills get +1 maximum each, and their cooldowns are 20% shorter. | Device-tag mods |
+| 4 | Your Devices also fire your Spender Projectile skills at 20% damage. | repeated cast with a damage scale [NEW-BEHAVIOUR] |
+| 6 | **Transform:** with 4 Devices active they fire a rocket salvo every 3 s. Your Devices and Spender skills deal **×(1 + 0.1 per active Device)**, at most ×1.4. | `deviceSalvo`, per-Device multiplier |
 
-### Snarewright (new) — motif *knot* (new)
-Footprint **cap, pads, jerkin, gloves, belt, bracers** (legs and feet free). Colours primary 0x6b5a3a (hemp), secondary
-0x8f9a9e (steel), glow 0x3cff6e. Pieces: Snarewright Cap, Hookline Pauldrons, Rope-Wound Jerkin, Knotter's Gloves, Coil
-Belt, Springlock Bracers.
+### Farwatch — keys off **Projectile, Piercing** — motif *feather*
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | +1 maximum Spring Snare; snares arm 50% faster. | `{maxSummons:+1}`, `snareArm` |
-| 4 | A triggered snare gives you 20% damage reduction for 3 s and pulls held enemies 30 units toward its centre; Pitch Mortar targets held enemies first. | `snareDR`, `snarePull`, `mortarPrefersHeld` |
-| 6 | **Transform:** snares re-arm once after triggering, and Pitch Mortar shells that land on an immobilised enemy re-arm a spent snare nearby. Spring Snare, Pitch Mortar and Skipstone Bolt deal **×1.35 to immobilised enemies**. | `snareRearmOnce`, `mortarRearm` [NEW-BEHAVIOUR], conditional multiplier |
+| 2 | Your Piercing projectiles pierce or skip one more time. | Piercing-tag mods |
+| 4 | Your Projectile Spender skills cost 30% less; your Piercing skills deal 15% more damage; enemies your Piercing projectiles pass through are Spotted for 3 s, and your projectiles bend toward Spotted enemies. | cost, conditional multiplier, `spotted` [NEW-BEHAVIOUR] |
+| 6 | **Transform:** every 5th Projectile cast is a farwatch shot that flies 900 units, pierces everything and, where it ends, releases a free cast of your most recent Projectile Spender. Your Projectile skills deal **×1.35 to enemies farther than 200 units**. | `farwatchShot` [NEW-BEHAVIOUR], conditional multiplier |
 
-## 8. Legendaries (5 existing + 30 new = 35)
+### Rainkeeper — keys off **Aerial, Ground** — motif *rain*
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Aerial skills' areas are 30% larger; your Aerial Cooldown skills' cooldowns are 20% shorter. | Aerial-tag mods |
+| 4 | While one of your Aerial or Ground effects is active, your Spender skills cost 30% less, your Aerial skills deal 15% more damage, and you take 20% less damage while standing in it. | cost, multiplier, DR |
+| 6 | **Transform:** your longest-lasting Aerial effect becomes a storm that follows you and every 3 s drops a free strike of your most recent Aerial Spender (50% damage) on the densest pack inside it. Your Aerial skills deal **×1.35 to enemies inside the storm**. | `stormFollow`, free strike [NEW-BEHAVIOUR], conditional multiplier |
 
-Anchors [M]: bow/crossbow signatures +150–200% (Thunderhead, Rainspindle's 30–40% cooldown); Sapper's Pack (quiver) +2
-Sentries and +30–40%; Gearwright's Heart −30–40% cooldown and 50% faster fire; Hunter's Mark vulnerability 15–20%.
-New primary signatures use Spindle of a Thousand Missiles' 100–150% band [M]. skillMore 25–40% [P]. FP = standard set
-footprint.
+### Thicket Kin — keys off **Beast** — motif *antler* (new)
+Colours primary 0x4b5a32, secondary 0xb59a6a, glow 0x3cff6e. Pieces: Antler Hood, Bramble Pauldrons, Thicket Jerkin,
+Kinhand Gloves, Deer-Trail Breeches, Soft-Pad Boots.
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Beast attacks generate 1 Hatred, and your Beasts move 30% faster. | `beastGen`, speed |
+| 4 | Your Beast skills get +1 maximum each; Beasts Mark the enemy they bite when no Mark exists; you take 10% less damage per living Beast (max 20%). | maxSummons, mark on bite, DR |
+| 6 | **Transform:** each Beast attack leaps to 2 nearby enemies for 25% damage. Your Beasts deal **×1.25**. | `beastLeap` [NEW-BEHAVIOUR], `multiplier:1.25` |
 
-| Legendary | Base (slot) | Power (`{v}` = rolled) | Range | Template | Cube | Archetype |
+### Snarewright — keys off **Trap, Stun, Device** — motif *knot* (new)
+Footprint **cap, pads, jerkin, gloves, belt, bracers** (legs and feet free). Colours primary 0x6b5a3a, secondary 0x8f9a9e,
+glow 0x3cff6e. Pieces: Snarewright Cap, Hookline Pauldrons, Rope-Wound Jerkin, Knotter's Gloves, Coil Belt, Springlock
+Bracers.
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Trap skills get +1 maximum each; Traps arm 50% faster. | Trap-tag mods |
+| 4 | Triggering a Trap grants 20% damage reduction for 3 s and pulls held enemies 30 units together; your Devices target Stunned enemies first; your Traps deal 15% more damage. | DR, pull, targeting, multiplier |
+| 6 | **Transform:** your Traps re-arm once after triggering, and Device hits on Stunned enemies re-arm a spent Trap nearby. All your skills deal **×1.35 to Stunned enemies**. | `trapRearm` [NEW-BEHAVIOUR], conditional multiplier |
+
+## 8. Legendaries (5 existing + 30 new = 35; 12 named, 23 tag-keyed)
+
+Templates and the Cube rule: `ITEMS-SHARED.md` §1.3.
+* 23 of the 30 new items are tag-keyed (77%).
+* Anchors [M]: bow/crossbow signatures +150–200% (Thunderhead); Sapper's Pack +2 Sentries and +30–40%; Hunter's Mark
+  vulnerability 15–20%.
+* New tag additives 60–90%, skillMore 25–40% [P], checked by the diversity search (`BUDGET.md` §4).
+* **Proposed change to an existing item [P]:** Gearwright's Heart fires **30%** faster instead of 50%. In the search,
+  Sapper's Pack + Gearwright's Heart pushed Sentry's legendary kit to the edge of the parity window (1.25).
+* Coverage: every ranger main skill is touched by its named signature plus 5–13 tag-keyed legendaries (Hungering Arrow:
+  its named item, Hunter's Mark, applies a mark).
+
+| Legendary | Layer | Base (slot) | Power (shipping text; `{v}` = rolled) | Range | Template | Cube |
 |---|---|---|---|---|---|---|
-| Rainspindle [M] | Bow (2H) | Rain of Vengeance cooldown is reduced by {v}% and its radius grows by 40%. | 30–40 | skillMods | weapon | Stormwatch |
-| Sapper's Pack [M] | Quiver | +2 maximum Sentries; Sentries deal {v}% increased damage. | 30–40 | skillMods + skillDamage | armor | Siege |
-| Gearwright's Heart [M] | Jerkin (FP) | Sentry cooldown −{v}%; Sentries fire 50% faster. | 30–40 | skillMods | armor | Siege |
-| Thunderhead [M] | Bow (2H) | Multishot deals Lightning damage and {v}% increased damage. | 150–200 | conversion + skillDamage | weapon | Farwatch, Siege |
-| Hunter's Mark [M] | Hand Crossbow (1H) | Hungering Arrow always pierces; pierced enemies take {v}% increased damage for 3 s. | 15–20 | vulnerability | weapon | Farwatch |
-| **Featherguard Cuffs** | Bracers | Each pierce makes the arrow deal {v}% more damage (compounding, max 3 pierces). | 20–30 | skillMore (stacking) | armor | Farwatch |
-| **Hawkfeather Cap** | Cap (FP) | Hungering Arrow also fires at a second target and deals {v}% increased damage. | 100–150 | skillFlag + skillDamage | armor | Farwatch |
-| **Bolt-Thrower's Arbalest** | Crossbow (2H) | Sentry bolts pierce and explode on their final target (radius 60); Sentries deal {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Siege, Packmaster |
-| **Bowyer's Gloves** | Gloves (FP) | Multishot fires a second volley at 30% damage 0.3 s later and deals {v}% more damage to enemies within 200 units. | 25–35 | skillMore (cond.) | armor | Siege, Farwatch, Skipshot |
-| **Bandolier Belt** | Belt | Multishot costs {v}% less Hatred and restores 0.5 Hatred per enemy hit (max 5). | 30–40 | resource | armor | Farwatch |
-| **Powderkeg Crossbow** | Crossbow (2H) | Cluster Arrow releases 3 more grenades and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Stormwatch, Skipshot, Siege |
-| **Fuse-Burnt Boots** | Boots (FP) | Cluster Arrow grenades bounce once before exploding and deal {v}% more damage. | 25–35 | skillMore | armor | Skipshot, Stormwatch |
-| **Powder Horn** | Amulet | Cluster Arrow detonations reduce Rain of Vengeance's cooldown by {v} s. | 0.3–0.5 | cooldown | jewelry | Stormwatch |
-| **Squallcatcher Pauldrons** | Pads (FP) | Rain of Vengeance drifts after the densest pack and deals {v}% more damage to enemies that have been in it for 2+ s. | 25–40 | skillMore (cond.) | armor | Stormwatch |
-| **Raincount Ring** | Ring | Rain of Vengeance fires {v}% more waves. | 30–50 | skillMods | jewelry | Stormwatch, Farwatch |
-| **Kennel-Wood Bow** | Bow (2H) | +1 Companion; Companions deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Packmaster |
-| **Trailhide Breeches** | Breeches (FP) | Companion attacks hit all enemies within 60 of their target and deal {v}% more damage to your Quarry Mark. | 25–40 | skillMore (cond.) | armor | Packmaster |
-| **Whistle Charm** | Amulet | Companions attack {v}% faster. | 20–30 | skillMods | jewelry | Packmaster |
-| **Riverstone Repeater** | Hand Crossbow (1H) | Skipstone Bolt skips 2 more times and deals {v}% increased damage. | 100–150 | skillFlag + skillDamage | weapon | Skipshot, Trapper |
-| **Skimmer's Leggings** | Breeches (FP) | Each skip makes the bolt deal {v}% more damage (compounding). | 15–25 | skillMore (stacking) | armor | Skipshot, Trapper |
-| **Skipping-Stone Quiver** | Quiver | Skipstone's last skip splits into 3 bolts that skip once more; Skipstone generates {v} more Hatred. | 2–3 | skillFlag + resource | armor | Skipshot |
-| **Tripline Crossbow** | Crossbow (2H) | +2 maximum Spring Snares; snares deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Trapper |
-| **Snarehand Gloves** | Gloves (FP) | Snares hold 1 s longer; held enemies take {v}% more damage from Spring Snare and Pitch Mortar. | 25–40 | skillMore (cond.) | armor | Trapper |
-| **Coiled Wire Bracers** | Bracers | A triggered snare re-arms after 2 s with {v}% chance. | 30–50 | skillFlag (chance) | armor | Trapper |
-| **Highcloud Longbow** | Bow (2H) | Overcast Volley drops 4 more arrows and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Stormwatch |
-| **Overcast Hood** | Hood (FP) | Overcast Volley's arrows chill; enemies hit by 3+ arrows take {v}% more damage from it. | 25–35 | skillMore (cond.) | armor | Stormwatch, Trapper |
-| **Weathervane Ring** | Ring | Each Overcast Volley reduces Rain of Vengeance's cooldown by {v} s. | 0.3–0.6 | cooldown | jewelry | Stormwatch |
-| **Spotter's Repeater** | Hand Crossbow (1H) | Quarry Mark's bonus is {v} points higher and it also marks one enemy within 150 of the quarry. | 10–15 | vulnerability | weapon | Packmaster, Farwatch |
-| **Huntsman's Pauldrons** | Pads (FP) | When your mark jumps, companions and Sentries deal {v}% more damage for 5 s. | 30–40 | skillMore (cond.) | armor | Packmaster |
-| **Mortarman's Pack** | Quiver | +1 maximum Pitch Mortar; Mortars deal {v}% increased damage. | 30–40 | skillMods + skillDamage | armor | Trapper, Siege |
-| **Tar-Stained Jerkin** | Jerkin (FP) | Mortar pitch spreads 30% per second (max double radius) and enemies in it take {v}% more damage from your devices. | 25–35 | skillMore (cond.) | armor | Trapper, Siege |
-| **Fuse Cord Belt** | Belt | Pitch Mortar fires {v}% faster. | 25–35 | skillMods | armor | Trapper |
-| **Starling Longbow** | Bow (2H) | Murmuration lasts 4 s longer and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Packmaster |
-| **Wingbeat Boots** | Boots (FP) | Murmuration circles you when no enemy is near, and deals {v}% more damage to elites. | 25–40 | skillMore (cond.) | armor | Packmaster |
-| **Roost Charm** | Amulet | Murmuration's cooldown is reduced by 2 s per enemy it kills (max {v} s). | 10–15 | cooldown | jewelry | Packmaster |
-
-**Coverage:** Hungering Arrow — Hunter's Mark, Featherguard Cuffs, Hawkfeather Cap · Sentry — Sapper's Pack, Gearwright's
-Heart, Bolt-Thrower's Arbalest · Multishot — Thunderhead, Bowyer's Gloves, Bandolier Belt · Cluster Arrow — Powderkeg
-Crossbow, Fuse-Burnt Boots, Powder Horn · Rain — Rainspindle, Squallcatcher Pauldrons, Raincount Ring · Companion —
-Kennel-Wood Bow, Trailhide Breeches, Whistle Charm · Skipstone Bolt — Riverstone Repeater, Skimmer's Leggings,
-Skipping-Stone Quiver · Spring Snare — Tripline Crossbow, Snarehand Gloves, Coiled Wire Bracers · Overcast Volley —
-Highcloud Longbow, Overcast Hood, Weathervane Ring · Quarry Mark — Spotter's Repeater, Huntsman's Pauldrons, Hunter's
-Mark · Pitch Mortar — Mortarman's Pack, Tar-Stained Jerkin, Fuse Cord Belt · Murmuration — Starling Longbow, Wingbeat
-Boots, Roost Charm.
+| Rainspindle [M] | Named | Bow (2H) | Rain of Vengeance cooldown is reduced by {v}% and its radius grows by 40%. | 30–40 | skillMods | weapon |
+| Sapper's Pack [M] | Named | Quiver | +2 maximum Sentries; Sentries deal {v}% increased damage. | 30–40 | skillMods + skillDamage | armor |
+| Gearwright's Heart [M; change P] | Named | Jerkin (FP) | Sentry cooldown −{v}%; Sentries fire 30% faster. | 30–40 | skillMods | armor |
+| Thunderhead [M] | Named | Bow (2H) | Multishot deals Lightning damage and {v}% increased damage. | 150–200 | conversion + skillDamage | weapon |
+| Hunter's Mark [M] | Named | Hand Crossbow (1H) | Hungering Arrow always pierces; pierced enemies take {v}% increased damage for 3 s. | 15–20 | vulnerability | weapon |
+| **Powderkeg Crossbow** | Named | Crossbow (2H) | Cluster Arrow releases 3 more grenades and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Kennel-Wood Bow** | Named | Bow (2H) | +1 Companion; Companions deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Riverstone Repeater** | Named | Hand Crossbow (1H) | Skipstone Bolt skips 2 more times and deals {v}% increased damage. | 100–150 | skillFlag + skillDamage | weapon |
+| **Tripline Crossbow** | Named | Crossbow (2H) | +2 maximum Spring Snares; Spring Snares deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Highcloud Longbow** | Named | Longbow (2H, new base) | Overcast Volley drops 4 more arrows and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Mortarman's Pack** | Named | Quiver | +1 maximum Pitch Mortar; Pitch Mortars deal {v}% increased damage. | 30–40 | skillMods + skillDamage | armor |
+| **Starling Longbow** | Named | Longbow (2H) | Murmuration lasts 4 s longer and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Featherguard Cuffs** | Tag (Piercing) | Bracers | Each time a Piercing projectile passes through or skips to an enemy, it deals {v}% more damage (compounding, max 3). | 20–30 | skillMore (stacking) | armor |
+| **Hawkfeather Cap** | Tag (Primary) | Cap (FP) | Your Primary skills also strike a second target and deal {v}% increased damage. | 50–75 | skillFlag + skillDamage | armor |
+| **Bolt-Thrower's Arbalest** | Tag (Device) | Crossbow (2H) | Your Device projectiles pierce and burst on their final target (radius 60); your Devices deal {v}% increased damage. | 100–150 | skillFlag + skillDamage | weapon |
+| **Bowyer's Gloves** | Tag (Projectile) | Gloves (FP) | Your Projectile skills deal {v}% more damage to enemies within 200 units. | 25–35 | skillMore (cond.) | armor |
+| **Bandolier Belt** | Tag (Spender + Projectile) | Belt | Your Projectile Spender skills deal {v}% increased damage and restore 0.5 Hatred per enemy hit (max 5). | 60–90 | skillDamage + resource | armor |
+| **Fuse-Burnt Boots** | Tag (Projectile + Area) | Boots (FP) | Your exploding Projectiles bounce once before exploding and deal {v}% more damage. | 25–35 | skillMore | armor |
+| **Powder Horn** | Tag (Projectile + Area) | Amulet | Your exploding Projectiles have a {v}% chance to leave a burning powder patch (Ground, 2 s, 100% weapon damage per second as Fire). | 20–30 | proc | jewelry |
+| **Squallcatcher Pauldrons** | Tag (Aerial) | Pads (FP) | Your Aerial skills drift toward the densest pack and deal {v}% more damage to enemies under them for 2 s or longer. | 25–40 | skillMore (cond.) | armor |
+| **Raincount Ring** | Tag (Ground) | Ring | Your Ground effects deal {v}% increased damage. | 60–90 | skillDamage | jewelry |
+| **Trailhide Breeches** | Tag (Beast, Mark) | Breeches (FP) | Your Beasts' attacks hit all enemies within 60 units of their target and deal {v}% more damage to Marked enemies. | 25–40 | skillFlag + skillMore (cond.) | armor |
+| **Whistle Charm** | Tag (Beast) | Amulet | Your Beasts attack {v}% faster. | 20–30 | skillMods | jewelry |
+| **Skimmer's Leggings** | Tag (Piercing → Projectile) | Breeches (FP) | Your Piercing projectiles leave a 1 s chilling ripple at each enemy they pass; your Projectile skills deal {v}% more damage to enemies in a ripple. | 15–25 | proc + skillMore (cond.) | armor |
+| **Skipping-Stone Quiver** | Tag (Piercing) | Quiver | The last enemy a Piercing projectile hits throws 3 splinters that pierce once for {v}% damage. | 40–60 | proc | armor |
+| **Snarehand Gloves** | Tag (Trap, Device, Stun) | Gloves (FP) | Your Traps hold 1 s longer; your Trap and Device skills deal {v}% more damage to Stunned enemies. | 25–40 | skillMore (cond.) | armor |
+| **Coiled Wire Bracers** | Tag (Trap, Device) | Bracers | Triggered Traps re-arm after 2 s with {v}% chance; expiring Devices fire a final salvo. | 30–50 | skillFlag (chance) | armor |
+| **Overcast Hood** | Tag (Aerial) | Hood (FP) | Your Aerial skills Chill; enemies hit 3 or more times by one Aerial cast take {v}% more damage from it. | 25–35 | skillMore (cond.) | armor |
+| **Weathervane Ring** | Tag (Aerial) | Ring | Your Aerial skills deal {v}% increased damage. | 60–90 | skillDamage | jewelry |
+| **Spotter's Repeater** | Tag (Mark) | Hand Crossbow (1H) | Your Mark bonus is {v} points higher, and your Marks spread to one more enemy within 150 units. | 10–15 | vulnerability | weapon |
+| **Huntsman's Pauldrons** | Tag (Mark → Summon) | Pads (FP) | When one of your Marks moves to a new enemy, your Summons deal {v}% more damage for 5 s. | 30–40 | skillMore (cond.) | armor |
+| **Tar-Stained Jerkin** | Tag (Ground, Device) | Jerkin (FP) | Your Ground effects spread 30% per second (max double radius); enemies inside take {v}% more damage from your Devices. | 25–35 | skillMore (cond.) | armor |
+| **Fuse Cord Belt** | Tag (Device) | Belt | Your Devices attack {v}% faster. | 25–35 | skillMods | armor |
+| **Wingbeat Boots** | Tag (Beast, Movement) | Boots (FP) | Your Beasts deal {v}% more damage to elites; after a Movement skill your Beasts dash to your side. | 25–40 | skillMore (cond.) | armor |
+| **Roost Charm** | Tag (Summon → Cooldown) | Amulet | Kills by your Summons reduce your Cooldown skills' cooldowns by 0.5 s (max {v} s per cooldown). | 3–5 | cooldown | jewelry |
 
 Flavour lines: Featherguard Cuffs "Each feather from a bird that came home." · Hawkfeather Cap "It sees the second one
 first." · Bolt-Thrower's Arbalest "Built for walls. Used on everything else." · Bowyer's Gloves "Waxed thread in every
@@ -478,14 +483,23 @@ a small flutter." · Roost Charm "A feather for each that came back fed."
 
 ## 9. [NEW-BEHAVIOUR] summary for the Ranger
 
-1. Cast functions and entities for the six new skills: skipping projectile, snare trigger entity, Overcast scheduler
-   impacts, Quarry Mark (summon focus + jump on death + "no living mark" auto filter), mortar summon (lob loop), moving
-   flock ground with waypoints.
-2. New companion summon types (badger, heron) for the two new Companion runes.
-3. Projectile features: retarget on death (Seeking Turn), distance flown (Long Flight, Long Shot), wall/max-range
-   ricochet (Ricochet Fletch), spotted-target bending (Farwatch 4).
-4. Monster steering toward snares (Bait), skill-scoped vulnerability (Soaked), controlled-enemy vulnerability (Trapper's
-   Instinct; shared with the Mage's frozen/chilled bonuses), damage debuff field (Exposed Joints, shared with Concussion).
-5. Set transforms: repeated-cast damage scale (Siegebreaker 4), rocket salvo at 4 Sentries, farwatch shot, personal storm
-   with free volleys, bite leaps, snare re-arm by mortar.
-6. Player DR fields (Loyal Guard, Starling Shield, Shadow Cover, Second Skin, snare DR) and a big-hit hook (Second Skin).
+1. **Six new skills:**
+   * skipping projectile;
+   * snare trigger entity;
+   * Overcast scheduler impacts;
+   * Quarry Mark (summon focus + jump on death + "no living mark" auto filter);
+   * mortar summon (lob loop);
+   * moving flock ground with waypoints.
+2. **Two new companion summon types** (badger, heron).
+3. **Tags (shared):** tag resolution, the tag line, selectors in templates, tag grants (Weather Eye: Aerial → Chill), the
+   conditional multiplier (`ITEMS-SHARED.md` §1).
+4. **Projectile features:** retarget on death; distance flown (Long Flight, Long Shot); wall/max-range ricochet; Spotted
+   targets (Farwatch 4); bounce before exploding (Fuse-Burnt Boots); end-of-path splinters (Skipping-Stone Quiver);
+   chilling ripples (Skimmer's Leggings).
+5. **Monster side:** steering toward snares (Bait); skill-scoped vulnerability (Soaked); a controlled-enemy vulnerability
+   shared with the Mage; a damage debuff field (Exposed Joints).
+6. **Set transforms:**
+   * Devices repeating Spender Projectiles with a damage scale, and a rocket salvo at 4 Devices;
+   * the farwatch shot, a following storm with free Aerial strikes, Beast leaps, Trap re-arming.
+7. **Player side:** DR fields (Loyal Guard, Starling Shield, Shadow Cover, Second Skin, trap DR); a big-hit hook (Second
+   Skin); a Movement-end hook (Wingbeat Boots).

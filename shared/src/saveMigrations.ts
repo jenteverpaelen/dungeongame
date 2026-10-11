@@ -33,6 +33,10 @@ export interface SaveVersionStep {
   check?: (save: CharacterSave) => boolean;
   /** Set when loading may legitimately repair this version's fields (then they are checked for validity, not equality). */
   mayRepair?: string;
+  /** Fields a later, unversioned load-time migration rewrites on purpose: their keys must survive, values may change. */
+  rewrites?: Readonly<Record<string, string>>;
+  /** More fixtures of the same version for load-time migrations that did not bump the version (custody still checked). */
+  extraFixtures?: readonly { fixture: string; note: string; goldMayRise?: boolean }[];
 }
 
 const absentOr = <T>(v: T | undefined, ok: (v: T) => boolean) => v === undefined || ok(v);
@@ -44,7 +48,8 @@ export const SAVE_HISTORY: readonly SaveVersionStep[] = [
   { version: 3, adds: 'Per-slot automatic cast modes.', fields: ['skills.autoCast'], fixture: 'v3-autocast' },
   { version: 4, adds: 'Character target preference.', fields: ['skills.targetPriority'], fixture: 'v4-target-priority' },
   { version: 5, adds: 'Per-slot automatic spending/trigger rules.', fields: ['skills.autoRules'], fixture: 'v5-auto-rules' },
-  { version: 6, adds: 'Bounded quest cycles and history; older servers must not ignore repeat tokens.', fields: ['quests', 'trackedQuest'], fixture: 'v6-quest-history' },
+  { version: 6, adds: 'Bounded quest cycles and history; older servers must not ignore repeat tokens.', fields: ['quests', 'trackedQuest'], fixture: 'v6-quest-history',
+    rewrites: { quests: 'the quest rework (shared/src/questMigration.ts) moves old quest states to the new step model; finished work stays finished' } },
   { version: 7, adds: 'Selected appearance and introduction accomplishments.', fields: ['appearance', 'onboarding'],
     fixture: 'v7-onboarding', check: s => absentOr(s.onboarding, validIntro) },
   { version: 8, adds: 'Early-game creature records and retained merchant custody.', fields: ['bestiary', 'merchant'],
@@ -59,7 +64,9 @@ export const SAVE_HISTORY: readonly SaveVersionStep[] = [
   { version: 13, adds: 'Character contact lists and privacy preferences.', fields: ['social'],
     fixture: 'v13-social', check: s => absentOr(s.social, validSocial) },
   { version: 14, adds: 'Acquired item appearances (wardrobe) and independent loot preferences.', fields: ['collection'],
-    fixture: 'v14-collection', check: s => absentOr(s.collection, c => c.revision === 1 && validLootRules(c.loot)) },
+    fixture: 'v14-collection',
+    extraFixtures: [{ fixture: 'v14-pre-quest-rework', note: 'quest rework load migration: retired contracts that were finished pay their gold out', goldMayRise: true }],
+    check: s => absentOr(s.collection, c => c.revision === 1 && validLootRules(c.loot)) },
   { version: 15, adds: 'Specialization node ranks per skill (build-depth foundation).', fields: ['skills.nodes'],
     // normalizeSkillNodes clears a tree that is illegal under the current data (a free respec), so the fixture's ranks
     // only survive once its skill has those nodes; the custody check still applies.

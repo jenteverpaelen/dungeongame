@@ -9,7 +9,7 @@ import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from 
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
 
-export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection' | 'dialogue';
+export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection' | 'dialogue' | 'bounty';
 
 export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string; item?:import('@shared/types').Item }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
@@ -83,6 +83,10 @@ export interface UIState {
   interact: { role: NpcRole; name: string } | null;
   /** Person the dialogue window is talking to (opened by E on a quest contact). */
   dialogue: { zone: string; target: string; name: string; role: string } | null;
+  /** Short reading card at the bottom of the screen after using a quest object (docs/rework/quests/DESIGN.md §8). */
+  reading: { title: string; text: string; at: number } | null;
+  /** Hold-to-use in progress (repair objectives): the game loop cancels it if the hero walks away. */
+  hold: { quest: string; step: string; target: string; name: string; ms: number; start: number; x: number; y: number; radius: number } | null;
   /** Pending enchant choice (D3 Mystic: keep original or pick one of two). */
   enchant: { itemId: string; affix: number; options: AffixRoll[] } | null;
   fps: number;
@@ -112,7 +116,7 @@ export const ui = new Store<UIState>({
   account: { mode: 'off', username: null, characters: [], busy: false, error: null, codes: null, open: false, picked: null },
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
-  target: null, interact: null, dialogue: null, enchant: null, fps: 0, ping: 0, dps: 0,
+  target: null, interact: null, dialogue: null, reading: null, hold: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });
 
 /** Subscribe a component to a slice of UI state. Re-renders only when the selected value changes (shallow). */
