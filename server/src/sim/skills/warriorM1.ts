@@ -6,7 +6,7 @@
 
 import { WARRIOR_FX, modVar } from '../../shared';
 import { anyEnemyWithin, bestConeAngle, bestPoint, pickTarget } from '../brain';
-import { expectedDamage, gainResource, healPlayer, hurtMob, isEliteTier, makeDot } from '../damage';
+import { expectedDamage, gainResource, healPlayer, hurtMob, isEliteTier, makeDot, skillGain } from '../damage';
 import { addBuff, addOwnedDot, elIdx, getBuff, shotBlockedAt } from '../effects';
 import { placeGround } from '../groundFx';
 import { resolveStatus } from '../powerRuntime';
@@ -47,7 +47,7 @@ function tollingBlow(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
     }
     if (behind) { wHit(inst, p, behind, st, rt); hits++; }
   }
-  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + drillFury(inst, p) + hearthPrimary(inst, p, rt, tgt.x, tgt.y));
+  skillGain(p, rt, rt.def.gen + (rt.mods.gen ?? 0) + drillFury(inst, p) + hearthPrimary(inst, p, rt, tgt.x, tgt.y));
   thresher(inst, p, rt, hits);
   emitCast(inst, p, rt, tgt.x, tgt.y, 40);
   inst.emit({ e: 'aoe', v: 'tollblow', x: Math.round(tgt.x), y: Math.round(tgt.y), r: 40, d: 260, el: elIdx(st.el), s: p.id, a: +ang.toFixed(3) }, tgt.x, tgt.y, p.id);
@@ -285,8 +285,11 @@ function musterStandard(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const colour = modVar(rt.mods, 'colourGuard'), heal = modVar(rt.mods, 'plantHeal');
   const pulseSt: Strike = { ...strikeOf(p, rt, 0.6), noArea: true }; // Ember Pennant: 60 % weapon damage per second
   if (heal > 0) for (const q of inst.playersNear(s.x, s.y, r)) healPlayer(inst, q, q.mhp * heal / 100, false); // Rallying Pulse
-  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0));
+  skillGain(p, rt, rt.def.gen + (rt.mods.gen ?? 0));
   const el = elIdx(skillElement(rt));
+  // Hold the Line: enemies inside are slowed (re-applied every tick, so it ends 0.4 s after an enemy leaves).
+  const holdPct = modVar(rt.mods, 'standardSlow');
+  const hold = holdPct > 0 ? resolveStatus({ kind: 'slow', pct: holdPct, ms: 400 }, p.ctx.powers.index) : null;
   inst.emit({ e: 'aoe', v: carry ? 'standard_carry' : 'standard', x: Math.round(s.x), y: Math.round(s.y), r: Math.round(r), d: Math.round(dur), el, s: p.id }, s.x, s.y, p.id);
   let pulseMs = 1000;
   const tick = () => {
@@ -307,6 +310,7 @@ function musterStandard(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       if (regen) healPlayer(inst, q, q.mhp * 0.0025, true); // Rallying Ground: 1 % per second
       s.inside.add(q);
     }
+    if (hold) for (const m of inst.queryMobs(s.x, s.y, s.r)) if (!m.dead && Math.hypot(m.x - s.x, m.y - s.y) <= s.r + m.r) applyStatus(inst, p, m, hold, s.x, s.y, 'muster_standard');
     if (pulse && (pulseMs -= 250) <= 0) {
       pulseMs += 1000;
       for (const m of inst.queryMobs(s.x, s.y, s.r)) if (!m.dead) wHit(inst, p, m, pulseSt, rt);
@@ -348,6 +352,9 @@ function ironploughTick(inst: Instance, p: Player, rt: SkillRuntime, ch: Channel
     else { const t = pickTarget(inst, p.x, p.y, len + 60, false, p.save.skills.targetPriority); if (t) pl.ang = Math.atan2(t.y - p.y, t.x - p.x); }
   }
   const ang = pl.ang, ux = Math.cos(ang), uy = Math.sin(ang);
+  ch.aim = ang; // facing conditions (Brace, Furrowmark 4) use the plough's direction
+  // Brace: at full ramp a hidden marker buff turns the node's damage-taken term on (enemies in front of you).
+  if (level >= 5 && modVar(rt.mods, 'ploughBrace') > 0) addBuff(p, { id: 'plough_brace', ms: 150 });
   ch.tickMs -= dtMs;
   if (ch.tickMs <= 0) {
     ch.tickMs += 250;
@@ -401,12 +408,12 @@ function inConeAt(m: Mob, x: number, y: number, ang: number, half: number, len: 
 function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   if (!anyEnemyWithin(inst, p.x, p.y, 320)) return false;
   const n = (rt.flags.has('cairnMore') ? 8 : 5) + Math.max(0, Math.floor(modVar(rt.mods, 'extraCairns'))); // Debt of Stone, Cairnwright's Hammer
-  const radius = skillRadius(rt), stunMs = skillDurationMs(rt);
+  const baseRadius = skillRadius(rt), stunMs = skillDurationMs(rt);
   const ox = p.x, oy = p.y;
   const pts: { x: number; y: number }[] = [];
   if (rt.flags.has('cairnLine')) {
     // Scree Line: toward the densest pack, up to 300 units.
-    const bp = bestPoint(inst, ox, oy, 300, radius);
+    const bp = bestPoint(inst, ox, oy, 300, baseRadius);
     const t = bp ?? nearestMob(inst, ox, oy, 300);
     const a = t ? Math.atan2(t.y - oy, t.x - ox) : (p.faceLeft ? Math.PI : 0);
     for (let i = 0; i < n; i++) { const d = 300 * (i + 1) / n; pts.push({ x: ox + Math.cos(a) * d, y: oy + Math.sin(a) * d }); }
@@ -419,9 +426,14 @@ function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const st = strikeOf(p, rt), el = elIdx(skillElement(rt));
   const stay = rt.flags.has('cairnStay') ? 6000 : 4000;
   const bounce = modVar(rt.mods, 'bounce'), fury = modVar(rt.mods, 'cairnFury');
+  // Quarry Dust: enemies hit are slowed for 3 s. Capstone: the last cairn is a giant (radius × the node value, 50 % more).
+  const dustPct = modVar(rt.mods, 'cairnSlow'), cap = modVar(rt.mods, 'capstone');
+  const dust = dustPct > 0 ? resolveStatus({ kind: 'slow', pct: dustPct, ms: 3000 }, p.ctx.powers.index) : null;
+  const giant: Strike = { ...st, mult: (st.mult ?? 1) * 1.5 };
   let refunded = 0;
   pts.forEach((pt, i) => {
     const delay = 250 * (i + 1); // five impacts over 1.25 s, 0.25 s apart
+    const big = cap > 0 && i === pts.length - 1, radius = big ? baseRadius * cap : baseRadius, hitSt = big ? giant : st;
     inst.emit({ e: 'tele', v: 'cairn', x: Math.round(pt.x), y: Math.round(pt.y), r: Math.round(radius), d: delay, s: p.id }, pt.x, pt.y, p.id);
     inst.sched.schedule(inst.t + delay, () => {
       if (inst.playerById(p.id) !== p) return;
@@ -429,7 +441,8 @@ function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       for (const m of inst.queryMobs(pt.x, pt.y, radius)) {
         if (m.dead) continue;
         const stunned = wStun(inst, p, m, stunMs, rt);
-        wHit(inst, p, m, st, rt);
+        wHit(inst, p, m, hitSt, rt);
+        if (dust && !m.dead) applyStatus(inst, p, m, dust, pt.x, pt.y, 'cairnfall');
         hits++;
         // Shepherd's Count: each stunned enemy shortens the cooldown by 1 s (at most 10 s per cast).
         if (stunned && rt.flags.has('cairnRefund') && refunded < 10) { refunded++; reduceCooldowns(inst, p, 1000, null, 'cairnfall'); }
@@ -463,8 +476,8 @@ function cairnfall(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       if (i === 0) for (const q of inst.playersNear(pt.x, pt.y, 700)) inst.emitTo(q.id, { e: 'shake', m: q === p ? 3 : 1, d: 120 });
     });
   });
-  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0));
-  emitCast(inst, p, rt, ox, oy, radius);
+  skillGain(p, rt, rt.def.gen + (rt.mods.gen ?? 0));
+  emitCast(inst, p, rt, ox, oy, baseRadius);
   return true;
 }
 

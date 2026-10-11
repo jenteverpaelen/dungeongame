@@ -128,3 +128,41 @@
 - `server/test/sim.ts`: warrior fixture kit = the audit's best Endless Storm 6 Whirlwind kit (set spike ×25 [M]);
   warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
   Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).
+
+## Engine wave 3 (2026-10-11, branch `claude/depth`)
+
+- Merged `claude/town-ui-rework` 343a5d5 first (warrior pilot + shared-items wave).
+- **Engine commits.** Four commits, babe2b0 / b1021b5 / 8b95fdc / f99d84e; data formats in FOUNDATION.md §13.
+  - **Primitives:**
+    - status `slow` (chosen strength);
+    - `targetInFront` / `targetBehind`, with `ChannelState.aim` for aiming channels;
+    - triggers `lifeBelow` and `dashEnd`;
+    - proc action `castSkill`;
+    - dot rule `alsoKind` / `element`, `strongestDot`, ground `carryDot` + status `carriedDot`.
+  - **Rules and filters:**
+    - `Player.acting`, so applyStatus procs filter by the applying skill;
+    - `cheatDeath.rearmOnCast` with `lifePct 0` = 1 Life;
+    - rule `noDecay`, `vars.genPct` + `skillGain`;
+    - stacking `source: 'channel'`, buff `moveSpeed` / `stackMoveSpeed` (into `live.mv`, `movePct`, `MeState.ms`).
+  - **Proof.** Every primitive is a no-op without content: sim output byte-identical to the wave-3 baseline (timing lines
+    excluded); powerTemplates / parity / wave-2 tests unchanged.
+  - **Tests.** `server/test/engineWave3.test.ts` (10, includes setReduce through the live runtime).
+- **Warrior content commit.** Finishes everything WARRIOR-PILOT.md §2 listed as blocked:
+  - nodes Hold the Line, Quarry Dust, Capstone and Brace;
+  - Furrowmark 4 front clause; Cinder Oath 2 / 6;
+  - passives Spinning Top, Grudge Holder and Iron Discipline;
+  - Slagforged Helm and Quakestep Sabatons;
+  - Deep Earth 30 % slow; Last Rampart once per standard.
+
+  Tests: `server/test/warriorWave3.test.ts` (10).
+- **Parity before → after.** In WARRIOR-PILOT.md §6.1.
+  - The parity fixture pins Cairnfall's node spec. The positional rule would move Tolling Blow's gate D3 to 0.79 through
+    the support's nodes, not through items.
+- **Known.**
+  - Slowed enemies have no client tint (no status flag).
+  - Cinder pools and the Quakestep tremor reuse the existing lava-pool and tremor-ring visuals.
+  - `server/test/passives.test.ts` (not in verify) still expects 18 passives from before the pilot.
+  - Stable ids: 86 new entries unrecorded (`scripts/content-ids.ts --update`); 81 were pending before this wave.
+- **Sim tick checks under load (lead request).** `server/test/perfGauge.ts` measures the machine's slowdown in the same
+  run, and the three "< 3 ms" tick checks use 3 ms × that load factor (factor 1 on a quiet machine). The 30 s perf
+  window is best of up to 3. Proof (passes under load, fails an injected 1.5 / 3 ms slowdown) in FOUNDATION.md §13.11.

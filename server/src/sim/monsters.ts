@@ -339,6 +339,7 @@ function tauntStep(inst: Instance, m: Mob, to: { x: number; y: number }, speed: 
 
 /** Move towards (tx, ty) with separation steering; uses the flow field when the straight line is blocked. */
 function step(inst: Instance, m: Mob, tx: number, ty: number, speed: number, dtS: number, p: Player | null) {
+  if (m.ps && m.ps.slowMs > 0) speed *= 1 - m.ps.slowPct / 100; // power status: slowed (movement only)
   let dx = tx - m.x, dy = ty - m.y;
   const d = Math.hypot(dx, dy);
   if (d < 1) return;

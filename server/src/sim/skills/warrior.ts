@@ -5,7 +5,7 @@
 
 import { modVar, skillBuffBonuses } from '../../shared';
 import { bestConeAngle, bestPoint, pickTarget } from '../brain';
-import { expectedDamage, gainResource, isEliteTier, makeDot, strikeMob } from '../damage';
+import { expectedDamage, gainResource, isEliteTier, makeDot, skillGain, strikeMob } from '../damage';
 import { addBuff, addDot, addOwnedDot, chillMob, elIdx, getBuff, hasDot, inCone } from '../effects';
 import { addGround, newGround } from '../grounds';
 import type { Instance } from '../instance';
@@ -67,7 +67,7 @@ function cleaveSwing(inst: Instance, p: Player, rt: SkillRuntime, ang: number, o
   }
   const tx0 = p.x + Math.cos(ang) * radius * 0.6, ty0 = p.y + Math.sin(ang) * radius * 0.6;
   const hearth = hit && o.momentum !== false ? hearthPrimary(inst, p, rt, tx0, ty0) : 0; // real swings only
-  if (hit && o.gen !== false) gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + (hit >= 3 ? modVar(rt.mods, 'crowdFury') : 0) + drillFury(inst, p) + hearth);
+  if (hit && o.gen !== false) skillGain(p, rt, rt.def.gen + (rt.mods.gen ?? 0) + (hit >= 3 ? modVar(rt.mods, 'crowdFury') : 0) + drillFury(inst, p) + hearth);
   if (hit) thresher(inst, p, rt, hit);
   // Braced Swing: damage reduction per enemy hit for 2 s (at most 12 %).
   const brace = modVar(rt.mods, 'bracedSwing');
@@ -306,7 +306,7 @@ function groundStomp(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     if (isEliteTier(m.tier)) elites++;
   }
   deepEarth(inst, p, rt, p.x, p.y, radius);
-  gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + elites * modVar(rt.mods, 'eliteFury')); // Fury Spring
+  skillGain(p, rt, rt.def.gen + (rt.mods.gen ?? 0) + elites * modVar(rt.mods, 'eliteFury')); // Fury Spring
   if (hits >= 5) refundCooldownLater(inst, p, 'ground_stomp', modVar(rt.mods, 'stompRefund') * 1000); // Sure Footing
   const echo = modVar(rt.mods, 'echoDelay'); // Echo Stomp
   if (echo > 0) inst.sched.schedule(inst.t + echo * 1000, () => {

@@ -50,7 +50,7 @@ export type NumericModKey = (typeof NUMERIC_MOD_KEYS)[number];
  */
 export type Targets = { skills?: string[]; tags?: TagQuery };
 /** immobilised = stunned or frozen (and any future root); inBlackHole = inside any Black Hole; marked = marked/spotted. */
-export type TargetState = 'stunned' | 'frozen' | 'chilled' | 'bleeding' | 'burning' | 'immobilised' | 'inBlackHole' | 'marked' | 'weakened';
+export type TargetState = 'stunned' | 'frozen' | 'chilled' | 'bleeding' | 'burning' | 'immobilised' | 'inBlackHole' | 'marked' | 'weakened' | 'slowed';
 
 /**
  * The one condition predicate shared by `conditional`, `skillMore`, vulnerability and set bonuses. Target conditions are
@@ -75,6 +75,8 @@ export type Condition =
   | { standingStill: true }
   | { standingStillMs: number }            // not moved for at least N ms
   | { noEnemyWithin: number }              // no living enemy within N units (tracked per tick while used)
+  | { targetInFront: number }              // the enemy (for damageTaken: the attacker) is within ±N° of your facing
+  | { targetBehind: number }               // … within ±N° of the opposite direction
   | { inDebt: true }                       // resource below zero (resourceDebt)
   | { inOwnGround: true }                  // standing inside one of your own ground effects
   | { lifeBelowPct: number }
@@ -83,7 +85,8 @@ export type Condition =
   | { element: Element[] };                // the strike's element is one of these (per hit)
 
 export const isTargetCondition = (c: Condition): boolean => 'all' in c ? c.all.some(isTargetCondition) : 'any' in c ? c.any.some(isTargetCondition)
-  : 'targetState' in c || 'targetLifeAbovePct' in c || 'targetFartherThan' in c || 'targetElite' in c || 'targetControlledWithinMs' in c;
+  : 'targetState' in c || 'targetLifeAbovePct' in c || 'targetFartherThan' in c || 'targetElite' in c || 'targetControlledWithinMs' in c
+    || 'targetInFront' in c || 'targetBehind' in c;
 /** Element conditions need the strike; composite conditions inherit from their children. */
 export const usesElement = (c: Condition): boolean => 'all' in c ? c.all.some(usesElement) : 'any' in c ? c.any.some(usesElement) : 'element' in c;
 
@@ -96,9 +99,11 @@ export interface BuffGrant {
   dr?: Amount; ccImmune?: boolean; maxStacks?: number; stackDmg?: Amount; stackIas?: Amount;
   /** Cooldowns recover this % faster while the buff lasts. */
   cdRecovery?: Amount;
+  /** Movement speed % while the buff lasts (× stacks with `stackMoveSpeed`); reaches client prediction (MeState.ms). */
+  moveSpeed?: Amount; stackMoveSpeed?: Amount;
 }
 /** `attack` = a primary attack was made (the automatic attack; slot casts are `cast`). */
-export type ProcTrigger = 'hit' | 'crit' | 'kill' | 'eliteKill' | 'spend' | 'cast' | 'attack' | 'dash' | 'takeDamage' | 'applyStatus';
+export type ProcTrigger = 'hit' | 'crit' | 'kill' | 'eliteKill' | 'spend' | 'cast' | 'attack' | 'dash' | 'dashEnd' | 'takeDamage' | 'lifeBelow' | 'applyStatus';
 /** Player control effects a controlImmunity template can block. */
 export type ControlKind = 'stun' | 'freeze' | 'pull';
 
@@ -112,7 +117,8 @@ export type ControlKind = 'stun' | 'freeze' | 'pull';
  * - spendRefund: a cast of a target that hits `minHits` different enemies within `windowMs` refunds `pct`% of its cost;
  * - groundsFollow: your ground effects follow you at `scale` × their radius;
  * - countsAs: for your powers, enemies in state `state` also count as `as` (e.g. chilled counts as stunned);
- * - markSpread: when you mark an enemy, the nearest other enemy within `range` gets the same mark.
+ * - markSpread: when you mark an enemy, the nearest other enemy within `range` gets the same mark;
+ * - noDecay: your resource no longer decays out of combat (Fury).
  */
 export type RuleChange =
   | { id: 'charges'; extra: number }
@@ -121,15 +127,17 @@ export type RuleChange =
   | { id: 'spendRefund'; pct: number; minHits: number; windowMs?: number }
   | { id: 'groundsFollow'; scale: number }
   | { id: 'countsAs'; state: TargetState; as: TargetState }
-  | { id: 'markSpread'; range: number };
+  | { id: 'markSpread'; range: number }
+  | { id: 'noDecay' };
 
 /** Monster statuses a power (proc, ground, class code) can apply. */
-export type StatusKind = 'stun' | 'freeze' | 'chill' | 'knockback' | 'pull' | 'weaken' | 'vulnerable' | 'taunt' | 'bleed' | 'burn' | 'freezeBuild' | 'mark';
+export type StatusKind = 'stun' | 'freeze' | 'chill' | 'slow' | 'knockback' | 'pull' | 'weaken' | 'vulnerable' | 'taunt' | 'bleed' | 'burn' | 'freezeBuild' | 'mark' | 'carriedDot';
 export interface StatusSpec {
   kind: StatusKind;
   /** Duration (stun, freeze, chill, weaken, vulnerable, taunt, mark; bleed / burn: dot duration). */
   ms?: number;
-  /** weaken: % less damage dealt; vulnerable: % more damage taken; freezeBuild: build-up points (100 freezes). */
+  /** weaken: % less damage dealt; vulnerable: % more damage taken; freezeBuild: build-up points (100 freezes); slow: % less
+   *  movement speed (the strongest active slow counts); carriedDot: strength % of the dot the ground carries (default 100). */
   pct?: Amount;
   /** knockback: units away from the source (negative = toward); pull: units toward the source. */
   dist?: number;
@@ -184,9 +192,14 @@ export type PowerEffect =
       repeat?: boolean;
       /** Fires only while this holds (player state, or the trigger's enemy for target conditions). */
       when?: Condition;
+      /** lifeBelow only: the threshold the hit took you below (from at or above it). */
+      lifePct?: number;
+      /** Cast one of your bar skills matching the targets for free (off cooldown only; its cooldown starts). */
+      castSkill?: { skills?: string[]; tags?: TagQuery; pick?: 'longestCooldown' | 'first' };
       reduceCooldownsMs?: Amount; resetCooldowns?: string[]; resource?: Amount; buff?: BuffGrant; strike?: ProcStrike;
       summon?: { type: string; skill: string; lifeMs: number; at?: 'target' | 'self'; max?: number };
-      ground?: { def: string; at?: 'target' | 'self'; scale?: Amount };
+      /** `carryDot`: the ground carries your strongest dot on the trigger's enemy (for its carriedDot statuses). */
+      ground?: { def: string; at?: 'target' | 'self'; scale?: Amount; carryDot?: boolean };
       applyStatus?: StatusSpec & { at?: 'target' | 'self' };
       clearProjectiles?: { range: number; halfAngleDeg: number } }
   /** % more (positive) or less (negative) damage taken, optionally while a condition holds or per equipped legendary. */
@@ -194,7 +207,9 @@ export type PowerEffect =
   /** The first hit taken every `windowMs` is changed by pct (negative = reduced); applying a listed status resets it. */
   | { kind: 'firstHit'; pct: Amount; windowMs: number; resetOnStatus?: StatusKind[] }
   /** Fatal damage leaves you at lifePct of max life instead (once per cooldown), optionally invulnerable and resetting skills. */
-  | { kind: 'cheatDeath'; lifePct: number; cooldownMs: number; invulnMs?: number; when?: Condition; resetCooldowns?: string[]; buff?: BuffGrant }
+  | { kind: 'cheatDeath'; lifePct: number; cooldownMs: number; invulnMs?: number; when?: Condition; resetCooldowns?: string[]; buff?: BuffGrant;
+      /** Casting one of these skills makes it ready again ("once per standard": cooldownMs Infinity + the standard's cast). */
+      rearmOnCast?: string[] }
   /** Cannot be stunned, frozen or pulled (or only the listed kinds) while the condition holds (always without one). */
   | { kind: 'controlImmunity'; when?: Condition; kinds?: ControlKind[] }
   /** Projectile behaviour for the targets: damage by distance flown, wall bounces, new target on death, homing to marked enemies. */
@@ -208,7 +223,9 @@ export type PowerEffect =
   /** Hostile projectiles inside a cone in front of you are destroyed each tick (while the condition holds). */
   | { kind: 'deflect'; range: number; halfAngleDeg: number; when?: Condition }
   /** Damage-over-time rules for the targets' dots of one kind: separate instances (`stacks`), strength, carry-over on refresh. */
-  | { kind: 'dot'; dot: 'bleed' | 'burn' | 'poison'; skills?: string[]; tags?: TagQuery; stacks?: number; strengthPct?: number; carryPct?: Amount }
+  | { kind: 'dot'; dot: 'bleed' | 'burn' | 'poison'; skills?: string[]; tags?: TagQuery; stacks?: number; strengthPct?: number; carryPct?: Amount;
+      /** The dot also counts as this kind (states, conditions, visuals) and deals this element ("Bleeds also Burn"). */
+      alsoKind?: 'bleed' | 'burn' | 'poison'; element?: Element }
   /**
    * The targets gain tags: `add`, and / or every tag of the skill in bar slot `fromSlot` (0-based). Resolved before any
    * other tag-keyed effect (order in docs/rework/depth/FOUNDATION.md §11.2): all grants read the ungranted index at once.
@@ -217,8 +234,8 @@ export type PowerEffect =
   /** A rule change (Inscriptions, rules-changing passives): see RuleChange. */
   | { kind: 'rule'; skills?: string[]; tags?: TagQuery; rule: RuleChange }
   /** A stacking buff fed by distance moved or kills (optionally only by the targets), decaying after `decayMs` without gain. */
-  | { kind: 'stacking'; buff: string; source: 'distance' | 'kills'; per: number; max: number; decayMs: number; decay?: 'all' | 'one';
-      skills?: string[]; tags?: TagQuery; stackDmg?: Amount; stackIas?: Amount; onMax?: { buff?: BuffGrant; reset?: boolean };
+  | { kind: 'stacking'; buff: string; source: 'distance' | 'kills' | 'channel'; per: number; max: number; decayMs: number; decay?: 'all' | 'one';
+      skills?: string[]; tags?: TagQuery; stackDmg?: Amount; stackIas?: Amount; stackMoveSpeed?: Amount; onMax?: { buff?: BuffGrant; reset?: boolean };
       /** kills only: the killed enemy must meet this target condition (e.g. it was bleeding or burning). */
       when?: Condition }
   /** The targets may be cast with too little resource, down to -max; while in debt regeneration changes by regenPct. */
@@ -240,12 +257,12 @@ export const usesRoll = (e: PowerEffect): boolean => {
     case 'conditional': case 'skillMore': return r(e.pct);
     case 'stat': return r(e.value);
     case 'elementCycle': return r(e.pct);
-    case 'proc': return r(e.reduceCooldownsMs) || r(e.resource) || !!e.buff && (r(e.buff.dmg) || r(e.buff.chc) || r(e.buff.chd) || r(e.buff.ias) || r(e.buff.dr) || r(e.buff.stackDmg) || r(e.buff.stackIas) || r(e.buff.cdRecovery))
+    case 'proc': return r(e.reduceCooldownsMs) || r(e.resource) || !!e.buff && (r(e.buff.dmg) || r(e.buff.chc) || r(e.buff.chd) || r(e.buff.ias) || r(e.buff.dr) || r(e.buff.stackDmg) || r(e.buff.stackIas) || r(e.buff.cdRecovery) || r(e.buff.moveSpeed) || r(e.buff.stackMoveSpeed))
       || !!e.strike && r(e.strike.coef) || !!e.ground && r(e.ground.scale) || !!e.applyStatus && (r(e.applyStatus.pct) || r(e.applyStatus.coef));
     case 'damageTaken': case 'firstHit': return r(e.pct);
     case 'cheatDeath': return !!e.buff && r(e.buff.dr);
     case 'projectile': return !!e.distBonus && r(e.distBonus.pct);
-    case 'stacking': return r(e.stackDmg) || r(e.stackIas) || !!e.onMax?.buff && (r(e.onMax.buff.dmg) || r(e.onMax.buff.ias) || r(e.onMax.buff.cdRecovery));
+    case 'stacking': return r(e.stackDmg) || r(e.stackIas) || r(e.stackMoveSpeed) || !!e.onMax?.buff && (r(e.onMax.buff.dmg) || r(e.onMax.buff.ias) || r(e.onMax.buff.cdRecovery));
     case 'dot': return r(e.carryPct);
     default: return false;
   }
@@ -304,7 +321,7 @@ const MOD_TEXT: Record<NumericModKey, (v: string, who: string) => string> = {
   gen: (v, who) => `${who} generates ${v} additional resource`,
   maxSummons: (v, who) => `You may have ${v} additional ${who}`,
 };
-const STATE_TEXT: Record<TargetState, string> = { stunned: 'stunned', frozen: 'frozen', chilled: 'chilled', bleeding: 'bleeding', burning: 'burning', immobilised: 'immobilised', inBlackHole: 'Black Hole-bound', marked: 'marked', weakened: 'weakened' };
+const STATE_TEXT: Record<TargetState, string> = { stunned: 'stunned', frozen: 'frozen', chilled: 'chilled', bleeding: 'bleeding', burning: 'burning', immobilised: 'immobilised', inBlackHole: 'Black Hole-bound', marked: 'marked', weakened: 'weakened', slowed: 'slowed' };
 const conditionText = (c: Condition): string =>
   'all' in c ? c.all.map(conditionText).join(' and ')
   : 'any' in c ? c.any.map(conditionText).join(' or ')
@@ -313,6 +330,8 @@ const conditionText = (c: Condition): string =>
   : 'standingStillMs' in c ? `after standing still for ${c.standingStillMs / 1000} seconds`
   : 'inDebt' in c ? 'while your resource is below zero'
   : 'noEnemyWithin' in c ? `while no enemy is within ${c.noEnemyWithin} units`
+  : 'targetInFront' in c ? 'from enemies in front of you'
+  : 'targetBehind' in c ? 'from enemies behind you'
   : 'channeling' in c ? (c.channeling === true ? 'while channelling' : typeof c.channeling === 'string' ? `while channelling ${skillName(c.channeling)}` : `while channelling ${tagText(c.channeling)}`)
   : 'targetState' in c ? (c.targetState === 'inBlackHole' ? 'against enemies inside your Black Hole' : `against ${STATE_TEXT[c.targetState]} enemies`)
   : 'targetLifeAbovePct' in c ? `against enemies above ${c.targetLifeAbovePct}% Life`
@@ -333,7 +352,7 @@ const conditionTokens = (c: Condition, n: (v: number) => string): string[] =>
 
 const PROC_WHEN: Record<ProcTrigger, string> = {
   hit: 'Hitting an enemy', crit: 'Critical hits', kill: 'Killing an enemy', eliteKill: 'Killing an elite', spend: 'Each resource-spending skill',
-  cast: 'Casting a skill', attack: 'Primary attacks', dash: 'Dashing', takeDamage: 'Taking damage', applyStatus: 'Applying a status',
+  cast: 'Casting a skill', attack: 'Primary attacks', dash: 'Dashing', dashEnd: 'When a Movement skill ends', lifeBelow: 'Falling below a Life threshold', takeDamage: 'Taking damage', applyStatus: 'Applying a status',
 };
 const buffText = (b: BuffGrant): string => {
   const parts = [b.dmg !== undefined ? `${fmt(b.dmg)}% increased damage` : '', b.chc !== undefined ? `${fmt(b.chc)}% Critical Hit Chance` : '',
@@ -341,7 +360,8 @@ const buffText = (b: BuffGrant): string => {
     b.dr !== undefined ? `${fmt(b.dr)}% damage reduction` : '', b.ccImmune ? 'immunity to control effects' : '',
     b.stackDmg !== undefined ? `${fmt(b.stackDmg)}% increased damage per stack (max ${b.maxStacks ?? 1})` : '',
     b.stackIas !== undefined ? `${fmt(b.stackIas)}% attack speed per stack (max ${b.maxStacks ?? 1})` : '',
-    b.cdRecovery !== undefined ? `${fmt(b.cdRecovery)}% faster cooldown recovery` : ''].filter(Boolean);
+    b.cdRecovery !== undefined ? `${fmt(b.cdRecovery)}% faster cooldown recovery` : '',
+    b.moveSpeed !== undefined ? `${fmt(b.moveSpeed)}% movement speed` : '', b.stackMoveSpeed !== undefined ? `${fmt(b.stackMoveSpeed)}% movement speed per stack` : ''].filter(Boolean);
   return `grants ${parts.length ? list(parts) : skillName(b.id)} for ${b.ms / 1000} seconds`;
 };
 const ruleText = (r: RuleChange, who: string): string => {
@@ -353,6 +373,7 @@ const ruleText = (r: RuleChange, who: string): string => {
     case 'groundsFollow': return `Your ground effects follow you at ${Math.round(r.scale * 100)}% size`;
     case 'countsAs': return `For your powers, ${STATE_TEXT[r.state]} enemies also count as ${STATE_TEXT[r.as]}`;
     case 'markSpread': return `Your Marks also apply to the nearest other enemy within ${r.range} units`;
+    case 'noDecay': return 'Your resource no longer decays';
   }
 };
 const ruleTokens = (r: RuleChange, n: (v: number) => string): string[] => {
@@ -364,10 +385,11 @@ const ruleTokens = (r: RuleChange, n: (v: number) => string): string[] => {
     case 'groundsFollow': return [n(Math.round(r.scale * 100))];
     case 'countsAs': return [];
     case 'markSpread': return [];
+    case 'noDecay': return [];
   }
 };
 const STATUS_TEXT: Record<StatusKind, string> = {
-  stun: 'stuns', freeze: 'freezes', chill: 'chills', knockback: 'knocks back', pull: 'pulls in', weaken: 'weakens', vulnerable: 'makes vulnerable',
+  stun: 'stuns', freeze: 'freezes', chill: 'chills', slow: 'slows', carriedDot: 'applies the carried damage-over-time to', knockback: 'knocks back', pull: 'pulls in', weaken: 'weakens', vulnerable: 'makes vulnerable',
   taunt: 'taunts', bleed: 'causes bleeding on', burn: 'burns', freezeBuild: 'builds Freeze on', mark: 'marks',
 };
 const statusText = (st: StatusSpec): string => `${STATUS_TEXT[st.kind]} ${st.radius ? `enemies within ${st.radius} units` : 'the enemy'}${st.ms ? ` for ${st.ms / 1000} seconds` : ''}`;
@@ -389,11 +411,11 @@ export function describeEffect(e: PowerEffect): string {
     case 'ownMult': return `${names(e)} deal ${Math.round((e.mult - 1) * 100).toLocaleString('en-US')}% increased damage.`;
     case 'conditional': return `${e.skills || e.tags ? names(e) + ' deal' : 'You deal'} ${fmt(e.pct)}% increased damage ${conditionText(e.when)}.`;
     case 'skillMore': return `${names(e)} deal ${fmt(e.pct)}% more damage${e.when ? ' ' + conditionText(e.when) : ''}.`;
-    case 'stat': return `${e.noSetBonus ? 'While no set bonus is active, ' : ''}${e.perLegendary ? `each equipped legendary item increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}% (max ${e.perLegendary.max} items)` : `increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}${['str', 'dex', 'int', 'vit', 'armor', 'allRes'].includes(e.stat) ? '' : '%'}`}.`.replace(/^i/, 'I');
+    case 'stat': return `${e.noSetBonus ? 'While no set bonus is active, ' : ''}${e.perLegendary ? `each equipped legendary item increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}% (max ${e.perLegendary.max} items)` : `increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}${['str', 'dex', 'int', 'vit', 'armor', 'allRes', 'maxResource'].includes(e.stat) ? '' : '%'}`}.`.replace(/^i/, 'I');
     case 'elementStacks': return `Dealing ${e.elements.map(cap).join(', ')} damage increases your damage by ${e.perStack}% for ${e.windowMs / 1000} seconds per element (max ${e.elements.length}).`;
     case 'elementCycle': return `Gain a ${fmt(e.pct)}% damage bonus to a single element that rotates every ${e.periodMs / 1000} seconds.`;
     case 'proc': {
-      const when = PROC_WHEN[e.on];
+      const when = e.on === 'lifeBelow' && e.lifePct !== undefined ? `Falling below ${fmt(e.lifePct)}% Life` : PROC_WHEN[e.on];
       const parts: string[] = [];
       if (e.reduceCooldownsMs !== undefined) parts.push(`reduces your active cooldowns by ${typeof e.reduceCooldownsMs === 'object' ? '{v}' : fmt(e.reduceCooldownsMs / 1000)} seconds`);
       if (e.resource !== undefined) parts.push(`restores ${fmt(e.resource)} resource`);
@@ -405,6 +427,7 @@ export function describeEffect(e: PowerEffect): string {
       if (e.applyStatus) parts.push(statusText(e.applyStatus));
       if (e.clearProjectiles) parts.push(`destroys enemy projectiles within ${e.clearProjectiles.range} units in front of you`);
       if (e.repeat) parts.push('repeats once');
+      if (e.castSkill) parts.push(`casts ${names(e.castSkill)}${e.castSkill.pick === 'longestCooldown' ? ' (the one with the longest cooldown)' : ''}`);
       const icd = e.icdMs ? ` (once every ${e.icdMs / 1000} seconds)` : '';
       const every = e.every && e.every > 1 ? `Every ${e.every}th: ` : '';
       return `${every}${e.chance !== undefined ? `${Math.round(e.chance * 100)}% chance: ` : ''}${when}${e.when ? ` ${conditionText(e.when)}` : ''} ${parts.join(' and ')}${icd}.`;
@@ -415,7 +438,7 @@ export function describeEffect(e: PowerEffect): string {
       return `${e.noSetBonus ? 'While no set bonus is active, ' + base[0].toLowerCase() + base.slice(1) : base}.`;
     }
     case 'firstHit': return `The first hit you take every ${e.windowMs / 1000} seconds deals ${fmt(e.pct)}% ${typeof e.pct === 'number' && e.pct > 0 ? 'more' : 'less'} damage.`;
-    case 'cheatDeath': return `Fatal damage instead leaves you at ${e.lifePct}% Life${e.invulnMs ? ` and invulnerable for ${e.invulnMs / 1000} seconds` : ''}${e.when ? ' ' + conditionText(e.when) : ''}. This can happen once every ${e.cooldownMs / 1000} seconds.`;
+    case 'cheatDeath': return `Fatal damage instead leaves you at ${e.lifePct > 0 ? `${e.lifePct}% Life` : '1 Life'}${e.invulnMs ? ` and invulnerable for ${e.invulnMs / 1000} seconds` : ''}${e.when ? ' ' + conditionText(e.when) : ''}.${Number.isFinite(e.cooldownMs) ? ` This can happen once every ${e.cooldownMs / 1000} seconds.` : ''}${e.rearmOnCast ? ` Casting ${list(e.rearmOnCast.map(skillName))} makes it ready again.` : ''}`;
     case 'controlImmunity': return `You cannot be ${e.kinds ? list(e.kinds.map((k) => ({ stun: 'stunned', freeze: 'frozen', pull: 'pulled or knocked back' })[k]), 'or') : 'stunned, frozen or pulled'}${e.when ? ' ' + conditionText(e.when) : ''}.`;
     case 'projectile': {
       const who = names(e), parts: string[] = [];
@@ -432,12 +455,14 @@ export function describeEffect(e: PowerEffect): string {
     case 'rule': return ruleText(e.rule, names(e)) + '.';
     case 'dot': {
       const parts = [e.stacks && e.stacks > 1 ? `stack up to ${e.stacks} times instead of refreshing` : '', e.strengthPct !== undefined ? `deal ${e.strengthPct}% of their damage` : '',
-        e.carryPct !== undefined ? `carry ${fmt(e.carryPct)}% of the remaining damage into a new application` : ''].filter(Boolean);
+        e.carryPct !== undefined ? `carry ${fmt(e.carryPct)}% of the remaining damage into a new application` : '',
+        e.alsoKind ? `also count as ${e.alsoKind === 'burn' ? 'Burns' : e.alsoKind === 'bleed' ? 'Bleeds' : 'Poisons'}${e.element ? ` and deal ${cap(e.element)} damage` : ''}` : ''].filter(Boolean);
       return `${cap(e.dot === 'bleed' ? 'bleeds' : e.dot === 'burn' ? 'burns' : 'poisons')}${e.skills || e.tags ? ' from ' + names(e) : ''} ${list(parts)}.`;
     }
     case 'stacking': {
-      const src = e.source === 'distance' ? `every ${e.per} units you move` : `every ${e.per === 1 ? '' : e.per + ' '}kill${e.per === 1 ? '' : 's'}${e.skills || e.tags ? ' with ' + names(e) : ''}`;
-      const per = [e.stackDmg !== undefined ? `${fmt(e.stackDmg)}% increased damage` : '', e.stackIas !== undefined ? `${fmt(e.stackIas)}% attack speed` : ''].filter(Boolean).join(' and ');
+      const src = e.source === 'distance' ? `every ${e.per} units you move` : e.source === 'channel' ? `every ${e.per / 1000} seconds you channel` : `every ${e.per === 1 ? '' : e.per + ' '}kill${e.per === 1 ? '' : 's'}${e.skills || e.tags ? ' with ' + names(e) : ''}`;
+      const per = [e.stackDmg !== undefined ? `${fmt(e.stackDmg)}% increased damage` : '', e.stackIas !== undefined ? `${fmt(e.stackIas)}% attack speed` : '',
+        e.stackMoveSpeed !== undefined ? `${fmt(e.stackMoveSpeed)}% movement speed` : ''].filter(Boolean).join(' and ');
       const max = e.onMax?.buff ? ` At ${e.max} stacks, ${buffText(e.onMax.buff)}${e.onMax.reset ? ' and the stacks reset' : ''}.` : '';
       return `Gain a stack of ${skillName(e.buff)} ${src}${e.when ? ' ' + conditionText(e.when) : ''} (max ${e.max})${per ? `, each granting ${per}` : ''}.${Number.isFinite(e.decayMs) ? ` Stacks fade after ${e.decayMs / 1000} seconds without gaining one.` : ''}${max}`;
     }
@@ -463,14 +488,14 @@ export function effectTokens(e: PowerEffect): string[] {
     case 'elementCycle': return [n(e.periodMs / 1000), ...a(e.pct)];
     case 'proc': return [...(typeof e.reduceCooldownsMs === 'number' ? [n(e.reduceCooldownsMs / 1000)] : []), ...a(e.resource), ...(e.buff ? [n(e.buff.ms / 1000), ...a(e.buff.dmg)] : []),
       ...(e.icdMs ? [n(e.icdMs / 1000)] : []), ...(e.strike && typeof e.strike.coef === 'number' ? [n(e.strike.coef * 100)] : []),
-      ...(e.every && e.every > 1 ? [n(e.every)] : []), ...(e.summon ? [n(e.summon.lifeMs / 1000)] : []), ...(e.applyStatus?.ms ? [n(e.applyStatus.ms / 1000)] : []), ...(e.applyStatus ? a(e.applyStatus.pct) : []),
+      ...(e.every && e.every > 1 ? [n(e.every)] : []), ...(e.lifePct !== undefined ? [n(e.lifePct)] : []), ...(e.summon ? [n(e.summon.lifeMs / 1000)] : []), ...(e.applyStatus?.ms ? [n(e.applyStatus.ms / 1000)] : []), ...(e.applyStatus ? a(e.applyStatus.pct) : []),
       ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'damageTaken': return [...a(e.pct), ...(e.perLegendary ? [n(e.perLegendary.max)] : []), ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'firstHit': return [...a(e.pct), n(e.windowMs / 1000)];
-    case 'cheatDeath': return [n(e.lifePct), n(e.cooldownMs / 1000), ...(e.invulnMs ? [n(e.invulnMs / 1000)] : [])];
+    case 'cheatDeath': return [...(e.lifePct > 0 ? [n(e.lifePct)] : []), ...(Number.isFinite(e.cooldownMs) ? [n(e.cooldownMs / 1000)] : []), ...(e.invulnMs ? [n(e.invulnMs / 1000)] : [])];
     case 'controlImmunity': return e.when ? conditionTokens(e.when, n) : [];
     case 'projectile': return [...(e.distBonus ? [...a(e.distBonus.pct), n(e.distBonus.atUnits)] : []), ...(e.bounces ? [n(e.bounces)] : [])];
-    case 'stacking': return [n(e.max), ...(Number.isFinite(e.decayMs) ? [n(e.decayMs / 1000)] : []), ...a(e.stackDmg), ...a(e.stackIas), ...(e.onMax?.buff ? [n(e.onMax.buff.ms / 1000)] : [])];
+    case 'stacking': return [n(e.max), ...(Number.isFinite(e.decayMs) ? [n(e.decayMs / 1000)] : []), ...a(e.stackDmg), ...a(e.stackIas), ...a(e.stackMoveSpeed), ...(e.onMax?.buff ? [n(e.onMax.buff.ms / 1000)] : [])];
     case 'resourceDebt': return [n(e.max)];
     case 'deflect': return [n(e.range), ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'tagGrant': return [...(e.add ?? []).map(cap), ...(e.fromSlot !== undefined ? [n(e.fromSlot + 1)] : [])];

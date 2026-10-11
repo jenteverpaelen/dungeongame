@@ -250,6 +250,8 @@ function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, c
     kids.forEach((k, i) => validateCondition(k, bucket, `${where}.${'all' in c ? 'all' : 'any'}[${i}]`, check));
     return;
   }
+  for (const k of ['targetInFront', 'targetBehind'] as const)
+    if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] > 0 && (c as Record<string, number>)[k] <= 180, where, `${k} must be a half angle in (0, 180]`);
   for (const k of ['targetControlledWithinMs', 'standingStillMs', 'noEnemyWithin'] as const)
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
   if ('perSummon' in c || 'buffStacks' in c) check(Number.isInteger(c.max) && c.max >= 1, where, 'scaling condition needs a max of at least 1');
@@ -282,13 +284,16 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
   const buff = (b: BuffGrant | undefined, where: string) => {
     if (!b) return;
     check(b.id.length > 0 && b.ms > 0, where, 'buff needs an id and a duration');
-    for (const k of ['dmg', 'chc', 'chd', 'ias', 'dr', 'stackDmg', 'stackIas', 'cdRecovery'] as const) finite(b[k], where);
+    for (const k of ['dmg', 'chc', 'chd', 'ias', 'dr', 'stackDmg', 'stackIas', 'cdRecovery', 'moveSpeed', 'stackMoveSpeed'] as const) finite(b[k], where);
     if (typeof b.dr === 'number') check(b.dr >= 0 && b.dr <= 100, where, 'buff dr must lie in 0..100');
     if (b.maxStacks !== undefined) check(Number.isInteger(b.maxStacks) && b.maxStacks >= 1, where, 'maxStacks must be an integer of at least 1');
     if (b.stackDmg !== undefined || b.stackIas !== undefined) check((b.maxStacks ?? 1) > 1, where, 'per-stack values need maxStacks above 1');
     check(!(b.ias !== undefined && b.stackIas !== undefined), where, 'use ias or stackIas, not both');
   };
-  const status = (s: StatusSpec, where: string) => validateStatus(s, where, check, skillRef);
+  const status = (s: StatusSpec, where: string) => {
+    check(s.kind !== 'carriedDot', where, 'carriedDot only works on a ground placed with carryDot');
+    validateStatus(s, where, check, skillRef);
+  };
   // Proc strike ids are strike ids of their own (targetable by name).
   const procStrikes = new Set(effects.flatMap((e) => (e.kind === 'proc' && e.strike ? [e.strike.id] : [])));
   effects.forEach((e, i) => {
@@ -329,7 +334,11 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         if (e.minHitPct !== undefined) check(e.on === 'takeDamage' && e.minHitPct > 0 && e.minHitPct <= 100, w, 'minHitPct needs on: takeDamage and lies in (0, 100]');
         if (e.every !== undefined) check(Number.isInteger(e.every) && e.every >= 2, w, 'every must be an integer of at least 2');
         if (e.repeat) check(e.on === 'attack', w, 'repeat needs on: attack');
-        if (e.skills || e.tags) check(!['dash', 'takeDamage', 'applyStatus'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
+        // applyStatus filters by the applying skill (Player.acting); dash, dashEnd, takeDamage and lifeBelow have none.
+        if (e.skills || e.tags) check(!['dash', 'dashEnd', 'takeDamage', 'lifeBelow'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
+        if (e.lifePct !== undefined) check(e.on === 'lifeBelow' && e.lifePct > 0 && e.lifePct < 100, w, 'lifePct needs on: lifeBelow and lies in (0, 100)');
+        if (e.on === 'lifeBelow') check(e.lifePct !== undefined, w, 'lifeBelow needs lifePct');
+        if (e.castSkill) { e.castSkill.skills?.forEach((id) => skillRef(id, w)); validateQuery(e.castSkill.tags, w, check); }
         if (e.when) validateCondition(e.when, ['dash', 'spend', 'cast'].includes(e.on) ? 'own' : 'hit', w, check);
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
         if (e.strike) {
@@ -356,6 +365,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         e.resetOnStatus?.forEach((k) => check(STATUS_KINDS.has(k), w, `unknown status ${k}`));
         break;
       case 'cheatDeath':
+        e.rearmOnCast?.forEach((id) => skillRef(id, w));
         check(e.lifePct >= 0 && e.lifePct <= 100 && e.cooldownMs > 0 && (e.invulnMs ?? 0) >= 0, w, 'cheatDeath needs lifePct 0..100, a cooldown and invulnMs >= 0');
         if (e.when) validateCondition(e.when, 'hit', w, check);
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
@@ -379,6 +389,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         if (e.when) validateCondition(e.when, 'own', w, check);
         break;
       case 'dot':
+        if (e.alsoKind) check(e.alsoKind !== e.dot, w, 'alsoKind must differ from the dot kind');
         targets(e, w, false);
         if (e.stacks !== undefined) check(Number.isInteger(e.stacks) && e.stacks >= 1 && e.stacks <= 8, w, 'stacks must be an integer in 1..8');
         if (e.strengthPct !== undefined) check(e.strengthPct >= 0, w, 'strengthPct must be non-negative');
@@ -390,7 +401,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         check(e.buff.length > 0 && e.per > 0 && Number.isInteger(e.max) && e.max >= 1 && e.decayMs > 0, w, 'stacking needs a buff id, per > 0, an integer max and a decay time');
         if (e.skills || e.tags || e.when) check(e.source === 'kills', w, 'only kill-fed stacking can be filtered by skill, tag or the killed enemy');
         if (e.when) { validateCondition(e.when, 'hit', w, check); check(isTargetCondition(e.when), w, 'a kill filter tests the killed enemy (target condition)'); }
-        finite(e.stackDmg, w); finite(e.stackIas, w);
+        finite(e.stackDmg, w); finite(e.stackIas, w); finite(e.stackMoveSpeed, w);
         buff(e.onMax?.buff, w);
         break;
       case 'resourceDebt':
@@ -414,6 +425,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
           case 'groundsFollow': check(r.scale > 0 && r.scale <= 1, w, 'groundsFollow scale must lie in (0, 1]'); check(!e.skills && !e.tags, w, 'groundsFollow applies to all your grounds'); break;
           case 'countsAs': check(r.state !== r.as, w, 'countsAs needs two different states'); check(!e.skills && !e.tags, w, 'countsAs applies to all your powers'); break;
           case 'markSpread': check(r.range > 0, w, 'markSpread needs a range'); check(!e.skills && !e.tags, w, 'markSpread applies to all your marks'); break;
+          case 'noDecay': check(!e.skills && !e.tags, w, 'noDecay applies to your resource'); break;
           default: check(false, w, 'unknown rule');
         }
         break;
@@ -423,14 +435,15 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
     }
   });
 }
-const STATUS_KINDS = new Set<string>(['stun', 'freeze', 'chill', 'knockback', 'pull', 'weaken', 'vulnerable', 'taunt', 'bleed', 'burn', 'freezeBuild', 'mark']);
+const STATUS_KINDS = new Set<string>(['stun', 'freeze', 'chill', 'knockback', 'pull', 'weaken', 'vulnerable', 'taunt', 'bleed', 'burn', 'freezeBuild', 'mark', 'slow', 'carriedDot']);
 /** Kinds an Inscription may use (rule changes, never multipliers or stats). */
 const INSCRIPTION_KINDS = new Set<string>(['tagGrant', 'rule', 'proc', 'skillMods', 'projectile', 'deflect', 'controlImmunity']);
 
 /** A status a power applies: known kind and the numbers that kind needs. */
 function validateStatus(s: StatusSpec, where: string, check: Check, skillRef: (id: string, where: string) => void) {
   check(STATUS_KINDS.has(s.kind), where, `unknown status ${s.kind}`);
-  const timed = ['stun', 'freeze', 'chill', 'weaken', 'vulnerable', 'taunt', 'mark', 'freezeBuild'].includes(s.kind);
+  const timed = ['stun', 'freeze', 'chill', 'slow', 'weaken', 'vulnerable', 'taunt', 'mark', 'freezeBuild'].includes(s.kind);
+  if (s.kind === 'slow') check(typeof s.pct !== 'number' || (s.pct > 0 && s.pct <= 90), where, 'slow pct must lie in (0, 90]');
   if (timed) check((s.ms ?? 0) > 0, where, `${s.kind} needs a duration (ms)`);
   if (s.kind === 'knockback' || s.kind === 'pull') check(Number.isFinite(s.dist) && s.dist !== 0, where, `${s.kind} needs a distance`);
   if (s.kind === 'weaken' || s.kind === 'vulnerable' || s.kind === 'freezeBuild') check(s.pct !== undefined, where, `${s.kind} needs pct`);
