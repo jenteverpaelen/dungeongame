@@ -33,7 +33,7 @@ const PANEL_ICON: Partial<Record<PanelId, UiIconName>> = {
   inventory: 'bag', skills: 'skills', paragon: 'paragon', cube: 'cube', waypoint: 'waypoint', obelisk: 'obelisk', help: 'help',
   debug: 'wrench', stash: 'stash', settings: 'settings', adventure: 'journal', worldmap: 'map', runSummary: 'hourglass',
   character: 'character', merchant: 'merchant', party: 'party', social: 'social', inspect: 'inspect', community: 'shield',
-  collection: 'collection', dialogue: 'chat', bounty: 'scroll',
+  collection: 'collection', dialogue: 'chat', bounty: 'scroll', bench: 'hourglass',
 };
 /** Panels with a keyboard shortcut show it in the title bar (labels follow the player's bindings). */
 const PANEL_KEY: Partial<Record<PanelId, Action>> = { inventory: 'inventory', skills: 'skills', paragon: 'paragon', settings: 'settings', adventure: 'journal', worldmap: 'map', cube: 'cube' };

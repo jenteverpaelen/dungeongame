@@ -13,6 +13,7 @@ import { TargetFrame } from './Target';
 import { Chat, Notices, PickupLog } from './Feed';
 import { PlayerPlate } from './PlayerPlate';
 import { AfkModal, DeathScreen, HelpPanel, InteractPrompt } from './Overlays';
+import { BenchReadout } from '../panels/bench';
 import { ContextualGuidance } from './Guidance';
 import {PartyFrames} from '../panels/party';
 import { MenuBar } from './MenuBar';
@@ -34,6 +35,7 @@ function GameHud() {
       {ready && <BottomBar />}
       {ready && <MenuBar />}
       <InteractPrompt />
+      <BenchReadout />
       <ReadingCard />
       <HoldBar />
       <ContextualGuidance />
