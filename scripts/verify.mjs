@@ -22,6 +22,7 @@ const stages = [
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts', 'server/test/itemProtection.test.ts', 'server/test/saveMigrations.test.ts']],
   ['save-failures', ['--import', 'tsx', '--test', 'server/test/saveFailures.test.ts']],
   ['command-replay', ['--import', 'tsx', '--test', 'server/test/commandReplay.test.ts']],
+  ['combat-replay', ['--import', 'tsx', '--test', 'server/test/combatReplay.test.ts']],
   ['connection-security', ['--import', 'tsx', '--test', 'server/test/origin.test.ts', 'server/test/connectionRuntime.test.ts', 'server/test/messageBudget.test.ts', 'server/test/securityHardening.test.ts']],
   ['accounts', ['--import', 'tsx', '--test', 'server/test/accounts.test.ts', 'server/test/accountPrivacy.test.ts']],
   ['telemetry', ['--import', 'tsx', '--test', 'server/test/telemetry.test.ts', 'server/test/telemetrySchema.test.ts']],
@@ -39,6 +40,8 @@ const stages = [
   ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts', 'server/test/autoCastControls.test.ts', 'server/test/targetPriority.test.ts', 'server/test/manualSkills.test.ts', 'server/test/autoRuleEditor.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
+  ['perf-budget', ['--import', 'tsx', 'scripts/perf-budget.ts']],
+  ['bot-metrics', ['--import', 'tsx', '--test', 'scripts/bot-metrics.test.ts']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
 ];

@@ -66,3 +66,17 @@
   13 remappable actions, spatial focus in windows, device-aware prompts. Preset cost measured (Low 105–110 fps vs High
   42–72, p95 18 ms). Account tab label shortened to "Data" (fits 1366). Tests: preferences/quality/gamepad 32/32 with
   bindings/messages/lifetime. Doc: SETTINGS.md. Shots: `set-*`, `set-inv-*`, `shapes-*`, `pad-*`, `acct-*`.
+- **F-TEL-02 — bot metrics.** `SIM_JSON=<file>` hook in `sim.ts leveling` (one row per five-level band: kills/min, TTK
+  trash/champion, deaths/h, taken % life/min, XP/h, gold/h picked and net, items/h by rarity, gems/mats/globes/h);
+  `scripts/bot-metrics.ts run|render|compare` → `bot-metrics/baseline.json` + `BOT-METRICS.md` (240 simulated min per
+  class, seed 0xc0ffee: warrior L43, ranger L44, mage L38; L5 at 5–8 min, L20 at 57–72 min, L30 at 118–163 min) [M].
+  `bot-metrics.test.ts`: schema, report render, same-seed reproducibility (zero drift), drift maths. `npm run bot:metrics`.
+- **F-TEL-01 — perf budget in verify.** `sim.ts budget`: 4 instances × exactly 150 awake monsters (one L70 player each,
+  spawner refill off), every snapshot encoded with the real codec; gate = owner's < 10 ms round average [O] + p99 inside
+  one 20 Hz period (50 ms); snapshot bytes/s vs recorded baseline (+15 % fails, the owner's client tolerance).
+  Measured: round avg 2.7–3.6 ms, p99 6.4–10.4 ms, 81.5 kB/s per client, largest message 14.2 kB [M].
+  `scripts/perf-budget.ts [--record]`, baseline `perf-baseline.json`; verify stages `perf-budget`, `bot-metrics`.
+- **F-TEL-07 — combat replay.** `combatReplay.test.ts` + `replay/combatReplayRunner.ts` (fresh process per run, seeded
+  `Math.random`, recorded movement/dash/skill inputs, sha256 per tick of every message except the wall-clock `time`):
+  replay = identical on every tick for warrior/ranger/mage; a one-second input change diverges exactly at the change
+  with all earlier ticks equal; another seed diverges. Verify stage `combat-replay` (≈30 s).

@@ -21,6 +21,8 @@
     "licenses:audit": "tsx scripts/license-audit.ts",
     "content:ids": "tsx scripts/content-ids.ts",
     "originality:check": "tsx scripts/originality-check.ts",
+    "perf:budget": "tsx scripts/perf-budget.ts",
+    "bot:metrics": "tsx scripts/bot-metrics.ts run",
     "saves:backup": "tsx scripts/restore-saves.ts",
     "test:town-services": "tsx --test server/test/townServices.test.ts"
   },
