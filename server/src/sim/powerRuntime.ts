@@ -495,7 +495,12 @@ export function conditionCount(p: Player, w: RCondition, el: Element | undefined
   if ('channelingIn' in w) return p.channel && w.channelingIn.has(p.channel.skill) ? 1 : 0;
   if ('buff' in w) return getBuff(p, w.buff) ? 1 : 0;
   if ('buffStacks' in w) { const b = getBuff(p, w.buffStacks); return b ? Math.min(w.max, b.st ?? 1) : 0; }
-  if ('perSummon' in w) { let n = 0; for (const s of p.summons) if (s.type === w.perSummon && !s.dead) n++; return Math.min(w.max, n); }
+  if ('perSummon' in w) {
+    // a summon type, the skill that made it, or a tag of that skill (perSummon: 'device' counts Sentries, snares, mortars)
+    const idx = p.ctx.powers.index; let n = 0;
+    for (const s of p.summons) if (!s.dead && (s.type === w.perSummon || s.skill === w.perSummon || idx.get(s.skill)?.has(w.perSummon as SkillTag))) n++;
+    return Math.min(w.max, n);
+  }
   if ('standingStill' in w) return p.moving ? 0 : 1;
   if ('inOwnGround' in w) return p.inOwnGround ? 1 : 0;
   if ('element' in w) return el && w.element.includes(el) ? 1 : 0;

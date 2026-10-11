@@ -14,6 +14,9 @@ import { createMob } from '../src/sim/monsters';
 import { buildCtx } from '../src/sim/playerctx';
 import { spawnProj, updateProjectiles } from '../src/sim/projectiles';
 import { strikeMob } from '../src/sim/damage';
+import { powerDefense } from '../src/sim/powerActions';
+import { ownMultiplier } from '../src/sim/powerRuntime';
+import { spawnSummon } from '../src/sim/summons';
 import type { Mob, Strike } from '../src/sim/types';
 import type { Session } from '../src/net/session';
 
@@ -82,5 +85,22 @@ test('condition targetWithin: a target condition that holds for enemies at most 
     assert(Math.abs(ratio - 1.5) < 0.01, `+50% within 200 units only (${ratio.toFixed(3)})`);
     assert.deepEqual(validateContent({ ...CONTENT_DATA }).filter((x) => x.includes('targetWithin')), []);
     assert.equal(powerText([{ kind: 'skillMore', skills: ['hungering_arrow'], pct: 30, when: { targetWithin: 150 } }]).includes('within 150 units'), true);
+  } finally { inst.destroy(); }
+});
+
+test('perSummon counts a summon type, the skill that made it, or a tag of that skill', () => {
+  const { inst, p } = world('ranger', [
+    { kind: 'damageTaken', pct: -10, when: { perSummon: 'companion', max: 2 } },
+    { kind: 'conditional', when: { perSummon: 'summon', max: 4 }, skills: ['multishot'], bucket: 'own', pct: 10 },
+  ]);
+  try {
+    spawnSummon(inst, p, 'wolf', 'companion', p.x + 40, p.y, Infinity);
+    spawnSummon(inst, p, 'bat', 'companion', p.x - 40, p.y, Infinity);
+    spawnSummon(inst, p, 'sentry', 'sentry', p.x, p.y + 40, 30000);
+    const idx = p.ctx.powers.index;
+    assert(idx.get('companion')?.has('summon') && idx.get('sentry')?.has('summon'), 'both skills carry the Summon tag');
+    assert(Math.abs(ownMultiplier(p, 'multishot') - 1.3) < 1e-9, 'Summon tag: wolf + bat + sentry = 3 × 10%');
+    const f = powerDefense(inst, p, null);
+    assert(Math.abs(f - 0.8) < 1e-9, `−10% per companion, two companions (${f})`);
   } finally { inst.destroy(); }
 });

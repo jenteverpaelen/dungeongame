@@ -4,7 +4,7 @@
 // them (powerTextIssues). Recipes: docs/rework/depth/FOUNDATION.md §5.
 
 import { GROUND_DEFS } from './data/grounds';
-import { NUMERIC_MOD_KEYS, SKILLS, type SkillMods, type SkillTag, type TagQuery } from './data/skills';
+import { NUMERIC_MOD_KEYS, SKILLS, SKILL_TAGS, type SkillMods, type SkillTag, type TagQuery } from './data/skills';
 import type { Element, StatId } from './types';
 
 /**
@@ -72,7 +72,7 @@ export type Condition =
   | { channeling: string | true | TagQuery } // while channelling (that skill, any skill, or a skill matching the tags)
   | { buff: string }                       // while you have this buff
   | { buffStacks: string; max: number }    // × stacks of this buff, capped (e.g. 6 % per stack, max 5)
-  | { perSummon: string; max: number }     // × your active summons of this type, capped
+  | { perSummon: string; max: number }     // × your active summons of this type, skill or tag (e.g. 'device'), capped
   | { standingStill: true }
   | { standingStillMs: number }            // not moved for at least N ms
   | { noEnemyWithin: number }              // no living enemy within N units (tracked per tick while used)
@@ -319,7 +319,7 @@ const conditionText = (c: Condition): string =>
   : 'targetLifeAbovePct' in c ? `against enemies above ${c.targetLifeAbovePct}% Life`
   : 'targetFartherThan' in c ? `against enemies more than ${c.targetFartherThan} units away`
   : 'targetWithin' in c ? `against enemies within ${c.targetWithin} units`
-  : 'perSummon' in c ? `for each active ${skillName(c.perSummon)} (max ${c.max})`
+  : 'perSummon' in c ? ((SKILL_TAGS as readonly string[]).includes(c.perSummon) ? `for each of your active ${cap(c.perSummon)} summons (max ${c.max})` : `for each active ${skillName(c.perSummon)} (max ${c.max})`)
   : 'buffStacks' in c ? `per stack of ${skillName(c.buffStacks)} (max ${c.max})`
   : 'element' in c ? `with ${c.element.map(cap).join(' or ')} damage`
   : 'buff' in c ? `while ${skillName(c.buff)} is active`
