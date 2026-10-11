@@ -39,7 +39,10 @@
   }
 
   window.__perfReplay = (b64, opts = {}) => new Promise((resolve, reject) => {
-    const { warmupMs = 3000, gl = true, censusEveryMs = 500, census: doCensus = true } = opts;
+    // waitBakes: also wait until no hero sheet is queued for baking (time-sliced per frame, so its length depends on the
+    // machine; window.__bakes from client/src/main.ts), so every run measures the same baked scene
+    const { warmupMs = 3000, gl = true, censusEveryMs = 500, census: doCensus = true, waitBakes = false } = opts;
+    const baking = () => waitBakes && (window.__bakes?.pending ?? 0) > 0;
     const bin = atob(b64), bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
     const dv = new DataView(bytes.buffer), recs = [];
@@ -58,11 +61,11 @@
     };
     pump();
     // Measurement window: after the warm-up, until the last message.
-    const frames = [], samples = []; let counters = null, started = false, last = 0, lastCensus = 0, allFrames = 0;
+    const frames = [], samples = []; let counters = null, started = false, measuredFrom = -1, last = 0, lastCensus = 0, allFrames = 0;
     const tick = (t) => {
       const el = t - t0; allFrames++;
-      if (el >= warmupMs) {
-        if (!started) { started = true; if (gl) counters = glCounters(); last = t; lastCensus = t - censusEveryMs; }
+      if (el >= warmupMs && (started || !baking())) {
+        if (!started) { started = true; measuredFrom = el; if (gl) counters = glCounters(); last = t; lastCensus = t - censusEveryMs; }
         else frames.push(t - last);
         last = t;
         if (doCensus && t - lastCensus >= censusEveryMs) { samples.push(census()); lastCensus = t; }
@@ -74,7 +77,7 @@
       const mx = (k) => samples.length ? Math.max(...samples.map((x) => x[k])) : 0;
       const per = (k) => counters ? +(counters.c[k] / n).toFixed(1) : 0;
       resolve({
-        frames: frames.length, allFrames, seconds: +((end - warmupMs) / 1000).toFixed(1), hidden: document.hidden,
+        frames: frames.length, allFrames, measuredFromMs: Math.round(measuredFrom), seconds: +((end - Math.max(warmupMs, measuredFrom)) / 1000).toFixed(1), hidden: document.hidden,
         fps: +(1000 / (frames.reduce((x, y) => x + y, 0) / n)).toFixed(1), p50: q(0.5), p95: q(0.95), p99: q(0.99),
         drawCalls: per('draw'), textureBinds: per('bindTexture'), textureUploads: +(counters ? (counters.c.texImage2D + counters.c.texSubImage2D) / n : 0).toFixed(2),
         bufferKB: counters ? +(counters.c.bufferBytes / n / 1024).toFixed(1) : 0, bufferUploads: per('bufferUploads'), programs: per('useProgram'),

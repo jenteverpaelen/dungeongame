@@ -19,6 +19,7 @@ import { Game } from './game/game';
 import { startPreviews } from './game/previews';
 import { cmd, session } from './net/api';
 import { initArt } from './render/art';
+import { bakeStats } from './render/art/player';
 import { App } from './ui/App';
 import { ui } from './ui/store';
 import { preferences } from './game/preferences';
@@ -78,7 +79,8 @@ async function boot() {
   const auto = qs.get('autostart');
   if (auto) session.start(auto, (qs.get('class') as 'warrior' | 'ranger' | 'mage') ?? 'warrior');
 
-  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences, __graphics: graphics });
+  // __bakes: hero sheets still queued for baking (the client perf gate measures once they are done)
+  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences, __graphics: graphics, __bakes: bakeStats });
 }
 
 void boot();

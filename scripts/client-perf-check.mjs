@@ -25,8 +25,7 @@ const replayPage = await fs.readFile(path.join(root, 'scripts/perf/replay-page.j
 const load = async (f) => zlib.gunzipSync(await fs.readFile(path.join(root, 'scripts/perf', f))).toString('base64');
 const SCENES = [
   { key: 'rift', label: 'reference fight', file: 'rift-fight.rec.gz', warmupMs: 3000, expect: (r) => r.mobs > 20 ? null : `${r.mobs} monsters on average (expected ~27)` },
-  // 25 new looks are baked over the first seconds (time-sliced per frame): measure once they are done
-  { key: 'town', label: 'town crowd', file: 'town-crowd.rec.gz', warmupMs: 8000, expect: (r) => r.heroes > 20 ? null : `${r.heroes} heroes on average (expected 25)` },
+  { key: 'town', label: 'town crowd', file: 'town-crowd.rec.gz', warmupMs: 3000, expect: (r) => r.heroes > 20 ? null : `${r.heroes} heroes on average (expected 25)` },
 ];
 const COMPOSITED = new Set(budgets.compositedProperties);
 
@@ -103,7 +102,8 @@ try {
     await page.eval(`window.__hfRec = ${JSON.stringify(await load(scene.file))}; true`);
     let anims = [];
     const t = await traced(page, async () => {
-      const run = page.eval(`__perfReplay(window.__hfRec, { warmupMs: ${scene.warmupMs}, census: true, censusEveryMs: 500 })`);
+      // new looks are baked time-sliced (how long depends on the machine): measure from when the queue is empty
+      const run = page.eval(`__perfReplay(window.__hfRec, { warmupMs: ${scene.warmupMs}, waitBakes: true, census: true, censusEveryMs: 500 })`);
       await wait(scene.warmupMs + 5000);
       anims = await runningAnimations(page);
       return run;
@@ -114,9 +114,10 @@ try {
       drawCalls: r.drawCalls, textureBinds: r.textureBinds, textureUploads: r.textureUploads, bufferKB: r.bufferKB,
       visible: r.visible, renderables: r.renderables, graphics: r.graphics, domPaintsPerFrame: t.paintsPerFrame,
       mobs: r.mobs, heroes: await page.eval('(() => { let n = 0; for (const e of __game.world.entities.values()) if (e.kind === "player") n++; return n; })()'),
-      frames: r.frames, fps: r.fps, p95: r.p95, cpuMsPerFrame: t.cpuMsPerFrame, transitionsSeen: transitions, hidden: r.hidden,
+      frames: r.frames, measuredFromMs: r.measuredFromMs, fps: r.fps, p95: r.p95, cpuMsPerFrame: t.cpuMsPerFrame, transitionsSeen: transitions, hidden: r.hidden,
     };
     if (r.hidden) problems.push(`${scene.label}: the page was hidden; requestAnimationFrame paused, numbers are meaningless`);
+    if (!(r.frames >= 200)) problems.push(`${scene.label}: only ${r.frames} frames measured (bakes still running at ${r.measuredFromMs} ms of the recording?)`);
     const wrong = scene.expect(m);
     if (wrong) problems.push(`${scene.label}: ${wrong}: replay broken? re-record (see the header of this file)`);
     checkBudget(scene.label, m, budgets[scene.key]);
@@ -134,7 +135,7 @@ const t = report.idleTown;
 if (t) console.log(`idle town: ${t.domPaintsPerFrame} DOM paints/frame over ${t.frames} frames, ${t.animations} running animations`);
 for (const s of SCENES) {
   const f = report[s.key]; if (!f) continue;
-  console.log(`${s.label} (${f.mobs} monsters, ${f.heroes} heroes): ${f.drawCalls} draw calls, ${f.textureBinds} texture binds, ${f.textureUploads} texture uploads, ${f.bufferKB} KB buffer uploads, ${f.visible} visible objects, ${f.renderables} renderables, ${f.domPaintsPerFrame} DOM paints per frame`);
+  console.log(`${s.label} (${f.mobs} monsters, ${f.heroes} heroes; measured from ${(f.measuredFromMs / 1000).toFixed(1)} s): ${f.drawCalls} draw calls, ${f.textureBinds} texture binds, ${f.textureUploads} texture uploads, ${f.bufferKB} KB buffer uploads, ${f.visible} visible objects, ${f.renderables} renderables, ${f.domPaintsPerFrame} DOM paints per frame`);
   console.log(`  informative (not gated): ${f.fps} fps, p95 ${f.p95} ms, CPU ${f.cpuMsPerFrame.main} ms main thread + ${f.cpuMsPerFrame.gpu} ms GPU process per frame${f.transitionsSeen.length ? `; transitions running: ${f.transitionsSeen.join(', ')}` : ''}`);
 }
 if (problems.length) { console.error(`CLIENT PERF CHECK FAILED:\n  ${problems.join('\n  ')}`); process.exitCode = 1; }

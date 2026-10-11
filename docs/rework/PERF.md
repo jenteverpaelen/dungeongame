@@ -54,6 +54,9 @@ GPU-process main thread ≈ 11.6 ms CPU per frame [M] — the busiest thread: We
 passes 2.8 (9 per frame) · swaps / shared images 1.6. **Hiding the whole HUD** cut the GPU process by 64 % and the main
 thread by 31 % (paired, 3 rounds) [M]: on this machine the HUD costs more than the game scene.
 
+Draw calls: of the fight's 122, about 85 came from the y-sorted props alternating a normal body and an additive glow —
+each crystal or torch ended two batches [M, instruction dump of the render groups].
+
 Why Pixi rebuilt everything each frame: any `zIndex` write marks the render group as structurally changed — and the
 y-sorted entity layer plus every hero rig (part depths follow the 3D pose) write new values every frame, even when the
 draw order stays the same. With a single render group (the stage) one change anywhere rebuilt the whole scene.
@@ -69,6 +72,7 @@ draw order stays the same. With a single render group (the stage) one change any
 | H3 | Number formatting reuses `Intl.NumberFormat` instances (`toLocaleString` is specified as exactly that) | `shared/src/format.ts`, test `shared/test/format.test.ts` | 0.67 ms/frame at 4× in the profile | identical (the test compares every case) |
 | H4 | Minimap monster dots set their shared styles once per paint | `Minimap.tsx` | H1–H4 together: a further −3 % main thread at 1× (paired) | identical strokes |
 | H5 | Cooldown sweep is its own compositor layer (`will-change: transform`), so its 10 Hz repaint no longer re-rasterises the drop-shadowed skill icons | `client/src/ui/styles/hud.css` | GPU process −13 %, fps +5 % (paired, 3 rounds) | ≤ 12/255 in 1,381 px of the sweep wedge; promoting the seconds too moved their glyphs 1 px, so they stay unpromoted |
+| B1 | Additive light without its own batch: prop glows and torch flames use an alpha-0 premultiplied twin of their fx texture under normal blending (premultiplied blending makes that exactly additive on the opaque game canvas), so the y-sorted props stop alternating normal / additive batches | `client/src/render/art/fx.ts` (`additiveAsNormal`), `art/map.ts` | rift draw calls **122 → 35**; GPU process −12 %, main −2 %, 4× fps +5 % (paired vs R1–H5, 3 rounds) | frozen-frame readback, twins vs the original textures with 'add': 2 of 8.3 M channel values differ, by 1/255 |
 | D1 | First run on a software rasteriser (SwiftShader / llvmpipe / Basic Render Driver) starts on the Low preset | `client/src/game/quality.ts`, `main.ts` | SwiftShader fight 2.7 → 3.6 fps (+33 %) | Low preset (only on those machines, only without saved settings) |
 
 **Bug found on the way (pre-existing, fixed):** in a crowded town (more than 40 active entities) remote heroes are
@@ -83,43 +87,40 @@ a real GPU (−1 to −4 % CPU: this fight is CPU-bound on rig and scene work, n
 
 ## 5. Before / after (production builds; before = `claude/town-ui-rework` f6ccb15, after = this branch)
 
-**Paired, concurrent** (both builds replay the same recording at the same time; median of per-round ratios; values are
-the lowest round, inflated because two browsers share the machine) [M]:
+**Paired, concurrent** (`scripts/perf/ab.mjs`: both builds replay the same recording at the same time; median of the
+per-round ratios; the values shown are one representative round, inflated because two browsers share the machine) [M]:
 
-| Scene | Metric | Before | After | Change |
+| Scene | Metric | Before | After | Change (median ratio) |
 |---|---|---|---|---|
-| Rift fight, 1× (4 rounds) | renderer main thread, CPU ms / frame | 8.02 | 7.44 | **−8 %** |
-| | GPU-process main thread, CPU ms / frame | 8.51 | 7.26 | **−15 %** |
-| | fps | 74.5 | 83.0 | **+10 %** |
-| Rift fight, 4× CPU throttle | fps | 11.4 | 12.2 | +7 % |
-| | main thread CPU ms / frame | 13.4 | 11.7 | −10 % |
-| Town crowd, 25 heroes, 1× (3 rounds) | renderer main thread | 16.8 | 14.2 | **−15 %** |
-| | GPU process | 12.6 | 11.9 | −5 % |
-| | fps | 39.3 | 44.7 | **+17 %** |
-| Town crowd, 4× | fps | 4.2 | 4.2 | +6 % (median ratio; rounds 4–11 fps) |
+| Rift fight, 1× (4 rounds) | renderer main thread, CPU ms / frame | 6.52 | 6.02 | **−9 %** |
+| | GPU-process main thread, CPU ms / frame | 6.03 | 4.77 | **−25 %** |
+| | fps | 88.5 | 90.8 | **+7 %** |
+| Rift fight, 4× CPU throttle | fps | 19.3 | 21.6 | **+12 %** |
+| | main thread CPU ms / frame | 10.9 | 9.8 | −11 % |
+| Town crowd, 25 heroes, 1× (3 rounds) | renderer main thread | 15.6 | 12.9 | **−15 %** |
+| | GPU process | 11.7 | 11.1 | −5 % |
+| | fps | 64.4 | 77.2 | **+16 %** |
+| Town crowd, 4× | fps | 11.0 | 11.9 | +8 % |
 
-**Sequential, interleaved** (A, B, B, A, A, B; medians of 3; absolute values on this machine) [M]:
+**Sequential runs are not evidence here.** Two interleaved sequential batches (A, B, B, A, A, B; medians of 3) disagreed:
+rift 4× went 19.0 → 25.5 fps in one and 27.4 → 22.9 in the other, single runs ranging 16–39 fps for the same build.
+On this shared machine only the paired ratios hold still (round-to-round spread ≤ 3 %).
 
-| Scene | Before | After |
-|---|---|---|
-| Rift 1× | 130 fps, p95 13.2 ms, main 5.4 ms, GPU process 5.3 ms | 131 fps, p95 13.5 ms, main 5.0 ms, GPU process 4.7 ms |
-| Rift 4× | **19.0 fps, p95 92 ms** | **25.5 fps, p95 66 ms** |
-| Town crowd 1× / 4× | 73 fps / 12.3 fps | 72 fps / 10.2 fps — load on the machine dominated these runs (per-run spread ±25 %); the paired ratios above are the evidence |
-
-At 1× the fight is past 120 fps on this machine either way (the owner's 34 fps was the pre-7bfa8c2 HUD on the dev
+At 1× the fight runs past 120 fps on this machine either way (the owner's 34 fps was the pre-7bfa8c2 HUD on the dev
 server; the unminified dev build is slower than what ships). The 4× and crowd numbers are what low-end PCs feel.
 
-**GPU-process trace, rift 1× (CPU ms per frame, single runs)** [M]: DOM raster 1.52 → **0.72**; HUD render passes
-2.29 → 2.24; WebGL 2.13 → 2.23; swaps 0.56 → 0.57; total 7.88 → 7.07.
+**GPU-process trace, rift 1× (CPU ms per frame, single runs, before B1)** [M]: DOM raster 1.52 → **0.72**; HUD render
+passes 2.29 → 2.24; WebGL 2.13 → 2.23; swaps 0.56 → 0.57; total 7.88 → 7.07. B1 then took WebGL work down with the
+draw calls (GPU process −12 % paired).
 
-**Per-frame work** (deterministic, the gate's numbers) [M]:
+**Per-frame work** (deterministic, the gate's counters) [M]:
 
 | | Draw calls | Texture binds | Buffer KB | Visible objects | Renderables |
 |---|---|---|---|---|---|
-| Rift before → after | 120 → 123 | 130 → 129 | 198 → 188 | 904 → 904 | 486 → 486 |
-| Town crowd before → after | 273 → 287 | 522 → 520 | 569 → 520 | 2,410 → 2,389 | 1,899 → 1,878 |
+| Rift before → after | 120 → **35** | 129 → **60** | 199 → 189 | 905 → 904 | 486 → 486 |
+| Town crowd before → after | 279 → 288 | 522 → 512 | 594 → 519 | 2,385 → 2,395 | 1,899 → 1,878 |
 
-**Look unchanged** [M]: frozen-frame readbacks in §4 (R2, H5); side-by-side captures at the same replay moment in
+**Look unchanged** [M]: frozen-frame readbacks in §4 (R2, H5, B1); side-by-side captures at the same replay moment in
 `docs/rework/shots/perf/` (`before-*` / `after-*`: town, rift fight, full-set hero close-up, town crowd).
 
 ## 6. Budgets and the gate (`npm run verify`, stage `client-perf`)
@@ -131,13 +132,15 @@ server (own port, isolated `DATA_DIR`, debug off), opens headless Chrome at 1920
 |---|---|---|
 | Idle town: DOM Paint events per frame | ≤ 0.1 | 0 |
 | Idle town and both replays: running CSS keyframe animations | transform / opacity / translate / rotate / scale only | 24 running, all compositor-only |
-| Rift fight (replayed): draw calls / texture binds / texture uploads / buffer KB per frame | ≤ 150 / 160 / 0.5 / 240 | 122 / 129 / 0 / 187 |
+| Rift fight (replayed): draw calls / texture binds / texture uploads / buffer KB per frame | ≤ 50 / 80 / 0.5 / 240 | 36 / 60 / 0 / 189 |
 | Rift fight: visible display objects / renderables | ≤ 1,100 / 600 | 905 / 486 |
-| Rift fight: DOM paints per frame | ≤ 1.0 | 0.64 |
-| Town crowd (replayed, 25 heroes): draws / binds / uploads / KB | ≤ 330 / 640 / 1.0 / 540 | 272 / 524 / 0.15 / 432 |
-| Town crowd: visible / renderables / DOM paints | ≤ 3,000 / 2,400 / 0.5 | 2,476 / 1,961 / 0.01 |
+| Rift fight: DOM paints per frame | ≤ 1.0 | 0.57 |
+| Town crowd (replayed, 25 heroes): draws / binds / uploads / KB | ≤ 330 / 660 / 0.5 / 540 | 272 / 505–544 / 0 / 426 |
+| Town crowd: visible / renderables / DOM paints | ≤ 3,000 / 2,400 / 0.5 | 2,466 / 1,950 / 0.01 |
 
-fps, p95 and thread CPU per frame are printed but never gated. The run also fails on page errors, a hidden page, or a
+Both replays start measuring after a 3 s warm-up and once no hero sheet is queued for baking (`window.__bakes`;
+baking is time-sliced, so how long it takes depends on the machine). fps, p95 and thread CPU per frame are printed but
+never gated. The run also fails on page errors, a hidden page, or a
 replay that no longer shows its scene (protocol change: re-record with `scripts/perf/record-fight.mjs` /
 `record-town.mjs`, see their headers). Raising a budget needs the new measurement and the reason in this file.
 
@@ -145,31 +148,35 @@ replay that no longer shows its scene (protocol change: re-record with `scripts/
 idle-town paints 2.91 per frame (budget 0.1), fight 5.05 (1.0), crowd 5.76 (0.5), and names `xpShine` (`left`),
 `hm-pulse` (`color`, `box-shadow`) and `keyPulse` (`box-shadow`) [M].
 
-Targets beyond the gate (not met yet, see §8): reference fight at 4× ≥ 30 fps (now 25.5); renderer main thread ≤ 4 ms
+Targets beyond the gate (not met yet, see §8): reference fight at 4× ≥ 30 fps (now about 20–25, see §5); renderer main thread ≤ 4 ms
 per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 
 ## 7. Rules for art, VFX and HUD work (pass to the art-direction, Ranger and Mage agents)
 
 1. **No `filters` on scene objects** (blur, glow, drop shadow, colour matrix): each is an off-screen pass per frame.
    Glows are pre-baked sprites with `blendMode = 'add'` from the shared `fx()` sheet.
-2. **Keep a rig's additive parts together** in draw order (one effects container, as `PlayerArt.fxAdd`): every switch
+2. **Additive fx sprites drawn straight to the game canvas** (props, monsters, ground and world VFX): pass them through
+   `additiveAsNormal()` (`art/fx.ts`). Same pixels, no batch break — it took the rift fight from 122 to 35 draw calls.
+   Not inside anything that is rendered to a transparent texture first (pose-cached crowd heroes, `cacheAsTexture`):
+   there the twin and 'add' differ where the glow covers nothing.
+3. **Keep a rig's additive parts together** otherwise, in draw order (one effects container, as `PlayerArt.fxAdd`): every switch
    between normal and additive blending ends a batch (one more draw call). Hide unused glows with `visible = false`,
    not `alpha = 0` (alpha-0 sprites still split batches).
-3. **No per-frame `Graphics` rebuilds** (`clear()` + redraw re-tessellates on the CPU). Draw shapes once, bake them to a
+4. **No per-frame `Graphics` rebuilds** (`clear()` + redraw re-tessellates on the CPU). Draw shapes once, bake them to a
    texture (`bake.ts`), then move, tint and scale sprites.
-4. **No new texture per event or per item.** New canvases and textures are uploads plus extra binds; use the shared
+5. **No new texture per event or per item.** New canvases and textures are uploads plus extra binds; use the shared
    atlases (`fx()`, the glyph atlas, the hero sheet). The town crowd already binds ~520 textures per frame; series
    weapon drawings and gear-effect canvases are the main source: bake them into the hero sheet or one shared atlas.
-5. **Pool, don't churn.** Adding or removing children, or toggling `visible`, rebuilds that render group's draw
+6. **Pool, don't churn.** Adding or removing children, or toggling `visible`, rebuilds that render group's draw
    instructions (since R2: only the hero's own group, or the effect layer). Keep pooled sprites in the tree.
-6. **zIndex** is free in the scene's entity layer and inside a hero's body and `fxAdd` (lazily sorted). Anywhere else
+7. **zIndex** is free in the scene's entity layer and inside a hero's body and `fxAdd` (lazily sorted). Anywhere else
    a zIndex write makes the parent sorted and rebuilds its group every time: use child order, or `lazyDepthSort(c)`.
-7. **Particles** scale with `effectsFactor()` (Graphics → effects density).
-8. **HUD**: animate only transform and opacity (the gate fails otherwise); no `filter` on elements whose content
+8. **Particles** scale with `effectsFactor()` (Graphics → effects density).
+9. **HUD**: animate only transform and opacity (the gate fails otherwise); no `filter` on elements whose content
    changes; anything updating at 10 Hz or more over expensive content gets its own layer (`will-change: transform`),
    and compare the pixels (promoted text can shift 1 px); never assign `ctx.font` per frame; never call
    `toLocaleString` or `new Intl.*` per frame (use `shared/src/format.ts`).
-9. Before handing over: `npm run build`, then `DATA_DIR=<tmp> node scripts/client-perf-check.mjs`.
+10. Before handing over: `npm run build`, then `DATA_DIR=<tmp> node scripts/client-perf-check.mjs`.
 
 ## 8. What is left (needs a decision or a bigger change)
 
@@ -188,8 +195,10 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
    when a crowd arrives.
 5. Town life (residents, ambient motion) and NPC rigs: about 2 ms + 1.8 ms per frame in the busy square (contended
    profile).
-6. Texture binds in crowds (rule 4) and the per-hero render-group batch breaks (+14 draws in the crowd).
-7. 4× CPU: 25.5 fps (was 19). 30–60 fps there needs item 1 plus rig work (items 3–5).
+6. Texture binds in crowds (rule 5), the per-hero render-group batch breaks (+14 draws in the crowd) and the heroes' own
+   additive parts: the crowd still draws in 272 calls. Twins (B1) would cut that, but remote heroes are rendered into
+   transparent textures when pose-cached (over 40 entities), where twins look different; needs a cache-aware switch.
+7. 4× CPU: +12 % (paired). 30–60 fps there needs item 1 plus rig work (items 3–5).
 8. Integrated GPUs on HiDPI screens: High renders at 2× (four times the pixels of 1×). Starting them on render scale 1
    would help fill rate [I], but there is no integrated GPU here to measure it: not done.
 
