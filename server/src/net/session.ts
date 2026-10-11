@@ -190,7 +190,7 @@ export class Session implements PlayerLink {
     const now = Date.now();
     if (this.playMark) this.save.stats.playMs += now - this.playMark;
     this.playMark = now;
-    this.afkMeter.record(this.save, now);
+    this.afkMeter?.record(this.save, now); // optional: tests build sessions from the prototype alone
     this.persistDirty = false;
     this.lastSaveAt = now;
     await saveCharacter(this.save);
@@ -198,7 +198,7 @@ export class Session implements PlayerLink {
 
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
-    if (this.state === 'ready') this.afkMeter.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
+    if (this.state === 'ready') this.afkMeter?.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
     if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
     this.observe(now);
   }
