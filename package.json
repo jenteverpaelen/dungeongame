@@ -18,6 +18,9 @@
     "town:check": "tsx scripts/check-town.ts",
     "content:check": "tsx scripts/check-content.ts",
     "licenses:check": "tsx scripts/license-notices.ts",
+    "licenses:audit": "tsx scripts/license-audit.ts",
+    "content:ids": "tsx scripts/content-ids.ts",
+    "originality:check": "tsx scripts/originality-check.ts",
     "saves:backup": "tsx scripts/restore-saves.ts",
     "test:town-services": "tsx --test server/test/townServices.test.ts"
   },

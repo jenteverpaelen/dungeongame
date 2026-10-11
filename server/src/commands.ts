@@ -16,6 +16,7 @@ import { QUESTS } from '../../shared/src/data/quests';
 import { questState, writeQuestState } from '../../shared/src/quests';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
 import { transferStash } from '../../shared/src/stash';
+import { MATERIAL_NAMES } from '../../shared/src/materialNames';
 import { itemProtectionReason, PROTECTED_ITEM_OPS } from '../../shared/src/itemProtection';
 import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
 import { isTargetPriority } from '../../shared/src/targetPriority';
@@ -78,7 +79,8 @@ const slotArg = (a: Args, k: string): Slot => {
   return v as Slot;
 };
 
-const MAT_NAME: Record<MaterialId, string> = { scrap: 'Scrap', dust: 'Arcane Dust', crystal: 'Veiled Crystals', soul: 'Forgotten Souls', deathsBreath: "Death's Breath" };
+// Same display names as the client (shared/src/materialNames.ts); the old list here was Diablo III's material names.
+const MAT_NAME: Record<MaterialId, string> = MATERIAL_NAMES;
 const MAT_IDS = Object.keys(MAT_NAME) as MaterialId[];
 const CUBE_SLOT_NAMES = ['weapon', 'armor', 'jewelry'] as const;
 const fmt = (n: number) => Math.round(n).toLocaleString('en-US');

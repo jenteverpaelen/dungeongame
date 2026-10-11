@@ -477,7 +477,7 @@ const scenes: Record<string, () => void> = {
       { lk: 'gem', name: 'Amethyst', gem: 'amethyst:2', amount: 2 },
       { lk: 'gem', name: 'Diamond', gem: 'diamond:4', amount: 4 },
       { lk: 'globe', name: 'Health Globe' },
-      { lk: 'mat', name: "Death's Breath", amount: 1 },
+      { lk: 'mat', name: 'Cinder Essence', amount: 1 },
     ];
     const cx = 20, cy = 60;
     let lootIds: number[] = [];

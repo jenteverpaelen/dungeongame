@@ -1,0 +1,372 @@
+{
+  "normalization": "lowercase; ’→'; non [a-z0-9' ] → space; collapse spaces",
+  "note": "SHA-256 of normalised terms; checked against 1–3-word n-grams of Hearthfall display strings by scripts/originality-check.ts. Hints are coarse on purpose; generic English words are not listed.",
+  "terms": [
+    {
+      "h": "85609556108407c455c36a252c562639f2c562cb8177fb9aa512612eaad4b1c1",
+      "words": 1,
+      "game": "D3",
+      "kind": "lore term"
+    },
+    {
+      "h": "0169028ba73f42b1c585e957ee73dc113384317a5e08d8fd04e6ef6c7b552738",
+      "words": 1,
+      "game": "D3",
+      "kind": "character name"
+    },
+    {
+      "h": "840129ef43354e065c08be2ad895bdb673a74ca032f9e697dec39ab37195c8a5",
+      "words": 2,
+      "game": "D3",
+      "kind": "system"
+    },
+    {
+      "h": "666a6d82b3b283b2fe622616e47ef6c899a6aac3c0a0e7b19ce19f7bfb11a45b",
+      "words": 1,
+      "game": "D2/D3",
+      "kind": "lore term"
+    },
+    {
+      "h": "f80753fc689c593a9a43698028543f30f6e0abe07a46e98bc4a47faa27e4c6e5",
+      "words": 1,
+      "game": "D2/D3",
+      "kind": "lore term"
+    },
+    {
+      "h": "2345b0d2fd69db3bfa9ade868140bbc4796d36c2161f8f74e30160993be30bac",
+      "words": 1,
+      "game": "D3/D4",
+      "kind": "difficulty name"
+    },
+    {
+      "h": "60280e12933862e2f1552575bcce9c74a7890c9f3148c031237651eb5d5a1a71",
+      "words": 1,
+      "game": "D3/D4",
+      "kind": "system name"
+    },
+    {
+      "h": "aa426040f8e41c072a5cd8febce74b439cde9af7bf38db987b792a31cbb81454",
+      "words": 2,
+      "game": "D3",
+      "kind": "mode"
+    },
+    {
+      "h": "4ede1582f316503d911b2c72eb27c2ffc4838d66a7781cf919ad2323ebf6adcb",
+      "words": 2,
+      "game": "D3",
+      "kind": "boss role"
+    },
+    {
+      "h": "12c3f6c390841ee397650904fc4b560aae74fe498576353116e3e18dbcd6b689",
+      "words": 2,
+      "game": "D3",
+      "kind": "mode"
+    },
+    {
+      "h": "0fe0cbd49bc8b4d06e95494dfa855fe8bc3e25c128bdd54fbfe1ef10143f8232",
+      "words": 2,
+      "game": "D3/D4",
+      "kind": "monster"
+    },
+    {
+      "h": "eb8d57b662845ec90ea7ae66dacf910c9a95a074bae604a4a7d49432eb4e0b57",
+      "words": 2,
+      "game": "D3",
+      "kind": "pickup"
+    },
+    {
+      "h": "2c3a1fa0f1fac93989118e56df12c14fd74e38b188c0192017828eef5d1dfe15",
+      "words": 2,
+      "game": "D3",
+      "kind": "material"
+    },
+    {
+      "h": "978ef309e1f5e54f4d231b1e66527b496306797c2d0b0948ce79171605e19a69",
+      "words": 2,
+      "game": "D3",
+      "kind": "material"
+    },
+    {
+      "h": "5196f24df498cc522356da8d7788932a917f130353924fda1979bc8141ff3661",
+      "words": 2,
+      "game": "D3/D4",
+      "kind": "material"
+    },
+    {
+      "h": "227f3d49a1d7c5e15814fdf180760d773c4bae22fb230b9b6467676142d49d96",
+      "words": 2,
+      "game": "D3",
+      "kind": "material"
+    },
+    {
+      "h": "b5d44fd414ace331e7b11bf78a1614989a7cd3bb0df2313b0104b217f820a4be",
+      "words": 2,
+      "game": "D3",
+      "kind": "material"
+    },
+    {
+      "h": "92b8c2bb159738b59bcceeae7ed9f8f58d0d92a413f0cb73cf079b94bac8f4f5",
+      "words": 2,
+      "game": "D3",
+      "kind": "currency"
+    },
+    {
+      "h": "8f9839fd55052b150c6aec97fb983190f063d0d40b8077da1fb6e1735c73e60e",
+      "words": 1,
+      "game": "D2/D3",
+      "kind": "place/material"
+    },
+    {
+      "h": "13db48018e208918e8413cd845e416975099262198577c55cd9c4e0ee2f6e7ad",
+      "words": 2,
+      "game": "D3",
+      "kind": "map object"
+    },
+    {
+      "h": "99e6bb17adda037cfb28ad8baafa092fad2b547680f48d1771dd68059b626f80",
+      "words": 2,
+      "game": "D3",
+      "kind": "map object"
+    },
+    {
+      "h": "ff3d08a1e5aca82101a68bec582778dffce88eb6a74789bc3fa0371c73336b6d",
+      "words": 2,
+      "game": "D3",
+      "kind": "map object"
+    },
+    {
+      "h": "c0b15d9af5a6b92b4532022f8317c2fa637c860bb09b8188c4481337a9d1756f",
+      "words": 2,
+      "game": "D3",
+      "kind": "map object"
+    },
+    {
+      "h": "69232718fe19351e795ad54daa2c042e0fc992b0256483d55dfe798f1016cc42",
+      "words": 2,
+      "game": "D3",
+      "kind": "map object"
+    },
+    {
+      "h": "5262bed38cd76686cdaa0852104712a835a8cd0d51e5de2dcf01be45db0b4fbb",
+      "words": 2,
+      "game": "D3",
+      "kind": "elite affix"
+    },
+    {
+      "h": "f2053d754ab30f51f1e322f0b78b5fe639efdde3f36a7ddfe0ae580aef883757",
+      "words": 2,
+      "game": "D3",
+      "kind": "elite affix"
+    },
+    {
+      "h": "ab4e2cda64ad6b8091b4acd724091a01380c61015658d9fd04c33b5bf719fff3",
+      "words": 2,
+      "game": "D3",
+      "kind": "elite affix"
+    },
+    {
+      "h": "2d069fdffbabcca527c9334051f77d765f857703e23472b7ff02ead53471d695",
+      "words": 2,
+      "game": "D3",
+      "kind": "elite affix"
+    },
+    {
+      "h": "b829a76e02a4392335c204f38decd823098590fca780414f3795e0a561d1b678",
+      "words": 2,
+      "game": "D3",
+      "kind": "gem rank"
+    },
+    {
+      "h": "fd635fc4c977c38c2c328e3f7317fb5da18b28f7845bd7693b82dfc68107d6ac",
+      "words": 1,
+      "game": "D3",
+      "kind": "gem rank"
+    },
+    {
+      "h": "7069b9764432c74fa1709d9cce23d34e868217f07c06c33961a9f68ac9bb200e",
+      "words": 2,
+      "game": "D3",
+      "kind": "gem rank"
+    },
+    {
+      "h": "58ef1f1a091deb147e711864b01a4942db3349f89ffb43b09fd414db04697324",
+      "words": 2,
+      "game": "D3",
+      "kind": "gem rank"
+    },
+    {
+      "h": "7ef7cd8196fdcd4229c739d7637785110f15a69f14330288c48541cc48d146b9",
+      "words": 1,
+      "game": "D3",
+      "kind": "service"
+    },
+    {
+      "h": "d94b921cb1813b3a5e9e8b32327cd6b3c8f40685c37748ddf4d63315351fd472",
+      "words": 3,
+      "game": "D3",
+      "kind": "cube recipe"
+    },
+    {
+      "h": "968be4f11ad1f4bb4032d6be5ae1d1baa685996deb9f7fb4bc85f2410345eab8",
+      "words": 3,
+      "game": "D3",
+      "kind": "cube recipe"
+    },
+    {
+      "h": "11943c1fe211f97702e71271fc0def78d10a25ade584de4cbc98642c2cf9784e",
+      "words": 3,
+      "game": "D3",
+      "kind": "cube recipe"
+    },
+    {
+      "h": "c95cc8b21ba29675ddc65baedfdb23a1aaf8dba74a48a3d7f43233096fc58082",
+      "words": 1,
+      "game": "D3",
+      "kind": "item name"
+    },
+    {
+      "h": "46d8bc8d13fc527512cfa520ad3c2231d9ff61ceef24d698fc0b9737565de36c",
+      "words": 2,
+      "game": "D3",
+      "kind": "item quality"
+    },
+    {
+      "h": "28889e00eb4239b1c1cfe428cff55d34b973a04d4233bd1b560701a85555e6de",
+      "words": 2,
+      "game": "D3",
+      "kind": "mode"
+    },
+    {
+      "h": "7de0e6f0726aa9c5a8339550246b7f97ec12385831fea3c1774fd102f061a474",
+      "words": 2,
+      "game": "D3",
+      "kind": "system"
+    },
+    {
+      "h": "f640fe82221b97791d21daf4c99b263059bc59c09d96182fb68f1ea07e097f30",
+      "words": 2,
+      "game": "D3",
+      "kind": "item"
+    },
+    {
+      "h": "62b388c326961dfecc500239e09263d6e8117c9e6465f1b2351180349caef9e6",
+      "words": 2,
+      "game": "PoE",
+      "kind": "currency"
+    },
+    {
+      "h": "696acd2aa987d68d6624ab556c408742be562e5f95ef163c708958ecc61ae172",
+      "words": 2,
+      "game": "PoE",
+      "kind": "currency"
+    },
+    {
+      "h": "b02b017041285b2da9b6c303dd128185fa344068e959209b4d0db25cc8cc45bf",
+      "words": 2,
+      "game": "PoE",
+      "kind": "currency"
+    },
+    {
+      "h": "0aae9cc022246c5f1bf98f05a87ff68410337a83e36992519739d082c7e88aa9",
+      "words": 3,
+      "game": "PoE",
+      "kind": "system"
+    },
+    {
+      "h": "34f62330dab329804641a03da8056ae7a71e0010b541adef9dffbd0eda773ef8",
+      "words": 1,
+      "game": "PoE2",
+      "kind": "item"
+    },
+    {
+      "h": "8436fb17e84d19b2dcb7d73742bb069efdf6083eb79412c4fc802f1e2d65206e",
+      "words": 1,
+      "game": "PoE",
+      "kind": "place"
+    },
+    {
+      "h": "81070b484039cdf779afb8c04118a873533b16e08fd14dc38e5c1e9e09f7f7b1",
+      "words": 1,
+      "game": "PoE",
+      "kind": "character"
+    },
+    {
+      "h": "6db0016cefe7f67e98b75b6df7a3a9466465607245c251e07129547bd9106c6b",
+      "words": 1,
+      "game": "PoE",
+      "kind": "item"
+    },
+    {
+      "h": "00daee5a709c7069e7e43dd8bbbd6cac16cc6fad48d6390ba230c9329ae73e62",
+      "words": 2,
+      "game": "D4",
+      "kind": "mode"
+    },
+    {
+      "h": "645e1c3777e25ac3e9040872dad1600651d909eec005780b7be7623907467c1d",
+      "words": 1,
+      "game": "D4",
+      "kind": "event"
+    },
+    {
+      "h": "55b07b5d59c5f5458160efd33b64bc8b3e384cb6e1fb40e6031e809b7355c9a9",
+      "words": 2,
+      "game": "D4",
+      "kind": "mode"
+    },
+    {
+      "h": "529755a3bf42f939bdddf6e4f84e489dfe98290467fa244a0bd1cf5d1b4adce9",
+      "words": 1,
+      "game": "D4",
+      "kind": "material"
+    },
+    {
+      "h": "5e55d5aea7592e374dbe528e1eca7e707dd49b549a75d2652e8ada0be1d64827",
+      "words": 2,
+      "game": "D4",
+      "kind": "difficulty"
+    },
+    {
+      "h": "30147cff7dd88b64c6f4db19831771cd8ce621713c63191fa2b15be9b673af7e",
+      "words": 3,
+      "game": "D4",
+      "kind": "system"
+    },
+    {
+      "h": "19c9e57b26b8c1da7309ff281f5bf3599e3d980d763392328f7e80d49ea78c0c",
+      "words": 2,
+      "game": "D4",
+      "kind": "currency"
+    },
+    {
+      "h": "1d5a2d116427e7ee1d2ba11d40d7f5998074af9016293a260702170ada37fed1",
+      "words": 1,
+      "game": "Torchlight",
+      "kind": "class"
+    },
+    {
+      "h": "60e8cb23b58257c629b8ddd878341dcd12c438318f26c7f797662ac3e2998f40",
+      "words": 1,
+      "game": "WoW",
+      "kind": "item binding"
+    },
+    {
+      "h": "700ff9749cf91cd8082f0157034eab51274af836d7d0322070d9daf3adf4ecd8",
+      "words": 2,
+      "game": "WoW",
+      "kind": "ability"
+    },
+    {
+      "h": "451aae7c8ad273d2d50ab886f954f881e0e596f24277b547f1844c6d3b3ca980",
+      "words": 1,
+      "game": "Blizzard",
+      "kind": "item/product"
+    },
+    {
+      "h": "a55b7155882c079f0f736be2085a8402e2e486ff1d52f57c5690f1c596487dbf",
+      "words": 1,
+      "game": "D1-D3",
+      "kind": "place"
+    }
+  ]
+}

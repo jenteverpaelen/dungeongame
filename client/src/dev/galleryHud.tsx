@@ -179,7 +179,7 @@ function mockState() {
       { id: 33, lk: 'item', name: "Akkhan's Helm", rarity: 'set', at: now - 3000 },
       { id: 34, lk: 'item', name: 'Doom Visage', rarity: 'rare', at: now - 2400 },
       { id: 35, lk: 'gem', name: 'Royal Ruby', at: now - 1800 },
-      { id: 36, lk: 'mat', name: 'Arcane Dust', amount: 3, at: now - 1200 },
+      { id: 36, lk: 'mat', name: 'Wisp Powder', amount: 3, at: now - 1200 },
       { id: 37, lk: 'globe', name: 'Health Globe', at: now - 600 },
     ],
     afk: state === 'afk' ? { ms: (3 * 3600 + 12 * 60) * 1000, xp: 18_400_000, gold: 214_380, kills: 2830, mats: { scrap: 71, dust: 59, crystal: 18, soul: 0, deathsBreath: 0 }, zone: 'whispering_glade', levels: 4 } : null,

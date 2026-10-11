@@ -544,7 +544,7 @@ function goblin(inst: Instance, m: Mob, dtMs: number) {
 
 function goblinEscape(inst: Instance, m: Mob) {
   inst.emit({ e: 'aoe', v: 'explode', x: Math.round(m.x), y: Math.round(m.y), r: 70, d: 600, el: elIdx('arcane'), s: m.id }, m.x, m.y);
-  for (const p of inst.playersNear(m.x, m.y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'The Treasure Goblin escaped!', kind: 'warn' });
+  for (const p of inst.playersNear(m.x, m.y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'The Hoardling escaped!', kind: 'warn' });
   inst.removeMob(m);
   packMemberGone(inst, m);
 }

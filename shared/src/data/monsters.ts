@@ -1,5 +1,6 @@
 // Monster roster. Families map to code-drawn art (client/src/render/monsterArt.ts).
-// Elite structure follows Diablo 3: Champion packs (blue), Rare + minions (yellow), Rift Guardians, Treasure Goblins.
+// Elite structure (packs, a leader with minions, a rift boss, a fleeing treasure carrier) is a genre pattern; display
+// names are Hearthfall's own (docs/rework/partials/NAME-REGISTER.md, 2026-10-11). Ids are unchanged for saves.
 
 import type { Element } from '../types';
 import { DASH } from '../constants';
@@ -36,7 +37,7 @@ export const MONSTERS: Record<string, MonsterDef> = {
   magma_brute: { id: 'magma_brute', name: 'Magma Brute', family: 'brute', hp: 4, dmg: 2.5, speed: 68, radius: 34, attack: { kind: 'melee', range: 56, windupMs: 700, cooldownMs: 1900, element: 'fire', aoe: 80 }, weight: 2, themes: ['ashen'], colors: { body: 0x4a3a35, accent: 0xff7a1a, eye: 0xffe066 }, scale: 1.55 },
   ash_wisp: { id: 'ash_wisp', name: 'Ash Wisp', family: 'wisp', hp: 0.55, dmg: 1.6, speed: 140, radius: 13, attack: { kind: 'explode', range: 26, windupMs: 450, cooldownMs: 0, element: 'fire', aoe: 70 }, flying: true, weight: 4, themes: ['ashen', 'glade'], colors: { body: 0xd8d0ff, accent: 0x8e7bff, eye: 0x2a1a4a }, scale: 1 },
   // Specials
-  treasure_goblin: { id: 'treasure_goblin', name: 'Treasure Goblin', family: 'goblin', hp: 7, dmg: 0, speed: 215, radius: 18, attack: { kind: 'none', range: 0, windupMs: 0, cooldownMs: 0, element: 'physical' }, weight: 0, themes: [], colors: { body: 0x7fae4a, accent: 0xd4af37, eye: 0xffe066 }, scale: 1.1 },
+  treasure_goblin: { id: 'treasure_goblin', name: 'Hoardling', family: 'goblin', hp: 7, dmg: 0, speed: 215, radius: 18, attack: { kind: 'none', range: 0, windupMs: 0, cooldownMs: 0, element: 'physical' }, weight: 0, themes: [], colors: { body: 0x7fae4a, accent: 0xd4af37, eye: 0xffe066 }, scale: 1.1 },
   gorgemaw: { id: 'gorgemaw', name: 'Gorgemaw, the Swelling', family: 'boss_slime', hp: 1, dmg: 3, speed: 85, radius: 60, attack: { kind: 'melee', range: 90, windupMs: 800, cooldownMs: 2200, element: 'poison', aoe: 140 }, weight: 0, themes: ['glade'], colors: { body: 0x5fae3a, accent: 0x2e5a1a, eye: 0xff3b3b }, scale: 1 },
   vexis: { id: 'vexis', name: 'Vexis the Ashen', family: 'boss_imp', hp: 1, dmg: 3, speed: 110, radius: 50, attack: { kind: 'melee', range: 80, windupMs: 700, cooldownMs: 2000, element: 'fire', aoe: 130 }, weight: 0, themes: ['ashen'], colors: { body: 0xb22d1a, accent: 0x2a0d08, eye: 0xffe066 }, scale: 1 },
 };
@@ -77,17 +78,18 @@ MONSTERS.signal_heart={...MONSTERS.kiln_heart,id:'signal_heart',name:'Signal Hea
 MONSTERS.saltglass_skimmer={...MONSTERS.brine_crab,id:'saltglass_skimmer',name:'Saltglass Skimmer',family:'shrimp',weight:0};
 MONSTERS.rimehorn={...MONSTERS.siltusk,id:'rimehorn',name:'Rimehorn',family:'goat',weight:0,colors:{...MONSTERS.bonewalker.colors}};
 
-// Elite affixes (Diablo 3 names where generic; behaviour implemented in server/src/sim/elites.ts).
+// Elite traits. Behaviour lives in server/src/sim/elites.ts; ids stay stable, display names are original (the earlier
+// names were Diablo III's exact affix list — see docs/rework/partials/NAME-REGISTER.md).
 export interface EliteAffixDef { id: string; name: string; color: number; desc: string }
 export const ELITE_AFFIXES: Record<string, EliteAffixDef> = {
-  fast: { id: 'fast', name: 'Fast', color: 0xffffff, desc: 'Moves and attacks faster.' },
-  extra_health: { id: 'extra_health', name: 'Extra Health', color: 0xffffff, desc: 'Has much more life.' },
-  molten: { id: 'molten', name: 'Molten', color: 0xff7a1a, desc: 'Leaves a burning trail and explodes on death.' },
-  frozen: { id: 'frozen', name: 'Frozen', color: 0x7fd3ff, desc: 'Summons ice orbs that explode and freeze.' },
-  plagued: { id: 'plagued', name: 'Plagued', color: 0x8fd16a, desc: 'Creates pools of poison beneath you.' },
-  electrified: { id: 'electrified', name: 'Electrified', color: 0xd6c2ff, desc: 'Releases sparks when hit.' },
-  vortex: { id: 'vortex', name: 'Vortex', color: 0xc39bff, desc: 'Pulls you towards them.' },
-  mortar: { id: 'mortar', name: 'Mortar', color: 0xff9a3c, desc: 'Lobs explosive shells at range.' },
+  fast: { id: 'fast', name: 'Swift', color: 0xffffff, desc: 'Moves and attacks faster.' },
+  extra_health: { id: 'extra_health', name: 'Hulking', color: 0xffffff, desc: 'Has much more life.' },
+  molten: { id: 'molten', name: 'Kilnborn', color: 0xff7a1a, desc: 'Leaves a burning trail and explodes on death.' },
+  frozen: { id: 'frozen', name: 'Rimebound', color: 0x7fd3ff, desc: 'Summons ice orbs that explode and freeze.' },
+  plagued: { id: 'plagued', name: 'Festering', color: 0x8fd16a, desc: 'Creates pools of poison beneath you.' },
+  electrified: { id: 'electrified', name: 'Crackling', color: 0xd6c2ff, desc: 'Releases sparks when hit.' },
+  vortex: { id: 'vortex', name: 'Undertow', color: 0xc39bff, desc: 'Pulls you towards them.' },
+  mortar: { id: 'mortar', name: 'Bombarding', color: 0xff9a3c, desc: 'Lobs explosive shells at range.' },
   faulted: { id:'faulted',name:'Faulted',color:0xff9a3c,desc:'Marks three ground fractures in a fixed line. Step sideways before they erupt; solid cover blocks the line.' },
 };
 

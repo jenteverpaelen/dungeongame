@@ -1,0 +1,1 @@
+{ "note": "Screens whose visible text comes entirely from client/src/i18n. content:check fails on inline text in these files.", "files": [] }

@@ -16,6 +16,7 @@ const sharedTests = (await fs.readdir(path.join(root, 'shared/test')))
 const stages = [
   ['verify-contract', ['--test', 'scripts/verification-status.test.mjs']],
   ['license-notices', ['--import', 'tsx', '--test', 'scripts/license-notices.test.ts']],
+  ['license-audit', ['--import', 'tsx', 'scripts/license-audit.ts']],
   ['typecheck', ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.json', '--noEmit']],
   ['shared', ['--import', 'tsx', '--test', ...sharedTests]],
   ['foundations', ['--import', 'tsx', '--test', 'server/test/foundations.test.ts', 'server/test/itemProtection.test.ts', 'server/test/saveMigrations.test.ts']],

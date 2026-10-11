@@ -61,7 +61,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
     }
     touchChar(p);
   }
-  if (m.tier === 5) for (const p of inst.playersNear(m.x, m.y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'Treasure Goblin slain!', kind: 'info' });
+  if (m.tier === 5) for (const p of inst.playersNear(m.x, m.y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'Hoardling slain!', kind: 'info' });
   if (inst.rift) inst.rift.onKill(m, killer);
   inst.dungeon?.killed(m);
 }

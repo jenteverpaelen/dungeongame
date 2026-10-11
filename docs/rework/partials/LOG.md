@@ -31,3 +31,20 @@
   scrub. `telemetrySchema.test.ts` 4/4; existing telemetry test updated for `s`. Doc: TELEMETRY-SCHEMA.md.
 - **F-OPS-05 (part) — HTTP headers.** nosniff, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, COOP on every
   response; CSP on documents. `securityHardening.test.ts` 3/3.
+- **Merge** `claude/town-ui-rework` @8d1e29b (lead's tooltip + rarity palette, depth bible) — clean.
+- **F-CON-03 / F-PLT-08 — names and licences.** `NAME-REGISTER.md` (lead's expanded scope): applied in my lane — elite
+  traits (D3's exact list) → Swift/Hulking/Kilnborn/Rimebound/Festering/Crackling/Undertow/Bombarding, Treasure Goblin →
+  Hoardling (+ notices, target-priority text), server material messages used D3's material names → shared original names;
+  owner picks B1–B6 (difficulty ladder, Paragon, Cube, rift family, third artisan, health globe; 3 options each); old→new
+  table + file list for the lead (shrines, Hellforge/Hunter's Mark/Witching Cord, two sets, gem ranks, sheet trio, 17
+  affix phrasings, binding text); kept-generic decisions; design copies (Paragon 2.0 structure). Every proposal screened
+  against the hashes [M]. Gate: `scripts/originality-check.ts` (61 hashed terms + Codex's D3 label hashes, n-grams of all
+  literals/JSX text) in content:check with `docs/originality/allowlist.json` ratchet (133 reasoned entries; new uses
+  fail). Licences: `scripts/license-audit.ts` → `docs/licenses/FULL-TREE.md` (44 packages; MPL only for build-only
+  lightningcss; finding: tsx/esbuild run with `npm start` but are missing from the notices) + `AUDIT-2026-10-11.md`;
+  new verify stage `license-audit`. No assets outside docs [M].
+- **F-CON-01 — registries.** `scripts/content-ids.ts` + `content-ids.lock.json` (362 save-referenced ids in 17
+  registries; removal/rename fails unless retired with a reason), runtime schema rules (id spelling, trimmed names ≤48,
+  unique display names per registry, rune names per skill), localization ratchet `scripts/i18n-check.ts` +
+  `i18n-localized.json` (listed files may not contain inline JSX text or literal aria-label/title/placeholder/alt). All
+  three run in `npm run content:check`.
