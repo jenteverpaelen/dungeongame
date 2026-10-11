@@ -843,7 +843,10 @@ placeholders.
 * **Ground `carryDot`.** Proc ground `{ def, at, carryDot: true }` stores the strongest dot of the proc's enemy (for
   example the killed one) on the ground (`GroundFx.dot`).
   * The ground's status `{ kind: 'carriedDot', pct }` gives each enemy it reaches a fresh copy at `pct` % strength
-    (default 100) through `addOwnedDot`, so dot rules apply.
+    (default 100), added as it is: the stored dot already carries your dot rules (strength, `also`, element), so they
+    are not applied twice.
+  * An enemy that already has that dot of yours (same skill and kind) at least as strong keeps its own; a weaker copy never
+    replaces or stretches it.
   * Without a carried dot it does nothing.
   * `carriedDot` is rejected outside grounds.
   * A status with `origin: 'owner'` is applied from the player, not the ground, so `carriedDot` must not set it.

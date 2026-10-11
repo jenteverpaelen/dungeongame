@@ -5,7 +5,7 @@
 
 import type { StatusKind } from '../../../shared/src/powers';
 import { makeDot } from './damage';
-import { addOwnedDot, ccFactor, chillMob, dragMob, freezeMob, knockbackMob, stunMob } from './effects';
+import { addDot, addOwnedDot, ccFactor, chillMob, dragMob, freezeMob, knockbackMob, stunMob } from './effects';
 import type { Instance } from './instance';
 import { firePowerProcs, powerState, type RStatus } from './powerRuntime';
 import type { Mob, MobPowerStatus, Player } from './types';
@@ -53,11 +53,15 @@ function applyStatusAs(inst: Instance, p: Player, m: Mob, s: RStatus, fromX: num
       break;
     }
     case 'carriedDot': {
-      // A copy of the dot a ground carries (`ref.dot`, set by placeGround with carryDot), at pct % strength.
+      // A copy of the dot a ground carries (`ref.dot`, set by placeGround with carryDot), at pct % strength. The copy is
+      // already shaped by your dot rules (strength, also / element), so it is added as it is; an enemy that already has
+      // this dot of yours at least as strong keeps its own (a weaker copy never replaces or stretches it).
       const carried = (ref as { fx?: { dot?: import('./types').Dot } } | null)?.fx?.dot;
       if (!carried) return;
       const k = (typeof s.pct === 'number' ? s.pct : 100) / 100;
-      addOwnedDot(p, m, { ...carried, perTick: carried.perTick * k, leftMs: carried.durMs, nextMs: carried.tickMs });
+      const copy = { ...carried, perTick: carried.perTick * k, leftMs: carried.durMs, nextMs: carried.tickMs };
+      if (m.dots.some((d) => d.owner === copy.owner && d.kind === copy.kind && d.skill === copy.skill && d.perTick >= copy.perTick)) return;
+      addDot(m, copy);
       break;
     }
     case 'weaken': {

@@ -165,7 +165,7 @@ test('dual dots: a Bleed that also Burns (fire), the strongest dot, and a ground
     { kind: 'proc', on: 'kill', when: { any: [{ targetState: 'bleeding' }, { targetState: 'burning' }] }, ground: { def: 'fx_cinder_pool', at: 'target', carryDot: true } },
   ]);
   try {
-    const a = mob(60, 0), b = mob(90, 0);
+    const a = mob(60, 0), b = mob(90, 0), c = mob(40, 30);
     addOwnedDot(p, a, makeDot(inst, p, strike('rend'), 'bleed', 4000, 500));
     addOwnedDot(p, a, makeDot(inst, p, { ...strike('fx_weak'), coef: 0.1 }, 'poison', 4000, 500));
     const d = a.dots.find((x) => x.kind === 'bleed')!;
@@ -174,6 +174,9 @@ test('dual dots: a Bleed that also Burns (fire), the strongest dot, and a ground
     assert.equal(conditionCount(p, { targetState: 'bleeding' }, undefined, a), 1, 'and still as bleeding');
     assert.notEqual(mobStatusFlags(a) & mobStatusFlags({ ...a, dots: [{ ...d, kind: 'burn', also: undefined }] } as Mob), 0, 'clients see the burn flag');
     assert.equal(strongestDot(p, a)?.kind, 'bleed', 'the strongest dot is the Rend bleed (highest damage per second)');
+    addOwnedDot(p, c, makeDot(inst, p, strike('rend'), 'bleed', 4000, 500));
+    const cDot = c.dots[0];
+    cDot.leftMs = 500; // nearly run out: a weaker copy would normally replace it
     a.hp = 1; strikeMob(inst, p, a, strike('cleave'));
     assert(a.dead, 'killed');
     const pool = inst.grounds.find((g) => g.fx?.def.id === 'fx_cinder_pool');
@@ -182,6 +185,7 @@ test('dual dots: a Bleed that also Burns (fire), the strongest dot, and a ground
     const got = b.dots.find((x) => x.owner === p.id && x.kind === 'bleed');
     assert(got, 'an enemy standing in the pool caught the dot');
     assert.equal(got.perTick, d.perTick * 0.5, 'at 50% strength');
+    assert(c.dots.length === 1 && c.dots[0] === cDot && cDot.perTick === d.perTick, 'a weaker copy never replaces your stronger dot');
   } finally { inst.destroy(); undo(); }
   assert.match(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'carriedDot', pct: 50 } }]).join(), /carriedDot only works on a ground/, 'carriedDot only in grounds');
   assert.match(valid([{ kind: 'dot', dot: 'bleed', alsoKind: 'bleed' }]).join(), /alsoKind must differ/, 'alsoKind must differ');
