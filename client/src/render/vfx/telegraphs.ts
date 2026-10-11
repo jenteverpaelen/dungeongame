@@ -61,7 +61,7 @@ export class Telegraphs {
     const extras: Effect[] = [];
 
     switch (ev.v) {
-      case 'meteor': extras.push(this.meteorFall(ev.x, ev.y, ev.r, d, el)); break;
+      case 'meteor': extras.push(this.meteorFall(ev.x, ev.y, ev.r, d, el, ev.a)); break;
       case 'frozen_orb': extras.push(this.frostOrb(ev.x, ev.y, d)); V.sound('warn', ev.x, ev.y, 0.6); break;
       case 'mortar': extras.push(this.mortarShell(ev.x, ev.y, d)); break;
       case 'lob': extras.push(this.lobStone(ev.x, ev.y, d)); V.sound('warn',ev.x,ev.y,0.6); break;
@@ -149,7 +149,8 @@ export class Telegraphs {
     root.addChild(base, fill);
     const col = st.color;
     const r = ev.r;
-    if (ev.a !== undefined) {
+    // a meteor's `a` (Meteor · Ember Tail) only steers the falling rock; its marker stays a circle
+    if (ev.a !== undefined && ev.v !== 'meteor') {
       // Directional. `w` <= PI is a cone's full angle, a larger `w` is a line's width; no `w` = 60° cone.
       const a = ev.a;
       const w = ev.w !== undefined && ev.w > 0 ? ev.w : Math.PI / 3;
@@ -205,15 +206,20 @@ export class Telegraphs {
 
   // ─────────────────────────── extras ───────────────────────────
 
-  /** A burning rock streaking in from the top-left, landing exactly when the telegraph completes. */
-  private meteorFall(x: number, y: number, r: number, d: number, el: number): Effect {
+  /** A burning rock streaking in from the top-left, landing exactly when the telegraph completes. With `low` (Meteor ·
+   *  Ember Tail: the angle from the caster toward the impact) it streaks in LOW along that direction instead. */
+  private meteorFall(x: number, y: number, r: number, d: number, el: number, low?: number): Effect {
     const V = this.V, s = V.sys, T = s.T;
     const P = pal(el);
     const cold = el === EL_COLD;
     const fallDur = Math.min(0.9, d * 0.92);
     const start = d - fallDur;
     const size = 30 + r * 0.32;
-    const H = 560, DX = -250;
+    // start offset of the rock (ground x / y) and height: high from the top-left, or low along the caster's line
+    const lowA = low !== undefined && Number.isFinite(low);
+    const H = lowA ? 150 : 560, DX = lowA ? -Math.cos(low!) * 380 : -250, DY = lowA ? -Math.sin(low!) * 380 : 0;
+    // flame tongues point back along the rock's screen motion (motion = (-DX, -DY + H) on screen)
+    const tail = Math.atan2(DY - H, DX) + Math.PI / 2;
     let age = 0;
     let landed = false;
     let whistled = false;
@@ -239,10 +245,10 @@ export class Telegraphs {
         shadow.setAlpha(0.12 + st * 0.3);
         if (age < start) { rock.setAlpha(0); glow.setAlpha(0); return true; }
         const e = easeIn(t) * 0.75 + t * 0.25;
-        const rx = x + DX * (1 - e), rz = H * (1 - e);
-        rock.place(rx, y, rz + size * 0.2);
+        const rx = x + DX * (1 - e), ry = y + DY * (1 - e), rz = H * (1 - e);
+        rock.place(rx, ry, rz + size * 0.2);
         rock.setScale(size); rock.rotation += dt * 5; rock.setAlpha(1);
-        glow.place(rx, y, rz + size * 0.2);
+        glow.place(rx, ry, rz + size * 0.2);
         glow.setScale(size * 3.2 * (0.9 + Math.random() * 0.2)); glow.setAlpha(0.85);
         // Trail: fire tongues, embers and smoke along the path.
         acc += dt;
@@ -250,14 +256,17 @@ export class Telegraphs {
         while (acc > every && t < 1) {
           acc -= every;
           const back = rand(0, 1);
-          const tx = rx - DX / H * 30 * back, tz = rz + 30 * back + size * 0.2;
-          const fl = s.aAdd.add(T.flame, tx + rand(-6, 6), y, rand(0.18, 0.32));
+          const len = Math.hypot(DX, DY, H) || 1;
+          // low streak: the trail lies back along the flight line (toward the caster); the classic fall keeps its offsets
+          const tx = lowA ? rx + DX / len * 30 * back : rx - DX / H * 30 * back, ty = lowA ? ry + DY / len * 30 * back : ry;
+          const tz = (lowA ? rz + H / len * 30 * back : rz + 30 * back) + size * 0.2;
+          const fl = s.aAdd.add(T.flame, tx + rand(-6, 6), ty, rand(0.18, 0.32));
           fl.z = tz + rand(-6, 6); fl.anchorY = 0.6; fl.w0 = size * rand(0.8, 1.2); fl.w1 = size * 0.2; fl.k = 1.6; fl.fo = 0.2;
-          fl.rotation = Math.atan2(-H, -DX) + Math.PI / 2 + rand(-0.15, 0.15);
+          fl.rotation = (lowA ? tail : Math.atan2(-H, -DX) + Math.PI / 2) + rand(-0.15, 0.15);
           fl.a0 = 0.72;
           fl.tintFade(cold ? P.hot : 0xffc868, P.main);
-          if (Math.random() < 0.5) s.smoke(tx, y, tz, size * 0.5, size * 1.4, cold ? 0xbfe6f5 : 0x4a3e38, rand(0.5, 0.8), 0.4, 10);
-          if (Math.random() < 0.4) s.ember(tx, y, tz, P.main, rand(0.4, 0.7), 5, 20);
+          if (Math.random() < 0.5) s.smoke(tx, ty, tz, size * 0.5, size * 1.4, cold ? 0xbfe6f5 : 0x4a3e38, rand(0.5, 0.8), 0.4, 10);
+          if (Math.random() < 0.4) s.ember(tx, ty, tz, P.main, rand(0.4, 0.7), 5, 20);
         }
         if (t >= 1 && !landed) {
           landed = true;

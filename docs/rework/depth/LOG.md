@@ -166,3 +166,30 @@
 - **Sim tick checks under load (lead request).** `server/test/perfGauge.ts` measures the machine's slowdown in the same
   run, and the three "< 3 ms" tick checks use 3 ms × that load factor (factor 1 on a quiet machine). The 30 s perf
   window is best of up to 3. Proof (passes under load, fails an injected 1.5 / 3 ms slowdown) in FOUNDATION.md §13.11.
+
+## Mage wave (2026-10-11, branch `claude/mage`)
+
+- Content: 12 skills (6 new: Rime Needles, Thrumming Ray, Cinderkin, Rimefield, Stormglass Orb, Orrery), 60 runes,
+  67 / 72 nodes, 14 passives (6 kept + 8 new), 5 sets (Regalia of the Fallen Star redesigned on tags; Glass Concord,
+  Lantern Garden, Hoarfrost Vigil, Hollowstar Choir new), 33 / 34 mage legendaries, 5 data grounds; NAMES.md rune
+  renames (ids unchanged). Details, blocked list (chosen-strength slow: 5 nodes; Rimewalker Slippers: movement-end
+  trigger) and deviations: `MAGE-PILOT.md`.
+- Narrow generic additions (tests in `server/test/engineMage.test.ts`): `Proj.hook`, negative `skillMore` ("less"),
+  `elementStacks.bucket: 'generic'`, rule `statusLonger`; harness-only `resetIdsForHarness`.
+- Parity: `MAGE-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on mage
+  items for the parity-ready mage skill Rime Needles. Fits from measurements: Hollowstar Choir 4 cost 30 → 10 %,
+  Hollowstar Choir 6 refraction 40 → 15 %, Hoarfrost Vigil 2 20/20 → 15/15 %, Spellwright's Circlet once every 0.5 s,
+  Stormglass extra orbs half damage. Mage items only, D3 0.49–3.44 → 0.50–1.40 and D6 2.54 → 1.49.
+- Client: `render/vfx/mage.ts` + routing, poses, three summon rigs, six icons, buff names, sounds, gallery scenes; no
+  filters, no Graphics, pooled particles only. Real-rift fixes: zap load window, orb glow crowding, Conductor tether as
+  the light zap (and a chain). Draw calls per frame stay in the base build's band (`MAGE-PILOT.md` §8).
+- `server/test/sim.ts`: mage endgame kit = the audit's best Fallen Star 6 Meteor kit (set spike ×13–22 [M]); mage
+  L70 Torment II rift is a 30 % progress floor like the warrior's (87.3–93.6 % rift-only, 35.3 % in the full stream).
+  Warrior and ranger field / signature / spike sections byte-identical to 343a5d5 with the mage out of the class loops.
+- **Phase 2 (after merging claude/town-ui-rework 7faa331: engine wave 3).** Lingering Pull, Cold Snap Edge, Absolute
+  Field, Tidal Lock, Clockwinding (72 / 72 nodes) and Rimewalker Slippers (34 / 34 legendaries) on the wave-3 `slow`,
+  scoped `vulnerable` and `dashEnd`; Rimefield 50 % / Deep Chill 60 % chills = chill + slow (Rime Needles keeps 40 %).
+  Stormglass Orb paced by the attack rate (an AP-positive Static Charge loop cast it every tick: 184 casts / 10 s →
+  14). Parity (mage items only): D3 0.50–1.40 → 0.52–1.42, D4 1.00–1.20 → 0.95–1.21, D6 1.49 → 2.14; only Rime Needles
+  stays parity-ready. Pace: the L25+ champion-TTK miss is identical on the merged base (not the mage). Content-id lock
+  updated. Details: `MAGE-PILOT.md` §2, §6, §7.

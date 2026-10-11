@@ -130,8 +130,10 @@ interface BuffMeta { name: string; shape?: string; skill?: SkillDef; color: stri
 const BUFF_META: Record<string, { name: string; shape: string; color: string }> = {
   hellforge: { name: 'Kilnheart', shape: 'flame', color: '#ff8a3d' },
   stridewind: { name: 'Stridewind', shape: 'up', color: '#6fe3d0' },
-  spellsteal: { name: 'Spellsteal', shape: 'star', color: '#c39bff' },
+  // the rune id stays `spellsteal`; its display name follows docs/rework/depth/NAMES.md
+  spellsteal: { name: 'Starve the Light', shape: 'star', color: '#c39bff' },
   deep_freeze: { name: 'Deep Freeze', shape: 'crit', color: '#7fd3ff' },
+  rimewalker: { name: 'Rimewalker (recharging)', shape: 'up', color: '#9fdcff' },
   hunters_mark: { name: "Hunter's Mark", shape: 'crit', color: '#ff6a4a' },
   momentum: { name: 'Momentum', shape: 'up', color: '#ffd24a' },
   wolf_howl: { name: 'Pack Leader', shape: 'up', color: '#d9c7a0' },
@@ -155,6 +157,13 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   iron_root: { name: 'Iron Root', shape: 'shield', color: '#b08850' },
   bellwether: { name: 'Bellwether', shape: 'bolt', color: '#e0b84a' },
   brass_warhorn: { name: 'Brass Warhorn', shape: 'star', color: '#d9a63a' },
+  // Mage M1 (docs/rework/depth/MAGE.md): colours follow the source skill / set motif.
+  ley_anchor: { name: 'Ley Anchor', shape: 'bolt', color: '#b48cff' },
+  glass_ward: { name: 'Glass Concord', shape: 'shield', color: '#7fd3ff' },
+  lantern_ward: { name: 'Lantern Garden', shape: 'shield', color: '#ffb050' },
+  hearth_kin: { name: 'Hearth Kin', shape: 'flame', color: '#ff8a3d' },
+  guardian_coil: { name: 'Guardian Coil', shape: 'shield', color: '#ff5e3a' },
+  full_resonance: { name: 'Full Resonance', shape: 'star', color: '#a07cff' },
 };
 
 function buffMeta(id: string): BuffMeta {

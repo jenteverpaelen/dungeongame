@@ -21,7 +21,8 @@ for (const id of ['battle_rage', 'magic_weapon'] as const) {
         inst.addPlayer(link); const p = inst.players[0], rt = p.ctx.slotted(id)!;
         assert.ok(castSkill(inst, p, rt)); const buff = getBuff(p, id)!; assert.ok(buff);
         const expectedBase = rune === 'marauders_rage' ? 25 : rune === 'force_weapon' ? 20 : 10;
-        assert.equal(buff.dmg, expectedBase + (tiers === 3 ? 5 : 0));
+        // Magic Weapon · Arcane Ward (MAGE.md v2): the damage bonus is halved.
+        assert.equal(buff.dmg, (expectedBase + (tiers === 3 ? 5 : 0)) * (rune === 'arcane_ward' ? 0.5 : 1));
         assert.equal(buff.ms, tiers ? 90000 : 60000);
         const description = describeSkill(skill, rt.mods);
         assert.ok(description.includes(`damage by ${buff.dmg}%`), description);

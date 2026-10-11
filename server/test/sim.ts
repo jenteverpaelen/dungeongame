@@ -177,12 +177,14 @@ const CLASS_LEGS: Record<ClassId, Partial<Record<Slot, string>>> = {
   // the old kit (Eternal Gyre, Bloodwake in the Cube) fed the retired 'Whirlwind applies Rend' 4-piece.
   warrior: { mainhand: 'ninefold_gale', waist: 'furycord_belt', wrists: 'wardkeepers_cuffs', neck: 'signal_horn_charm', ring1: 'ouroboros_loop', ring2: 'rally_knot' },
   ranger: { mainhand: 'thunderhead', offhand: 'sappers_pack', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
-  mage: { mainhand: 'cindervane', waist: 'witching_cord', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
+  // Mage: the measured best Regalia of the Fallen Star 6 Meteor kit of the mage parity audit (MAGE-PARITY.json, shipped
+  // pool); the old kit (Hellforge Talisman, Seal of the Patient Thief) fed the retired Fallen Star bonuses.
+  mage: { mainhand: 'cindervane', wrists: 'runeweaver_cuffs', waist: 'witching_cord', neck: 'craterheart_amulet', ring1: 'static_loop', ring2: 'ouroboros_loop' },
 };
 const CLASS_CUBE: Record<ClassId, (string | null)[]> = {
   warrior: ['millwheel_edge', 'gale_stitched_legguards', 'seething_sigil'],
   ranger: ['hunters_mark', 'gearwright_heart', null],
-  mage: ['thousand_missiles', 'starfall_mantle', null],
+  mage: ['thousand_missiles', 'starfall_mantle', 'rimecourt_band'],
 };
 
 /** Debug-style endgame kit: rares everywhere, full class set, class legendaries, Kanai powers. */
@@ -504,7 +506,7 @@ function skillCoverage() {
             check(el, `${tag}: rune effect fired`);
           }
         } else if (sk.kind === 'channel') {
-          const tickEv = sk.id === 'ironplough' ? 'aoe:plough' : 'aoe:whirl';
+          const tickEv = sk.id === 'ironplough' ? 'aoe:plough' : sk.id === 'thrumming_ray' ? 'aoe:ray' : 'aoe:whirl';
           check(channelSeen && link.n(tickEv) > 4, `${tag}: channel ticks (${link.n(tickEv)})`);
           if (rune === 'dust_devils') check(link.sawSummon('dust_devil') && link.n('dmgsrc:summon:dust_devil') > 0, `${tag}: dust devils spawn and hit`);
         } else {
@@ -524,7 +526,13 @@ function skillCoverage() {
         if (sk.id === 'hydra') check(link.sawSummon('hydra'), `${tag}: hydra summoned`);
         if (sk.id === 'companion') check(link.sawSummon(rune === 'bat' ? 'bat' : rune === 'raven' ? 'raven' : 'wolf'), `${tag}: companion summoned`);
         if (sk.id === 'black_hole') check(link.n('aoe:blackhole') > 0, `${tag}: black hole`);
-        if (sk.id === 'frost_nova') check(link.n('aoe:nova') > 0, `${tag}: nova`);
+        if (sk.id === 'frost_nova') check(link.n('aoe:nova') > 0 || link.n('aoe:nova_cone') > 0, `${tag}: nova`);
+        // Mage M1 skills (docs/rework/depth/MAGE.md §3).
+        if (sk.id === 'rime_needles') check(link.n('proj:needle') > 0 || link.n('proj:needle_spine') > 0, `${tag}: needles fly`);
+        if (sk.id === 'cinderkin') check(link.sawSummon(rune === 'frostkin' ? 'frostkin' : 'cinderkin'), `${tag}: kin summoned`);
+        if (sk.id === 'rimefield') check(link.n('aoe:rimefield') > 0 || link.n('aoe:rimefield_bloom') > 0, `${tag}: field`);
+        if (sk.id === 'stormglass_orb') check(link.n('proj:stormglass') > 0 && link.n('aoe:glass_burst') > 0, `${tag}: orb flies and shatters`);
+        if (sk.id === 'orrery') check(link.n('aoe:orrery') > 0 || link.n('aoe:orrery_wide') > 0, `${tag}: spheres`);
         if (sk.id === 'seismic_slam') check(link.n('aoe:fissure') > 0, `${tag}: fissure`);
         if (sk.id === 'cleave') check(link.n('aoe:cleave') > 0, `${tag}: cleave arc`);
         if (sk.id === 'rain_of_vengeance') check(link.n('aoe:rain') >= 5, `${tag}: rain waves`);
@@ -1654,12 +1662,13 @@ if (!only || only === 'rift') {
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
     riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
     // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×25 over rares against 8 sturdy
-    // targets [M] (its old sets ×255; ranger ×387 and mage ×180 are still on their old sets), so it no longer clears
-    // Torment II in 12 minutes (71.9% [M]) until the Torment ladder is re-fitted (`sim.ts fit`) once every class is on
-    // the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts; here a progress floor guards
-    // against further loss (30%; the seeded stream shifts with any content change — the previous, weaker kit measured
-    // 2.7–44.5% across such shifts).
-    riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' ? 30 : undefined);
+    // targets [M] (its old sets ×255; the ranger's ×387 is still on its old sets), so it no longer clears Torment II in
+    // 12 minutes (71.9% [M]) until the Torment ladder is re-fitted (`sim.ts fit`) once every class is on the budget.
+    // The mage wave put the mage on the budget too (old sets ×180, v2 Fallen Star kit ×13 [M]; 87.3–93.6% of a Torment II
+    // rift in 12 minutes across seeded streams [M], MAGE-PILOT.md §7). The rift flow itself stays covered by the L1 / L20
+    // rifts; here a progress floor guards against further loss (30%; the seeded stream shifts with any content change —
+    // the warrior's previous, weaker kit measured 2.7–44.5% across such shifts, the mage's old-kit run 33.2–71.5%).
+    riftScenario(cls, 70, 5, true, 'ashen', cls !== 'ranger' ? 30 : undefined);
   }
 }
 if (!only || only === 'skills') skillCoverage();

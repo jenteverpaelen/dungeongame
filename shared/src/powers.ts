@@ -36,6 +36,8 @@ export const ITEM_COUNT_CAP: { readonly maxSummons: number; readonly projectiles
 export const SUB_STRIKES: Record<string, { owner: string; tags?: SkillTag[] }> = {
   dust_devil: { owner: 'whirlwind', tags: ['summon', 'area'] },
   cleave_rupture: { owner: 'cleave', tags: ['area'] },
+  // Lantern Garden 6 (MAGE.md §7): ember sprites claw as their own strike; Summon and Burn, never boosted by Cinderkin by name.
+  ember_sprite: { owner: 'cinderkin', tags: ['summon', 'burn'] },
 };
 export const subStrikeOwner = (id: string): string => (Object.hasOwn(SUB_STRIKES, id) ? SUB_STRIKES[id].owner : id);
 
@@ -118,6 +120,7 @@ export type ControlKind = 'stun' | 'freeze' | 'pull';
  * - groundsFollow: your ground effects follow you at `scale` × their radius;
  * - countsAs: for your powers, enemies in state `state` also count as `as` (e.g. chilled counts as stunned);
  * - markSpread: when you mark an enemy, the nearest other enemy within `range` gets the same mark;
+ * - statusLonger: your chills / stuns / freezes last `pct`% longer (Chill Margin: "your Chills last 25% longer").
  * - noDecay: your resource no longer decays out of combat (Fury).
  */
 export type RuleChange =
@@ -128,6 +131,7 @@ export type RuleChange =
   | { id: 'groundsFollow'; scale: number }
   | { id: 'countsAs'; state: TargetState; as: TargetState }
   | { id: 'markSpread'; range: number }
+  | { id: 'statusLonger'; status: 'chill' | 'stun' | 'freeze'; pct: number }
   | { id: 'noDecay' };
 
 /** Monster statuses a power (proc, ground, class code) can apply. */
@@ -175,8 +179,11 @@ export type PowerEffect =
    * (capped at max); `noSetBonus`: only while no set bonus is active (Patchwork Signet pattern).
    */
   | { kind: 'stat'; stat: StatId; value: Amount; perLegendary?: { max: number }; noSetBonus?: boolean }
-  /** Each distinct listed element dealt within the window multiplies hits by (1 + perStack %), D3 Tal Rasha style. */
-  | { kind: 'elementStacks'; elements: Element[]; windowMs: number; perStack: number; buff?: string }
+  /**
+   * Each distinct listed element dealt within the window multiplies hits by (1 + perStack %), D3 Tal Rasha style.
+   * `bucket: 'generic'`: instead +perStack % per element in the generic (additive) damage bucket, carried by the buff.
+   */
+  | { kind: 'elementStacks'; elements: Element[]; windowMs: number; perStack: number; buff?: string; bucket?: 'generic' }
   /** One element of the cycle is boosted at a time; the boost moves on every periodMs (buff `${buffPrefix}_${el}`). */
   | { kind: 'elementCycle'; elements: Element[]; periodMs: number; pct: Amount; buffPrefix: string }
   /**
@@ -373,6 +380,7 @@ const ruleText = (r: RuleChange, who: string): string => {
     case 'groundsFollow': return `Your ground effects follow you at ${Math.round(r.scale * 100)}% size`;
     case 'countsAs': return `For your powers, ${STATE_TEXT[r.state]} enemies also count as ${STATE_TEXT[r.as]}`;
     case 'markSpread': return `Your Marks also apply to the nearest other enemy within ${r.range} units`;
+    case 'statusLonger': return `Your ${({ chill: 'Chills', stun: 'Stuns', freeze: 'Freezes' })[r.status]} last ${r.pct}% longer`;
     case 'noDecay': return 'Your resource no longer decays';
   }
 };
@@ -385,6 +393,7 @@ const ruleTokens = (r: RuleChange, n: (v: number) => string): string[] => {
     case 'groundsFollow': return [n(Math.round(r.scale * 100))];
     case 'countsAs': return [];
     case 'markSpread': return [];
+    case 'statusLonger': return [n(r.pct)];
     case 'noDecay': return [];
   }
 };
@@ -410,9 +419,9 @@ export function describeEffect(e: PowerEffect): string {
     }
     case 'ownMult': return `${names(e)} deal ${Math.round((e.mult - 1) * 100).toLocaleString('en-US')}% increased damage.`;
     case 'conditional': return `${e.skills || e.tags ? names(e) + ' deal' : 'You deal'} ${fmt(e.pct)}% increased damage ${conditionText(e.when)}.`;
-    case 'skillMore': return `${names(e)} deal ${fmt(e.pct)}% more damage${e.when ? ' ' + conditionText(e.when) : ''}.`;
+    case 'skillMore': return `${names(e)} deal ${fmt(e.pct)}% ${typeof e.pct === 'number' && e.pct < 0 ? 'less' : 'more'} damage${e.when ? ' ' + conditionText(e.when) : ''}.`;
     case 'stat': return `${e.noSetBonus ? 'While no set bonus is active, ' : ''}${e.perLegendary ? `each equipped legendary item increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}% (max ${e.perLegendary.max} items)` : `increases ${STAT_TEXT[e.stat] ?? e.stat} by ${fmt(e.value)}${['str', 'dex', 'int', 'vit', 'armor', 'allRes', 'maxResource'].includes(e.stat) ? '' : '%'}`}.`.replace(/^i/, 'I');
-    case 'elementStacks': return `Dealing ${e.elements.map(cap).join(', ')} damage increases your damage by ${e.perStack}% for ${e.windowMs / 1000} seconds per element (max ${e.elements.length}).`;
+    case 'elementStacks': return `Dealing ${e.elements.map(cap).join(', ')} damage ${e.bucket === 'generic' ? 'grants' : 'increases your damage by'} ${e.perStack}%${e.bucket === 'generic' ? ' increased damage' : ''} for ${e.windowMs / 1000} seconds per element (max ${e.elements.length}).`;
     case 'elementCycle': return `Gain a ${fmt(e.pct)}% damage bonus to a single element that rotates every ${e.periodMs / 1000} seconds.`;
     case 'proc': {
       const when = e.on === 'lifeBelow' && e.lifePct !== undefined ? `Falling below ${fmt(e.lifePct)}% Life` : PROC_WHEN[e.on];

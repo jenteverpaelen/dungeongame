@@ -94,7 +94,7 @@ export interface PowerRuntime {
   /** Target conditions that cannot be folded (other predicates, or filtered to skills). */
   vulnTerms: VulnTerm[];
   procs: Partial<Record<ProcTrigger, ProcRuntime[]>>;
-  elementStacks: { elements: readonly Element[]; windowMs: number; perStack: number; buff?: string } | null;
+  elementStacks: { elements: readonly Element[]; windowMs: number; perStack: number; buff?: string; generic?: boolean } | null;
   elementCycle: { elements: readonly Element[]; periodMs: number; pct: number; buffPrefix: string } | null;
   /** Buff ids / prefixes the active powers can grant (others from the power catalogue are dropped on refresh). */
   grants: { ids: Set<string>; prefixes: string[] };
@@ -129,6 +129,8 @@ export interface PowerRuntime {
     aliases: Partial<Record<TargetState, TargetState[]>>;
     /** markSpread range (0 = off). */
     markSpread: number;
+    /** statusLonger: % longer chills / stuns / freezes you apply (summed per status). */
+    longer: { chill: number; stun: number; freeze: number };
     /** Resource never decays (rule noDecay). */
     noDecay: boolean;
   };
@@ -330,7 +332,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
     mods: new Map(), ownStatic: new Map(), ownTerms: [], hitTerms: [], stunFactor: 1, frozenFactor: 1, vulnTerms: [],
     procs: {}, elementStacks: null, elementCycle: null, grants: { ids: new Set(), prefixes: [] }, watchGround: false,
     index, defense: null, projRules: [], dotRules: [], stacking: [], debt: [], deflect: [], statusWatch: false, tracksStill: false, ticks: false,
-    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0, noDecay: false },
+    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0, longer: { chill: 0, stun: 0, freeze: 0 }, noDecay: false },
     nearRange: 0,
   };
   // State aliases first: an aliased stunned / frozen condition can no longer be folded into stunMult / frozenMult.
@@ -380,8 +382,12 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
       }
       case 'elementStacks':
         if (!rt.elementStacks) {
-          rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff };
-          rt.hitTerms.push({ kind: 'stacks', skills: null, pct: e.perStack });
+          // Generic bucket (MAGE.md §7 Fallen Star 4): the stacks buff carries +perStack % per stack (players.ts), no hit term.
+          if (e.bucket === 'generic') rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff, generic: true };
+          else {
+            rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff };
+            rt.hitTerms.push({ kind: 'stacks', skills: null, pct: e.perStack });
+          }
         }
         break;
       case 'elementCycle':
@@ -454,6 +460,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
           case 'groundsFollow': if (!rt.rules.groundsFollow) rt.rules.groundsFollow = r.scale; break;
           case 'countsAs': break; // pre-pass above
           case 'markSpread': rt.rules.markSpread = Math.max(rt.rules.markSpread, r.range); rt.statusWatch = true; break;
+          case 'statusLonger': rt.rules.longer[r.status] += r.pct; break;
           case 'noDecay': rt.rules.noDecay = true; break;
         }
         break;
