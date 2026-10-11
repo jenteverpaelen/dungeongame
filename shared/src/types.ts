@@ -65,6 +65,8 @@ export interface Item {
   affixes: AffixRoll[];
   legendary?: { power: string; value: number; min: number; max: number };
   set?: string;
+  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. Generation / migration is not built yet. */
+  inscription?: string;
   weapon?: { min: number; max: number; aps: number; element: Element };
   armor?: number;
   sockets: (GemSocket | null)[];

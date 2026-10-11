@@ -279,7 +279,7 @@ test('skillMore: unconditional own bucket (rolled), cast-time conditions with st
 });
 
 test('tag queries resolve once per character (equipped runes re-derive the element) for skills, sets and conditions', () => {
-  assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'melee', 'physical', 'primary']);
+  assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'melee', 'physical', 'primary', 'strike'], 'v1 melee implies v2 strike');
   assert(skillTags(SKILLS.cleave, 'gathering_storm').has('lightning') && !skillTags(SKILLS.cleave, 'gathering_storm').has('physical'));
   assert(skillTags(SKILLS.whirlwind, 'dust_devils').has('summon'), 'rune tags join while equipped');
   assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'area'], noneOf: ['melee'] }));

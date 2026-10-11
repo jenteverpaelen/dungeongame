@@ -46,3 +46,43 @@
   3.42 ms / 4.10 ms vs < 3 ms). A/B in the same conditions right after: HEAD 2.21–2.57 ms, baseline 7846e60
   2.59–2.70 ms (sim only) — no regression; the step-4 verify passed all 26 stages on a quieter machine.
 - Re-run of `npm run verify` on cc8fb90: **passed**, all stages (server bot 757/0, sim 382/382, sim tick 2.35 ms).
+
+## Engine wave 2 (2026-10-11)
+
+- Merged `claude/town-ui-rework` (39ab451; later f8b3998 with bible v2) into `claude/depth` (fast-forward). Baselines
+  captured: sim, item audit rows, parity rows.
+- Primitives (FOUNDATION.md §11), all generic data and no-ops for shipped content:
+  - **Procs:** 9 triggers; skill / tag / status / big-hit filters; per-proc ICD; strike / summon / ground / status /
+    deflect actions; chain-depth rule.
+  - **Defensive:** damageTaken (static, conditional on the attacker, per legendary + noSetBonus), firstHit with status
+    reset, cheatDeath, controlImmunity, DR / ccImmune / stacking buffs.
+  - **Conditions:** all / any, targetElite, targetControlledWithinMs (`Mob.ctrlAgo`), standingStillMs, inDebt, marked /
+    weakened.
+  - **Sub-strike tags:** `SUB_STRIKES` now carries `{ owner, tags }`.
+  - **Data grounds:** `GROUND_DEFS` + `groundFx.ts` (tick, onEnter with re-arm, insideFor, pull, follow, maxPerOwner,
+    line shape, origin owner).
+  - **Projectiles:** distance bonus, wall bounce, retarget, seekMarked, deflect.
+  - **Monster statuses** (`status.ts`): weaken, owner-scoped vulnerability, taunt, freeze build-up, bleed / burn, mark;
+    dot rules (stacks, strength, carry-over).
+  - **Stacking:** distance / kills, decay all / one, onMax.
+  - **Resource debt.**
+- Lead request (bible v2):
+  - Tag vocabulary v2: 22 mechanic tags; melee → strike alias.
+  - Rune addTags / removeTags.
+  - `tagGrant` with one fixed resolution order.
+  - `rule` changes: charges, channelMove, buffUpkeep, spendRefund, groundsFollow, countsAs.
+  - Inscriptions registry with the one-active rule (first in `SLOTS` order); validation for all new kinds, grounds and
+    Inscriptions.
+  - The owner's economy preset (50 points at L70 from L21, cap 10) verified on the existing switch; the pilot sets it.
+- Harness: RunOptions `dash` / `lifePct`, `slotCandidates` / `kitLegal` / `searchKit` (coordinate ascent, pluggable
+  score) / `classCoverage`.
+- `ITEM_COUNT_CAP` stays 3 / 2; `USE_BIBLE_COUNT_CAP = false` selects `ITEM_COUNT_CAP_BIBLE` 2 / 2 when flipped.
+- New entity fields are initialised in the entity literals (Mob, Player, Proj, Ground, LiveMods), so lazily created
+  state does not change V8 object shapes in the hot loops.
+- Proof:
+  - `server/test/sim.ts` identical to the baseline (timing lines excluded).
+  - powerTemplates equivalence test green; parity rows identical; item audit rows identical (see the commit).
+  - Perf A/B alternating 3 × 3 runs on the same machine: 4 players + 150 monsters, baseline 1.19 / 1.32 / 1.39 ms vs
+    new 1.07 / 1.27 / 1.39 ms; T3 rift 0.090 / 0.124 / 0.097 vs 0.094 / 0.116 / 0.107 ms.
+  - An earlier single run under heavy machine load showed 3.2 ms (perf threshold), a load artefact.
+  - Tests: `server/test/engineWave2.test.ts` (15). Test change: Cleave's tag set now includes `strike` (alias).

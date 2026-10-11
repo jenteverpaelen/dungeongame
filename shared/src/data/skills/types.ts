@@ -9,15 +9,25 @@ export type SkillKind = 'primary' | 'spender' | 'channel' | 'cooldown' | 'buff' 
 /**
  * Skill tags (PoE-style) that power templates can target instead of naming skills. Element and kind tags are derived
  * (the effective element after the equipped rune, the skill's kind); authored data adds the mechanic tags.
+ * Vocabulary v2 (docs/rework/depth/ITEMS-SHARED.md §1.1): 22 mechanic tags + the elements. `melee` is the v1 name of
+ * `strike` (a skill tagged melee also carries strike); `aura` is kept for v1 data and has no v2 meaning yet.
  */
 export const SKILL_TAGS = [
   'physical', 'fire', 'cold', 'lightning', 'poison', 'arcane', 'holy',
-  'primary', 'spender', 'channel', 'cooldown', 'buff', 'summon',
-  'projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura',
+  'primary', 'spender', 'channel', 'cooldown', 'buff', 'summon', 'movement',
+  'strike', 'projectile', 'piercing', 'area', 'aerial', 'ground', 'device', 'beast', 'trap',
+  'bleed', 'burn', 'chill', 'stun', 'displace', 'mark',
+  'melee', 'aura',
 ] as const;
 export type SkillTag = (typeof SKILL_TAGS)[number];
-/** Tags authored in data (`SkillDef.tags`, `RuneDef.tags`); the others are derived. */
-export const MECHANIC_TAGS: readonly SkillTag[] = ['projectile', 'area', 'melee', 'ground', 'movement', 'mark', 'aura', 'summon'];
+/** Tags authored in data (`SkillDef.tags`, rune add / remove); the element and the kind are derived. */
+export const MECHANIC_TAGS: readonly SkillTag[] = [
+  'spender', 'channel', 'cooldown', 'buff', 'summon', 'movement', 'primary',
+  'strike', 'projectile', 'piercing', 'area', 'aerial', 'ground', 'device', 'beast', 'trap',
+  'bleed', 'burn', 'chill', 'stun', 'displace', 'mark', 'melee', 'aura',
+];
+/** v1 tag names and the v2 tag they imply. */
+export const TAG_ALIASES: Partial<Record<SkillTag, SkillTag>> = { melee: 'strike' };
 /** Matches a skill when it has any of `anyOf` (if given), all of `allOf` and none of `noneOf`. */
 export interface TagQuery { anyOf?: SkillTag[]; allOf?: SkillTag[]; noneOf?: SkillTag[] }
 
@@ -52,8 +62,11 @@ export interface RuneDef {
   unlock: number;
   desc: string;
   mods: SkillMods;
-  /** Mechanic tags this rune adds while equipped (its element conversion re-derives the element tag). */
+  /** Mechanic tags this rune adds while equipped (its element conversion re-derives the element tag). v1 name of addTags. */
   tags?: SkillTag[];
+  addTags?: SkillTag[];
+  /** Tags this rune removes while equipped (e.g. "Flame Lance −Projectile +Area"); applied after the additions. */
+  removeTags?: SkillTag[];
 }
 
 export interface TierDef {

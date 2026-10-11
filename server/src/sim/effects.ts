@@ -4,6 +4,8 @@ import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
 import { adventureCover } from '../../../shared/src/adventureCover';
+import type { StatusKind } from '../../../shared/src/powers';
+import { onStatusApplied } from './status';
 
 export const elIdx = (el: Element): number => {
   const i = ELEMENT_INDEX.indexOf(el);
@@ -62,24 +64,36 @@ export function ccFactor(m: Mob): number {
   return 1;
 }
 
-export function stunMob(m: Mob, ms: number) {
+/**
+ * A status landed on a monster. Control (stun / freeze / knockback / pull) restarts its "controlled within" clock; with
+ * the applying player known (`inst`, `by`), applyStatus procs and first-hit resets run when that player's powers watch.
+ */
+function landed(m: Mob, kind: StatusKind, control: boolean, inst: Instance | undefined, by: Player | undefined) {
+  if (control) m.ctrlAgo = 0;
+  if (inst && by && by.ctx.powers.statusWatch) onStatusApplied(inst, by, m, kind);
+}
+
+export function stunMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
   m.stunMs = Math.max(m.stunMs, ms * f);
   cancelWindup(m);
+  landed(m, 'stun', true, inst, by);
 }
 
-export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0) {
+export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
   m.freezeMs = Math.max(m.freezeMs, ms * f);
   if (shatterBy) { m.shatterBy = shatterBy; m.shatterDepth = depth; }
   cancelWindup(m);
+  landed(m, 'freeze', true, inst, by);
 }
 
-export function chillMob(m: Mob, ms: number) {
+export function chillMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
   if (m.dummy || m.tier === 4 || m.tier === 5) return;
   m.chillMs = Math.max(m.chillMs, ms);
+  landed(m, 'chill', false, inst, by);
 }
 
 export function cancelWindup(m: Mob) {
@@ -87,7 +101,7 @@ export function cancelWindup(m: Mob) {
 }
 
 /** Shove a monster `dist` units along (dx, dy) over 0.25 s. */
-export function knockbackMob(m: Mob, dx: number, dy: number, dist: number) {
+export function knockbackMob(m: Mob, dx: number, dy: number, dist: number, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
   if (m.def.attack.kind === 'charge') cancelWindup(m);
@@ -96,10 +110,11 @@ export function knockbackMob(m: Mob, dx: number, dy: number, dist: number) {
   m.kbX = (dx / l) * (d / 0.25);
   m.kbY = (dy / l) * (d / 0.25);
   m.kbMs = 250;
+  landed(m, 'knockback', true, inst, by);
 }
 
 /** Move a monster towards (tx, ty) by up to `step` units with wall sliding (pull effects). */
-export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: number) {
+export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: number, by?: Player) {
   if (m.dummy || m.tier === 4) return;
   const dx = tx - m.x, dy = ty - m.y;
   const d = Math.hypot(dx, dy);
@@ -109,20 +124,57 @@ export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: nu
   const p = inst.cw.moveCircle(m.x, m.y, m.r, (dx / d) * s, (dy / d) * s, !!m.def.flying);
   m.x = p.x; m.y = p.y;
   inst.mobHash.update(m);
+  landed(m, 'pull', true, inst, by);
 }
 
-export function addDot(m: Mob, dot: Dot) {
-  // one dot per (kind, owner, skill): refresh in place (keeps the stronger tick)
+/** Damage an expiring / replaced dot still had to deal. */
+const remainingDamage = (d: Dot) => d.perTick * Math.max(0, Math.ceil(d.leftMs / d.tickMs));
+
+/**
+ * Add a damage-over-time effect. Default: one dot per (kind, owner, skill), refreshed in place (keeps the stronger
+ * tick). `stacks` > 1 keeps up to that many separate instances per (kind, owner, skill) and replaces the one closest
+ * to expiring; `carryPct` moves that share of the replaced instance's remaining damage into the new one (dot rules,
+ * engine wave 2). The 8-dot limit per monster stays.
+ */
+export function addDot(m: Mob, dot: Dot, stacks = 1, carryPct = 0) {
+  if (stacks <= 1) {
+    for (let i = 0; i < m.dots.length; i++) {
+      const d = m.dots[i];
+      if (d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill) {
+        if (carryPct > 0) dot.perTick += remainingDamage(d) * carryPct / 100 / Math.max(1, Math.round(dot.leftMs / dot.tickMs));
+        else if (dot.perTick < d.perTick && d.leftMs > dot.leftMs * 0.5) { d.leftMs = Math.max(d.leftMs, dot.leftMs); return; }
+        dot.nextMs = Math.min(dot.nextMs, d.nextMs);
+        m.dots[i] = dot;
+        return;
+      }
+    }
+    if (m.dots.length < 8) m.dots.push(dot);
+    return;
+  }
+  let same = 0, oldest = -1;
   for (let i = 0; i < m.dots.length; i++) {
     const d = m.dots[i];
-    if (d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill) {
-      if (dot.perTick < d.perTick && d.leftMs > dot.leftMs * 0.5) { d.leftMs = Math.max(d.leftMs, dot.leftMs); return; }
-      dot.nextMs = Math.min(dot.nextMs, d.nextMs);
-      m.dots[i] = dot;
-      return;
-    }
+    if (d.kind !== dot.kind || d.owner !== dot.owner || d.skill !== dot.skill) continue;
+    same++;
+    if (oldest < 0 || d.leftMs < m.dots[oldest].leftMs) oldest = i;
   }
-  if (m.dots.length < 8) m.dots.push(dot);
+  if (same < stacks && m.dots.length < 8) { m.dots.push(dot); return; }
+  if (oldest < 0) return;
+  if (carryPct > 0) dot.perTick += remainingDamage(m.dots[oldest]) * carryPct / 100 / Math.max(1, Math.round(dot.leftMs / dot.tickMs));
+  m.dots[oldest] = dot;
+}
+
+/** A player's dot: their dot rules (stacking, strength, carry-over) apply; without rules this is addDot. */
+export function addOwnedDot(p: Player, m: Mob, dot: Dot) {
+  const rules = p.ctx.powers.dotRules;
+  if (!rules.length) { addDot(m, dot); return; }
+  let stacks = 1, strength = 1, carry = 0;
+  for (const r of rules) {
+    if (r.kind !== dot.kind || (r.skills && !r.skills.has(dot.skill))) continue;
+    stacks = Math.max(stacks, r.stacks); strength *= r.strength; carry = Math.min(100, carry + r.carry);
+  }
+  if (strength !== 1) dot.perTick *= strength;
+  addDot(m, dot, stacks, carry);
 }
 
 export function hasDot(m: Mob, kind: DotKind, owner = 0): boolean {
@@ -168,12 +220,17 @@ export function removeBuff(p: Player, id: string) {
 export function refreshLive(p: Player) {
   const l = p.live;
   l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
+  let dr = 1, cci = false;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
     l.chd += b.chd ?? 0;
     l.ias += (b.ias ?? 0) * (b.st ?? 1);
+    if (b.sdmg) l.dmg += b.sdmg * (b.st ?? 1);
+    if (b.dr) dr *= 1 - Math.min(100, b.dr) / 100;
+    if (b.cci) cci = true;
   }
+  l.dr = dr; l.cci = cci;
 }
 
 /** Advance buff timers; returns true if any expired. */
@@ -190,20 +247,24 @@ export function tickBuffs(p: Player, dtMs: number) {
 
 // ─────────────────────────── Hostile effects on players ───────────────────────────
 
+/** Control immunity from power buffs (`ccImmune`) or an active controlImmunity template. */
+const ctrlImmune = (p: Player) => !!p.live.cci || !!p.pw?.ctrlImmune;
+
 export function freezePlayer(p: Player, ms: number) {
-  if (p.invulnMs > 0 || p.deadMs > 0) return;
+  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p)) return;
   p.frozenMs = Math.max(p.frozenMs, ms);
   if (p.channel) p.channel = null;
 }
 
 export function stunPlayer(p: Player, ms: number) {
-  if (p.invulnMs > 0 || p.deadMs > 0) return;
+  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p)) return;
   p.stunMs = Math.max(p.stunMs, ms);
   if (p.channel) p.channel = null;
 }
 
 /** Yank a player to within `stopDist` of a point (Vortex). */
 export function pullPlayer(inst: Instance, p: Player, tx: number, ty: number, stopDist: number) {
+  if (ctrlImmune(p)) return;
   const dx = tx - p.mv.x, dy = ty - p.mv.y;
   const d = Math.hypot(dx, dy);
   if (d <= stopDist) return;

@@ -63,6 +63,14 @@ export interface StatsOptions {
   swap?: { slot: Slot; item: Item | null };
 }
 
+/** Inputs of per-legendary and no-set-bonus templates: equipped legendary items, and whether any set bonus is active. */
+export function powerCounts(equipment: Partial<Record<Slot, Item | null>>, sets: Readonly<Record<string, number>>): { legendaries: number; setBonus: boolean } {
+  return {
+    legendaries: Object.values(equipment).filter((it) => it?.rarity === 'legendary').length,
+    setBonus: Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= b.count)),
+  };
+}
+
 export function computeStats(save: CharacterSave, opts: StatsOptions = {}): DerivedStats {
   const cls = CLASSES[save.classId];
   const level = save.level;
@@ -112,8 +120,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
 
   // Stat-style power templates (sets → legendaries → passives → nodes, shared/src/powerSources.ts) and the dash.
   let dashCdMs = DASH.cooldownMs;
-  const legendaryCount = Object.values(equipment).filter((it) => it?.rarity === 'legendary').length;
-  const setBonusActive = Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= b.count));
+  const { legendaries: legendaryCount, setBonus: setBonusActive } = powerCounts(equipment, sets);
   for (const src of allPowerSources(save, powers, sets, passivePowerSources(save))) for (const e of src.effects) {
     if (e.kind === 'stat') {
       if (e.noSetBonus && setBonusActive) continue;

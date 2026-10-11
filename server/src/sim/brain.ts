@@ -8,6 +8,7 @@ import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
 import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
 import { castPrimary, castSkill, channelTick, endChannel, startChannel } from './skills';
+import { debtFloor, extraCharges, trackCast } from './powerActions';
 import { firePowerProcs } from './powerRuntime';
 import type { Mob, Player, SkillRuntime } from './types';
 
@@ -196,26 +197,31 @@ export function validateManualCast(p: Player, slot: number, skill: string): stri
 /** Both entry paths spend through the same budget. Only automatic trigger rules differ. */
 function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolean, rule: Readonly<AutoCastRule> = DEFAULT_AUTO_RULE): string | null {
   const id = rt.def.id;
-  if ((p.readyAt.get(id) ?? 0) > inst.t) return `${rt.def.name} is on cooldown`;
+  // Charges (rule change): the recharge clock may run up to `extra` cooldowns ahead.
+  const extra = p.ctx.powers.rules.charges.size ? extraCharges(p, id) : 0;
+  if (extra ? (p.readyAt.get(id) ?? 0) - inst.t > extra * skillCooldownMs(p, rt) : (p.readyAt.get(id) ?? 0) > inst.t) return `${rt.def.name} is on cooldown`;
   if (rt.def.auto.when === 'channel') {
     if (p.channel) return 'Already channeling';
     const a = rt.def.auto;
-    if (p.res < a.startAt || p.res < skillCost(p, rt) * 0.25) return `Not enough resource for ${rt.def.name}`;
+    const floor = p.ctx.powers.debt.length ? debtFloor(p, id) : 0;
+    if (floor === 0 ? p.res < a.startAt || p.res < skillCost(p, rt) * 0.25 : p.res <= floor) return `Not enough resource for ${rt.def.name}`;
     if (!manual && !automaticFilters(inst,p,rt,rule,skillCost(p,rt)*TICK_MS/1000)) return 'Automatic condition not met';
     if (!manual && !anyEnemyWithin(inst, p.x, p.y, a.within)) return 'No enemy in range';
     startChannel(inst, p, rt, manual);
     return null;
   }
   const cost = skillCost(p, rt);
-  if (p.res < cost) return `Not enough resource for ${rt.def.name}`;
+  const floor = p.ctx.powers.debt.length ? debtFloor(p, id) : 0; // resource debt (engine wave 2)
+  if (floor === 0 ? p.res < cost : p.res - cost < floor) return `Not enough resource for ${rt.def.name}`;
   if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
-  if (!castSkill(inst, p, rt)) return `No valid target for ${rt.def.name}`;
+  const tracked = p.ctx.powers.rules.spendRefund.length ? trackCast(inst, p, id, cost) : false;
+  if (!castSkill(inst, p, rt)) { if (tracked) p.pw!.cast = null; return `No valid target for ${rt.def.name}`; }
   p.res -= cost;
   // Power procs: every resource-spending cast (Seal of the Patient Thief shortens all active cooldowns), every cast.
-  if (cost > 0) firePowerProcs(inst, p, 'spend');
-  firePowerProcs(inst, p, 'cast');
+  if (cost > 0) firePowerProcs(inst, p, 'spend', { skill: id });
+  firePowerProcs(inst, p, 'cast', { skill: id });
   const cd = skillCooldownMs(p, rt);
-  if (cd > 0) p.readyAt.set(id, inst.t + cd);
+  if (cd > 0) p.readyAt.set(id, extra ? Math.max(inst.t, p.readyAt.get(id) ?? 0) + cd : inst.t + cd);
   p.castFlagMs = 300;
   p.attackSeq++;
   return null;

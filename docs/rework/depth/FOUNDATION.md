@@ -15,6 +15,7 @@ Nothing here adds content: every existing skill, rune, tier, legendary, set and 
 | Passives | `shared/src/data/passives/{warrior,ranger,mage}.ts` (rules `shared/src/passives.ts`) | same interpreter |
 | Summon AI, death hooks | – | class module (`<CLASS>_SUMMONS`, exported `DeathHook`s; hook order fixed in `skills/index.ts`) |
 | Point economy | `shared/src/specialization.ts` (`SPEC_POINTS`) | `server/src/commands.ts` (`skillNode`, `skillReset`, `skillPrimary`) |
+| Data grounds, Inscriptions (wave 2) | `shared/src/data/grounds.ts`, `shared/src/data/inscriptions.ts` | `server/src/sim/groundFx.ts`; same interpreter (+ `powerActions.ts`, `status.ts`) |
 
 Registry order is observable (loot rolls and affix rolls pick from registries; RNG order), so new entries are
 **appended** at the end of a class file, never inserted in the middle. Ids (skills, runes, nodes, legendaries, sets,
@@ -127,8 +128,9 @@ so client and server agree (`DerivedStats.dashCdMs` feeds client dash prediction
 | `stat` | sheet stat (affix keys; `cdr`/`rcr` multiplicative); `perLegendary: { max }` × equipped legendaries; `noSetBonus` | Patchwork Signet: `{ kind: 'stat', stat: 'dmgPct', value: ROLL, perLegendary: { max: 10 }, noSetBonus: true }` |
 | `elementStacks` | ×(1 + perStack %) per distinct element dealt within a window | Fallen Star 4pc |
 | `elementCycle` | one boosted element at a time, rotating | Ouroboros Loop |
-| `proc` | on `spend / kill / eliteKill / crit / dash / cast` (optional `chance`): shorten cooldowns, gain resource, gain a buff | Hellforge, Patient Thief, Stridewind |
+| `proc` | on `spend / kill / eliteKill / crit / dash / cast` (optional `chance`): shorten cooldowns, gain resource, gain a buff (wave 2 adds triggers, filters, ICDs and strike / summon / ground / status actions: §11.1) | Hellforge, Patient Thief, Stridewind |
 | `dashCooldown` | dash cooldown × mult | Stridewind ×0.5 |
+| wave 2 | `damageTaken`, `firstHit`, `cheatDeath`, `controlImmunity`, `projectile`, `deflect`, `dot`, `stacking`, `resourceDebt`, `tagGrant`, `rule` | §11 |
 
 **Targets** — named `skills` (and sub-strikes), a tag query `tags: { anyOf, allOf, noneOf }`, or both (union). Builders
 take either: `skillMore(['meteor'], …)` or `skillMore(tagged('fire', 'cold'), …)`. **Conditions** — one predicate
@@ -145,7 +147,8 @@ into the existing `stunMult` / `frozenMult` exactly as Vambraces of the Anvil di
 `OWN_BUCKET_CAP = 127` (Cinder Oath 6pc) caps the cast-time own bucket of one strike; `ITEM_COUNT_CAP = { maxSummons: 3,
 projectiles: 2 }` (Sapper's Pack + Siegebreaker 2pc; Spindle) caps extra summons / projectiles per skill from items and
 set bonuses combined, enforced where those are summed (runes, tiers, passives and nodes are not counted). The bible
-proposes ×1.3 effective for 6-piece multipliers and 2 / 2 for counts (BUDGET.md R1, R7).
+proposes ×1.3 effective for 6-piece multipliers and 2 / 2 for counts (BUDGET.md R1, R7). The 2 / 2 count cap sits
+behind `USE_BIBLE_COUNT_CAP` (default `false`, i.e. today's 3 / 2): §11.12.
 
 **Legendary** (`shared/src/data/powers/<class>.ts`):
 ```ts
@@ -182,7 +185,8 @@ cooldown, buff, summon) and mechanics (projectile, area, melee, ground, movement
 `RuneDef.tags` (validated). `skillTags(skill, runeId)` / `matchesTags(tags, query)` in `shared/src/data/skills`. The
 18 existing skills carry initial mechanic tags [P] (e.g. Multishot projectile + area, Rain of Vengeance area + ground);
 no template uses tags yet, so nothing changes in play. Item conversions do not re-tag (tags are resolved before item
-powers apply). The Skills window shows mechanic tags next to kind and element.
+powers apply). The Skills window shows mechanic tags next to kind and element. **Wave 2:** vocabulary v2 (22 mechanic
+tags), rune `addTags` / `removeTags`, sub-strike own tags and `tagGrant` with one fixed resolution order: §11.2.
 
 ## 7. Passives (still four slots, levels 10 / 20 / 30 / 70)
 
@@ -219,8 +223,7 @@ extrapolated as cap × life / damage and labelled) and from today's **planner** 
 pieces + the most relevant legendaries elsewhere + three Cube powers; HYBRID = four pieces; LEGENDARY = no set; relevance
 = targets a loadout skill by name or tag > generic damage). A future planner can search the item pool for the best kit
 per main skill and report how many main skills per class land within 1.25× of the best; `--kits=<file.json>` already
-plays arbitrary kits. Variants not built (hooks noted in the harness): dash-driven powers (the bot never dashes) and
-"above X % life" powers (the immortal bot sits at 100 %).
+plays arbitrary kits. Wave 2 added the dash and pinned-life variants and a stub item-pool search (§11.11).
 
 * Report: `DATA_DIR=<empty dir> BACKUP_DIR= BACKUP_KEEP=0 npx tsx scripts/audit-parity.ts` → `PARITY.md`,
   `PARITY-MODEL.json` (≈ 15 s).
@@ -236,8 +239,306 @@ plays arbitrary kits. Variants not built (hooks noted in the harness): dash-driv
 * Keep the 1:1 data untouched until the pilot retunes it; rebalancing belongs to the class waves.
 * The old `scripts/audit-item-builds.ts` runs at Torment X, where every encounter times out since the ×350 level-70
   toughness pass (BALANCE.md §4); use the parity harness (Torment II) for clear-time comparisons.
-* Not supported yet (needs engine work, see the report): Fallen Star 4pc in the generic bucket (bible MAGE §9.2) —
-  `elementStacks` multiplies today; strike / summon / ground **procs** (only cooldown, resource and buff grants exist);
-  player damage-reduction templates (`defensive`), cheat-death, control immunity; elite-only vulnerability (Watchkeeper's
-  Hood) and "controlled in the last 3 s" (Wardkeeper's Cuffs) predicates; per-proc internal cooldowns; moving-distance
-  stacks (Ridgewalker Boots).
+* Still not supported: Fallen Star 4pc in the generic bucket (bible MAGE §9.2), because `elementStacks` multiplies
+  today. Everything else the v1 list named (procs with actions, defensive templates, cheat death, control immunity,
+  elite / controlled-recently predicates, internal cooldowns, distance stacks) is now generic data (§11). Remaining gaps
+  are in §11.13.
+
+## 11. Engine wave 2 — generic primitives (data formats)
+
+Everything below is plain data in `shared/src/powers.ts` (validated by `shared/src/contentValidation.ts`; text generated
+and checked by `describeEffect` / `powerTextIssues`). It is interpreted by these modules:
+* `server/src/sim/powerRuntime.ts`: build, conditions, proc dispatch.
+* `powerActions.ts`: proc actions, defence, the per-tick hook, rule changes, debt.
+* `status.ts`: monster statuses.
+* `groundFx.ts`: data grounds.
+* Small hooks in `damage`, `players`, `brain`, `kills`, `monsters`, `projectiles`, `grounds` and `effects`.
+
+**Shipped data uses none of it.** With no wave-2 template every hook is a no-op (no RNG draw, no float change). The
+`server/test/sim.ts` output, the template-equivalence test and the parity rows are unchanged; an alternating A/B against
+the baseline shows no tick-time change.
+
+Tests: `server/test/engineWave2.test.ts` (15 tests), with fixtures in `shared/test/fixtures/depthContent.ts`. Every
+number in the examples is a placeholder unless the bible gives it.
+
+### 11.1 Procs
+
+```ts
+{ kind: 'proc', on, chance?, icdMs?, skills?, tags?, status?, minHitPct?,           // trigger + filters
+  reduceCooldownsMs?, resetCooldowns?, resource?, buff?,                            // v1 effects (+ reset)
+  strike?: { id, coef, radius?, element?, at?: 'target'|'self', tags?, visual? },   // actions (wave 2)
+  summon?: { type, skill, lifeMs, at?, max? }, ground?: { def, at?, scale? },
+  applyStatus?: StatusSpec & { at? }, clearProjectiles?: { range, halfAngleDeg } }
+```
+
+**Triggers:** `hit · crit · kill · eliteKill · spend · cast · dash · takeDamage · applyStatus`. Each trigger passes this
+context:
+
+| Context | Triggers |
+|---|---|
+| The strike / skill | hit, crit, kill, eliteKill, spend, cast |
+| The enemy | hit, crit, kill, eliteKill, applyStatus; for takeDamage, the attacker |
+| The status kind | applyStatus |
+| The damage taken | takeDamage |
+
+**Filters:**
+* `skills` / `tags` match the triggering strike id. Validation rejects them on dash, takeDamage and applyStatus.
+* `status: ['stun', …]` filters applyStatus.
+* `minHitPct` on takeDamage is the big-hit hook: the hit must be ≥ N % of max Life.
+* `icdMs` is per proc, keyed `<source kind>:<source id>:<effect index>`, so a stat refresh does not reset it. The ICD
+  starts only when the proc fires.
+* `chance` draws the RNG only when authored.
+
+**Actions** run in this order: cooldown cut → resource → buff → resets → summon → ground → strike → status → projectile
+clear. `at` is the enemy (default) or the player.
+* **Strike.** A proc strike is a strike id of its own. Its `tags` (+ element) join the tag index, so templates can target
+  it by name or tag. Its skill bucket is the template mods of that id; its own bucket is `ownMultiplier(id)`. With
+  `radius` it hits every enemy in the circle; without it, the one enemy.
+* **Summon.** Only summon types registered by a class module spawn. `max` retires the oldest of that type.
+* **Ground.** An id in `GROUND_DEFS` (§11.6).
+* **Buff.** New fields: `dr` (% less damage taken), `ccImmune`, and stacking. Stacking uses `maxStacks` with `stackDmg` /
+  `stackIas` per stack; each grant adds a stack and refreshes the duration.
+
+**Chains.** Actions run one level deeper.
+* `hit`, `crit` and `takeDamage` procs fire only from depth 0, so a proc strike's hits never re-trigger hit procs.
+* Other triggers fire up to depth 1: a proc strike may kill and trigger a kill proc once.
+* Statuses applied by existing skill code also report (Ground Stomp's stun, Frost Nova's freeze, Black Hole's pull…),
+  because the CC helpers now take the applying player.
+
+```ts
+// Bellwether (WARRIOR.md): stunning grants 2 Fury (max 10 per second) and +4% attack speed for 4 s (max 5 stacks)
+{ kind: 'proc', on: 'applyStatus', status: ['stun'], icdMs: 200, resource: 2, buff: { id: 'bellwether', ms: 4000, stackIas: 4, maxStacks: 5 } }
+// Second Skin (RANGER.md): a hit above 25% of max Life gives 50% DR for 2 s and a snare at your feet (once per 20 s)
+{ kind: 'proc', on: 'takeDamage', minHitPct: 25, icdMs: 20000, buff: { id: 'second_skin', ms: 2000, dr: 50 }, ground: { def: '<snare ground>', at: 'self' } }
+// Reaper's Rhythm style: a Cleave kill swings again at the next enemy (ICD 1.2 s)
+{ kind: 'proc', on: 'kill', skills: ['cleave'], icdMs: 1200, strike: { id: 'reaper_swing', coef: 1.0, radius: 120, tags: ['strike', 'area'] } }
+```
+
+### 11.2 Tags v2 and `tagGrant`: one fixed resolution order
+
+**Vocabulary** (`SKILL_TAGS`, ITEMS-SHARED.md §1.1): 22 mechanic tags plus the elements.
+* Mechanic tags: primary, spender, channel, cooldown, buff, movement, strike, projectile, piercing, area, aerial, ground,
+  summon, device, beast, trap, bleed, burn, chill, stun, displace, mark.
+* v1 `melee` implies `strike` (`TAG_ALIASES`); `aura` stays for v1 data.
+* Runes: `addTags` (v1 name `tags`) and `removeTags` ("Flame Lance −Projectile +Area").
+* Assigning the v2 tags to skills is content work (the pilot's).
+
+```ts
+{ kind: 'tagGrant', tags: { anyOf: ['aerial'] }, add: ['projectile'] }      // "Aerial skills also count as Projectile"
+{ kind: 'tagGrant', tags: { anyOf: ['primary'] }, fromSlot: 0 }             // "Primary gains the tags of the skill in slot 1"
+```
+
+**Resolution order** (documented in the powerRuntime header and tested):
+1. Skill tags: kind + element after the rune + authored tags + rune add/remove (+ aliases).
+2. Sub-strikes and data grounds: their own tags ∪ their owner's.
+3. Every `tagGrant` is evaluated against the index from step 2 **at once**, so grants never chain. Sub-strikes and
+   grounds also receive their owner's grants. `fromSlot` copies all tags of that bar slot's skill.
+4. Proc strike ids join with their own tags.
+5. Every other tag-keyed effect (targets, `channeling` tag queries, vulnerability scopes) resolves against that final
+   index.
+
+Sub-strikes now carry their own tags:
+`SUB_STRIKES = { dust_devil: { owner: 'whirlwind', tags: ['summon', 'area'] }, cleave_rupture: { owner: 'cleave', tags: ['area'] } }`.
+Dust Devils from an item count as Summons; Whirlwind itself does not.
+
+### 11.3 Defensive templates
+
+```ts
+{ kind: 'damageTaken', pct: -20 }                                         // static (negative = less)
+{ kind: 'damageTaken', pct: -20, when: { targetState: 'stunned' } }       // target conditions test the ATTACKER
+{ kind: 'damageTaken', pct: 10, when: { inDebt: true } }                  // Astral Debt's downside
+{ kind: 'damageTaken', pct: -3, perLegendary: { max: 10 }, noSetBonus: true } // Patchwork style (counts from stats.powerCounts)
+{ kind: 'firstHit', pct: -60, windowMs: 8000, resetOnStatus: ['freeze'] } // Unbroken Ward
+{ kind: 'cheatDeath', lifePct: 40, cooldownMs: 90000, resetCooldowns: ['ground_stomp', 'cairnfall'] } // Second Wind
+{ kind: 'cheatDeath', lifePct: 0, invulnMs: 2000, cooldownMs: 60000, when: { inOwnGround: true } }     // Last Rampart (0 = 1 Life)
+{ kind: 'controlImmunity', when: { buff: 'iron_root' } }                  // + a proc granting that buff = "for 3 s after X"
+```
+
+Incoming-damage order in `damagePlayer`:
+1. Weakened attacker (§11.5).
+2. Armour, resist, elite DR, Whirlwind DR (unchanged).
+3. damageTaken terms.
+4. DR buffs.
+5. First hit.
+6. Apply the damage.
+7. Cheat death, if the hit is fatal.
+8. takeDamage procs, if the player is alive.
+9. Death.
+
+Control immunity blocks `stunPlayer`, `freezePlayer` and `pullPlayer` (elite Frozen, Vortex, stuns). It is evaluated
+once per tick. A buff with `ccImmune` gives the same immunity without a template.
+
+### 11.4 Conditions (shared predicate; new entries)
+
+* `{ all: [...] }`: every child must hold; a scaling child scales the result (counts multiply).
+* `{ any: [...] }`: the largest child count.
+* `{ targetElite: true }`.
+* `{ targetControlledWithinMs: 3000 }`: the enemy is stunned, frozen, knocked back or pulled now, or that control ended
+  ≤ N ms ago (`Mob.ctrlAgo`).
+* `{ standingStillMs: 1000 }`: tracked only while some template uses it.
+* `{ inDebt: true }`.
+* Target states `marked` and `weakened`.
+
+Own-bucket legality is checked through composites (`isTargetCondition` and `usesElement` recurse).
+
+### 11.5 Statuses (`StatusSpec`) and monster hooks
+
+```ts
+{ kind: 'stun'|'freeze'|'chill'|'knockback'|'pull'|'weaken'|'vulnerable'|'taunt'|'bleed'|'burn'|'freezeBuild'|'mark',
+  ms?, pct?, dist?, coef?, skills?, tags?, exceptSource?, radius?, windowMs?, origin?: 'owner' }
+```
+
+There is one entry point: `applyStatus(inst, player, mob, status, fromX, fromY, sourceId, tauntRef?)`. Control statuses
+go through the existing helpers, so bosses, goblins and dummies stay immune and elites take half duration (`ccFactor`).
+Per-monster state lives in `Mob.ps` (created on first use) and ticks in `monsters.ts timers()`.
+
+| Status | Behaviour |
+|---|---|
+| **weaken** | The monster deals pct % less. Applied to `raw` in `damagePlayer`, monster projectiles included. |
+| **vulnerable** | Owner-scoped: only the applying player's strikes count. `skills` / `tags` narrow it (Soaked: Rain only); `exceptSource` excludes the applying skill (Overtone: "your other skills"). Applied in `vulnerability()`. |
+| **taunt** | Toward a player: the monster fights that player. Toward a summon or ground: it walks there and stands until the target dies or ends. Toward a point: it walks to the point. The only AI change is one branch in the `chase` state (`tauntStep`), kept minimal for F-MON-02. A ground that ticks a taunt with `radius` gives "Bait: snares draw enemies toward them" (steering toward a placed entity). |
+| **freezeBuild** | pct points per application inside `windowMs`; 100 points freezes for `ms`. "Six needles in two seconds" = pct 100/6, windowMs 2000. |
+| **bleed / burn** | A dot of `coef` × weapon damage over `ms`, attributed to `sourceId`. |
+| **mark** | Sets `markMs` (plus `markPct` vulnerability when given). `seekMarked` projectiles home on it. |
+
+**Dot rules:** `{ kind: 'dot', dot: 'bleed', skills?, tags?, stacks?, strengthPct?, carryPct? }`.
+* `stacks` > 1 keeps separate instances per (kind, owner, skill) and replaces the one closest to expiring. Open Veins =
+  stacks 3, strengthPct 70.
+* `carryPct` moves that share of the replaced dot's remaining damage into the new one (Rollover).
+* All player dots go through `addOwnedDot`; without rules it behaves exactly like the old `addDot`.
+
+### 11.6 Data grounds (`shared/src/data/grounds.ts`)
+
+```ts
+{ id, name, owner?, tags?, shape?: 'circle'|'line', radius, lineLength?, durationMs, element?,
+  tick?: { everyMs, coef?, status? }, onEnter?: { coef?, status?, againAfterMs? }, insideFor?: { ms, status },
+  pull?: { speed }, follow?: 'owner', maxPerOwner?, visual? }
+```
+
+* **Placement:** with a proc (`ground: { def }`) or from class code
+  (`placeGround(inst, player, id, x, y, angle, scale)`). A line extends along the angle.
+* **Damage:** coef × the ground strike's expected damage, fixed at placement, dealt as dot damage (vulnerability and
+  elite bonus live, no on-hit procs). This is Meteor's molten-ground rule.
+* **`onEnter`:** fires when an enemy crosses in, or when the ground is placed on it. Once per enemy, or again after the
+  enemy left and `againAfterMs` passed.
+* **`insideFor`:** needs that long inside in a row (leaving resets the timer); fires once per enemy.
+* **`origin: 'owner'`** on a knockback or pull pushes away from / toward the player instead of the ground.
+* **`maxPerOwner`** removes the oldest ground first.
+* **Tags:** the owner skill's ∪ the ground's own ∪ `ground` (+ element). Damage is attributed to the ground id.
+* **`visual`** names the client `aoe` effect; without it no event is sent.
+* `inOwnGround` works for data grounds like any other ground.
+
+The six bible grounds (crack, tremor, faultline, cinder, furrow, rime) exist as data in the fixtures.
+
+### 11.7 Projectiles and deflection
+
+```ts
+{ kind: 'projectile', skills?, tags?, distBonus?: { pct, atUnits }, bounces?, bounceScale?, retarget?, seekMarked?: { turn, range } }
+{ kind: 'deflect', range, halfAngleDeg, when? }                           // Breakwater: when: { channeling: 'ironplough' }
+```
+
+* **Merging:** rules merge per strike id at spawn. Pcts and bounces sum; the first scale and homing win.
+* **`distBonus`:** scales the strike by distance flown (`Proj.flown`).
+* **Bounces:** a wall hit with bounces left reflects per axis and continues as a new projectile with `bounceScale` × coef.
+  Clients get `pend` + `proj`.
+* **`retarget`:** homing projectiles pick a new target when theirs dies (the existing seek path).
+* **`seekMarked`:** homes on the nearest marked enemy at spawn.
+* **Deflection:** removes hostile projectiles in the front cone, every tick (template) or once (`clearProjectiles` proc
+  action).
+
+### 11.8 Stacking and resource debt
+
+```ts
+{ kind: 'stacking', buff: 'stride', source: 'distance', per: 100, max: 5, decayMs: 2000, stackDmg: 2 }        // decay 'all'
+{ kind: 'stacking', buff: 'reap', source: 'kills', per: 1, max: 3, decay: 'one', decayMs: 1000, stackIas: 5, skills: ['cleave'], onMax: { buff, reset? } }
+{ kind: 'resourceDebt', max: 50, skills: ['meteor', 'stormglass_orb', 'rimefield'], regenPct: -50 }               // Astral Debt
+```
+
+**Stacking:**
+* Distance counts real movement only; a jump of more than 200 units in one tick is a teleport [P].
+* `decay: 'all'`: the buff runs out `decayMs` after the last stack.
+* `decay: 'one'`: one stack is lost per `decayMs` without a gain.
+
+**Debt:**
+* Casts and channels of the targets may take the resource down to −max.
+* While below zero, regeneration is × (1 + regenPct %).
+* Fury decay never lifts a debt back to 0.
+* The HUD shows the negative number.
+
+### 11.9 Rule changes (`{ kind: 'rule', skills?, tags?, rule }`)
+
+| rule | data | effect |
+|---|---|---|
+| `charges` | `{ id: 'charges', extra: 1 }` | the recharge clock may run `extra` cooldowns ahead (one charge per cooldown) |
+| `channelMove` | `{ id: 'channelMove', pct: 100 }` | while channelling a target, at least pct % move speed; overrides the skill's `vars.channelMovePct` slow |
+| `buffUpkeep` | `{ id: 'buffUpkeep', everyMs: 10000 }` | the targets' buffs (id = skill id) do not run out in combat; they cost the skill again every everyMs |
+| `spendRefund` | `{ id: 'spendRefund', pct: 30, minHits: 5, windowMs? }` | a cast hitting minHits different enemies within the window [P 1 s] refunds pct % |
+| `groundsFollow` | `{ id: 'groundsFollow', scale: 0.5 }` | all your grounds follow you at scale × radius |
+| `countsAs` | `{ id: 'countsAs', state: 'chilled', as: 'stunned' }` | for your powers, chilled enemies count as stunned (aliased stunned / frozen bonuses are no longer folded) |
+
+Some Inscriptions are procs rather than rules:
+* "Summons inherit your Bleed and Burn":
+  `{ kind: 'proc', on: 'hit', tags: { anyOf: ['summon'] }, applyStatus: { kind: 'bleed', coef, ms } }`. The numbers are
+  content.
+* "Displace also marks":
+  `{ kind: 'proc', on: 'applyStatus', status: ['knockback', 'pull'], applyStatus: { kind: 'mark', ms } }`.
+* "Stuns also chill": the same proc with `status: ['stun']` and a chill. The other half ("chills count as stuns") is the
+  `countsAs` rule.
+
+### 11.10 Inscriptions (Fabled items, ITEMS-SHARED.md §7)
+
+* **Data:** `shared/src/data/inscriptions.ts` holds `INSCRIPTIONS` (empty; entries are
+  `{ id, name, text, group, effects }`). Items carry `Item.inscription?` (the id).
+* **One active Inscription:** the first equipped item in `SLOTS` order whose inscription is known (`activeInscription`).
+* **Source order:** it joins after legendaries: sets → legendaries → inscription → passives → nodes.
+* **Validation** allows only rule-changing kinds and checks the text. Allowed: tagGrant, rule, proc without damage buffs,
+  flag-only skillMods, projectile behaviour without distBonus, deflect, controlImmunity.
+* **Not built:** item generation, migration, and letting the player choose the active Inscription (that needs a save
+  field).
+
+### 11.11 Harness variants and search (`server/test/parity/harness.ts`)
+
+`RunOptions { seeds?, dash?, lifePct? }`; the defaults are unchanged.
+* `dash`: the bot dashes on cooldown toward the pack while out of reach. Encounter rows report `dashes`.
+* `lifePct`: pins the bot's Life (via `Player.debugPinLifePct`, debug-only).
+
+Search, stub-level, following the BUDGET.md §4 method:
+* `slotCandidates(class, slot)` and `kitLegal`.
+* `searchKit(base, { score, restarts, seed, slots, maxEvals })`: seeded coordinate ascent with a pluggable score. Use
+  `runKit(spec).estTotalMs` for the real search; tests use a cheap proxy.
+* `classCoverage`: the D1 check.
+* Not wired into `audit-parity.ts` or verify yet, because a real search costs minutes.
+
+`buildCtx(save, d, extra)` accepts extra power sources for tools and tests.
+
+### 11.12 Count cap and economy switches
+
+* **Count cap:** `ITEM_COUNT_CAP` stays at today's 3 / 2 while `USE_BIBLE_COUNT_CAP = false`. Flipping the flag selects
+  `ITEM_COUNT_CAP_BIBLE` = 2 / 2 (BUDGET.md R7).
+* **Economy:** the owner's decision (separate pool, cap 10 ranks per tree, 50 points at L70 from L21) is
+  `SPEC_POINTS = { source: 'separate', perLevel: 1, fromLevel: 21, treeRankCap: 10 }`. Verified: 50 points at L70, 0 at
+  L20. The Warrior pilot sets it.
+
+### 11.13 Gaps (not built in wave 2)
+
+**Client side:**
+* Grounds follow on the server only; the client draws the placement `aoe` where the ground was placed.
+* Channel movement slows are server-only. Client prediction would rubber-band once a skill authors `channelMovePct`.
+* Charges show the cooldown until all charges are full.
+* Tag grants are not shown in the Skills window.
+* Negative resource is untested in the HUD.
+
+**Engine limits:**
+* Proc strikes cannot be targeted by name from another source's validation; target them by tag.
+* applyStatus procs cannot filter by the applying skill, because the CC helpers do not know it.
+* Chill strength is fixed at a 40 % slow, so "slows 30 / 50 %" are approximations.
+* "Strongest dot at 50 %" (cinder) and "% of the triggering hit" grounds need a strike-relative coefficient.
+* "Once per standard" cheat death has a time cooldown only.
+
+**Not built:**
+* Returning projectiles and ricochet at maximum range.
+* Recasting a skill elsewhere ("cast your Ground skill where the Movement skill ends").
+* Consumable marks (Ringing Ears).
+* Knockback collision damage, directional DR, proximity vulnerability auras.
+* `setReduce` (Journeyman's Ring).
+* Item generation and migration for Kindled / Fabled.

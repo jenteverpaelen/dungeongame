@@ -5,16 +5,20 @@ import { mobWeight } from './brain';
 import { damagePlayer, dotStrike, strikeMob } from './damage';
 import { dragMob, elIdx, freezeMob } from './effects';
 import type { Instance } from './instance';
+import { updateFxGround } from './groundFx';
 import type { Ground } from './types';
 
 export function addGround(inst: Instance, g: Ground) {
+  // Rule change groundsFollow: the owner's grounds follow them at a scaled radius.
+  const follow = g.owner?.ctx.powers.rules.groundsFollow;
+  if (follow) { g.r *= follow; g.stick = true; if (g.fx) { g.fx.offX = 0; g.fx.offY = 0; } }
   inst.grounds.push(g);
 }
 
 export function newGround(kind: Ground['kind'], x: number, y: number, r: number, startT: number, durMs: number, tickMs: number): Ground {
   return {
     kind, x, y, r, endT: startT + durMs, tickMs, nextT: startT + tickMs, owner: null, strike: null, dmg: 0, mobLevel: 1,
-    waves: 0, follow: false, freeze: false, spellsteal: false, voidPct: 0, caught: null, el: 'physical',
+    waves: 0, follow: false, freeze: false, spellsteal: false, voidPct: 0, caught: null, el: 'physical', fx: undefined, stick: false,
   };
 }
 
@@ -23,12 +27,14 @@ export function updateGrounds(inst: Instance, dtMs: number) {
   for (let i = 0; i < list.length; i++) {
     const g = list[i];
     if (g.endT <= 0) continue;
+    if (g.stick && g.owner && g.kind !== 'fx') { g.x = g.owner.x; g.y = g.owner.y; }
     switch (g.kind) {
       case 'molten': molten(inst, g); break;
       case 'blackhole': blackhole(inst, g, dtMs); break;
       case 'rain': rain(inst, g); break;
       case 'trail':
       case 'pool': hostile(inst, g); break;
+      case 'fx': updateFxGround(inst, g, dtMs); break;
     }
     if (inst.t >= g.endT) {
       if (g.kind === 'blackhole') collapse(inst, g);
@@ -59,7 +65,7 @@ function blackhole(inst: Instance, g: Ground, dtMs: number) {
   for (const m of inside) {
     if (m.dead) continue;
     const d = Math.hypot(m.x - g.x, m.y - g.y);
-    if (d > 12) dragMob(inst, m, g.x, g.y, Math.min(step, d - 10));
+    if (d > 12) dragMob(inst, m, g.x, g.y, Math.min(step, d - 10), p);
     if (g.voidPct > 0) { m.holeMs = 200; m.holePct = g.voidPct; }
     m.inHoleMs = 200;
     if (g.caught && g.caught.size < 40) g.caught.add(m.id);
@@ -74,7 +80,7 @@ function collapse(inst: Instance, g: Ground) {
   const p = g.owner;
   if (!p) return;
   if (g.freeze) {
-    for (const m of inst.queryMobs(g.x, g.y, g.r)) if (!m.dead) freezeMob(m, 1500);
+    for (const m of inst.queryMobs(g.x, g.y, g.r)) if (!m.dead) freezeMob(m, 1500, 0, 0, inst, p);
     inst.emit({ e: 'aoe', v: 'nova', x: Math.round(g.x), y: Math.round(g.y), r: Math.round(g.r), d: 450, el: elIdx('cold'), s: p.id }, g.x, g.y, p.id);
   }
 }
