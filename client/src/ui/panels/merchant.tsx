@@ -16,6 +16,7 @@ import { ProtectionBadge } from './itemProtection';
 import { ItemCard, ItemVisual, itemHover, toDelta } from './tooltip';
 import { cls, rarityClass, run, targetSlot } from './util';
 import { UiIcon, type UiIconName } from '../hud/UiIcons';
+import { RarityMark } from './rarityMark';
 
 type TradeTab = 'buy' | 'sell' | 'buyback';
 const TABS: { id: TradeTab; label: string; icon: UiIconName }[] = [
@@ -91,6 +92,7 @@ export function MerchantPanel() {
               {...itemHover(() => e.item, { compare: tab === 'buy' })}>
               <span class={cls('cell', rarityClass(e.item))}>
                 <ItemVisual item={e.item} size={44} />
+                <RarityMark item={e.item} />
                 <ProtectionBadge item={e.item} />
                 {up && <i class="cell-flag"><IconDelta up size={8} /></i>}
               </span>

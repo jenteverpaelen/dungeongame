@@ -21,6 +21,7 @@ import { hideTip, ItemVisual, itemHover, textTipHandlers } from './tooltip';
 import { cls, itemById, rarityClass, run, SLOT_LABEL, targetSlot } from './util';
 import { ITEM_PROTECTION_REASON } from '@shared/itemProtection';
 import { ProtectionBadge, ProtectionButton, toggleItemProtection } from './itemProtection';
+import { RarityMark } from './rarityMark';
 
 // ───────────────────────────── paperdoll ─────────────────────────────
 
@@ -141,6 +142,7 @@ function EqSlot({ slot, char }: { slot: Slot; char: CharacterSave }) {
       </div>
       {item && badgeOf(item)}
       {item && <ProtectionBadge item={item} />}
+      {item && <RarityMark item={item} />}
       {item && <SocketDots item={item} />}
     </div>
   );
@@ -250,6 +252,7 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
     >
       {item && <ItemVisual item={item} size={32} />}
       {item && <ProtectionBadge item={item} />}
+      {item && <RarityMark item={item} />}
       {item && badgeOf(item)}
       {item && <SocketDots item={item} />}
       {item && flag && <i class="cell-flag"><IconDelta up size={8} /></i>}

@@ -281,7 +281,7 @@ function SignedIn({ username, characters }: { username: string; characters: Auth
         <button type="button" class="btn" disabled={busy} onClick={() => void session.auth('cancelDeletion')}>Cancel deletion</button>
       </div>}
       <div class="ac-tabs" role="tablist">
-        {([['heroes', 'Heroes'], ['security', 'Security'], ['devices', 'Devices'], ['data', 'Your data']] as const).map(([id, label]) =>
+        {([['heroes', 'Heroes'], ['security', 'Security'], ['devices', 'Devices'], ['data', 'Data']] as const).map(([id, label]) =>
           <button key={id} type="button" role="tab" aria-selected={tab === id} class={tab === id ? 'on' : ''} onClick={() => { setTab(id); setLocal(null); setError(null); }}>{label}</button>)}
       </div>
       {tab === 'heroes' && <>

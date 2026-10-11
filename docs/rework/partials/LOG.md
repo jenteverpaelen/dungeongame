@@ -53,3 +53,16 @@
   active heroes per day, deaths by zone; `analyze-telemetry.ts --html out.html` writes one self-contained page (single
   series bars ≤24 px, value at tip, hover/focus tooltip, table view per chart, light/dark tokens, no network, names
   escaped). Test added (5/5). Shots: `shots/tel05-analytics-1366.jpg`, `-hover.jpg` (synthetic sample, labelled).
+- **Merge** `claude/town-ui-rework` @39ab451 (build-depth foundation). Fixture conflict: kept foundation's v14, added
+  v15-nodes to the save history (`mayRepair`: nodes are re-validated); both sides were protocol 23 → 24.
+- **F-SET-01 / F-SET-02 / F-SET-03, F-PLT-01 (low-spec), F-CMB-07 (shake strength).** Settings window rebuilt into Sound,
+  Display, Graphics, Accessibility, Controls, Gamepad (all text via `settingsMessages.ts`; `settings.tsx` added to the
+  localization ratchet). Graphics presets Low/Medium/High/Custom with render resolution (live `renderer.resize`),
+  effect density (particle budget ×1/×0.5/×0.2), ambient density, antialias (reload), foreground/background frame caps;
+  low-spec hint after 20 s < 40 fps. Audio: alerts bus (fanfares) + mute in background. Reduce motion (system/reduce/
+  full) for shake, background life, bursts, CSS animation, floating numbers. Colour-vision presets as overrides of
+  `--r-*` + runtime `RARITY_COLORS` + beams/glows (Machado 2009 + OKLab: worst CVD pair 6.7–12.2 → 20.9–22.3 [M]);
+  rarity shape marks on every slot. Damage numbers: size, others/taken/healing, crits only. Gamepad: standard mapping,
+  13 remappable actions, spatial focus in windows, device-aware prompts. Preset cost measured (Low 105–110 fps vs High
+  42–72, p95 18 ms). Account tab label shortened to "Data" (fits 1366). Tests: preferences/quality/gamepad 32/32 with
+  bindings/messages/lifetime. Doc: SETTINGS.md. Shots: `set-*`, `set-inv-*`, `shapes-*`, `pad-*`, `acct-*`.

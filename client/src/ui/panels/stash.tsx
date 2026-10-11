@@ -13,6 +13,7 @@ import { invUI } from './cubestate';
 import { ProtectionBadge, ProtectionButton, toggleItemProtection } from './itemProtection';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { UiIcon } from '../hud/UiIcons';
+import { RarityMark } from './rarityMark';
 
 type Filter = 'all' | 'weapons' | 'armor' | 'jewelry' | 'legendary';
 const FILTERS: { id: Filter; label: string }[] = [
@@ -72,6 +73,7 @@ export function StashPanel() {
             {...itemHover(() => ui.get().char?.stash?.[i] ?? null)}>
             {item && <ItemVisual item={item} size={32} />}
             {item && <ProtectionBadge item={item} />}
+            {item && <RarityMark item={item} />}
           </button>;
         })}
       </div>

@@ -67,6 +67,11 @@
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
     },
     {
+      "file": "client/src/i18n/settingsMessages.ts",
+      "text": "Paragon",
+      "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"
+    },
+    {
       "file": "client/src/ui/hud/Feed.tsx",
       "text": "Health Globe",
       "reason": "pending rename; see docs/rework/partials/NAME-REGISTER.md"

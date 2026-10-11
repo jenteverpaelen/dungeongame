@@ -23,9 +23,14 @@ interface Engine {
   pri: GainNode;
   effects: GainNode;
   priorityEffects: GainNode;
+  /** Loot / level-up / rift fanfares: their own volume (Settings → Sound → Alerts); never ducked. */
+  alerts: GainNode;
   ambience: GainNode;
   build: (...p: number[]) => ArrayLike<number>;
 }
+
+/** Progress and reward fanfares routed to the alerts bus. Priority combat cues (a boss roar) stay with effects. */
+export const ALERT_SOUNDS: ReadonlySet<string> = new Set(['level', 'paragon', 'legendary', 'set', 'gear_rank', 'gear_rank_big', 'primal', 'rift']);
 
 class Sfx {
   private eng: Engine | null = null;
@@ -40,8 +45,11 @@ class Sfx {
   private loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>();
   private wantLoops = new Set<string>();
   private muted = false;
+  /** True while the window is unfocused and the player chose "mute in background". */
+  private backgroundMuted = false;
   private effectsVolume = 1;
   private ambienceVolume = 1;
+  private alertsVolume = 1;
   private ambient = new Map<string, {src:AudioBufferSourceNode; gain:GainNode; pan:StereoPannerNode}>();
 
   /** Town emitter loops have independent positions and lifetime, through the same mute/volume bus. */
@@ -64,8 +72,8 @@ class Sfx {
 
   /** Read-only audio graph evidence for the existing game debug API; never sampled per frame. */
   inspect() {
-    return {state:this.eng?.ctx.state??'locked',muted:this.muted,master:this.eng?.master.gain.value??0,
-      categories:this.eng?{effects:this.eng.effects.gain.value,priorityEffects:this.eng.priorityEffects.gain.value,ambience:this.eng.ambience.gain.value}:null,
+    return {state:this.eng?.ctx.state??'locked',muted:this.muted,backgroundMuted:this.backgroundMuted,master:this.eng?.master.gain.value??0,
+      categories:this.eng?{effects:this.eng.effects.gain.value,priorityEffects:this.eng.priorityEffects.gain.value,alerts:this.eng.alerts.gain.value,ambience:this.eng.ambience.gain.value}:null,
       channelLoops:[...this.loops.keys()],requestedLoops:[...this.wantLoops],
       listener:[this.lx,this.ly],loops:[...this.ambient].map(([id,v])=>({id,gain:v.gain.gain.value,pan:v.pan.pan.value})),
       buffers:[...this.buffers].filter(([name])=>name.startsWith('town_')).map(([name,b])=>{
@@ -77,17 +85,21 @@ class Sfx {
   constructor() {
     const apply = () => {
       const p = preferences.get().values;
+      this.backgroundMuted = p.muteInBackground && typeof document !== 'undefined' && !document.hasFocus();
       this.setVolume(p.masterVolume); this.setMuted(p.muted);
-      this.effectsVolume = p.effectsVolume; this.ambienceVolume = p.ambienceVolume;
+      this.effectsVolume = p.effectsVolume; this.ambienceVolume = p.ambienceVolume; this.alertsVolume = p.alertsVolume;
       if (this.eng) {
         const t = this.eng.ctx.currentTime;
         this.eng.effects.gain.setTargetAtTime(p.effectsVolume, t, 0.02);
         this.eng.priorityEffects.gain.setTargetAtTime(p.effectsVolume, t, 0.02);
+        this.eng.alerts.gain.setTargetAtTime(p.alertsVolume, t, 0.02);
         this.eng.ambience.gain.setTargetAtTime(p.ambienceVolume, t, 0.02);
       }
     };
     apply(); preferences.subscribe(apply);
     if (typeof window !== 'undefined') {
+      window.addEventListener('focus', apply);
+      window.addEventListener('blur', apply);
       const go = () => {
         this.unlock();
         // Escape is not a browser activation gesture. Keep retrying until audio really runs.
@@ -112,7 +124,7 @@ class Sfx {
     import('zzfx').then(({ ZZFX }) => {
       const ctx = ZZFX.audioContext;
       const master = ctx.createGain();
-      master.gain.value = this.muted ? 0 : this.volume;
+      master.gain.value = this.muted || this.backgroundMuted ? 0 : this.volume;
       const comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -16;
       comp.knee.value = 12;
@@ -121,15 +133,16 @@ class Sfx {
       comp.release.value = 0.2;
       const bus = ctx.createGain();
       const pri = ctx.createGain();
-      const effects = ctx.createGain(), priorityEffects = ctx.createGain(), ambience = ctx.createGain();
+      const effects = ctx.createGain(), priorityEffects = ctx.createGain(), ambience = ctx.createGain(), alerts = ctx.createGain();
       effects.gain.value = priorityEffects.gain.value = this.effectsVolume;
+      alerts.gain.value = this.alertsVolume;
       ambience.gain.value = this.ambienceVolume;
-      effects.connect(bus); priorityEffects.connect(pri); ambience.connect(bus);
+      effects.connect(bus); priorityEffects.connect(pri); alerts.connect(pri); ambience.connect(bus);
       bus.connect(comp);
       pri.connect(comp);
       comp.connect(master);
       master.connect(ctx.destination);
-      this.eng = { ctx, master, bus, pri, effects, priorityEffects, ambience, build: (...p) => ZZFX.buildSamples(...p) };
+      this.eng = { ctx, master, bus, pri, effects, priorityEffects, alerts, ambience, build: (...p) => ZZFX.buildSamples(...p) };
       void ctx.resume().catch(() => undefined);
       for (const name of this.wantLoops) this.startLoop(name);
       this.prebake();
@@ -145,12 +158,12 @@ class Sfx {
   /** Master volume 0..1. */
   setVolume(v: number): void {
     this.volume = Math.max(0, Math.min(1, v));
-    if (this.eng && !this.muted) this.eng.master.gain.setTargetAtTime(this.volume, this.eng.ctx.currentTime, 0.02);
+    if (this.eng && !this.muted && !this.backgroundMuted) this.eng.master.gain.setTargetAtTime(this.volume, this.eng.ctx.currentTime, 0.02);
   }
 
   setMuted(m: boolean): void {
     this.muted = m;
-    if (this.eng) this.eng.master.gain.setTargetAtTime(m ? 0 : this.volume, this.eng.ctx.currentTime, 0.02);
+    if (this.eng) this.eng.master.gain.setTargetAtTime(m || this.backgroundMuted ? 0 : this.volume, this.eng.ctx.currentTime, 0.02);
   }
 
   /** Play a one-shot. With x/y the sound is positional (attenuated and panned around the listener). */
@@ -195,7 +208,7 @@ class Sfx {
       g.connect(p);
       node = p;
     }
-    node.connect(def.pri ? eng.priorityEffects : eng.effects);
+    node.connect(ALERT_SOUNDS.has(name) ? eng.alerts : def.pri ? eng.priorityEffects : eng.effects);
     src.connect(g);
     this.voices++;
     src.onended = () => { this.voices--; src.disconnect(); g.disconnect(); if (node !== g) node.disconnect(); };

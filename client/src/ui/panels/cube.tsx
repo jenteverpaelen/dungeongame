@@ -26,6 +26,7 @@ import { CubeEmblem, GemIcon, IconArrowRight, IconCheck, IconChevron, IconDelta,
 import { CubeFnIcon } from './skillicons';
 import { useLocal, useU } from './state';
 import { ItemVisual, itemHover } from './tooltip';
+import { RarityMark } from './rarityMark';
 import {
   affixText, armorValue, cls, emphasize, fmtPowerValue, fmtRange, itemById, itemTypeLine, rarityClass, rollFraction, run, scaledAffix, weaponStats,
 } from './util';
@@ -466,6 +467,7 @@ function CandidateStrip({ fn, char }: { fn: CubeOp; char: CharacterSave }) {
         {shown.map((it) => (
           <button key={it.id} class={cls('cell', rarityClass(it))} aria-label={`Use ${it.name}`} onClick={() => setCubeItem(it.id)} {...itemHover(() => itemById(ui.get().char, it.id))}>
             <ItemVisual item={it} size={32} />
+            <RarityMark item={it} />
             {it.upgrade > 0 && <span class="cell-up">+{it.upgrade}</span>}
           </button>
         ))}

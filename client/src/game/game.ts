@@ -28,6 +28,14 @@ import { questAtTarget, questMarker } from '@shared/quests';
 import { openJournal } from '../ui/panels/adventure';
 import { Input } from './input';
 import { preferences } from './preferences';
+import { LowSpecMonitor } from './quality';
+import { GamepadInput, type PadAction } from './gamepad';
+import { bindings } from './bindings';
+
+/** Gamepad menu actions → the same hotkey handler the keyboard uses. */
+const PAD_HOTKEYS: Record<Exclude<PadAction, 'interact' | 'dash' | 'cast1' | 'cast2' | 'cast3' | 'cast4'>, string> = {
+  inventory: 'i', skills: 'k', journal: 'j', map: 'm', settings: 'o', paragon: 'p', cube: 'u',
+};
 import { Predictor } from './prediction';
 import { ClientWorld } from './world';
 import { completedRunSummary } from './runSummary';
@@ -47,6 +55,14 @@ export class Game {
   private lastUi = 0;
   private fpsFrames = 0;
   private fpsT = 0;
+  private lowSpec = new LowSpecMonitor();
+  /** Gamepad (standard mapping): same actions as the keyboard; d-pad navigates windows. */
+  private pad = new GamepadInput({
+    onAction: (a) => this.padAction(a),
+    uiOpen: () => { const s = ui.get(); return s.screen !== 'game' || s.chatOpen || Object.values(s.panels).some(Boolean) || s.account.open; },
+    onBack: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })),
+    onActive: () => bindings.setDevice('gamepad'),
+  });
   private lastRiftKey = '';
   private lastDungeonKey = '';
   private lastFieldEventKey = '';
@@ -394,6 +410,16 @@ export class Game {
 
   // ─────────────────────────── Input ───────────────────────────
 
+  private padAction(a: PadAction) {
+    const noop = { preventDefault() {} } as KeyboardEvent;
+    switch (a) {
+      case 'interact': if (ui.get().screen === 'game') this.interact(); return;
+      case 'dash': sfx.unlock(); this.predictor.queueDash(); return;
+      case 'cast1': case 'cast2': case 'cast3': case 'cast4': this.manualSkill(Number(a.slice(4)) - 1); return;
+      default: this.hotkey(PAD_HOTKEYS[a], noop);
+    }
+  }
+
   private manualSkill(slot: number) {
     const st = ui.get();
     if (!preferences.get().values.manualSkills || st.screen !== 'game' || !st.connected || st.chatOpen || Object.values(st.panels).some(Boolean)) return;
@@ -506,9 +532,11 @@ export class Game {
 
   private frame(dtMs: number) {
     funnel.clock(performance.now(),!document.hidden&&ui.get().screen==='game');
+    this.pad.poll();
     const st = ui.get();
     if (st.screen === 'game' && this.world.map) {
-      const mv = st.chatOpen ? { x: 0, y: 0 } : this.input.move();
+      const pv = this.pad.move();
+      const mv = st.chatOpen ? { x: 0, y: 0 } : pv.x || pv.y ? pv : this.input.move();
       if (this.conn) this.predictor.update(dtMs, mv.x, mv.y, this.world.collision, (m) => this.conn!.send(m));
       this.world.interpolate();
       const me = this.predictor.ready
@@ -523,7 +551,12 @@ export class Game {
     }
     this.fpsFrames++;
     this.fpsT += dtMs;
-    if (this.fpsT >= 1000) { ui.set({ fps: Math.round((this.fpsFrames * 1000) / this.fpsT) }); this.fpsFrames = 0; this.fpsT = 0; }
+    if (this.fpsT >= 1000) {
+      const fps = Math.round((this.fpsFrames * 1000) / this.fpsT);
+      ui.set({ fps }); this.fpsFrames = 0; this.fpsT = 0;
+      // Low-spec suggestion: 20 s in game below 40 fps (visible page, no low cap) → offer the Low preset once.
+      if (this.lowSpec.sample(fps, ui.get().screen === 'game', !document.hidden, preferences.get().values)) pushNotice(text('settings.lowSpecNotice', { fps: String(fps) }), 'info');
+    }
   }
 
   /** 10 Hz UI updates: target frame, interact prompt, DPS meter. */
