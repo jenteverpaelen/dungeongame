@@ -7,6 +7,7 @@ import { sfx } from '../../audio/sfx';
 import type { VfxContext, VfxLayers } from './index';
 import { getFxAtlas, type FxTextures } from './atlas';
 import { FxSystem } from './particles';
+import type { WeaponSkin } from '../art/weaponSkin';
 
 export interface EntInfo {
   kind: 'player' | 'mob';
@@ -113,6 +114,15 @@ export class VfxCore {
     this.mineCache.set(src, { mine, at: this.real });
     if (this.mineCache.size > 400) this.mineCache.clear();
     return mine;
+  }
+
+  /** The attack presentation of a hero source's weapon (render/art/weaponSkin.ts), or null (monsters, summons, plain
+   *  weapons). Other players' skins only while the particle budget allows (crowd budget). */
+  skinOf(src: number | undefined): WeaponSkin | null {
+    if (!src) return null;
+    if (src !== this.ctx.myId() && this.sys.budget < 0.45) return null;
+    const sk = this.ctx.entityView(src)?.weaponSkin?.() ?? null;
+    return sk && sk.light && sk.strength > 0 ? sk : null;
   }
 
   /** Feet position + sprite height of an entity. */

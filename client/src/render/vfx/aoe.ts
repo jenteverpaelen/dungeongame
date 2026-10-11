@@ -7,6 +7,7 @@ import type { VfxCore } from './core';
 import type { Combat } from './combat';
 import type { Fx } from './particles';
 import type { Slashes } from './slash';
+import type { WeaponSkin } from '../art/weaponSkin';
 import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, EL_POISON, TAU, clamp, easeIn, easeOut, lerpColor, pal, rand } from './util';
 
 type Aoe = Extract<GameEvent, { e: 'aoe' }>;
@@ -66,7 +67,7 @@ export class AoeFx {
       case 'whirl': this.whirl(ev.x, ev.y, r, ev.el); break;
       case 'cleave':
         if (V.consume('cleave', ev.x, ev.y, 0.15, 40)) break;
-        this.cleave(ev.x, ev.y, r, ev.a ?? 0, ev.el, false);
+        this.cleave(ev.x, ev.y, r, ev.a ?? 0, ev.el, false, V.skinOf(ev.s));
         break;
       case 'chain': this.chainZap(ev.x, ev.y, r); break;
       case 'slam': this.slam(ev.x, ev.y, r, ev.el, 1); break;
@@ -498,15 +499,17 @@ export class AoeFx {
     if (el === EL_FIRE) for (let i = 0; i < 2; i++) s.ember(x + rand(-r, r) * 0.6, y, 10, 0xff8a3d, 0.6, 5, 60);
   }
 
-  /** Cleave arc toward angle `a` (radius r). */
-  cleave(x: number, y: number, r: number, a: number, el: number, wide: boolean): void {
+  /** Cleave arc toward angle `a` (radius r). `skin`: the attacker's weapon presentation (gear V2 pass 2.1): a physical
+   *  arc takes the weapon's light and strongly lit weapons add a thin bright inner arc; the radius never changes. */
+  cleave(x: number, y: number, r: number, a: number, el: number, wide: boolean, skin: WeaponSkin | null = null): void {
     const V = this.V, s = V.sys, T = s.T;
     const light = el === EL_LIGHT;
-    const col = light ? 0xb9a2ff : el === EL_FIRE ? 0xff9a4a : 0xfff0d8;
+    const col = light ? 0xb9a2ff : el === EL_FIRE ? 0xff9a4a : skin ? lerpColor(0xfff0d8, skin.light, Math.min(0.5, 0.18 + 0.16 * skin.strength)) : 0xfff0d8;
     const sweep = 0.9, life = 0.2;
     // Swing from the back of the arc through the target direction (the bright head ends just past `a`).
     const dir = Math.cos(a) >= 0 ? 1 : -1;
     this.slashes.spawn({ tex: wide ? T.swipeWide : T.swipe, x, y, z: WAIST, r, rot: a - dir * sweep * 0.65, vr: (dir * sweep) / life, life, color: col, alpha: 1, grow: [0.9, 1.04], fadeIn: 0.08 });
+    if (skin && skin.strength >= 0.8) this.slashes.spawn({ tex: T.swipeThin, x, y, z: WAIST + 2, r: r * 0.93, rot: a - dir * sweep * 0.6, vr: (dir * sweep) / (life * 1.1), life: life * 1.1, color: skin.edge || skin.core, alpha: Math.min(0.8, 0.35 + 0.22 * skin.strength), grow: [0.88, 1.02], fadeIn: 0.1 });
     const tipA = a + dir * 0.25;
     for (let i = 0, n = s.n(5); i < n; i++) {
       const rr = r * rand(0.7, 1);

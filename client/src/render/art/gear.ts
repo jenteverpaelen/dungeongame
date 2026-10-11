@@ -13,9 +13,8 @@ import {
 import { BLUSH, BONE, GOLD, OUTFIT, WOOD, WOOD_DARK } from './palette';
 import { light, mix, shade } from './util';
 import { decorHand, decorShoulder } from './gearDecor';
-import { itemStyle } from './gearStyle';
-import { SHAPE_FAMILY } from './gearVisuals';
-import { localXf, weaponModel, type WLayer } from './weaponArt';
+import { localXf } from './weaponArt';
+import { weaponDrawing, type WLayer } from './weaponDrawing';
 
 export interface Body {
   cls: ClassId;
@@ -563,13 +562,11 @@ export function drawWeapon(c: Ctx, l: ItemLook, rig = false, layer: WLayer = 'ba
   if (layer === 'base') drawWeaponBase(c, l, rig);
 }
 
-/** Held items with an identity (heroes, loot) draw through the parametric V2 art (weaponArt.ts); townsfolk tools and
- *  looks without identity keep the drawings below. `floats`: also draw the floating pieces at rest (icons). */
+/** Held items with an identity (heroes, loot) draw through the weapon-drawing interface (weaponDrawing.ts); townsfolk
+ *  tools and looks without identity keep the drawings below. `floats`: also draw the floating pieces at rest (icons). */
 export function drawHeldV2(c: Ctx, l: ItemLook, rig: boolean, layer: WLayer, floats: boolean): boolean {
-  const s = itemStyle(l);
-  const fam = s ? SHAPE_FAMILY[l.shape] : undefined;
-  if (!s || !fam) return false;
-  const m = weaponModel(l, s, fam.family, rig);
+  const m = weaponDrawing(l, rig);
+  if (!m) return false;
   m.draw(c, layer);
   if (floats && layer === 'base') for (const f of m.floats) {
     const a = f.phase;
