@@ -393,7 +393,7 @@ test('tagGrant: one fixed order — grants read the ungranted index together, su
     { kind: 'skillMore', tags: { anyOf: ['spender'] }, pct: 10 },
   ] }], idx, { legendaries: 0, setBonus: false, slots: ['multishot', null, null, null] });
   assert(rt.index.get('sentry')!.has('mark') && !rt.index.get('sentry')!.has('trap'), 'no chaining between grants');
-  assert(rt.index.get('hungering_arrow')!.has('spender') && rt.index.get('hungering_arrow')!.has('area'), 'the primary gained slot 1 (Multishot) tags');
+  assert(rt.index.get('hungering_arrow')!.has('spender'), 'the primary gained slot 1 (Multishot: Spender · Projectile · Piercing) tags');
   assert.equal(rt.ownStatic.get('hungering_arrow'), 1.1, 'later tag-keyed effects see the grant');
   const w = buildPowerRuntime([{ kind: 'inscription', id: 'fx', roll: 1, effects: [{ kind: 'tagGrant', skills: ['whirlwind'], add: ['burn'] }] }], tagIndexFor('warrior', {}));
   assert(w.index.get('dust_devil')!.has('burn'), 'sub-strikes inherit their owner\'s grants');
