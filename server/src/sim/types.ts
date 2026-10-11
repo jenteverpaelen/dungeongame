@@ -26,9 +26,37 @@ export interface Buff {
   ias?: number;
   /** Hidden buffs are not shown in the HUD buff row. */
   hidden?: boolean;
+  /** Power buffs (engine wave 2): generic damage per stack, % less damage taken, immunity to control. */
+  sdmg?: number;
+  dr?: number;
+  cci?: boolean;
 }
 
-export interface LiveMods { dmg: number; chc: number; chd: number; ias: number }
+/** Live buff totals. `dr` (damage-taken factor) and `cci` (control immune) exist once a refresh ran. */
+export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean }
+
+/** Per-player state of the wave-2 power primitives (created on first use; never persisted). */
+export interface PowerState {
+  /** Proc key → simulation time its internal cooldown ends. */
+  icd: Map<string, number>;
+  /** firstHit term index → time its window is ready again. */
+  firstHitAt: number[];
+  /** cheatDeath term index → time it is ready again. */
+  cheatAt: number[];
+  /** Not moved for this long (ms); tracked only while a standingStillMs condition is active. */
+  stillMs: number;
+  /** Position at the last power tick (distance-fed stacking). */
+  lastX: number;
+  lastY: number;
+  /** Stacking buff id → distance accumulated toward the next stack / kills toward the next stack. */
+  progress: Map<string, number>;
+  /** Stacking buff id → time of the last gained stack. */
+  gainT: Map<string, number>;
+  /** Some controlImmunity term holds this tick. */
+  ctrlImmune: boolean;
+  /** The last slot cast while a spendRefund rule applies to it: enemies its strikes hit inside the window. */
+  cast: { skill: string; cost: number; pct: number; minHits: number; until: number; hits: Set<number> } | null;
+}
 
 export type DotKind = 'bleed' | 'burn' | 'poison';
 
@@ -116,6 +144,10 @@ export interface Mob extends Hashed {
   holePct: number;
   /** Inside any Black Hole (power condition `inBlackHole`); holeMs/holePct stay the Heart of the Void vulnerability. */
   inHoleMs: number;
+  /** Ms since the last stun / freeze / knockback / pull ended (0 while controlled; absent = never controlled). */
+  ctrlAgo?: number;
+  /** Power statuses (weaken, taunt, freeze build-up, scoped vulnerability): created on first application. */
+  ps?: MobPowerStatus;
   kbX: number;
   kbY: number;
   kbMs: number;
@@ -160,6 +192,20 @@ export interface Mob extends Hashed {
   /** Molten affix: where the last trail patch was dropped. */
   trailX: number;
   trailY: number;
+}
+
+/** Statuses applied by power primitives (server/src/sim/status.ts). */
+export interface MobPowerStatus {
+  /** Outgoing damage × (1 − weakenPct / 100) while weakenMs > 0. */
+  weakenMs: number;
+  weakenPct: number;
+  /** Walks toward `tauntTo` (a summon, ground or fixed point) instead of fighting while tauntMs > 0. */
+  tauntMs: number;
+  tauntTo: { x: number; y: number; dead?: boolean; endT?: number; kind?: string; id?: number } | null;
+  /** Freeze build-up: [time, points] pairs inside the current window. */
+  build: number[];
+  /** Vulnerabilities scoped to one player's strikes (optionally only some skills, or all but some). */
+  vulns: { owner: number; scope: ReadonlySet<string> | null; except: boolean; pct: number; ms: number }[];
 }
 
 // ─────────────────────────── Summons ───────────────────────────
@@ -262,11 +308,15 @@ export interface Proj {
   tx: number;
   ty: number;
   dead: boolean;
+  /** Power projectile rules (engine wave 2), distance flown, wall bounces left. */
+  rule?: import('./powerRuntime').ProjRule;
+  flown?: number;
+  bounces?: number;
 }
 
 export const PB_SPLIT = 1, PB_DEVOUR = 2, PB_MARK = 4, PB_FREEZE = 8, PB_CHILL = 16, PB_BATTERY = 32, PB_SENTRY4 = 64, PB_NOGRENADE = 128, PB_ROCKETS = 256;
 
-export type GroundKind = 'molten' | 'blackhole' | 'rain' | 'trail' | 'pool';
+export type GroundKind = 'molten' | 'blackhole' | 'rain' | 'trail' | 'pool' | 'fx';
 
 export interface Ground {
   kind: GroundKind;
@@ -289,6 +339,10 @@ export interface Ground {
   voidPct: number;
   caught: Set<number> | null;
   el: Element;
+  /** Data-driven ground (kind 'fx'): server/src/sim/groundFx.ts. */
+  fx?: import('./groundFx').GroundFx;
+  /** Follows its owner (groundsFollow rule change). */
+  stick?: boolean;
 }
 
 // ─────────────────────────── Loot / statics ───────────────────────────
@@ -366,8 +420,12 @@ export interface Known { ver: number; seen: number }
 export interface Player extends Hashed {
   /** Debug-only, instance-local; never written to a character save. */
   debugInfiniteHp?: boolean;
+  /** Debug / harness only (with debugInfiniteHp): Life is pinned at this % of maximum instead of 100 %. */
+  debugPinLifePct?: number;
   /** Standing in one of the player's own ground effects (only tracked while a power condition needs it). */
   inOwnGround?: boolean;
+  /** Wave-2 power state (internal cooldowns, first-hit / cheat-death timers, stacking progress). */
+  pw?: PowerState;
   kind: 'player';
   id: number;
   link: PlayerLink;

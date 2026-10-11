@@ -12,6 +12,7 @@ import type { Instance } from './instance';
 import { dropForMob } from './loot';
 import { grantXp, touchChar } from './players';
 import { skillDeathHooks } from './skills';
+import { onKillStacking } from './powerActions';
 import { firePowerProcs } from './powerRuntime';
 import type { Mob, Player } from './types';
 import { creditQuestKill } from '../quests';
@@ -57,8 +58,10 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
     if (!m.noReward && !riftGuardian) dropForMob(inst, p, m);
     if (p === killer) {
       if (p.ctx.d.lifePerKill > 0) healPlayer(inst, p, p.ctx.d.lifePerKill, true);
-      if (eliteKill) firePowerProcs(inst, p, 'eliteKill');
-      firePowerProcs(inst, p, 'kill');
+      const pc = { skill, mob: m, el };
+      if (eliteKill) firePowerProcs(inst, p, 'eliteKill', pc);
+      firePowerProcs(inst, p, 'kill', pc);
+      if (p.ctx.powers.stacking.length) onKillStacking(inst, p, skill);
     }
     touchChar(p);
   }

@@ -2,7 +2,8 @@
 // + set bonuses). Rebuilt whenever the save changes (level-up, equipment, skills, paragon, cube).
 
 import { CLASSES, SKILLS, computeStats, loadoutMods, mergeMods, type DerivedStats, type SkillMods } from '../shared';
-import { allPowerSources } from '../../../shared/src/powerSources';
+import { powerCounts } from '../../../shared/src/stats';
+import { allPowerSources, type PowerSource } from '../../../shared/src/powerSources';
 import { passivePowerSources } from '../../../shared/src/passives';
 import { buildPowerRuntime, ownMultiplier, tagIndexFor, type PowerRuntime } from './powerRuntime';
 import type { Player, PlayerCtx, SaveX, SkillRuntime } from './types';
@@ -15,9 +16,12 @@ function runtime(save: SaveX, powers: PowerRuntime, skillId: string): SkillRunti
   return { def, mods, flags: new Set(mods.flags ?? []) };
 }
 
-export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save)): PlayerCtx {
+/** `extra` sources join after the save's own (tests, sandbox / build tools); the game never passes any. */
+export function buildCtx(save: SaveX, d: DerivedStats = computeStats(save), extra: readonly PowerSource[] = []): PlayerCtx {
   // One interpreter for every power template (sets → legendaries → passives → nodes): shared/src/powerSources.ts.
-  const powers = buildPowerRuntime(allPowerSources(save, d.powers, d.sets, passivePowerSources(save)), tagIndexFor(save.classId, save.skills.runes));
+  const sources = allPowerSources(save, d.powers, d.sets, passivePowerSources(save));
+  const powers = buildPowerRuntime(extra.length ? [...sources, ...extra] : sources, tagIndexFor(save.classId, save.skills.runes),
+    { ...powerCounts(save.equipment, d.sets), slots: save.skills.slots });
   const cache = new Map<string, SkillRuntime>();
   const get = (id: string) => {
     let r = cache.get(id);

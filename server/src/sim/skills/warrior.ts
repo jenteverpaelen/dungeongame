@@ -4,7 +4,7 @@
 import { modVar, skillBuffBonuses } from '../../shared';
 import { bestConeAngle, pickTarget } from '../brain';
 import { gainResource, makeDot, strikeMob } from '../damage';
-import { addBuff, addDot, chillMob, dragMob, elIdx, getBuff, hasDot, inCone, knockbackMob, stunMob } from '../effects';
+import { addBuff, addDot, addOwnedDot, chillMob, dragMob, elIdx, getBuff, hasDot, inCone, knockbackMob, stunMob } from '../effects';
 import type { Instance } from '../instance';
 import { skillDurationMs, skillElement, skillMult, skillPct, skillRadius } from '../playerctx';
 import { moveSummon, spawnSummon } from '../summons';
@@ -65,7 +65,7 @@ function applyRend(inst: Instance, p: Player, rt: SkillRuntime, m: Mob, mult = 1
   const dur = skillDurationMs(rt);
   const st = strikeOf(p, rt);
   st.mult = (st.mult ?? 1) * mult;
-  addDot(m, makeDot(inst, p, st, 'bleed', dur, 500, { heal: rt.flags.has('bleedHeal'), spread: rt.flags.has('bleedSpread') }));
+  addOwnedDot(p, m, makeDot(inst, p, st, 'bleed', dur, 500, { heal: rt.flags.has('bleedHeal'), spread: rt.flags.has('bleedSpread') }));
 }
 
 /** Dust Devil: wanders through nearby enemies for its life, ticking every 0.25 s. */
@@ -117,14 +117,14 @@ function groundStomp(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     for (const m of inst.queryMobs(p.x, p.y, 320)) {
       if (m.dead) continue;
       const d = Math.hypot(m.x - p.x, m.y - p.y);
-      if (d > 60 + m.r) dragMob(inst, m, p.x, p.y, d - 50 - m.r);
+      if (d > 60 + m.r) dragMob(inst, m, p.x, p.y, d - 50 - m.r, p);
     }
   }
   const st = strikeOf(p, rt);
   const stunMs = skillDurationMs(rt);
   for (const m of inst.queryMobs(p.x, p.y, radius)) {
     if (m.dead) continue;
-    stunMob(m, stunMs); // stun first so Jarring Slam / Anvil vulnerability applies to the stomp itself
+    stunMob(m, stunMs, inst, p); // stun first so Jarring Slam / Anvil vulnerability applies to the stomp itself
     strikeMob(inst, p, m, st);
   }
   gainResource(p, rt.def.gen + (rt.mods.gen ?? 0));
@@ -154,8 +154,8 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
       if (m.dead || !inCone(m.x, m.y, m.r, ox, oy, ang!, half, len)) continue;
       const r = strikeMob(inst, p, m, s);
       if (r.killed || m.dead) continue;
-      if (push) knockbackMob(m, m.x - ox, m.y - oy, kb);
-      if (chill) chillMob(m, 2000);
+      if (push) knockbackMob(m, m.x - ox, m.y - oy, kb, inst, p);
+      if (chill) chillMob(m, 2000, inst, p);
     }
   };
   hitCone(st, true);
