@@ -158,3 +158,14 @@
   re-recorded after the Warrior pilot (the old one already missed L5 champion TTK, 5.8 > 5.6 s), AFK table regenerated.
   Stash: five tabs at one measured hour each → 170 K / 630 K / 2.1 M / 3.4 M from the new baseline; D-24 recommendation
   adopted: per character now, account-wide shared tab(s) for account holders together with F-MET-01 (P14).
+- **F-WLD-06 — town reflects the systems (owner unfroze the town 2026-10-11).** Per player, client-only
+  (`client/src/game/townProgress.ts` rules, `client/src/render/townProgress.ts` view, refreshed with the save): each
+  Reliquary operation the hero has unlocked adds one kit prop at the artisan who performs it — Empower: forge brazier
+  (Blacksmith); Gem Fusion: display table and Add Socket: stone lantern (Jeweler); Enchant: lantern (Glasswright);
+  Transmute / Bind Power: lanterns at the Reliquary door, Reforge: brazier — and every bought stash tab adds a strongbox
+  beside the stash (2 × 2 cluster, the vault clerk stays clear). Grounding: Diablo III's artisan shops visibly grow as
+  they are trained [K]; the steps are our own unlock table and tab count. Existing town art kinds only (`place`), no
+  collision, services/ids untouched; a debug op `cube {n}` sets the Reliquary level for QA. Tests
+  `townProgress.test.ts` 2/2 (one prop per unlock, every prop on an authored NPC, off the approach point). Evidence:
+  `shots/town-progress-{west,east}-{fresh,progressed}-1920.jpg` (fresh hero vs Reliquary 8 + five tabs bought through
+  `stashBuyTab`).

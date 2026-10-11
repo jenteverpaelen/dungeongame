@@ -32,7 +32,7 @@ const stages = [
   ['backup-aux', ['--import', 'tsx', '--test', 'server/test/backupAux.test.ts']],
   ['backup-drill', ['--import', 'tsx', '--test', 'server/test/backupDrill.test.ts']],
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
-  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts', 'client/src/game/quality.test.ts', 'client/src/game/gamepad.test.ts']],
+  ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts', 'client/src/game/quality.test.ts', 'client/src/game/gamepad.test.ts', 'client/src/game/townProgress.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
   ['offline-gains', ['--import', 'tsx', '--test', 'server/test/afk.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts', 'server/test/stashTabs.test.ts']],

@@ -750,6 +750,12 @@ const debug: Handler = (s, a) => {
       save.gold += n;
       return done(s, false, { gold: save.gold });
     }
+    case 'cube': {
+      // QA: set the Reliquary level (unlocks; the town shows them, F-WLD-06). XP restarts at 0 for that level.
+      save.cube.level = int(a, 'n', 1, CUBE_FUNCTIONS.length, CUBE_FUNCTIONS.length);
+      save.cube.xp = 0;
+      return done(s, false, { level: save.cube.level });
+    }
     case 'mats': {
       const n = int(a, 'n', 1, 1_000_000_000, 100);
       for (const k of MAT_IDS) save.materials[k] += n;
