@@ -1,5 +1,5 @@
 // Top-right cluster: zone plate, round bronze minimap (tiles baked once per map into an offscreen canvas,
-// entities drawn at 20 Hz in town, every frame elsewhere) and the rift progress bar.
+// entities drawn at 20 Hz in town, ~30 Hz elsewhere) and the rift progress bar.
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useUI, worldReader, type MinimapEntity } from '../store';
@@ -46,7 +46,7 @@ function npcIcon(g: CanvasRenderingContext2D, role: string, x: number, y: number
   switch (role) {
     case 'blacksmith': case 'jeweler': case 'mystic':
       dot(g, x, y, 6, role === 'blacksmith' ? '#dca877' : role === 'jeweler' ? '#77dfc1' : '#c6a2ee');
-      g.font = 'bold 8px Arial'; g.fillStyle = '#172029'; g.textAlign = 'center'; g.fillText(role[0].toUpperCase(), x, y + 3); break;
+      g.fillStyle = '#172029'; g.fillText(role[0].toUpperCase(), x, y + 3); break; // font set once by the caller
     case 'cube': diamond(g, x, y, 6, '#e0b45a'); diamond(g, x, y, 2.4, '#fff1c0'); break;
     case 'obelisk': diamond(g, x, y, 6.4, '#a56bff'); diamond(g, x, y, 2.4, '#e9d6ff'); break;
     case 'waypoint':
@@ -98,9 +98,12 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   const k = s * (TILE / BAKE_PX); // baked px -> canvas px
   g.imageSmoothingEnabled = true;
   g.imageSmoothingQuality = 'high';
-  g.setTransform(k, 0, 0, k, C - (me.x / TILE) * BAKE_PX * k, C - (me.y / TILE) * BAKE_PX * k);
-  g.drawImage(baked.canvas, 0, 0);
-  g.setTransform(1, 0, 0, 1, 0, 0);
+  // Blit only the visible part of the baked map: drawing the whole canvas (up to 2,560 x 2,048 px in the rebuilt zones)
+  // through a transform every frame was the minimap's main cost.
+  const ox = (me.x / TILE) * BAKE_PX, oy = (me.y / TILE) * BAKE_PX, half = C / k;
+  const sx = Math.max(0, ox - half), sy = Math.max(0, oy - half);
+  const ex = Math.min(baked.canvas.width, ox + half), ey = Math.min(baked.canvas.height, oy + half);
+  if (ex > sx && ey > sy) g.drawImage(baked.canvas, sx, sy, ex - sx, ey - sy, C + (sx - ox) * k, C + (sy - oy) * k, (ex - sx) * k, (ey - sy) * k);
 
   const px = (x: number) => C + (x - me.x) * s;
   const py = (y: number) => C + (y - me.y) * s;
@@ -110,17 +113,17 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
     return d > edge ? [C + (dx / d) * edge, C + (dy / d) * edge, true] : [x, y, false];
   };
 
-  // static map features
+  // static map features (quest point and markers only change with the character, so they are cached per save object)
   const save=ui.get().char;
-  if(save) {
-    const quest=trackedQuest(save);
-    const point=quest&&questPoint(baked.map,questObjective(save,quest),save);
-    if(point){const [x,y]=clampTo(px(point.x),py(point.y));diamond(g,x,y,7,'#ffdb83');}
-  }
-  for (const n of baked.map.npcs) {
-    npcIcon(g, n.role, px(n.x), py(n.y));
-    const marker=save&&questMarker(save,baked.map.zone,n.id);
-    if(marker){g.font='bold 15px sans-serif';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#140e0a';g.fillStyle='#ffdb83';g.strokeText(marker,px(n.x),py(n.y)-7);g.fillText(marker,px(n.x),py(n.y)-7);}
+  const q = questInfo(baked, save);
+  if (q.point) { const [x, y] = clampTo(px(q.point.x), py(q.point.y)); diamond(g, x, y, 7, '#ffdb83'); }
+  const r2 = (C + 12) * (C + 12);
+  // Setting ctx.font forces a style resolution, so it is set once per font, not once per NPC.
+  g.font = 'bold 8px Arial'; g.textAlign = 'center';
+  for (const n of baked.map.npcs) { const x = px(n.x), y = py(n.y); if ((x - C) ** 2 + (y - C) ** 2 <= r2) npcIcon(g, n.role, x, y); }
+  if (q.markers.length) {
+    g.font = 'bold 15px sans-serif'; g.lineWidth = 3; g.strokeStyle = '#140e0a'; g.fillStyle = '#ffdb83';
+    for (const m of q.markers) { const x = px(m.x), y = py(m.y) - 7; if ((x - C) ** 2 + (y - C) ** 2 <= r2) { g.strokeText(m.text, x, y); g.fillText(m.text, x, y); } }
   }
   for (const p of baked.map.portals) { const [x, y, off] = clampTo(px(p.x), py(p.y)); if (!off) portalIcon(g, x, y, t); }
 
@@ -160,12 +163,25 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   meArrow(g, C, C, heading);
   g.restore();
 
-  // soft vignette into the ring
-  const v = g.createRadialGradient(C, C, C * 0.62, C, C, C);
-  v.addColorStop(0, 'rgba(0,0,0,0)');
-  v.addColorStop(1, 'rgba(0,0,0,.55)');
+  // soft vignette into the ring (gradient built once per context)
+  let v = vignettes.get(g);
+  if (!v) { v = g.createRadialGradient(C, C, C * 0.62, C, C, C); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)'); vignettes.set(g, v); }
   g.fillStyle = v;
   g.beginPath(); g.arc(C, C, C, 0, 6.2832); g.fill();
+}
+
+const vignettes = new WeakMap<CanvasRenderingContext2D, CanvasGradient>();
+interface QuestInfo { key: unknown; mapKey: string; point: { x: number; y: number } | null; markers: { x: number; y: number; text: string }[] }
+let questCache: QuestInfo | null = null;
+/** Tracked-objective point and NPC quest markers; recomputed only when the character save object or the map changes. */
+function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char']): QuestInfo {
+  if (questCache && questCache.key === save && questCache.mapKey === baked.key) return questCache;
+  const quest = save ? trackedQuest(save) : null;
+  const point = (save && quest && questPoint(baked.map, questObjective(save, quest), save)) || null;
+  const markers: QuestInfo['markers'] = [];
+  if (save) for (const n of baked.map.npcs) { const text = questMarker(save, baked.map.zone, n.id); if (text) markers.push({ x: n.x, y: n.y, text }); }
+  questCache = { key: save, mapKey: baked.key, point, markers };
+  return questCache;
 }
 
 export function Minimap() {
@@ -207,9 +223,9 @@ export function Minimap() {
         }
         last = { x: me.x, y: me.y };
       }
-      // Town snapshots arrive at 20 Hz. Avoid repainting the full crowd between them;
-      // keep heading sampling above at display cadence and field/rift behavior unchanged.
-      if (map?.town && now - lastPaint < 50) return;
+      // Snapshots arrive at 20 Hz: repaint the town at 20 Hz and other zones at ~30 Hz (heading is still sampled every
+      // frame above). Repainting at the display rate (up to 165 Hz) cost ~3 ms per frame in the rebuilt zones.
+      if (now - lastPaint < (map?.town ? 50 : 33)) return;
       lastPaint = now;
       drawMinimap(g, baked, wr ? wr.entities() : [], me, heading, zoomRef.current, now / 1000);
     };
