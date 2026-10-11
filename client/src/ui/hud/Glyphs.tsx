@@ -341,6 +341,123 @@ const GLYPHS: Record<string, G> = {
       <circle cx="32" cy="31" r="2.4" fill="#fff" fill-opacity=".85" />
     </>
   ),
+  // Tolling Blow: a bronze bell ringing, ripples either side, clapper swinging
+  bell: () => (
+    <>
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <path d="M7 21C3 28 3 37 7 44M57 21C61 28 61 37 57 44" stroke-width="3" opacity=".9" />
+        <path d="M12.4 26C10.4 30 10.4 35 12.4 39M51.6 26C53.6 30 53.6 35 51.6 39" stroke-width="2.4" opacity=".7" />
+      </g>
+      <g {...main}>
+        <rect x="27" y="3.5" width="10" height="8" rx="3" />
+        <path d="M32 10C21.5 10 17.5 19 17.5 30V39C17.5 44 13 46.5 10 49.5H54C51 46.5 46.5 44 46.5 39V30C46.5 19 42.5 10 32 10Z" />
+        <rect x="8.5" y="48.5" width="47" height="6.5" rx="3" />
+        <circle cx="35" cy="58.5" r="4.2" />
+      </g>
+      <path d="M32 10C42.5 10 46.5 19 46.5 30V39C46.5 44 51 46.5 54 49.5H32Z" {...shade} fill-opacity=".24" />
+      <path d="M10 51.7H54" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round" />
+      <path d="M22.5 21C23.5 16 26.5 13.6 30.5 13.2" {...hiLine} />
+      <path d="M22 33V42" {...hiLine} stroke-width="1.6" stroke-opacity=".4" />
+    </>
+  ),
+  // Sawtooth Hatchet: a serrated hand hatchet mid-spin, trailing a red smear
+  hatchet: () => (
+    <>
+      <g fill="none" stroke-linecap="round">
+        <path d="M9 42C7 25 19 10 37 8" stroke={dark} stroke-width="9" opacity=".55" />
+        <path d="M9 42C7 25 19 10 37 8" stroke="#c0281e" stroke-width="5.6" opacity=".85" />
+        <path d="M15 53C26 61 44 60 54 47" stroke="#c0281e" stroke-width="3.6" opacity=".6" />
+      </g>
+      <g transform="rotate(-32 32 32)">
+        <rect x="25" y="13" width="7.4" height="47" rx="3.4" fill="#7a4a26" {...OUT} />
+        <path d="M27 18V54" stroke="#fff" stroke-opacity=".3" stroke-width="1.6" stroke-linecap="round" />
+        <g {...main}>
+          <path d="M21 12H32C38 12 42 9.5 46.5 6L49 9.4L52.5 10L52 14L55.4 16.2L53 19.8L55.4 23.4L52 25.6L52.5 29.4L49.2 30.6L48.4 34.4C42 30.6 38 29.6 32 29.6H21Z" />
+        </g>
+        <path d="M44.2 7.6L46.5 6L49 9.4L52.5 10L52 14L55.4 16.2L53 19.8L55.4 23.4L52 25.6L52.5 29.4L49.2 30.6L48.4 34.4L45.4 32.4C47.4 24.4 47.2 15.2 44.2 7.6Z" fill="#e8e2d6" stroke={dark} stroke-width="1.8" stroke-linejoin="round" paint-order="stroke" />
+        <path d="M32 29.6C38 29.6 42 30.6 48.4 34.4L49 31C43 27.6 38.6 26.6 32 26.6Z" {...shade} />
+        <path d="M33 14.8C38 14.8 41.5 13.4 45 11" {...hiLine} />
+        <circle cx="28.7" cy="20.6" r="2" fill={dark} />
+      </g>
+    </>
+  ),
+  // Muster Standard: a planted pole flying a madder banner with a hearth sigil
+  banner: () => (
+    <>
+      <path d="M4 61H30" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".6" />
+      <rect x="13" y="8" width="5.4" height="53.5" rx="2.4" fill="#6b4a2c" {...OUT} />
+      <path d="M15.7 1L20.2 9.6H11.2Z" fill="#e3d4ae" {...OUT} />
+      <g {...main}>
+        <path d="M18.4 11C30 7.5 42 14 59 10L52.5 23.5L59 37C42 41 30 34.5 18.4 37.5Z" />
+      </g>
+      <path d="M18.4 31.5C30 28.5 42 34.5 56.6 32L59 37C42 41 30 34.5 18.4 37.5Z" {...shade} />
+      <path d="M28.6 32V25C28.6 20.4 33 18 36.4 18C39.8 18 44.2 20.4 44.2 25V32" fill="none" stroke={dark} stroke-width="5.2" stroke-linecap="round" />
+      <path d="M28.6 32V25C28.6 20.4 33 18 36.4 18C39.8 18 44.2 20.4 44.2 25V32" fill="none" stroke="#ffe3a0" stroke-width="2.4" stroke-linecap="round" />
+      <path d="M36.4 31.4C33.6 29.8 33.6 26.8 35.4 24.6C35.4 26.4 36.4 26.6 37.2 25.6C37.2 23.8 36.4 22.6 37.2 20.8C40.4 23 40.8 27 39.2 29.6C38.6 30.8 37.6 31.4 36.4 31.4Z" fill="#ffc861" stroke={dark} stroke-width="1.2" stroke-linejoin="round" paint-order="stroke" />
+      <path d="M22 14.5C30 12.5 37 15.5 46 14" {...hiLine} stroke-width="1.7" />
+    </>
+  ),
+  // Ironplough: a steel share driving through the earth, soil curling over it, furrows behind
+  plough: () => (
+    <>
+      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".75">
+        <path d="M3 52C14 47.5 25 47.5 35 51" />
+        <path d="M3 60C14 55.5 25 55.5 35 59" />
+      </g>
+      <g {...main}>
+        <path d="M28 52C32 36 44 27 61 28C58 40 52 51 41 58C36 56 32 54 28 52Z" />
+        <circle cx="53" cy="17" r="4.2" />
+        <circle cx="60" cy="22" r="2.8" />
+        <circle cx="44" cy="14.5" r="2.8" />
+      </g>
+      <path d="M41 58C52 51 58 40 61 28C58 42 51 50 44 55Z" {...shade} />
+      <g fill="none" stroke-linecap="round">
+        <path d="M5 5L25 26" stroke={dark} stroke-width="8.4" />
+        <path d="M5 5L25 26" stroke="#9a7a52" stroke-width="4.4" />
+      </g>
+      <path d="M19 21L45 31L54 49L34 50C28.5 43 23 33 19 21Z" fill="#d9d3c5" {...OUT} />
+      <path d="M34 50L54 49L49.6 44.4L35.4 44.6Z" {...shade} />
+      <path d="M23 25L42 32.4" {...hiLine} stroke-opacity=".85" />
+    </>
+  ),
+  // Cairnfall: a stack of flat stones, a capstone dropping onto it
+  cairn: () => (
+    <>
+      <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".8">
+        <path d="M24 2V9M32 1V8M40 2V9" />
+        <path d="M4 58C5.6 54.4 8.6 54.6 9.6 57M60 58C58.4 54.4 55.4 54.6 54.4 57" />
+      </g>
+      <g {...main}>
+        <rect x="21" y="12" width="21" height="9" rx="4.5" transform="rotate(-10 31.5 16.5)" />
+        <rect x="8" y="47" width="48" height="12" rx="6" />
+        <rect x="14" y="37" width="36" height="11" rx="5.5" />
+        <rect x="21" y="28.5" width="23" height="9.5" rx="4.75" />
+      </g>
+      <path d="M8.6 54H55.4C54.6 57 52.5 59 50 59H14C11.5 59 9.4 57 8.6 54Z" {...shade} />
+      <path d="M14.6 43.5H49.4C48.6 46.5 47 48 44.5 48H19.5C17 48 15.4 46.5 14.6 43.5Z" {...shade} />
+      <path d="M13 51H37M19 41H35M25.5 32H36" {...hiLine} stroke-width="1.8" />
+    </>
+  ),
+  // Kilnheart: a domed brick kiln, its arched mouth roaring, smoke curling from the flue
+  furnace: () => (
+    <>
+      <path d="M41 7C46 3 52 5 51 10C56 11 56 17 51 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".55" />
+      <rect x="38.5" y="11" width="9" height="14" rx="2" fill="#4a2a18" {...OUT} />
+      <g {...main}>
+        <path d="M7 52C7 30 17 16 32 16C47 16 57 30 57 52Z" />
+      </g>
+      <path d="M32 16C47 16 57 30 57 52H45C45 36 40 22 32 16Z" {...shade} />
+      <g fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2" stroke-linecap="round">
+        <path d="M13 32H51M10 42H54M24 17.5V32M40 17.5V32M18 32V42M32 32V42M46 32V42" />
+      </g>
+      <path d="M20 52V43C20 36 25.5 32 32 32C38.5 32 44 36 44 43V52Z" fill="#2a0e06" stroke={dark} stroke-width="2.4" />
+      <path d="M32 51C26 48.6 25.4 43 29 39C29 41.8 30.6 42.6 31.8 41C31.8 37.8 30.6 35.4 32.2 33C38 36.6 39.2 43.4 36.4 47.4C35.2 49.6 33.8 51 32 51Z" fill="#ffd36a" stroke="#ff8a2a" stroke-width="1.2" />
+      <path d="M32 50C29.6 48.8 29.4 46 31 44.2C31.4 45.6 32.4 45.8 33 45C34.6 46.6 34.4 49.4 32 50Z" fill="#fff6d0" />
+      <rect x="4" y="51" width="56" height="8" rx="3" {...main} />
+      <path d="M6 54H58" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round" />
+      <path d="M14 26C17 21 22 18 27 17.4" {...hiLine} />
+    </>
+  ),
   // generic fallback
   unknown: () => (
     <g {...main}>

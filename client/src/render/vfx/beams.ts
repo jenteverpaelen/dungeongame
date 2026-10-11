@@ -16,8 +16,35 @@ export class Beams {
     switch (ev.v) {
       case 'vortex': this.tether(ev.x, ev.y, ev.tx, ev.ty, d); break;
       case 'arc': this.lightning(ev.x, ev.y, ev.tx, ev.ty, Math.max(0.16, d), 26, ev.el, true); break;
+      case 'splinter': this.splinter(ev.x, ev.y, ev.tx, ev.ty, d, ev.el); break;
       default: this.lightning(ev.x, ev.y, ev.tx, ev.ty, d, 30, ev.el, false);
     }
+  }
+
+  /** Sawtooth Hatchet · Splinters: a thin, fast red splinter streaking from the struck elite to a nearby enemy. */
+  splinter(x0: number, y0: number, x1: number, y1: number, d: number, el: number): void {
+    const V = this.V, s = V.sys, T = s.T;
+    const fire = el === EL_FIRE;
+    const z = 22;
+    const travel = Math.min(d, 0.12);
+    const vx = (x1 - x0) / travel, vy = (y1 - y0) / travel;
+    const glow = s.aAdd.add(T.streak, x0, y0, travel);
+    glow.z = z; glow.vx = vx; glow.vy = vy; glow.align = true; glow.anchorX = 0.9; glow.w0 = glow.w1 = 40; glow.k = 0.3; glow.a0 = 0.9; glow.fo = 0.8;
+    glow.tintTo(fire ? 0xff9a4a : 0xff4a3a);
+    const body = s.aBody.add(T.spark, x0, y0, travel);
+    body.z = z; body.vx = vx; body.vy = vy; body.align = true; body.w0 = body.w1 = 15; body.k = 0.4; body.a0 = 1; body.fo = 0.9;
+    body.tintTo(fire ? 0xc0581e : 0x8a1c14);
+    const line = s.seg(s.aAdd, x0, y0 - z, x1, y1 - z, 2, fire ? 0xff8a3d : 0xd0281e, Math.max(0.12, d), 0.45);
+    line.fo = 0.1;
+    V.after(travel, () => {
+      s.flash(x1, y1, z, 22, fire ? 0xffb070 : 0xff7a6a, 0.07, 0.6);
+      for (let i = 0, n = s.n(4); i < n; i++) {
+        const p = s.aBody.add(T.drip, x1, y1, rand(0.35, 0.55));
+        p.z = z; p.vx = vx * 0.08 + rand(-50, 50); p.vy = vy * 0.08 + rand(-25, 25); p.vz = rand(40, 110); p.gz = 600;
+        p.w0 = rand(3, 5); p.w1 = 2.4; p.align = true; p.fo = 0.6; p.k = 1.2;
+        p.tintTo(fire ? 0xd85a20 : 0xa8161e);
+      }
+    });
   }
 
   /** Crackling bolt between two points, re-jagged every 50 ms. */

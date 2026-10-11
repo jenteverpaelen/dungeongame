@@ -264,6 +264,98 @@ export const SOUNDS: Record<string, SoundDef> = {
   mortar: { gain: 0.24, max: 2, vary: 0.1, layers: [{ p: { freq: 1700, attack: 0.05, sustain: 0.2, release: 0.2, shape: 0, slide: -3 } }] },
   warn: { gain: 0.32, max: 1, vary: 0.03, layers: [{ p: { freq: 110, attack: 0.05, release: 0.35, shape: 0, tremolo: 0.3, repeat: 0.08 } }] },
 
+  // ── warrior M1 (docs/rework/depth/WARRIOR.md §3 "VFX / icon / sound") ──
+  // Tolling Blow: a dull wooden/metal thud per blow.
+  tollblow: {
+    gain: 0.42, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 118, release: 0.16, shape: 0, slide: -3 }, exp: 0.06 },
+      { p: { freq: 420, release: 0.05, shape: 4, filter: -1100 }, gain: 0.55 },
+      { p: { freq: 760, release: 0.12, shape: 0, slide: -0.4 }, gain: 0.07, exp: 0.035 },
+    ],
+  },
+  // The toll: a low procedural bell — fundamental + 2.76× partial, ~0.8 s decay, with a soft strike transient.
+  toll: {
+    gain: 0.5, max: 2, vary: 0.03,
+    layers: [
+      { p: { freq: 1200, release: 0.03, shape: 4, filter: -2600 }, gain: 0.22 },
+      { p: { freq: 156, attack: 0.004, release: 0.9, shape: 0 }, exp: 0.32 },
+      { p: { freq: 156 * 2.76, attack: 0.003, release: 0.7, shape: 0 }, gain: 0.42, exp: 0.2 },
+      { p: { freq: 156 * 0.5, attack: 0.02, release: 0.8, shape: 0 }, gain: 0.16, exp: 0.36 },
+      { p: { freq: 156 * 5.4, attack: 0.002, release: 0.25, shape: 0 }, gain: 0.05, exp: 0.06 },
+    ],
+  },
+  // Sawtooth Hatchet: a "whup-whup" whirr rising on the way out, falling on the way back.
+  hatchet_out: {
+    gain: 0.28, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 260, attack: 0.03, sustain: 0.3, release: 0.12, shape: 4, slide: 1.4, tremolo: 0.85, repeat: 0.065, filter: -1500 } },
+      { p: { freq: 150, attack: 0.03, sustain: 0.3, release: 0.12, shape: 1, slide: 0.8, tremolo: 0.8, repeat: 0.065 }, gain: 0.3 },
+    ],
+  },
+  hatchet_back: {
+    gain: 0.24, max: 2, vary: 0.06,
+    layers: [
+      { p: { freq: 340, attack: 0.03, sustain: 0.32, release: 0.14, shape: 4, slide: -1.4, tremolo: 0.85, repeat: 0.075, filter: -1300 } },
+      { p: { freq: 190, attack: 0.03, sustain: 0.32, release: 0.14, shape: 1, slide: -0.8, tremolo: 0.8, repeat: 0.075 }, gain: 0.3 },
+    ],
+  },
+  // Muster Standard: cloth snap and a short low horn note.
+  standard: {
+    gain: 0.46, max: 1, vary: 0.03,
+    layers: [
+      { p: { freq: 900, attack: 0.004, release: 0.06, shape: 4, filter: -2600 }, gain: 0.7 },
+      { p: { freq: 700, attack: 0.004, release: 0.05, shape: 4, filter: -2000 }, at: 0.055, gain: 0.45 },
+      { p: { freq: 98, attack: 0.07, sustain: 0.3, release: 0.28, shape: 2, filter: -650, tremolo: 0.08, repeat: 0.18 }, at: 0.08, gain: 0.55 },
+      { p: { freq: 98, attack: 0.07, sustain: 0.3, release: 0.28, shape: 0 }, at: 0.08, gain: 0.35 },
+      { p: { freq: 147, attack: 0.09, sustain: 0.24, release: 0.24, shape: 1, filter: -900 }, at: 0.1, gain: 0.14 },
+    ],
+  },
+  // Ironplough: one scrape per channel tick; the grind pitch rises with the ramp level (0..5).
+  ...Object.fromEntries([0, 1, 2, 3, 4, 5].map((lv): [string, SoundDef] => [`plough${lv}`, {
+    gain: 0.2 + lv * 0.018, max: 2, vary: 0.05,
+    layers: [
+      { p: { freq: 130 + lv * 34, attack: 0.02, sustain: 0.2, release: 0.1, shape: 4, filter: -(800 + lv * 170), tremolo: 0.5, repeat: 0.045 } },
+      { p: { freq: 70 + lv * 6, attack: 0.03, sustain: 0.18, release: 0.1, shape: 0, slide: 0.2 }, gain: 0.35 },
+      { p: { freq: 1300 + lv * 260, attack: 0.02, sustain: 0.16, release: 0.08, shape: 4, filter: 2600 + lv * 300 }, gain: 0.04 + lv * 0.022 },
+    ],
+  }])),
+  // Cairnfall: a descending rumble on the call, a heavy stone crack per impact.
+  cairn_fall: {
+    gain: 0.4, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 300, attack: 0.12, sustain: 0.55, release: 0.3, shape: 4, slide: -1.1, filter: -700, tremolo: 0.35, repeat: 0.06 } },
+      { p: { freq: 95, attack: 0.2, sustain: 0.5, release: 0.3, shape: 0, slide: -0.45 }, gain: 0.55 },
+    ],
+  },
+  cairn: {
+    gain: 0.55, max: 2, vary: 0.08,
+    layers: [
+      { p: { freq: 1700, release: 0.045, shape: 4, filter: -3200 }, gain: 0.5 },
+      { p: { freq: 72, release: 0.42, shape: 0, slide: -0.8 }, exp: 0.14 },
+      { p: { freq: 280, release: 0.32, shape: 4, filter: -900 }, at: 0.02, gain: 0.6, exp: 0.12 },
+      { p: { freq: 520, release: 0.06, shape: 4, filter: -1800 }, at: 0.07, gain: 0.25 },
+    ],
+  },
+  // Kilnheart: a bellows whoosh (air drawn in, rising) that catches into a low fire roar.
+  kiln_ignite: {
+    gain: 0.5, max: 1, vary: 0.04,
+    layers: [
+      { p: { freq: 260, attack: 0.18, sustain: 0.05, release: 0.12, shape: 4, slide: 2.2, filter: -1300 }, gain: 0.7 },
+      { p: { freq: 120, attack: 0.02, sustain: 0.35, release: 0.45, shape: 4, filter: -900, tremolo: 0.45, repeat: 0.05 }, at: 0.2, gain: 0.9, exp: 0.35 },
+      { p: { freq: 62, attack: 0.03, sustain: 0.25, release: 0.4, shape: 0, slide: -0.3 }, at: 0.2, gain: 0.5, exp: 0.3 },
+      { p: { freq: 1900, release: 0.05, shape: 4, filter: 2600, repeat: 0.03 }, at: 0.22, gain: 0.08 },
+    ],
+  },
+  // Bellows Breath: a roaring exhale of fire.
+  kiln_breath: {
+    gain: 0.48, max: 1, vary: 0.05,
+    layers: [
+      { p: { freq: 180, attack: 0.04, sustain: 0.3, release: 0.25, shape: 4, slide: -0.6, filter: -1200, tremolo: 0.35, repeat: 0.04 } },
+      { p: { freq: 85, attack: 0.05, sustain: 0.28, release: 0.25, shape: 0, slide: -0.4 }, gain: 0.45 },
+    ],
+  },
+
   // ── deaths ──
   die: {
     gain: 0.28, max: 3, vary: 0.15,

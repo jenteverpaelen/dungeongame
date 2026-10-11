@@ -30,7 +30,7 @@ test('skillNode and skillReset are persisted commands; forged or illegal request
   assert(isPersistedCommand('skillNode')); assert(isPersistedCommand('skillReset'));
   const undo = installFixtureNodes();
   try {
-    const save = createCharacter('NodeCommand', 'warrior', 4); save.level = 12;
+    const save = createCharacter('NodeCommand', 'warrior', 4); save.level = 31; // 11 specialization points (one per level from 21)
     const { cmd, calls } = session(save);
     for (const a of [{ skill: 'whirlwind', node: 'fx_reach', delta: 1 }, { skill: 'meteor', node: 'fx_mass', delta: 1 }, { skill: 'whirlwind', node: 'fx_gale', delta: 0 },
       { skill: 'whirlwind', node: 'fx_gale', delta: 2 }, { skill: 'whirlwind', node: 'fx_gale', delta: -1 }, { skill: 'whirlwind', node: 'fx_gale' }, { skill: 'whirlwind', delta: 1 },
@@ -61,7 +61,8 @@ test('v14 saves migrate to v15 with empty specialization; v15 ranks survive save
   assert.equal(v14.version, SAVE_VERSION); assert.deepEqual(v14.skills.nodes, {});
   const undo = installFixtureNodes();
   try {
-    const v15 = normalizeSave(await fixture('v15-nodes'));
+    // The golden save is level 22; its three ranks are legal from level 23 under the shipped economy (points from 21).
+    const v15 = normalizeSave({ ...(await fixture('v15-nodes')), level: 23 });
     assert.deepEqual(v15.skills.nodes, { meteor: { fx_mass: 2, fx_focus: 1 } });
     await saveCharacter(v15); await flushSaves();
     const loaded = await loadCharacter(v15.id);

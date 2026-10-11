@@ -67,6 +67,11 @@ export interface RuneDef {
   addTags?: SkillTag[];
   /** Tags this rune removes while equipped (e.g. "Flame Lance −Projectile +Area"); applied after the additions. */
   removeTags?: SkillTag[];
+  /**
+   * Power templates active while this rune is equipped on a skill on the bar (roll = 1): rune behaviour that is generic
+   * data (damage reduction, control immunity, procs, deflection …) instead of class code. The desc must name its numbers.
+   */
+  effects?: PowerEffect[];
 }
 
 export interface TierDef {
@@ -103,6 +108,8 @@ export interface SkillDef {
   tiers: TierDef[];
   /** Specialization tree (Last Epoch-style), bought with specialization points. Absent = no tree yet. */
   nodes?: NodeDef[];
+  /** Base named behaviour parameters (SkillMods.vars), merged before runes / tiers / nodes (e.g. Ironplough's channel slow). */
+  vars?: Record<string, number>;
   /**
    * Set-backed skills only: the set-vs-legendary parity rule (legendary-only kit within 1.25× of the set kit) is
    * enforced by `npm run verify` (server/test/parity.test.ts). Flip to true once the skill has enough legendaries.

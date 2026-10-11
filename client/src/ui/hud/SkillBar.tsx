@@ -143,6 +143,18 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   shrine_empowered: { name: 'Empowered Shrine', shape: 'flame', color: '#ff7a4a' },
   shrine_frenzied: { name: 'Frenzied Shrine', shape: 'bolt', color: '#ffe36a' },
   shrine_keen: { name: 'Keen Shrine', shape: 'crit', color: '#7fd3ff' },
+  // Warrior M1 (docs/rework/depth/WARRIOR.md §3–§7): colours follow the source skill / set motif.
+  rend_haste: { name: 'Bloodletter’s Pace', shape: 'bolt', color: '#e0503c' },
+  gale_stitched: { name: 'Gale-Stitched', shape: 'up', color: '#cfe6ee' },
+  stonecount: { name: 'Stonecount', shape: 'up', color: '#b6ab98' },
+  colour_guard: { name: 'Colour Guard', shape: 'star', color: '#d8553f' },
+  shared_rage: { name: 'Shared Fury', shape: 'flame', color: '#e74c3c' },
+  afterglow: { name: 'Afterglow', shape: 'flame', color: '#ffa04a' },
+  watch_bell: { name: 'Watch Bell', shape: 'shield', color: '#c9a227' },
+  braced_swing: { name: 'Braced Swing', shape: 'shield', color: '#d9d2c5' },
+  iron_root: { name: 'Iron Root', shape: 'shield', color: '#b08850' },
+  bellwether: { name: 'Bellwether', shape: 'bolt', color: '#e0b84a' },
+  brass_warhorn: { name: 'Brass Warhorn', shape: 'star', color: '#d9a63a' },
 };
 
 function buffMeta(id: string): BuffMeta {

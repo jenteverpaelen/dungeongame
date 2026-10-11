@@ -49,7 +49,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     inQ: [], lastIn: { mx: 0, my: 0 }, ack: 0,
     faceLeft: false, moving: false, faceLockMs: 0,
     atkCdMs: 0, readyAt: new Map(), attackFlagMs: 0, castFlagMs: 0,
-    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0 },
+    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0, cost: 1 },
     summons: [], channel: null,
     deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500,
     sinceHitMs: 1e9, sinceHurtMs: 1e9,

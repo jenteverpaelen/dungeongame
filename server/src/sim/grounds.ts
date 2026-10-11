@@ -24,7 +24,10 @@ export function newGround(kind: Ground['kind'], x: number, y: number, r: number,
 
 export function updateGrounds(inst: Instance, dtMs: number) {
   const list = inst.grounds;
-  for (let i = 0; i < list.length; i++) {
+  // Grounds placed while grounds update (a ground's status triggering a proc that places a ground) start next tick, so
+  // such chains can never loop inside one tick.
+  const n = list.length;
+  for (let i = 0; i < n; i++) {
     const g = list[i];
     if (g.endT <= 0) continue;
     if (g.stick && g.owner && g.kind !== 'fx') { g.x = g.owner.x; g.y = g.owner.y; }

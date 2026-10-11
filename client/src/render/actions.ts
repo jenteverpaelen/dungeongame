@@ -25,7 +25,11 @@ export type Pose =
   | 'thrust'     // both hands forward, swirl at the hands
   | 'groundBurst' // crouch, slam staff butt into the ground
   | 'summon'     // sweep arm upward from the ground
-  | 'empower';   // hold weapon up, runes circle it
+  | 'empower'    // hold weapon up, runes circle it
+  | 'toll'       // overhead two-handed strike brought straight down (Tolling Blow, a primary)
+  | 'throw'      // arm cocks back over the shoulder and whips forward (Sawtooth Hatchet)
+  | 'plant'      // both hands drive a pole straight down into the ground (Muster Standard)
+  | 'plough';    // channel: weapon held low and forward, leaning in (Ironplough; driven by F_CHANNEL)
 
 export interface ActionDef {
   pose: Pose;
@@ -51,6 +55,12 @@ export const ACTIONS: Record<string, ActionDef> = {
   ground_stomp: A('leapSlam', 260, 520, 0, 0, 5),
   seismic_slam: A('overhead', 180, 480, 4, 0, 4),
   battle_rage: A('roar', 120, 600, 0, 0xff4a2a),
+  tolling_blow: A('toll', 80, 320, 6, 0, 0),
+  sawtooth_hatchet: A('throw', 70, 380, 3, 0xc0402e),
+  muster_standard: A('plant', 210, 560, 0, 0, 3),
+  ironplough: A('plough', 0, 0, 0),           // driven by F_CHANNEL, not by the event
+  cairnfall: A('callDown', 260, 620, 0, 0xe6d6b0),
+  kilnheart: A('roar', 120, 600, 0, 0xff6a1a),
   // Ranger
   hungering_arrow: A('shoot', 30, 260, 0),
   sentry: A('deploy', 220, 460, 0),

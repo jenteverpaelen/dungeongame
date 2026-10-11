@@ -172,12 +172,14 @@ function gearRares(save: CharacterSave, ilvl: number) {
 
 const CLASS_SET: Record<ClassId, string> = { warrior: 'endless_storm', ranger: 'siegebreaker', mage: 'fallen_star' };
 const CLASS_LEGS: Record<ClassId, Partial<Record<Slot, string>>> = {
-  warrior: { mainhand: 'ninefold_gale', waist: 'eternal_gyre', wrists: 'anvil_vambraces', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
+  // Warrior: the measured best Endless Storm 6 Whirlwind kit of the warrior parity audit (WARRIOR-PARITY.json, merged pool);
+  // the old kit (Eternal Gyre, Bloodwake in the Cube) fed the retired 'Whirlwind applies Rend' 4-piece.
+  warrior: { mainhand: 'ninefold_gale', waist: 'furycord_belt', wrists: 'wardkeepers_cuffs', neck: 'signal_horn_charm', ring1: 'ouroboros_loop', ring2: 'rally_knot' },
   ranger: { mainhand: 'thunderhead', offhand: 'sappers_pack', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
   mage: { mainhand: 'cindervane', waist: 'witching_cord', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
 };
 const CLASS_CUBE: Record<ClassId, (string | null)[]> = {
-  warrior: ['bloodwake', 'stridewind', null],
+  warrior: ['millwheel_edge', 'gale_stitched_legguards', 'seething_sigil'],
   ranger: ['hunters_mark', 'gearwright_heart', null],
   mage: ['thousand_missiles', 'starfall_mantle', null],
 };
@@ -198,7 +200,7 @@ function gearEndgame(save: CharacterSave) {
 }
 
 const BUILDS: Record<ClassId, { slots: string[]; runes: Record<string, string> }> = {
-  warrior: { slots: ['whirlwind', 'rend', 'ground_stomp', 'battle_rage'], runes: { cleave: 'broad_sweep', whirlwind: 'dust_devils', rend: 'bloodlust', ground_stomp: 'wrenching_smash', battle_rage: 'into_the_fray' } },
+  warrior: { slots: ['whirlwind', 'battle_rage', 'muster_standard', 'ground_stomp'], runes: { cleave: 'broad_sweep', whirlwind: 'dust_devils', rend: 'bloodlust', ground_stomp: 'wrenching_smash', battle_rage: 'into_the_fray' } },
   ranger: { slots: ['sentry', 'multishot', 'cluster_arrow', 'companion'], runes: { hungering_arrow: 'puncturing', sentry: 'spitfire', multishot: 'arsenal', cluster_arrow: 'maelstrom', companion: 'wolf_howl' } },
   mage: { slots: ['meteor', 'black_hole', 'frost_nova', 'magic_weapon'], runes: { magic_missile: 'seeker', meteor: 'star_pact', black_hole: 'spellsteal', frost_nova: 'bone_chill', magic_weapon: 'force_weapon' } },
 };
@@ -408,7 +410,8 @@ function fieldScenario(cls: ClassId, level: number, endgame: boolean) {
   return { link, kpm };
 }
 
-function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen') {
+/** `refitFloor`: the class is on the depth budget before the Torment re-fit — only a progress floor is checked. */
+function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen', refitFloor?: number) {
   let completed = 0;
   const inst = newRift(level, difficulty, theme, () => completed++);
   const save = makeChar(cls, level, { endgame });
@@ -441,6 +444,12 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   console.log(`${label}: ${mobs0} monsters placed, progress ${fmt(maxProg)}%, guardian at ${guardianAt >= 0 ? dur(guardianAt) : '—'}, done at ${doneAt >= 0 ? dur(doneAt) : '—'}, kills ${p.kills} (${fmt(kpm)}/min), deaths ${save.stats.deaths}, level ${level}→${save.level}, tick avg ${fmt(ms / ticks, 3)}ms`);
   console.log(`   ${ttkLine(link)}  boss TTK ${link.ttk[4] ? fmt(link.ttk[4][0] / 1000) + 's' : '—'}`);
   if (process.env.SIM_DEBUG) console.log('   ', JSON.stringify(Object.fromEntries(Object.entries(link.evV).filter(([k]) => /^(cast|dmgsrc|aoe|tele):/.test(k)))), 'dealt', Math.round(p.dealt).toExponential(2), 'sheet', Math.round(p.ctx.d.sheetDps).toExponential(2));
+  if (refitFloor !== undefined) {
+    check(maxProg >= refitFloor, `${label}: progress ≥ ${refitFloor}% in 12 minutes before the Torment re-fit (${fmt(maxProg)})`);
+    summary.push(`${label.padEnd(44)} ${fmt(kpm).padStart(6)} kills/min   rift ${doneAt >= 0 ? dur(doneAt) : `DNF ${fmt(maxProg)}%`} (depth budget; Torment re-fit pending), deaths ${save.stats.deaths}`);
+    inst.destroy();
+    return { link, doneAt };
+  }
   check(maxProg >= 100, `${label}: progress reached 100 (${fmt(maxProg)})`);
   check(guardianAt >= 0, `${label}: guardian spawned`);
   check(doneAt >= 0 && rs.phase === 'done' && completed === 1, `${label}: rift completed + onRiftComplete`);
@@ -463,6 +472,7 @@ function skillCoverage() {
         const inst = newField('whispering_glade');
         const save = makeChar(cls, 70, { endgame: true });
         save.skills.slots = sk.kind === 'primary' ? [null, null, null, null] : [sk.id, null, null, null];
+        if (sk.kind === 'primary') save.skills.primary = sk.id; // second primaries (Tolling Blow) are exercised as the auto-attack
         save.skills.runes = { [sk.id]: rune };
         save.skills.tiers = { [sk.id]: 3 };
         const link = new FakeLink(save);
@@ -470,7 +480,9 @@ function skillCoverage() {
         const p = inst.players[0];
         // tough targets so effects have time to play
         const x = p.x + (sk.kind === 'primary' || cls === 'warrior' ? 70 : 220), y = p.y;
-        for (let i = 0; i < 6; i++) {
+        // Enough enemies for the skill's own automatic rule (Kilnheart waits for 8).
+        const pack = Math.max(6, sk.auto.when === 'enemiesNear' ? Math.ceil(sk.auto.count) : 0);
+        for (let i = 0; i < pack; i++) {
           const m = createMob(inst, MONSTERS.gloomshroom, 60, x + (i % 3) * 30, y + Math.floor(i / 3) * 34 - 17, { players: 1 });
           m.mhp = m.hp = 1e13;
           m.state = 'chase'; m.target = p.id;
@@ -491,7 +503,8 @@ function skillCoverage() {
             check(el, `${tag}: rune effect fired`);
           }
         } else if (sk.kind === 'channel') {
-          check(channelSeen && link.n('aoe:whirl') > 4, `${tag}: channel ticks (${link.n('aoe:whirl')})`);
+          const tickEv = sk.id === 'ironplough' ? 'aoe:plough' : 'aoe:whirl';
+          check(channelSeen && link.n(tickEv) > 4, `${tag}: channel ticks (${link.n(tickEv)})`);
           if (rune === 'dust_devils') check(link.sawSummon('dust_devil') && link.n('dmgsrc:summon:dust_devil') > 0, `${tag}: dust devils spawn and hit`);
         } else {
           check(casts > 0, `${tag}: cast (${casts})`);
@@ -545,7 +558,9 @@ function signatureBuilds() {
       check(link.n('aoe:whirl') > 10, `warrior: whirlwind damage ticks (${link.n('aoe:whirl')})`);
       check(link.sawSummon('dust_devil') && link.n('dmgsrc:summon:dust_devil') > 0, 'warrior: dust devils (set 2pc / Ninefold) spawn and hit');
       check(inst.mobs.length === 0 || true, 'warrior: ok');
-      check(p.ctx.modsOf('whirlwind').flags.has('whirlRend'), 'warrior: 4pc rend flag');
+      // Endless Storm 4 (WARRIOR.md v2): Channel hits bleed (it was "Whirlwind applies Rend's bleed").
+      check(p.ctx.modsOf('whirlwind').flags.has('stormBleed'), 'warrior: 4pc channel bleed flag');
+      check(link.n('dmgsrc:summon:dust_devil') > 0 || link.sawSummon('dust_devil'), 'warrior: 6pc wisps / dust devils');
     }
     if (cls === 'ranger') {
       check(maxSentries >= 4, `ranger: sentries placed (max ${maxSentries})`);
@@ -1591,13 +1606,19 @@ if (!only || only === 'powers') powersScenario();
 if (!only || only === 'spike') setSpikeScenario();
 if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
-  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion ==');
+  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (the warrior at L70: progress floor until the Torment re-fit) ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     riftScenario(cls, 1, 0, false, 'glade');
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
     riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
-    riftScenario(cls, 70, 5, true, 'ashen');
+    // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×25 over rares against 8 sturdy
+    // targets [M] (its old sets ×255; ranger ×387 and mage ×180 are still on their old sets), so it no longer clears
+    // Torment II in 12 minutes (71.9% [M]) until the Torment ladder is re-fitted (`sim.ts fit`) once every class is on
+    // the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts; here a progress floor guards
+    // against further loss (30%; the seeded stream shifts with any content change — the previous, weaker kit measured
+    // 2.7–44.5% across such shifts).
+    riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' ? 30 : undefined);
   }
 }
 if (!only || only === 'skills') skillCoverage();

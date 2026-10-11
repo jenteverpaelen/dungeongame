@@ -109,3 +109,22 @@
 - Client: channel-speed prediction (MeState.ms), following ground visuals (aoe.f), charge badges, v2 tag labels.
 - Tests: server/test/sharedItems.test.ts (14).
 - Known: 2 gearVisual tests fail until claude/gear-v2 widens the legendary field (gear lane).
+
+## Warrior pilot (2026-10-11, branch `claude/warrior`)
+
+- Content: 12 skills, 60 runes, 68 / 72 nodes, 11 passives (5 of 8 new), 5 sets (3 redesigned, 2 new), 32 / 34 warrior
+  legendaries, 7 data grounds; NAMES.md renames (Seismic Slam → Quakeline, ids unchanged); `SPEC_POINTS` = separate,
+  1 / level from 21, cap 10. Details, blocked list and deviations: `WARRIOR-PILOT.md`.
+- Narrow generic additions (tests in `server/test/warrior.test.ts` / `powerTemplates.test.ts`): `RuneDef.effects`,
+  `SkillDef.vars`, proc `when`, `Buff.cost`, grounds placed during the grounds update start next tick, exact dot
+  carry-over (`effects.ticksAhead`), harness RNG per equipment slot.
+- Parity: `WARRIOR-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on
+  warrior items for the three parity-ready warrior skills (Cleave, Tolling Blow, Quakeline). Fits from measurements:
+  Cinder Oath 4 and Red Ledger cost cuts 30 → 15 %, Hearthbanner 6 shockwave 100 → 50 %, Endless Storm 6 wisps 25 % in
+  total.
+- Merged claude/town-ui-rework d22ee7d (normal merge, 13 conflicts; WARRIOR-PILOT.md §9). Kilnmaw and Cinder Oath 4
+  "or Burning" shipped on the new base / target state. Fixed two verify failures the integration branch had on its own
+  (originality: two affix labels; save history: v16 entry + golden fixture) and a seed-fragile grades test.
+- `server/test/sim.ts`: warrior fixture kit = the audit's best Endless Storm 6 Whirlwind kit (set spike ×25 [M]);
+  warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
+  Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).

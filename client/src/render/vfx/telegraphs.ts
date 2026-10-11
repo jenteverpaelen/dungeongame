@@ -24,6 +24,8 @@ const STYLES: Record<string, Style> = {
   lob: { color: 0xffb050, alpha: 0.95, fill: 0.3 },
   charge: { color: 0xffb050, alpha: 0.95, fill: 0.3 },
   molten_death: { color: 0xff6a10, alpha: 1, fill: 0.32 },
+  // Cairnfall (the player's own stones): a grey circle, quieter than hostile red/orange warnings.
+  cairn: { color: 0xc8c0b0, alpha: 0.8, fill: 0.15 },
 };
 
 /** Which aoe visuals a telegraph's own payoff replaces. */
@@ -66,6 +68,7 @@ export class Telegraphs {
       case 'charge': V.sound('warn',ev.x,ev.y,0.6); break;
       case 'molten_death': extras.push(this.moltenCore(ev.x, ev.y, ev.r, d)); break;
       case 'boss_ring': V.sound('warn', ev.x, ev.y); break;
+      case 'cairn': extras.push(this.aoe.cairnFall(ev.x, ev.y, ev.r, d)); break;
       default: break;
     }
 
