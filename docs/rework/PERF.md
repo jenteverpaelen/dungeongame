@@ -101,6 +101,8 @@ per-round ratios; the values shown are one representative round, inflated becaus
 | | GPU process | 11.7 | 11.1 | −5 % |
 | | fps | 64.4 | 77.2 | **+16 %** |
 | Town crowd, 4× | fps | 11.0 | 11.9 | +8 % |
+| Field zone walk, 1× (Rillwake Crossing, `scripts/perf/field-walk.rec.gz`, 3 rounds) | renderer main thread | 5.18 | 4.51 | **−13 %** |
+| | GPU process / fps / draw calls | 4.45 / 112 / 20 | 4.51 / 112 / 21 | ±1 % / equal / +1 |
 
 **Sequential runs are not evidence here.** Two interleaved sequential batches (A, B, B, A, A, B; medians of 3) disagreed:
 rift 4× went 19.0 → 25.5 fps in one and 27.4 → 22.9 in the other, single runs ranging 16–39 fps for the same build.
@@ -207,4 +209,4 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 `client/src/render/depthSort.ts` (new) · `scene.ts` · `art/player.ts` (2 lines) · `ui/hud/Minimap.tsx` ·
 `ui/styles/hud.css` (1 rule) · `game/preferences.ts` · `game/quality.ts` (+ test) · `main.ts` · `shared/src/format.ts`
 (+ `shared/test/format.test.ts`) · `scripts/client-perf-check.mjs`, `scripts/perf/` (harness, replay, recorders,
-recordings, budgets) · `scripts/verify.mjs` (stage) · `scripts/shoot.mjs` (`CHROME_EXTRA` flags for the SwiftShader run).
+recordings, budgets, `ab.mjs` paired A/B, `crowd-cache-check.mjs`, `record-field.mjs`) · `scripts/verify.mjs` (stage) · `scripts/shoot.mjs` (`CHROME_EXTRA` flags for the SwiftShader run).
