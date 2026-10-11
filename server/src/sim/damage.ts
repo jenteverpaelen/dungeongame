@@ -1,7 +1,7 @@
 // Damage model (ARCHITECTURE 1.3): Diablo-3 multiplicative buckets, crits, area damage, DoTs, defences.
 import { boundedCombat, combatInteger } from '../../../shared/src/combatBounds';
 
-import { ELEMENT_INDEX, armorReduction, resistReduction, type Element } from '../shared';
+import { ELEMENT_INDEX, armorReduction, modVar, resistReduction, type Element } from '../shared';
 import { addOwnedDot, chillMob, elIdx, getBuff } from './effects';
 import { onEliteDamaged } from './elites';
 import type { Instance } from './instance';
@@ -12,7 +12,7 @@ import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './po
 import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor } from './powerRuntime';
 import { consumeVulns, scopedVulnerability, weakenFactor } from './status';
 import { killPlayer } from './players';
-import type { Dot, DotKind, Mob, Player, Strike } from './types';
+import type { Dot, DotKind, Mob, Player, SkillRuntime, Strike } from './types';
 
 export interface HitResult { amount: number; crit: boolean; killed: boolean }
 const NO_HIT: HitResult = { amount: 0, crit: false, killed: false };
@@ -71,10 +71,13 @@ export function expectedDamage(inst: Instance, p: Player, st: Strike): number {
 export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitResult {
   if (m.dead) return NO_HIT;
   const { amount, crit } = rollDamage(inst, p, m, st);
+  const prevActing = p.acting;
+  p.acting = st.skill;
   const killed = hurtMob(inst, m, amount, st.el, p, crit, false, st.src ?? p.id, st.skill);
   if (p.pw?.cast) countCastHit(inst, p, m, st.skill);
   if (m.ps && m.ps.vulns.length) consumeVulns(m, p, st.skill);
   if (!st.noProc) onHitProcs(inst, p, m, st, amount, crit, killed);
+  p.acting = prevActing;
   return { amount, crit, killed };
 }
 
@@ -203,6 +206,15 @@ export function gainResource(p: Player, amount: number) {
   if (amount > 0) p.res = Math.min(p.mres, p.res + amount);
 }
 
+/**
+ * Resource a skill generates: `amount` scaled by the skill's vars.genPct (additive %, e.g. Iron Discipline −15 on
+ * Primary skills). Without the var it is exactly gainResource (no float change).
+ */
+export function skillGain(p: Player, rt: SkillRuntime, amount: number) {
+  const pct = modVar(rt.mods, 'genPct');
+  gainResource(p, pct ? amount * Math.max(0, 1 + pct / 100) : amount);
+}
+
 /** Damage-taken multiplier of a player vs a monster of `level` (armor, resists, elite DR, whirlwind DR). */
 export function defenseMult(p: Player, level: number, elite: boolean): number {
   const d = p.ctx.d;
@@ -229,6 +241,7 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
   if (src) { const dr = melee ? p.ctx.d.meleeDR : p.ctx.d.rangedDR; if (dr > 0) mult *= 1 - Math.min(75, dr) / 100; }
   if (p.ctx.powers.defense || (p.live.dr !== undefined && p.live.dr !== 1)) mult *= powerDefense(inst, p, src);
   const amount = combatInteger(raw * mult);
+  const hpBefore = p.hp;
   p.hp -= amount;
   p.taken += amount;
   p.sinceHurtMs = 0;
@@ -243,6 +256,7 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
   }
   if (p.hp <= 0 && p.ctx.powers.defense?.cheat.length) tryCheatDeath(inst, p, src);
   if (p.hp > 0 && p.ctx.powers.procs.takeDamage) onPlayerDamaged(inst, p, amount, src);
+  if (p.hp > 0 && p.ctx.powers.procs.lifeBelow) firePowerProcs(inst, p, 'lifeBelow', { amount, mob: src, hpBefore });
   if (p.hp <= 0) killPlayer(inst, p, el);
   return amount;
 }

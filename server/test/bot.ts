@@ -575,6 +575,12 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   const cxp0 = b.char.cube.xp + b.char.cube.level * 1e6;
   r = await b.cmd('salvage', { itemId: leg1.id });
   c('salvage a legendary gives souls and Cube XP', r.ok && b.char.materials.soul > soulBefore && b.char.cube.xp + b.char.cube.level * 1e6 > cxp0 && !b.inv().some((i) => i.id === leg1.id), r);
+  if (!b.findInv((i) => i.rarity === 'rare')) {
+    // A class with many legendaries (the warrior has 34) fills the bag before any rare arrives; make room and add
+    // rares so salvageAll is tested on real input instead of failing on an empty selection.
+    for (const it of b.inv().filter((i) => i.rarity === 'legendary').slice(0, 3)) await b.cmd('salvage', { itemId: it.id });
+    await b.cmd('debug', { op: 'rares', n: 2 });
+  }
   r = await b.cmd('salvageAll', { rarities: ['rare'] });
   c('salvageAll rares', r.ok && !b.inv().some((i) => i.rarity === 'rare') && r.data?.count >= 1, r);
   r = await b.cmd('salvageAll', { rarities: ['rare'] });

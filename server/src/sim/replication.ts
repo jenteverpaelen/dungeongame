@@ -8,7 +8,7 @@ import {
 } from '../shared';
 import { summonCount } from './brain';
 import { skillCooldownMs } from './playerctx';
-import { channelMsPct, extraCharges } from './powerActions';
+import { extraCharges, movePct } from './powerActions';
 import type { Instance } from './instance';
 import type { Loot, Mob, Player, PortalEnt, Summon } from './types';
 
@@ -185,7 +185,7 @@ function meState(inst: Instance, p: Player): MeState {
   const s = p.save;
   return {
     x: p.mv.x, y: p.mv.y, dashMs: p.mv.dashMs, dashCd: p.mv.dashCdMs,
-    ...(p.channel && channelMsPct(p) !== p.ctx.d.ms ? { ms: channelMsPct(p) } : {}),
+    ...(movePct(p) !== p.ctx.d.ms ? { ms: movePct(p) } : {}),
     hp: Math.max(0, Math.round(p.hp)), mhp: Math.round(p.mhp), res: Math.floor(p.res), mres: Math.round(p.mres),
     cds, ch, buffs, xp: s.xp, lv: s.level, pxp: s.paragon.xp, pl: s.paragon.level, gold: s.gold,
     dead: p.deadMs > 0 ? Math.ceil(p.deadMs) : 0,

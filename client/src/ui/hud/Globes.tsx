@@ -1,6 +1,8 @@
 // Health and resource globes: glass orbs with an animated liquid surface.
-// Layers (back to front): socket shadow, liquid SVG (waves + bubbles, CSS-animated), glass grain, static glass SVG
-// (specular, inner shadow, rim light) and the bronze bezel. Only the liquid level reacts to state, via a CSS transition.
+// Layers (back to front): drop shadow, socket, liquid (static glass/tint, level, bob, two waves, glow, bubbles, static
+// floor/light/depth), glass grain, static glass SVG (specular, inner shadow, rim light) and the bronze bezel. Only the
+// liquid level reacts to state, via a CSS transition. All motion is transform/opacity on composited layers: an animated
+// SVG interior (or a filter on the orb) re-rasterised the HUD every frame and halved the frame rate in fights.
 
 import { useUI } from '../store';
 import { fmtCompact, fmtInt } from '@shared/format';
@@ -45,79 +47,103 @@ export function Globe(p: GlobeProps) {
   const s = p.style;
   return (
     <div class={`globe globe-${p.kind}${low ? ' low' : ''}${frac <= 0 ? ' empty' : ''}`} style={{ '--glow': s.glow, '--liq-hi': s.hi, '--liq-mid': s.mid, '--liq-lo': s.lo }}>
+      <div class="globe-shadow" />
       <div class="globe-socket" />
-      <svg class="globe-liquid" viewBox="0 0 200 200" aria-hidden="true">
-        <defs>
-          <clipPath id={`${id}-clip`}><circle cx="100" cy="100" r={R} /></clipPath>
-          <linearGradient id={`${id}-body`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="196">
-            <stop offset="0" stop-color={s.hi} />
-            <stop offset="0.05" stop-color={s.mid} />
-            <stop offset="0.38" stop-color={s.mid} />
-            <stop offset="0.78" stop-color={s.lo} />
-            <stop offset="1" stop-color="#000" stop-opacity=".92" />
-          </linearGradient>
-          <linearGradient id={`${id}-back`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
-            <stop offset="0" stop-color={s.hi} stop-opacity=".95" />
-            <stop offset="1" stop-color={s.mid} stop-opacity=".45" />
-          </linearGradient>
-          <radialGradient id={`${id}-glass`} cx="50%" cy="38%" r="66%">
-            <stop offset="0" stop-color="#241619" />
-            <stop offset="0.6" stop-color="#0d0709" />
-            <stop offset="1" stop-color="#030203" />
-          </radialGradient>
-          <radialGradient id={`${id}-depth`} cx="50%" cy="46%" r="52%">
-            <stop offset="0.42" stop-color="#000" stop-opacity="0" />
-            <stop offset="0.78" stop-color="#000" stop-opacity=".22" />
-            <stop offset="0.93" stop-color="#000" stop-opacity=".55" />
-            <stop offset="1" stop-color="#000" stop-opacity=".88" />
-          </radialGradient>
-          <linearGradient id={`${id}-light`} x1="0" y1="0" x2="1" y2="0.35">
-            <stop offset="0" stop-color="#fff" stop-opacity=".2" />
-            <stop offset="0.38" stop-color="#fff" stop-opacity="0" />
-            <stop offset="0.72" stop-color="#000" stop-opacity=".18" />
-            <stop offset="1" stop-color="#000" stop-opacity=".5" />
-          </linearGradient>
-          <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0.45" stop-color="#000" stop-opacity="0" />
-            <stop offset="1" stop-color="#000" stop-opacity=".16" />
-          </linearGradient>
-          <radialGradient id={`${id}-core`} cx="50%" cy="50%" r="50%">
-            <stop offset="0" stop-color={s.hi} stop-opacity=".5" />
-            <stop offset="0.6" stop-color={s.hi} stop-opacity=".12" />
-            <stop offset="1" stop-color={s.hi} stop-opacity="0" />
-          </radialGradient>
-          <radialGradient id={`${id}-tint`} cx="50%" cy="92%" r="70%">
-            <stop offset="0" stop-color={s.mid} stop-opacity=".34" />
-            <stop offset="1" stop-color={s.mid} stop-opacity="0" />
-          </radialGradient>
-          <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
-            <stop offset="0" stop-color={s.hi} stop-opacity=".45" />
-            <stop offset="1" stop-color={s.hi} stop-opacity="0" />
-          </radialGradient>
-        </defs>
-        <g clip-path={`url(#${id}-clip)`}>
-          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-glass)`} />
-          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-tint)`} />
-          <g class="liquid" style={{ transform: `translateY(${y.toFixed(2)}px)` }}>
-            <g class="liquid-bob">
-              <g class="wave wave-b"><path d={`${WAVE_B}V300H0Z`} fill={`url(#${id}-back)`} /></g>
-              <g class="wave wave-f">
+      <div class="globe-liq" aria-hidden="true">
+        {/* .globe-liq clips to the liquid circle (r = R); .gl-frame restores the 200-unit globe frame inside it. */}
+        <div class="gl-frame">
+          <svg class="gl-svg" viewBox="0 0 200 200">
+            <defs>
+              <radialGradient id={`${id}-glass`} cx="50%" cy="38%" r="66%">
+                <stop offset="0" stop-color="#241619" />
+                <stop offset="0.6" stop-color="#0d0709" />
+                <stop offset="1" stop-color="#030203" />
+              </radialGradient>
+              <radialGradient id={`${id}-tint`} cx="50%" cy="92%" r="70%">
+                <stop offset="0" stop-color={s.mid} stop-opacity=".34" />
+                <stop offset="1" stop-color={s.mid} stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-glass)`} />
+            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-tint)`} />
+          </svg>
+          {/* translateY in % of the 200-unit frame: y units → y / 2 % */}
+          <div class="liquid" style={{ transform: `translateY(${(y / 2).toFixed(2)}%)` }}>
+            <div class="liquid-bob">
+              <svg class="gl-svg wave wave-b" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id={`${id}-back`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
+                    <stop offset="0" stop-color={s.hi} stop-opacity=".95" />
+                    <stop offset="1" stop-color={s.mid} stop-opacity=".45" />
+                  </linearGradient>
+                </defs>
+                <path d={`${WAVE_B}V300H0Z`} fill={`url(#${id}-back)`} />
+              </svg>
+              <svg class="gl-svg wave wave-f" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id={`${id}-body`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="196">
+                    <stop offset="0" stop-color={s.hi} />
+                    <stop offset="0.05" stop-color={s.mid} />
+                    <stop offset="0.38" stop-color={s.mid} />
+                    <stop offset="0.78" stop-color={s.lo} />
+                    <stop offset="1" stop-color="#000" stop-opacity=".92" />
+                  </linearGradient>
+                </defs>
                 <path d={`${WAVE_F}V300H0Z`} fill={`url(#${id}-body)`} />
                 <path d={WAVE_F} fill="none" stroke={s.hi} stroke-width="3" stroke-linecap="round" stroke-opacity=".95" />
                 <path d={WAVE_F} fill="none" stroke="#fff" stroke-width=".9" stroke-opacity=".55" transform="translate(0 -1)" />
-              </g>
-              <ellipse cx="100" cy="14" rx="86" ry="22" fill={`url(#${id}-glow)`} />
-              <ellipse cx="96" cy="78" rx="74" ry="64" fill={`url(#${id}-core)`} />
+              </svg>
+              <svg class="gl-svg" viewBox="0 0 200 200">
+                <defs>
+                  <radialGradient id={`${id}-core`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0" stop-color={s.hi} stop-opacity=".5" />
+                    <stop offset="0.6" stop-color={s.hi} stop-opacity=".12" />
+                    <stop offset="1" stop-color={s.hi} stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0" stop-color={s.hi} stop-opacity=".45" />
+                    <stop offset="1" stop-color={s.hi} stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+                <ellipse cx="100" cy="14" rx="86" ry="22" fill={`url(#${id}-glow)`} />
+                <ellipse cx="96" cy="78" rx="74" ry="64" fill={`url(#${id}-core)`} />
+              </svg>
               {BUBBLES.map((b) => (
-                <circle class="bubble" cx={b.x} cy={b.y} r={b.r} fill="#fff" style={{ animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s`, '--rise': `${-b.rise}px` }} />
+                <i
+                  class="bubble"
+                  style={{
+                    left: `${(b.x - b.r) / 2}%`, top: `${(b.y - b.r) / 2}%`, width: `${b.r}%`, height: `${b.r}%`,
+                    animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s`, '--rise': `calc(var(--globe) * ${(-b.rise / 200).toFixed(3)})`,
+                  }}
+                />
               ))}
-            </g>
-          </g>
-          <rect x="0" y="0" width="200" height="200" fill={`url(#${id}-floor)`} />
-          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-light)`} />
-          <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-depth)`} />
-        </g>
-      </svg>
+            </div>
+          </div>
+          <svg class="gl-svg" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0.45" stop-color="#000" stop-opacity="0" />
+                <stop offset="1" stop-color="#000" stop-opacity=".16" />
+              </linearGradient>
+              <linearGradient id={`${id}-light`} x1="0" y1="0" x2="1" y2="0.35">
+                <stop offset="0" stop-color="#fff" stop-opacity=".2" />
+                <stop offset="0.38" stop-color="#fff" stop-opacity="0" />
+                <stop offset="0.72" stop-color="#000" stop-opacity=".18" />
+                <stop offset="1" stop-color="#000" stop-opacity=".5" />
+              </linearGradient>
+              <radialGradient id={`${id}-depth`} cx="50%" cy="46%" r="52%">
+                <stop offset="0.42" stop-color="#000" stop-opacity="0" />
+                <stop offset="0.78" stop-color="#000" stop-opacity=".22" />
+                <stop offset="0.93" stop-color="#000" stop-opacity=".55" />
+                <stop offset="1" stop-color="#000" stop-opacity=".88" />
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="200" height="200" fill={`url(#${id}-floor)`} />
+            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-light)`} />
+            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-depth)`} />
+          </svg>
+        </div>
+      </div>
       <div class="globe-grain" />
       <svg class="globe-glass" viewBox="0 0 200 200" aria-hidden="true">
         <defs>
@@ -146,6 +172,7 @@ export function Globe(p: GlobeProps) {
         <circle cx="100" cy="100" r={R + 1.5} fill="none" stroke="#000" stroke-opacity=".9" stroke-width="3" />
       </svg>
       <div class="globe-bezel" />
+      {low && <i class="globe-alarm" />}
       <i class="globe-stud s1" /><i class="globe-stud s2" /><i class="globe-stud s3" /><i class="globe-stud s4" />
       <div class="globe-crest" />
       <div class="globe-num interactive">

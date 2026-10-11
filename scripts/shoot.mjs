@@ -113,6 +113,8 @@ const api = {
   },
   /** Raw DevTools call on the page target (e.g. 'Performance.getMetrics') for measurements. */
   async cdp(method, params = {}) { return page.call(method, params); },
+  /** Subscribe to raw DevTools events on the page target (e.g. Tracing.dataCollected). */
+  onCdp(handler) { page.on(handler); },
   async viewport(w, h) { await page.call('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false }); await wait(400); },
   async goto(url) { await page.call('Page.navigate', { url }); await wait(300); },
   /** Fresh character straight into town. Names must be 2–16 letters/numbers. */

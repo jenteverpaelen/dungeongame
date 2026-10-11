@@ -55,7 +55,7 @@ export function castPrimary(inst: Instance, p: Player, tgt: Mob) {
 
 export function startChannel(inst: Instance, p: Player, rt: SkillRuntime, manual = false) {
   // First Dust Devil bursts out as the spin starts (D3), then one per second of channelling.
-  p.channel = { skill: rt.def.id, graceMs: 600, tickMs: 0, devilMs: 150, spunMs: 0, manual };
+  p.channel = { skill: rt.def.id, graceMs: 600, tickMs: 0, devilMs: 150, spunMs: 0, manual, aim: undefined };
   p.castFlagMs = 300;
   p.attackSeq++;
   emitCast(inst, p, rt, p.x, p.y, skillRadius(rt));
@@ -70,6 +70,7 @@ export function endChannel(inst: Instance, p: Player) {
 /** Generic channel upkeep (resource drain, grace without enemies), then the skill's own tick. */
 export function channelTick(inst: Instance, p: Player, dtMs: number) {
   const ch = p.channel!;
+  p.acting = ch.skill; // statuses the channel applies report it (applyStatus procs filtered by skill)
   const rt = p.ctx.slotted(ch.skill);
   if (!rt) { p.channel = null; return; }
   p.res -= skillCost(p, rt) * (dtMs / 1000);
@@ -91,7 +92,11 @@ export function channelTick(inst: Instance, p: Player, dtMs: number) {
 /** Execute a slotted skill. Returns false if it found nothing to do (no cost / cooldown is paid). */
 export function castSkill(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const cast = skillBehaviour(rt.def.id)?.cast;
-  return cast ? cast(inst, p, rt) : false;
+  if (!cast || !cast(inst, p, rt)) return false;
+  // Cheat death "once per <skill>" (rearmOnCast): every successful cast, from the bar or a castSkill proc, re-arms it.
+  const cheats = p.ctx.powers.defense?.cheat;
+  if (cheats && p.pw) for (let i = 0; i < cheats.length; i++) if (cheats[i].rearm?.includes(rt.def.id)) p.pw.cheatAt[i] = -Infinity;
+  return true;
 }
 
 // ─────────────────────────── Death hooks ───────────────────────────

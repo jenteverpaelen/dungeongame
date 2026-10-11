@@ -8,17 +8,17 @@ import { strikeMob } from './damage';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff } from './effects';
 import { placeGround } from './groundFx';
 import type { Instance } from './instance';
-import { skillCost, skillPct } from './playerctx';
+import { skillCooldownMs, skillCost, skillPct } from './playerctx';
 import { FURY_DECAY_DELAY_MS, OOC_REGEN_DELAY_MS } from './tuning';
 import {
   conditionCount, firePowerProcs, ownMultiplier, powerState, stackBuff,
   type ProcContext, type ProcRuntime, type StackRule,
 } from './powerRuntime';
 import { clearHostileProjectiles } from './projectiles';
-import { castPrimary, summonBehaviour } from './skills';
+import { castPrimary, castSkill, summonBehaviour } from './skills';
 import { applyStatus, type TauntRef } from './status';
 import { spawnSummon } from './summons';
-import type { Mob, Player, Strike, SummonType } from './types';
+import type { Dot, Mob, Player, Strike, SummonType } from './types';
 
 /** A strike for a power-made hit: a class skill uses its skill bucket; other ids (procs, grounds) their template mods. */
 export function strikeFor(p: Player, id: string, coef: number, el: Element): Strike {
@@ -38,7 +38,7 @@ export function runProcActions(inst: Instance, p: Player, pr: ProcRuntime, c: Pr
     if (s) ref = s;
   }
   if (pr.ground) {
-    const q = at(pr.ground.at), g = placeGround(inst, p, pr.ground.def, q.x, q.y, facing(p), pr.ground.scale);
+    const q = at(pr.ground.at), g = placeGround(inst, p, pr.ground.def, q.x, q.y, facing(p), pr.ground.scale, pr.ground.carryDot ? strongestDot(p, mob) : undefined);
     if (g && !ref) ref = g;
   }
   if (pr.strike) {
@@ -56,6 +56,29 @@ export function runProcActions(inst: Instance, p: Player, pr: ProcRuntime, c: Pr
     else if (mob && !mob.dead) applyStatus(inst, p, mob, s, p.x, p.y, source, ref ?? p);
   }
   if (pr.clear) clearHostileProjectiles(inst, p.x, p.y, facing(p), pr.clear.half, pr.clear.range);
+  if (pr.castSkill) castBarSkill(inst, p, pr.castSkill);
+}
+
+/** Your strongest damage-over-time on an enemy (highest damage per second), a template for carried dots. */
+export function strongestDot(p: Player, m: Mob | null): Dot | undefined {
+  let best: Dot | undefined;
+  if (m) for (const d of m.dots) if (d.owner === p.id && (!best || d.perTick / d.tickMs > best.perTick / best.tickMs)) best = d;
+  return best ? { ...best } : undefined;
+}
+
+/**
+ * Proc action castSkill: cast a bar skill among the targets for free (no resource; its cooldown starts), only when off
+ * cooldown. pick 'longestCooldown' takes the one with the longest base cooldown, 'first' the first slot.
+ */
+function castBarSkill(inst: Instance, p: Player, c: NonNullable<ProcRuntime['castSkill']>) {
+  const ready = p.ctx.slots.filter((rt): rt is NonNullable<typeof rt> => !!rt && (!c.ids || c.ids.has(rt.def.id)) && (p.readyAt.get(rt.def.id) ?? 0) <= inst.t && rt.def.auto.when !== 'channel');
+  if (!ready.length) return;
+  const rt = c.pick === 'longestCooldown' ? ready.reduce((a, b) => (b.def.cooldown > a.def.cooldown ? b : a)) : ready[0];
+  const prev = p.acting;
+  p.acting = rt.def.id;
+  try { if (!castSkill(inst, p, rt)) return; } finally { p.acting = prev; }
+  const cd = skillCooldownMs(p, rt);
+  if (cd > 0) p.readyAt.set(rt.def.id, inst.t + cd);
 }
 
 /** Spawn a power summon (only types a class module registered); over `max` of that type, the oldest retires. */
@@ -135,6 +158,10 @@ export function powerTick(inst: Instance, p: Player, dtMs: number) {
     const moved = Math.hypot(p.x - st.lastX, p.y - st.lastY);
     for (const r of rt.stacking) {
       if (r.source === 'distance' && moved > 0 && moved <= TELEPORT_UNITS) addProgress(inst, p, r, moved);
+      if (r.source === 'channel' && p.channel) {
+        addProgress(inst, p, r, dtMs);
+        const b = getBuff(p, r.buff); if (b && r.decay === 'all') b.ms = r.decayMs; // no decay while channelling
+      }
       decayStacks(inst, p, r);
     }
   }
@@ -144,9 +171,10 @@ export function powerTick(inst: Instance, p: Player, dtMs: number) {
 }
 
 function stackGrant(r: StackRule) {
-  const b: { id: string; ms: number; sdmg?: number; ias?: number } = { id: r.buff, ms: r.decay === 'all' ? r.decayMs : Infinity };
+  const b: { id: string; ms: number; sdmg?: number; ias?: number; mv?: number } = { id: r.buff, ms: r.decay === 'all' ? r.decayMs : Infinity };
   if (r.sdmg) b.sdmg = r.sdmg;
   if (r.sias) b.ias = r.sias;
+  if (r.smv) b.mv = r.smv;
   return b;
 }
 
@@ -212,8 +240,13 @@ export function channelMoveFactor(p: Player, skill: string): number {
 
 /** Movement speed % while channelling: the channel's slow and rules (channelMoveFactor) and the moveWhileChannel affix. */
 export function channelMsPct(p: Player): number {
-  const ms = p.ctx.d.ms + p.ctx.d.moveWhileChannel, f = channelMoveFactor(p, p.channel!.skill);
+  const ms = p.ctx.d.ms + p.ctx.d.moveWhileChannel + (p.live.mv ?? 0), f = channelMoveFactor(p, p.channel!.skill);
   return f === 1 ? ms : (1 + ms / 100) * f * 100 - 100;
+}
+
+/** Movement speed % in effect: the sheet, buff movement (live.mv) and, while channelling, channelMsPct. */
+export function movePct(p: Player): number {
+  return p.channel ? channelMsPct(p) : p.live.mv ? p.ctx.d.ms + p.live.mv : p.ctx.d.ms;
 }
 
 /** Start counting a cast's hits for a spendRefund rule (false when no rule applies to this skill). */
