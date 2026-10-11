@@ -102,7 +102,7 @@ function quickSalvage(item: Item) {
   if (item.vendorStock) { pushNotice('Merchant stock cannot be salvaged. Equip it, store it or sell it back instead.', 'warn'); return; }
   if (item.protected) { pushNotice(ITEM_PROTECTION_REASON, 'warn'); return; }
   const char = ui.get().char;
-  if (!char || char.cube.level < (CUBE_FUNCTIONS.find((f) => f.op === 'salvage')?.unlock ?? 1)) { pushNotice('The Cube cannot salvage yet', 'warn'); return; }
+  if (!char || char.cube.level < (CUBE_FUNCTIONS.find((f) => f.op === 'salvage')?.unlock ?? 1)) { pushNotice('The Reliquary cannot salvage yet', 'warn'); return; }
   const valuable = item.rarity === 'legendary' || item.rarity === 'set' || item.ancient > 0 || item.upgrade > 0 || item.enchanted !== undefined;
   if (valuable) invUI.set({ confirm: { kind: 'salvage', item } });
   else void run('salvage', { itemId: item.id });
@@ -187,11 +187,11 @@ function StatsStrip({ char }: { char: CharacterSave }) {
         <div class="sb dmg" {...textTipHandlers(() => ({ title: 'Damage', sub: 'Sheet damage per second', lines: [`Weapon ${fmtInt(d.weaponMin)}–${fmtInt(d.weaponMax)}, ${d.aps.toFixed(2)} attacks per second, ${d.chc.toFixed(1)}% crit chance for +${fmtInt(d.chd)}% damage.`] }), 'sb-dmg')}>
           <label>Damage</label><b>{big(d.sheetDps)}</b>
         </div>
-        <div class="sb tgh" {...textTipHandlers(() => ({ title: 'Toughness', sub: `Effective life estimate against level ${char.level}`, lines: [`Life ${fmtInt(d.life)} with ${(d.armorDR * 100).toFixed(1)}% armor and ${(d.resDR * 100).toFixed(1)}% resistance damage reduction.`] }), 'sb-tgh')}>
-          <label>Toughness</label><b>{big(d.toughness)}</b>
+        <div class="sb tgh" {...textTipHandlers(() => ({ title: 'Durability', sub: `Effective life estimate against level ${char.level}`, lines: [`Life ${fmtInt(d.life)} with ${(d.armorDR * 100).toFixed(1)}% armor and ${(d.resDR * 100).toFixed(1)}% resistance damage reduction.`] }), 'sb-tgh')}>
+          <label>Durability</label><b>{big(d.toughness)}</b>
         </div>
-        <div class="sb rec" {...textTipHandlers(() => ({ title: 'Recovery', sub: 'Healing estimate; actual hits and triggers vary', lines: [`Life regeneration plus ${fmtInt(d.lifePerHit)} life on hit at ${d.aps.toFixed(2)} attacks per second.`] }), 'sb-rec')}>
-          <label>Recovery</label><b>{big(d.recovery)}</b>
+        <div class="sb rec" {...textTipHandlers(() => ({ title: 'Sustain', sub: 'Healing estimate; actual hits and triggers vary', lines: [`Life regeneration plus ${fmtInt(d.lifePerHit)} life on hit at ${d.aps.toFixed(2)} attacks per second.`] }), 'sb-rec')}>
+          <label>Sustain</label><b>{big(d.recovery)}</b>
         </div>
       </div>
       <div class="sheet-mini">
@@ -205,7 +205,7 @@ function StatsStrip({ char }: { char: CharacterSave }) {
 
 // ───────────────────────────── bag grid ─────────────────────────────
 
-/** Items that would raise Damage or Toughness when equipped get a small green arrow (D3 console style). */
+/** Items that would raise Damage or Durability when equipped get a small green arrow (D3 console style). */
 function useUpgradeFlags(char: CharacterSave): boolean[] {
   return useMemo(() => {
     return char.inventory.map((it) => {
@@ -317,7 +317,7 @@ function GemGrid({ char }: { char: CharacterSave }) {
             <b class="gem-cnt">{g.n}</b>
           </div>
         ))}
-        {list.length === 0 && <div class="empty-note">No gems yet. Gems drop from elites and rift guardians.</div>}
+        {list.length === 0 && <div class="empty-note">No gems yet. Gems drop from elites and Faultline Keepers.</div>}
       </div>
       <div class="gems-foot">{total} gems · fuse three of a kind in the Cube</div>
     </div>

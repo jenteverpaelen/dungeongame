@@ -529,7 +529,7 @@ export class World {
 
   riftOpen(s: Session, difficulty: number): CmdResult {
     const town = s.rec;
-    if (!town || town.kind !== 'town') return fail('Rifts are opened at the Obelisk in Hearthmere');
+    if (!town || town.kind !== 'town') return fail('Faultlines are opened at the Faultstone in Hearthmere');
     const nearError = requireNear(s, 'obelisk');
     if (nearError) return fail(nearError);
     const diff = DIFFICULTIES[difficulty];
@@ -543,7 +543,7 @@ export class World {
       this.closeRiftPortal(old);
       if (old.rec.members.size === 0) this.destroyRift(old);
     }
-    if (this.rifts.size >= MAX_RIFTS) return fail('The Rifts are overcrowded. Try again in a moment');
+    if (this.rifts.size >= MAX_RIFTS) return fail('The Faultlines are overcrowded. Try again in a moment');
 
     let key: string;
     do { key = `rift#${this.rng.int(0x1000, 0xfffff).toString(16)}`; } while (this.recs.has(key));
@@ -562,18 +562,18 @@ export class World {
       });
     } catch (err) {
       console.error('[world] could not create rift:', err);
-      return fail('The rift collapsed before it opened');
+      return fail('The Faultline collapsed before it opened');
     }
     const rec: InstRec = { key, zoneId: 'rift', kind: 'rift', channel: 0, inst, members: new Set(), emptySince: Date.now(), hostedRifts: new Set(), rift: meta };
     meta.rec = rec;
 
     meta.portalAt = this.portalSpot(town.inst.map, this.openRiftsOf(town).map((r) => r.portalAt));
     try {
-      meta.portalId = town.inst.spawnPortal({ kind: 'rift', x: meta.portalAt.x, y: meta.portalAt.y, label: `${s.save.name}'s Rift`, ttlMs: 0 });
+      meta.portalId = town.inst.spawnPortal({ kind: 'rift', x: meta.portalAt.x, y: meta.portalAt.y, label: `${s.save.name}'s Faultline`, ttlMs: 0 });
     } catch (err) {
       console.error('[world] could not spawn rift portal:', err);
       try { inst.destroy(); } catch { /* ignore */ }
-      return fail('The rift collapsed before it opened');
+      return fail('The Faultline collapsed before it opened');
     }
 
     this.recs.set(key, rec);
@@ -582,24 +582,24 @@ export class World {
     town.hostedRifts.add(meta);
     s.save.difficulty = difficulty;
     s.markDirty();
-    try { town.inst.notice(`${s.save.name} opened a ${diff.name} Rift`, 'rift'); } catch { /* ignore */ }
+    try { town.inst.notice(`${s.save.name} opened a ${diff.name} Faultline`, 'rift'); } catch { /* ignore */ }
     this.broadcastInfo();
     return ok({ key, difficulty, level, theme });
   }
 
   riftEnter(s: Session): CmdResult {
     const town = s.rec;
-    if (!town || town.kind !== 'town') return fail('Enter the rift from Hearthmere');
+    if (!town || town.kind !== 'town') return fail('Enter the Faultline from Hearthmere');
     const open = this.openRiftsOf(town);
-    if (!open.length) return fail('There is no open rift in this channel');
+    if (!open.length) return fail('There is no open Faultline in this channel');
     // Own rift first, otherwise the most recently opened one with room.
     open.sort((a, b) => (b.ownerId === s.save.id ? 1 : 0) - (a.ownerId === s.save.id ? 1 : 0) || b.createdAt - a.createdAt);
     const obelisk = town.inst.map.town?.npcs.find(n => n.role === 'obelisk');
     const nearObelisk = obelisk && town.inst.canInteract(s, obelisk.x, obelisk.y, obelisk.interactionRadius);
     const accessible = open.filter(r => nearObelisk || town.inst.canInteract(s, r.portalAt.x, r.portalAt.y, 110));
-    if (!accessible.length) return fail('Stand beside the Rift Obelisk or an open rift portal');
+    if (!accessible.length) return fail('Stand beside the Faultstone or an open Faultline portal');
     const meta = accessible.find((r) => r.rec.members.size < PARTY_MAX);
-    if (!meta) return fail('The rift is full');
+    if (!meta) return fail('The Faultline is full');
     s.homeTown = town.key;
     this.enter(s, meta.rec, undefined, this.zoneAnnounce);
     s.saveNow();

@@ -204,7 +204,7 @@ export class ZoneBuilder {
   landmark(name: string, x: number, y: number) { this.landmarks.push({ name, x, y }); }
   event(id: string, name: string, trigger: string, encounter: string, blurb: string, action: string) { this.events.push({ id, name, trigger, encounter, blurb, action }); }
   shrine(id: string, x: number, y: number, kind: NonNullable<ZonePoi['shrine']>) {
-    const names = { empowered: 'Empowered Shrine', frenzied: 'Frenzied Shrine', keen: 'Keen Shrine' } as const;
+    const names = { empowered: 'Hearthfire Altar', frenzied: 'Quickening Altar', keen: 'Keen Altar' } as const;
     this.pois.push({ id, kind: 'shrine', name: names[kind], x, y, radius: 110, shrine: kind }); this.reserve(x, y, 110);
     this.light(x, y - 30, kind === 'empowered' ? 0xff9a5a : kind === 'frenzied' ? 0x9ad8ff : 0xd8b0ff, 160);
   }

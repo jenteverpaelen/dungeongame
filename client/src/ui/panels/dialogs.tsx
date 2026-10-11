@@ -186,7 +186,7 @@ export function ObeliskPanel() {
     setBusy(false);
     if (r.ok) togglePanel('obelisk', false);
   };
-  const torment = d.name.startsWith('Torment');
+  const torment = sel >= 4; // the numbered Ordeal tiers (by index, never by name)
   const stats: { label: string; value: string; tone?: string }[] = [
     { label: 'Monster life', value: `×${fmtInt(d.hp)}`, tone: 'bad' },
     { label: 'Monster damage', value: `×${d.dmg.toFixed(1)}`, tone: 'bad' },
@@ -196,14 +196,14 @@ export function ObeliskPanel() {
     { label: 'Requires', value: d.minLevel > 1 ? `Level ${d.minLevel}` : 'Any level', tone: lockedSel ? 'bad' : undefined },
   ];
   return (
-    <PanelFrame id="obelisk" title="Rift Obelisk" width={820} sub={<span class="pn-lv">Level {char.level}</span>}>
+    <PanelFrame id="obelisk" title="Faultstone" width={820} sub={<span class="pn-lv">Level {char.level}</span>}>
       <div class="ob">
         <nav class="ob-ladder" aria-label="Difficulty">
           <Paged size={14} initial={Math.floor(sel / 14)} label="Difficulty pages">
             {DIFFICULTIES.map((x, i) => {
               const lk = char.level < x.minLevel;
               return (
-                <button key={x.name} class={cls('ob-step', sel === i && 'on', lk && 'locked', x.name.startsWith('Torment') && 'torment')} aria-pressed={sel === i} onClick={() => setSel(i)}>
+                <button key={x.name} class={cls('ob-step', sel === i && 'on', lk && 'locked', i >= 4 && 'torment')} aria-pressed={sel === i} onClick={() => setSel(i)}>
                   <span class="ob-pipcol">{lk ? <UiIcon name="lock" size={14} /> : <i class="ob-pip" />}</span>
                   <b>{x.name}</b>
                   {lk ? <em>Level {x.minLevel}</em> : i === Math.min(char.difficulty ?? 0, DIFFICULTIES.length - 1) ? <em class="cur">Last used</em> : null}
@@ -227,9 +227,9 @@ export function ObeliskPanel() {
           </div>
           <div class="ob-actions">
             <div class={cls('ob-state', world?.riftOpen && 'open')}>
-              <i /> {world?.riftOpen ? 'A rift is open in this channel' : 'No rift is open in this channel'}
+              <i /> {world?.riftOpen ? 'A Faultline is open in this channel' : 'No Faultline is open in this channel'}
             </div>
-            <button class="btn" disabled={busy || !world?.riftOpen} onClick={() => void act('riftEnter')}>Enter open rift</button>
+            <button class="btn" disabled={busy || !world?.riftOpen} onClick={() => void act('riftEnter')}>Enter the open Faultline</button>
             <button class="btn primary" disabled={busy || lockedSel} onClick={() => void act('riftOpen')}>Open {d.name} rift</button>
           </div>
         </section>
@@ -242,7 +242,7 @@ export function ObeliskPanel() {
 
 const TOOLS: { label: string; hint: string; op: string; n?: number }[] = [
   { label: 'Level +10', hint: 'Grant ten levels', op: 'level', n: 10 },
-  { label: 'Paragon +50', hint: 'Fifty paragon levels', op: 'paragon', n: 50 },
+  { label: 'Lantern Ranks +50', hint: 'Fifty Lantern Ranks', op: 'paragon', n: 50 },
   { label: 'Gold', hint: 'Fill your purse', op: 'gold' },
   { label: 'Materials', hint: 'All crafting materials', op: 'mats' },
   { label: 'Legendaries', hint: 'A handful of class legendaries', op: 'legendaries' },

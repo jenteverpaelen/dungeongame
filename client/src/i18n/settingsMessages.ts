@@ -11,7 +11,7 @@ export const SETTINGS_MESSAGES = {
   // Sound
   'set.sound.volumeHeading': 'Volume',
   'set.sound.alerts': 'Loot and level-up alerts',
-  'set.sound.alertsNote': 'Fanfares for legendary drops, levels and rifts have their own volume. Boss warnings stay with Effects.',
+  'set.sound.alertsNote': 'Fanfares for legendary drops, levels and Faultlines have their own volume. Boss warnings stay with Effects.',
   'set.sound.muteHeading': 'Mute',
   'set.sound.mutedNote': 'Silences effects, alerts, ambience and town sounds. Your volume levels are kept.',
   'set.sound.background': 'Mute when the game is in the background',
@@ -114,8 +114,8 @@ export const SETTINGS_MESSAGES = {
   'set.pad.action.journal': 'Journal',
   'set.pad.action.map': 'World map',
   'set.pad.action.settings': 'Settings',
-  'set.pad.action.paragon': 'Paragon',
-  'set.pad.action.cube': 'Cube',
+  'set.pad.action.paragon': 'Lantern Ranks',
+  'set.pad.action.cube': 'Reliquary',
   'set.pad.retained': 'Buttons are remembered in this browser.',
   // Notices
   'settings.lowSpecNotice': 'The game is running at {fps} fps. Settings → Graphics → Low can make it smoother.',

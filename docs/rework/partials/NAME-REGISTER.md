@@ -18,6 +18,23 @@ literal and JSX text in shipped source. The 141 current uses wait in `docs/origi
 **any new use fails the check**. When a rename lands the entry becomes "stale" and is pruned with
 `npx tsx scripts/originality-check.ts --write-allow`.
 
+## Status 2026-10-11 — owner: "use recommendations for now"
+
+Applied across the codebase (display text only; ids, saves, protocol unchanged): **B1** Story · Normal · Hard · Severe ·
+Ordeal I–X (the obelisk UI now tests the tier index, never the name), **B2** Lantern Ranks / Lantern Rank / Lantern points /
+Lantern shrine, **B3** The Glass Reliquary / Reliquary / Reliquary level, tier, XP; Extract Power → Bind Power, **B4**
+Faultline / Faultline Keeper / Faultstone / Faultline progress, **B5** Glasswright, **B6** Mending Orb; and from table C:
+Bound to this hero, the three altars, Kilnheart Talisman (+ buff), Hexwound Cord, gem ranks Rough · Cut · Faceted ·
+Polished · Brilliant · Sovereign, Damage · Durability · Sustain, the cinder material text, 21 affix phrasings, the
+"Kanai's Cube" source notes. **Deviation:** the damage altar is **Hearthfire Altar**, not "Kindled Altar" — Kindled is now
+an item grade. Originality gate: 142 → 82 known borrowed-term uses; the rest are in the class lanes.
+
+**Left to other lanes:** skill, rune, tier and class power names in 
+(class agents, ) — including Hunter's Mark and Siegebreaker's Arsenal (ranger powers) and
+Raiment of the Endless Storm (warrior powers); the matching buff labels in  (Hunter's
+Mark, Spellsteal, Deep Freeze, Momentum) and class texts in  follow those names. Paragon 2.0
+*structure* (§E) stays a design question.
+
 ## A. Applied now (my lane)
 
 | Old (display) | New | Files | Check |

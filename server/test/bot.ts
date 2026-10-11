@@ -458,7 +458,7 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   r = await b.cmd('salvage', { itemId: 'nope' });
   c('salvage unknown item rejected', !r.ok, r);
   r = await b.cmd('enchantRoll', { itemId: 'nope', affix: 0 });
-  c('enchant before Cube level 3 rejected', !r.ok && /Cube level 3/.test(r.err ?? ''), r);
+  c('enchant before Reliquary level 3 rejected', !r.ok && /Reliquary level 3/.test(r.err ?? ''), r);
   r = await b.cmd('debug', { op: 'nonsense' });
   c('unknown debug op rejected', !r.ok, r);
   r = await b.cmd('travel', { zone: 'rift' });

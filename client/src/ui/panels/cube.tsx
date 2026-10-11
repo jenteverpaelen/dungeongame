@@ -48,7 +48,7 @@ function YieldChips({ y }: { y: Partial<Materials> }) {
 /** Why the placed item cannot be used for this function (null = fine). */
 function invalidReason(fn: CubeOp, item: Item | null): string | null {
   if (fn === 'fuse') return null;
-  if (!item) return 'Place an item in the Cube.';
+  if (!item) return 'Place an item in the Reliquary.';
   const protection = itemProtectionReason(item, fn);
   if (protection) return protection;
   switch (fn) {
@@ -109,7 +109,7 @@ function Chamber({ item, gems }: { item: Item | null; gems?: { gem: string; rank
           </>
         ) : gems ? (
           <>
-            <b class="cg-n" style={{ color: lighten(gemColor(gems.gem), 0.35) }}>{gems.rank < 6 ? gemName(gems.gem, gems.rank + 1) : 'Royal'}</b>
+            <b class="cg-n" style={{ color: lighten(gemColor(gems.gem), 0.35) }}>{gems.rank < 6 ? gemName(gems.gem, gems.rank + 1) : 'Sovereign'}</b>
             <span>3 × {gemName(gems.gem, gems.rank)}</span>
           </>
         ) : (
@@ -135,7 +135,7 @@ function SalvageView({ item }: { item: Item | null }) {
   return (
     <div class="cv">
       <div class="cv-row"><label>You will receive</label><YieldChips y={salvageYield(item)} /></div>
-      <div class="cv-row"><label>Cube experience</label><b class="xpv">+{salvageXp(item)} XP</b></div>
+      <div class="cv-row"><label>Reliquary experience</label><b class="xpv">+{salvageXp(item)} XP</b></div>
       {(item.rarity === 'legendary' || item.rarity === 'set') && <Note tone="warn">Legendary and Set items are destroyed. Extract their power first if you want to keep it.</Note>}
       <Note>Shift + right-click an item in your bag to salvage it while beside the Blacksmith.</Note>
     </div>
@@ -148,7 +148,7 @@ function FuseView({ char, sel, onSel }: { char: CharacterSave; sel: string | nul
     .filter(([, n]) => n > 0)
     .map(([k, n]) => { const [gem, rank] = k.split(':'); return { k, gem, rank: Number(rank), n }; })
     .sort((a, b) => order.indexOf(a.gem) - order.indexOf(b.gem) || a.rank - b.rank);
-  if (!list.length) return <Hint>You have no gems. Gems drop from elites and rift guardians.</Hint>;
+  if (!list.length) return <Hint>You have no gems. Gems drop from elites and Faultline Keepers.</Hint>;
   return (
     <div class="fuse-list"><Paged size={4} label="Gem pages">
       {list.map((g) => {
@@ -176,7 +176,7 @@ function EnchantView({ item, char }: { item: Item | null; char: CharacterSave })
     <div class="cv">
       {canRekindle(item) && (
         <div class="cv-row">
-          <Note>This item still has its old grade bonus. The Mystic can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
+          <Note>This item still has its old grade bonus. The Glasswright can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
           <button class="btn sm" onClick={async () => { const r = await run('rekindle', { itemId: item.id }); if (r.ok) flash('success', 'Rekindled', 'The item now carries a Kindled property.'); }}>Rekindle</button>
         </div>
       )}
@@ -448,7 +448,7 @@ function ReforgeView({ item }: { item: Item | null }) {
 // ───────────────────────────── panel ─────────────────────────────
 
 const ACTION_LABEL: Record<CubeOp, string> = {
-  salvage: 'Salvage', fuse: 'Fuse 3 into 1', enchant: 'Enchant', upgrade: 'Empower', transmute: 'Transmute', extract: 'Extract Power', reforge: 'Reforge', socket: 'Add Socket',
+  salvage: 'Salvage', fuse: 'Fuse 3 into 1', enchant: 'Enchant', upgrade: 'Empower', transmute: 'Transmute', extract: 'Bind Power', reforge: 'Reforge', socket: 'Add Socket',
 };
 
 /** Items that can go into the chamber for this function, shown right in the stage so nobody has to open the bag first. */
@@ -514,7 +514,7 @@ export function CubePanel() {
   useEffect(() => {
     if (lastLevel.current !== null && level > lastLevel.current) {
       const unlocked = CUBE_FUNCTIONS.filter((f) => f.unlock === level).map((f) => f.name);
-      flash('success', `Cube Level ${level}`, unlocked.length ? `Unlocked: ${unlocked.join(', ')}` : undefined);
+      flash('success', `Reliquary level ${level}`, unlocked.length ? `Unlocked: ${unlocked.join(', ')}` : undefined);
     }
     lastLevel.current = level;
   }, [level]);
@@ -535,7 +535,7 @@ export function CubePanel() {
 
   const reason = invalidReason(fn, item)
     ?? (fn === 'reforge' && item && pending?.itemId === item.id
-      ? 'Choose your pending enchantment at the Mystic before reforging this item.' : null);
+      ? 'Choose your pending enchantment at the Glasswright before reforging this item.' : null);
   const cost = costFor(fn, item, fuseGem?.rank ?? null);
   const afford = cost ? canAfford(char, cost) : false;
   let canAct = !locked && !busy && !!cost && afford && !reason;
@@ -551,7 +551,7 @@ export function CubePanel() {
         case 'salvage': {
           const it = item!;
           const r = await run('salvage', { itemId: it.id });
-          if (r.ok) { setCubeItem(null); flash('success', 'Salvaged', `+${salvageXp(it)} Cube XP`); }
+          if (r.ok) { setCubeItem(null); flash('success', 'Salvaged', `+${salvageXp(it)} Reliquary XP`); }
           break;
         }
         case 'fuse': {
@@ -611,11 +611,11 @@ export function CubePanel() {
       <div class="cube-top">
         <div class="cube-lv">
           <CubeEmblem size={54} class="cube-em" />
-          <div class="cl-t"><span>Cube Level</span><b>{level}</b></div>
+          <div class="cl-t"><span>Reliquary level</span><b>{level}</b></div>
         </div>
         <div class="cube-xp">
           <Bar frac={char.cube.xp / need} text={`${fmtInt(char.cube.xp)} / ${fmtInt(need)} XP`} height={18} />
-          <small>Artisan and Cube operations share Cube experience and unlock levels.</small>
+          <small>Artisan and Reliquary operations share Reliquary experience and unlock levels.</small>
           {lesson&&<button class="btn tiny" onClick={()=>{ui.set({adventureTarget:lesson.start.target,adventureZone:lesson.start.zone,journalQuest:lesson.id});togglePanel('cube',false);togglePanel('adventure',true);}}>Workshop lessons · {questAvailable(char,lesson)?'Available':'Story progress required'}</button>}
         </div>
         <button class="btn sm quiet cube-coll" onClick={()=>{togglePanel('cube',false);togglePanel('collection',true);}}>Collection, recipes<br />&amp; appearances</button>
@@ -650,7 +650,7 @@ export function CubePanel() {
                   <b>{def.name} unlocks at Cube level {def.unlock}</b>
                   <span>{def.desc}</span>
                   <div class="cw-locked-bar"><i style={{ width: `${Math.min(100, (level / def.unlock) * 100)}%` }} /></div>
-                  <small>You are level {level}. Salvaging, fusing and other work earns Cube experience.</small>
+                  <small>You are level {level}. Salvaging, fusing and other work earns Reliquary experience.</small>
                 </div>
               </div>}
               {!locked && !item && fn !== 'fuse' && <CandidateStrip fn={fn} char={char} />}

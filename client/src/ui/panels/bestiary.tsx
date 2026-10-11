@@ -43,7 +43,7 @@ export function Bestiary({ save }: { save: CharacterSave }) {
       <div class="journal-detail">{monster ? <>
         <SecHead>{monster.name}</SecHead><p>{behavior[monster.attack.kind]}</p>
         <p>Base attack: {monster.attack.element}{monster.flying ? ' · Flying' : ''}</p>
-        <SecHead>Where to look</SecHead><p>{habitats?.map(z=>z.name).join(' · ') || 'Rifts and special encounters'}</p>
+        <SecHead>Where to look</SecHead><p>{habitats?.map(z=>z.name).join(' · ') || 'Faultlines and special encounters'}</p>
         <p class="pn-note">Named foes and elites may add their own attacks. Watch their telegraphs and elite traits.</p>
       </> : <p>No creatures recorded yet. Defeat a foe in the field to begin your journal.</p>}</div>
     </div>}

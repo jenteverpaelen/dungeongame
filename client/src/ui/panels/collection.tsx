@@ -84,7 +84,7 @@ export function CollectionPanel() {
                   <span class="chip dim">{KIND_LABEL[base.kind]}</span></header>
                 <p>{l.power.replace('{v}', `${l.range[0]}–${l.range[1]}`)}</p>
                 <footer class={cls(extracted ? 'ok' : found ? 'mid' : 'off')}>
-                  {extracted ? <><IconCheck size={11} /> Power extracted</> : found ? 'Found. Extract it at the Cube to learn the power.' : 'Not found yet'}
+                  {extracted ? <><IconCheck size={11} /> Power extracted</> : found ? 'Found. Bind it at the Reliquary to learn the power.' : 'Not found yet'}
                 </footer>
               </div>
             </article>;
@@ -120,7 +120,7 @@ export function CollectionPanel() {
           <Paged key={slot} size={6} class="co-paged">{candidates.map(([key, l]) => <article class="co-card look" key={key}>
             <span class="co-ico"><ItemVisual item={l} size={38} /></span>
             <div class="co-card-main"><header><b>{l.name}</b></header></div>
-            <button class="btn sm" disabled={selected === key} onClick={() => void run('collection', { action: 'look', slot, key })}>{selected === key ? 'Applied' : 'Apply at Mystic'}</button>
+            <button class="btn sm" disabled={selected === key} onClick={() => void run('collection', { action: 'look', slot, key })}>{selected === key ? 'Applied' : 'Apply at the Glasswright'}</button>
           </article>)}</Paged>
           {!candidates.length && <p class="co-empty">No compatible appearances found yet. New looks are recorded as items drop.</p>}
         </>}

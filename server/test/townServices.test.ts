@@ -65,7 +65,7 @@ test('near the right service: all existing mutations and unlock gating still wor
     f.near('jeweler'); ok('fuseGem', { gem: 'ruby', rank: 1 });
     gear.sockets = []; ok('socket', { itemId: gear.id }); ok('insertGem', { itemId: gear.id, gem: 'ruby', rank: 1 }); ok('removeGem', { itemId: gear.id, idx: 0 });
     f.near('mystic'); f.save.cube.level = 1;
-    assert.match(f.cmd('enchantRoll', { itemId: gear.id, affix: 0 }).err!, /Cube level 3/);
+    assert.match(f.cmd('enchantRoll', { itemId: gear.id, affix: 0 }).err!, /Reliquary level 3/);
     f.save.cube.level = 8; ok('enchantRoll', { itemId: gear.id, affix: 0 });
     f.near('cube'); assert.match(f.cmd('enchantPick', { itemId: gear.id, choice: 1 }).err!, /Stand beside/);
     f.near('mystic'); ok('enchantPick', { itemId: gear.id, choice: 1 }); assert.equal(gear.enchanted, 0);
