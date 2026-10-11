@@ -45,6 +45,8 @@ const stages = [
   ['bot-metrics', ['--import', 'tsx', '--test', 'scripts/bot-metrics.test.ts']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
+  // The built client through the real server and its security headers, in headless Chrome (after build).
+  ['served-build', ['scripts/served-build-check.mjs']],
 ];
 const results = [];
 let child;

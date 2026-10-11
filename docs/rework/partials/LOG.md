@@ -138,3 +138,9 @@
   Inscription) with golden fixture `v16-grades` (the lead's `v15-grades` normalised) and `v15-grades` registered as an
   extra v15 fixture; content-id lock records the shared-items wave's 73 new ids; two new "health globe" affix labels
   allowlisted under owner pick B6 (2 stale entries dropped).
+- **Served-build verify stage (lead request).** `scripts/served-build-check.mjs` (stage `served-build`, after `build`):
+  the real server on a free port with a temp DATA_DIR serves dist/client with its headers; headless Chrome autostarts a
+  hero and the stage fails unless the game screen (canvas + own entity) appears with zero exceptions, console errors or
+  browser log errors, and the page carries a CSP. Proven: with `import 'pixi.js/unsafe-eval'` removed it fails with
+  Pixi's unsafe-eval error; with it, game screen in ~8 s, 0 errors. It also caught a favicon 404 → `<link rel="icon"
+  href="data:,">` in client/index.html.
