@@ -466,7 +466,7 @@ export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined, icon = fal
     ball(c, hx, hy, rx, ry, b.skin, { hl: 0.22, inset: 0.9, sh: 0.22 });
     if (!shape || (shape !== 'helm' && shape !== 'helm_horned')) wash(c, (k) => k.ellipse(hx + 11.4, hy + 6.4, 2.8, 1.5), BLUSH, 0.5);
     else wash(c, (k) => k.ellipse(hx + 11.6, hy + 6.6, 2.6, 1.4), BLUSH, 0.45);
-  } else if (shape === 'helm' || shape === 'helm_horned' || shape === 'hood') {
+  } else if (shape === 'helm' || shape === 'helm_horned' || shape === 'hood' || (head && artKey(head) === 'mask')) {
     c.ellipse(hx + 1, hy, rx - 1, ry - 1); fill(c, 0x231a18);
   }
 

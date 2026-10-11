@@ -205,7 +205,7 @@ function censer(k: K): void {
 function warhorn(k: K): void {
   const p = P();
   pole(k, qpts(-4.6, -11.0, -7.6, 2.0, -2.6, 13.0, 8), 0.9, G === 2 ? 0x2c2b31 : p.wrap, { flat: true, curve: true });
-  const outer = qpts(5.4, -12.4, -6.0, -2.0, -1.2, 12.6, 12), inner = qpts(-0.4, -12.8, -3.0, -1.6, 0.6, 12.2, 12);
+  const outer = qpts(8.2, -13.0, -6.4, -2.0, -1.2, 12.6, 12), inner = qpts(-1.6, -13.6, -3.0, -1.6, 0.6, 12.2, 12);
   const rev: number[] = []; for (let i = inner.length - 2; i >= 0; i -= 2) rev.push(inner[i], inner[i + 1]);
   const body: number[] = [];
   const n = outer.length / 2;
@@ -215,11 +215,11 @@ function warhorn(k: K): void {
     const i = Math.round(t * (n - 1));
     pole(k, [inner[i * 2], inner[i * 2 + 1], body[i * 2], body[i * 2 + 1]], 1.4, fitCol(k));
   }
-  disc(k, 2.6, -12.6, 3.1, 1.2, shade(p.horn, 0.35), { line: 0.8 });
+  disc(k, 3.3, -13.3, 4.9, 1.5, shade(p.horn, 0.35), { line: 0.8 });
   disc(k, -0.2, 12.6, 1.0, 1.0, fitCol(k), { line: 0.6 });
   motif(k, -3.4, -1.0, 2.0);
-  fx(k, null, [[5.6, -15], [0, -17], [7.4, -9]], [2.6, -13], 0);
-  if (p.light && k.q >= 2) glowSpot(k, 2.6, -12.6, 1.2, p.light, true);
+  fx(k, null, [[7.6, -16], [0, -18], [9.4, -10]], [3.3, -13.3], 0);
+  if (p.light && k.q >= 2) glowSpot(k, 3.3, -13.3, 1.2, p.light, true);
   k.anchor = { x: -3.4, y: -1.0, r: 2 };
 }
 

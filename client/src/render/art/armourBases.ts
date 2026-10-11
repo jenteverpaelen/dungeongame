@@ -76,6 +76,9 @@ export function headIconExtra(c: Ctx, head: ItemLook): void {
   } else if (k === 'widebrim') {
     ball(c, hx, hy - 7, 27, 6.4, p, { hl: 0.25, sh: 0.35 });
     crease(c, [hx - 24, hy - 6, hx, hy - 1.4, hx + 24, hy - 6], 1.4, s, 0.9);
+    // the crown over the brim
+    blob(c, [hx - 12.6, hy - 6.4, hx - 11.4, hy - 18, hx, hy - 21.4, hx + 11.4, hy - 18, hx + 12.6, hy - 6.4, hx, hy - 4.4], p, { ow: 2, hl: 0.25 });
+    if (!inSilhouette()) { c.poly([hx - 12.4, hy - 9.6, hx + 12.4, hy - 9.6, hx + 12.6, hy - 6.6, hx - 12.6, hy - 6.6], true).fill(s); }
   }
 }
 
