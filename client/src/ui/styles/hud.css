@@ -56,13 +56,24 @@
   margin-inline: calc(var(--u) * -24);
 }
 
+/* Performance (docs/rework/PERF.md): nothing in the orb may repaint per frame. No CSS filter on the orb (any change
+   inside re-ran the blur over the whole orb), no animation inside an SVG (repaints the SVG), only transform/opacity on
+   elements that are their own compositor layers. */
 .globe {
   position: relative;
   width: var(--globe);
   height: var(--globe);
   flex: none;
   z-index: 2;
-  filter: drop-shadow(0 calc(var(--u) * 8) calc(var(--u) * 14) rgba(0, 0, 0, 0.65));
+  isolation: isolate;
+}
+/* the old filter: drop-shadow(0 8u 14u) as a static round shadow (same offset and blur; the orb is round) */
+.globe-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 calc(var(--u) * 8) calc(var(--u) * 14) rgba(0, 0, 0, 0.65);
+  pointer-events: none;
 }
 .globe-socket {
   position: absolute;
@@ -70,7 +81,14 @@
   border-radius: 50%;
   background: #050303;
 }
-.globe-liquid, .globe-glass { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.globe-glass { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* liquid circle: r = 84 of the 200-unit globe → inset 8 %, size 84 %; rounded clip of composited children is a mask */
+.globe-liq { position: absolute; inset: 8%; border-radius: 50%; overflow: hidden; transform: translateZ(0); pointer-events: none; }
+.gl-frame { position: absolute; left: -9.5238%; top: -9.5238%; width: 119.0476%; height: 119.0476%; }
+.gl-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.liquid, .liquid-bob { position: absolute; inset: 0; will-change: transform; }
+.wave { will-change: transform; }
+.bubble { position: absolute; border-radius: 50%; background: #fff; will-change: transform, opacity; }
 .globe-grain {
   position: absolute;
   inset: 8%;
@@ -88,6 +106,7 @@
   background: conic-gradient(from 0deg, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.16) 70deg, rgba(255, 255, 255, 0) 130deg, rgba(0, 0, 0, 0.28) 200deg, rgba(255, 255, 255, 0) 260deg, rgba(255, 255, 255, 0.1) 320deg, rgba(255, 255, 255, 0) 360deg);
   mix-blend-mode: overlay;
   animation: globeSwirl 26s linear infinite;
+  will-change: transform;
 }
 
 .liquid { transition: transform 0.7s cubic-bezier(0.25, 0.85, 0.3, 1); }
@@ -145,7 +164,18 @@
     0 0 0 calc(var(--u) * 3.4) #000,
     0 0 calc(var(--u) * 14) calc(var(--u) * 2) color-mix(in srgb, var(--glow) 35%, transparent);
 }
-.globe.low::after { animation: lowPulse 0.9s ease-in-out infinite alternate; }
+/* low life: the red glow pulses as an opacity-only layer (was a box-shadow animation → repaint every frame) */
+.globe-alarm {
+  position: absolute;
+  inset: 7.4%;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: 0 0 0 calc(var(--u) * 2.2) rgba(240, 120, 90, 1), 0 0 calc(var(--u) * 26) calc(var(--u) * 5) rgba(255, 40, 30, 0.8);
+  opacity: 0.25;
+  animation: lowPulse 0.9s ease-in-out infinite alternate;
+  will-change: opacity;
+}
 
 .globe-stud {
   position: absolute;
@@ -602,13 +632,16 @@
   width: calc(var(--u) * 6);
   background: linear-gradient(90deg, transparent, rgba(255, 252, 230, 0.85));
 }
+.xp-fill { container-type: inline-size; }
 .xp-shine {
   position: absolute;
   top: 0; bottom: 0;
   width: calc(var(--u) * 80);
-  left: -20%;
+  left: 0;
+  transform: translateX(-30cqw);
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
   animation: xpShine 4.5s ease-in-out infinite;
+  will-change: transform;
 }
 .xp-ticks {
   position: absolute;
@@ -964,9 +997,15 @@
   color: #2a1604;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 28%, #fff1c0, #e2b64e 55%, #9a6f1e);
-  box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2) rgba(60, 40, 12, 0.9), 0 0 calc(var(--u) * 14) rgba(242, 213, 140, 0.5);
+  box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2) rgba(60, 40, 12, 0.9), 0 0 calc(var(--u) * 8) rgba(242, 213, 140, 0.3);
   text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6);
-  animation: keyPulse 1.4s ease-in-out infinite alternate;
+  position: relative;
+}
+/* the glow pulse (8 → 20 u) as an opacity-only layer instead of an animated box-shadow */
+.ip-key::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 calc(var(--u) * 20) rgba(242, 213, 140, 0.75);
+  animation: keyPulse 1.4s ease-in-out infinite alternate; will-change: opacity;
 }
 .ip-key.wide { width: auto; min-width: calc(var(--u) * 32); padding: 0 calc(var(--u) * 8); border-radius: calc(var(--u) * 16); font-size: calc(var(--u) * 14); }
 .ip-text { font-family: var(--font-display); font-weight: 700; font-size: var(--f-l); letter-spacing: 0.05em; color: var(--text-bright); }
@@ -1122,17 +1161,19 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 
 /* ═════════════════════════ Keyframes ═════════════════════════ */
 
-@keyframes waveF { to { transform: translateX(-100px); } }
-@keyframes waveB { to { transform: translateX(-140px); } }
-@keyframes liquidBob { from { transform: translateY(-2.4px); } to { transform: translateY(2.4px); } }
+/* one wave period of the 200-unit frame: 100 units = 50 %, 140 units = 70 %; bob ±2.4 units = ±1.2 % */
+@keyframes waveF { to { transform: translateX(-50%); } }
+@keyframes waveB { to { transform: translateX(-70%); } }
+@keyframes liquidBob { from { transform: translateY(-1.2%); } to { transform: translateY(1.2%); } }
 @keyframes bubbleRise { 0% { transform: translateY(0); opacity: 0; } 14% { opacity: 0.7; } 78% { opacity: 0.45; } 100% { transform: translateY(var(--rise, -40px)); opacity: 0; } }
 @keyframes globeSwirl { to { transform: rotate(360deg); } }
-@keyframes lowPulse { from { box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2.2) rgba(214, 170, 96, 0.9), 0 0 0 calc(var(--u) * 3.4) #000, 0 0 calc(var(--u) * 10) calc(var(--u) * 1) rgba(255, 40, 30, 0.2); } to { box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2.2) rgba(240, 120, 90, 1), 0 0 0 calc(var(--u) * 3.4) #000, 0 0 calc(var(--u) * 26) calc(var(--u) * 5) rgba(255, 40, 30, 0.8); } }
+@keyframes lowPulse { from { opacity: 0.25; } to { opacity: 1; } }
 @keyframes slotActive { from { opacity: 1; filter: brightness(1); } to { filter: brightness(1.25); } }
 @keyframes slotFlash { from { opacity: 1; } to { opacity: 0; } }
 @keyframes tipIn { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes buffBlink { from { opacity: 1; } to { opacity: 0.45; } }
-@keyframes xpShine { 0%, 55% { left: -30%; } 100% { left: 130%; } }
+/* -30 % → 130 % of the filled part (the .xp-fill container's width, cqw), as a transform instead of `left` */
+@keyframes xpShine { 0%, 55% { transform: translateX(-30cqw); } 100% { transform: translateX(130cqw); } }
 @keyframes guardianPulse { from { opacity: 1; } to { opacity: 0.55; } }
 @keyframes guardianGlow { from { filter: brightness(1); } to { filter: brightness(1.35); } }
 @keyframes targetIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
@@ -1150,7 +1191,7 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
   100% { opacity: 0; }
 }
 @keyframes promptIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
-@keyframes keyPulse { from { box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2) rgba(60, 40, 12, 0.9), 0 0 calc(var(--u) * 8) rgba(242, 213, 140, 0.3); } to { box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2) rgba(60, 40, 12, 0.9), 0 0 calc(var(--u) * 20) rgba(242, 213, 140, 0.75); } }
+@keyframes keyPulse { from { opacity: 0.4; } to { opacity: 1; } }
 @keyframes deathIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes deathTitle { from { letter-spacing: 0.4em; opacity: 0; } to { letter-spacing: 0.2em; opacity: 1; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1225,8 +1266,13 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 }
 .pip-info .hm-pip { color: #071a33; background: radial-gradient(circle at 35% 25%, #e8f4ff, #7fb8ff 55%, #2d64b8); box-shadow: 0 0 0 1px #000, 0 0 calc(var(--u) * 10) rgba(127, 184, 255, 0.6); }
 .pip-bad .hm-pip { color: #fff; background: radial-gradient(circle at 35% 25%, #ffc4b8, #ef6b5b 55%, #9a2a1c); box-shadow: 0 0 0 1px #000, 0 0 calc(var(--u) * 10) rgba(239, 107, 91, 0.6); }
-.hm-btn.pip-gold:not(.open) { animation: hm-pulse 2s ease-in-out infinite; }
-@keyframes hm-pulse { 50% { box-shadow: 0 0 0 1px #000, inset 0 0 0 1px var(--bronze-1), 0 0 calc(var(--u) * 16) rgba(255, 207, 90, 0.55); color: var(--bronze-1); } }
+/* attention pulse as an opacity-only glow layer (box-shadow + colour animation repainted the menu bar every frame) */
+.hm-btn.pip-gold:not(.open)::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--bronze-1), 0 0 calc(var(--u) * 16) rgba(255, 207, 90, 0.55);
+  opacity: 0; animation: hm-pulse 2s ease-in-out infinite; will-change: opacity;
+}
+@keyframes hm-pulse { 50% { opacity: 1; } }
 
 /* ═════════════════════════ Quest tracker card (top right) ═════════════════════════ */
 .quest-hud { width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: calc(var(--u) * 6); margin-top: calc(var(--u) * 4); }
