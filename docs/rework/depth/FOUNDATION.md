@@ -1042,5 +1042,15 @@ by a second (3:58 vs 3:59 [M]). Without a retry the output is unchanged.
   * Any change that moves the random path therefore has roughly a one-in-three chance to flip the default seed.
   * With the floor, the merged tree misses on the default seed: L25+ mage 7.35 s > 6.4 s; without the floor 5.45 s.
     The paired mage difference over the other seeds is +0.7 ± 0.9 s, so this miss is the coin, not a trend.
-  * A multi-seed gate (for example the median of three seeds) would be a method change for the lead and owner. It is
-    not made here, and the baseline is not re-recorded.
+* **Decision (lead, 2026-10-11, under the owner's "use recommendations").** The owner approved the pace targets, not
+  the single-seed method.
+  * The 250 ms floor stays.
+  * `pace-targets` is checked on the median of three seeds (`scripts/bot-metrics.ts check`).
+    * The seeds are 0xC0FFEE, +1 and +2, each with the per-class reseed, 120 minutes, run in parallel.
+    * Per class and band, it takes the median over the runs of trash time-to-kill, champion time-to-kill and kills per
+      minute. A class counts in a band when at least two runs reached it.
+    * The class median is checked as before. Targets are not re-recorded.
+    * Test: `scripts/bot-metrics.test.ts`. A slowdown in two of three runs still fails.
+  * **First run [M], 57 s.**
+    * Each single seed misses one band: L25+ 7.35 s; L1+ 4.85 s; L10+ 8.5 s.
+    * The median passes all 6 bands.

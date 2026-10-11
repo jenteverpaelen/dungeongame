@@ -43,7 +43,7 @@ const stages = [
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
   ['perf-budget', ['--import', 'tsx', 'scripts/perf-budget.ts']],
   ['bot-metrics', ['--import', 'tsx', '--test', 'scripts/bot-metrics.test.ts']],
-  // Owner-approved pace targets per band (F-CMB-08): 120 simulated minutes per class against bot-metrics/targets.json.
+  // Owner-approved pace targets per band (F-CMB-08): 120 simulated minutes per class, median of 3 seeds, against bot-metrics/targets.json.
   ['pace-targets', ['--import', 'tsx', 'scripts/bot-metrics.ts', 'check', '120']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],

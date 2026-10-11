@@ -208,6 +208,8 @@
   - The single-seed gate now misses on the default seed with the floor (L25+ mage 7.35 s > 6.4 s). Over the paired
     seeds that miss is noise; the gate is fragile.
   - Details in FOUNDATION.md §13.14.
+  - Lead decision: the floor stays, and `pace-targets` now checks the median of 3 seeds (0xC0FFEE, +1, +2, in parallel,
+    57 s). Targets are unchanged. Each single seed misses one band; the median passes all 6.
 - **Build tools M1.** Notes in BUILD-TOOLS.md §4.
   - T1 / T2: exact numbers, the damage-breakdown sheet and the advanced toggle (2e1e6d1).
   - T3: training-dummy bench (d105cae, 0061b67).
