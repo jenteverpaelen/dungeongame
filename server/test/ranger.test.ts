@@ -377,3 +377,32 @@ test('legendaries: Riverstone Repeater +2 skips, Featherguard Cuffs compound per
   const h = fixture({ slots: ['quarry_mark', null, null, null], posts: [[200, 0]] });
   try { h.setPowers({ spotters_repeater: 12 }); castSkill(h.inst, h.p, slot(h, 'quarry_mark')); assert.equal(h.posts[0].markPct, 32, '20 + 12 points'); } finally { h.inst.destroy(); }
 });
+
+test('more items and rules: Tar-Stained Jerkin grows your grounds and exposes enemies to Devices; Roost Charm; Second Skin; Siegebreaker 4 device copies', () => {
+  const f = fixture({ slots: ['pitch_mortar', 'sentry', null, null], posts: [[300, 0]] });
+  try {
+    f.setPowers({ tar_stained_jerkin: 30 });
+    castSkill(f.inst, f.p, slot(f, 'pitch_mortar')); f.tick(20 * 3);
+    const g = f.inst.grounds.find((x) => x.fx?.def.id === 'pitch_fire')!;
+    assert(g && g.r > 100, `the pitch spreads (${g?.r})`);
+    assert(f.posts[0].ps?.vulns.some((v) => v.pct === 30), 'enemies inside take more from Devices');
+  } finally { f.inst.destroy(); }
+  const r = fixture({ slots: ['companion', 'murmuration', null, null], posts: [[150, 0]] });
+  try {
+    r.setPowers({ roost_charm: 4 });
+    castSkill(r.inst, r.p, slot(r, 'companion'));
+    r.p.readyAt.set('murmuration', r.inst.t + 40_000);
+    const before = r.p.readyAt.get('murmuration')!;
+    r.posts[0].hp = 1; r.tick(20 * 3);
+    assert(r.posts[0].dead, 'the companion killed it');
+    assert(Math.abs(before - r.p.readyAt.get('murmuration')! - 500) < 1, 'Roost Charm: −0.5 s');
+  } finally { r.inst.destroy(); }
+  const s = fixture({ slots: ['sentry', 'multishot', null, null], posts: [[200, 0], [230, 30]] });
+  try {
+    s.setPowers({}, { siegebreaker: 4 });
+    castSkill(s.inst, s.p, slot(s, 'sentry')); s.tick(2);
+    const before = s.events['proj:arrow'] ?? 0;
+    castSkill(s.inst, s.p, slot(s, 'multishot'));
+    assert.equal((s.events['proj:arrow'] ?? 0) - before, 18, 'the Sentry fires a copy of the volley');
+  } finally { s.inst.destroy(); }
+});

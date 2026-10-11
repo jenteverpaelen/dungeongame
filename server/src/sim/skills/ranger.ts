@@ -381,9 +381,11 @@ export function clusterExplode(inst: Instance, pr: Proj) {
   const st = pr.strike;
   const cc = clusterCasts.get(st) ?? { daisy: 0, thrift: false, scale: 1 };
   const concuss = rv(rt, 'clusterConcuss');
+  let banked = 0;
   for (const m of inst.queryMobs(pr.x, pr.y, radius)) {
     if (m.dead) continue;
     strikeMob(inst, p, m, st);
+    if (rt.flags.has('bandolier') && banked < 5) { banked += 0.5; gainResource(p, 0.5); } // Bandolier Belt: 0.5 Hatred per enemy hit, at most 5
     clusterEliteHit(p, rt, m, cc);
     if (concuss > 0 && !m.dead) { knockbackMob(m, m.x - pr.x, m.y - pr.y, concuss, inst, p); stunMob(m, 300, inst, p); }
   }

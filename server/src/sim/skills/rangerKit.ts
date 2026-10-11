@@ -281,6 +281,18 @@ export function rangerTick(inst: Instance, p: Player, dtMs: number) {
     st.howlT = inst.t + 10_000;
     addBuff(p, { id: 'alpha_howl', ms: 4000, dmg: howl });
   }
+  // Tar-Stained Jerkin: your Ground effects spread by 30 % of their radius per second (at most double); enemies inside
+  // take more damage from your Devices.
+  const tar = barVar(p, 'tarJerkin');
+  if (tar > 0) {
+    const vul = resolveStatus({ kind: 'vulnerable', ms: 400, pct: tar, tags: { anyOf: ['device'] } }, p.ctx.powers.index);
+    for (const g of inst.grounds) {
+      if (g.owner !== p || g.endT <= inst.t) continue;
+      let r0 = groundBase.get(g); if (r0 === undefined) { r0 = g.r; groundBase.set(g, r0); }
+      g.r = Math.min(r0 * 2, g.r + r0 * 0.3 * 0.25);
+      for (const m of inst.queryMobs(g.x, g.y, g.r)) if (!m.dead) applyStatus(inst, p, m, vul, g.x, g.y, 'tar_stained_jerkin');
+    }
+  }
   // Rainkeeper 4: while one of your Aerial or Ground effects is active.
   if (p.ctx.slots.some((rt) => rt?.flags.has('rainkeeperActive')) || p.ctx.primary.flags.has('rainkeeperActive')) {
     const active = inst.grounds.some((g) => g.owner === p && g.endT > inst.t) || p.summons.some((s) => !s.dead && (s.type === 'mortar' || s.type === 'flock'));
@@ -291,6 +303,9 @@ export function rangerTick(inst: Instance, p: Player, dtMs: number) {
 // ─────────────────────────── Death hook ───────────────────────────
 
 /** Quarry jumps, Bounty, Hunter's Accord, Roost Charm, Crowfeast / Return to Roost bookkeeping. */
+/** Radius a ground was placed with (Tar-Stained Jerkin grows it up to double). */
+const groundBase = new WeakMap<import('../types').Ground, number>();
+
 export const rangerDeathHook: DeathHook = (inst, m, killer, skill) => {
   // Every ranger in the instance whose quarry this was: the mark jumps (to the strongest enemy within 300).
   for (const p of inst.players) {
