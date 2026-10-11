@@ -145,6 +145,8 @@ export interface CharacterSave {
   collection?: import('./itemCollection').ItemCollection;
   social?: import('./social').SocialState;
   passives?: import('./passives').PassiveState;
+  /** v17 (build tools T4): five named skill loadouts; absent = none saved. */
+  loadouts?: import('./loadouts').LoadoutState;
   commands?: import('./commandState').CommandState;
   economy?: import('./economy').EconomyState;
   bestiary?: import('./bestiary').BestiaryState;

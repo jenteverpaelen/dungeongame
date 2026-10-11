@@ -3,6 +3,7 @@
 // with the same shared rules as the single skill commands.
 
 import type { Session } from './net/session';
+import { LOADOUT_NAME_MAX, LOADOUT_SLOTS, applySetup, saveLoadout } from '../../shared/src/loadouts';
 import { fail, ok, type CmdResult } from './world';
 
 type Args = Record<string, unknown>;
@@ -37,4 +38,46 @@ export function buildSheetCommand(s: Session, a: Args): CmdResult {
   const ids = Array.isArray(a.skills) ? a.skills.filter((x): x is string => typeof x === 'string').slice(0, 24) : undefined;
   const sheet = inst.buildSheet(s, ids);
   return sheet ? ok(sheet) : fail('Character is not ready');
+}
+
+/**
+ * `loadout { action: save | apply | rename | delete, index, name? }` (persisted). Applying is free (it refunds every
+ * tier and node first), only in town, and goes through the same shared rules as the single skill commands; parts the
+ * character may not use are skipped and returned.
+ */
+export function loadoutCommand(s: Session, a: Args): CmdResult {
+  const action = typeof a.action === 'string' ? a.action : '';
+  const index = typeof a.index === 'number' ? a.index : -1;
+  if (!Number.isInteger(index) || index < 0 || index >= LOADOUT_SLOTS) return fail('Choose a loadout slot');
+  const save = s.save, entry = save.loadouts?.sets[index] ?? null;
+  switch (action) {
+    case 'save': {
+      const err = saveLoadout(save, index, a.name);
+      if (err) return fail(err);
+      s.changed(false);
+      return ok();
+    }
+    case 'rename': {
+      if (!entry) return fail('That loadout is empty');
+      const name = typeof a.name === 'string' ? a.name.trim().slice(0, LOADOUT_NAME_MAX) : '';
+      if (!name) return fail('Give the loadout a name');
+      entry.name = name;
+      s.changed(false);
+      return ok();
+    }
+    case 'delete': {
+      if (!entry) return fail('That loadout is empty');
+      save.loadouts!.sets[index] = null;
+      s.changed(false);
+      return ok();
+    }
+    case 'apply': {
+      if (!entry) return fail('That loadout is empty');
+      if (s.rec?.kind !== 'town') return fail('Switch loadouts in Hearthmere');
+      const skipped = applySetup(save, entry);
+      s.changed(true);
+      return ok({ skipped: skipped.slice(0, 12) });
+    }
+    default: return fail('Unknown loadout action');
+  }
 }

@@ -2,8 +2,12 @@
 // bench measures per skill, loadouts and build codes apply only what the character may use.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCharacter } from '../../shared/src/character';
-import { skillsForClass } from '../../shared/src/data/skills';
+import { buySkillTier, createCharacter, resetSkillPoints, setSkillRune, setSkillSlot } from '../../shared/src/character';
+import { applySetup, validLoadoutState } from '../../shared/src/loadouts';
+import { setPassive } from '../../shared/src/passives';
+import { buySkillNode } from '../../shared/src/specialization';
+import { loadoutCommand } from '../src/buildTools';
+import { SKILLS, skillsForClass } from '../../shared/src/data/skills';
 import { computeStats } from '../../shared/src/stats';
 import { powerSourceName } from '../../shared/src/powerSourceNames';
 import type { ClassId } from '../../shared/src/types';
@@ -132,4 +136,34 @@ test('bench: per-skill split sums to the total, starts at the first hit, ends at
     assert.equal(benchView(p)!.total, frozen, 'a finished test records nothing more');
     assert.deepEqual(benchCommand(inst, p, 'reset', 0), { ok: true, view: null });
   } finally { inst.destroy(); }
+});
+
+test('loadouts: save, change everything, apply → the same skill state and the same derived stats; town only; locked parts skipped', () => {
+  const save = createCharacter('Loadouts', 'warrior', 21); save.level = 70; save.skillPoints = 69;
+  assert.equal(setSkillSlot(save, 0, 'ironplough'), null); assert.equal(setSkillSlot(save, 1, 'muster_standard'), null);
+  assert.equal(setSkillRune(save, 'ironplough', SKILLS.ironplough.runes[2].id), null);
+  assert.equal(buySkillTier(save, 'ironplough'), null); assert.equal(buySkillTier(save, 'ironplough'), null);
+  assert.equal(buySkillNode(save, 'ironplough', 'broad_share'), null); assert.equal(buySkillNode(save, 'ironplough', 'broad_share'), null);
+  assert.equal(buySkillNode(save, 'ironplough', 'sod_burst'), null);
+  assert.equal(setPassive(save, 0, 'warrior_bellwether'), null);
+  const want = JSON.stringify({ skills: save.skills, passives: save.passives, points: save.skillPoints });
+  const stats = JSON.stringify(computeStats(save));
+  const s = { save, rec: { kind: 'field' }, changed() {} } as unknown as Session;
+  assert.deepEqual(loadoutCommand(s, { action: 'save', index: 0, name: '  Plough  ' }), { ok: true });
+  assert.equal(save.loadouts!.sets[0]!.name, 'Plough');
+  resetSkillPoints(save); setSkillSlot(save, 0, 'whirlwind'); setSkillSlot(save, 1, null); setSkillRune(save, 'ironplough', null); setPassive(save, 0, null);
+  assert.notEqual(JSON.stringify({ skills: save.skills, passives: save.passives, points: save.skillPoints }), want);
+  assert.match(loadoutCommand(s, { action: 'apply', index: 0 }).err ?? '', /Hearthmere/, 'only in town');
+  (s.rec as { kind: string }).kind = 'town';
+  const r = loadoutCommand(s, { action: 'apply', index: 0 });
+  assert.deepEqual(r, { ok: true, data: { skipped: [] } });
+  assert.equal(JSON.stringify({ skills: save.skills, passives: save.passives, points: save.skillPoints }), want, 'identical skill state');
+  assert.equal(JSON.stringify(computeStats(save)), stats, 'identical derived stats');
+  // A level-20 hero applying it: what it may not use is reported, the rest applies.
+  const low = createCharacter('Low', 'warrior', 22); low.level = 20; low.skillPoints = 19;
+  const skipped = applySetup(low, save.loadouts!.sets[0]!);
+  assert(skipped.some((x) => /Ironplough/.test(x)), `locked parts reported: ${skipped.join('; ')}`);
+  assert.equal(low.skills.slots.includes('ironplough'), false);
+  assert.equal(validLoadoutState(save.loadouts, 'warrior'), true);
+  assert.equal(validLoadoutState({ revision: 1, sets: [{ name: 'x', primary: 'meteor' }] }, 'warrior'), false);
 });

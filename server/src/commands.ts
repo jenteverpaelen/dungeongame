@@ -22,7 +22,7 @@ import { isAutoCastMode, normalizeAutoCast } from '../../shared/src/autoCast';
 import { isTargetPriority } from '../../shared/src/targetPriority';
 import { isAutoCastRule } from '../../shared/src/autoCastRules';
 import { requireNear } from './townServices';
-import { benchToolCommand, buildSheetCommand } from './buildTools';
+import { benchToolCommand, buildSheetCommand, loadoutCommand } from './buildTools';
 import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '../../shared/src/gearShowcase';
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
@@ -845,6 +845,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   paragon, paragonReset,
   buildSheet: (s, a) => buildSheetCommand(s, a),
   bench: (s, a) => benchToolCommand(s, a),
+  loadout: (s, a) => loadoutCommand(s, a),
   travel, riftOpen, riftEnter, leave, channel,
   debug,
 };

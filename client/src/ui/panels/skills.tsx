@@ -29,6 +29,8 @@ import { Breakdown, Conditions, modsText, sheetOf, sheetStats, sheetStore, tagWo
 import { describeEffect } from '@shared/powers';
 import { STAT_LABELS } from '@shared/stats';
 import { cls, run } from './util';
+import { pushNotice } from '../store';
+import { LOADOUT_NAME_MAX, LOADOUT_SLOTS } from '@shared/loadouts';
 import { AutoRuleEditor } from './autoRules';
 
 type Mode = { kind: 'skill' } | { kind: 'passive'; slot: number };
@@ -69,6 +71,11 @@ function nextTier(skill: SkillDef, char: CharacterSave): { index: number; cost: 
 }
 
 function buyTier(skill: SkillDef) { void run('skillTier', { skill: skill.id }); }
+
+/** Advanced data as a small chip with a tooltip (cards keep their size: windows never scroll). */
+function AdvChip({ tip, title, lines }: { tip: string; title: string; lines: string[] }) {
+  return <span class="sk-adv-chip" {...textTipHandlers(() => ({ title, lines: lines.filter(Boolean) }), tip)}>Data</span>;
+}
 
 /** One tooltip line with the server's exact numbers for a skill (build tools T1), when the sheet has it. */
 function exactLine(id: string, char: CharacterSave): string[] {
@@ -116,6 +123,49 @@ function LoadoutBar({ char }: { char: CharacterSave }) {
         );
       })}
       <p class="sk-loadout-hint" role="status">{assign !== null ? `Now choose a skill card for slot ${assign + 1}.` : 'Click a slot, then a card — or drag a card onto a slot.'}</p>
+    </div>
+  );
+}
+
+/**
+ * Skill loadouts (build tools T4): five named setups of primary, slots, runes, tiers, nodes, passives and auto-cast.
+ * Saving is free anywhere; applying is free, only in town, and the server skips what this hero may not use.
+ */
+function LoadoutStrip({ char }: { char: CharacterSave }) {
+  const [sel, setSel] = useState<number | null>(null);
+  const [naming, setNaming] = useState('');
+  const [busy, setBusy] = useState(false);
+  const inTown = useU((s) => s.zone?.kind === 'town');
+  const sets = char.loadouts?.sets ?? Array.from({ length: LOADOUT_SLOTS }, () => null);
+  const cur = sel === null ? null : sets[sel];
+  const act = async (action: 'save' | 'apply' | 'rename' | 'delete', name?: string) => {
+    if (sel === null) return;
+    setBusy(true);
+    try {
+      const r = await run<{ skipped?: string[] }>('loadout', { action, index: sel, ...(name !== undefined ? { name } : {}) });
+      if (r.ok && action === 'apply') pushNotice(r.data?.skipped?.length ? `Loadout applied; skipped: ${r.data.skipped.join('; ')}` : `Loadout “${sets[sel]?.name}” applied`, r.data?.skipped?.length ? 'warn' : 'info');
+      if (r.ok && action === 'delete') setSel(null);
+    } finally { setBusy(false); setNaming(''); }
+  };
+  return (
+    <div class="sk-lo" role="group" aria-label="Skill loadouts">
+      <span class="sk-lo-t" {...textTipHandlers(() => ({ title: 'Loadouts', lines: ['Five saved skill setups: primary, slots, runes, tiers, specialization, passives and auto-cast rules. No gear.', 'Save anywhere. Switch in Hearthmere — free; anything this hero cannot use yet is skipped and reported.'] }), 'lo-help')}>Loadouts</span>
+      <div class="sk-lo-chips">{sets.map((l, i) => <button key={i} class={cls('sk-lo-chip', l && 'filled', sel === i && 'on')} aria-pressed={sel === i} aria-label={`Loadout ${i + 1}: ${l ? l.name : 'empty'}`}
+        onClick={() => { setSel(sel === i ? null : i); setNaming(''); }} {...textTipHandlers(() => ({ title: l ? l.name : `Loadout ${i + 1}`, sub: l ? `${l.slots.filter(Boolean).map((id) => SKILLS[id!]?.name ?? id).join(' · ')}` : 'Empty — click, then save your current skills here' }), `lo-${i}-${l?.name}`)}>
+        <b>{i + 1}</b></button>)}
+        {sel === null && <span class="sk-lo-hint">{sets.some(Boolean) ? 'Pick a loadout' : 'Save up to five skill setups'}</span>}
+        {sel !== null && <span class="sk-lo-cur">{cur ? cur.name : 'Empty slot'}</span>}</div>
+      {sel !== null && <div class="sk-lo-act">
+        {naming !== '' || !cur
+          ? <><input class="sk-lo-name" maxLength={LOADOUT_NAME_MAX} placeholder={`Loadout ${sel + 1}`} value={naming} onInput={(e) => setNaming(e.currentTarget.value)} aria-label="Loadout name" />
+            <button class="btn sm primary" disabled={busy} onClick={() => void act(cur && naming ? 'rename' : 'save', naming || undefined)}>{cur && naming ? 'Rename' : 'Save current here'}</button></>
+          : <>
+            <button class="btn sm primary" disabled={busy || !inTown} title={inTown ? '' : 'Switch loadouts in Hearthmere'} onClick={() => void act('apply')}>Apply</button>
+            <button class="btn sm" disabled={busy} onClick={() => void act('save', cur.name)}>Save current here</button>
+            <button class="btn sm" disabled={busy} onClick={() => setNaming(cur.name)}>Rename</button>
+            <button class="btn sm" disabled={busy} onClick={() => void act('delete')}>Delete</button>
+          </>}
+      </div>}
     </div>
   );
 }
@@ -314,9 +364,8 @@ function Tiers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         const owned = i < cur, next = i === cur && !locked, cost = TIER_COSTS[i];
         return (
           <div key={i} class={cls('sk-tier', owned && 'owned', next && 'next', !owned && !next && 'future')}>
-            <div class="sk-tier-top"><span class="sk-tier-n">{ROMAN[i]}</span><b>{t.name}</b></div>
+            <div class="sk-tier-top"><span class="sk-tier-n">{ROMAN[i]}</span><b>{t.name}</b>{advanced && <AdvChip tip={`tier-${skill.id}-${i}`} title={t.name} lines={[modsText(t.mods)]} />}</div>
             <p>{t.desc}</p>
-            {advanced && <p class="sk-adv">{modsText(t.mods)}</p>}
             <div class="sk-tier-act">
               {owned ? <span class="chip good"><IconCheck size={10} /> Active</span>
                 : next ? <SpendButton skill={skill} char={char} label />
@@ -340,9 +389,8 @@ function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         return (
           <button key={r.id} class={cls('sk-rune', on && 'on', locked && 'locked')} disabled={locked} style={{ '--rc': hex(skill.icon.color) }}
             aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}>
-            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b></span>
+            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b>{advanced && <AdvChip tip={`rune-${skill.id}-${r.id}`} title={r.name} lines={[modsText(r.mods), ...(r.effects ?? []).map((e) => describeEffect(e)), r.addTags?.length || r.tags?.length ? `Adds tags: ${[...(r.addTags ?? r.tags ?? [])].map(tagWord).join(', ')}` : '', r.removeTags?.length ? `Removes tags: ${r.removeTags.map(tagWord).join(', ')}` : '']} />}</span>
             <p>{r.desc}</p>
-            {advanced && <p class="sk-adv">{[modsText(r.mods), ...(r.effects ?? []).map((e) => describeEffect(e)), r.addTags?.length || r.tags?.length ? `adds tags: ${[...(r.addTags ?? r.tags ?? [])].map(tagWord).join(', ')}` : '', r.removeTags?.length ? `removes: ${r.removeTags.map(tagWord).join(', ')}` : ''].filter(Boolean).join(' · ')}</p>}
             <em>{locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip'}</em>
           </button>
         );
@@ -427,10 +475,9 @@ function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         })}
       </div>
       <div class="sk-node-detail">
-        <div class="sk-node-dh"><b>{focus.name}</b><em>Rank {rank} / {focus.maxRank}</em></div>
+        <div class="sk-node-dh"><b>{focus.name}</b>{advanced && <AdvChip tip={`node-${skill.id}-${focus.id}`} title={`${focus.name} — per rank`} lines={[...focus.ranks.map((r, i) => `Rank ${i + 1}: ${modsText(r) || 'no numeric mods'}`), ...(focus.effects ?? []).map((e) => `Template (× rank): ${describeEffect(e)}`)]} />}<em>Rank {rank} / {focus.maxRank}</em></div>
         <dl class="sk-node-dl">
           <dt>Now</dt><dd>{rank > 0 ? describeNode(focus, rank) : <span class="dim">Not learned</span>}</dd>
-          {advanced && <><dt>Data</dt><dd class="sk-adv">{[modsText(focus.ranks.slice(0, Math.max(1, rank)).reduce((m, r) => ({ ...m, ...Object.fromEntries(Object.entries(r).map(([k, v]) => [k, typeof v === 'number' ? ((m as Record<string, number>)[k] ?? 0) + v : v])) }), {})), ...(focus.effects ?? []).map((e) => describeEffect(e))].filter(Boolean).join(' · ') || 'no numeric mods'}</dd></>}
           {rank < focus.maxRank && <><dt>Next</dt><dd class="next">{describeNode(focus, rank + 1)}</dd></>}
           {(focus.requires?.length || unlockAt > skill.unlock) ? <><dt>Needs</dt><dd>
             {focus.requires?.map((r) => {
@@ -546,8 +593,7 @@ function PassiveDetail({ char, slot }: { char: CharacterSave; slot: number }) {
       </div>
       <div class="sk-pinfo">
         <p class="sk-d-desc">{selected.note}</p>
-        <p class="sk-peffect">{passiveEffect(selected, char.level)}</p>
-        {advanced && selected.effects?.length ? <p class="sk-adv">{selected.effects.map((e) => describeEffect(e)).join(' · ')}</p> : null}
+        <p class="sk-peffect">{passiveEffect(selected, char.level)}{advanced && selected.effects?.length ? <> <AdvChip tip={`passive-${selected.id}`} title={selected.name} lines={selected.effects.map((e) => describeEffect(e))} /></> : null}</p>
         <dl class="sk-pprev">
           {row('Life', before.life.toLocaleString(), after.life.toLocaleString())}
           {row('Armor / resistance', `${before.armor} / ${before.allRes}`, `${after.armor} / ${after.allRes}`)}
@@ -606,6 +652,7 @@ export function SkillsPanel() {
       sub={<>{CLASSES[char.classId].name} · Level {char.level}{char.skillPoints > 0 && <> · <span class="sk-sub-points">{char.skillPoints} skill {char.skillPoints === 1 ? 'point' : 'points'}</span></>}{trees && SPEC_POINTS.source === 'separate' && spec > 0 && <> · <span class="sk-sub-spec">{spec} specialization</span></>}</>}>
       <div class="sk-top">
         <LoadoutBar char={char} />
+        <LoadoutStrip char={char} />
         <PointsAndTargets char={char} trees={trees} />
       </div>
       <div class="sk-body">
