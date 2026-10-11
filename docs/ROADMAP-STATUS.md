@@ -48,12 +48,12 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 | **Weapon art** | ✅ gear visuals v2 merged (looks come from the item, tier ladder removed, hold poses and attack effects). 🔨 New art direction approved by you: one maker series per level band; now adding much stronger series-specific effects, then the other 8 weapon types; armour after |
 | **Names and town** | 🔨 your recommended names (Ordeal difficulty, Lantern Ranks, Glass Reliquary, Faultline, Glasswright, Mending Orb), offline rewards parked, town shows the new systems |
 | **Questing rework** | ✅ merged (marks per quest type, five-quest tracker, bounty boards, repairs that change the world, lore records). Not yet: escort/defend, voiced lines |
-| **Codex's partial items** | ✅ 19 of 28 done (report: ); the rest need playtests or reviewers |
+| **Codex's partial items** | ✅ 19 of 28 done (report: `docs/rework/partials/REPORT.md`); the rest need playtests or reviewers |
 
 ## Next (in this order)
 
 1. **Balance and parity pass** after all three classes: shared legendaries are now a bit too strong, some 6-piece sets too weak, and the difficulty (Torment/Ordeal) ladder must be re-fitted because endgame set power dropped from up to ×255 to about ×25.
-2. **Build tools** (exact tooltips, damage breakdown, training dummy, loadouts, build codes): .
+2. **Build tools** (exact tooltips, damage breakdown, training dummy, loadouts, build codes): `docs/rework/depth/BUILD-TOOLS.md`.
 3. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
 
 ---
