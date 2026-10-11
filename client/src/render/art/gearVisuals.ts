@@ -37,8 +37,29 @@ export const SHAPE_FAMILY: Record<string, FamilyInfo> = {
   // 'quiver', tome → 'orb'; armour likewise), so they already draw through the families above. The keys below are
   // ready for when a base gets its own shape (a one-line content change in data/items.ts).
   cleaver: F('axe', '1h', 27, 13), maul2h: F('greataxe', '2h', 50, 26), polearm: F('greataxe', '2h', 50, 26), longbow: F('bow', 'bow', 22, 14),
-  sling: F('handxbow', 'hxbow', 17, 10), sceptre: F('wand', 'wand', 20, 12), censer: F('staff', 'staff', 50, 38),
+  sling: F('handxbow', 'hxbow', 17, 10), rod: F('wand', 'wand', 20, 12), sceptre: F('wand', 'wand', 20, 12), censer: F('staff', 'staff', 50, 38),
   warhorn: F('quiver', 'off', 0, 0), trap_kit: F('quiver', 'off', 0, 0), tome: F('orb', 'off', 0, 0),
+};
+
+/** Each family's own (legacy) shape: the rig's poses, reach, off-hand placement and the previous drawings branch on these. */
+export const FAMILY_SHAPE: Readonly<Record<WeaponFamily, string>> = {
+  blade: 'sword', greatblade: 'sword2h', axe: 'axe', greataxe: 'axe2h', mace: 'mace', bow: 'bow', crossbow: 'crossbow',
+  handxbow: 'handxbow', staff: 'staff', wand: 'wand', shield: 'shield', quiver: 'quiver', orb: 'orb',
+};
+/** The rig shape of a held look: the depth bases' art shapes (shared ART_SHAPE: cleaver, maul2h, ...) become their
+ *  family's shape, so the rig never branches on a base it does not know. Non-held shapes pass through. */
+export function heldShape(shape: string | undefined): string | undefined {
+  const f = shape ? SHAPE_FAMILY[shape] : undefined;
+  return f ? FAMILY_SHAPE[f.family] : shape;
+}
+
+/** Armour art shapes of the depth bases -> the slot silhouette they extend (the shape their base stores). The armour code
+ *  draws the family silhouette and adds the base's own parts on top (`artKey`). */
+export const ARMOUR_FAMILY: Readonly<Record<string, string>> = {
+  coif: 'hood', mask: 'cap', widebrim: 'cap', furmantle: 'pads', capelet: 'mantle', brigandine: 'leather', vestment: 'robe',
+  apron: 'leather', mitts: 'wraps', fingerless: 'gloves', cuffs: 'bracers', vambraces: 'bracers', armwraps: 'bracers',
+  girdle: 'belt', cord: 'sash', chaps: 'leather', tassets: 'plate', waders: 'leather', footwraps: 'shoes', sandals: 'shoes',
+  clogs: 'boots', torc: 'amulet', charm: 'amulet', locket: 'amulet', band: 'ring', signet: 'ring', coil: 'ring',
 };
 
 /** Bespoke treatments a legendary can carry on top of its family (weaponArt.ts SIGNATURES). Each changes the

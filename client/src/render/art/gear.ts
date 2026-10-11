@@ -15,6 +15,7 @@ import { light, mix, shade } from './util';
 import { decorHand, decorShoulder } from './gearDecor';
 import { localXf } from './weaponArt';
 import { weaponDrawing, type WLayer } from './weaponDrawing';
+import { heldShape } from './gearVisuals';
 
 export interface Body {
   cls: ClassId;
@@ -578,7 +579,7 @@ export function drawHeldV2(c: Ctx, l: ItemLook, rig: boolean, layer: WLayer, flo
 function drawWeaponBase(c: Ctx, l: ItemLook, rig: boolean): void {
   const p = l.primary, s = trim(l), v = l.variant;
   const edge = light(p, 0.55);
-  switch (l.shape) {
+  switch (heldShape(l.shape)) {
     case 'sword': {
       seg(c, 0, 3.6, 0, -3, 2.6, WOOD_DARK);
       ball(c, 0, 5, 2.2, 2.2, s, { ow: 1.6 });
@@ -946,7 +947,7 @@ export function drawRing(c: Ctx, l: ItemLook): void {
 
 // ═══════════════════════════════ SHAPE LOOKUP ═══════════════════════════════
 
-export function isTwoHandedMelee(shape: string | undefined): boolean { return shape === 'sword2h' || shape === 'axe2h'; }
-export function isRangedShape(shape: string | undefined): boolean { return shape === 'bow' || shape === 'crossbow' || shape === 'handxbow'; }
-export function isCasterShape(shape: string | undefined): boolean { return shape === 'staff' || shape === 'wand'; }
+export function isTwoHandedMelee(raw: string | undefined): boolean { const shape = heldShape(raw); return shape === 'sword2h' || shape === 'axe2h'; }
+export function isRangedShape(raw: string | undefined): boolean { const shape = heldShape(raw); return shape === 'bow' || shape === 'crossbow' || shape === 'handxbow'; }
+export function isCasterShape(raw: string | undefined): boolean { const shape = heldShape(raw); return shape === 'staff' || shape === 'wand'; }
 

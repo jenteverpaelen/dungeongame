@@ -16,7 +16,7 @@ import { LEGENDARIES } from '@shared/data/items';
 import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx';
 import { backPieceFor, drawBackPiece, drawWing, shoulderScale, weaponScale } from './gearDecor';
 import { RARITY_LIGHT, SET_STYLE, TOP_COLORS, artLook, itemStyle } from './gearStyle';
-import { SHAPE_FAMILY } from './gearVisuals';
+import { SHAPE_FAMILY, heldShape } from './gearVisuals';
 import { weaponDrawing, type WFloat } from './weaponDrawing';
 import { weaponSkinOf, type WeaponSkin } from './weaponSkin';
 import { WeaponImpacts } from './weaponImpact';
@@ -163,8 +163,9 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
   }
   const off = sl.offhand;
   if (off) {
-    if (off.shape === 'quiver') add('quiver', (c) => drawQuiver(c, off));
-    else if (off.shape === 'orb') add('orb', (c) => drawOrb(c, off));
+    const os = heldShape(off.shape);
+    if (os === 'quiver') add('quiver', (c) => drawQuiver(c, off));
+    else if (os === 'orb') add('orb', (c) => drawOrb(c, off));
     else if (NPC_OFFHAND.has(off.shape)) add('orb', (c) => drawNpcOffhand(c, off));
     else { add('shield', (c) => drawShield(c, off)); add('shieldBack', (c) => drawShieldBack(c, off)); }
   }
@@ -350,7 +351,8 @@ function acquirePlaceholder(classId: PlayerLook['classId'], mode: BakeMode): Ent
 
 // ─────────────────────────── helpers ───────────────────────────
 
-function weaponKind(shape: string | undefined): WeaponKind {
+function weaponKind(raw: string | undefined): WeaponKind {
+  const shape = heldShape(raw);
   if (!shape) return 'none';
   if (isTwoHandedMelee(shape)) return '2h';
   if (shape === 'bow') return 'bow';

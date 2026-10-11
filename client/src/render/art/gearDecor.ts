@@ -8,7 +8,8 @@
 import type { ItemLook } from '@shared/types';
 import { OUT, OW, ball, blob, crease, fill, gem, line, outline, poly, rbox, rivet, spark, star, inSilhouette, type Ctx } from './draw';
 import { unpackGearFx } from '@shared/gearVisual';
-import { itemStyle, motifColor, type ItemStyle, type Motif } from './gearStyle';
+import { armourSeriesOn, itemStyle, motifColor, type ItemStyle, type Motif } from './gearStyle';
+import { beltDecor, handDecor, headDecor, legDecor, shoulderDecor, torsoFrontDecor } from './series/armour';
 import { clamp, light, mix, shade } from './util';
 
 const D2R = Math.PI / 180;
@@ -91,6 +92,7 @@ export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: num
 export function decorShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
   const s = itemStyle(l);
   if (!s) return;
+  if (armourSeriesOn()) { shoulderDecor(c, l, isBack); return; }
   const T = s.orn, p = isBack ? shade(l.primary, 0.2) : l.primary;
   if (T >= 5) {
     // a raised top plate widens the silhouette
@@ -137,6 +139,7 @@ type Vec = (fwd: number, up: number, side: number, yaw: number) => Pt;
 export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: boolean, sph: Sph, vec: Vec, R: number): void {
   const s = itemStyle(l);
   if (!s || !l) return;
+  if (armourSeriesOn()) { headDecor(c, l, yaw, back, sph, vec, R); return; }
   const T = s.orn, shape = l.shape;
   const up = vec(0, 1, 0, yaw);
   const top = shape === 'wizard_hat' ? 0 : 1;
@@ -239,7 +242,10 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
 /** Front of the chest: Threadbare patches, gem studs, the emblem medallion, filigree and the amulet pendant. */
 export function decorTorsoFront(c: Ctx, chest: ItemLook | undefined, neck: number | undefined, neckColor: number): void {
   const s = itemStyle(chest);
-  if (s) {
+  if (s && armourSeriesOn()) {
+    if (s.rar === 0 && !s.special && s.gen <= 2) patch(c, -6.4, -12, 4.6, 4, chest!.primary);
+    torsoFrontDecor(c, chest!, chest!.shape === 'robe' || chest!.shape === 'tunic');
+  } else if (s) {
     const T = s.orn;
     if (T === 0) patch(c, -6.4, -12, 4.6, 4, chest!.primary);
     if (s.fx.gems > 0 && s.gem) for (let i = 0; i < s.fx.gems; i++) gem(c, (i - (s.fx.gems - 1) / 2) * 5, -16.4, 1.5, light(s.gem, 0.1), 0.9);
@@ -291,6 +297,7 @@ export function emblem(c: Ctx, m: Motif | null, x: number, y: number, r: number,
 
 /** Charms hanging from the belt buckle (Fine+: one, Runic+: two, Heroic+: three with a glowing jewel). */
 export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
+  if (armourSeriesOn()) { beltDecor(c, w, y); return; }
   const s = itemStyle(w);
   if (!s || s.orn < 3) return;
   const n = s.orn >= 7 ? 3 : s.orn >= 5 ? 2 : 1;
@@ -305,6 +312,11 @@ export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
 /** Leg view ornaments (knee cops, boot cuffs, Threadbare patch). yaw in radians. */
 export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | undefined, sn: number, cs: number): void {
   const ls = itemStyle(legs), fs = itemStyle(feet);
+  if (armourSeriesOn()) {
+    if (ls && ls.rar === 0 && !ls.special && ls.gen <= 2 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
+    legDecor(c, legs, feet, sn, cs);
+    return;
+  }
   if (ls) {
     if (ls.orn === 0 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
     if (ls.orn >= 6 && cs > -0.3) poly(c, [0.7 * sn - 1.8, 2.6, 0.7 * sn + 2.2 * sn, -0.6, 0.7 * sn + 1.8, 2.6], light(ls.orMetal, 0.1), { ow: 1.3 });
@@ -323,6 +335,7 @@ export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | un
 
 /** Glove ornaments: knuckle spikes on armoured hands, a cuff jewel. */
 export function decorHand(c: Ctx, hands: ItemLook | undefined): void {
+  if (armourSeriesOn() && hands) { handDecor(c, hands); return; }
   const s = itemStyle(hands);
   if (!s || s.orn < 5) return;
   if (s.orn >= 6) for (const x of [-2.6, 0, 2.6]) poly(c, [x - 0.9, -2.6, x, -5.8 - (s.orn - 6) * 0.5, x + 0.9, -2.6], light(s.orMetal, 0.1), { ow: 1.1 });

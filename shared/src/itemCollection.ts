@@ -46,8 +46,12 @@ export function canWearLook(item: Item, look: CollectedLook, slot: Slot): boolea
     && item.kind === look.kind && (slot !== 'mainhand' || BASES[item.base]?.weapon?.ranged === BASES[look.base]?.weapon?.ranged);
 }
 export function equippedLook(save: CharacterSave, item: Item, slot: Slot): ItemLook {
+  return equippedAppearance(save, item, slot).look;
+}
+/** The worn look and the base it comes from (the wardrobe look's source base, else the item's own). */
+export function equippedAppearance(save: CharacterSave, item: Item, slot: Slot): { look: ItemLook; base: string } {
   const key = save.collection?.wardrobe[slot], look = key && save.collection?.looks[key];
-  return look && canWearLook(item, look, slot) ? look.look : item.look;
+  return look && canWearLook(item, look, slot) ? { look: look.look, base: look.base } : { look: item.look, base: item.base };
 }
 export function ordinarySelected(list: readonly OrdinaryRarity[] | undefined, rarity: Rarity): boolean {
   return !!list?.includes(rarity as OrdinaryRarity);

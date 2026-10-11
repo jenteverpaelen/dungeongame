@@ -14,8 +14,9 @@ import {
 } from './gear';
 import { rgba } from './util';
 import { lookFx } from '@shared/gearVisual';
-import { SET_STYLE, TOP_COLORS, TOP_CORE, artLook, itemStyle } from './gearStyle';
-import { SHAPE_FAMILY } from './gearVisuals';
+import { SET_STYLE, TOP_COLORS, TOP_CORE, armourSeriesOn, artKey, artLook, itemStyle } from './gearStyle';
+import { iconDecor, jewelIcon } from './series/armour';
+import { SHAPE_FAMILY, heldShape } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
 import { drawHeldV2 } from './gear';
 import type { WLayer } from './weaponDrawing';
@@ -39,6 +40,8 @@ function drawIcon(c: Ctx, raw: ItemLook, kind: ItemKind, layer: WLayer = 'base')
     fn(c);
     c.restore?.();
   };
+  const series = armourSeriesOn();
+  if (series && (kind === 'wrists' || kind === 'neck' || kind === 'ring') && jewelIcon(c, look, kind, artKey(look) ?? shape)) return;
   switch (kind) {
     case 'head': if (shape === 'circlet') circletIcon(c, look); else drawHead(c, MANNEQUIN, look, true); break;
     case 'shoulders': shoulderIcon(c, look); break;
@@ -55,13 +58,14 @@ function drawIcon(c: Ctx, raw: ItemLook, kind: ItemKind, layer: WLayer = 'base')
     case 'neck': drawAmulet(c, look); break;
     case 'ring': drawRing(c, look); break;
     case 'offhand':
-      if (shape === 'quiver') sub((k) => drawQuiver(k, look), 0, 0, 0.5);
-      else if (shape === 'orb') drawOrb(c, look);
+      if (heldShape(shape) === 'quiver') sub((k) => drawQuiver(k, look), 0, 0, 0.5);
+      else if (heldShape(shape) === 'orb') drawOrb(c, look);
       else drawShield(c, look);
       break;
     default: // weapons on the diagonal
       sub((k) => drawWeapon(k, look), 0, 0, shape === 'crossbow' || shape === 'handxbow' ? Math.PI / 4 : Math.PI / 4);
   }
+  if (series && kind !== 'shoulders' && kind !== 'offhand' && kind !== 'weapon1h' && kind !== 'weapon2h') iconDecor(c, look, kind);
 }
 
 

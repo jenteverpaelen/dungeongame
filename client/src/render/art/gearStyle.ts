@@ -8,7 +8,7 @@ import { isSpecial, lookFx, type GearFx } from '@shared/gearVisual';
 import { GEMS, LEGENDARIES } from '@shared/data/items';
 import { RARITY_COLORS } from '@shared/items';
 import type { ItemLook, Rarity } from '@shared/types';
-import { LEGENDARY_VISUAL, MOTIF_SIGNATURE, SET_STYLE, SHAPE_FAMILY, type Motif, type SetStyle, type Signature } from './gearVisuals';
+import { ARMOUR_FAMILY, LEGENDARY_VISUAL, MOTIF_SIGNATURE, SET_STYLE, SHAPE_FAMILY, type Motif, type SetStyle, type Signature } from './gearVisuals';
 import { mix } from './util';
 
 export { SET_STYLE, type Motif, type SetStyle } from './gearVisuals';
@@ -187,16 +187,33 @@ const DULL = [0.42, 0.26, 0.12, 0, 0, 0, 0];
  *  light, legendary / Set pieces keep their own palette with the generation's finish. Held items and looks without
  *  identity (townsfolk) are returned unchanged. */
 export function artLook(l: ItemLook | undefined): ItemLook | undefined {
+  if (!l || SHAPE_FAMILY[l.shape]) return l;
+  // depth-wave armour bases draw on their family's silhouette and keep their own key for their own parts (artKey)
+  const fam = ARMOUR_FAMILY[l.shape];
+  const base: ArtLook = fam ? { ...l, shape: fam, art: l.shape } : l;
   const s = itemStyle(l);
-  if (!l || !s || SHAPE_FAMILY[l.shape]) return l;
-  const metal = METAL_ARMOUR.has(l.shape);
+  if (!s) return base;
+  const metal = METAL_ARMOUR.has(l.shape) || METAL_ARMOUR.has(base.shape);
+  if (armourSeriesHook) return armourSeriesHook(base, s, metal);
   const primary = s.special ? (metal ? mix(l.primary, s.mat.metal, 0.25) : l.primary)
     : metal ? mix(s.mat.metal, l.primary, 0.22) : mix(l.primary, 0x6a5e50, DULL[s.gen]);
   const secondary = s.special ? mix(l.secondary, s.mat.trim, 0.3)
     : s.rar === 1 ? mix(s.mat.trim, s.light, 0.6) : s.rar === 2 ? mix(s.mat.trim, s.light, 0.45) : s.mat.trim;
-  if (primary === l.primary && secondary === l.secondary) return l;
-  return { ...l, primary, secondary };
+  if (primary === l.primary && secondary === l.secondary) return base;
+  return { ...base, primary, secondary };
 }
+
+/** An armour look prepared for drawing: `shape` is the slot silhouette, `art` the depth base's own shape (if any). */
+export type ArtLook = ItemLook & { art?: string };
+/** The base's own art shape of a prepared armour look (its family shape when it has none). */
+export function artKey(l: ItemLook | undefined): string | undefined { return (l as ArtLook | undefined)?.art ?? l?.shape; }
+
+/** The armour art switch (Settings -> Display -> Armour art; docs/rework/gear/ART-DIRECTION.md section 6): when set,
+ *  armour is coloured and fitted by the maker series (series/armour.ts) instead of the generation ladder. Set once at
+ *  start, before anything is baked. */
+let armourSeriesHook: ((l: ArtLook, s: ItemStyle, metal: boolean) => ArtLook) | null = null;
+export function setArmourSeries(hook: ((l: ArtLook, s: ItemStyle, metal: boolean) => ArtLook) | null): void { armourSeriesHook = hook; }
+export function armourSeriesOn(): boolean { return armourSeriesHook !== null; }
 
 /** Ornament level 0..6 of a look (its generation; 0 for looks without identity). */
 export function ornament(look: ItemLook | undefined): number {

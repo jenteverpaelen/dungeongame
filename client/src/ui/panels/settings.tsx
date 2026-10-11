@@ -20,7 +20,7 @@ import { useUI } from '../store';
 import { text } from '../../i18n/messages';
 import { cls } from './util';
 import { UiIcon, type UiIconName } from '../hud/UiIcons';
-import { appliedWeaponArt, weaponArtFromUrl } from '../../game/weaponArtPreview';
+import { appliedArmourArt, appliedWeaponArt, armourArtFromUrl, weaponArtFromUrl } from '../../game/weaponArtPreview';
 
 type Section = 'sound' | 'display' | 'graphics' | 'access' | 'controls' | 'gamepad';
 const SECTIONS: { id: Section; icon: UiIconName }[] = [
@@ -139,12 +139,16 @@ function DisplaySettings() {
 /** Weapon art preview (docs/rework/gear/ART-DIRECTION.md §7): chosen once per page load, so a change asks for a reload. */
 function WeaponArtCard() {
   const v = useLocal(preferences, s => s.values.weaponArt);
-  const fromUrl = weaponArtFromUrl();
+  const a = useLocal(preferences, s => s.values.armourArt);
+  const fromUrl = weaponArtFromUrl(), armourUrl = armourArtFromUrl();
+  const stale = (!fromUrl && appliedWeaponArt() !== v) || (!armourUrl && appliedArmourArt() !== a);
   return <section class="so-card">
     <h4>{text('gear.artHeading')}</h4>
     <Choice label={text('gear.art')} value={v} options={WEAPON_ART_MODES} name={o => text(`gear.art.${o}`)} set={o => preferences.set({ weaponArt: o })} data="weaponArt" />
     <p class="settings-note">{text('gear.artNote')}{fromUrl ? ` ${text('gear.artUrl')}` : ''}</p>
-    {!fromUrl && appliedWeaponArt() !== v && <div><button class="btn sm" onClick={() => location.reload()}>{text('set.gfx.reload')}</button></div>}
+    <Choice label={text('gear.armourArt')} value={a} options={WEAPON_ART_MODES} name={o => text(`gear.armourArt.${o}`)} set={o => preferences.set({ armourArt: o })} data="armourArt" />
+    <p class="settings-note">{text('gear.armourArtNote')}{armourUrl ? ` ${text('gear.artUrl')}` : ''}</p>
+    {stale && <div><button class="btn sm" onClick={() => location.reload()}>{text('set.gfx.reload')}</button></div>}
   </section>;
 }
 
