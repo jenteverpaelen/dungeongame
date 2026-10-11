@@ -2,7 +2,7 @@
 // operation grants Cube XP) carrying Diablo 3's Kanai's Cube / Mystic / Blacksmith / Jeweler recipes.
 // Pure validation + cost logic; the server applies results authoritatively.
 
-import { AFFIXES, AFFIX_BY_STAT, BASES, GEMS, GEM_RANKS, LEGENDARIES } from './data/items';
+import { AFFIXES, AFFIX_BY_STAT, BASES, GEMS, GEM_RANKS, LEGENDARIES, affixFits } from './data/items';
 import type { CubeSlot } from './data/items';
 import type { CharacterSave, Item, Materials, Rarity } from './types';
 
@@ -144,7 +144,8 @@ export function enchantPool(item: Item, idx: number) {
   const target = item.affixes[idx];
   const others = new Set(item.affixes.filter((_, i) => i !== idx).map((a) => a.stat));
   const othersGroups = new Set(item.affixes.filter((_, i) => i !== idx).map((a) => AFFIX_BY_STAT[a.stat]?.group).filter(Boolean));
-  return AFFIXES.filter((a) => a.primary === target.primary && a.ranges[item.kind] && !others.has(a.stat) && !(a.group && othersGroups.has(a.group)) && (a.weight > 0 || a.group === 'main'));
+  const base = BASES[item.base];
+  return AFFIXES.filter((a) => a.primary === target.primary && (base ? affixFits(a, base) : !!a.ranges[item.kind]) && !others.has(a.stat) && !(a.group && othersGroups.has(a.group)) && (a.weight > 0 || a.group === 'main'));
 }
 
 export function cubeSlotOf(powerId: string): CubeSlot {

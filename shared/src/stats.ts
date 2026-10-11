@@ -1,7 +1,7 @@
 // Character sheet computation (Diablo 3 formulas, simplified where noted).
 
 import { CLASSES } from './data/classes';
-import { BASES, GEMS, LEGENDARIES, SETS } from './data/items';
+import { BASES, GEMS, LEGENDARIES, SETS, blocksOffhand } from './data/items';
 import { upgradeMult } from './items';
 import { PARAGON_STATS } from './progression';
 import type { CharacterSave, DerivedStats, Element, Item, Slot, StatId } from './types';
@@ -89,8 +89,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     else delete equipment[opts.swap.slot];
     // A two-handed weapon (other than bows/crossbows with quivers) clears the off-hand.
     const mh = equipment.mainhand;
-    if (mh && BASES[mh.base].weapon?.twoHanded && !BASES[mh.base].weapon?.ranged && opts.swap.slot === 'mainhand') delete equipment.offhand;
-    if (mh && mh.base === 'staff' && opts.swap.slot === 'mainhand') delete equipment.offhand;
+    if (mh && blocksOffhand(BASES[mh.base]) && opts.swap.slot === 'mainhand') delete equipment.offhand;
   }
 
   const powers: Record<string, number> = {};

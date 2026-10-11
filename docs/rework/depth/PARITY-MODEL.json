@@ -17,14 +17,14 @@
         "ground_stomp",
         "battle_rage"
       ],
-      "ratio": 40.97741127348643,
+      "ratio": 41.271061065396275,
       "hybridBetween": true,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 119750,
-          "estTotalMs": 119750,
+          "totalMs": 115450,
+          "estTotalMs": 115450,
           "timeouts": 0,
           "spec": {
             "id": "endless_storm/set",
@@ -70,13 +70,13 @@
                 "base": "feet_greaves"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "eternal_gyre"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -87,8 +87,8 @@
             },
             "cube": [
               "ninefold_gale",
-              "witching_cord",
-              null
+              "kilnwatch_spaulders",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -96,55 +96,55 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 4050,
+              "ms": 2850,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 4050
+              "estMs": 2850
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 9050,
+              "ms": 6700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 9050
+              "estMs": 6700
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 31050,
+              "ms": 32550,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 31050
+              "estMs": 32550
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 3050,
+              "ms": 2050,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 3050
+              "estMs": 2050
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 7550,
+              "ms": 6450,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 7550
+              "estMs": 6450
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 26550,
+              "ms": 30550,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 26550
+              "estMs": 30550
             },
             {
               "encounter": 0,
@@ -159,26 +159,26 @@
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 7850,
+              "ms": 6050,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 7850
+              "estMs": 6050
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 27050,
+              "ms": 24700,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 27050
+              "estMs": 24700
             }
           ]
         },
         "hybrid": {
-          "totalMs": 753450,
-          "estTotalMs": 3071048,
-          "timeouts": 4,
+          "totalMs": 771750,
+          "estTotalMs": 3690356,
+          "timeouts": 5,
           "spec": {
             "id": "endless_storm/hybrid",
             "classId": "warrior",
@@ -211,23 +211,23 @@
                 "base": "chest_plate"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "set": "endless_storm",
+                "base": "hands_gauntlets"
               },
               "legs": {
-                "set": "endless_storm",
-                "base": "legs_plate"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "eternal_gyre"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -238,14 +238,68 @@
             },
             "cube": [
               "ninefold_gale",
-              "witching_cord",
-              null
+              "kilnwatch_spaulders",
+              "hellforge_talisman"
             ]
           },
           "rows": [
             {
               "encounter": 0,
               "seed": 101,
+              "hp": 1676452331,
+              "ms": 17100,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 17100
+            },
+            {
+              "encounter": 1,
+              "seed": 101,
+              "hp": 9052842588,
+              "ms": 113550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 113550
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 3289285656,
+              "estMs": 856247
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 23050,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 23050
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 7126638744,
+              "estMs": 152434
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 2125285984,
+              "estMs": 1325205
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
               "hp": 1676452331,
               "ms": 18050,
               "cleared": true,
@@ -254,66 +308,12 @@
             },
             {
               "encounter": 1,
-              "seed": 101,
-              "hp": 9052842588,
-              "ms": 118750,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 118750
-            },
-            {
-              "encounter": 2,
-              "seed": 101,
-              "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 3428252945,
-              "estMs": 821538
-            },
-            {
-              "encounter": 0,
-              "seed": 202,
-              "hp": 1676452331,
-              "ms": 17050,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 17050
-            },
-            {
-              "encounter": 1,
-              "seed": 202,
-              "hp": 9052842588,
-              "ms": 99050,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 99050
-            },
-            {
-              "encounter": 2,
-              "seed": 202,
-              "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 3806199659,
-              "estMs": 739961
-            },
-            {
-              "encounter": 0,
-              "seed": 303,
-              "hp": 1676452331,
-              "ms": 20550,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 20550
-            },
-            {
-              "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 7355707997,
-              "estMs": 147687
+              "dealt": 8662254250,
+              "estMs": 125411
             },
             {
               "encounter": 2,
@@ -321,14 +321,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2587659467,
-              "estMs": 1088412
+              "dealt": 2658753074,
+              "estMs": 1059309
             }
           ]
         },
         "legendary": {
-          "totalMs": 805850,
-          "estTotalMs": 4907045,
+          "totalMs": 792100,
+          "estTotalMs": 4764744,
           "timeouts": 6,
           "spec": {
             "id": "endless_storm/legendary",
@@ -353,28 +353,28 @@
                 "rare": "head_horned"
               },
               "shoulders": {
-                "rare": "shoulders_spiked"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_plate"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_plate"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "eternal_gyre"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -385,8 +385,8 @@
             },
             "cube": [
               "ninefold_gale",
-              "witching_cord",
-              null
+              "lockglass_cincture",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -394,10 +394,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 24650,
+              "ms": 18250,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 24650
+              "estMs": 18250
             },
             {
               "encounter": 1,
@@ -405,8 +405,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4964003417,
-              "estMs": 218844
+              "dealt": 8054122984,
+              "estMs": 134880
             },
             {
               "encounter": 2,
@@ -414,17 +414,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2521163445,
-              "estMs": 1117119
+              "dealt": 2748288933,
+              "estMs": 1024798
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 24600,
+              "ms": 27500,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 24600
+              "estMs": 27500
             },
             {
               "encounter": 1,
@@ -432,8 +432,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4998867162,
-              "estMs": 217317
+              "dealt": 6065420750,
+              "estMs": 179104
             },
             {
               "encounter": 2,
@@ -441,17 +441,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2290978253,
-              "estMs": 1229361
+              "dealt": 1856861664,
+              "estMs": 1516774
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 36600,
+              "ms": 26350,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 36600
+              "estMs": 26350
             },
             {
               "encounter": 1,
@@ -459,8 +459,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3767300967,
-              "estMs": 288361
+              "dealt": 5591492888,
+              "estMs": 194285
             },
             {
               "encounter": 2,
@@ -468,8 +468,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1609216727,
-              "estMs": 1750193
+              "dealt": 1714411489,
+              "estMs": 1642803
             }
           ]
         }
@@ -489,14 +489,14 @@
         "cluster_arrow",
         "companion"
       ],
-      "ratio": 33.218178752107924,
+      "ratio": 28.1949547920434,
       "hybridBetween": true,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 118600,
-          "estTotalMs": 118600,
+          "totalMs": 110600,
+          "estTotalMs": 110600,
           "timeouts": 0,
           "spec": {
             "id": "siegebreaker/set",
@@ -544,13 +544,13 @@
                 "base": "feet_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -562,40 +562,13 @@
             "cube": [
               "hunters_mark",
               "gearwright_heart",
-              null
+              "hellforge_talisman"
             ]
           },
           "rows": [
             {
               "encounter": 0,
               "seed": 101,
-              "hp": 1676452331,
-              "ms": 1050,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 1050
-            },
-            {
-              "encounter": 1,
-              "seed": 101,
-              "hp": 9052842588,
-              "ms": 11450,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 11450
-            },
-            {
-              "encounter": 2,
-              "seed": 101,
-              "hp": 23470332636,
-              "ms": 35700,
-              "cleared": true,
-              "dealt": 23470332636,
-              "estMs": 35700
-            },
-            {
-              "encounter": 0,
-              "seed": 202,
               "hp": 1676452331,
               "ms": 500,
               "cleared": true,
@@ -604,21 +577,48 @@
             },
             {
               "encounter": 1,
-              "seed": 202,
+              "seed": 101,
               "hp": 9052842588,
-              "ms": 7150,
+              "ms": 7450,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 7150
+              "estMs": 7450
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 28800,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 28800
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 2550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 2550
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 8350,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 8350
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 22900,
+              "ms": 28400,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 22900
+              "estMs": 28400
             },
             {
               "encounter": 0,
@@ -633,25 +633,25 @@
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 8600,
+              "ms": 6350,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 8600
+              "estMs": 6350
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 30150,
+              "ms": 27100,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 30150
+              "estMs": 27100
             }
           ]
         },
         "hybrid": {
-          "totalMs": 531550,
-          "estTotalMs": 1068915,
+          "totalMs": 572900,
+          "estTotalMs": 1473090,
           "timeouts": 3,
           "spec": {
             "id": "siegebreaker/hybrid",
@@ -683,27 +683,27 @@
                 "base": "shoulders_pads"
               },
               "chest": {
-                "legendary": "gearwright_heart"
+                "set": "siegebreaker",
+                "base": "chest_leather"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "set": "siegebreaker",
+                "base": "hands_gloves"
               },
               "legs": {
-                "set": "siegebreaker",
-                "base": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "set": "siegebreaker",
-                "base": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -714,8 +714,8 @@
             },
             "cube": [
               "hunters_mark",
-              null,
-              null
+              "gearwright_heart",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -723,19 +723,19 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 9300,
+              "ms": 10150,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 9300
+              "estMs": 10150
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 43750,
+              "ms": 59750,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 43750
+              "estMs": 59750
             },
             {
               "encounter": 2,
@@ -743,26 +743,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 10275350428,
-              "estMs": 274097
+              "dealt": 7949651487,
+              "estMs": 354285
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 8200,
+              "ms": 9950,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 8200
+              "estMs": 9950
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 41400,
+              "ms": 71300,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 41400
+              "estMs": 71300
             },
             {
               "encounter": 2,
@@ -770,26 +770,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 10198311364,
-              "estMs": 276167
+              "dealt": 5080683952,
+              "estMs": 554343
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 9600,
+              "ms": 10400,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 9600
+              "estMs": 10400
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 59300,
+              "ms": 51350,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 59300
+              "estMs": 51350
             },
             {
               "encounter": 2,
@@ -797,15 +797,15 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8114184629,
-              "estMs": 347101
+              "dealt": 8011217861,
+              "estMs": 351562
             }
           ]
         },
         "legendary": {
-          "totalMs": 774950,
-          "estTotalMs": 3939676,
-          "timeouts": 6,
+          "totalMs": 770550,
+          "estTotalMs": 3118362,
+          "timeouts": 5,
           "spec": {
             "id": "siegebreaker/legendary",
             "classId": "ranger",
@@ -828,31 +828,31 @@
                 "legendary": "sappers_pack"
               },
               "head": {
-                "rare": "head_hood"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
-                "rare": "shoulders_pads"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
                 "legendary": "gearwright_heart"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -863,8 +863,8 @@
             },
             "cube": [
               "hunters_mark",
-              null,
-              null
+              "mountain_fists",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -872,10 +872,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 16750,
+              "ms": 16100,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 16750
+              "estMs": 16100
             },
             {
               "encounter": 1,
@@ -883,8 +883,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 7093494619,
-              "estMs": 153146
+              "dealt": 7928546129,
+              "estMs": 137016
             },
             {
               "encounter": 2,
@@ -892,26 +892,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2538187510,
-              "estMs": 1109626
+              "dealt": 3127225640,
+              "estMs": 900619
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 18350,
+              "ms": 16650,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 18350
+              "estMs": 16650
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 8155404995,
-              "estMs": 133205
+              "ms": 119550,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 119550
             },
             {
               "encounter": 2,
@@ -919,17 +919,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2878329101,
-              "estMs": 978498
+              "dealt": 3293338878,
+              "estMs": 855193
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 19850,
+              "ms": 18250,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 19850
+              "estMs": 18250
             },
             {
               "encounter": 1,
@@ -937,8 +937,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 6237718396,
-              "estMs": 174157
+              "dealt": 7460631911,
+              "estMs": 145610
             },
             {
               "encounter": 2,
@@ -946,8 +946,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2107965547,
-              "estMs": 1336094
+              "dealt": 3097118506,
+              "estMs": 909374
             }
           ]
         }
@@ -965,14 +965,14 @@
         "frost_nova",
         "magic_weapon"
       ],
-      "ratio": 27.444869762174406,
+      "ratio": 9.271356382978723,
       "hybridBetween": true,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 44150,
-          "estTotalMs": 44150,
+          "totalMs": 75200,
+          "estTotalMs": 75200,
           "timeouts": 0,
           "spec": {
             "id": "fallen_star/set",
@@ -1018,7 +1018,7 @@
                 "base": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1036,7 +1036,7 @@
             "cube": [
               "cindervane",
               "starfall_mantle",
-              null
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1053,19 +1053,19 @@
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 650,
+              "ms": 700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 650
+              "estMs": 700
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 21300,
+              "ms": 25450,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 21300
+              "estMs": 25450
             },
             {
               "encounter": 0,
@@ -1080,19 +1080,19 @@
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 650,
+              "ms": 700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 650
+              "estMs": 700
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 9850,
+              "ms": 23250,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 9850
+              "estMs": 23250
             },
             {
               "encounter": 0,
@@ -1107,26 +1107,26 @@
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 600,
+              "ms": 700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 600
+              "estMs": 700
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 9450,
+              "ms": 22750,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 9450
+              "estMs": 22750
             }
           ]
         },
         "hybrid": {
-          "totalMs": 381750,
-          "estTotalMs": 426575,
-          "timeouts": 3,
+          "totalMs": 360400,
+          "estTotalMs": 367281,
+          "timeouts": 1,
           "spec": {
             "id": "fallen_star/hybrid",
             "classId": "mage",
@@ -1151,25 +1151,25 @@
                 "base": "head_wizard"
               },
               "shoulders": {
-                "legendary": "starfall_mantle"
+                "set": "fallen_star",
+                "base": "shoulders_mantle"
               },
               "chest": {
                 "set": "fallen_star",
                 "base": "chest_robe"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "set": "fallen_star",
+                "base": "hands_wraps"
               },
               "legs": {
-                "set": "fallen_star",
-                "base": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "set": "fallen_star",
-                "base": "feet_shoes"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1186,8 +1186,8 @@
             },
             "cube": [
               "cindervane",
-              null,
-              null
+              "starfall_mantle",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1195,73 +1195,73 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 650,
+              "ms": 700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 650
+              "estMs": 700
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 6800,
+              "ms": 5700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 6800
+              "estMs": 5700
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 18659895252,
-              "estMs": 150935
+              "ms": 114850,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 114850
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 650,
+              "ms": 700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 650
+              "estMs": 700
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 6300,
+              "ms": 5800,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 6300
+              "estMs": 5800
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 23079373023,
-              "estMs": 122033
+              "ms": 104750,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 104750
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 600,
+              "ms": 700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 600
+              "estMs": 700
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 6750,
+              "ms": 7200,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 6750
+              "estMs": 7200
             },
             {
               "encounter": 2,
@@ -1269,14 +1269,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 21359851913,
-              "estMs": 131857
+              "dealt": 22197524830,
+              "estMs": 126881
             }
           ]
         },
         "legendary": {
-          "totalMs": 523750,
-          "estTotalMs": 1211691,
+          "totalMs": 470000,
+          "estTotalMs": 697206,
           "timeouts": 3,
           "spec": {
             "id": "fallen_star/legendary",
@@ -1298,25 +1298,25 @@
                 "legendary": "void_heart"
               },
               "head": {
-                "rare": "head_wizard"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
                 "legendary": "starfall_mantle"
               },
               "chest": {
-                "rare": "chest_robe"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_shoes"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1333,8 +1333,8 @@
             },
             "cube": [
               "cindervane",
-              null,
-              null
+              "kilnwatch_spaulders",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1342,19 +1342,19 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 1300,
+              "ms": 2450,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 1300
+              "estMs": 2450
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 54800,
+              "ms": 37900,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 54800
+              "estMs": 37900
             },
             {
               "encounter": 2,
@@ -1362,26 +1362,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8270188981,
-              "estMs": 340553
+              "dealt": 13133980565,
+              "estMs": 214439
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 1400,
+              "ms": 1550,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 1400
+              "estMs": 1550
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 53150,
+              "ms": 26100,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 53150
+              "estMs": 26100
             },
             {
               "encounter": 2,
@@ -1389,26 +1389,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8565294298,
-              "estMs": 328820
+              "dealt": 16764180640,
+              "estMs": 168003
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 1500,
+              "ms": 2200,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 1500
+              "estMs": 2200
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 51600,
+              "ms": 39800,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 51600
+              "estMs": 39800
             },
             {
               "encounter": 2,
@@ -1416,8 +1416,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 7439722428,
-              "estMs": 378568
+              "dealt": 13754551539,
+              "estMs": 204764
             }
           ]
         }
@@ -1435,14 +1435,14 @@
         "ground_stomp",
         "battle_rage"
       ],
-      "ratio": 94.56295386657816,
-      "hybridBetween": true,
+      "ratio": 52.13245169886742,
+      "hybridBetween": false,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 150650,
-          "estTotalMs": 150650,
+          "totalMs": 150100,
+          "estTotalMs": 150100,
           "timeouts": 0,
           "spec": {
             "id": "cinder_oath/set",
@@ -1488,7 +1488,7 @@
                 "base": "feet_greaves"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1505,8 +1505,8 @@
             },
             "cube": [
               null,
-              "mountain_fists",
-              null
+              "kilnwatch_spaulders",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1514,28 +1514,28 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 1150,
+              "ms": 650,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 1150
+              "estMs": 650
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 10350,
+              "ms": 7150,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 10350
+              "estMs": 7150
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 48050,
+              "ms": 56500,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 48050
+              "estMs": 56500
             },
             {
               "encounter": 0,
@@ -1550,52 +1550,52 @@
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 8500,
+              "ms": 5400,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 8500
+              "estMs": 5400
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 38000,
+              "ms": 39200,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 38000
+              "estMs": 39200
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 50,
+              "ms": 650,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 50
+              "estMs": 650
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 5500,
+              "ms": 3550,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 5500
+              "estMs": 3550
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 38500,
+              "ms": 36450,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 38500
+              "estMs": 36450
             }
           ]
         },
         "hybrid": {
-          "totalMs": 897200,
-          "estTotalMs": 12381217,
+          "totalMs": 857000,
+          "estTotalMs": 10061179,
           "timeouts": 6,
           "spec": {
             "id": "cinder_oath/hybrid",
@@ -1629,17 +1629,17 @@
                 "base": "chest_plate"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
                 "set": "cinder_oath",
                 "base": "legs_plate"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1656,8 +1656,8 @@
             },
             "cube": [
               null,
-              null,
-              null
+              "kilnwatch_spaulders",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1665,10 +1665,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 58200,
+              "ms": 39650,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 58200
+              "estMs": 39650
             },
             {
               "encounter": 1,
@@ -1676,8 +1676,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2076785405,
-              "estMs": 523088
+              "dealt": 2986579018,
+              "estMs": 363741
             },
             {
               "encounter": 2,
@@ -1685,17 +1685,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 830456547,
-              "estMs": 3391436
+              "dealt": 1051101851,
+              "estMs": 2679512
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 45500,
+              "ms": 58400,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 45500
+              "estMs": 58400
             },
             {
               "encounter": 1,
@@ -1703,8 +1703,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2500132595,
-              "estMs": 434513
+              "dealt": 2079965458,
+              "estMs": 522288
             },
             {
               "encounter": 2,
@@ -1712,17 +1712,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 970203606,
-              "estMs": 2902937
+              "dealt": 820502507,
+              "estMs": 3432579
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 73500,
+              "ms": 38950,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 73500
+              "estMs": 38950
             },
             {
               "encounter": 1,
@@ -1730,8 +1730,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1686068834,
-              "estMs": 644304
+              "dealt": 3172857846,
+              "estMs": 342386
             },
             {
               "encounter": 2,
@@ -1739,14 +1739,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 653809388,
-              "estMs": 4307739
+              "dealt": 1090091424,
+              "estMs": 2583673
             }
           ]
         },
         "legendary": {
-          "totalMs": 947150,
-          "estTotalMs": 14245909,
+          "totalMs": 815150,
+          "estTotalMs": 7825081,
           "timeouts": 6,
           "spec": {
             "id": "cinder_oath/legendary",
@@ -1771,22 +1771,22 @@
                 "rare": "head_horned"
               },
               "shoulders": {
-                "rare": "shoulders_spiked"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_plate"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
                 "rare": "legs_plate"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1803,8 +1803,8 @@
             },
             "cube": [
               null,
-              null,
-              null
+              "mountain_fists",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1812,10 +1812,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 70500,
+              "ms": 24600,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 70500
+              "estMs": 24600
             },
             {
               "encounter": 1,
@@ -1823,8 +1823,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1357232283,
-              "estMs": 800409
+              "dealt": 4191568218,
+              "estMs": 259173
             },
             {
               "encounter": 2,
@@ -1832,17 +1832,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 808447524,
-              "estMs": 3483763
+              "dealt": 1563752512,
+              "estMs": 1801078
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 62800,
+              "ms": 31200,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 62800
+              "estMs": 31200
             },
             {
               "encounter": 1,
@@ -1850,8 +1850,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1543821889,
-              "estMs": 703670
+              "dealt": 3968812687,
+              "estMs": 273719
             },
             {
               "encounter": 2,
@@ -1859,17 +1859,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 785248860,
-              "estMs": 3586685
+              "dealt": 1243013644,
+              "estMs": 2265816
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 93850,
+              "ms": 39350,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 93850
+              "estMs": 39350
             },
             {
               "encounter": 1,
@@ -1877,8 +1877,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1245450511,
-              "estMs": 872248
+              "dealt": 3123582119,
+              "estMs": 347787
             },
             {
               "encounter": 2,
@@ -1886,8 +1886,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 616021357,
-              "estMs": 4571984
+              "dealt": 1012249313,
+              "estMs": 2782358
             }
           ]
         }
@@ -1905,14 +1905,14 @@
         "ground_stomp",
         "battle_rage"
       ],
-      "ratio": 18.590529644268774,
+      "ratio": 17.434583333333332,
       "hybridBetween": true,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 126500,
-          "estTotalMs": 126500,
+          "totalMs": 110400,
+          "estTotalMs": 110400,
           "timeouts": 0,
           "spec": {
             "id": "fault_warden/set",
@@ -1955,7 +1955,7 @@
                 "base": "feet_greaves"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -1973,7 +1973,7 @@
             "cube": [
               null,
               "last_light",
-              null
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -1990,19 +1990,19 @@
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 8400,
+              "ms": 5450,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 8400
+              "estMs": 5450
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 37200,
+              "ms": 28750,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 37200
+              "estMs": 28750
             },
             {
               "encounter": 0,
@@ -2017,19 +2017,19 @@
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 5850,
+              "ms": 6550,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 5850
+              "estMs": 6550
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 29900,
+              "ms": 35500,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 29900
+              "estMs": 35500
             },
             {
               "encounter": 0,
@@ -2044,26 +2044,26 @@
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 6900,
+              "ms": 2350,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 6900
+              "estMs": 2350
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 37950,
+              "ms": 31500,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 37950
+              "estMs": 31500
             }
           ]
         },
         "hybrid": {
-          "totalMs": 760850,
-          "estTotalMs": 1871215,
-          "timeouts": 5,
+          "totalMs": 749300,
+          "estTotalMs": 1971570,
+          "timeouts": 4,
           "spec": {
             "id": "fault_warden/hybrid",
             "classId": "warrior",
@@ -2093,17 +2093,17 @@
                 "base": "chest_plate"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
                 "set": "fault_warden",
                 "base": "legs_plate"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -2121,7 +2121,7 @@
             "cube": [
               null,
               "last_light",
-              null
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -2129,46 +2129,46 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 14400,
+              "ms": 18700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 14400
+              "estMs": 18700
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 8923971631,
-              "estMs": 121733
-            },
-            {
-              "encounter": 2,
-              "seed": 101,
-              "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 5064509856,
-              "estMs": 556113
-            },
-            {
-              "encounter": 0,
-              "seed": 202,
-              "hp": 1676452331,
-              "ms": 17700,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 17700
-            },
-            {
-              "encounter": 1,
-              "seed": 202,
-              "hp": 9052842588,
-              "ms": 82550,
+              "ms": 106700,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 82550
+              "estMs": 106700
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6034176528,
+              "estMs": 466748
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 21450,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 21450
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8324044814,
+              "estMs": 130506
             },
             {
               "encounter": 2,
@@ -2176,26 +2176,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 7350027888,
-              "estMs": 383188
+              "dealt": 4544779136,
+              "estMs": 619709
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 46200,
+              "ms": 14100,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 46200
+              "estMs": 14100
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 8295193351,
-              "estMs": 130960
+              "ms": 108350,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 108350
             },
             {
               "encounter": 2,
@@ -2203,15 +2203,15 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5433250849,
-              "estMs": 518371
+              "dealt": 5803420432,
+              "estMs": 485307
             }
           ]
         },
         "legendary": {
-          "totalMs": 886150,
-          "estTotalMs": 2351702,
-          "timeouts": 6,
+          "totalMs": 810500,
+          "estTotalMs": 1924778,
+          "timeouts": 5,
           "spec": {
             "id": "fault_warden/legendary",
             "classId": "warrior",
@@ -2232,22 +2232,22 @@
                 "rare": "head_horned"
               },
               "shoulders": {
-                "rare": "shoulders_spiked"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_plate"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
                 "rare": "legs_plate"
               },
               "feet": {
-                "rare": "feet_greaves"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -2265,7 +2265,7 @@
             "cube": [
               null,
               "last_light",
-              null
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -2273,19 +2273,19 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 46500,
+              "ms": 19450,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 46500
+              "estMs": 19450
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 9015888254,
-              "estMs": 120492
+              "ms": 108900,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 108900
             },
             {
               "encounter": 2,
@@ -2293,17 +2293,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4901458890,
-              "estMs": 574613
+              "dealt": 6613264838,
+              "estMs": 425877
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 63700,
+              "ms": 42750,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 63700
+              "estMs": 42750
             },
             {
               "encounter": 1,
@@ -2311,8 +2311,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8566074113,
-              "estMs": 126819
+              "dealt": 9035183673,
+              "estMs": 120235
             },
             {
               "encounter": 2,
@@ -2320,17 +2320,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5028307443,
-              "estMs": 560117
+              "dealt": 5907619184,
+              "estMs": 476747
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 55950,
+              "ms": 39400,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 55950
+              "estMs": 39400
             },
             {
               "encounter": 1,
@@ -2338,8 +2338,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 7801910655,
-              "estMs": 139240
+              "dealt": 7135176634,
+              "estMs": 152251
             },
             {
               "encounter": 2,
@@ -2347,8 +2347,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4239896389,
-              "estMs": 664271
+              "dealt": 5223676099,
+              "estMs": 539168
             }
           ]
         }
@@ -2366,14 +2366,14 @@
         "rain_of_vengeance",
         "companion"
       ],
-      "ratio": 32.72297642056436,
-      "hybridBetween": true,
+      "ratio": 26.22697635835753,
+      "hybridBetween": false,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 129350,
-          "estTotalMs": 129350,
+          "totalMs": 120550,
+          "estTotalMs": 120550,
           "timeouts": 0,
           "spec": {
             "id": "farwatch/set",
@@ -2419,13 +2419,13 @@
                 "base": "feet_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -2436,8 +2436,8 @@
             },
             "cube": [
               "thunderhead",
-              "mountain_fists",
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -2445,32 +2445,59 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 250,
+              "ms": 2800,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 250
+              "estMs": 2800
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 2100,
+              "ms": 1000,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 2100
+              "estMs": 1000
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 41050,
+              "ms": 41450,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 41050
+              "estMs": 41450
             },
             {
               "encounter": 0,
               "seed": 202,
+              "hp": 1676452331,
+              "ms": 350,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 350
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 900,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 900
+            },
+            {
+              "encounter": 2,
+              "seed": 202,
+              "hp": 23470332636,
+              "ms": 42200,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 42200
+            },
+            {
+              "encounter": 0,
+              "seed": 303,
               "hp": 1676452331,
               "ms": 250,
               "cleared": true,
@@ -2479,55 +2506,28 @@
             },
             {
               "encounter": 1,
-              "seed": 202,
-              "hp": 9052842588,
-              "ms": 1250,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 1250
-            },
-            {
-              "encounter": 2,
-              "seed": 202,
-              "hp": 23470332636,
-              "ms": 31900,
-              "cleared": true,
-              "dealt": 23470332636,
-              "estMs": 31900
-            },
-            {
-              "encounter": 0,
-              "seed": 303,
-              "hp": 1676452331,
-              "ms": 150,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 150
-            },
-            {
-              "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 3850,
+              "ms": 750,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 3850
+              "estMs": 750
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 48550,
+              "ms": 30850,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 48550
+              "estMs": 30850
             }
           ]
         },
         "hybrid": {
-          "totalMs": 738100,
-          "estTotalMs": 2434122,
-          "timeouts": 5,
+          "totalMs": 772600,
+          "estTotalMs": 3640666,
+          "timeouts": 6,
           "spec": {
             "id": "farwatch/hybrid",
             "classId": "ranger",
@@ -2560,23 +2560,23 @@
                 "base": "chest_leather"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "set": "farwatch",
+                "base": "hands_gloves"
               },
               "legs": {
-                "set": "farwatch",
-                "base": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -2587,8 +2587,8 @@
             },
             "cube": [
               "thunderhead",
-              null,
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -2596,10 +2596,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 15700,
+              "ms": 16200,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 15700
+              "estMs": 16200
             },
             {
               "encounter": 1,
@@ -2607,8 +2607,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8307385501,
-              "estMs": 130768
+              "dealt": 7579755402,
+              "estMs": 143321
             },
             {
               "encounter": 2,
@@ -2616,26 +2616,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3857438232,
-              "estMs": 730132
+              "dealt": 3133973702,
+              "estMs": 898680
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 10100,
+              "ms": 18550,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 10100
+              "estMs": 18550
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 100850,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 100850
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 6838102540,
+              "estMs": 158866
             },
             {
               "encounter": 2,
@@ -2643,17 +2643,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5078303261,
-              "estMs": 554603
+              "dealt": 2299248317,
+              "estMs": 1224939
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 11450,
+              "ms": 17850,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 11450
+              "estMs": 17850
             },
             {
               "encounter": 1,
@@ -2661,8 +2661,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 8521640541,
-              "estMs": 127480
+              "dealt": 6993282332,
+              "estMs": 155341
             },
             {
               "encounter": 2,
@@ -2670,14 +2670,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3740099963,
-              "estMs": 753039
+              "dealt": 2797086438,
+              "estMs": 1006919
             }
           ]
         },
         "legendary": {
-          "totalMs": 813950,
-          "estTotalMs": 4232717,
+          "totalMs": 777150,
+          "estTotalMs": 3161662,
           "timeouts": 6,
           "spec": {
             "id": "farwatch/legendary",
@@ -2699,31 +2699,31 @@
                 "rare": "quiver"
               },
               "head": {
-                "rare": "head_hood"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
-                "rare": "shoulders_pads"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_leather"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -2734,8 +2734,8 @@
             },
             "cube": [
               "thunderhead",
-              null,
-              null
+              "mountain_fists",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -2743,10 +2743,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 26650,
+              "ms": 19050,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 26650
+              "estMs": 19050
             },
             {
               "encounter": 1,
@@ -2754,8 +2754,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5741331180,
-              "estMs": 189214
+              "dealt": 7510291157,
+              "estMs": 144647
             },
             {
               "encounter": 2,
@@ -2763,17 +2763,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2752921684,
-              "estMs": 1023073
+              "dealt": 3368541469,
+              "estMs": 836101
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 32400,
+              "ms": 12300,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 32400
+              "estMs": 12300
             },
             {
               "encounter": 1,
@@ -2781,8 +2781,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5961278475,
-              "estMs": 182233
+              "dealt": 8415414390,
+              "estMs": 129089
             },
             {
               "encounter": 2,
@@ -2790,17 +2790,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2726365203,
-              "estMs": 1033038
+              "dealt": 3574655957,
+              "estMs": 787891
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 34900,
+              "ms": 25800,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 34900
+              "estMs": 25800
             },
             {
               "encounter": 1,
@@ -2808,8 +2808,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4496291485,
-              "estMs": 241608
+              "dealt": 6611115472,
+              "estMs": 164320
             },
             {
               "encounter": 2,
@@ -2817,8 +2817,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1916465897,
-              "estMs": 1469601
+              "dealt": 2701713426,
+              "estMs": 1042464
             }
           ]
         }
@@ -2836,14 +2836,14 @@
         "cluster_arrow",
         "companion"
       ],
-      "ratio": 31.63043739565943,
-      "hybridBetween": true,
+      "ratio": 15.671657052962768,
+      "hybridBetween": false,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 149750,
-          "estTotalMs": 149750,
+          "totalMs": 190700,
+          "estTotalMs": 190700,
           "timeouts": 0,
           "spec": {
             "id": "rainkeeper/set",
@@ -2889,13 +2889,13 @@
                 "base": "feet_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -2906,41 +2906,14 @@
             },
             "cube": [
               "hunters_mark",
-              "mountain_fists",
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
             {
               "encounter": 0,
               "seed": 101,
-              "hp": 1676452331,
-              "ms": 550,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 550
-            },
-            {
-              "encounter": 1,
-              "seed": 101,
-              "hp": 9052842588,
-              "ms": 4050,
-              "cleared": true,
-              "dealt": 9052842588,
-              "estMs": 4050
-            },
-            {
-              "encounter": 2,
-              "seed": 101,
-              "hp": 23470332636,
-              "ms": 45900,
-              "cleared": true,
-              "dealt": 23470332636,
-              "estMs": 45900
-            },
-            {
-              "encounter": 0,
-              "seed": 202,
               "hp": 1676452331,
               "ms": 500,
               "cleared": true,
@@ -2949,21 +2922,48 @@
             },
             {
               "encounter": 1,
-              "seed": 202,
+              "seed": 101,
               "hp": 9052842588,
-              "ms": 4050,
+              "ms": 6800,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 4050
+              "estMs": 6800
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 58900,
+              "cleared": true,
+              "dealt": 23470332636,
+              "estMs": 58900
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 550,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 550
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 10250,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 10250
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 41750,
+              "ms": 55650,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 41750
+              "estMs": 55650
             },
             {
               "encounter": 0,
@@ -2978,25 +2978,25 @@
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 2600,
+              "ms": 5350,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 2600
+              "estMs": 5350
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 49800,
+              "ms": 52150,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 49800
+              "estMs": 52150
             }
           ]
         },
         "hybrid": {
-          "totalMs": 782250,
-          "estTotalMs": 3376404,
+          "totalMs": 799550,
+          "estTotalMs": 4362413,
           "timeouts": 6,
           "spec": {
             "id": "rainkeeper/hybrid",
@@ -3030,23 +3030,23 @@
                 "base": "chest_leather"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "set": "rainkeeper",
+                "base": "hands_gloves"
               },
               "legs": {
-                "set": "rainkeeper",
-                "base": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -3057,8 +3057,8 @@
             },
             "cube": [
               "hunters_mark",
-              null,
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -3066,10 +3066,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 27750,
+              "ms": 22000,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 27750
+              "estMs": 22000
             },
             {
               "encounter": 1,
@@ -3077,8 +3077,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4928642450,
-              "estMs": 220414
+              "dealt": 4833613898,
+              "estMs": 224747
             },
             {
               "encounter": 2,
@@ -3086,17 +3086,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2884058028,
-              "estMs": 976555
+              "dealt": 2644021089,
+              "estMs": 1065211
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 15650,
+              "ms": 31950,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 15650
+              "estMs": 31950
             },
             {
               "encounter": 1,
@@ -3104,8 +3104,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 6809237837,
-              "estMs": 159539
+              "dealt": 4534722330,
+              "estMs": 239561
             },
             {
               "encounter": 2,
@@ -3113,17 +3113,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3690135822,
-              "estMs": 763235
+              "dealt": 1951050476,
+              "estMs": 1443551
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 18850,
+              "ms": 25600,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 18850
+              "estMs": 25600
             },
             {
               "encounter": 1,
@@ -3131,8 +3131,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4705934817,
-              "estMs": 230845
+              "dealt": 4885406885,
+              "estMs": 222365
             },
             {
               "encounter": 2,
@@ -3140,14 +3140,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2922933825,
-              "estMs": 963566
+              "dealt": 2590000756,
+              "estMs": 1087428
             }
           ]
         },
         "legendary": {
-          "totalMs": 803000,
-          "estTotalMs": 4736658,
+          "totalMs": 761900,
+          "estTotalMs": 2988585,
           "timeouts": 6,
           "spec": {
             "id": "rainkeeper/legendary",
@@ -3169,31 +3169,31 @@
                 "rare": "quiver"
               },
               "head": {
-                "rare": "head_hood"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
-                "rare": "shoulders_pads"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_leather"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_leather"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_boots"
+                "legendary": "ridgewalker_boots"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -3204,8 +3204,8 @@
             },
             "cube": [
               "hunters_mark",
-              null,
-              null
+              "mountain_fists",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -3213,10 +3213,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 25650,
+              "ms": 14400,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 25650
+              "estMs": 14400
             },
             {
               "encounter": 1,
@@ -3224,8 +3224,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4040014489,
-              "estMs": 268895
+              "dealt": 6498718201,
+              "estMs": 167162
             },
             {
               "encounter": 2,
@@ -3233,17 +3233,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2490158246,
-              "estMs": 1131028
+              "dealt": 3618199427,
+              "estMs": 778409
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 18700,
+              "ms": 10500,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 18700
+              "estMs": 10500
             },
             {
               "encounter": 1,
@@ -3251,8 +3251,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4685617737,
-              "estMs": 231846
+              "dealt": 6616299579,
+              "estMs": 164192
             },
             {
               "encounter": 2,
@@ -3260,17 +3260,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2732377940,
-              "estMs": 1030765
+              "dealt": 3910108928,
+              "estMs": 720297
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 38650,
+              "ms": 17000,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 38650
+              "estMs": 17000
             },
             {
               "encounter": 1,
@@ -3278,8 +3278,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3156923775,
-              "estMs": 344114
+              "dealt": 5515852039,
+              "estMs": 196949
             },
             {
               "encounter": 2,
@@ -3287,8 +3287,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1710031740,
-              "estMs": 1647010
+              "dealt": 3062426449,
+              "estMs": 919676
             }
           ]
         }
@@ -3306,14 +3306,14 @@
         "frost_nova",
         "magic_weapon"
       ],
-      "ratio": 50.43827906976744,
-      "hybridBetween": true,
+      "ratio": 15.51476653696498,
+      "hybridBetween": false,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 129000,
-          "estTotalMs": 129000,
+          "totalMs": 154200,
+          "estTotalMs": 154200,
           "timeouts": 0,
           "spec": {
             "id": "glass_concord/set",
@@ -3359,7 +3359,7 @@
                 "base": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -3376,8 +3376,8 @@
             },
             "cube": [
               null,
-              "mountain_fists",
-              null
+              "watchkeepers_hood",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -3385,88 +3385,88 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 2450,
+              "ms": 2150,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 2450
+              "estMs": 2150
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 13600,
+              "ms": 13500,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 13600
+              "estMs": 13500
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 35750,
+              "ms": 52150,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 35750
+              "estMs": 52150
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 1700,
+              "ms": 2550,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 1700
+              "estMs": 2550
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 12400,
+              "ms": 12150,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 12400
+              "estMs": 12150
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 29900,
+              "ms": 33950,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 29900
+              "estMs": 33950
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 700,
+              "ms": 1350,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 700
+              "estMs": 1350
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 9050,
+              "ms": 7500,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 9050
+              "estMs": 7500
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 23450,
+              "ms": 28900,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 23450
+              "estMs": 28900
             }
           ]
         },
         "hybrid": {
-          "totalMs": 825750,
-          "estTotalMs": 3465891,
+          "totalMs": 820300,
+          "estTotalMs": 2617503,
           "timeouts": 6,
           "spec": {
             "id": "glass_concord/hybrid",
@@ -3500,17 +3500,17 @@
                 "base": "chest_robe"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "set": "glass_concord",
-                "base": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_shoes"
+                "set": "glass_concord",
+                "base": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -3527,8 +3527,8 @@
             },
             "cube": [
               null,
-              null,
-              null
+              "watchkeepers_hood",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -3536,10 +3536,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 32900,
+              "ms": 38850,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 32900
+              "estMs": 38850
             },
             {
               "encounter": 1,
@@ -3547,8 +3547,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 6344794577,
-              "estMs": 171218
+              "dealt": 4741878721,
+              "estMs": 229095
             },
             {
               "encounter": 2,
@@ -3556,17 +3556,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4154009948,
-              "estMs": 678005
+              "dealt": 3313218075,
+              "estMs": 850062
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 37000,
+              "ms": 36750,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 37000
+              "estMs": 36750
             },
             {
               "encounter": 1,
@@ -3574,8 +3574,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4695556093,
-              "estMs": 231355
+              "dealt": 6430507545,
+              "estMs": 168936
             },
             {
               "encounter": 2,
@@ -3583,17 +3583,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2872047105,
-              "estMs": 980638
+              "dealt": 5398178554,
+              "estMs": 521739
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 35850,
+              "ms": 24700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 35850
+              "estMs": 24700
             },
             {
               "encounter": 1,
@@ -3601,8 +3601,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4425474826,
-              "estMs": 245474
+              "dealt": 7781189751,
+              "estMs": 139611
             },
             {
               "encounter": 2,
@@ -3610,14 +3610,14 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2673536263,
-              "estMs": 1053451
+              "dealt": 4634129501,
+              "estMs": 607760
             }
           ]
         },
         "legendary": {
-          "totalMs": 902350,
-          "estTotalMs": 6506538,
+          "totalMs": 795200,
+          "estTotalMs": 2392377,
           "timeouts": 6,
           "spec": {
             "id": "glass_concord/legendary",
@@ -3639,25 +3639,25 @@
                 "legendary": "void_heart"
               },
               "head": {
-                "rare": "head_wizard"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
-                "rare": "shoulders_mantle"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_robe"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
                 "rare": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
@@ -3674,8 +3674,8 @@
             },
             "cube": [
               null,
-              null,
-              null
+              "mountain_fists",
+              "patchwork_signet"
             ]
           },
           "rows": [
@@ -3683,10 +3683,10 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 50950,
+              "ms": 22950,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 50950
+              "estMs": 22950
             },
             {
               "encounter": 1,
@@ -3694,8 +3694,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3697596711,
-              "estMs": 293797
+              "dealt": 7622516280,
+              "estMs": 142517
             },
             {
               "encounter": 2,
@@ -3703,17 +3703,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1741667114,
-              "estMs": 1617094
+              "dealt": 4547179817,
+              "estMs": 619382
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 37600,
+              "ms": 26450,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 37600
+              "estMs": 26450
             },
             {
               "encounter": 1,
@@ -3721,8 +3721,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 4860134470,
-              "estMs": 223521
+              "dealt": 8230443554,
+              "estMs": 131991
             },
             {
               "encounter": 2,
@@ -3730,17 +3730,17 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2690606501,
-              "estMs": 1046768
+              "dealt": 3846239089,
+              "estMs": 732258
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 93800,
+              "ms": 25800,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 93800
+              "estMs": 25800
             },
             {
               "encounter": 1,
@@ -3748,8 +3748,8 @@
               "hp": 9052842588,
               "ms": 120000,
               "cleared": false,
-              "dealt": 2092120597,
-              "estMs": 519254
+              "dealt": 9006211936,
+              "estMs": 120621
             },
             {
               "encounter": 2,
@@ -3757,8 +3757,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1073438858,
-              "estMs": 2623754
+              "dealt": 4937584914,
+              "estMs": 570408
             }
           ]
         }
@@ -3777,14 +3777,14 @@
         "black_hole",
         "magic_weapon"
       ],
-      "ratio": 26.264242852100246,
-      "hybridBetween": true,
+      "ratio": 8.146958622772576,
+      "hybridBetween": false,
       "passes": false,
       "enforced": false,
       "kits": {
         "set": {
-          "totalMs": 141650,
-          "estTotalMs": 141650,
+          "totalMs": 165550,
+          "estTotalMs": 165550,
           "timeouts": 0,
           "spec": {
             "id": "lantern_garden/set",
@@ -3831,13 +3831,13 @@
                 "base": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -3848,8 +3848,8 @@
             },
             "cube": [
               "lanternroot",
-              "mountain_fists",
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -3857,89 +3857,89 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 850,
+              "ms": 800,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 850
+              "estMs": 800
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 5000,
+              "ms": 5550,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 5000
+              "estMs": 5550
             },
             {
               "encounter": 2,
               "seed": 101,
               "hp": 23470332636,
-              "ms": 56100,
+              "ms": 60200,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 56100
+              "estMs": 60200
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 650,
+              "ms": 1000,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 650
+              "estMs": 1000
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 2850,
+              "ms": 4150,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 2850
+              "estMs": 4150
             },
             {
               "encounter": 2,
               "seed": 202,
               "hp": 23470332636,
-              "ms": 37950,
+              "ms": 45450,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 37950
+              "estMs": 45450
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 450,
+              "ms": 750,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 450
+              "estMs": 750
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 2550,
+              "ms": 4350,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 2550
+              "estMs": 4350
             },
             {
               "encounter": 2,
               "seed": 303,
               "hp": 23470332636,
-              "ms": 35250,
+              "ms": 43300,
               "cleared": true,
               "dealt": 23470332636,
-              "estMs": 35250
+              "estMs": 43300
             }
           ]
         },
         "hybrid": {
-          "totalMs": 730250,
-          "estTotalMs": 2506765,
-          "timeouts": 4,
+          "totalMs": 625000,
+          "estTotalMs": 1723394,
+          "timeouts": 3,
           "spec": {
             "id": "lantern_garden/hybrid",
             "classId": "mage",
@@ -3973,23 +3973,23 @@
                 "base": "chest_robe"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "set": "lantern_garden",
-                "base": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
-                "rare": "feet_shoes"
+                "set": "lantern_garden",
+                "base": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -4000,8 +4000,8 @@
             },
             "cube": [
               "lanternroot",
-              null,
-              null
+              "watchkeepers_hood",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -4009,19 +4009,19 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 10900,
+              "ms": 10800,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 10900
+              "estMs": 10800
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 96150,
+              "ms": 94250,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 96150
+              "estMs": 94250
             },
             {
               "encounter": 2,
@@ -4029,26 +4029,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 5046763490,
-              "estMs": 558069
+              "dealt": 4926350703,
+              "estMs": 571709
             },
             {
               "encounter": 0,
               "seed": 202,
               "hp": 1676452331,
-              "ms": 13600,
+              "ms": 9550,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 13600
+              "estMs": 9550
             },
             {
               "encounter": 1,
               "seed": 202,
               "hp": 9052842588,
-              "ms": 117200,
+              "ms": 70100,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 117200
+              "estMs": 70100
             },
             {
               "encounter": 2,
@@ -4056,26 +4056,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3745016237,
-              "estMs": 752050
+              "dealt": 6131970443,
+              "estMs": 459304
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 12400,
+              "ms": 8000,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 12400
+              "estMs": 8000
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 9050228316,
-              "estMs": 120035
+              "ms": 72300,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 72300
             },
             {
               "encounter": 2,
@@ -4083,15 +4083,15 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3408243223,
-              "estMs": 826361
+              "dealt": 6589995123,
+              "estMs": 427381
             }
           ]
         },
         "legendary": {
-          "totalMs": 772550,
-          "estTotalMs": 3720330,
-          "timeouts": 5,
+          "totalMs": 554800,
+          "estTotalMs": 1348729,
+          "timeouts": 3,
           "spec": {
             "id": "lantern_garden/legendary",
             "classId": "mage",
@@ -4113,31 +4113,31 @@
                 "legendary": "void_heart"
               },
               "head": {
-                "rare": "head_wizard"
+                "legendary": "watchkeepers_hood"
               },
               "shoulders": {
-                "rare": "shoulders_mantle"
+                "legendary": "kilnwatch_spaulders"
               },
               "chest": {
-                "rare": "chest_robe"
+                "legendary": "hearthguard_coat"
               },
               "hands": {
-                "legendary": "mountain_fists"
+                "legendary": "ink_stained_gloves"
               },
               "legs": {
-                "rare": "legs_cloth"
+                "legendary": "causeway_waders"
               },
               "feet": {
                 "rare": "feet_shoes"
               },
               "wrists": {
-                "rare": "wrists_bracers"
+                "legendary": "wardkeepers_cuffs"
               },
               "waist": {
                 "legendary": "witching_cord"
               },
               "neck": {
-                "legendary": "hellforge_talisman"
+                "legendary": "signal_horn_charm"
               },
               "ring1": {
                 "legendary": "ouroboros_loop"
@@ -4148,8 +4148,8 @@
             },
             "cube": [
               "lanternroot",
-              null,
-              null
+              "mountain_fists",
+              "hellforge_talisman"
             ]
           },
           "rows": [
@@ -4157,46 +4157,46 @@
               "encounter": 0,
               "seed": 101,
               "hp": 1676452331,
-              "ms": 14650,
+              "ms": 3700,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 14650
+              "estMs": 3700
             },
             {
               "encounter": 1,
               "seed": 101,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 8882764902,
-              "estMs": 122298
-            },
-            {
-              "encounter": 2,
-              "seed": 101,
-              "hp": 23470332636,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 3537012009,
-              "estMs": 796277
-            },
-            {
-              "encounter": 0,
-              "seed": 202,
-              "hp": 1676452331,
-              "ms": 12000,
-              "cleared": true,
-              "dealt": 1676452331,
-              "estMs": 12000
-            },
-            {
-              "encounter": 1,
-              "seed": 202,
-              "hp": 9052842588,
-              "ms": 113550,
+              "ms": 48750,
               "cleared": true,
               "dealt": 9052842588,
-              "estMs": 113550
+              "estMs": 48750
+            },
+            {
+              "encounter": 2,
+              "seed": 101,
+              "hp": 23470332636,
+              "ms": 120000,
+              "cleared": false,
+              "dealt": 8939939893,
+              "estMs": 315040
+            },
+            {
+              "encounter": 0,
+              "seed": 202,
+              "hp": 1676452331,
+              "ms": 8950,
+              "cleared": true,
+              "dealt": 1676452331,
+              "estMs": 8950
+            },
+            {
+              "encounter": 1,
+              "seed": 202,
+              "hp": 9052842588,
+              "ms": 74500,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 74500
             },
             {
               "encounter": 2,
@@ -4204,26 +4204,26 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 3421358711,
-              "estMs": 823193
+              "dealt": 6133049819,
+              "estMs": 459223
             },
             {
               "encounter": 0,
               "seed": 303,
               "hp": 1676452331,
-              "ms": 32350,
+              "ms": 6250,
               "cleared": true,
               "dealt": 1676452331,
-              "estMs": 32350
+              "estMs": 6250
             },
             {
               "encounter": 1,
               "seed": 303,
               "hp": 9052842588,
-              "ms": 120000,
-              "cleared": false,
-              "dealt": 6023709542,
-              "estMs": 180344
+              "ms": 52650,
+              "cleared": true,
+              "dealt": 9052842588,
+              "estMs": 52650
             },
             {
               "encounter": 2,
@@ -4231,8 +4231,8 @@
               "hp": 23470332636,
               "ms": 120000,
               "cleared": false,
-              "dealt": 1732481342,
-              "estMs": 1625668
+              "dealt": 7418201760,
+              "estMs": 379666
             }
           ]
         }

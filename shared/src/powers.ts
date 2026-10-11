@@ -437,7 +437,7 @@ export function describeEffect(e: PowerEffect): string {
       const src = e.source === 'distance' ? `every ${e.per} units you move` : `every ${e.per === 1 ? '' : e.per + ' '}kill${e.per === 1 ? '' : 's'}${e.skills || e.tags ? ' with ' + names(e) : ''}`;
       const per = [e.stackDmg !== undefined ? `${fmt(e.stackDmg)}% increased damage` : '', e.stackIas !== undefined ? `${fmt(e.stackIas)}% attack speed` : ''].filter(Boolean).join(' and ');
       const max = e.onMax?.buff ? ` At ${e.max} stacks, ${buffText(e.onMax.buff)}${e.onMax.reset ? ' and the stacks reset' : ''}.` : '';
-      return `Gain a stack of ${skillName(e.buff)} ${src}${e.when ? ' ' + conditionText(e.when) : ''} (max ${e.max})${per ? `, each granting ${per}` : ''}. Stacks fade after ${e.decayMs / 1000} seconds without gaining one.${max}`;
+      return `Gain a stack of ${skillName(e.buff)} ${src}${e.when ? ' ' + conditionText(e.when) : ''} (max ${e.max})${per ? `, each granting ${per}` : ''}.${Number.isFinite(e.decayMs) ? ` Stacks fade after ${e.decayMs / 1000} seconds without gaining one.` : ''}${max}`;
     }
     case 'resourceDebt': return `${names(e)} can be cast without enough resource, down to -${e.max}${e.regenPct ? `; while below zero, resource regenerates ${Math.abs(e.regenPct)}% ${e.regenPct > 0 ? 'faster' : 'slower'}` : ''}.`;
     case 'dashCooldown': return `Dash cooldown is reduced by ${Math.round((1 - e.mult) * 100)}%.`;
@@ -467,7 +467,7 @@ export function effectTokens(e: PowerEffect): string[] {
     case 'cheatDeath': return [n(e.lifePct), n(e.cooldownMs / 1000), ...(e.invulnMs ? [n(e.invulnMs / 1000)] : [])];
     case 'controlImmunity': return e.when ? conditionTokens(e.when, n) : [];
     case 'projectile': return [...(e.distBonus ? [...a(e.distBonus.pct), n(e.distBonus.atUnits)] : []), ...(e.bounces ? [n(e.bounces)] : [])];
-    case 'stacking': return [n(e.max), n(e.decayMs / 1000), ...a(e.stackDmg), ...a(e.stackIas), ...(e.onMax?.buff ? [n(e.onMax.buff.ms / 1000)] : [])];
+    case 'stacking': return [n(e.max), ...(Number.isFinite(e.decayMs) ? [n(e.decayMs / 1000)] : []), ...a(e.stackDmg), ...a(e.stackIas), ...(e.onMax?.buff ? [n(e.onMax.buff.ms / 1000)] : [])];
     case 'resourceDebt': return [n(e.max)];
     case 'deflect': return [n(e.range), ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'tagGrant': return [...(e.add ?? []).map(cap), ...(e.fromSlot !== undefined ? [n(e.fromSlot + 1)] : [])];

@@ -4,7 +4,7 @@ import { CLASSES } from './data/classes';
 import { skillsForClass } from './data/skills';
 import {
   AFFIXES, AFFIX_BY_STAT, BASES, GEM_IDS, LEGENDARIES, MAGIC_PREFIX, MAGIC_SUFFIX, RARE_PREFIX, RARE_SUFFIX, SETS,
-  affixScale, type AffixDef, type BaseItem,
+  affixFits, affixScale, type AffixDef, type BaseItem,
 } from './data/items';
 import { Rng } from './math';
 import type { AffixRoll, AncientTier, ClassId, Element, Item, ItemKind, ItemLook, Rarity, Slot, StatId } from './types';
@@ -119,9 +119,9 @@ function rollAffixValue(rng: Rng, def: AffixDef, kind: ItemKind, ilvl: number, a
   return { value, min, max };
 }
 
-function pickAffix(rng: Rng, kind: ItemKind, primary: boolean, taken: Set<string>, takenGroups: Set<string>): AffixDef | null {
+function pickAffix(rng: Rng, base: BaseItem, primary: boolean, taken: Set<string>, takenGroups: Set<string>): AffixDef | null {
   const pool = AFFIXES.filter((a) =>
-    a.primary === primary && a.weight > 0 && a.ranges[kind] && !taken.has(a.stat) && !(a.group && takenGroups.has(a.group)));
+    a.primary === primary && a.weight > 0 && affixFits(a, base) && !taken.has(a.stat) && !(a.group && takenGroups.has(a.group)));
   if (!pool.length) return null;
   return rng.weighted(pool.map((a) => [a, a.weight] as const));
 }
@@ -262,9 +262,9 @@ export function generateItem(rng: Rng, o: GenOptions): Item {
       addAffix(AFFIX_BY_STAT.weaponDmgPct);
       nPrimary--;
     }
-    for (let i = 0; i < nPrimary; i++) addAffix(pickAffix(rng, kind, true, taken, takenGroups));
+    for (let i = 0; i < nPrimary; i++) addAffix(pickAffix(rng, base, true, taken, takenGroups));
   }
-  for (let i = 0; i < nSecondary; i++) addAffix(pickAffix(rng, kind, false, taken, takenGroups));
+  for (let i = 0; i < nSecondary; i++) addAffix(pickAffix(rng, base, false, taken, takenGroups));
 
   const tier = baseTierIndex(ilvl);
   let name = base.names[tier];
