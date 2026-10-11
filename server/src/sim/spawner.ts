@@ -15,6 +15,8 @@ import { creditQuestWave } from '../quests';
 import { XP_SHARE_RANGE } from '../config';
 
 let packSeq = 1;
+/** Harnesses only (server/test/sim.ts freshStreams): restart the pack sequence; returns the previous value. */
+export function resetPacksForHarness(next = 1): number { const was = packSeq; packSeq = next; return was; }
 
 export function themeMonsters(theme: Theme): MonsterDef[] {
   const t = theme === 'town' ? 'glade' : theme;

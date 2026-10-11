@@ -7,3 +7,5 @@ export const nextId = () => counter++;
  * exactly, so without this a kit's clear time depended on what ran before it in the process.
  */
 export function resetIdsForHarness(next = 1) { counter = next; }
+/** Harnesses only: the next id (to restore the sequence after a fresh section). */
+export const peekIdForHarness = () => counter;

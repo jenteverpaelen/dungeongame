@@ -13,6 +13,9 @@ import {
   type Item, type ItemKind, type S2C, type Slot, type Snapshot,
 } from '../src/shared';
 import { Instance, createInstance } from '../src/sim/instance';
+import { peekIdForHarness, resetIdsForHarness } from '../src/sim/ids';
+import { resetPacksForHarness } from '../src/sim/spawner';
+import { resetItemIdsForHarness } from '../../shared/src/items';
 import { interpolateLog, levelDamage, levelToughness, tuningOverrides } from '../src/sim/tuning';
 import { createMob } from '../src/sim/monsters';
 import { pickTarget } from '../src/sim/brain';
@@ -361,9 +364,19 @@ function newField(zoneId = 'whispering_glade', fixedSeed?: number): Instance {
  * streams), so each class's rift now starts from the state its section and the seed give, not from the classes before it.
  */
 function freshStreams<T>(section: number, fn: () => T): T {
-  const saved = { simRng, gearRng, seedCounter, instSeq };
-  simRng = new Rng(SIM_SEED + section); gearRng = new Rng(4242 + section); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START;
-  try { return fn(); } finally { ({ simRng, gearRng, seedCounter, instSeq } = saved); }
+  const saved = { simRng, gearRng, seedCounter, instSeq }, ids = peekIdForHarness(), random = Math.random;
+  // Another SIM_SEED also gives another map and other gear rolls (the default seed keeps offset 0).
+  const off = ((SIM_SEED - 0xc0ffee) % 997 + 997) % 997;
+  simRng = new Rng(SIM_SEED + section); gearRng = new Rng(4242 + section + off); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START + off;
+  Math.random = () => simRng.next(); // an earlier section may have pointed it at its own stream (dodgeScenario)
+  // Entity ids, item ids and pack ids too: monster separation breaks exact overlaps by id (ids.ts). A high fixed id base
+  // stays clear of live ids; the old sequences continue afterwards.
+  resetIdsForHarness(1e9 + section * 1e7);
+  const items = resetItemIdsForHarness(), packs = resetPacksForHarness(1e6);
+  try { return fn(); } finally {
+    ({ simRng, gearRng, seedCounter, instSeq } = saved); Math.random = random;
+    resetIdsForHarness(Math.max(ids, peekIdForHarness())); resetItemIdsForHarness(items); resetPacksForHarness(Math.max(packs, resetPacksForHarness()));
+  }
 }
 function newRift(level: number, difficulty: number, theme: 'glade' | 'ashen', onDone?: () => void): Instance {
   return createInstance({ zoneId: 'rift', channel: 1, key: `rift#${instSeq++}`, seed: 77 + instSeq * 13, theme, level, difficulty, owner: 'Bot', onRiftComplete: onDone }) as Instance;
@@ -1704,9 +1717,11 @@ if (!only || only === 'rift') {
       // Torment II in 12 minutes with the audit's Siegebreaker 6 Sentry kit [M]; 64.6–81.5% before the last fits and the
       // Arbalest's pierce cap shifted the seeded stream). The mage wave put the mage on the budget too (old sets ×180, v2
       // Fallen Star kit ×13 [M]; 87.3–93.6% of a Torment II rift in 12 minutes across seeded streams [M], MAGE-PILOT.md §7).
-      // Own streams (freshStreams), 5 seeds after the ranger merge [M]: warrior 73.0–84.3 %, ranger 14.8–33.0 %, mage
-      // 59.6–91.1 % (the warrior's 22.9 % in the shared stream was the classes before it). The ranger sits at the floor in
-      // its own stream whatever the recast rule (no floor 25.2–36.0 %, plain 250 ms floor 28.8–31.1 %): reported, not lowered.
+      // Own state (freshStreams; another SIM_SEED = another map and gear rolls), 9 seeds after the ranger merge [M]:
+      // warrior 80.9 (default) / 78.7 / 100 / 5.6 / 49.3 / 82.2 / 77.2 / 44.1 / 59.1 %, ranger 21.5 (default) / 56.0 / 90.4 /
+      // 54.6 / 53.0 / 66.4 / 79.4 / 61.0 / 22.9 %, mage 58.1 (default) / 93.0 / 100 / 42.7 / 73.9 / 89.3 / 87.2 / 71.3 /
+      // 77.9 %. The runs under 30 % are death spirals on one map (9–20 deaths). The default map is one of them for the
+      // ranger: reported to the lead, not lowered (FOUNDATION.md §13.15).
       freshStreams(70, () => riftScenario(cls, 70, 5, true, 'ashen', 30));
   }
 }

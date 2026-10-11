@@ -249,6 +249,6 @@
   - The plain recast floor slowed the new ranger (L25+ +1.4 ± 0.6 s over 10 seeds; Multishot bursts spread). It is
     now refused only for recasts the hero does not pay for. The gate's L25+ class median went from 6.87 to 6.53 s.
   - L25+ still sits at the 6.4 s target; that is the combined classes' pace.
-  - Rift sections run in their own streams: warrior L70 73–84 %, ranger 15–33 % (at the 30 % floor; reported, not
-    lowered), mage 60–91 %.
+  - Rift sections run in their own state. L70 medians over 9 maps: warrior 77 %, ranger 56 %, mage 78 %.
+  - The default map is a ranger death spiral (21.5 %, 13 deaths), so `simulation` fails there. Reported, not lowered.
   - Details in FOUNDATION.md §13.15.

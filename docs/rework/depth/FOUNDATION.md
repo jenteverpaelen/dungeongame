@@ -1107,15 +1107,25 @@ floor against no floor. Differences are paired per seed, ± one standard error.
   6.55 s). That is the pace of the combined classes, not a rule of this branch: a balance question for the owner.
   Targets are not re-recorded.
 
-**Rift floors in their own streams (`server/test/sim.ts` freshStreams).**
-* Each class's L1, L20 and L70 rift now starts from a fixed state for its section and the seed: Math.random, gear
-  stream, character and instance counters. The shared state is restored afterwards.
-* L70 Torment II, progress in 12 minutes [M]:
-  * 5 seeds, refined floor: warrior 76.4 / 75.0 / 84.3 / 73.0 / 82.3 %; ranger 33.0 / 22.7 / 14.8 / 32.5 / 28.2 %;
-    mage 79.6 / 91.1 / 59.6 / 86.8 / 83.5 %.
-  * 3 seeds without the floor: ranger 28.2 / 36.0 / 25.2 %.
-  * 3 seeds with the plain floor: ranger 28.8 / 31.1 / 30.6 %.
-  * Without the class gate: identical.
-* The warrior's 22.9 % on the lead's tree came from the shared stream.
-* The ranger really sits at the 30 % floor in its own stream, whatever the recast rule. It passes on the default seed
-  (33.0 %) and misses on 3 of 5 seeds. Reported, not lowered.
+**Rift floors in their own state (`server/test/sim.ts` freshStreams).**
+* Each class's L1, L20 and L70 rift starts from a fixed state for its section, then the shared state is restored. The
+  fixed state covers:
+  * the random streams: `Math.random` (which the dodge section had pointed at its own stream), the gear stream;
+  * the counters: character, instance (so the map), entity id, item id and pack;
+  * another `SIM_SEED` gives another map and other gear rolls.
+* Proof [M]: the rift lines of a full `sim.ts` run equal a `sim.ts rift` run.
+* L70 Torment II, progress in 12 minutes, 9 seeds (default first) [M]:
+  * warrior: 80.9 / 78.7 / 100 / 5.6 / 49.3 / 82.2 / 77.2 / 44.1 / 59.1 %, median 77.2 %;
+  * ranger: 21.5 / 56.0 / 90.4 / 54.6 / 53.0 / 66.4 / 79.4 / 61.0 / 22.9 %, median 56.0 %;
+  * mage: 58.1 / 93.0 / 100 / 42.7 / 73.9 / 89.3 / 87.2 / 71.3 / 77.9 %, median 77.9 %.
+* The runs under 30 % are death spirals on one map: warrior seed 3 died 9 times in 21 kills, ranger default 13 deaths,
+  ranger seed 8 20 deaths.
+* The recast rule does not explain the ranger: an earlier 3-seed check with an incomplete fresh state gave ranger
+  25.2–36.0 % without the floor and 28.8–31.1 % with the plain floor. The class gate changes nothing.
+* The warrior's 22.9 % on the lead's tree came from the shared state. In its own state it clears 80.9 % on the default
+  seed.
+* The default map is one of the ranger's death-spiral maps (21.5 %), so `simulation` fails there. Not lowered; options
+  for the lead:
+  * the median of three maps, as for the pace gate;
+  * the pending Torment re-fit;
+  * ranger survivability (ranger lane).
