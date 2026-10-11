@@ -73,6 +73,40 @@ export function skillCooldownMs(p: Player, rt: SkillRuntime): number {
   return rt.def.cooldown * 1000 * Math.max(0.05, f);
 }
 
+/** One attack at the player's current attack speed (the primary attack's interval). */
+export function attackIntervalMs(p: Player): number {
+  const aps = Math.max(0.2, p.ctx.d.aps * (1 + p.live.ias / 100));
+  return 1000 / aps;
+}
+
+/**
+ * [P] Recast floor for a skill that has no cooldown: within 250 ms of its last bar cast it can be cast again only while
+ * the hero has less resource than it had before that cast, i.e. while it is paying for the casts. A recast that refunds
+ * or generation have already paid back (resource at or above the earlier level), or a free one, waits for the floor;
+ * free castSkill procs always wait. This stops the loops the floor exists for (a Spender every tick on refunds, or with
+ * unlimited resource) and leaves resource-limited bursts alone.
+ * Why not the plain floor (2026-10-11, after the ranger wave) [M]: leveling sim, 10 seeds × 120 min per class, paired
+ * against no floor, the plain 250 ms floor slowed the ranger at every band (L10+ +0.7 ± 0.4 s, L25+ +1.4 ± 0.6 s
+ * champion kills; L25 reached 2.7 min later, −1.1 levels at 120 min): its Multishot bursts were spread out. The same
+ * spreading sped the warrior (L25+ −0.9 ± 1.1 s) and the mage (−1.2 ± 1.0 s), where bursts overlapped. The pace gate's
+ * L25+ class median was the same either way (6.87 vs 6.89 s), FOUNDATION.md §13.14.
+ * Earlier measurement of the plain floor:
+ * Measured [M] in all 216 kits of WARRIOR-PARITY.json (one encounter each, seed 101):
+ *   * without a floor, Sawtooth Hatchet and Quakeline were cast on consecutive 50 ms ticks in bursts, and with
+ *     unlimited resource a spender was cast every tick (20 per second);
+ *   * with the plain floor, Sawtooth Hatchet fell from 2.42 to 1.13 casts per second, yet the kits cleared their encounters
+ *     1.6 % faster in total (6979 → 6865 s): the bursts mostly wasted Fury on overlapping hatchets.
+ * 250 ms = at most 4 casts per second per skill. The alternative is one cast per attack interval, the way D3, D4 and
+ * PoE bind skills to attack speed [K] (the mage's Stormglass Orb uses it, mageM1.ts). Leveling sim, 9 seeds × 120 min
+ * per class before the ranger wave, paired against no floor (FOUNDATION.md §13.14) [M]:
+ *   * the plain floor: levels reached and L25+ champion kill times within noise (warrior −0.7 ± 0.5 s, ranger −0.6 ± 0.5 s,
+ *     mage +0.7 ± 0.9 s);
+ *   * one cast per attack interval: kill times within noise as well, but one warrior run of nine collapsed (85 deaths,
+ *     level 17 instead of 25–30), warrior deaths 107 vs 21 (no floor) and mage deaths 27 vs 19, so it is a balance
+ *     decision, not this guard.
+ */
+export const MIN_RECAST_MS = 250;
+
 export function skillRadius(rt: SkillRuntime): number {
   return rt.def.radius * Math.max(0.2, 1 + (rt.mods.radius ?? 0) / 100);
 }

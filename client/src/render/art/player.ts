@@ -20,6 +20,7 @@ import { SHAPE_FAMILY } from './gearVisuals';
 import { weaponDrawing, type WFloat } from './weaponDrawing';
 import { weaponSkinOf, type WeaponSkin } from './weaponSkin';
 import { WeaponImpacts } from './weaponImpact';
+import { lazyDepthSort } from '../depthSort';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -28,7 +29,7 @@ import { ACTIONS, type ActionDef, type ActionSpec } from '../actions';
 import type { PlayerView, ViewState } from '../types';
 import { Sheet, bakeSheet, type PartSpec } from './bake';
 import {
-  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, levelUpPose, newPose, ploughPose, reachOf, spinPose,
+  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, beamPose, levelUpPose, newPose, ploughPose, reachOf, spinPose,
   type ActCtx, type Kit, type Pose, type V3, type WeaponKind,
 } from './choreo';
 import { OUT } from './draw';
@@ -396,10 +397,10 @@ const STRIKE_POSES = new Set(['swing', 'double', 'leapSlam', 'overhead']);
 interface Fly { s: Sprite; streak: Sprite; vx: number; vy: number; t: number; life: number }
 interface Note { s: Sprite; t: number; x: number; y: number }
 
-const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick', 'toll']);
+const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick', 'toll', 'sidearm']);
 /** Non-directional skills (or their gather phase) turn the hero towards the camera so the whole-body pose
  *  reads: ms the hero presents before turning to the target. */
-const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175, plant: 1e9 };
+const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175, plant: 1e9, release: 1e9 };
 const presents = (pose: string, t: number) => t < (PRESENT_MS[pose] ?? -1);
 const SPELL_POSES = new Set(['flick', 'callDown', 'thrust', 'groundBurst', 'summon', 'empower']);
 
@@ -485,8 +486,11 @@ export class PlayerArt implements PlayerView {
   private moveBlend = 0;
   private chan = 0;
   private spinPhase = 0;
-  /** Which loop F_CHANNEL plays: the last channel skill this hero started (`cast` of whirlwind → spin, ironplough → plough). */
-  private chanPose: 'spin' | 'plough' = 'spin';
+  /** Which loop F_CHANNEL plays: the last channel skill this hero started (`cast` of whirlwind → spin, ironplough → plough,
+   *  thrumming_ray → beam). */
+  private chanPose: 'spin' | 'plough' | 'beam' = 'spin';
+  /** Beam channel: the world point the beam is held on (cast target, then `aimAt` from the ray effect) and its resonance. */
+  private beamAt: { x: number; y: number; res: number } | null = null;
   private castB = 0;
   private dashB = 0;
   private stunB = 0;
@@ -531,7 +535,7 @@ export class PlayerArt implements PlayerView {
     this.mode = mode === true ? 'npc' : mode === false ? 'portable' : mode;
     this.root.addChild(this.rig);
     this.rig.addChild(this.glowBack, this.shadow, this.under, this.body, this.over);
-    this.body.sortableChildren = true;
+    lazyDepthSort(this.body); // part depths change every frame; re-sort only when the order really changes
     this.setLook(look);
   }
 
@@ -557,6 +561,7 @@ export class PlayerArt implements PlayerView {
     for (const c of this.over.removeChildren()) c.destroy({ children: true });
     for (const c of this.glowBack.removeChildren()) c.destroy({ children: true });
     this.fxAdd = new Container();
+    lazyDepthSort(this.fxAdd); // hand / tip glows follow the hands' depth every frame
     this.fxAdd.zIndex = 1000;
     this.body.addChild(this.fxAdd);
     this.ribbonF = new Ribbon(22); this.ribbonB = new Ribbon(22);
@@ -860,13 +865,14 @@ export class PlayerArt implements PlayerView {
       def = wk === 'bow' || wk === 'xbow' || wk === 'hxbow' ? ACTIONS.hungering_arrow : wk === 'staff' || wk === 'wand' ? ACTIONS.magic_missile : ACTIONS.cleave;
     }
     // channels (whirlwind, ironplough) are driven by F_CHANNEL; the cast only picks which loop it shows
-    if (def.pose === 'spin' || def.pose === 'plough') {
-      if (def.pose === 'plough' && this.spinPhase !== 0) {
+    if (def.pose === 'spin' || def.pose === 'plough' || def.pose === 'beam') {
+      if (def.pose !== 'spin' && this.spinPhase !== 0) {
         // a plough started while a whirlwind is still winding down: keep the visible facing, drop the spin
         const deg = (this.spinPhase / D2R) % 360;
         this.yawB = wrapDeg(this.yawB + deg); this.yawH = wrapDeg(this.yawH + deg); this.spinPhase = 0;
       }
       this.chanPose = def.pose;
+      if (def.pose === 'beam') { this.aimAt(a.tx, a.ty, 0); }
       return;
     }
     const now = this.t * 1000;
@@ -882,6 +888,9 @@ export class PlayerArt implements PlayerView {
       case 'lob': shots.push(def.strikeMs); break;
       case 'skyShot': shots.push(def.strikeMs, def.strikeMs + 25, def.strikeMs + 50); break;
       case 'whistle': notes.push(def.strikeMs, def.strikeMs + 110); break;
+      // ranger M1: Overcast Volley looses two arrows skyward; Quarry Mark whistles once (Skipstone's stone is VFX)
+      case 'loft': shots.push(def.strikeMs, def.strikeMs + 70); break;
+      case 'point': notes.push(def.strikeMs); break;
     }
     if (this.act) this.lastAct = this.act;
     this.act = { def, skill: a.skill, start: now, cycle: Math.max(180, a.cycleMs || 800), alt, tx: a.tx, ty: a.ty, primary, shots, fired: 0, notes };
@@ -889,6 +898,14 @@ export class PlayerArt implements PlayerView {
     else this.combatT = 2.5;
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
+    if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
+  }
+
+  /** Beam channel: hold the facing on this world point (the VFX ray calls it on every beam tick); `res` 0..100. */
+  aimAt(x: number, y: number, res = 0): void {
+    if (this.chanPose !== 'beam') return;
+    const yaw = facingYaw(x - this.sx, y - this.sy, this.side);
+    this.beamAt = { x, y, res: clamp(res / 100) };
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
   }
 
@@ -917,6 +934,14 @@ export class PlayerArt implements PlayerView {
   }
 
   // ─────────────────────────── per frame ───────────────────────────
+
+  /** The sheet this rig draws from was replaced or destroyed, so the next update() rebuilds the rig. Pose-cached crowd
+   *  heroes (scene.ts) skip updates between their 24 Hz slots and must update now: a destroyed placeholder sheet leaves
+   *  live parts without shapes, and rendering them threw inside Pixi and stopped the render loop. */
+  get stale(): boolean {
+    const cur = this.entry?.sheet;
+    return this.sheet.destroyed || (!!cur && !cur.destroyed && cur !== this.sheet);
+  }
 
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
@@ -980,6 +1005,9 @@ export class PlayerArt implements PlayerView {
     } else if (act) {
       const yaw = facingYaw(act.tx - s.x, act.ty - s.y, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
+    } else if (chanOn && this.chanPose === 'beam' && this.beamAt) {
+      const yaw = facingYaw(this.beamAt.x - s.x, this.beamAt.y - s.y, this.side);
+      if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
     } else if (moving && speed > 25 && !(chanOn && spinChan)) {
       const yaw = facingYaw(s.vx, s.vy, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
@@ -1019,6 +1047,7 @@ export class PlayerArt implements PlayerView {
       else actionPose(P, actCtx);
     }
     if (spinChan) spinPose(P, this.kit, this.spinPhase, this.chan);
+    else if (this.chanPose === 'beam') beamPose(P, this.kit, t, this.chan, this.beamAt?.res ?? 0);
     else ploughPose(P, this.kit, t, this.chan);
 
     // hit flinch: away from the facing side, squash

@@ -6,7 +6,7 @@ import { autoRuleForSlot, DEFAULT_AUTO_RULE, type AutoCastRule } from '../../../
 import type { TargetPriority } from '../../../shared/src/targetPriority';
 import { getBuff, hasDot, shotBlocked } from './effects';
 import type { Instance } from './instance';
-import { maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
+import { attackIntervalMs, MIN_RECAST_MS, maxSummonsOf, skillCooldownMs, skillCost, skillRadius } from './playerctx';
 import { castPrimary, castSkill, channelTick, endChannel, startChannel } from './skills';
 import { debtFloor, extraCharges, trackCast } from './powerActions';
 import { firePowerProcs } from './powerRuntime';
@@ -200,6 +200,8 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   // Charges (rule change): the recharge clock may run up to `extra` cooldowns ahead.
   const extra = p.ctx.powers.rules.charges.size ? extraCharges(p, id) : 0;
   if (extra ? (p.readyAt.get(id) ?? 0) - inst.t > extra * skillCooldownMs(p, rt) : (p.readyAt.get(id) ?? 0) > inst.t) return `${rt.def.name} is on cooldown`;
+  // Recast floor (playerctx.MIN_RECAST_MS): inside the window only a recast the hero is not paying for is refused.
+  if ((p.recastAt.get(id) ?? -Infinity) > inst.t && p.res >= (p.recastRes.get(id) ?? Infinity)) return `${rt.def.name} is still being used`;
   if (rt.def.auto.when === 'channel') {
     if (p.channel) return 'Already channeling';
     const a = rt.def.auto;
@@ -215,6 +217,7 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   if (floor === 0 ? p.res < cost : p.res - cost < floor) return `Not enough resource for ${rt.def.name}`;
   if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
   const tracked = p.ctx.powers.rules.spendRefund.length ? trackCast(inst, p, id, cost) : false;
+  const resBefore = p.res;
   p.acting = id;
   const cast = castSkill(inst, p, rt);
   p.acting = undefined;
@@ -225,6 +228,7 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   firePowerProcs(inst, p, 'cast', { skill: id });
   const cd = skillCooldownMs(p, rt);
   if (cd > 0) p.readyAt.set(id, extra ? Math.max(inst.t, p.readyAt.get(id) ?? 0) + cd : inst.t + cd);
+  else { p.recastAt.set(id, inst.t + MIN_RECAST_MS); p.recastRes.set(id, resBefore); } // no cooldown: recast floor (playerctx.MIN_RECAST_MS)
   p.castFlagMs = 300;
   p.attackSeq++;
   return null;
@@ -273,8 +277,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   if (!tgt) { p.atkCdMs = 0; return; }
   castPrimary(inst, p, tgt);
   if (c.powers.procs.attack) firePowerProcs(inst, p, 'attack', { skill: c.primary.def.id, mob: tgt });
-  const aps = Math.max(0.2, c.d.aps * (1 + p.live.ias / 100));
-  p.atkCdMs += 1000 / aps;
+  p.atkCdMs += attackIntervalMs(p);
   if (p.atkCdMs < 0) p.atkCdMs = 0;
 }
 

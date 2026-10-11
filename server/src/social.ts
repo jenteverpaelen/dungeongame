@@ -1,5 +1,6 @@
 import {CHAT_CHANNELS,CHAT_MAX_LEN,emptySocial,SOCIAL_LIMIT,validSocial,type ChatChannel,type SocialState,type SocialView} from '../../shared/src/social';
 import type {Session} from './net/session';
+import { BUILD_CODE_RE, decodeBuild, type BuildCode } from '../../shared/src/buildCode';
 import type {Parties} from './party';
 import type {CmdResult} from './world';
 import {SLOTS,type Item} from '../../shared/src/types';
@@ -81,6 +82,9 @@ export class Social {
       if(!owned)return fail('You no longer own that item');
       item=structuredClone(owned); text=`[${item.name}]`;
     }
+    // Build codes (build tools T5): a valid code becomes a build card; anything else stays plain text.
+    let build: BuildCode | undefined;
+    if(!link&&BUILD_CODE_RE.test(text)){const d=decodeBuild(text);if(d.ok)build=d.build;}
     if(this.community&&!this.community.canSpeak(s))return fail('This character is muted. Contact the owner.');
     if(this.community&&!this.community.filter(text))return fail('That message is blocked by the chat filter');
     let recipients:Session[];
@@ -99,7 +103,7 @@ export class Social {
     const messageId=randomUUID();
     for(const peer of recipients){
       if(peer!==s&&(this.blocked(s,peer)||has(this.state(peer).muted,s.save.name)||(ch!=='zone'&&!this.enabled(peer))))continue;
-      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(item?{item}:{}),...(ch==='whisper'?{to:recipients[1].save.name}:{})};
+      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(item?{item}:{}),...(build?{build}:{}),...(ch==='whisper'?{to:recipients[1].save.name}:{})};
       this.community?.remember(peer,message);peer.send(message);
     }
     return {ok:true};

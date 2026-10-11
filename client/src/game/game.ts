@@ -257,7 +257,7 @@ export class Game {
         break;
       }
       case 'chat':
-        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item });
+        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item, build:m.build });
         break;
       case 'afk':
         ui.set({ afk: m });
@@ -522,6 +522,7 @@ export class Game {
       return;
     }
     if (s?.portalTo) { void this.conn?.cmd(zone?.kind === 'rift' ? 'leave' : 'travel', { zone: s.portalTo }); return; }
+    if (this.nearestDummy(x, y)) { togglePanel('bench', true); return; }
     const portal = this.nearestPortalEntity(x, y);
     if (portal) void this.conn?.cmd(zone?.kind === 'town' ? 'riftEnter' : 'leave');
   }
@@ -537,6 +538,13 @@ export class Game {
     ui.set({ artisan: role });
     if (!ARTISAN_FUNCTIONS[role].includes(cubeUI.get().fn)) cubeUI.set({ fn: ARTISAN_FUNCTIONS[role][0], affix: null, result: null });
     togglePanel('cube', true);
+  }
+
+  /** A town training dummy within reach (they are monsters, not statics): opens the bench (build tools T3). */
+  private nearestDummy(x: number, y: number) {
+    if (this.world.zone?.kind !== 'town') return null;
+    for (const e of this.world.entities.values()) if (e.kind === 'mob' && e.desc.t === 'training_dummy' && Math.hypot(e.x - x, e.y - y) < 150) return e;
+    return null;
   }
 
   private nearestPortalEntity(x: number, y: number) {
@@ -615,6 +623,7 @@ export class Game {
       if (s?.poiId) interact = { role: 'clue', name: s.name };
       else if (s?.role) interact = { role: s.role, name: s.name };
       else if (s?.portalTo) interact = { role: 'waypoint', name: s.name };
+      else if (this.nearestDummy(px, py)) interact = { role: 'dummy', name: this.nearestDummy(px, py)!.desc.n ?? 'Training Dummy' };
       else if (this.nearestPortalEntity(px, py)) interact = { role: 'obelisk', name: this.world.zone?.kind === 'town' ? 'Enter the Faultline' : 'Return to Hearthmere' };
     }
     const sameTarget = st.target && target && st.target.id === target.id && Math.abs(st.target.hpFrac - target.hpFrac) < 0.005;

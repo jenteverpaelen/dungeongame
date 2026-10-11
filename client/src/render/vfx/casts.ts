@@ -7,6 +7,7 @@ import type { VfxCore } from './core';
 import type { AoeFx } from './aoe';
 import type { Telegraphs } from './telegraphs';
 import { EL_ARCANE, EL_COLD, EL_FIRE, EL_LIGHT, EL_PHYS, TAU, clamp, pal, rand } from './util';
+import type { MageFx } from './mage';
 
 type Cast = Extract<GameEvent, { e: 'cast' }>;
 type Dash = Extract<GameEvent, { e: 'dash' }>;
@@ -29,6 +30,9 @@ function hasFlag(sk: string, rune: string | undefined, flag: string): boolean {
 }
 
 export class Casts {
+  /** Mage M1 cast flourishes (mage.ts), injected by Vfx. */
+  mage: MageFx | null = null;
+
   constructor(private V: VfxCore, private aoe: AoeFx, private tele: Telegraphs) {}
 
   cast(ev: Cast): void {
@@ -41,6 +45,7 @@ export class Casts {
     const hx = x + dir * 14, hz = HAND;
     const mine = V.isMine(ev.s);
     const vol = mine ? 1 : 0.5;
+    if (this.mage?.cast(ev, el, mine)) return;
     switch (ev.sk) {
       case 'cleave': {
         const wide = hasFlag('cleave', ev.r, 'wideArc');
@@ -209,6 +214,72 @@ export class Casts {
           p.tintTo(el === EL_LIGHT ? 0xb9a2ff : el === EL_FIRE ? 0xffa040 : 0xfff0d0);
         }
         s.flash(x, y, hz, 50, 0xfff0d0, 0.1, 0.7);
+        break;
+      }
+      // ── ranger M1 (the impacts arrive as proj / aoe events; these are the caster's flourishes) ──
+      case 'skipstone_bolt': {
+        // Sidearm flick: a low, flat release — a pale skim of droplets off the hand along the throw.
+        const c = el === EL_COLD ? 0xc8f0ff : el === EL_LIGHT ? 0xd6c2ff : 0xdff3f6;
+        const lz = 24;
+        s.flash(hx, y, lz, 24, c, 0.07, 0.6);
+        for (let i = 0, n = s.n(4); i < n; i++) {
+          const p = s.aAdd.add(T.drip, hx, y, rand(0.2, 0.32));
+          p.z = lz; p.vx = Math.cos(a + rand(-0.4, 0.4)) * rand(120, 220); p.vy = Math.sin(a) * rand(60, 120); p.vz = rand(20, 70); p.gz = 600;
+          p.align = true; p.w0 = 3.2; p.w1 = 1.6; p.k = 1.3; p.fo = 0.4; p.tintTo(c);
+        }
+        const sw = s.aAdd.add(T.streak, hx, y + 1, 0.12);
+        sw.z = lz; sw.rotation = a; sw.anchorX = 0.1; sw.w0 = 20; sw.w1 = 54; sw.k = 0.3; sw.a0 = 0.5; sw.fo = 0.2; sw.tintTo(c);
+        break;
+      }
+      case 'spring_snare': case 'pitch_mortar': {
+        // Kneel and set: dust kicked up around the knee, a glint of iron (a little soot for the mortar's charge).
+        const px = ev.sk === 'pitch_mortar' ? x : x + dir * 14;
+        for (let i = 0, n = s.n(7); i < n; i++) s.dust(px + rand(-14, 14), y + rand(-5, 5), 14, 34, 0xc9b597, rand(0.4, 0.6), 0.38, rand(-40, 40), rand(-20, 20));
+        V.after(0.18, () => {
+          s.glint(px + dir * 6, y, 8, 16, 0xeef2f6, 0.22, 0.8);
+          if (ev.sk === 'pitch_mortar') s.smoke(px, y, 10, 12, 34, 0x3a3430, 0.8, 0.35, 20);
+        });
+        V.sound(ev.sk === 'pitch_mortar' ? 'sentry' : 'snare_arm', x, y, vol * 0.6);
+        break;
+      }
+      case 'overcast_volley': {
+        // Loosed upward: a fan of streaks climbing steeply toward the target area, an upward "fwip".
+        const c = el === EL_COLD ? 0xd8f4ff : el === EL_LIGHT ? 0xd6c2ff : 0xfff0d0;
+        s.flash(hx, y, hz + 8, 44, c, 0.1, 0.75);
+        for (let i = 0, n = 3 + s.n(4); i < n; i++) {
+          const p = s.aAdd.add(T.streak, hx + rand(-6, 6), y + 1, rand(0.2, 0.3));
+          p.z = hz + 6; p.vz = rand(700, 950); p.vx = Math.cos(a) * rand(120, 220); p.vy = Math.sin(a) * rand(40, 90);
+          p.align = true; p.anchorX = 0.9; p.w0 = 46; p.w1 = 30; p.k = 0.32; p.a0 = 0.8; p.fo = 0.3; p.tintTo(c);
+        }
+        V.sound('overcast_fwip', x, y, vol);
+        break;
+      }
+      case 'quarry_mark': {
+        // Point and whistle: a pale feather flicks off the pointing hand toward the quarry; a hawk's cry answers.
+        const fx = x + dir * 18;
+        s.glint(fx, y, 40, 18, 0xfff4d6, 0.2, 0.9);
+        for (let i = 0, n = 1 + s.n(2); i < n; i++) {
+          const f = s.aAdd.add(T.feather, fx, y, rand(0.4, 0.55));
+          f.z = 40; f.vx = Math.cos(a) * rand(160, 240); f.vy = Math.sin(a) * rand(80, 140); f.vz = rand(30, 60); f.drag = 2.2;
+          f.w0 = 12; f.w1 = 8; f.vr = rand(-4, 4); f.fo = 0.4; f.a0 = 0.8; f.tintTo(0xf6edd2);
+        }
+        V.sound('quarry_cry', x, y, vol);
+        break;
+      }
+      case 'murmuration': {
+        // The raised hand releases a burst of starlings that pour up and away toward the flock.
+        const rx = x + dir * 4, rz = 72;
+        for (let i = 0, n = 10 + s.n(22); i < n; i++) {
+          const aa = a + rand(-0.9, 0.9);
+          const p = s.aBody.add(i % 2 ? T.bird : T.birdUp, rx + rand(-4, 4), y, rand(0.45, 0.8));
+          p.z = rz + rand(-6, 6); p.vx = Math.cos(aa) * rand(90, 220); p.vy = Math.sin(aa) * rand(30, 90); p.vz = rand(90, 220); p.drag = 0.6;
+          p.w0 = rand(9, 12); p.w1 = rand(6, 9); p.k = 0.6; p.fo = 0.55; p.vr = rand(-1.5, 1.5); p.tintTo(i % 4 ? 0x1c1c24 : 0x3a3a46);
+        }
+        for (let i = 0, n = s.n(5); i < n; i++) {
+          const f = s.aBody.add(T.feather, rx, y, rand(0.6, 0.9));
+          f.z = rz; f.vx = rand(-50, 50); f.vy = rand(-20, 20); f.vz = rand(10, 50); f.gz = 90; f.drag = 2; f.w0 = 7; f.w1 = 6; f.vr = rand(-5, 5); f.fo = 0.5; f.tintTo(0x2a2a34);
+        }
+        V.sound('flock_flutter', x, y, vol);
         break;
       }
       case 'sentry': case 'companion': case 'hydra': {

@@ -30,9 +30,13 @@ import type { Mob, Player, PowerState } from './types';
 export type RCondition =
   | Exclude<Condition, { channeling: unknown } | { all: unknown } | { any: unknown }>
   | { channeling: true } | { channelingIn: ReadonlySet<string> } | { all: RCondition[] } | { any: RCondition[] };
-export interface OwnTerm { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
-export interface HitTerm { kind: 'stacks' | 'cycle' | 'cond'; skills: ReadonlySet<string> | null; when?: RCondition; pct: number }
-export interface VulnTerm { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
+/** Where a term came from: `<source kind>:<source id>` and the effect's index in that source (build tools only). */
+export interface TermSource { src: string; i: number }
+export interface OwnTerm extends TermSource { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
+export interface HitTerm extends TermSource { kind: 'stacks' | 'cycle' | 'cond'; skills: ReadonlySet<string> | null; when?: RCondition; pct: number }
+export interface VulnTerm extends TermSource { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
+/** A static contribution to one strike id's bucket (build tools only; the engine reads the merged values). */
+export interface TracePart extends TermSource { value: number }
 export type Buff = { id: string; ms: number; dmg?: number; chc?: number; chd?: number; ias?: number; sdmg?: number; dr?: number; cci?: boolean; cdrec?: number; mv?: number };
 /** A status with its vulnerability scope resolved. */
 export type RStatus = StatusSpec & { at?: 'target' | 'self'; scope: ReadonlySet<string> | null };
@@ -94,7 +98,7 @@ export interface PowerRuntime {
   /** Target conditions that cannot be folded (other predicates, or filtered to skills). */
   vulnTerms: VulnTerm[];
   procs: Partial<Record<ProcTrigger, ProcRuntime[]>>;
-  elementStacks: { elements: readonly Element[]; windowMs: number; perStack: number; buff?: string } | null;
+  elementStacks: { elements: readonly Element[]; windowMs: number; perStack: number; buff?: string; generic?: boolean } | null;
   elementCycle: { elements: readonly Element[]; periodMs: number; pct: number; buffPrefix: string } | null;
   /** Buff ids / prefixes the active powers can grant (others from the power catalogue are dropped on refresh). */
   grants: { ids: Set<string>; prefixes: string[] };
@@ -129,11 +133,21 @@ export interface PowerRuntime {
     aliases: Partial<Record<TargetState, TargetState[]>>;
     /** markSpread range (0 = off). */
     markSpread: number;
+    /** statusLonger: % longer chills / stuns / freezes you apply (summed per status). */
+    longer: { chill: number; stun: number; freeze: number };
     /** Resource never decays (rule noDecay). */
     noDecay: boolean;
   };
   /** Largest noEnemyWithin radius in use (0 = not tracked). */
   nearRange: number;
+  /** The sources the runtime was built from, in order (build tools resolve TermSource labels against them). */
+  sources: readonly PowerSource[];
+  /**
+   * Where the merged numbers came from, per strike id: skill-bucket dmg% parts (`mods`), static own-bucket factors
+   * (`own`) and the stunned / frozen conditions folded into stunFactor / frozenFactor. Read only by
+   * server/src/sim/breakdown.ts; recording it changes no number.
+   */
+  trace: { mods: Map<string, TracePart[]>; own: Map<string, TracePart[]>; folded: (TracePart & { state: 'stunned' | 'frozen' })[] };
 }
 
 /** Inputs the build needs from the character (computed once per stat build). */
@@ -330,15 +344,17 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
     mods: new Map(), ownStatic: new Map(), ownTerms: [], hitTerms: [], stunFactor: 1, frozenFactor: 1, vulnTerms: [],
     procs: {}, elementStacks: null, elementCycle: null, grants: { ids: new Set(), prefixes: [] }, watchGround: false,
     index, defense: null, projRules: [], dotRules: [], stacking: [], debt: [], deflect: [], statusWatch: false, tracksStill: false, ticks: false,
-    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0, noDecay: false },
-    nearRange: 0,
+    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0, longer: { chill: 0, stun: 0, freeze: 0 }, noDecay: false },
+    nearRange: 0, sources, trace: { mods: new Map(), own: new Map(), folded: [] },
   };
+  const tracePush = (map: Map<string, TracePart[]>, skill: string, part: TracePart) => { const l = map.get(skill); if (l) l.push(part); else map.set(skill, [part]); };
   // State aliases first: an aliased stunned / frozen condition can no longer be folded into stunMult / frozenMult.
   for (const src of sources) for (const e of src.effects) if (e.kind === 'rule' && e.rule.id === 'countsAs') (rt.rules.aliases[e.rule.as] ??= []).push(e.rule.state);
   const itemCounts = new Map<string, { maxSummons: number; projectiles: number }>();
   const asSet = (ids: string[] | null) => (ids ? new Set(ids) : null);
   for (const src of sources) buffGrants(src.effects, rt.grants);
   for (const src of sources) src.effects.forEach((e, i) => {
+    const label = `${src.kind}:${src.id}`;
     if ('when' in e && e.when) {
       if (uses(e.when, 'inOwnGround')) rt.watchGround = true;
       if (uses(e.when, 'standingStillMs')) rt.tracksStill = true;
@@ -350,44 +366,51 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
         for (const skill of resolveTargets(e, index) ?? []) {
           let m = rt.mods.get(skill) ?? { flags: [] };
           const used = itemCounts.get(skill) ?? { maxSummons: 0, projectiles: 0 };
-          for (const part of effectMods(e, src.roll)) m = mergeMods(m, fromItems ? capCounts(part, used) : part);
+          for (const part of effectMods(e, src.roll)) {
+            m = mergeMods(m, fromItems ? capCounts(part, used) : part);
+            if (part.dmg) tracePush(rt.trace.mods, skill, { src: label, i, value: part.dmg });
+          }
           itemCounts.set(skill, used);
           rt.mods.set(skill, m);
         }
         break;
       }
       case 'ownMult':
-        for (const skill of resolveTargets(e, index) ?? []) rt.ownStatic.set(skill, (rt.ownStatic.get(skill) ?? 1) * e.mult);
+        for (const skill of resolveTargets(e, index) ?? []) { rt.ownStatic.set(skill, (rt.ownStatic.get(skill) ?? 1) * e.mult); tracePush(rt.trace.own, skill, { src: label, i, value: e.mult }); }
         break;
       case 'skillMore': {
         const pct = amount(e.pct, src.roll), skills = resolveTargets(e, index) ?? [];
-        if (!e.when) for (const skill of skills) rt.ownStatic.set(skill, (rt.ownStatic.get(skill) ?? 1) * ownFactor(pct));
-        else if (isTargetCondition(e.when)) rt.vulnTerms.push({ when: resolveCondition(e.when, index), skills: new Set(skills), pct });
-        else rt.ownTerms.push({ when: resolveCondition(e.when, index), skills: new Set(skills), pct });
+        if (!e.when) for (const skill of skills) { rt.ownStatic.set(skill, (rt.ownStatic.get(skill) ?? 1) * ownFactor(pct)); tracePush(rt.trace.own, skill, { src: label, i, value: ownFactor(pct) }); }
+        else if (isTargetCondition(e.when)) rt.vulnTerms.push({ when: resolveCondition(e.when, index), skills: new Set(skills), pct, src: label, i });
+        else rt.ownTerms.push({ when: resolveCondition(e.when, index), skills: new Set(skills), pct, src: label, i });
         break;
       }
       case 'conditional': {
         const pct = amount(e.pct, src.roll), skills = asSet(resolveTargets(e, index)), when = resolveCondition(e.when, index);
-        if (e.bucket === 'own') rt.ownTerms.push({ when, skills, pct });
+        if (e.bucket === 'own') rt.ownTerms.push({ when, skills, pct, src: label, i });
         else if ('targetState' in e.when) {
           const st = e.when.targetState;
-          if (!skills && st === 'stunned' && !rt.rules.aliases.stunned) rt.stunFactor *= 1 + pct / 100;
-          else if (!skills && st === 'frozen' && !rt.rules.aliases.frozen) rt.frozenFactor *= 1 + pct / 100;
-          else rt.vulnTerms.push({ when, skills, pct });
-        } else if (isTargetCondition(e.when)) rt.vulnTerms.push({ when, skills, pct });
-        else rt.hitTerms.push({ kind: 'cond', when, skills, pct });
+          if (!skills && st === 'stunned' && !rt.rules.aliases.stunned) { rt.stunFactor *= 1 + pct / 100; rt.trace.folded.push({ state: 'stunned', src: label, i, value: pct }); }
+          else if (!skills && st === 'frozen' && !rt.rules.aliases.frozen) { rt.frozenFactor *= 1 + pct / 100; rt.trace.folded.push({ state: 'frozen', src: label, i, value: pct }); }
+          else rt.vulnTerms.push({ when, skills, pct, src: label, i });
+        } else if (isTargetCondition(e.when)) rt.vulnTerms.push({ when, skills, pct, src: label, i });
+        else rt.hitTerms.push({ kind: 'cond', when, skills, pct, src: label, i });
         break;
       }
       case 'elementStacks':
         if (!rt.elementStacks) {
-          rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff };
-          rt.hitTerms.push({ kind: 'stacks', skills: null, pct: e.perStack });
+          // Generic bucket (MAGE.md §7 Fallen Star 4): the stacks buff carries +perStack % per stack (players.ts), no hit term.
+          if (e.bucket === 'generic') rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff, generic: true };
+          else {
+            rt.elementStacks = { elements: e.elements, windowMs: e.windowMs, perStack: e.perStack, buff: e.buff };
+            rt.hitTerms.push({ kind: 'stacks', skills: null, pct: e.perStack, src: label, i });
+          }
         }
         break;
       case 'elementCycle':
         if (!rt.elementCycle) {
           rt.elementCycle = { elements: e.elements, periodMs: e.periodMs, pct: amount(e.pct, src.roll), buffPrefix: e.buffPrefix };
-          rt.hitTerms.push({ kind: 'cycle', skills: null, pct: rt.elementCycle.pct });
+          rt.hitTerms.push({ kind: 'cycle', skills: null, pct: rt.elementCycle.pct, src: label, i });
         }
         break;
       case 'proc': {
@@ -454,6 +477,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
           case 'groundsFollow': if (!rt.rules.groundsFollow) rt.rules.groundsFollow = r.scale; break;
           case 'countsAs': break; // pre-pass above
           case 'markSpread': rt.rules.markSpread = Math.max(rt.rules.markSpread, r.range); rt.statusWatch = true; break;
+          case 'statusLonger': rt.rules.longer[r.status] += r.pct; break;
           case 'noDecay': rt.rules.noDecay = true; break;
         }
         break;
@@ -501,11 +525,17 @@ export function conditionCount(p: Player, w: RCondition, el: Element | undefined
   }
   if ('targetLifeAbovePct' in w) return m && m.hp > m.mhp * w.targetLifeAbovePct / 100 ? 1 : 0;
   if ('targetFartherThan' in w) return m && Math.hypot(m.x - p.x, m.y - p.y) > w.targetFartherThan ? 1 : 0;
+  if ('targetWithin' in w) return m && Math.hypot(m.x - p.x, m.y - p.y) <= w.targetWithin ? 1 : 0;
   if ('channeling' in w) return p.channel ? 1 : 0;
   if ('channelingIn' in w) return p.channel && w.channelingIn.has(p.channel.skill) ? 1 : 0;
   if ('buff' in w) return getBuff(p, w.buff) ? 1 : 0;
   if ('buffStacks' in w) { const b = getBuff(p, w.buffStacks); return b ? Math.min(w.max, b.st ?? 1) : 0; }
-  if ('perSummon' in w) { let n = 0; for (const s of p.summons) if (s.type === w.perSummon && !s.dead) n++; return Math.min(w.max, n); }
+  if ('perSummon' in w) {
+    // a summon type, the skill that made it, or a tag of that skill (perSummon: 'device' counts Sentries, snares, mortars)
+    const idx = p.ctx.powers.index; let n = 0;
+    for (const s of p.summons) if (!s.dead && (s.type === w.perSummon || s.skill === w.perSummon || idx.get(s.skill)?.has(w.perSummon as SkillTag))) n++;
+    return Math.min(w.max, n);
+  }
   if ('standingStill' in w) return p.moving ? 0 : 1;
   if ('inOwnGround' in w) return p.inOwnGround ? 1 : 0;
   if ('element' in w) return el && w.element.includes(el) ? 1 : 0;
@@ -541,23 +571,26 @@ export function ownMultiplier(p: Player, skillId: string): number {
 }
 
 /** Distinct stacking elements dealt within the window; records `el` (Fallen Star 4pc style). */
-export function elementStacks(inst: Instance, p: Player, el: Element | null): number {
+export function elementStacks(inst: Instance, p: Player, el: Element | null, record = true): number {
   const es = p.ctx.powers.elementStacks;
   if (!es) return 0;
-  if (el && es.elements.includes(el)) p.lastEle[el] = inst.t;
+  if (record && el && es.elements.includes(el)) p.lastEle[el] = inst.t;
   let n = 0;
   for (const e of es.elements) if (inst.t - (p.lastEle[e] ?? -1e9) <= es.windowMs) n++;
   return n;
 }
 
-/** Target-independent per-hit multipliers, applied one by one (same order and arithmetic as before templates). */
-export function applyHitTerms(inst: Instance, p: Player, m: number, skill: string, el: Element): number {
+/**
+ * Target-independent per-hit multipliers, applied one by one (same order and arithmetic as before templates). With
+ * `sink` (build tools) each applied factor is recorded and the element-stack window is only read, never written.
+ */
+export function applyHitTerms(inst: Instance, p: Player, m: number, skill: string, el: Element, sink?: { term: HitTerm; factor: number }[]): number {
   for (const t of p.ctx.powers.hitTerms) {
-    if (t.kind === 'stacks') { const n = elementStacks(inst, p, el); if (n) m *= 1 + t.pct / 100 * n; }
+    if (t.kind === 'stacks') { const n = elementStacks(inst, p, el, !sink); if (n) { const f = 1 + t.pct / 100 * n; m *= f; sink?.push({ term: t, factor: f }); } }
     else if (t.kind === 'cycle') {
       const cyc = p.ctx.powers.elementCycle!;
-      if (t.pct && cyc.elements[p.ouroIdx % cyc.elements.length] === el) m *= 1 + t.pct / 100;
-    } else if (!t.skills || t.skills.has(skill)) { const n = conditionCount(p, t.when!, el, null); if (n) m *= 1 + t.pct / 100 * n; }
+      if (t.pct && cyc.elements[p.ouroIdx % cyc.elements.length] === el) { const f = 1 + t.pct / 100; m *= f; sink?.push({ term: t, factor: f }); }
+    } else if (!t.skills || t.skills.has(skill)) { const n = conditionCount(p, t.when!, el, null); if (n) { const f = 1 + t.pct / 100 * n; m *= f; sink?.push({ term: t, factor: f }); } }
   }
   return m;
 }

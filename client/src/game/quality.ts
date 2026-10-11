@@ -5,7 +5,7 @@
 import type { Application } from 'pixi.js';
 import { RARITY_COLORS } from '@shared/items';
 import type { Rarity } from '@shared/types';
-import { DENSITY_FACTOR, motionReduced, preferences, type ColorVision, type Preferences } from './preferences';
+import { DENSITY_FACTOR, motionReduced, preferences, type ColorVision, type PreferenceStore, type Preferences } from './preferences';
 
 /** Particle budget multiplier for the current effects density (1, 0.5 or 0.2). */
 export const effectsFactor = (p: Readonly<Preferences> = preferences.get().values): number => DENSITY_FACTOR[p.effectsDensity];
@@ -51,6 +51,20 @@ export function applyRootAttributes(p: Readonly<Preferences>, root: HTMLElement 
   if (!root) return;
   root.dataset.motion = motionReduced(p) ? 'reduced' : 'full';
   root.dataset.rarityShapes = p.rarityShapes ? 'on' : 'off';
+}
+
+/** WebGL renderer names of software rasterisers: Chrome uses SwiftShader when the GPU or its driver is blocklisted, Linux
+ *  falls back to llvmpipe, Windows to the Basic Render Driver. Every pixel is then drawn by the CPU. */
+export function softwareRenderer(name: string): boolean {
+  return /swiftshader|llvmpipe|softpipe|basic render driver|software rasterizer/i.test(name);
+}
+/** First-run graphics default (docs/rework/PERF.md §Low-end defaults): on a software rasteriser the game starts on the
+ *  Low preset (measured: the reference fight +33 % fps, from 2.7 to 3.6; render scale 0.75 cuts the drawn pixels by 44 %).
+ *  Machines with a real GPU keep High; saved choices are never touched. Returns true when it applied Low. */
+export function applyFirstRunGraphics(store: Pick<PreferenceStore, 'firstRun' | 'set'>, rendererName: string): boolean {
+  if (!store.firstRun || !softwareRenderer(rendererName)) return false;
+  store.set({ graphicsPreset: 'low' });
+  return true;
 }
 
 /** Low-spec suggestion: after this many consecutive in-game seconds under the threshold, offer the Low preset once. */

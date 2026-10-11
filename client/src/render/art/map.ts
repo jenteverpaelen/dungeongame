@@ -5,7 +5,7 @@ import { Container, Matrix, Sprite, type Renderer, type Texture } from 'pixi.js'
 import { T_PATH, T_PLAZA, T_WATER, type MapData, type Prop } from '@shared/mapgen';
 import type { MapLayers } from './index';
 import { bakeSheet, type Sheet } from './bake';
-import { flameSprite, fx, glowSprite } from './fx';
+import { additiveAsNormal, flameSprite, fx, glowSprite } from './fx';
 import { CHUNK, GroundLayer } from './ground';
 import { GROUND, type ThemeKey } from './palette';
 import { SORTED_KINDS, VARIANTS, decalGlow, drawDecal, drawProp, propFx } from './props';
@@ -119,15 +119,17 @@ function propView(p: Prop, sheet: Sheet, theme: ThemeKey): Container {
   for (const f of propFx(p.k, theme, v)) {
     const fxs = flip ? -1 : 1;
     const x = f.x * s * fxs, y = f.y * s;
+    // Prop lights add light as alpha-0 twins under normal blending: same pixels, and the y-sorted props no longer
+    // alternate normal / additive batches (every crystal or torch cost two extra draw calls; docs/rework/PERF.md).
     if (f.kind === 'glow' || f.kind === 'window') {
-      const g = glowSprite(f.color, f.size * s, f.kind === 'window' ? 0.32 : 0.5, true);
+      const g = additiveAsNormal(glowSprite(f.color, f.size * s, f.kind === 'window' ? 0.32 : 0.5, true));
       g.position.set(x, y);
       if (f.kind === 'window') g.scale.y *= 0.8;
       view.addChild(g);
       anims.push({ s: g, kind: f.kind, base: g.alpha, ph: Math.random() * 6, x, y, size: f.size });
     } else if (f.kind === 'flame') {
-      const outer = flameSprite(f.color, f.size * s, 0.9);
-      const inner = flameSprite(0xffd23f, f.size * s * 0.62, 0.95);
+      const outer = additiveAsNormal(flameSprite(f.color, f.size * s, 0.9));
+      const inner = additiveAsNormal(flameSprite(0xffd23f, f.size * s * 0.62, 0.95));
       outer.position.set(x, y); inner.position.set(x, y + 1);
       view.addChild(outer, inner);
       const ph = Math.random() * 6;

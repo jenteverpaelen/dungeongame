@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_PREFERENCES, GRAPHICS_PRESETS } from './preferences';
-import { CVD_PALETTES, LowSpecMonitor, LOW_FPS_SECONDS, ambientShare, applyColorVision, effectsFactor, fpsCapFor, resolutionFor } from './quality';
+import { CVD_PALETTES, LowSpecMonitor, LOW_FPS_SECONDS, ambientShare, applyColorVision, applyFirstRunGraphics, effectsFactor, fpsCapFor, resolutionFor, softwareRenderer } from './quality';
 import { RARITY_COLORS } from '@shared/items';
 
 assert.ok(process.env.DATA_DIR, 'Client checks require an isolated DATA_DIR');
@@ -41,6 +41,20 @@ test('low-spec suggestion: 20 slow in-game seconds, once, never while hidden, ca
   for (let i = 0; i < 40; i++) assert.equal(capped.sample(30, true, true, { ...p, maxFps: 30 }), false);
   const low = new LowSpecMonitor();
   for (let i = 0; i < 40; i++) assert.equal(low.sample(30, true, true, { ...p, ...GRAPHICS_PRESETS.low, graphicsPreset: 'low' }), false);
+});
+
+test('first-run default: Low only on a software rasteriser, only without saved preferences', () => {
+  for (const name of ['ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)', 'llvmpipe (LLVM 15.0.7, 256 bits)', 'ANGLE (Microsoft, Microsoft Basic Render Driver Direct3D11 vs_5_0 ps_5_0, D3D11)'])
+    assert.equal(softwareRenderer(name), true, name);
+  for (const name of ['ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU (0x00002860) Direct3D11 vs_5_0 ps_5_0, D3D11)', 'ANGLE (Intel, Intel(R) UHD Graphics 620 Direct3D11 vs_5_0 ps_5_0, D3D11)', 'Apple M1', ''])
+    assert.equal(softwareRenderer(name), false, name);
+  const sets: unknown[] = [];
+  const store = (firstRun: boolean) => ({ firstRun, set: (p: unknown) => { sets.push(p); } });
+  assert.equal(applyFirstRunGraphics(store(true), 'SwiftShader driver'), true);
+  assert.deepEqual(sets, [{ graphicsPreset: 'low' }]);
+  assert.equal(applyFirstRunGraphics(store(false), 'SwiftShader driver'), false, 'a saved choice is never overridden');
+  assert.equal(applyFirstRunGraphics(store(true), 'ANGLE (NVIDIA, NVIDIA GeForce RTX 4070 Laptop GPU)'), false, 'real GPUs keep High');
+  assert.equal(sets.length, 1);
 });
 
 test('colour-vision presets swap the shared rarity colours and restore the defaults', () => {

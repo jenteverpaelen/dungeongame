@@ -37,18 +37,21 @@ const stages = [
   ['offline-gains', ['--import', 'tsx', '--test', 'server/test/afk.test.ts']],
   ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts', 'server/test/stashTabs.test.ts']],
   ['adventure', ['--import', 'tsx', '--test', 'server/test/adventure.test.ts', 'server/test/quests.test.ts', 'server/test/questDeliveryRift.test.ts', 'server/test/questChapter.test.ts', 'server/test/zoneWideHunts.test.ts', 'server/test/onboarding.test.ts', 'server/test/dungeon.test.ts', 'server/test/reedclaw.test.ts', 'server/test/siltusk.test.ts', 'server/test/behaviours.test.ts', 'server/test/questMigration.test.ts', 'server/test/worldQuests.test.ts', 'server/test/earlyGame.test.ts', 'server/test/frontier.test.ts', 'server/test/midgame.test.ts', 'server/test/workshop.test.ts']],
-  ['depth', ['--import', 'tsx', '--test', 'server/test/depth.test.ts', 'server/test/powerTemplates.test.ts', 'server/test/parity.test.ts', 'server/test/engineWave2.test.ts', 'server/test/engineWave3.test.ts', 'server/test/sharedItems.test.ts', 'server/test/warrior.test.ts', 'server/test/warriorWave3.test.ts']],
+  ['depth', ['--import', 'tsx', '--test', 'server/test/depth.test.ts', 'server/test/powerTemplates.test.ts', 'server/test/parity.test.ts', 'server/test/engineWave2.test.ts', 'server/test/engineWave3.test.ts', 'server/test/sharedItems.test.ts', 'server/test/warrior.test.ts', 'server/test/warriorWave3.test.ts', 'server/test/rangerEngine.test.ts', 'server/test/ranger.test.ts', 'server/test/engineMage.test.ts', 'server/test/mage.test.ts', 'server/test/buildTools.test.ts']],
   ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts', 'server/test/autoCastControls.test.ts', 'server/test/targetPriority.test.ts', 'server/test/manualSkills.test.ts', 'server/test/autoRuleEditor.test.ts']],
   ['server', ['--import', 'tsx', 'server/test/bot.ts']],
   ['simulation', ['--import', 'tsx', 'server/test/sim.ts']],
   ['perf-budget', ['--import', 'tsx', 'scripts/perf-budget.ts']],
   ['bot-metrics', ['--import', 'tsx', '--test', 'scripts/bot-metrics.test.ts']],
-  // Owner-approved pace targets per band (F-CMB-08): 120 simulated minutes per class against bot-metrics/targets.json.
+  // Owner-approved pace targets per band (F-CMB-08): 120 simulated minutes per class, median of 3 seeds, against bot-metrics/targets.json.
   ['pace-targets', ['--import', 'tsx', 'scripts/bot-metrics.ts', 'check', '120']],
   ['content', ['--import', 'tsx', 'scripts/check-content.ts']],
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
   // The built client through the real server and its security headers, in headless Chrome (after build).
   ['served-build', ['scripts/served-build-check.mjs']],
+  // Per-frame client work on the built client: recorded rift fight and town crowd replayed against scripts/perf/budgets.json,
+  // no repaint-every-frame CSS animations, an idle HUD that does not repaint (docs/rework/PERF.md §Gate).
+  ['client-perf', ['scripts/client-perf-check.mjs']],
 ];
 const results = [];
 let child;

@@ -19,6 +19,8 @@ import { bindings, CAST_ACTIONS } from '../../game/bindings';
 import { preferences } from '../../game/preferences';
 import { autoRuleForSlot, autoRuleSummary } from '@shared/autoCastRules';
 import { useLocal } from '../panels/state';
+import { fmtHit, fmtSec, requestSheet, sheetOf, sheetStore, tagWord } from '../panels/sheet';
+import { useAdvanced } from '../panels/tooltip';
 
 const ELEMENT_COLOR: Record<string, string> = {
   physical: '#e2d8c4', fire: '#ff8a3d', cold: '#7fd3ff', lightning: '#d6c2ff', poison: '#8fd16a', arcane: '#c39bff', holy: '#ffe9a0',
@@ -35,8 +37,13 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
   const { skill, mods } = p;
   const res = CLASSES[p.classId].resource.name;
   const rune = skill.runes.find((r) => r.id === p.runeId);
-  const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - p.rcr / 100));
-  const cd = +(skill.cooldown * (1 + (mods.cooldown ?? 0) / 100)).toFixed(1);
+  // Exact numbers from the server's damage sheet when it has them (items, sets, cooldown reduction included; T1).
+  const char = useUI((u) => u.char);
+  const exact = sheetOf(useLocal(sheetStore, (st) => st.sheet), skill.id);
+  const advanced = useAdvanced();
+  useEffect(() => { if (!exact) requestSheet(char); }, [skill.id]);
+  const cost = exact ? Math.round(exact.cost * 10) / 10 : Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - p.rcr / 100));
+  const cd = exact ? +(exact.cooldownMs / 1000).toFixed(1) : +(skill.cooldown * (1 + (mods.cooldown ?? 0) / 100)).toFixed(1);
   const el = mods.element ?? skill.element;
   const gen = skill.gen + (mods.gen ?? 0);
   return (
@@ -54,7 +61,10 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
         {cost > 0 && <span>Cost <b style={{ color: RESOURCE_STYLES[p.classId].hi }}>{cost}</b> {res}{skill.kind === 'channel' ? '/s' : ''}</span>}
         {skill.kind !== 'primary' && gen > 0 && <span>Generates <b style={{ color: RESOURCE_STYLES[p.classId].hi }}>{gen}</b> {res}</span>}
         {cd > 0 && <span>Cooldown <b>{cd}s</b></span>}
+        {exact && exact.coef > 0 && skill.kind !== 'buff' && <span>Per hit <b>{fmtHit(exact.perHit)}</b></span>}
+        {exact && exact.durationMs > 0 && <span>Duration <b>{fmtSec(exact.durationMs)}</b></span>}
       </div>
+      {advanced && exact && <div class="st-desc st-adv">Tags: {exact.tags.map(tagWord).join(' · ')}</div>}
       {rune && (
         <div class="st-rune">
           <div class="st-rune-name"><i />{rune.name}</div>
@@ -130,8 +140,10 @@ interface BuffMeta { name: string; shape?: string; skill?: SkillDef; color: stri
 const BUFF_META: Record<string, { name: string; shape: string; color: string }> = {
   hellforge: { name: 'Kilnheart', shape: 'flame', color: '#ff8a3d' },
   stridewind: { name: 'Stridewind', shape: 'up', color: '#6fe3d0' },
-  spellsteal: { name: 'Spellsteal', shape: 'star', color: '#c39bff' },
+  // the rune id stays `spellsteal`; its display name follows docs/rework/depth/NAMES.md
+  spellsteal: { name: 'Starve the Light', shape: 'star', color: '#c39bff' },
   deep_freeze: { name: 'Deep Freeze', shape: 'crit', color: '#7fd3ff' },
+  rimewalker: { name: 'Rimewalker (recharging)', shape: 'up', color: '#9fdcff' },
   hunters_mark: { name: "Hunter's Mark", shape: 'crit', color: '#ff6a4a' },
   momentum: { name: 'Momentum', shape: 'up', color: '#ffd24a' },
   wolf_howl: { name: 'Pack Leader', shape: 'up', color: '#d9c7a0' },
@@ -155,6 +167,23 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   iron_root: { name: 'Iron Root', shape: 'shield', color: '#b08850' },
   bellwether: { name: 'Bellwether', shape: 'bolt', color: '#e0b84a' },
   brass_warhorn: { name: 'Brass Warhorn', shape: 'star', color: '#d9a63a' },
+  // Ranger M1 (docs/rework/depth/RANGER.md §5–§8): glyphs follow the source skill / set motif (Murmuration's own buff
+  // shows its skill glyph through SKILLS).
+  second_skin: { name: 'Second Skin', shape: 'hide', color: '#c8a27a' },
+  rainkeeper: { name: 'Rainkeeper', shape: 'drop', color: '#6aa6d8' },
+  huntsman: { name: 'Huntsman’s Trophy', shape: 'antler', color: '#e6c35c' },
+  alpha_howl: { name: 'Alpha Howl', shape: 'howl', color: '#b8c4d0' },
+  hunting_horn: { name: 'Hunting Horn', shape: 'horn', color: '#e0b060' },
+  snare_guard: { name: 'Snare Guard', shape: 'jaws', color: '#9a7b4f' },
+  tracker: { name: 'Tracker', shape: 'eye', color: '#e6c35c' },
+  starling_shield: { name: 'Starling Shield', shape: 'wing', color: '#8e9cb0' },
+  // Mage M1 (docs/rework/depth/MAGE.md): colours follow the source skill / set motif.
+  ley_anchor: { name: 'Ley Anchor', shape: 'bolt', color: '#b48cff' },
+  glass_ward: { name: 'Glass Concord', shape: 'shield', color: '#7fd3ff' },
+  lantern_ward: { name: 'Lantern Garden', shape: 'shield', color: '#ffb050' },
+  hearth_kin: { name: 'Hearth Kin', shape: 'flame', color: '#ff8a3d' },
+  guardian_coil: { name: 'Guardian Coil', shape: 'shield', color: '#ff5e3a' },
+  full_resonance: { name: 'Full Resonance', shape: 'star', color: '#a07cff' },
 };
 
 function buffMeta(id: string): BuffMeta {

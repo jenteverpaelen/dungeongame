@@ -24,6 +24,21 @@ import { DIFFICULTIES, PARAGON_STATS } from '../shared/src/progression';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const LOCK = path.join(root, 'scripts/content-ids.lock.json');
+/** Build-code positions (shared/src/buildCode.ts): append-only, a code's numbers point into these lists forever. */
+const BUILD_CODE_IDS = path.join(root, 'shared/src/data/buildCodeIds.json');
+const BUILD_CODE_REGISTRIES = ['classes', 'skills', 'runes', 'passives', 'legendaries', 'sets'] as const;
+
+/** Append ids that have no build-code position yet (never reorders or drops one). Returns how many were added. */
+export function appendBuildCodeIds(current = collectIds()): number {
+  const reg = JSON.parse(fs.readFileSync(BUILD_CODE_IDS, 'utf8')) as Record<string, string[]>;
+  let added = 0;
+  for (const k of BUILD_CODE_REGISTRIES) {
+    const have = new Set(reg[k] ??= []);
+    for (const id of current[k]) if (!have.has(id)) { reg[k].push(id); have.add(id); added++; }
+  }
+  if (added) fs.writeFileSync(BUILD_CODE_IDS, JSON.stringify(reg, null, 2) + '\n');
+  return added;
+}
 
 /** Registry → ids, with a note of where saves (or other durable data) hold them. */
 export function collectIds(): Record<string, string[]> {
@@ -112,6 +127,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     };
     fs.writeFileSync(LOCK, JSON.stringify(next, null, 2) + '\n');
     console.log(`Recorded ${Object.values(next.ids).reduce((n, v) => n + v.length, 0)} ids in ${Object.keys(next.ids).length} registries.`);
+    const codes = appendBuildCodeIds(current);
+    if (codes) console.log(`Gave ${codes} new id(s) a build-code position (shared/src/data/buildCodeIds.json).`);
   } else {
     const { errors, added } = stableIdProblems(current, lock);
     const schema = registrySchemaProblems();

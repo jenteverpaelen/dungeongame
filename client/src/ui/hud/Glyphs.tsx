@@ -21,6 +21,28 @@ const dark = '#150c07';
 
 type G = () => JSX.Element;
 
+/** A small starling silhouette (wings swept up in a shallow V) centred at (x, y), half-span s. */
+function birdPath(x: number, y: number, s: number): string {
+  const f = (v: number) => v.toFixed(2);
+  return `M${f(x - s)} ${f(y - s * 0.45)}Q${f(x - s * 0.35)} ${f(y - s * 0.75)} ${f(x)} ${f(y)}Q${f(x + s * 0.35)} ${f(y - s * 0.75)} ${f(x + s)} ${f(y - s * 0.45)}`
+    + `Q${f(x + s * 0.4)} ${f(y + s * 0.05)} ${f(x)} ${f(y + s * 0.42)}Q${f(x - s * 0.4)} ${f(y + s * 0.05)} ${f(x - s)} ${f(y - s * 0.45)}Z`;
+}
+
+/** Murmuration glyph: tiny starlings along a folding S-ribbon, dense in its middle (deterministic layout). */
+const FLOCK_MARKS: [number, number, number][] = (() => {
+  let seed = 7;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const out: [number, number, number][] = [];
+  for (let i = 0; i < 36; i++) {
+    const w = (rnd() - 0.5) * 2;
+    const cx = 32 + w * 24, cy = 36 + Math.sin(w * 2.6 + 0.4) * 11;
+    const th = 1.5 + 5.5 * (1 - w * w);
+    const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * th;
+    out.push([cx + Math.cos(a) * d * 0.7, cy + Math.sin(a) * d, 2.5 + rnd() * 1.9 * (1 - 0.4 * Math.abs(w))]);
+  }
+  return out;
+})();
+
 const GLYPHS: Record<string, G> = {
   // Cleave: two nested crescents of steel and speed marks
   arc: () => (
@@ -458,6 +480,240 @@ const GLYPHS: Record<string, G> = {
       <path d="M14 26C17 21 22 18 27 17.4" {...hiLine} />
     </>
   ),
+  // ── ranger M1 (docs/rework/depth/RANGER.md §3 "VFX / icon / sound") ──
+  // Skipstone Bolt: a flat slate skimming away, leaving receding water ripples where it skipped
+  skip: () => (
+    <>
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <ellipse cx="13" cy="54" rx="10" ry="3.6" stroke-width="2.6" opacity=".9" />
+        <ellipse cx="13" cy="54" rx="4.6" ry="1.6" stroke-width="1.8" opacity=".6" />
+        <ellipse cx="31" cy="47" rx="8" ry="2.9" stroke-width="2.4" opacity=".8" />
+        <ellipse cx="46" cy="41" rx="6" ry="2.2" stroke-width="2" opacity=".7" />
+      </g>
+      <path d="M13 52C17 39 27 38 31 45C34 37 43 34 46 39C48 33 50 30 52 28" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-dasharray="2.5 4" stroke-linecap="round" />
+      <g transform="rotate(-18 50 19)">
+        <g {...main}><path d="M37 20C38 14 46 11 54 11.5C61 12 64 16 62.5 20.5C61 25 53 27.5 46 27C40 26.5 36.5 24 37 20Z" /></g>
+        <path d="M38.6 22.4C44 25.6 54 26.2 61 22" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.4" stroke-linecap="round" />
+        <path d="M40.5 17.6C43.5 14.4 50 13.4 56 14" {...hiLine} />
+      </g>
+      <path d="M26 21H34M23 27.5H31" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".7" />
+    </>
+  ),
+  // Spring Snare: open toothed iron jaws on their plate, a coil of rope and its stake
+  snare: () => (
+    <>
+      <g fill="none" stroke-linecap="round">
+        <path d="M8 47C1 42 6 34 14 36C21 38 19 47 11 46.5C5 46 5 40 11 39" stroke={dark} stroke-width="7.4" />
+        <path d="M8 47C1 42 6 34 14 36C21 38 19 47 11 46.5C5 46 5 40 11 39" stroke="currentColor" stroke-width="3.6" />
+        <path d="M17 43.5C19.5 44.6 21 45.6 22.5 45.6" stroke={dark} stroke-width="6.6" />
+        <path d="M17 43.5C19.5 44.6 21 45.6 22.5 45.6" stroke="currentColor" stroke-width="3" />
+      </g>
+      <rect x="2" y="24" width="5" height="16" rx="2" fill="#7a5a36" {...OUT} stroke-width="2.4" />
+      <ellipse cx="41" cy="44" rx="8" ry="3.6" fill="#4a4e56" {...OUT} stroke-width="2.4" />
+      <g fill="none">
+        <ellipse cx="41" cy="44" rx="19.5" ry="10" stroke={dark} stroke-width="9.6" />
+        <ellipse cx="41" cy="44" rx="19.5" ry="10" stroke="#c4c1b9" stroke-width="5.6" />
+        <path d="M24 40C28 35.5 35 33.8 41 33.8C47 33.8 54 35.5 58 40" stroke="#fff" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round" />
+      </g>
+      <g fill="#e6e3dc" stroke={dark} stroke-width="1.4" stroke-linejoin="round" paint-order="stroke">
+        {[200, 228, 256, 284, 312, 340, 20, 48, 76, 104, 132, 160].map((deg) => {
+          const a = (deg * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+          const bx = 41 + 17 * c, by = 44 + 7.8 * s, tx = 41 + 11.4 * c, ty = 44 + 4.2 * s, ux = -s * 2.4, uy = c * 1.2;
+          return <path d={`M${(bx + ux).toFixed(1)} ${(by + uy).toFixed(1)}L${tx.toFixed(1)} ${ty.toFixed(1)}L${(bx - ux).toFixed(1)} ${(by - uy).toFixed(1)}Z`} />;
+        })}
+      </g>
+      <path d="M19.5 44l1.4-2.4 1.4 4.8 1.4-2.4M58.5 44l1.4-2.4 1.4 4.8 1.4-2.4" fill="none" stroke={dark} stroke-width="1.6" stroke-linejoin="round" />
+      <path d="M52 15l1.8 4 4 1.8-4 1.8-1.8 4-1.8-4-4-1.8 4-1.8Z" fill="#fff" fill-opacity=".85" stroke={dark} stroke-width="1.2" />
+    </>
+  ),
+  // Overcast Volley: a shot climbing into a grey cloud, thin shafts falling out of it onto little dust puffs
+  overcast: () => (
+    <>
+      <path d="M9 60V41" stroke="currentColor" stroke-width="2.4" stroke-dasharray="1.5 4" stroke-linecap="round" opacity=".75" />
+      <g {...main} stroke-width="2.8">
+        <rect x="7.6" y="24" width="2.8" height="16" rx="1.4" />
+        <path d="M9 14L14.2 26H3.8Z" />
+      </g>
+      <g {...main}><path d="M21 33C13 33 12 23 20 21C21 13 33 10 38 17C46 12 58 17 56 26C62 28 61 35 54 35H23Z" /></g>
+      <path d="M23 35H54" stroke="#000" stroke-opacity=".3" stroke-width="3" stroke-linecap="round" />
+      <path d="M22 26C21 22 23 20.4 27 20.6" {...hiLine} />
+      {[[27, 40], [38, 44], [49, 39]].map(([x, y]) => (
+        <g>
+          <path d={`M${x + 2} ${y}L${x - 2} ${y + 12}`} stroke={dark} stroke-width="4.4" stroke-linecap="round" />
+          <path d={`M${x + 2} ${y}L${x - 2} ${y + 12}`} stroke="#ece4d0" stroke-width="2" stroke-linecap="round" />
+          <path d={`M${x - 8} ${y + 17}c1.6-2.6 4-2.6 5 0c1-2.6 3.4-2.6 5 0`} fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".85" />
+        </g>
+      ))}
+    </>
+  ),
+  // Quarry Mark: an almond eye with a golden iris, two pale feathers sweeping down from its corners
+  eye: () => (
+    <>
+      {[1, -1].map((sx) => (
+        <g transform={`translate(32 0) scale(${sx} 1)`}>
+          <path d="M9 31C21 33 26 44 25 61C16 55 10 46 6 37Z" fill="#f2e8cc" {...OUT} />
+          <path d="M8 33C16 38 22 46 24 58" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M12 41L8 45M16 47L12 51.5" stroke="#000" stroke-opacity=".3" stroke-width="1.4" stroke-linecap="round" />
+        </g>
+      ))}
+      <path d="M3 28C17 8 47 8 61 28C47 48 17 48 3 28Z" fill="#f6eed6" {...OUT} />
+      <circle cx="32" cy="28" r="12" {...main} />
+      <circle cx="32" cy="28" r="12" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="3" />
+      <ellipse cx="32" cy="28" rx="3.4" ry="9" fill={dark} />
+      <circle cx="27.6" cy="23.4" r="2.6" fill="#fff" fill-opacity=".9" />
+      <path d="M10 22.6C20 13.4 44 13.4 54 22.6" {...hiLine} stroke-opacity=".45" />
+      <path d="M32 1L36 6L32 11L28 6Z" {...main} stroke-width="2.2" />
+    </>
+  ),
+  // Pitch Mortar: a squat iron mortar in its wooden bed on a sled, a burning pitch pot arcing out of a smoke puff
+  mortar: () => (
+    <>
+      <path d="M37 21C42 11 51 7 57 10" fill="none" stroke="#e8d3a2" stroke-width="2" stroke-dasharray="1.5 4.2" stroke-linecap="round" opacity=".8" />
+      <circle cx="55" cy="15" r="5.8" fill="#8a5a3a" {...OUT} stroke-width="2.6" />
+      <path d="M50.6 13.6C53 12 57 12 59.6 13.6" fill="none" stroke={dark} stroke-width="2" />
+      <path d="M55 9.2C53 7 54 3.8 56.4 2.2C56.6 4.2 58.4 4.8 58 7.2C57.8 8.6 56.6 9.6 55 9.2Z" fill="#ffc048" stroke={dark} stroke-width="1.2" />
+      <path d="M30 25C26 23 27 17 32 17C33 13 39 13 40 17C44 17 45 22 41 24Z" fill="#d6d0c4" fill-opacity=".9" stroke={dark} stroke-width="2" />
+      <g transform="rotate(-40 28 40)">
+        <rect x="14" y="31" width="27" height="18" rx="7" fill="#6a6e76" {...OUT} />
+        <rect x="20" y="30.6" width="3.6" height="18.8" rx="1.6" fill="#3a3e44" />
+        <rect x="30" y="30.6" width="3.6" height="18.8" rx="1.6" fill="#3a3e44" />
+        <ellipse cx="41" cy="40" rx="3.6" ry="9.4" fill="#7e828a" {...OUT} />
+        <ellipse cx="41.8" cy="40" rx="1.8" ry="6.4" fill={dark} />
+        <path d="M17 34.4H38" {...hiLine} stroke-width="1.6" />
+      </g>
+      <g {...main}>
+        <path d="M14 53L18 41H36L40 53Z" />
+        <rect x="4" y="52" width="50" height="6" rx="2.6" />
+      </g>
+      <path d="M17 44.6H37" stroke="#fff" stroke-opacity=".3" stroke-width="1.6" stroke-linecap="round" />
+      <path d="M4 61H50C55 61 58 59 60 55" fill="none" stroke={dark} stroke-width="5" stroke-linecap="round" />
+      <path d="M4 61H50C55 61 58 59 60 55" fill="none" stroke="#a87a4a" stroke-width="2.4" stroke-linecap="round" />
+      <path d="M8 54.4H50" stroke="#fff" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round" />
+      <circle cx="27" cy="46" r="2.6" fill="#3a3e44" stroke={dark} stroke-width="1.2" />
+    </>
+  ),
+  // Murmuration: a folding ribbon of tiny starlings silhouetted against a pale dusk sky, a few stragglers near
+  flock: () => (
+    <>
+      <circle cx="32" cy="32" r="28" fill="#cbd6e0" fill-opacity=".16" />
+      <path d="M8 40C16 22 26 46 34 34C42 22 50 30 58 24" fill="none" stroke="#cbd6e0" stroke-opacity=".22" stroke-width="12" stroke-linecap="round" />
+      <g fill="currentColor" stroke="#d6dee6" stroke-width="1" stroke-linejoin="round" paint-order="stroke">{FLOCK_MARKS.map(([x, y, s]) => <path d={birdPath(x, y, s)} />)}</g>
+      <g fill="currentColor" stroke="#d6dee6" stroke-width="1.2" stroke-linejoin="round" paint-order="stroke">
+        {([[50, 12, 5], [57, 19, 4], [43, 7, 3.6]] as const).map(([x, y, s]) => <path d={birdPath(x, y, s)} />)}
+      </g>
+    </>
+  ),
+  // ── Mage M1 (docs/rework/depth/MAGE.md §3 "VFX / icon / sound") ──
+  // Rime Needles: three thin needles of rime in a tight fan, frost glitter in their wake
+  needle: () => (
+    <>
+      {[14, 0, -14].map((a, i) => (
+        <g transform={`translate(${6 + i * 3.2} ${55 - i * 1.2}) rotate(${-45 + a})`}>
+          <path d="M-3 0H12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".5" />
+          <g {...main} stroke-width="2.6">
+            <path d="M50 0L17 -3.8L6 -1.6L3 0L6 1.6L17 3.8Z" />
+          </g>
+          <path d="M46.6 -0.6L17 -2.2" {...hiLine} stroke-width="1.6" stroke-opacity=".85" />
+        </g>
+      ))}
+      <g fill="#fff" stroke={dark} stroke-width="1" paint-order="stroke">
+        <path d="M53 6l1.8 4 4 1.8-4 1.8-1.8 4-1.8-4-4-1.8 4-1.8Z" />
+        <path d="M57 30l1.2 2.8 2.8 1.2-2.8 1.2-1.2 2.8-1.2-2.8-2.8-1.2 2.8-1.2Z" fill-opacity=".9" />
+      </g>
+      <g fill="currentColor"><circle cx="14" cy="40" r="1.8" /><circle cx="22" cy="51" r="1.6" /><circle cx="9" cy="48" r="1.4" /></g>
+    </>
+  ),
+  // Thrumming Ray: a beam with standing-wave ripples crossing at the nodes, a flare at the end
+  ray: () => (
+    <g transform="rotate(-26 32 32)">
+      <path d="M7 32H54" stroke={dark} stroke-width="16" stroke-linecap="round" />
+      <path d="M7 32H54" stroke="currentColor" stroke-width="9" stroke-linecap="round" />
+      <g fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
+        <path d="M8 32C12.8 20.8 19.2 20.8 24 32C28.8 43.2 35.2 43.2 40 32C44.8 20.8 51.2 20.8 56 32" stroke-opacity=".75" />
+        <path d="M8 32C12.8 43.2 19.2 43.2 24 32C28.8 20.8 35.2 20.8 40 32C44.8 43.2 51.2 43.2 56 32" stroke-opacity=".5" />
+      </g>
+      <path d="M7 32H54" stroke="#fff" stroke-width="2.8" stroke-linecap="round" />
+      <circle cx="7.6" cy="32" r="6" {...main} stroke-width="2.6" />
+      <path d="M55 15L57.4 29.6L64 32L57.4 34.4L55 49L52.6 34.4L46 32L52.6 29.6Z" fill="#fff" stroke={dark} stroke-width="1.6" paint-order="stroke" />
+    </g>
+  ),
+  // Cinderkin: a round coal-chunk ember creature with lantern eyes, a flame tuft and sparks behind
+  ember_kin: () => (
+    <>
+      <g fill="currentColor"><circle cx="8" cy="24" r="2.4" /><circle cx="5" cy="35" r="1.8" /><circle cx="12" cy="14" r="1.6" fill-opacity=".8" /></g>
+      <g {...main} stroke-width="2.6">
+        <path d="M31 19C26 15 27 9 30 5C31 9 33 10 34 8C34.4 5 35.6 3 37.2 2C39.2 6 42.8 9 40.8 15C39.6 18 36 20 31 19Z" />
+      </g>
+      <path d="M33.2 18C30.8 15.6 31.2 12.4 33.2 10.4C33.6 12.4 34.8 12.8 35.6 12C37.2 14 37.2 16.8 33.2 18Z" fill="#fff" fill-opacity=".7" />
+      <path d="M13 38L16.4 25.2L26 18.4L40.8 18.8L51.2 27.2L52.8 40.8L45.2 53.2L28.8 56.4L17.2 50.8Z" fill="#3b2c26" {...OUT} />
+      <path d="M26 18.4L30 29.2L45.2 53.2M30 29.2L13 38M30 29.2L51.2 27.2" fill="none" stroke="#6a5446" stroke-width="1.6" />
+      <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.6 43.2L23.2 38.8L21.6 32" /><path d="M49.2 33.2L43.6 40.8L46.4 48" />
+      </g>
+      <ellipse cx="32.8" cy="46.8" rx="9.2" ry="4.8" fill="currentColor" fill-opacity=".45" />
+      <g fill="#ffe27a" stroke={dark} stroke-width="1.4">
+        <ellipse cx="27.2" cy="31.2" rx="3.8" ry="5.2" /><ellipse cx="39.6" cy="30.8" rx="3.4" ry="4.8" />
+      </g>
+      <circle cx="28.4" cy="29.4" r="1.2" fill="#fff" /><circle cx="40.6" cy="29.2" r="1.1" fill="#fff" />
+      <path d="M29.2 40C31.6 42.4 34.8 42.4 37.2 39.6" stroke={dark} stroke-width="1.8" fill="none" stroke-linecap="round" />
+    </>
+  ),
+  // Rimefield: frost spreading over the ground, cracks of rime, crystals grown along the rim
+  rime: () => (
+    <>
+      <ellipse cx="32" cy="43" rx="29" ry="15" fill="currentColor" fill-opacity=".32" stroke={dark} stroke-width="2.6" />
+      <ellipse cx="32" cy="43" rx="29" ry="15" fill="none" stroke="currentColor" stroke-width="2" />
+      <ellipse cx="32" cy="43" rx="18" ry="9" fill="#fff" fill-opacity=".22" />
+      <path d="M32 43L19 37L13 39M32 43L45 36L51 38M32 43L25 53M32 43L45 51M19 37L17.6 32.8" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.8" stroke-linecap="round" />
+      <g {...main} stroke-width="2.2">
+        {[[9, 35, 10], [18.4, 29, 14], [32, 27.6, 17], [45.6, 29, 14], [55, 35, 10]].map(([x, y, h]) => <path d={`M${x - 3.4} ${y}L${x - 0.6} ${y - h}L${x + 3.4} ${y}Z`} />)}
+        {[[13, 53, 9], [32, 59, 10], [51, 53, 9]].map(([x, y, h]) => <path d={`M${x - 3.6} ${y}L${x} ${y - h}L${x + 3.6} ${y}Z`} fill-opacity=".85" />)}
+      </g>
+      {[[18.4, 29, 14], [32, 27.6, 17], [45.6, 29, 14]].map(([x, y, h]) => <path d={`M${x - 1.2} ${y - 2}L${x - 0.5} ${y - h + 3}`} {...hiLine} stroke-width="1.4" />)}
+      <g fill="#fff" stroke={dark} stroke-width="1" paint-order="stroke">
+        <path d="M10 6l1.6 3.6 3.6 1.6-3.6 1.6-1.6 3.6-1.6-3.6-3.6-1.6 3.6-1.6Z" />
+        <path d="M53 6l1.2 2.6 2.6 1.2-2.6 1.2-1.2 2.6-1.2-2.6-2.6-1.2 2.6-1.2Z" fill-opacity=".85" />
+      </g>
+    </>
+  ),
+  // Stormglass Orb: a glass sphere with lightning trapped inside, one arc leaping out
+  stormglass: () => (
+    <>
+      <circle cx="30" cy="34" r="25" fill="currentColor" fill-opacity=".24" />
+      <circle cx="30" cy="34" r="16" fill="#fff" fill-opacity=".14" />
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 25L27 33L22.4 36L33.2 44.8M27 33L37.6 28.4L35.2 35.2L43.2 38.8" stroke="currentColor" stroke-width="6" stroke-opacity=".8" />
+        <path d="M19 25L27 33L22.4 36L33.2 44.8M27 33L37.6 28.4L35.2 35.2L43.2 38.8" stroke="#fff" stroke-width="2.4" />
+        <path d="M49 19L54 14.6L52.4 10.4L59 4.6" stroke={dark} stroke-width="4.6" />
+        <path d="M49 19L54 14.6L52.4 10.4L59 4.6" stroke="#fff" stroke-width="2" />
+      </g>
+      <circle cx="30" cy="34" r="25" fill="none" stroke={dark} stroke-width="5" />
+      <circle cx="30" cy="34" r="25" fill="none" stroke="currentColor" stroke-width="2.6" />
+      <path d="M14.6 22C17 17 22 13.2 28 12.4" {...hiLine} stroke-width="3.4" stroke-opacity=".9" />
+      <path d="M44.6 47.4C42.8 50 40 51.6 37.2 52.4" {...hiLine} stroke-width="1.8" stroke-opacity=".55" />
+    </>
+  ),
+  // Orrery: brass rings with planets turning about a small sun
+  orrery: () => (
+    <>
+      <g fill="none" stroke-linecap="round">
+        <ellipse cx="32" cy="32" rx="28" ry="13" transform="rotate(-18 32 32)" stroke={dark} stroke-width="6" />
+        <ellipse cx="32" cy="32" rx="28" ry="13" transform="rotate(-18 32 32)" stroke="currentColor" stroke-width="2.8" />
+        <ellipse cx="32" cy="32" rx="17" ry="25" transform="rotate(32 32 32)" stroke="currentColor" stroke-width="1.8" stroke-opacity=".7" />
+      </g>
+      <circle cx="32" cy="32" r="9" fill="#fff" fill-opacity=".9" stroke={dark} stroke-width="2.6" />
+      <circle cx="32" cy="32" r="5.4" fill="currentColor" fill-opacity=".55" />
+      <g {...main} stroke-width="2.6">
+        <circle cx="7.4" cy="40" r="6.4" />
+        <circle cx="55.6" cy="22.4" r="5.2" />
+        <circle cx="42" cy="52.8" r="3.6" />
+        <circle cx="23.2" cy="9.6" r="2.8" />
+      </g>
+      <ellipse cx="55.6" cy="22.4" rx="9.2" ry="2.8" transform="rotate(-18 55.6 22.4)" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.6" />
+      <circle cx="5.6" cy="38.2" r="2" fill="#fff" fill-opacity=".75" />
+      <path d="M53.6 20.4a2.6 2.6 0 0 1 2.4-1.6" {...hiLine} stroke-width="1.4" />
+    </>
+  ),
   // generic fallback
   unknown: () => (
     <g {...main}>
@@ -563,6 +819,80 @@ const BUFF_SHAPES: Record<string, G> = {
   ),
   star: () => (
     <g {...main}><path d="M32 4L39 24L60 25L43 38L49 59L32 47L15 59L21 38L4 25L25 24Z" /></g>
+  ),
+  // ── ranger M1 buffs (docs/rework/depth/RANGER.md §5–§8; set motifs: rain, antler, knot, feather) ──
+  drop: () => (
+    <>
+      <g {...main}><path d="M32 4C40 18 52 28 52 41C52 52 43 60 32 60C21 60 12 52 12 41C12 28 24 18 32 4Z" /></g>
+      <path d="M22 40C22 33 26 27 30 22" {...hiLine} />
+      <path d="M32 60C43 60 52 52 52 41C52 38 51 35 50 33C48 47 40 55 28 56Z" {...shade} />
+    </>
+  ),
+  eye: () => (
+    <>
+      <path d="M3 32C17 12 47 12 61 32C47 52 17 52 3 32Z" fill="#f6eed6" {...OUT} />
+      <circle cx="32" cy="32" r="12" {...main} />
+      <ellipse cx="32" cy="32" rx="3.4" ry="9" fill={dark} />
+      <circle cx="27.6" cy="27.4" r="2.6" fill="#fff" fill-opacity=".9" />
+    </>
+  ),
+  horn: () => (
+    <>
+      {/* a hunting horn: thin mouthpiece at the left, the curve flaring into a wide bell at the right */}
+      <g {...main}><path d="M3 24C9 22 17 28 29 31C41 34 49 28 53 16L62 46C52 52 38 51 26 45C16 40 9 32 3 29Z" /></g>
+      <ellipse cx="57.5" cy="31" rx="3.6" ry="14.6" transform="rotate(-18 57.5 31)" fill={dark} />
+      <ellipse cx="57.5" cy="31" rx="1.8" ry="11" transform="rotate(-18 57.5 31)" fill="#000" fill-opacity=".5" />
+      <rect x="1" y="23" width="5" height="8" rx="2" {...main} stroke-width="2.2" />
+      <path d="M12 26C19 28 26 33 37 35" {...hiLine} />
+      <path d="M22 40C30 45 40 47 50 44" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.4" stroke-linecap="round" />
+      <path d="M33 33V47M42 33V49" stroke={dark} stroke-width="2.2" stroke-opacity=".6" />
+    </>
+  ),
+  antler: () => (
+    <>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 60C20 44 16 32 8 22M17 40C10 38 6 32 4 26M14 30C16 22 14 14 10 8M44 60C46 44 50 32 58 22M49 40C56 38 60 32 62 26M52 30C50 22 52 14 56 8" stroke={dark} stroke-width="9" />
+        <path d="M22 60C20 44 16 32 8 22M17 40C10 38 6 32 4 26M14 30C16 22 14 14 10 8M44 60C46 44 50 32 58 22M49 40C56 38 60 32 62 26M52 30C50 22 52 14 56 8" stroke="currentColor" stroke-width="5" />
+      </g>
+      <path d="M21 54C20 46 18 38 14 32" {...hiLine} stroke-width="1.6" />
+    </>
+  ),
+  howl: () => (
+    <>
+      <path d="M44 6C47 9 48 12 47.6 15M51 4C55 8 57 13 56 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity=".8" />
+      <g {...main}><path d="M14 60C14 46 18 36 24 30L22 18L30 25C34 22 38 18 41 12L44 20C42 26 38 30 36 34C42 38 46 46 46 60Z" /></g>
+      <path d="M25 31L23 20L29 26" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2" />
+      <circle cx="35.6" cy="26.6" r="1.8" fill={dark} />
+      <path d="M20 46C21 40 24 36 28 34" {...hiLine} />
+    </>
+  ),
+  jaws: () => (
+    <>
+      <ellipse cx="32" cy="34" rx="25" ry="14" fill="none" stroke={dark} stroke-width="11" />
+      <ellipse cx="32" cy="34" rx="25" ry="14" fill="none" stroke="currentColor" stroke-width="6.4" />
+      <g fill="#ece8e0" stroke={dark} stroke-width="1.4" stroke-linejoin="round" paint-order="stroke">
+        {[210, 245, 280, 315, 30, 65, 100, 135].map((deg) => {
+          const a = (deg * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+          const bx = 32 + 21 * c, by = 34 + 10.6 * s, tx = 32 + 13 * c, ty = 34 + 5.4 * s, ux = -s * 3, uy = c * 1.5;
+          return <path d={`M${(bx + ux).toFixed(1)} ${(by + uy).toFixed(1)}L${tx.toFixed(1)} ${ty.toFixed(1)}L${(bx - ux).toFixed(1)} ${(by - uy).toFixed(1)}Z`} />;
+        })}
+      </g>
+      <path d="M12 28C18 22 26 20 32 20C38 20 46 22 52 28" {...hiLine} stroke-width="1.6" />
+    </>
+  ),
+  wing: () => (
+    <>
+      <g {...main}><path d="M32 5L54 13V32C54 46 44 55 32 60C20 55 10 46 10 32V13Z" /></g>
+      <path d="M32 11L48 17V32C48 43 41 50 32 54Z" {...shade} />
+      <g fill={dark}>{([[24, 30, 5], [36, 26, 4.2], [30, 38, 4.4], [42, 36, 3.6], [22, 42, 3.4]] as const).map(([x, y, s]) => <path d={birdPath(x, y, s)} />)}</g>
+    </>
+  ),
+  hide: () => (
+    <>
+      <g {...main}><path d="M14 8C22 12 26 10 32 6C38 10 42 12 50 8C50 18 56 22 58 30C52 34 52 44 56 54C46 52 40 56 32 60C24 56 18 52 8 54C12 44 12 34 6 30C8 22 14 18 14 8Z" /></g>
+      <path d="M22 18C27 21 37 21 42 18M20 30C26 33 38 33 44 30M22 42C27 45 37 45 42 42" fill="none" stroke="#000" stroke-opacity=".28" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M17 14C19 20 18 26 14 30" {...hiLine} stroke-width="1.6" />
+    </>
   ),
 };
 

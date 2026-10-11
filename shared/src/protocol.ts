@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 26; // 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
+export const PROTOCOL_VERSION = 27; // 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
@@ -32,6 +32,7 @@ export const F_BLEED = 1 << 12;
 export const F_POISON = 1 << 13;
 export const F_INVULN = 1 << 14;
 export const F_WINDUP = 1 << 15;   // monster telegraphing an attack
+export const F_SLOW = 1 << 16;     // power-status slow (movement only; chill has its own bit)
 
 /** Visible paper-doll slots. */
 export type LookSlot = 'head' | 'shoulders' | 'chest' | 'hands' | 'legs' | 'feet' | 'waist' | 'mainhand' | 'offhand';
@@ -114,7 +115,7 @@ export type GameEvent =
   | { e: 'cast'; s: number; sk: string; r?: string; x: number; y: number; tx: number; ty: number; rad?: number }
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
   | { e: 'pend'; id: number; x: number; y: number; hit?: 1 }
-  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1 }
+  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1; /** a count (Orrery spheres) */ n?: number }
   | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number; s?: number }
   | { e: 'beam'; v: string; x: number; y: number; tx: number; ty: number; el: number; d: number }
   | { e: 'level'; t: number; lv: number }
@@ -187,7 +188,7 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item; build?: import('./buildCode').BuildCode }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
       /** v2 breakdown (F-MET-02): kills/min used, whether it is the hero's own measured rate, the offline share, cap hit. */
       rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
@@ -212,6 +213,7 @@ export type CmdOp = 'onboarding'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
+  | 'buildSheet' | 'bench' | 'loadout' | 'applyBuild'
   | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
   | 'debug';
 

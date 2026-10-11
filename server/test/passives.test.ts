@@ -17,11 +17,13 @@ import type {World} from '../src/world';
 assert(process.env.DATA_DIR,'isolated DATA_DIR required');ensureDataDir();
 
 test('catalogue provides legal original class choices with finite effects throughout their unlocked levels',()=>{
-  assert.equal(PASSIVES.length,18);assert.equal(new Set(PASSIVES.map(p=>p.id)).size,18);
+  // The original six per class stay (unlocks 10,10,20,30,40,50); class waves add more (warrior pilot: 14), so count by class.
+  assert.equal(new Set(PASSIVES.map(p=>p.id)).size,PASSIVES.length);
+  assert.equal(PASSIVES.length,(['warrior','ranger','mage'] as const).reduce((n,c)=>n+passivesForClass(c).length,0));
   for(const classId of ['warrior','ranger','mage'] as const){
-    const list=passivesForClass(classId);assert.equal(list.length,6);
-    assert.deepEqual(list.map(p=>p.unlock),[10,10,20,30,40,50]);
-    for(const p of list){if(p.skill)assert.equal(SKILLS[p.skill].classId,classId);for(let level=p.unlock;level<=70;level++)assert(Number.isFinite(passiveValue(p,level))&&passiveValue(p,level)>0);}
+    const list=passivesForClass(classId);assert(list.length>=6);
+    assert.deepEqual(list.slice(0,6).map(p=>p.unlock),[10,10,20,30,40,50]);assert(list.every(p=>p.unlock>=10&&p.unlock<=70));
+    for(const p of list){if(p.skill)assert.equal(SKILLS[p.skill].classId,classId);if(!p.stat){assert(p.effects?.length,p.id+" has a stat or power effects");continue;}for(let level=p.unlock;level<=70;level++)assert(Number.isFinite(passiveValue(p,level))&&passiveValue(p,level)>0);}
   }
   assert.equal(passiveValue(PASSIVES[0],70),12.5,'existing10–15 head-affix mean, not a new percentage');
 });

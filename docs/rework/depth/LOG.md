@@ -129,6 +129,30 @@
   warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
   Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).
 
+## Ranger wave (2026-10-11, branch `claude/ranger` from `claude/town-ui-rework` 343a5d5)
+
+- BUDGET.md §4 levers first (Gearwright's Heart 50 → 30 % faster, Weathervane Ring / Bandolier Belt 60–90 → 75–105, Rainspindle
+  rolls 150–200 % damage). Content: 12 skills (6 new), 60 runes, 72 / 72 nodes (4 in phase 2), 14 passives (8 new), 5 sets (3
+  redesigned on tags, 2 new), 35 ranger legendaries (30 new), 4 data grounds; NAMES.md renames (Tracking Arrow, Burst
+  Arrow, Arrowfall; ids unchanged); original icons, VFX (performance rules: no filters, baked glows, pooled sprites, one
+  ParticleContainer per flock) and sounds. Details, blocked list and deviations: `RANGER-WAVE.md`.
+- Narrow generic additions, each its own commit with tests (`server/test/rangerEngine.test.ts`): projectile hooks and a
+  reach override (a0168b6), condition `targetWithin` (29b31e0), `perSummon` by type / skill / tag (c6d096c).
+- Parity: `RANGER-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on ranger
+  items for Arrowfall, Pitch Mortar, Companion and Murmuration. Fits from measurements: Farwatch 4 and Rainkeeper 4 cost
+  cuts 30 → 15 %, Farwatch 6 replaces the 5th cast with a 50 % free cast; Bolt-Thrower's Arbalest pierces up to 2 enemies
+  (snapshot bandwidth: +18.1 % over the perf baseline with unbounded pierce, +11.9 % capped; gate +15 %). Open: Sentry outlier (D1 1/11, D6 1.94; the
+  Arbalest roll), Burst Arrow D4 1.27 (Farwatch 6's range condition), shared legendaries D3 up to 1.86.
+- `server/test/sim.ts`: ranger fixture kit = the audit's Siegebreaker 6 Sentry kit (set spike ×29, was ×348); ranger
+  L70 Torment II rift on the 30 % progress floor like the warrior (57.1 % measured). Mage byte-identical against 343a5d5
+  with the ranger out of the class loops (spike, field, rift).
+- Phase 2 after merging claude/town-ui-rework 7faa331 (engine wave 3): Gut Hook, Wake, Tar Pit and Feather Storm
+  (72 / 72 nodes); Ripple, Flood Plain, Bloodhound and Weather Eye slow at the bible strengths (status `slow`);
+  Wingbeat Boots part 2 (beasts run to your side when your dash ends); Tracker +5 / 10 / 15 % movement speed (buff `mv`).
+- Owner decision via the lead: legendary rolls of retired ranges rescale on load (Rainspindle 30–40 → 150–200,
+  Weathervane Ring / Bandolier Belt 60–90 → 75–105), idempotent and unversioned (`shared/src/legendaryRolls.ts`,
+  golden fixture `v16-legacy-rolls`).
+
 ## Engine wave 3 (2026-10-11, branch `claude/depth`)
 
 - Merged `claude/town-ui-rework` 343a5d5 first (warrior pilot + shared-items wave).
@@ -166,3 +190,74 @@
 - **Sim tick checks under load (lead request).** `server/test/perfGauge.ts` measures the machine's slowdown in the same
   run, and the three "< 3 ms" tick checks use 3 ms × that load factor (factor 1 on a quiet machine). The 30 s perf
   window is best of up to 3. Proof (passes under load, fails an injected 1.5 / 3 ms slowdown) in FOUNDATION.md §13.11.
+
+## Mage wave (2026-10-11, branch `claude/mage`)
+
+- Content: 12 skills (6 new: Rime Needles, Thrumming Ray, Cinderkin, Rimefield, Stormglass Orb, Orrery), 60 runes,
+  67 / 72 nodes, 14 passives (6 kept + 8 new), 5 sets (Regalia of the Fallen Star redesigned on tags; Glass Concord,
+  Lantern Garden, Hoarfrost Vigil, Hollowstar Choir new), 33 / 34 mage legendaries, 5 data grounds; NAMES.md rune
+  renames (ids unchanged). Details, blocked list (chosen-strength slow: 5 nodes; Rimewalker Slippers: movement-end
+  trigger) and deviations: `MAGE-PILOT.md`.
+- Narrow generic additions (tests in `server/test/engineMage.test.ts`): `Proj.hook`, negative `skillMore` ("less"),
+  `elementStacks.bucket: 'generic'`, rule `statusLonger`; harness-only `resetIdsForHarness`.
+- Parity: `MAGE-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on mage
+  items for the parity-ready mage skill Rime Needles. Fits from measurements: Hollowstar Choir 4 cost 30 → 10 %,
+  Hollowstar Choir 6 refraction 40 → 15 %, Hoarfrost Vigil 2 20/20 → 15/15 %, Spellwright's Circlet once every 0.5 s,
+  Stormglass extra orbs half damage. Mage items only, D3 0.49–3.44 → 0.50–1.40 and D6 2.54 → 1.49.
+- Client: `render/vfx/mage.ts` + routing, poses, three summon rigs, six icons, buff names, sounds, gallery scenes; no
+  filters, no Graphics, pooled particles only. Real-rift fixes: zap load window, orb glow crowding, Conductor tether as
+  the light zap (and a chain). Draw calls per frame stay in the base build's band (`MAGE-PILOT.md` §8).
+- `server/test/sim.ts`: mage endgame kit = the audit's best Fallen Star 6 Meteor kit (set spike ×13–22 [M]); mage
+  L70 Torment II rift is a 30 % progress floor like the warrior's (87.3–93.6 % rift-only, 35.3 % in the full stream).
+  Warrior and ranger field / signature / spike sections byte-identical to 343a5d5 with the mage out of the class loops.
+- **Phase 2 (after merging claude/town-ui-rework 7faa331: engine wave 3).** Lingering Pull, Cold Snap Edge, Absolute
+  Field, Tidal Lock, Clockwinding (72 / 72 nodes) and Rimewalker Slippers (34 / 34 legendaries) on the wave-3 `slow`,
+  scoped `vulnerable` and `dashEnd`; Rimefield 50 % / Deep Chill 60 % chills = chill + slow (Rime Needles keeps 40 %).
+  Stormglass Orb paced by the attack rate (an AP-positive Static Charge loop cast it every tick: 184 casts / 10 s →
+  14). Parity (mage items only): D3 0.50–1.40 → 0.52–1.42, D4 1.00–1.20 → 0.95–1.21, D6 1.49 → 2.14; only Rime Needles
+  stays parity-ready. Pace: the L25+ champion-TTK miss is identical on the merged base (not the mage). Content-id lock
+  updated. Details: `MAGE-PILOT.md` §2, §6, §7.
+
+## Build tools M1 + engine follow-ups (2026-10-11, branch `claude/depth`)
+
+- **Pace gate (lead request).** The L25+ champion-TTK miss came from the random stream the classes shared, not from a
+  rule: c18b4a6 reseeds the leveling sim per class. With the reseed, the lead's "ranger 6.65 s" is 5.05 s and the
+  warrior's 7.10 s is unchanged. FOUNDATION.md §13.13.
+- **Class gate on item powers** (mage-agent finding, reachable through off-class drops and the Cube): d462807,
+  FOUNDATION.md §13.12.
+- **Recast floor** of 250 ms for skills without a cooldown (d462807). It was measured over 9 seeds against no floor and
+  against one cast per attack interval (the D3 rule):
+  - the floor is pace-neutral within noise;
+  - the attack interval collapsed one warrior run of nine (85 deaths) and stays a balance decision.
+  - The single-seed gate now misses on the default seed with the floor (L25+ mage 7.35 s > 6.4 s). Over the paired
+    seeds that miss is noise; the gate is fragile.
+  - Details in FOUNDATION.md §13.14.
+  - Lead decision: the floor stays, and `pace-targets` now checks the median of 3 seeds (0xC0FFEE, +1, +2, in parallel,
+    57 s). Targets are unchanged. Each single seed misses one band; the median passes all 6.
+- **Build tools M1.** Notes in BUILD-TOOLS.md §4.
+  - T1 / T2: exact numbers, the damage-breakdown sheet and the advanced toggle (2e1e6d1).
+  - T3: training-dummy bench (d105cae, 0061b67).
+  - T4: five skill loadouts, SAVE_VERSION 17 (505a9bd).
+  - T5: HF1 build codes in chat with a server-checked Apply (efbdc38).
+- **Cleanups.**
+  - `F_SLOW` status bit and a [P] tint for power-slowed monsters.
+  - `passives.test.ts` counts by class.
+  - Stable ids recorded; the build-code registry is append-only and checked by content:check.
+- Merged `claude/town-ui-rework` 27f7e0c (mage wave): 56b2bf3.
+- **After the ranger merge (630bef3).**
+  - Build-code ids appended (88).
+  - The plain recast floor slowed the new ranger (L25+ +1.4 ± 0.6 s over 10 seeds; Multishot bursts spread). It is
+    now refused only for recasts the hero does not pay for. The gate's L25+ class median went from 6.87 to 6.53 s.
+  - L25+ still sits at the 6.4 s target; that is the combined classes' pace.
+  - Rift sections run in their own state. L70 medians over 9 maps: warrior 77 %, ranger 56 %, mage 78 %.
+  - Lead decision: L70 floors use the median of 3 maps (30 % kept; each map printed). First run medians: warrior 57.4 %,
+    ranger 46.9 %, mage 58.1 %. A weakened ranger kit fails (median 6.7 %).
+- **Open balance items (for the balance pass).**
+  - **Ranger death spirals at L70 Torment II on some maps.** 9–20 deaths in 12 minutes, 21.5 % and 22.9 % progress,
+    against a 56 % median over 9 maps. The warrior has one such map too (seed 3: 9 deaths, 5.6 %).
+  - **L25+ pace sits right at the 6.4 s champion-TTK target.** With the refined recast floor, the class median per seed
+    averages 6.53 s over 10 seeds.
+    - The 3-seed gate passes on the gate seeds and on seeds 4–6, and misses on 1–3 (L10+ 8.85 s, L25+ 6.55 s).
+    - Class means at L25+: warrior 9.0 s, ranger 5.7 s, mage 5.8 s.
+    - FOUNDATION.md §13.15.
+  - Details in FOUNDATION.md §13.15.

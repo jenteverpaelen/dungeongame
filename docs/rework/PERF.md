@@ -1,0 +1,233 @@
+# Client performance — budgets, method, changes, gate (2026-10-11)
+
+Owner rule (verbatim, 2026-10-11): "when trying a rift on the dev server with full set etc big damages my fps drops to
+34 which should never be the case its a 2d game it shouldnt require so much resource from my pc" — and the fix must
+"not affect the game … the whole reason we are doing 2d and all that is too keep the game accessible on browser and on
+low end pcs". Everything below keeps play and looks unchanged; where a change is not pixel-identical, the measured
+difference is stated.
+
+Labels: **[M]** measured here, **[I]** inferred, **[U]** unverified / external.
+
+## 1. What "low end" means here
+
+| Evidence | Value | Label |
+|---|---|---|
+| Steam Hardware & Software Survey, September 2026 (store.steampowered.com/hwsurvey, read 2026-10-11 through a summarising fetch; re-check the page before quoting) | physical cores: 2 = 2.45 %, 4 = 10.79 %, 6 = 27.23 %, 8 = 30.06 %; RAM 8 GB = 6.47 %, 16 GB = 37.82 %; 1920×1080 primary display 47.91 %; integrated GPUs among the top entries (Iris Xe 1.50 %, AMD Radeon Graphics 1.43 %, UHD 1.01 %) | [U] |
+| Steam skews to gaming PCs; browser players skew lower | so "low end" for a browser game is at least the ≤ 4-core / 8 GB / integrated-GPU tail above | [I] |
+| Lighthouse throttling docs (github.com/GoogleChrome/lighthouse docs/throttling.md, read 2026-10-11) | a constant **4× CPU slowdown** moves a high-end desktop into the "mid-tier mobile" bracket (BenchmarkIndex ≈ 125–800); below that is "low-end mobile" | [U] |
+| This machine | Ryzen 7 7435HS (8C/16T), RTX 4070 Laptop (ANGLE D3D11), 16 GB, Windows 11, Chrome 154 headless; shared with other agents (load 37–67 %) | [M] |
+
+So the low-end proxy is **the same fight with Chrome's CPU throttled 4×** (DevTools `Emulation.setCPUThrottlingRate`),
+plus a **software-rasteriser run** (`--use-angle=swiftshader`) for blocklisted GPUs. 1080p is the reference screen.
+
+## 2. Method (why the numbers can be trusted)
+
+* **Recorded references, replayed.** Live rifts differed from run to run by 17–37 monsters and 64–143 draw calls, so
+  live A/B numbers were noise. `scripts/perf/record-fight.mjs` records every server message the client receives during a
+  Torment Faultline fight (L70 Warrior in full Set + Legendaries, two extra elite packs, ~27 monsters alive throughout,
+  20 s); `scripts/perf/record-town.mjs` does the same for 24 socket-client heroes (all classes, L70, full Set +
+  Legendaries) gathering round the recording hero at the Faultstone (25 heroes in view). `scripts/perf/replay-page.js`
+  feeds a recording into the running client at the recorded arrival times through the client's own socket handler
+  (live traffic is dropped meanwhile). Same scene every run: draw calls repeat within ±0.5, visible objects within ±2.
+* **Thread CPU time, not wall time.** A Chrome trace (`toplevel`) gives each top-level task's thread time (`tdur`), per
+  frame, for the renderer main thread and the GPU-process main thread (`scripts/perf/cpu-trace.mjs`).
+* **Paired, concurrent A/B.** Shared-machine load moved single runs by ±40 %, so both builds replay the same recording
+  at the same time in two Chrome instances (`scripts/perf/ab.mjs`, one sample = `scripts/perf/replay-sample.mjs`) and the per-round ratio is reported (round-to-round spread
+  ≤ 2 %). Absolute numbers from these runs are inflated (two browsers share the machine); sequential interleaved runs
+  (A, B, B, A, …; medians) give absolute fps.
+* **Production builds only** (`vite build`), served by `vite preview` with `/ws` proxied to an isolated server
+  (`DATA_DIR=.local/perf-data`, debug on for recording only). Visible pages (`document.hidden` false), 1920×1080.
+
+## 3. Where the time went (before; built client, reference fight, 1×)
+
+Renderer main thread ≈ 7.1 ms CPU per frame [M] (unminified production build, CPU profile over 12 s):
+
+| Part | ms / frame | Note |
+|---|---|---|
+| Pixi render | 2.6 | rebuild of all draw instructions **every frame** 1.1 · transform updates 0.6 · draw submission 0.6 |
+| Game frame (scene, rigs, VFX) | 1.6 | hero rig 0.5 · 27 monster rigs 0.4 · VFX 0.24 |
+| Native (style, layout, paint, GL encoding) | 2.2 | 26 HUD elements restyled every frame by their running CSS animations; 0.9 ms style + 0.5 paint |
+| Minimap | 0.3 | **1.3 ms per paint spent assigning `ctx.font`** (forces a document style resolution) |
+| HUD (Preact) + snapshots | 0.3 | `Number#toLocaleString` built a new ICU formatter per call (~1 ms each at 4×) |
+
+GPU-process main thread ≈ 11.6 ms CPU per frame [M] — the busiest thread: WebGL 2.8 · DOM raster 3.2 · HUD render
+passes 2.8 (9 per frame) · swaps / shared images 1.6. **Hiding the whole HUD** cut the GPU process by 64 % and the main
+thread by 31 % (paired, 3 rounds) [M]: on this machine the HUD costs more than the game scene.
+
+Draw calls: of the fight's 122, about 85 came from the y-sorted props alternating a normal body and an additive glow —
+each crystal or torch ended two batches [M, instruction dump of the render groups].
+
+Why Pixi rebuilt everything each frame: any `zIndex` write marks the render group as structurally changed — and the
+y-sorted entity layer plus every hero rig (part depths follow the 3D pose) write new values every frame, even when the
+draw order stays the same. With a single render group (the stage) one change anywhere rebuilt the whole scene.
+
+## 4. Changes (each kept only with a measured win; all look-identical unless stated)
+
+| # | Change | Where | Measured | Look |
+|---|---|---|---|---|
+| R1 | Lazy depth sort: a y-sorted / depth-sorted container records zIndex changes and re-sorts (and rebuilds) only when its children are actually out of order — the same stable order Pixi would produce | `client/src/render/depthSort.ts`; scene entity layer, hero body and hand-glow layer | whole-scene rebuild every frame → entity-layer rebuild in 43 % of fight frames (34 % real order changes), the rest of the scene no longer rebuilt with it | identical by construction |
+| R2 | Render groups: camera root (moving it is one matrix), each scene layer, each hero rig | `client/src/render/scene.ts` | R1 + R2: main thread −4 % rift, −14 % town crowd (paired, 3 rounds); +2 draw calls rift, +14 town | frozen-frame WebGL readback, on vs off in the same page: rift 976 of 8.3 M channel values differ, max 2/255; town 11 values > 4/255 (the town tint is applied once as a group uniform instead of per vertex) |
+| H1 | Minimap assigns `ctx.font` once per context (it persists outside save/restore) | `client/src/ui/hud/Minimap.tsx` | the per-paint forced style resolution (1.3 ms at 1×, ~15 ms at 4× in the profile) is gone; at 1× most of that work then happens in the normal style pass, so the net gain is in H1–H4 together | identical |
+| H2 | `prefersReducedMotion()` keeps the query's value current from its change event instead of evaluating `matches` (hundreds of calls per frame) | `client/src/game/preferences.ts` | 0.85 ms/frame at 4× in the profile | identical |
+| H3 | Number formatting reuses `Intl.NumberFormat` instances (`toLocaleString` is specified as exactly that) | `shared/src/format.ts`, test `shared/test/format.test.ts` | 0.67 ms/frame at 4× in the profile | identical (the test compares every case) |
+| H4 | Minimap monster dots set their shared styles once per paint | `Minimap.tsx` | H1–H4 together: a further −3 % main thread at 1× (paired) | identical strokes |
+| H5 | Cooldown sweep is its own compositor layer (`will-change: transform`), so its 10 Hz repaint no longer re-rasterises the drop-shadowed skill icons | `client/src/ui/styles/hud.css` | GPU process −13 %, fps +5 % (paired, 3 rounds) | ≤ 12/255 in 1,381 px of the sweep wedge; promoting the seconds too moved their glyphs 1 px, so they stay unpromoted |
+| B1 | Additive light without its own batch: prop glows and torch flames use an alpha-0 premultiplied twin of their fx texture under normal blending (premultiplied blending makes that exactly additive on the opaque game canvas), so the y-sorted props stop alternating normal / additive batches | `client/src/render/art/fx.ts` (`additiveAsNormal`), `art/map.ts` | rift draw calls **122 → 35**; GPU process −12 %, main −2 %, 4× fps +5 % (paired vs R1–H5, 3 rounds) | frozen-frame readback, twins vs the original textures with 'add': 2 of 8.3 M channel values differ, by 1/255 |
+| D1 | First run on a software rasteriser (SwiftShader / llvmpipe / Basic Render Driver) starts on the Low preset | `client/src/game/quality.ts`, `main.ts` | SwiftShader fight 2.7 → 3.6 fps (+33 %) | Low preset (only on those machines, only without saved settings) |
+
+**Bug found on the way (pre-existing, fixed):** in a crowded town (more than 40 active entities) remote heroes are
+pose-cached and only updated in 24 Hz slots. When a class placeholder sheet finished baking, the old sheet was destroyed
+4 s later while cached heroes could still be drawing from it; the next frame threw inside Pixi (`buildContextBatches`,
+destroyed GraphicsContext) and the game's render loop could stop. Reproduced with the town-crowd replay and the cache
+forced on (`scripts/perf/crowd-cache-check.mjs`): before the fix 7 of 11 runs, after it 0 of 9. Fix: `PlayerArt.stale` and an off-slot update for stale cached
+heroes (`scene.ts`).
+
+Tried and dropped: a render group per monster / prop (+30 draw calls, no CPU win, paired); the Medium / Low presets on
+a real GPU (−1 to −4 % CPU: this fight is CPU-bound on rig and scene work, not on particles or pixels) [M].
+
+### 4.1 Second pass: the globes and the target bars (lead decision, 2026-10-12)
+
+The HUD was still the largest cost: hidden, the fight cost 29 % less main-thread and 51 % less GPU-process time. Each
+globe's interior was 11 continuously animated compositor layers, which Blink restyles every frame (26 such layers in the
+HUD, 22 of them in the globes). The interior also had soft-light and overlay blend passes over moving content in the GPU
+process every frame.
+
+| # | Change | Where | Look |
+|---|---|---|---|
+| O1 | Each globe's interior is one canvas (`ui/hud/orbCanvas.ts`). It holds the static glass and tint, the liquid (level, bob, both waves, glow, 7 bubbles), the floor / light / depth shading and the glass grain with its swirl. It reproduces the DOM layer stack: the same SVG markup rasterised once at whole-pixel size and exact scale; moving layers rasterised once and moved with bilinear filtering, as the compositor moves layers; the CSS keyframes, easings, delays and the alternate / reverse directions evaluated in code; soft-light and overlay done with canvas blending (the same compositing formulas). Idle motion redraws 30 times a second. A level change redraws up to 60 times a second. The grain group is re-made every 2° of swirl (≤ about 1 level per step). | `orbCanvas.ts`, `Globes.tsx`, `hud.css` (the old liquid rules and keyframes removed) | Frozen frames: DOM orbs with every CSS animation paused at clock T, against the canvas with `window.__orbClock = T`. 1920×1080 and 1366×768, starter and full skill bar, life and resource, T = 0 / 1.7 / 5.3 / 12.9 s (32 crops). Inside the liquid circle, mean per channel 0.76 / 0.79 / 0.69 of 255; 1.7 % of pixels differ by more than 4; max 33 / 44 / 47. The maxima sit on the 3-pixel bubble dots (the compositor draws them as small squares) and on the wave-crest anti-aliasing. Including the anti-aliased rim: mean 0.95 / 0.85 / 0.71. Side by side (DOM, canvas, difference ×16): `shots/perf/orb-1080p-full-life.jpg`, `orb-1366-full-res.jpg`, `orb-1080p-starter-life.jpg`. Visually identical; not bit-identical. |
+| O2 | On the Low preset and with reduced motion the interior holds still (no waves, bob, bubbles or swirl, as the DOM version showed for reduced motion). The level still eases (0.7 s, 0.3 s into empty) in both. The Low preset note in Settings says so. | `Globes.tsx`, `settingsMessages.ts` | Low and reduced motion: two captures 1 s apart identical; a life change moves the level |
+| O3 | Target-frame HP trail and fill are full-width and slide by `translateX(round(…, 1px))` instead of animating `width`, so no layout or repaint every frame. | `Target.tsx`, `hud.css` | 1080p: max 1/255 at four life fractions. 1366×768 (bar width 312.875 px): the moving edge column lands one pixel over on 15–18 pixels of the bar (0.25 %) |
+
+Reproduce the frozen-frame check with `node scripts/perf/orb-equivalence.mjs <DOM-globe client> <canvas-globe client>`.
+
+Measured against `claude/town-ui-rework` 07c97c9 (paired, rift 4 rounds, town 3):
+- Rift: main thread −13 %, GPU process −12 %, 4× fps +14 % (main thread −15 %).
+- Town crowd: main −9 %, GPU process −13 %, fps +10 %, 4× fps +5 %.
+- The orb canvas alone (O1 at 60 Hz, without the 30 Hz cap and the grain step) took the main thread down 9 %; the GPU process stayed level until the cap (−10 %) and the grain step (−4 %).
+- Idle town now runs 2 CSS animations (24 before); rift DOM paints per frame 0.57 → 0.19.
+
+## 5. Before / after (production builds; before = `claude/town-ui-rework` f6ccb15, after = this branch)
+
+**Paired, concurrent** (`scripts/perf/ab.mjs`: both builds replay the same recording at the same time; median of the
+per-round ratios; the values shown are one representative round, inflated because two browsers share the machine) [M]:
+
+| Scene | Metric | Before | After | Change (median ratio) |
+|---|---|---|---|---|
+| Rift fight, 1× (4 rounds) | renderer main thread, CPU ms / frame | 6.52 | 6.02 | **−9 %** |
+| | GPU-process main thread, CPU ms / frame | 6.03 | 4.77 | **−25 %** |
+| | fps | 88.5 | 90.8 | **+7 %** |
+| Rift fight, 4× CPU throttle | fps | 19.3 | 21.6 | **+12 %** |
+| | main thread CPU ms / frame | 10.9 | 9.8 | −11 % |
+| Town crowd, 25 heroes, 1× (3 rounds) | renderer main thread | 15.6 | 12.9 | **−15 %** |
+| | GPU process | 11.7 | 11.1 | −5 % |
+| | fps | 64.4 | 77.2 | **+16 %** |
+| Town crowd, 4× | fps | 11.0 | 11.9 | +8 % |
+| Field zone walk, 1× (Rillwake Crossing, `scripts/perf/field-walk.rec.gz`, 3 rounds) | renderer main thread | 5.18 | 4.51 | **−13 %** |
+| | GPU process / fps / draw calls | 4.45 / 112 / 20 | 4.51 / 112 / 21 | ±1 % / equal / +1 |
+
+**Sequential runs are not evidence here.** Two interleaved sequential batches (A, B, B, A, A, B; medians of 3) disagreed:
+rift 4× went 19.0 → 25.5 fps in one and 27.4 → 22.9 in the other, single runs ranging 16–39 fps for the same build.
+On this shared machine only the paired ratios hold still (round-to-round spread ≤ 3 %).
+
+At 1× the fight runs past 120 fps on this machine either way (the owner's 34 fps was the pre-7bfa8c2 HUD on the dev
+server; the unminified dev build is slower than what ships). The 4× and crowd numbers are what low-end PCs feel.
+
+**GPU-process trace, rift 1× (CPU ms per frame, single runs, before B1)** [M]: DOM raster 1.52 → **0.72**; HUD render
+passes 2.29 → 2.24; WebGL 2.13 → 2.23; swaps 0.56 → 0.57; total 7.88 → 7.07. B1 then took WebGL work down with the
+draw calls (GPU process −12 % paired).
+
+**Per-frame work** (deterministic, the gate's counters) [M]:
+
+| | Draw calls | Texture binds | Buffer KB | Visible objects | Renderables |
+|---|---|---|---|---|---|
+| Rift before → after | 120 → **35** | 129 → **60** | 199 → 189 | 905 → 904 | 486 → 486 |
+| Town crowd before → after | 279 → 288 | 522 → 512 | 594 → 519 | 2,385 → 2,395 | 1,899 → 1,878 |
+
+**Look unchanged** [M]: frozen-frame readbacks in §4 (R2, H5, B1); side-by-side captures at the same replay moment in
+`docs/rework/shots/perf/` (`before-*` / `after-*`: town, rift fight, full-set hero close-up, town crowd).
+
+## 6. Budgets and the gate (`npm run verify`, stage `client-perf`)
+
+`scripts/client-perf-check.mjs` builds nothing itself: after the `build` stage it serves `dist/client` from the real game
+server (own port, isolated `DATA_DIR`, debug off), opens headless Chrome at 1920×1080 and checks:
+
+| Check | Budget (`scripts/perf/budgets.json`) | Measured now |
+|---|---|---|
+| Idle town: DOM Paint events per frame / running CSS animations | ≤ 0.1 / ≤ 6 | 0 / 2 |
+| Idle town and both replays: running CSS keyframe animations | transform / opacity / translate / rotate / scale only | 24 running, all compositor-only |
+| Rift fight (replayed): draw calls / texture binds / texture uploads / buffer KB per frame | ≤ 50 / 80 / 0.5 / 240 | 36 / 60 / 0 / 189 |
+| Rift fight: visible display objects / renderables | ≤ 1,100 / 600 | 905 / 486 |
+| Rift fight: DOM paints per frame | ≤ 0.4 | 0.19 |
+| Town crowd (replayed, 25 heroes): draws / binds / uploads / KB | ≤ 330 / 660 / 0.5 / 540 | 272 / 505–544 / 0 / 426 |
+| Town crowd: visible / renderables / DOM paints | ≤ 3,000 / 2,400 / 0.5 | 2,466 / 1,950 / 0.01 |
+
+Both replays start measuring after a 3 s warm-up and once no hero sheet is queued for baking (`window.__bakes`;
+baking is time-sliced, so how long it takes depends on the machine). fps, p95 and thread CPU per frame are printed but
+never gated. The run also fails on page errors, a hidden page, or a
+replay that no longer shows its scene (protocol change: re-record with `scripts/perf/record-fight.mjs` /
+`record-town.mjs`, see their headers). Raising a budget needs the new measurement and the reason in this file.
+
+**It catches the orb regression**: with `Globes.tsx` and `hud.css` from 40f86c6 (before 7bfa8c2) the gate fails with
+idle-town paints 2.91 per frame (budget 0.1), fight 5.05 (1.0), crowd 5.76 (0.5), and names `xpShine` (`left`),
+`hm-pulse` (`color`, `box-shadow`) and `keyPulse` (`box-shadow`) [M].
+
+Targets beyond the gate (not met yet, see §8): reference fight at 4× ≥ 30 fps (now about 20–25, see §5); renderer main thread ≤ 4 ms
+per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
+
+## 7. Rules for art, VFX and HUD work (pass to the art-direction, Ranger and Mage agents)
+
+1. **No `filters` on scene objects** (blur, glow, drop shadow, colour matrix): each is an off-screen pass per frame.
+   Glows are pre-baked sprites with `blendMode = 'add'` from the shared `fx()` sheet.
+2. **Additive fx sprites drawn straight to the game canvas** (props, monsters, ground and world VFX): pass them through
+   `additiveAsNormal()` (`art/fx.ts`). Same pixels, no batch break — it took the rift fight from 122 to 35 draw calls.
+   Not inside anything that is rendered to a transparent texture first (pose-cached crowd heroes, `cacheAsTexture`):
+   there the twin and 'add' differ where the glow covers nothing.
+3. **Keep a rig's additive parts together** otherwise, in draw order (one effects container, as `PlayerArt.fxAdd`): every switch
+   between normal and additive blending ends a batch (one more draw call). Hide unused glows with `visible = false`,
+   not `alpha = 0` (alpha-0 sprites still split batches).
+4. **No per-frame `Graphics` rebuilds** (`clear()` + redraw re-tessellates on the CPU). Draw shapes once, bake them to a
+   texture (`bake.ts`), then move, tint and scale sprites.
+5. **No new texture per event or per item.** New canvases and textures are uploads plus extra binds; use the shared
+   atlases (`fx()`, the glyph atlas, the hero sheet). The town crowd already binds ~520 textures per frame; series
+   weapon drawings and gear-effect canvases are the main source: bake them into the hero sheet or one shared atlas.
+6. **Pool, don't churn.** Adding or removing children, or toggling `visible`, rebuilds that render group's draw
+   instructions (since R2: only the hero's own group, or the effect layer). Keep pooled sprites in the tree.
+7. **zIndex** is free in the scene's entity layer and inside a hero's body and `fxAdd` (lazily sorted). Anywhere else
+   a zIndex write makes the parent sorted and rebuilds its group every time: use child order, or `lazyDepthSort(c)`.
+8. **Particles** scale with `effectsFactor()` (Graphics → effects density).
+9. **HUD**: animate only transform and opacity (the gate fails otherwise; idle town allows at most 6 running CSS
+   animations, so continuously moving parts belong in a canvas, as the globes are); no `filter` on elements whose content
+   changes; anything updating at 10 Hz or more over expensive content gets its own layer (`will-change: transform`),
+   and compare the pixels (promoted text can shift 1 px); never assign `ctx.font` per frame; never call
+   `toLocaleString` or `new Intl.*` per frame (use `shared/src/format.ts`).
+10. Before handing over: `npm run build`, then `DATA_DIR=<tmp> node scripts/client-perf-check.mjs`.
+
+## 8. What is left (needs a decision or a bigger change)
+
+1. **The HUD after the second pass (§4.1).** The globes and the target bars are done. What still moves is the XP
+   shine, the rift-bar shine and the menu / key pulses (2 to 4 compositor-only animations), plus the 10 Hz cooldown
+   sweeps and Preact renders.
+2. Remaining HUD GPU-process cost: the globe interior canvas is rasterised in the GPU process (30 times a second).
+   Drawing it with WebGL in one pass would make it nearly free, but would mean re-deriving the blend maths: not done.
+3. Hero rigs cost about 0.2–0.5 ms per hero per frame (weapon trails sample 20 poses per swing); 25 heroes ≈ 5 ms in
+   town. Remote heroes are pose-cached at 24 Hz only above 40 active entities; lowering that threshold changes how
+   smoothly other players animate: an owner call.
+4. The first sight of a new look bakes its sheet (`pumpBakes`, time-sliced): about 1.6 ms per frame for several seconds
+   when a crowd arrives.
+5. Town life (residents, ambient motion) and NPC rigs: about 2 ms + 1.8 ms per frame in the busy square (contended
+   profile).
+6. Texture binds in crowds (rule 5), the per-hero render-group batch breaks (+14 draws in the crowd) and the heroes' own
+   additive parts: the crowd still draws in 272 calls. Twins (B1) would cut that, but remote heroes are rendered into
+   transparent textures when pose-cached (over 40 entities), where twins look different; needs a cache-aware switch.
+7. 4× CPU: +12 % (paired). 30–60 fps there needs item 1 plus rig work (items 3–5).
+8. Integrated GPUs on HiDPI screens: High renders at 2× (four times the pixels of 1×). Starting them on render scale 1
+   would help fill rate [I], but there is no integrated GPU here to measure it: not done.
+
+## 9. Files
+
+`client/src/render/depthSort.ts` (new) · `scene.ts` · `art/player.ts` (lazy sort, `stale`) · `art/fx.ts`
+(`additiveAsNormal`) · `art/map.ts` (prop lights) · `ui/hud/Minimap.tsx` · `ui/hud/orbCanvas.ts` (new), `Globes.tsx`,
+`Target.tsx`, `i18n/settingsMessages.ts` · `ui/styles/hud.css` (sweep layer, globe interior, target bars) ·
+`game/preferences.ts` · `game/quality.ts` (+ test) · `main.ts` (first-run default, `window.__bakes`) · `shared/src/format.ts`
+(+ `shared/test/format.test.ts`) · `scripts/client-perf-check.mjs`, `scripts/perf/` (harness, replay, recorders,
+recordings, budgets, `ab.mjs` paired A/B, `crowd-cache-check.mjs`, `record-field.mjs`) · `scripts/verify.mjs` (stage) · `scripts/shoot.mjs` (`CHROME_EXTRA` flags for the SwiftShader run).

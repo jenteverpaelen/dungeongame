@@ -274,6 +274,29 @@ export function ploughPose(P: Pose, kit: Kit, t: number, k: number): void {
   mixPose(P, P, S, k);
 }
 
+/**
+ * Thrumming Ray channel, blended in by k: both hands pushed out at chest height and held together (a staff is
+ * levelled along the beam), feet braced, a slight lean into the beam and a fine tremble that grows with the note
+ * (`res` 0..1, resonance). No body spin; the facing is held on the beam by the rig.
+ */
+export function beamPose(P: Pose, kit: Kit, t: number, k: number, res = 0): void {
+  if (k <= 0.001) return;
+  const S = tmpC;
+  copyPose(S, P);
+  const jit = (Math.sin(t * 53) * 0.6 + Math.sin(t * 31) * 0.4) * (0.25 + 0.75 * res);
+  S.upper = 0; S.twist = -0.06;
+  S.hR = V(15.5 + 0.25 * jit, -29.5 + 0.3 * jit, 3.2);
+  S.hL = V(15.2 - 0.2 * jit, -29 - 0.25 * jit, -3.2);
+  S.w = kit.wk === 'staff' ? norm(1, -0.06, -0.02) : norm(0.95, -0.3, 0.05);
+  S.lean = 0.16 + 0.04 * res; S.crouch = 0.18; S.spread = 0.4;
+  S.legR = P.legR * 0.7 - 0.28; S.legL = P.legL * 0.7 + 0.3;
+  S.headTilt = 0.04; S.headYaw = 0;
+  S.glowR = 0.55 + 0.45 * res; S.glowL = S.glowR; S.glowTip = 0.25 + 0.6 * res;
+  S.shake = 0.08 + 0.18 * res; S.hairFly = 0.25 + 0.35 * res; S.trail = 0;
+  S.expr = 3;
+  mixPose(P, P, S, k);
+}
+
 // ─────────────────────────── actions ───────────────────────────
 
 export interface ActCtx {
@@ -316,7 +339,12 @@ export function actionPose(P: Pose, c: ActCtx): void {
     case 'toll': return primary(P, c, tollAt);
     case 'throw': return timed(P, c, throwAt, 30, 150);
     case 'plant': return timed(P, c, plantAt, 50, 170);
-    case 'spin': case 'plough': return;
+    case 'sidearm': return primary(P, c, sidearmAt);
+    case 'setTrap': return timed(P, c, setTrapAt, 60, 150);
+    case 'loft': return timed(P, c, loftAt, 30, 140);
+    case 'point': return timed(P, c, pointAt, 60, 150);
+    case 'release': return timed(P, c, releaseAt, 50, 180);
+    case 'spin': case 'plough': case 'beam': return;
   }
 }
 
@@ -723,6 +751,103 @@ function whistleAt(S: Pose, c: ActCtx, t: number): void {
   S.headTilt = -0.2 * up; S.lean = -0.1 * up; S.sy = 1 + 0.04 * up;
   S.expr = t > 60 && t < 330 ? 2 : 0;
   S.hL = c.kit.wk === 'bow' ? S.hL : V(4, -18, -9);
+}
+
+// ── Ranger M1 (docs/rework/depth/RANGER.md §3) ────────────────
+
+/**
+ * Skipstone Bolt: a low, flat sidearm release, like skimming a stone. Bows are canted nearly flat (limbs across the
+ * body) and aimed at waist height; other weapons whip across at the waist. Coiled at t < 0 (the next shot).
+ */
+function sidearmAt(S: Pose, c: ActCtx, t: number): void {
+  const kit = c.kit, strike = c.def.strikeMs;
+  const el = clamp(c.aimEl, -0.4, 0.3) - 0.12;
+  const ranged = kit.wk === 'bow' || kit.wk === 'xbow' || kit.wk === 'hxbow';
+  const coil = t < 0 ? 1 : 1 - smooth(seg(t, 0, strike + 40));
+  const recoil = t < 0 ? 0 : Math.exp(-t / 70) * Math.sin(Math.min(1, t / 40) * Math.PI * 0.5 + 0.3);
+  if (ranged) {
+    const draw = t < 0 ? 1 : 1 - easeOut(seg(t, 0, Math.max(12, strike * 0.5)));
+    aimPose(S, kit, el, 0.1, draw);
+    if (kit.wk === 'bow') S.up = norm(-S.w.z, -0.35, Math.max(0.4, S.w.x));
+    S.hL.y += 4; S.hR.y += 4;
+  } else {
+    const e = t < 0 ? 0 : easeOut3(clamp(t / strike));
+    S.hR = arm(1, -1.25 - 0.1 * e, lerp(1.25, -0.25, e), ARM * 1.12);
+    S.w = norm(lerp(-0.3, 1, e), 0.15, lerp(1, -0.2, e));
+    S.trail = t >= 0 && t < strike + 60 ? 1 : 0;
+  }
+  S.twist = 0.62 * coil - 0.3 * (1 - coil);
+  S.crouch = 0.28; S.lean = 0.2 + 0.08 * (1 - coil) - 0.08 * recoil;
+  S.spread = 0.5; S.legR = -0.35; S.legL = 0.4;
+  S.headYaw = -0.15 * coil;
+  S.vib = t < 0 ? 0 : Math.exp(-t / 55);
+  S.nock = t < 0 ? 1 : 0;
+  S.glowTip = t < 0 ? 0 : Math.exp(-t / 45);
+  S.lunge = 2 * (1 - coil) - 1.5 * recoil;
+}
+
+/** Spring Snare / Pitch Mortar: kneel, reach down with both hands, press the device into the ground, rise. */
+function setTrapAt(S: Pose, c: ActCtx, t: number): void {
+  const strike = c.def.strikeMs, dur = c.def.durMs;
+  const kneel = smooth(seg(t, 0, 110));
+  const reach = easeOut(seg(t, 40, strike - 40));
+  const press = t > strike - 40 ? Math.sin(clamp((t - (strike - 40)) / 120) * Math.PI) : 0;
+  const rise = smooth(seg(t, dur - 170, dur));
+  S.kneel = kneel * (1 - rise); S.crouch = 0.3 * kneel * (1 - rise);
+  S.lean = (0.42 * reach + 0.08 * press) * (1 - rise);
+  lerpV(S.hR, S.hR, V(13, -5.5 + 2.2 * press, 3), reach * (1 - rise));
+  if (c.kit.wk === 'bow') { S.hL = V(2, -16, -7); S.up = norm(0.6, -0.8, 0); S.w = norm(0.8, 0.6, 0); }
+  else {
+    lerpV(S.hL, S.hL, V(12.5, -5.5 + 2 * press, -3.5), reach * (1 - rise));
+    nlerp(S.w, S.w, norm(0.55, 0.8, 0.1), reach);
+  }
+  S.headTilt = 0.25 * reach;
+  S.sy = 1 - 0.05 * press; S.sx = 1 + 0.04 * press;
+  S.spread = 0.3;
+}
+
+/** Overcast Volley: raise the aim steeply toward the target area and loose twice in quick succession. */
+function loftAt(S: Pose, c: ActCtx, t: number): void {
+  const strike = c.def.strikeMs, s2 = strike + 70;
+  const raise = easeOut(seg(t, 0, strike));
+  const rel = (r0: number) => (t >= r0 ? Math.exp(-(t - r0) / 60) : 0);
+  const kick = Math.max(rel(strike), rel(s2));
+  const draw = t < strike ? 1 : t < s2 ? 1 - (1 - smooth(seg(t, strike + 20, s2 - 8))) * easeOut(seg(t, strike, strike + 12)) : 1 - easeOut(seg(t, s2, s2 + 15));
+  aimPose(S, c.kit, lerp(0.25, 1.05, raise), 0, draw);
+  S.lean = -0.18 * raise - 0.08 * kick; S.crouch = 0.12 * raise + 0.1 * kick; S.hop = 1.6 * kick;
+  S.headTilt = -0.3 * raise; S.vib = kick; S.glowTip = kick; S.nock = t < s2 ? 1 : 0;
+  S.spread = 0.35; S.legR = 0.15; S.legL = -0.28; S.lunge = -1.5 * kick;
+}
+
+/** Quarry Mark: the free hand points at the quarry (a little jab on the call) while the hero whistles. */
+function pointAt(S: Pose, c: ActCtx, t: number): void {
+  const up = smooth(seg(t, 0, 120));
+  const el = clamp(c.aimEl, -0.3, 0.4) + 0.15;
+  // the arm swings a little out to the side so the pointing reads past the body from the 3/4 camera
+  lerpV(S.hR, S.hR, arm(1, -1.55 - el, 0.55, ARM * 1.25), up);
+  if (c.kit.wk !== 'bow') nlerp(S.w, S.w, norm(0.25, -0.4 - el, 0.1), up);
+  const jab = t > c.def.strikeMs ? Math.exp(-(t - c.def.strikeMs) / 80) * Math.min(1, (t - c.def.strikeMs) / 30) : 0;
+  S.hR.x += 1.8 * jab;
+  S.lean = 0.1 * up + 0.05 * jab; S.twist = -0.15 * up; S.headTilt = -0.08 * up;
+  S.expr = t > 60 && t < 420 ? 2 : 0;
+  S.spread = 0.3; S.legR = -0.2; S.legL = 0.25;
+}
+
+/** Murmuration: gather low, then sweep the arm straight up and open it as the birds pour out; rise onto the toes. */
+function releaseAt(S: Pose, c: ActCtx, t: number): void {
+  const strike = c.def.strikeMs, dur = c.def.durMs;
+  const gather = easeOut(seg(t, 0, strike * 0.45));
+  const lift = easeOut3(seg(t, strike * 0.45, strike));
+  const hold = 1 - smooth(seg(t, dur - 200, dur));
+  // the arms open up and out into a wide V beside the (big) head, so the release reads from any facing
+  lerpV(S.hR, S.hR, arm(1, -0.35, 0.6, ARM), gather * (1 - lift));
+  if (lift > 0) lerpV(S.hR, S.hR, arm(1, -2.5, 1.25, ARM * 1.2), lift);
+  S.hL = c.kit.wk === 'bow' ? arm(-1, lerp(-1.1, -1.9, lift), 1.1) : arm(-1, lerp(-0.4, -2.1, lift), 1.15);
+  if (c.kit.wk !== 'bow') nlerp(S.w, S.w, norm(0.1, -1, 0.1), lift);
+  S.hop = 2.2 * lift * hold; S.sy = 1 + 0.06 * lift - 0.05 * gather * (1 - lift); S.crouch = 0.25 * gather * (1 - lift);
+  S.lean = -0.18 * lift + 0.12 * gather * (1 - lift); S.headTilt = -0.35 * lift;
+  S.expr = t > strike - 30 && t < strike + 300 ? 2 : 0;
+  S.spread = 0.35; S.legR = -0.15; S.legL = 0.2;
 }
 
 // ── Mage ────────────────────────────────

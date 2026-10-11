@@ -33,10 +33,12 @@ test('a skill may carry up to five runes with authored unlock levels; the rules 
   assert.equal(MAX_RUNES, 5);
   const ok = fixture();
   const meteor = ok.skills.meteor;
+  meteor.runes = meteor.runes.slice(0, 3); // the mage wave ships five runes; the fixture starts from three
   meteor.runes.push({ id: 'fx_fourth', name: 'Fixture Fourth', unlock: 30, desc: 'Fixture.', mods: {} },
     { id: 'fx_fifth', name: 'Fixture Fifth', unlock: 48, desc: 'Fixture.', mods: {} });
   assert.deepEqual(validateContent(ok), []);
   const six = fixture();
+  six.skills.meteor.runes = six.skills.meteor.runes.slice(0, 3);
   six.skills.meteor.runes.push(...[4, 5, 6].map(n => ({ id: `fx_${n}`, name: `Fixture ${n}`, unlock: 40, desc: 'Fixture.', mods: {} })));
   expectPath(validateContent(six), 'skills.meteor.runes');
   const early = fixture();
@@ -46,7 +48,7 @@ test('a skill may carry up to five runes with authored unlock levels; the rules 
   late.skills.meteor.runes[0].unlock = 71;
   expectPath(validateContent(late), 'skills.meteor.runes[0].unlock');
   const lateSkill = fixture();
-  lateSkill.skills.hydra.unlock = 50; lateSkill.skills.hydra.runes.forEach((r, i) => { r.unlock = 52 + i * 6; });
+  lateSkill.skills.hydra.unlock = 50; lateSkill.skills.hydra.runes.forEach((r, i) => { r.unlock = 52 + i * 4; });
   assert.deepEqual(validateContent(lateSkill), [], 'skills may unlock up to the level cap');
 });
 
@@ -63,8 +65,9 @@ test('rune selection honours each rune’s own unlock level on the authoritative
 
 // ─────────────────────────── Specialization nodes ───────────────────────────
 
-test('only the warrior (pilot class) ships specialization trees so far; fixture trees validate', () => {
-  for (const s of Object.values(SKILLS)) assert.equal(!!s.nodes?.length, s.classId === 'warrior', `${s.id} trees`);
+test('the warrior (pilot), the ranger and the mage ship specialization trees; fixture trees validate', () => {
+  const withTrees = new Set(['warrior', 'ranger', 'mage']);
+  for (const s of Object.values(SKILLS)) assert.equal(!!s.nodes?.length, withTrees.has(s.classId), `${s.id} trees`);
   const data = fixture();
   for (const [id, nodes] of Object.entries(FIXTURE_NODES)) data.skills[id].nodes = structuredClone(nodes);
   assert.deepEqual(validateContent(data), []);
@@ -198,8 +201,8 @@ test('passive data: still four slots at 10/20/30/70, six stat passives per class
   assert.deepEqual([...PASSIVE_SLOT_LEVELS], [10, 20, 30, 70]);
   // The six stat passives keep their place; the warrior pilot appends bible v2 rule passives.
   for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.deepEqual(passivesForClass(classId).slice(0, 6).map(p => !!p.stat), [true, true, true, true, true, true]);
-  assert.equal(passivesForClass('ranger').length, 6); assert.equal(passivesForClass('mage').length, 6);
-  assert(passivesForClass('warrior').slice(6).every(p => !p.stat && p.effects?.length), 'warrior rule passives are templates');
+  assert.equal(passivesForClass('ranger').length, 14, 'ranger: 6 kept + 8 new (RANGER.md §6)'); assert.equal(passivesForClass('mage').length, 14);
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert(passivesForClass(classId).slice(6).every(p => !p.stat && p.effects?.length), `${classId} rule passives are templates`);
   const data = fixture();
   data.passives.push(...structuredClone(FIXTURE_PASSIVES));
   assert.deepEqual(validateContent(data), []);
@@ -285,12 +288,17 @@ test('a class may own several primary attacks; the auto-attack is chosen on the 
   // The warrior ships its second primary (Tolling Blow, level 16).
   assert.match(setPrimarySkill(save, 'tolling_blow') ?? '', /level 16/);
   save.level = 16; assert.equal(setPrimarySkill(save, 'tolling_blow'), null); assert.equal(save.skills.primary, 'tolling_blow');
+  // The mage ships its second primary too (Rime Needles, level 16); fixture skills cover the ranger.
   const mage = createCharacter('TwoPrimariesMage', 'mage', 2);
+  assert.match(setPrimarySkill(mage, 'rime_needles') ?? '', /level 16/);
+  mage.level = 16; assert.equal(setPrimarySkill(mage, 'rime_needles'), null); assert.equal(mage.skills.primary, 'rime_needles');
+  assert.equal(skillsForClass('mage').length, 12);
+  const ranger = createCharacter('TwoPrimariesRanger', 'ranger', 2);
+  const before = skillsForClass('ranger').length;
   const undo = installFixtureSkills(12);
   try {
-    assert.match(setPrimarySkill(mage, 'fx_mage_primary2') ?? '', /level 16/);
-    mage.level = 16; assert.equal(setPrimarySkill(mage, 'fx_mage_primary2'), null); assert.equal(mage.skills.primary, 'fx_mage_primary2');
-    assert.equal(skillsForClass('mage').length, 12);
+    const second = skillsForClass('ranger').find((s) => s.kind === 'primary' && s.unlock === 16);
+    if (second) { ranger.level = 16; assert.equal(setPrimarySkill(ranger, second.id), null); }
   } finally { undo(); }
-  assert.equal(skillsForClass('mage').length, 6, 'fixture removed');
+  assert.equal(skillsForClass('ranger').length, before, 'fixture removed');
 });

@@ -256,7 +256,7 @@ function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, c
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
   if ('perSummon' in c || 'buffStacks' in c) check(Number.isInteger(c.max) && c.max >= 1, where, 'scaling condition needs a max of at least 1');
   if ('channeling' in c && typeof c.channeling === 'object') validateQuery(c.channeling, where, check);
-  for (const k of ['targetLifeAbovePct', 'targetFartherThan', 'lifeBelowPct', 'lifeAbovePct'] as const)
+  for (const k of ['targetLifeAbovePct', 'targetFartherThan', 'targetWithin', 'lifeBelowPct', 'lifeAbovePct'] as const)
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
 }
 
@@ -311,7 +311,8 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         break;
       case 'skillMore':
         targets(e, w, true); finite(e.pct, w);
-        if (typeof e.pct === 'number') check(e.pct >= 0 && 1 + e.pct / 100 <= OWN_BUCKET_CAP, w, `more-multiplier must lie in 1..${OWN_BUCKET_CAP}`);
+        // A negative pct is a "less" multiplier (Conjurer's Hearth: non-Summon skills deal 10% less), never to zero.
+        if (typeof e.pct === 'number') check(e.pct > -100 && 1 + e.pct / 100 <= OWN_BUCKET_CAP, w, `more-multiplier must lie in (0, ${OWN_BUCKET_CAP}]`);
         if (e.when) validateCondition(e.when, isTargetCondition(e.when) ? 'hit' : 'own', w, check);
         break;
       case 'conditional':
@@ -425,6 +426,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
           case 'groundsFollow': check(r.scale > 0 && r.scale <= 1, w, 'groundsFollow scale must lie in (0, 1]'); check(!e.skills && !e.tags, w, 'groundsFollow applies to all your grounds'); break;
           case 'countsAs': check(r.state !== r.as, w, 'countsAs needs two different states'); check(!e.skills && !e.tags, w, 'countsAs applies to all your powers'); break;
           case 'markSpread': check(r.range > 0, w, 'markSpread needs a range'); check(!e.skills && !e.tags, w, 'markSpread applies to all your marks'); break;
+          case 'statusLonger': check(['chill', 'stun', 'freeze'].includes(r.status) && r.pct > 0 && Number.isFinite(r.pct), w, 'statusLonger needs chill / stun / freeze and pct > 0'); check(!e.skills && !e.tags, w, 'statusLonger applies to all your statuses of that kind'); break;
           case 'noDecay': check(!e.skills && !e.tags, w, 'noDecay applies to your resource'); break;
           default: check(false, w, 'unknown rule');
         }

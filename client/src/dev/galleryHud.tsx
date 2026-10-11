@@ -320,7 +320,7 @@ function IconSheet() {
         {(['warrior', 'ranger', 'mage'] as ClassId[]).map((c) => (
           <div style={{ textAlign: 'center' }}><div style={{ width: 150, height: 150, margin: '0 auto', background: '#0b0807' }}><ClassEmblem classId={c} color={hex(CLASSES[c].themeColor)} /></div></div>
         ))}
-        {['up', 'crit', 'shield', 'flame', 'bolt', 'star'].map((s) => (
+        {['up', 'crit', 'shield', 'flame', 'bolt', 'star', 'drop', 'eye', 'horn', 'antler', 'howl', 'jaws', 'wing', 'hide'].map((s) => (
           <div style={{ textAlign: 'center' }}><div style={{ width: 90, height: 90, margin: '0 auto', background: '#0b0807' }}><BuffGlyph shape={s} color="#ffd24a" /></div></div>
         ))}
       </div>

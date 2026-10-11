@@ -2,6 +2,7 @@ import { autoSlotSkills } from '../../shared/src/progression';
 import { ownedItems } from '../../shared/src/merchant';
 import { seedCollection } from '../../shared/src/itemCollection';
 import { GRADE_SAVE_VERSION, migrateItemGrade } from '../../shared/src/itemGrades';
+import { rescaleLegendaryRoll } from '../../shared/src/legendaryRolls';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -23,6 +24,7 @@ import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
 import { normalizeSkillNodes } from '../../shared/src/specialization';
+import { normalizeLoadouts } from '../../shared/src/loadouts';
 
 export const NAME_RE = /^[A-Za-z0-9]{2,16}$/;
 const store: CharacterStore = new JsonCharacterStore(DATA_DIR);
@@ -210,6 +212,8 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   sk.primary ||= CLASSES[save.classId].primary;
   // v15: specialization ranks; illegal allocations reset (points are derived from the level, so nothing is lost).
   normalizeSkillNodes(save);
+  // v17: skill loadouts (build tools T4); absent = none, malformed entries dropped.
+  normalizeLoadouts(save);
 
   const p = (save.paragon ??= { level: 0, xp: 0, spent: {} });
   p.level = Math.floor(num(p.level, 0));
@@ -232,6 +236,9 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   // v16: item grades (Kindled / Fabled). Pre-grade Ancient / Primal items keep their stored values (legacyGrade);
   // old Primal items get their deterministic Inscription.
   if ((save.version ?? 0) < GRADE_SAVE_VERSION) for (const item of ownedItems(save)) migrateItemGrade(item);
+  // Unversioned and idempotent: legendary rolls of a retired range move to the same place in the current range
+  // (shared/src/legendaryRolls.ts; golden fixture v16-legacy-rolls).
+  for (const item of ownedItems(save)) rescaleLegendaryRoll(item);
   // Preserve owned objects and saved combat preferences.
   seedCollection(save, ownedItems(save));
   save.version = SAVE_VERSION;

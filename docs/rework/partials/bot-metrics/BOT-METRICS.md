@@ -4,6 +4,8 @@ Measured [M] by `npx tsx scripts/bot-metrics.ts run 240`: the engaged leveling b
 
 **Limits.** Bots stand in melee and never dodge, so deaths and damage taken are an upper bound for humans; they also never walk back to town, so kills/min is an upper bound for real sessions. This is a typical-gear curve, not a lucky one (see `docs/rework/BALANCE.md` §3).
 
+**Pace check.** `npx tsx scripts/bot-metrics.ts check 120` (the verify stage `pace-targets`) runs 120 simulated minutes per class for each of 3 fixed seeds (12648430, 12648431, 12648432; each class starts from the same seeded state), in parallel. Per class and band it takes the median over the seed runs of trash time-to-kill, champion time-to-kill and kills per minute; a class counts in a band when at least two runs reached it. The band median over the three classes is then checked against `targets.json` (unchanged, recorded from this baseline). Reason: one seed missed the L25+ champion target in 3 of 8 runs with no rule change (`docs/rework/depth/FOUNDATION.md` §13.14).
+
 | Class | end level | deaths | minutes to L5 · L10 · L15 · L20 · L25 · L30 |
 |---|---:|---:|---|
 | warrior | 41 | 1 | 4.6 · 17.7 · 34 · 57.9 · 96.5 · 139.5 |

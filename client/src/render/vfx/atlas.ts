@@ -147,12 +147,16 @@ export interface FxTextures {
   disc: Texture; scorch: Texture[]; crack: Texture[];
   poolLava: Texture; poolGoo: Texture; frostPatch: Texture; swirl: Texture; holeDark: Texture;
   arrow: Texture; bolt: Texture; rocket: Texture; seed: Texture; rock: Texture; bomb: Texture;
+  /** Ranger M1 sprites: flat skipping slate, thorn, starling (wings spread / raised), feather (white, tint), pitch pot. */
+  slate: Texture; thorn: Texture; bird: Texture; birdUp: Texture; feather: Texture; pot: Texture;
   flame: Texture; wisp: Texture; bubble: Texture; ghost: Texture;
   coin: Texture; gem: Texture; globe: Texture;
   beam: Texture; beamCore: Texture; line: Texture; drip: Texture; flake: Texture; plus: Texture;
   shadow: Texture; pixel: Texture;
   /** Fallback ground-loot icons keyed by item shape or kind (greyscale, tint with the item colour). */
   icons: Record<string, Texture>;
+  /** Mage M1: rime needle (+x), orrery planet, Lantern Garden lantern (full colour, foot at the bottom), stormglass shell. */
+  needle: Texture; planet: Texture; lantern: Texture; glassOrb: Texture;
 }
 
 let fxCache: FxTextures | null = null;
@@ -588,6 +592,74 @@ function bakeFxAtlas(): FxTextures {
     c.fillStyle = W(0.7); c.beginPath(); c.ellipse(10, 10, 3.5, 2, -0.6, 0, TAU); c.fill();
     c.fillStyle = '#6b5a48'; c.fillRect(12, 1.5, 4, 4);
   });
+  // ---- ranger M1 (docs/rework/depth/RANGER.md §3–§4) ----
+  // Skipstone Bolt: a flat, irregular slate (seen from above, long axis = +x), lighter worn top, a pale chipped edge.
+  const slate = A.add(40, 20, (c) => {
+    c.lineJoin = 'round';
+    const pts = [[3, 10.5], [7, 4.5], [16, 2.6], [27, 3.2], [35.5, 6.4], [37.4, 11], [33, 15.6], [22, 17.6], [11, 16.8], [5, 14.4]];
+    poly(c, pts);
+    const g = c.createLinearGradient(0, 2, 0, 18);
+    g.addColorStop(0, '#b9c4ca'); g.addColorStop(0.5, '#7e8c94'); g.addColorStop(1, '#4b565d');
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = '#1a1f22'; c.lineWidth = 1.6; c.stroke();
+    c.fillStyle = 'rgba(255,255,255,0.35)';
+    c.beginPath(); c.ellipse(17, 7.4, 9, 2.2, -0.05, 0, TAU); c.fill();
+    c.strokeStyle = 'rgba(30,38,42,0.55)'; c.lineWidth = 0.9;
+    c.beginPath(); c.moveTo(9, 12); c.quadraticCurveTo(19, 13.6, 30, 11); c.stroke();
+    c.beginPath(); c.moveTo(13, 9.6); c.lineTo(17, 10.6); c.stroke();
+  });
+  // Bramble Spring: a hooked thorn (base at -x, point at +x), brown-green.
+  const thorn = A.add(24, 12, (c) => {
+    c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(1.5, 3); c.quadraticCurveTo(12, 3.2, 22.5, 7.4); c.quadraticCurveTo(11, 10, 1.5, 9.6); c.closePath();
+    const g = c.createLinearGradient(0, 3, 0, 10);
+    g.addColorStop(0, '#a8b46a'); g.addColorStop(1, '#5a4a26');
+    c.fillStyle = g; c.fill(); c.strokeStyle = '#1e1a0e'; c.lineWidth = 1.2; c.stroke();
+    c.strokeStyle = 'rgba(255,255,230,0.45)'; c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(4, 4.6); c.quadraticCurveTo(12, 4.8, 19, 6.8); c.stroke();
+  });
+  // Starling silhouettes (white; tinted near-black): pointed wings swept back, short tail. Two wingbeat frames.
+  const bird = A.add(24, 12, (c) => {
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.moveTo(12, 4.6); c.quadraticCurveTo(7, 2.6, 1, 4.4); c.quadraticCurveTo(6.4, 5.8, 9.4, 7.6); // left wing
+    c.lineTo(10.4, 10.6); c.lineTo(12, 9.2); c.lineTo(13.6, 10.6); c.lineTo(14.6, 7.6);      // tail
+    c.quadraticCurveTo(17.6, 5.8, 23, 4.4); c.quadraticCurveTo(17, 2.6, 12, 4.6);           // right wing
+    c.closePath(); c.fill();
+    c.beginPath(); c.ellipse(12, 5.4, 1.7, 2.6, 0, 0, TAU); c.fill();
+  });
+  const birdUp = A.add(24, 14, (c) => {
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.moveTo(12, 7); c.quadraticCurveTo(8, 3.4, 3.4, 0.8); c.quadraticCurveTo(6.6, 5.2, 9.6, 8.6);
+    c.lineTo(10.6, 12.6); c.lineTo(12, 11.2); c.lineTo(13.4, 12.6); c.lineTo(14.4, 8.6);
+    c.quadraticCurveTo(17.4, 5.2, 20.6, 0.8); c.quadraticCurveTo(16, 3.4, 12, 7);
+    c.closePath(); c.fill();
+    c.beginPath(); c.ellipse(12, 7.6, 1.7, 2.6, 0, 0, TAU); c.fill();
+  });
+  // Feather (quill along +x), white with a darker vane line, for tinting.
+  const feather = A.add(28, 10, (c) => {
+    c.beginPath(); c.moveTo(1, 5); c.quadraticCurveTo(10, 0.6, 26.5, 3.6); c.quadraticCurveTo(12, 9.6, 1, 5); c.closePath();
+    c.fillStyle = '#fff'; c.fill();
+    c.strokeStyle = 'rgba(0,0,0,0.35)'; c.lineWidth = 0.9;
+    c.beginPath(); c.moveTo(0.5, 5); c.quadraticCurveTo(13, 4.4, 26, 3.8); c.stroke();
+    c.strokeStyle = 'rgba(0,0,0,0.18)'; c.lineWidth = 0.6;
+    for (const x of [7, 12, 17, 21]) { c.beginPath(); c.moveTo(x, 4.6); c.lineTo(x - 2.4, 7.4); c.stroke(); }
+  });
+  // Pitch Mortar shell: a squat clay pot sealed with tar, a rag wick at the neck (the flame is a separate particle).
+  const pot = A.add(26, 28, (c) => {
+    c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(9, 7); c.lineTo(17, 7); c.quadraticCurveTo(24.5, 11, 23.5, 18.5); c.quadraticCurveTo(22, 26, 13, 26.4);
+    c.quadraticCurveTo(4, 26, 2.5, 18.5); c.quadraticCurveTo(1.5, 11, 9, 7); c.closePath();
+    c.fillStyle = radial(c, 9, 14, 16, [[0, '#b7835a'], [0.6, '#7d5234'], [1, '#4a2e1c']]); c.fill();
+    c.strokeStyle = '#140b06'; c.lineWidth = 1.6; c.stroke();
+    c.fillStyle = 'rgba(15,10,8,0.85)';
+    c.beginPath(); c.moveTo(4, 12.4); c.quadraticCurveTo(13, 9, 22, 12.4); c.lineTo(21.6, 15); c.quadraticCurveTo(18.6, 13.8, 17.4, 17.6); c.quadraticCurveTo(16, 14.4, 13, 14.6);
+    c.quadraticCurveTo(9.4, 14.6, 8.6, 18.4); c.quadraticCurveTo(7.4, 14, 4.4, 15); c.closePath(); c.fill();
+    c.beginPath(); c.roundRect(8.4, 4.4, 9.2, 3.6, 1.4); c.fillStyle = '#2a1a10'; c.fill(); c.stroke();
+    c.strokeStyle = '#d8c8a0'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(13, 4.6); c.quadraticCurveTo(14.6, 2.2, 13.4, 0.8); c.stroke();
+    c.fillStyle = 'rgba(255,240,210,0.4)'; c.beginPath(); c.ellipse(8, 18, 2, 4, 0.2, 0, TAU); c.fill();
+  });
   const coin = A.add(28, 28, (c) => {
     c.fillStyle = radial(c, 11, 10, 15, [[0, '#fff6b8'], [0.5, '#f4c534'], [1, '#b8860b']]);
     c.strokeStyle = '#6e4a08'; c.lineWidth = 1.8;
@@ -618,6 +690,65 @@ function bakeFxAtlas(): FxTextures {
     c.fillStyle = g; c.strokeStyle = 'rgba(40,6,6,0.9)'; c.lineWidth = 1.6;
     c.beginPath(); c.arc(24, 24, 14, 0, TAU); c.fill(); c.stroke();
     c.fillStyle = W(0.75); c.beginPath(); c.ellipse(19, 17.5, 5, 3, -0.7, 0, TAU); c.fill();
+  });
+
+  // ---- mage M1 sprites (docs/rework/depth/MAGE.md §3 "VFX / icon / sound") ----
+  // Rime needle: a thin tapered ice spike pointing +x (greyscale, tint with the element colour).
+  const needle = A.add(44, 10, (c) => {
+    c.translate(0, 5);
+    c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(43, 0); c.lineTo(10, -2.6); c.lineTo(2, -1); c.lineTo(0.8, 0); c.lineTo(2, 1); c.lineTo(10, 2.6); c.closePath();
+    const g = c.createLinearGradient(0, -3, 0, 3);
+    g.addColorStop(0, W(1)); g.addColorStop(0.5, 'rgb(226,236,246)'); g.addColorStop(1, 'rgb(150,172,196)');
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = 'rgba(30,50,80,0.55)'; c.lineWidth = 0.9; c.stroke();
+    c.strokeStyle = W(1); c.lineWidth = 0.8;
+    c.beginPath(); c.moveTo(41, -0.2); c.lineTo(10, -1.6); c.stroke();
+    c.fillStyle = W(0.9); poly(c, [[6, -2], [11, -2.5], [9, 0]]); c.fill();
+  });
+  // Orrery planet: a shaded sphere with an equator band (greyscale; tinted brass, or ice for Frozen Moons).
+  const planet = A.add(40, 40, (c) => {
+    c.fillStyle = radial(c, 15, 14, 22, [[0, '#ffffff'], [0.35, '#e4e4e4'], [0.75, '#9a9a9a'], [1, '#5e5e5e']]);
+    c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.fill();
+    c.save(); c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.clip();
+    c.strokeStyle = 'rgba(40,30,20,0.45)'; c.lineWidth = 2.2;
+    c.beginPath(); c.ellipse(20, 21, 18, 5, -0.25, 0, TAU); c.stroke();
+    c.strokeStyle = W(0.35); c.lineWidth = 1;
+    c.beginPath(); c.ellipse(20, 19.4, 18, 5, -0.25, Math.PI * 1.05, Math.PI * 1.7); c.stroke();
+    c.restore();
+    c.strokeStyle = 'rgba(30,22,14,0.85)'; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(20, 20, 16, 0, TAU); c.stroke();
+    c.fillStyle = W(0.85); c.beginPath(); c.ellipse(14, 12.5, 4.6, 2.6, -0.7, 0, TAU); c.fill();
+  });
+  // Lantern Garden lantern: brass cap and foot, a ribbed paper body lit from inside (full colour, anchor at the foot).
+  const lantern = A.add(36, 52, (c) => {
+    c.lineJoin = 'round'; c.lineCap = 'round';
+    c.strokeStyle = '#2a1a0c'; c.lineWidth = 1.6;
+    c.beginPath(); c.arc(18, 6, 4, Math.PI, 0); c.stroke();
+    const brass = (y0: number, y1: number) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, '#f6dc8a'); g.addColorStop(0.5, '#c99a3a'); g.addColorStop(1, '#7a5418'); return g; };
+    c.beginPath(); c.moveTo(9, 13); c.lineTo(13, 7); c.lineTo(23, 7); c.lineTo(27, 13); c.closePath();
+    c.fillStyle = brass(7, 13); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(9, 13); c.bezierCurveTo(3, 20, 3, 33, 9, 41); c.lineTo(27, 41); c.bezierCurveTo(33, 33, 33, 20, 27, 13); c.closePath();
+    c.fillStyle = radial(c, 18, 28, 17, [[0, '#fff6c8'], [0.45, '#ffcf6a'], [0.85, '#e8822c'], [1, '#b8521c']]);
+    c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(120,52,14,0.55)'; c.lineWidth = 1.1;
+    for (const x of [12.5, 18, 23.5]) { c.beginPath(); c.moveTo(x, 14); c.quadraticCurveTo(x + (x - 18) * 0.5, 27, x, 40); c.stroke(); }
+    c.beginPath(); c.moveTo(5.4, 27); c.lineTo(30.6, 27); c.stroke();
+    c.strokeStyle = '#2a1a0c'; c.lineWidth = 1.6;
+    c.beginPath(); c.roundRect(10, 41, 16, 5, 1.6); c.fillStyle = brass(41, 46); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(14, 46); c.lineTo(13, 50.5); c.lineTo(23, 50.5); c.lineTo(22, 46); c.closePath(); c.fillStyle = '#6a4614'; c.fill(); c.stroke();
+    c.fillStyle = W(0.7); c.beginPath(); c.ellipse(12, 21, 1.8, 4.4, 0.2, 0, TAU); c.fill();
+  });
+  // Stormglass orb shell: clear glass with a bright rim, a dark hairline and two speculars (greyscale, tint).
+  const glassOrb = A.add(64, 64, (c) => {
+    c.fillStyle = radial(c, 32, 32, 28, [[0, W(0.06)], [0.62, W(0.14)], [0.86, W(0.5)], [0.97, W(0.95)], [1, W(0)]]);
+    c.beginPath(); c.arc(32, 32, 28, 0, TAU); c.fill();
+    c.strokeStyle = 'rgba(20,40,70,0.7)'; c.lineWidth = 1.4;
+    c.beginPath(); c.arc(32, 32, 27.6, 0, TAU); c.stroke();
+    c.strokeStyle = W(0.95); c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath(); c.arc(32, 32, 21, Math.PI * 1.08, Math.PI * 1.42); c.stroke();
+    c.lineWidth = 1.6; c.beginPath(); c.arc(32, 32, 22, Math.PI * 0.16, Math.PI * 0.3); c.stroke();
+    c.fillStyle = W(0.95); c.beginPath(); c.ellipse(22, 19, 3.2, 1.8, -0.7, 0, TAU); c.fill();
   });
 
   // ---- fallback item icons (48x48, greyscale; tint with the item's primary colour) ----
@@ -658,10 +789,12 @@ function bakeFxAtlas(): FxTextures {
     disc: t(disc), scorch: scorch.map(t), crack: crack.map(t),
     poolLava: t(poolLava), poolGoo: t(poolGoo), frostPatch: t(frostPatch), swirl: t(swirl), holeDark: t(holeDark),
     arrow: t(arrow), bolt: t(bolt), rocket: t(rocket), seed: t(seed), rock: t(rock), bomb: t(bomb),
+    slate: t(slate), thorn: t(thorn), bird: t(bird), birdUp: t(birdUp), feather: t(feather), pot: t(pot),
     flame: t(flame), wisp: t(wisp), bubble: t(bubble), ghost: t(ghost),
     coin: t(coin), gem: t(gem), globe: t(globe),
     beam: t(beam), beamCore: t(beamCore), line: t(line), drip: t(drip), flake: t(flake), plus: t(plus),
     shadow: t(shadow), pixel: t(pixel), icons,
+    needle: t(needle), planet: t(planet), lantern: t(lantern), glassOrb: t(glassOrb),
   };
 }
 

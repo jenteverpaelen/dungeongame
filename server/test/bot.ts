@@ -510,6 +510,13 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('debug legendaries include every class legendary', classOnly.every((id) => b.inv().some((i) => i.legendary?.power === id)), classOnly);
   r = await b.cmd('debug', { op: 'set' });
   c('debug set grants six class set pieces', r.ok && b.inv().filter((i) => i.rarity === 'set').length === 6, { r, n: b.inv().filter((i) => i.rarity === 'set').length });
+  // Large class pools (ranger 35, warrior 34 class legendaries + the 19 shared + a set) fill the 60-slot bag before the
+  // rares: make room by dropping shared, non-weapon debug legendaries (the class ones were checked above). The
+  // salvageAll step below keeps its own guard for the case where no rare is left.
+  for (const it of b.inv().filter((i) => i.rarity === 'legendary' && !LEGENDARIES[i.legendary!.power]?.classes && i.kind !== 'weapon1h' && i.kind !== 'weapon2h')) {
+    if (b.char.inventory.filter((x) => x === null).length >= 8) break;
+    await b.cmd('destroy', { itemId: it.id });
+  }
   r = await b.cmd('debug', { op: 'rares', n: 8 });
   c('debug rares', r.ok && b.inv().filter((i) => i.rarity === 'rare').length >= 1, r);
 

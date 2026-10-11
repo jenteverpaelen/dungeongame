@@ -23,6 +23,8 @@ export interface Preferences {
   numbersHealing: boolean;
   numbersCritsOnly: boolean;
   contextualHints: boolean;
+  /** Build tools T1: exact template numbers, bucket breakdowns, tags and ranges in tooltips without holding Alt. */
+  advancedTooltips: boolean;
   manualSkills: boolean;
   /** Gear effects (docs/rework/gear/DESIGN.md §6): your hero, and other heroes. Baked ornaments always show. */
   gearEffects: GearEffects;
@@ -94,7 +96,7 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, alertsVolume: 1, muted: false, muteInBackground: false,
   cameraShake: true, shakeStrength: 1, cameraZoom: DEFAULT_CAMERA_ZOOM, uiScale: DEFAULT_UI_SCALE, reduceFlashes: false, lootQualityLabels: false,
   combatNumbers: true, numberSize: 'normal', numbersOthers: true, numbersTaken: true, numbersHealing: true, numbersCritsOnly: false,
-  contextualHints: true, manualSkills: false,
+  contextualHints: true, advancedTooltips: false, manualSkills: false,
   gearEffects: 'full', otherGearEffects: 'full',
   graphicsPreset: 'high', ...GRAPHICS_PRESETS.high, maxFps: 0, backgroundFps: 0, lowSpecHint: true,
   motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'series',
@@ -104,7 +106,7 @@ interface StorageAccess { getItem(key: string): string | null; setItem(key: stri
 interface PreferenceState { values: Readonly<Preferences>; retained: boolean }
 
 const BOOLEAN_KEYS = ['muted', 'muteInBackground', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'numbersOthers', 'numbersTaken',
-  'numbersHealing', 'numbersCritsOnly', 'contextualHints', 'manualSkills', 'antialias', 'lowSpecHint', 'rarityShapes'] as const;
+  'numbersHealing', 'numbersCritsOnly', 'contextualHints', 'advancedTooltips', 'manualSkills', 'antialias', 'lowSpecHint', 'rarityShapes'] as const;
 const pick = <T>(v: unknown, allowed: readonly T[]): T | undefined => (allowed.includes(v as T) ? v as T : undefined);
 
 function normalize(input: Partial<Preferences>): Readonly<Preferences> {
@@ -133,10 +135,13 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
 export class PreferenceStore {
   private state: PreferenceState;
   private listeners = new Set<() => void>();
+  /** No saved preferences were found at start-up (first visit, or storage cleared or unavailable). */
+  readonly firstRun: boolean;
   constructor(private storage?: StorageAccess) {
     let values = DEFAULT_PREFERENCES, retained = !!storage;
     let raw: string | null = null;
     try { raw = storage?.getItem(PREFERENCES_KEY) ?? null; } catch { retained = false; }
+    this.firstRun = !raw;
     if (raw) try {
       const parsed = JSON.parse(raw);
       if (parsed?.version === 1 && parsed.values && typeof parsed.values === 'object') values = normalize(parsed.values);
@@ -165,9 +170,20 @@ function browserStorage(): StorageAccess | undefined {
 export const preferences = new PreferenceStore(browserStorage());
 
 let motionQuery: MediaQueryList | null | undefined;
+/** Last value of the system query, kept current by its change event: reading MediaQueryList.matches evaluates the
+ *  query and can make the browser bring the document's style up to date first. The renderer asks hundreds of times per
+ *  frame (docs/rework/PERF.md). null: no change events in this browser, so the live value is read. */
+let motionMatches: boolean | null = null;
 export function prefersReducedMotion(): boolean {
-  if (motionQuery === undefined) { try { motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null; } catch { motionQuery = null; } }
-  return !!motionQuery?.matches;
+  if (motionQuery === undefined) {
+    try { motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null; } catch { motionQuery = null; }
+    const q = motionQuery;
+    if (q && typeof q.addEventListener === 'function') {
+      motionMatches = q.matches;
+      q.addEventListener('change', (e) => { motionMatches = e.matches; });
+    }
+  }
+  return motionMatches ?? !!motionQuery?.matches;
 }
 /** Effective reduce-motion: the player's choice, or the operating system's when set to follow it. */
 export function motionReduced(prefs: Readonly<Preferences> = preferences.get().values, system = prefersReducedMotion()): boolean {

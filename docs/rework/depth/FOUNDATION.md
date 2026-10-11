@@ -557,6 +557,20 @@ Search, stub-level, following the BUDGET.md §4 method:
 * The warrior's Ringing Ears mark and returning hatchet are class code (built before the shared-items wave's
   `vulnerable.consume` and `returns` projectiles; they can move onto those later). Still not built: recast elsewhere,
   directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.
+### 11.15 Mage wave additions (`MAGE-PILOT.md` §3)
+
+* `Proj.hook` (`ProjHook`): `hit(inst, pr, p, m)` replaces the kind's hit rule, `tick(inst, pr, dtMs)` runs after each
+  move, `end(inst, pr, why: 'hit' | 'life' | 'wall')` runs once (not on bounces / returns, which carry the hook);
+  `spawnProj({ keepLife })` skips the reach clamp; `endProjectile(inst, pr, hit)` ends one from class code.
+* `skillMore` pct may be negative: a "less" multiplier in (−100, cap], generated text "less damage".
+* `elementStacks.bucket: 'generic'`: no per-hit term; the stacks buff carries +perStack % per element in the generic
+  damage bucket (`sdmg`), recorded in `strikeMob`.
+* Rule `{ id: 'statusLonger', status: 'chill' | 'stun' | 'freeze', pct }`: chills / stuns / freezes you apply last
+  longer (`effects.ruleLonger`).
+* `aoe` events may carry `n` (a count, e.g. Orrery spheres).
+* Harnesses: `ids.resetIdsForHarness()` before each fresh Instance (monster separation breaks exact overlaps by id).
+* Still not built: a chosen-strength slow, a Movement-end trigger, a class filter on tag-keyed item powers.
+
 ## 12. Shared-items wave (ITEMS-SHARED.md §2, §3, §5, §7)
 
 ### 12.1 Shared legendaries (`shared/src/data/powers/shared.ts`, appended after the six v1 items)
@@ -965,3 +979,165 @@ The two outliers were 23.3 and 28.6 during the heaviest load.
 by a second (3:58 vs 3:59 [M]). Without a retry the output is unchanged.
 
 **Out of scope.** `scripts/perf-budget.ts` (4 × 150 monsters, < 10 ms) still uses absolute numbers.
+
+### 13.12 Class gate on item powers (mage-agent finding)
+
+* **Reachable in real play [M].** Any drop can be off-class: smart loot is 85 %, so 15 % of drops ignore the class. The
+  Cube extracts and equips any legendary power with no class check. A tag-keyed power of another class therefore reached
+  this class's skills, for example a warrior Buff-tag power on a mage.
+* **Gate.** `itemPowerSources(powers, sets, classId)`: class-specific legendaries and sets resolve only for their class;
+  shared items stay classless. The Character panel marks such a Cube power "inactive".
+* Sets were already unreachable, because `canClassUse` blocks wearing them. The gate covers them too.
+* **Test.** `engineWave3.test.ts`. The powerTemplates equivalence proof compares the old code on the part of each kit
+  the class can use.
+
+### 13.13 Pace gate: each class starts from the same seeded state (`server/test/sim.ts` leveling)
+
+* **The failure.** After wave 3 the pace gate failed: L25+ champion TTK median 6.65 s > 6.4 s.
+* **A/B against pre-wave-3 4356914 [M].**
+  * Engine-only commits: byte-identical.
+  * Without the two new warrior legendaries in the drop pool: byte-identical (3 seeds).
+  * The warrior run diverges at L15–20, when a different legendary drops. All classes shared one random stream, so the
+    ranger and mage runs after it started from a different state.
+* **Fix.** The leveling scenario now reseeds `Math.random`, the character seed counter and the instance counter per
+  class. No rule and no threshold changed.
+  * With the fix, pre-wave-3 and wave 3 both pass (6 bands, 0 misses).
+  * In isolation the ranger and mage runs are identical in 11 of 16 class-seed pairs. The other 5 differ only through
+    off-class legendary drops (4 faster, 1 slower).
+* **Caveat.** The gate is one seed. A single champion fight moves a band median by a second (§13.14), so single-seed
+  misses need a multi-seed A/B before they are called a rules change.
+
+### 13.14 Recast floor for skills without a cooldown, and the attack-interval alternative
+
+* **The problem [M].**
+  * Skills with no cooldown were cast on consecutive 50 ms ticks in bursts (Sawtooth Hatchet and Quakeline, warrior
+    parity kits).
+  * A resource-positive loop cast a Spender every tick. The mage agent measured Static Charge + Stormglass Orb at
+    184 casts and 78 orbs in 10 s, without debug resources.
+* **Rule.** `playerctx.MIN_RECAST_MS = 250` [P], through `Player.recastAt`: at most 4 casts per second per skill. It
+  covers bar casts and `castSkill` procs and shows no HUD cooldown.
+* **The D3 alternative.** "Every cast takes an attack's time": one cast per attack interval per skill. The mage's
+  Stormglass Orb uses it on its own (`mageM1.ts`).
+* **Measurement [M].**
+  * Setup: leveling sim, 120 min per class, 9 seeds (0xC0FFEE and 1–8), after the mage merge. Three variants with
+    everything else equal: no floor, the 250 ms floor, and one cast per attack interval (with 250 ms as the minimum).
+  * The differences below are paired per seed, ± one standard error.
+
+| | no floor | 250 ms floor | attack interval |
+|---|---|---|---|
+| levels reached, mean W / R / M | 27.2 / 28.0 / 26.1 | 27.3 / 28.4 / 26.2 | 26.2 (27.4 without the collapse) / 28.4 / 26.1 |
+| minute at L25, mean W / R / M | 100.9 / 97.5 / 106.4 | 97.0 / 95.3 / 106.5 | 98.9 / 95.5 / 108.0 |
+| L25+ champion TTK vs no floor, W / R / M | — | −0.7 ± 0.5 / −0.6 ± 0.5 / +0.7 ± 0.9 s | −1.1 ± 0.9 / −0.5 ± 0.7 / +0.0 ± 0.7 s |
+| deaths over 9 runs, W / R / M | 21 / 20 / 19 | 23 / 30 / 17 | **107** / 21 / 27 |
+| pace-gate misses, default seed / all 9 | 0 / 7 | **1** / 13 | 0 / 9 |
+
+* **Reading.**
+  * The floor changes no pace measure beyond noise.
+  * The attack interval changes kill times within noise too. But one warrior run collapsed: champion kills at L10–15
+    took 14.4 s against 9.8 s with the floor, and from L15 the run died 82 times and ended at level 17. Mage deaths
+    also rose. It is a balance decision for the owner, not a guard.
+* **The pace gate is one seed and fragile.**
+  * The L25+ band holds only the last 5–25 minutes of the run, so a few champion fights decide it.
+  * With no floor, 3 of the 8 seeds that reach that band with all three classes miss it.
+  * Any change that moves the random path therefore has roughly a one-in-three chance to flip the default seed.
+  * With the floor, the merged tree misses on the default seed: L25+ mage 7.35 s > 6.4 s; without the floor 5.45 s.
+    The paired mage difference over the other seeds is +0.7 ± 0.9 s, so this miss is the coin, not a trend.
+* **Decision (lead, 2026-10-11, under the owner's "use recommendations").** The owner approved the pace targets, not
+  the single-seed method.
+  * The 250 ms floor stays.
+  * `pace-targets` is checked on the median of three seeds (`scripts/bot-metrics.ts check`).
+    * The seeds are 0xC0FFEE, +1 and +2, each with the per-class reseed, 120 minutes, run in parallel.
+    * Per class and band, it takes the median over the runs of trash time-to-kill, champion time-to-kill and kills per
+      minute. A class counts in a band when at least two runs reached it.
+    * The class median is checked as before. Targets are not re-recorded.
+    * Test: `scripts/bot-metrics.test.ts`. A slowdown in two of three runs still fails.
+  * **First run [M], 57 s.** Before the ranger wave was merged:
+    * Each single seed misses one band: L25+ 7.35 s; L1+ 4.85 s; L10+ 8.5 s.
+    * The median passes all 6 bands.
+
+## 14. Ranger wave additions (`RANGER-WAVE.md` §3; tests `server/test/rangerEngine.test.ts`)
+
+* **Projectile hooks** (`Proj.hooks: ProjHooks`, `ProjSpec.hooks`): `pre(inst, pr, m, st) → Strike` replaces the strike
+  of one hit, `post(inst, pr, m, through)` runs after it (`through`: the projectile flew on), `end(inst, pr, hit)` runs
+  once at the final end — not when the projectile continues as a bounce, a return or a range ricochet (those keep the
+  hooks). Without hooks the hit path is unchanged.
+* **`ProjSpec.reach`**: the flight-time cap uses this reach instead of the strike skill's range (nodes and items that make
+  projectiles fly farther, sub-projectiles from other points).
+* **Condition `targetWithin: N`**: a target condition, true for enemies at most N units from you.
+* **`perSummon`** matches a summon type, the skill that made the summon, or a tag of that skill (`'device'`, `'beast'`).
+
+### 13.15 After the ranger wave: a recast floor only for recasts the hero does not pay for; own streams for the rifts
+
+**Why the plain floor went.** The ranger wave was merged with the mage and the depth branch (630bef3). After that, the
+3-seed pace gate missed: L10+ 8.2 s > 8.1 s and L25+ 6.7 s > 6.4 s. All three seeds missed L25+.
+
+A/B on the combined tree [M]: leveling sim, 10 seeds (the three gate seeds and 1–7) × 120 min per class, plain 250 ms
+floor against no floor. Differences are paired per seed, ± one standard error.
+
+| class | L10+ champion TTK | L25+ champion TTK | minute at L25 | level at 120 min |
+|---|---|---|---|---|
+| warrior | −0.2 ± 0.4 s | −0.9 ± 1.1 s | 97.2 vs 100.3 | 27.3 vs 26.9 |
+| ranger | **+0.7 ± 0.4 s** | **+1.4 ± 0.6 s** | 99.6 vs 96.9 | 27.2 vs 28.3 |
+| mage | −0.1 ± 0.4 s | −1.2 ± 1.0 s | 105.7 vs 106.3 | 26.5 vs 26.3 |
+
+* The plain floor slowed the new ranger at every band, so it was a per-class cause.
+  * Instrumented, the floor held back 251 Multishot casts the ranger could afford (2229 cast).
+  * In those ticks the slot order passed the cast to Cluster Arrow (37 casts, none without the floor).
+  * The ranger lost its Multishot bursts at the start of each fight.
+* The same spreading sped the warrior and the mage, whose bursts overlapped.
+* The gate's L25+ class median, averaged per seed, did not move: 6.87 s with the floor, 6.89 s without. The L25+ band sits
+  above 6.4 s either way (8 / 10 and 6 / 9 seeds).
+
+**Refined rule (playerctx.MIN_RECAST_MS).**
+* Inside the 250 ms window, a recast is refused only while the hero's resource is back at or above what it had before
+  the last cast: refunds or generation paid it back, or the cast was free.
+* Free `castSkill` procs always wait.
+* Loops and unlimited resource stay at 4 casts per second. A burst the hero pays for is not held back.
+* Tests: `engineWave3.test.ts` (the unlimited-resource cap, a paid burst on consecutive ticks, refunded recasts held).
+
+| 10 seeds [M] | plain floor | no floor | refined floor |
+|---|---|---|---|
+| L25+ class median, mean per seed | 6.87 s | 6.89 s | **6.53 s** |
+| L25+ champion TTK, W / R / M | 8.11 / 6.41 / 6.23 s | 8.69 / 4.97 / 7.47 s | 8.99 / 5.71 / 5.79 s |
+| minute at L25, W / R / M | 97.2 / 99.6 / 105.7 | 100.3 / 96.9 / 106.3 | 100.3 / 98.1 / 102.2 |
+| 3-seed gate on the triples (gate seeds, 1–3, 4–6) | miss / miss / miss | pass / miss / miss | **pass** / miss / pass |
+
+* The refined floor is the best of the three on the gate's own measure.
+* The L25+ band still sits at the target: 6.53 s mean against 6.4 s, and the 1–3 triple misses (L10+ 8.85 s, L25+
+  6.55 s). That is the pace of the combined classes, not a rule of this branch: a balance question for the owner.
+  Targets are not re-recorded.
+
+**Rift floors in their own state (`server/test/sim.ts` freshStreams).**
+* Each class's L1, L20 and L70 rift starts from a fixed state for its section, then the shared state is restored. The
+  fixed state covers:
+  * the random streams: `Math.random` (which the dodge section had pointed at its own stream), the gear stream;
+  * the counters: character, instance (so the map), entity id, item id and pack;
+  * another `SIM_SEED` gives another map and other gear rolls.
+* Proof [M]: the rift lines of a full `sim.ts` run equal a `sim.ts rift` run.
+* L70 Torment II, progress in 12 minutes, 9 seeds (default first) [M]:
+  * warrior: 80.9 / 78.7 / 100 / 5.6 / 49.3 / 82.2 / 77.2 / 44.1 / 59.1 %, median 77.2 %;
+  * ranger: 21.5 / 56.0 / 90.4 / 54.6 / 53.0 / 66.4 / 79.4 / 61.0 / 22.9 %, median 56.0 %;
+  * mage: 58.1 / 93.0 / 100 / 42.7 / 73.9 / 89.3 / 87.2 / 71.3 / 77.9 %, median 77.9 %.
+* The runs under 30 % are death spirals on one map: warrior seed 3 died 9 times in 21 kills, ranger default 13 deaths,
+  ranger seed 8 20 deaths.
+* The recast rule does not explain the ranger: an earlier 3-seed check with an incomplete fresh state gave ranger
+  25.2–36.0 % without the floor and 28.8–31.1 % with the plain floor. The class gate changes nothing.
+* The warrior's 22.9 % on the lead's tree came from the shared state. In its own state it clears 80.9 % on the default
+  seed.
+* The default map is one of the ranger's death-spiral maps (21.5 %).
+
+**Decision (lead, 2026-10-11, the same rule as the pace gate).** The L70 Torment II progress floors of all three
+classes are checked on the median of three maps (`riftFloor` in `server/test/sim.ts`).
+* The maps come from SIM_SEED, +1 and +2, each with its own fresh per-class state.
+* The floor stays at 30 % in 12 minutes, the reason is the 9-seed table above, and each map's progress and deaths are
+  printed.
+* The three maps run in-process: the whole rift section takes 15 s [M].
+* **First run [M], default seed:**
+  * warrior 80.9 / 57.4 / 15.6 % (2 deaths on the last map), median 57.4 %;
+  * ranger 21.5 (13 deaths) / 60.6 / 46.9 %, median 46.9 %;
+  * mage 58.1 / 57.0 / 61.7 %, median 58.1 %.
+* **Proof that a real collapse still fails [M]:** `SIM_WEAK_KIT=ranger` gives the ranger its L70 rare kit instead of
+  the set kit.
+  * Ranger: 6.7 / 14.1 / 1.7 % (43 deaths on the last map), median 6.7 %, so the check fails.
+  * The other two classes are unchanged.
+  * By construction, two maps below the floor put the median below it.

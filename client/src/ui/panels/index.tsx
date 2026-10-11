@@ -8,6 +8,8 @@ import '../styles/panels-collection.css';
 import '../styles/panels-social.css';
 import '../styles/panels-services.css';
 import '../styles/gear.css';
+import '../styles/buildtools.css';
+import { BenchPanel } from './bench';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { togglePanel, type PanelId } from '../store';
 import { useLocal, useU } from './state';
@@ -38,7 +40,7 @@ export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHov
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue','bounty'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue','bounty','bench'];
 
 /** Tallest window at scale 1 (the quest journal, 909 px, measured at 1080p) plus the dock's margins. */
 const TALLEST_PANEL = 915;
@@ -107,6 +109,7 @@ export function PanelsRoot() {
             {panels.community && <CommunityPanel />}
             {panels.dialogue && <DialoguePanel />}
             {panels.bounty && <BountyPanel />}
+            {panels.bench && <BenchPanel />}
           </div>
           {panels.debug && <div class="pn-dock top"><DebugPanel /></div>}
         </>

@@ -8,7 +8,7 @@ import { strikeMob } from './damage';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff } from './effects';
 import { placeGround } from './groundFx';
 import type { Instance } from './instance';
-import { skillCooldownMs, skillCost, skillPct } from './playerctx';
+import { MIN_RECAST_MS, skillCooldownMs, skillCost, skillPct } from './playerctx';
 import { FURY_DECAY_DELAY_MS, OOC_REGEN_DELAY_MS } from './tuning';
 import {
   conditionCount, firePowerProcs, ownMultiplier, powerState, stackBuff,
@@ -71,7 +71,7 @@ export function strongestDot(p: Player, m: Mob | null): Dot | undefined {
  * cooldown. pick 'longestCooldown' takes the one with the longest base cooldown, 'first' the first slot.
  */
 function castBarSkill(inst: Instance, p: Player, c: NonNullable<ProcRuntime['castSkill']>) {
-  const ready = p.ctx.slots.filter((rt): rt is NonNullable<typeof rt> => !!rt && (!c.ids || c.ids.has(rt.def.id)) && (p.readyAt.get(rt.def.id) ?? 0) <= inst.t && rt.def.auto.when !== 'channel');
+  const ready = p.ctx.slots.filter((rt): rt is NonNullable<typeof rt> => !!rt && (!c.ids || c.ids.has(rt.def.id)) && (p.readyAt.get(rt.def.id) ?? 0) <= inst.t && (p.recastAt.get(rt.def.id) ?? -Infinity) <= inst.t && rt.def.auto.when !== 'channel');
   if (!ready.length) return;
   const rt = c.pick === 'longestCooldown' ? ready.reduce((a, b) => (b.def.cooldown > a.def.cooldown ? b : a)) : ready[0];
   const prev = p.acting;
@@ -79,6 +79,7 @@ function castBarSkill(inst: Instance, p: Player, c: NonNullable<ProcRuntime['cas
   try { if (!castSkill(inst, p, rt)) return; } finally { p.acting = prev; }
   const cd = skillCooldownMs(p, rt);
   if (cd > 0) p.readyAt.set(rt.def.id, inst.t + cd);
+  else p.recastAt.set(rt.def.id, inst.t + MIN_RECAST_MS);
 }
 
 /** Spawn a power summon (only types a class module registered); over `max` of that type, the oldest retires. */

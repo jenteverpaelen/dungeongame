@@ -1,6 +1,6 @@
 // Geometry helpers, crowd control on monsters/players, DoT bookkeeping and player buffs.
 
-import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TICK_MS, TILE, angleDiff, type Element } from '../shared';
+import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_SLOW, F_STUN, T_VOID, T_WALL, TICK_MS, TILE, angleDiff, type Element } from '../shared';
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
 import { adventureCover } from '../../../shared/src/adventureCover';
@@ -78,6 +78,8 @@ function landed(m: Mob, kind: StatusKind, control: boolean, inst: Instance | und
 
 /** Your stuns / freezes last longer (affix ccDuration); 1 when nobody or no affix. */
 const ccLonger = (by: Player | undefined) => (by && by.ctx.d.ccDuration > 0 ? 1 + by.ctx.d.ccDuration / 100 : 1);
+/** Rule change statusLonger (powers): your chills / stuns / freezes last pct % longer; 1 without one. */
+const ruleLonger = (by: Player | undefined, k: 'chill' | 'stun' | 'freeze') => { const v = by?.ctx.powers.rules.longer?.[k]; return v ? 1 + v / 100 : 1; };
 
 /** Mark a monster (Hunter's Mark and other marks): it takes markPct % more damage while markMs lasts. */
 export function markMob(m: Mob, ms: number, pct: number, inst?: Instance, by?: Player) {
@@ -89,7 +91,7 @@ export function markMob(m: Mob, ms: number, pct: number, inst?: Instance, by?: P
 export function stunMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
-  const longer = ccLonger(by);
+  const longer = ccLonger(by) * ruleLonger(by, 'stun');
   m.stunMs = Math.max(m.stunMs, longer === 1 ? ms * f : ms * f * longer);
   cancelWindup(m);
   landed(m, 'stun', true, inst, by);
@@ -98,7 +100,7 @@ export function stunMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
 export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
-  const longer = ccLonger(by);
+  const longer = ccLonger(by) * ruleLonger(by, 'freeze');
   m.freezeMs = Math.max(m.freezeMs, longer === 1 ? ms * f : ms * f * longer);
   if (shatterBy) { m.shatterBy = shatterBy; m.shatterDepth = depth; }
   cancelWindup(m);
@@ -107,7 +109,8 @@ export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0, inst?: I
 
 export function chillMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
   if (m.dummy || m.tier === 4 || m.tier === 5) return;
-  m.chillMs = Math.max(m.chillMs, ms);
+  const longer = ruleLonger(by, 'chill');
+  m.chillMs = Math.max(m.chillMs, longer === 1 ? ms : ms * longer);
   landed(m, 'chill', false, inst, by);
 }
 
@@ -214,6 +217,7 @@ export function mobStatusFlags(m: Mob): number {
   if (m.stunMs > 0) f |= F_STUN;
   if (m.freezeMs > 0) f |= F_FROZEN;
   if (m.chillMs > 0) f |= F_CHILL;
+  if (m.ps && m.ps.slowMs > 0) f |= F_SLOW;
   for (let i = 0; i < m.dots.length; i++) {
     const k = m.dots[i].kind;
     if (k === 'bleed') f |= F_BLEED;

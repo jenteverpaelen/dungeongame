@@ -89,7 +89,7 @@ export function AfkModal() {
 
 const VERBS: Partial<Record<NpcRole, string>> = {
   quest: 'Talk to', clue: 'Interact with', blacksmith: 'Open', jeweler: 'Open', mystic: 'Open',
-  cube: 'Open', stash: 'Open', obelisk: 'Use', waypoint: 'Use', paragon: 'Visit', healer: 'Speak with', vendor: 'Trade with',
+  cube: 'Open', stash: 'Open', obelisk: 'Use', waypoint: 'Use', paragon: 'Visit', healer: 'Speak with', vendor: 'Trade with', dummy: 'Test damage on',
 };
 
 export function InteractPrompt() {

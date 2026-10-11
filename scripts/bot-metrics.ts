@@ -4,9 +4,10 @@
 //   npx tsx scripts/bot-metrics.ts run [minutes=240] [--out docs/rework/partials/bot-metrics]   simulate + write report
 //   npx tsx scripts/bot-metrics.ts render <sim.json> [--out dir]                                report from a SIM_JSON file
 //   npx tsx scripts/bot-metrics.ts compare <baseline.json> <new.json> [--max-drift 0.25]        drift per class × band
+//   npx tsx scripts/bot-metrics.ts check [minutes=120]                                          pace targets, median of 3 seeds
 //
 // A run needs an isolated DATA_DIR (the simulation never writes saves, but the rule holds for every test command).
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -69,6 +70,7 @@ export function renderMarkdown(rep: MetricsReport): string {
   out.push('**Limits.** Bots stand in melee and never dodge, so deaths and damage taken are an upper bound for humans; they also ' +
     'never walk back to town, so kills/min is an upper bound for real sessions. This is a typical-gear curve, not a lucky one ' +
     '(see `docs/rework/BALANCE.md` §3).', '');
+  out.push(PACE_CHECK_NOTE, '');
   out.push('| Class | end level | deaths | minutes to ' + ['L5', 'L10', 'L15', 'L20', 'L25', 'L30'].join(' · ') + ' |', '|---|---:|---:|---|');
   for (const [cls, c] of Object.entries(rep.perClass))
     out.push(`| ${cls} | ${c.endLevel} | ${c.deaths} | ${['L5', 'L10', 'L15', 'L20', 'L25', 'L30'].map(l => c.minutesTo[l] ?? '—').join(' · ')} |`);
@@ -135,6 +137,40 @@ ${rows.map(([l, k]) => `  [${l}, ${k}],`).join('\n')}
  */
 export const TARGET_RULES = { trashTtkMaxS: 1.0, championFactor: 1.25, killsFactor: 0.75 } as const;
 export interface BandTarget { fromLevel: number; trashTtkMaxS: number; championTtkMaxS: number; killsPerMinMin: number }
+
+/** The simulation's default seed (server/test/sim.ts SIM_SEED). */
+export const DEFAULT_SIM_SEED = 0xc0ffee;
+/**
+ * Seeds of the pace check (lead 2026-10-11): the default seed and two fixed offsets, each a full leveling run with the
+ * per-class reseed. One seed alone is a coin: the L25+ band holds only the last 5–25 minutes of a run, and 3 of 8 seeds
+ * missed it with no rule change at all [M, FOUNDATION.md §13.14].
+ */
+export const PACE_SEEDS = [DEFAULT_SIM_SEED, DEFAULT_SIM_SEED + 1, DEFAULT_SIM_SEED + 2] as const;
+export const PACE_CHECK_NOTE = '**Pace check.** `npx tsx scripts/bot-metrics.ts check 120` (the verify stage `pace-targets`) runs ' +
+  `120 simulated minutes per class for each of ${PACE_SEEDS.length} fixed seeds (${PACE_SEEDS.join(', ')}; each class starts from the ` +
+  'same seeded state), in parallel. Per class and band it takes the median over the seed runs of trash time-to-kill, champion ' +
+  'time-to-kill and kills per minute; a class counts in a band when at least two runs reached it. The band median over the ' +
+  'three classes is then checked against `targets.json` (unchanged, recorded from this baseline). Reason: one seed missed the ' +
+  'L25+ champion target in 3 of 8 runs with no rule change (`docs/rework/depth/FOUNDATION.md` §13.14).';
+
+/**
+ * One report from several seed runs of the same code: per class × band, the median over the runs of the gated metrics
+ * (trash and champion time-to-kill, kills per minute). A class's band needs at least two runs (a majority of three); the
+ * other fields come from the first run that reached the band.
+ */
+export function medianOfSeeds(reps: MetricsReport[]): MetricsReport {
+  const need = Math.min(2, reps.length);
+  const keys = new Map<string, MetricRow[]>();
+  for (const rep of reps) for (const r of rep.rows) { const id = `${r.class}|${r.fromLevel}`; const l = keys.get(id) ?? []; l.push(r); keys.set(id, l); }
+  const rows: MetricRow[] = [];
+  for (const runs of keys.values()) {
+    if (runs.length < need) continue;
+    rows.push({ ...runs[0], killsPerMin: median(runs.map((r) => r.killsPerMin)) ?? 0, ttkTrashS: median(runs.map((r) => r.ttkTrashS)),
+      ttkChampionS: median(runs.map((r) => r.ttkChampionS)) });
+  }
+  rows.sort((a, b) => a.class.localeCompare(b.class) || a.fromLevel - b.fromLevel);
+  return { ...reps[0], seed: reps[0].seed, rows };
+}
 const median = (v: (number | null)[]) => {
   const s = v.filter((x): x is number => x !== null && Number.isFinite(x)).sort((a, b) => a - b);
   if (!s.length) return null;
@@ -203,15 +239,26 @@ async function main() {
     // Simulate `minutes` of leveling (default 120) and check every reached band against targets.json.
     if (!process.env.DATA_DIR) throw new Error('Set an isolated DATA_DIR first');
     const minutes = String(Number(a1 ?? 120) || 120);
-    const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'hf-bot-targets-')), 'sim.json');
-    spawnSync(process.execPath, ['--import', 'tsx', path.join(root, 'server/test/sim.ts'), 'leveling', minutes],
-      { cwd: root, env: { ...process.env, SIM_JSON: tmp }, stdio: 'ignore' });
-    if (!fs.existsSync(tmp)) throw new Error('simulation wrote no metrics');
-    const rep = buildReport(JSON.parse(fs.readFileSync(tmp, 'utf8')));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hf-bot-targets-'));
+    // The seed runs are independent processes, so they run in parallel (each with its own data directory).
+    const reps = await Promise.all(PACE_SEEDS.map((seed) => new Promise<MetricsReport>((resolve, reject) => {
+      const file = path.join(dir, `sim-${seed}.json`), data = path.join(process.env.DATA_DIR!, `pace-${seed}`);
+      fs.mkdirSync(data, { recursive: true });
+      const child = spawn(process.execPath, ['--import', 'tsx', path.join(root, 'server/test/sim.ts'), 'leveling', minutes],
+        { cwd: root, env: { ...process.env, DATA_DIR: data, SIM_SEED: String(seed), SIM_JSON: file }, stdio: 'ignore' });
+      child.on('error', reject);
+      child.on('exit', () => {
+        if (!fs.existsSync(file)) reject(new Error(`simulation (seed ${seed}) wrote no metrics`));
+        else resolve(buildReport(JSON.parse(fs.readFileSync(file, 'utf8'))));
+      });
+    })));
     const targets = (JSON.parse(fs.readFileSync(path.join(outDir, 'targets.json'), 'utf8')) as { bands: BandTarget[] }).bands;
+    const rep = medianOfSeeds(reps);
     const problems = checkTargets(rep, targets);
     const reached = new Set(rep.rows.map((r) => r.fromLevel)).size;
-    console.log(`${minutes} simulated minutes per class: ${reached} band(s) reached, ${problems.length} target miss(es)`);
+    // Single-seed results for context (not gated).
+    for (const [i, r] of reps.entries()) { const p = checkTargets(r, targets); console.log(`  seed ${PACE_SEEDS[i]}: ${p.length ? p.join('; ') : 'no miss'}`); }
+    console.log(`${minutes} simulated minutes per class × ${PACE_SEEDS.length} seeds (median per class and band): ${reached} band(s) reached, ${problems.length} target miss(es)`);
     if (problems.length) { console.error(`PACE TARGETS MISSED:\n  ${problems.join('\n  ')}`); process.exitCode = 1; }
   } else if (cmd === 'compare' && a1 && a2) {
     const load = (f: string) => { const j = JSON.parse(fs.readFileSync(f, 'utf8')); return 'perClass' in j ? j as MetricsReport : buildReport(j); };
