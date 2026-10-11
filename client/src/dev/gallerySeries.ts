@@ -462,6 +462,29 @@ function floatsView(): void {
   (window as unknown as { __floats: unknown }).__floats = { out, maxDeco, maxAll };
 }
 
+/** ?view=bases: the depth-wave held bases in every series (own silhouettes, bases.ts) at &rar= (default rare), &px=. */
+function basesView(): void {
+  showSheet();
+  const px = Number(qs.get('px') ?? 112);
+  const rar = (qs.get('rar') ?? 'rare') as Rarity;
+  const BASES_ART: { shape: string; fam: WeaponFamily; label: string }[] = [
+    { shape: 'cleaver', fam: 'axe', label: 'Cleaver' }, { shape: 'maul2h', fam: 'greataxe', label: 'Maul' }, { shape: 'polearm', fam: 'greataxe', label: 'Polearm' },
+    { shape: 'sling', fam: 'handxbow', label: 'Sling' }, { shape: 'longbow', fam: 'bow', label: 'Longbow' }, { shape: 'rod', fam: 'wand', label: 'Rod' },
+    { shape: 'sceptre', fam: 'wand', label: 'Sceptre' }, { shape: 'censer', fam: 'staff', label: 'Censer' }, { shape: 'warhorn', fam: 'quiver', label: 'Warhorn' },
+    { shape: 'trap_kit', fam: 'quiver', label: 'Trap Kit' }, { shape: 'tome', fam: 'orb', label: 'Tome' },
+  ];
+  const only = (qs.get('only') ?? '').split(',').filter(Boolean);
+  const rows = only.length ? BASES_ART.filter((b) => only.includes(b.shape)) : BASES_ART;
+  const wrap = el('div', `display:grid;grid-template-columns:80px repeat(${SERIES.length}, ${px + 10}px);gap:6px;padding:10px 14px;align-items:center`);
+  sheet.appendChild(wrap);
+  wrap.appendChild(el('div', '', `<div class=lbl>${rar}</div>`));
+  for (const s of SERIES) wrap.appendChild(el('div', 'text-align:center', `<div style="font-weight:700;font-size:13px;color:#f0dfb4">${s.name}</div>`));
+  for (const b of rows) {
+    wrap.appendChild(el('div', 'font-weight:700;color:#c9b98f', b.label));
+    for (const s of SERIES) wrap.appendChild(iconCell(seriesIcon({ family: b.fam, gen: s.gen, rarity: rar, seed: 3, shape: b.shape }, px), px, RC[rar], 6));
+  }
+}
+
 /** ?view=rig: the series drawings registered with the real gear rig (weaponDrawing.ts) and rendered by the game's own
  *  icon pipeline (icons.ts) at 64 and 40 px — what the bag and the item card would show today if the game switched. */
 function rigIconsView(): void {
@@ -528,6 +551,7 @@ switch (VIEW) {
   case 'metrics': await metricsView(); break;
   case 'extents': extentsView(); break;
   case 'floats': floatsView(); break;
+  case 'bases': basesView(); break;
   default: sheetView();
 }
 

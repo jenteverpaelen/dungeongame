@@ -19,6 +19,8 @@ export interface SeriesDrawInput {
   look: ItemLook;
   style: { gen: number; rar: number; special: boolean; top: number; temper: number; legendary?: string; edgeLight: number };
   family: WeaponFamily;
+  /** The look's shape (art shapes of the depth bases pick their own drawing). */
+  shape?: string;
   reach: { tip: number; base: number };
   rig: boolean;
 }
@@ -51,6 +53,7 @@ export function seriesSpecOf(input: SeriesDrawInput): SeriesSpec {
     grade: (Math.max(0, Math.min(2, s.top)) as 0 | 1 | 2),
     seed: input.look.variant + 1, rig: input.rig, temper: Math.max(0, Math.min(3, s.temper)),
     accent: special && input.look.glow ? input.look.glow : undefined,
+    shape: input.shape ?? input.look.shape,
   };
 }
 
