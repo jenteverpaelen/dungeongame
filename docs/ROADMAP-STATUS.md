@@ -37,24 +37,27 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 
 ---
 
-## Being built right now 🔨
+## Done since the last update (2026-10-11 → 12) ✅
 
 | What | Status |
 |---|---|
-| **Build depth: engine** | ✅ foundation, engine wave 2 and shared items merged (5 runes, a tree per skill, tag-keyed legendaries/sets, procs, grounds, statuses, 19 shared legendaries, 80 item shapes, 55 affixes, set-reduction ring, Kindled/Fabled). 🔨 Engine wave 3 (slows, front/back defence, low-life and movement triggers, double damage-over-time) |
-| **Warrior** | ✅ merged and on the dev link: 12 skills (6 new), 60 runes, skill trees, 5 sets, 32 legendaries. 🔨 last few items that needed engine wave 3 |
-| **Ranger** | 🔨 same treatment, starting with the bible's fixes for build variety |
-| **Mage** | 🔨 same treatment |
-| **Weapon art** | ✅ gear visuals v2 merged (looks come from the item, tier ladder removed, hold poses and attack effects). 🔨 New art direction approved by you: one maker series per level band; now adding much stronger series-specific effects, then the other 8 weapon types; armour after |
-| **Names and town** | 🔨 your recommended names (Ordeal difficulty, Lantern Ranks, Glass Reliquary, Faultline, Glasswright, Mending Orb), offline rewards parked, town shows the new systems |
-| **Questing rework** | ✅ merged (marks per quest type, five-quest tracker, bounty boards, repairs that change the world, lore records). Not yet: escort/defend, voiced lines |
+| **Build depth: engine** | ✅ 5 runes, a tree per skill, tag-keyed legendaries/sets, procs, grounds, statuses, slows, triggers, Inscriptions, class lock, recast guard |
+| **Warrior, Ranger, Mage** | ✅ each 12 skills, 60 runes, 72 tree upgrades, 14 passives, 5 sets, 34–35 legendaries (122 legendaries and 15 sets in total, 80 item types, 55 affixes) |
+| **Build tools** | ✅ exact tooltips (Alt / Advanced tooltips), damage breakdown, training-dummy bench, 5 loadouts with free respec, `HF1.` build codes in chat |
+| **Weapon art** | ✅ 7 maker series for every weapon type with series-specific effects (default); armour in the same style is ready **for your review** (off by default) |
+| **Performance** | ✅ HUD no longer repaints every frame, draw calls 120 → 35, orbs on one canvas, crowd crash fixed, Low preset for PCs without a GPU, a verify gate against regressions |
+| **Names and town** | ✅ your recommended names, offline rewards parked, town shows your progress |
+| **Questing rework** | ✅ (marks per quest type, five-quest tracker, bounty boards, repairs that change the world, lore records). Not yet: escort/defend, voiced lines |
 | **Codex's partial items** | ✅ 19 of 28 done (report: `docs/rework/partials/REPORT.md`); the rest need playtests or reviewers |
+
+Overnight report: `docs/rework/REPORT-2026-10-12.md`.
 
 ## Next (in this order)
 
-1. **Balance and parity pass** after all three classes: shared legendaries are now a bit too strong, some 6-piece sets too weak, and the difficulty (Torment/Ordeal) ladder must be re-fitted because endgame set power dropped from up to ×255 to about ×25.
-2. **Build tools** (exact tooltips, damage breakdown, training dummy, loadouts, build codes): `docs/rework/depth/BUILD-TOOLS.md`.
-3. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
+1. **Your look at the armour art** (switch it on in Settings → Display).
+2. **Balance pass:** sets vs legendaries (shared legendaries a bit too strong, a few named weapons dominate), classes against each other (warrior slowest at level 25+), the Ordeal ladder re-fit (endgame set power dropped from up to ×387 to ×13–29), ranger survival on some rift maps.
+3. **Endgame** (timed rifts with ranks, leaderboards, bounties) or a **playtest with friends** — your call.
+4. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
 
 ---
 
