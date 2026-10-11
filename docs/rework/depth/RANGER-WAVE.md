@@ -76,6 +76,7 @@ loot"); debug `legendaries` / `set` grant them.
 | Stormbirds | "arcs to 2 enemies outside it" | 50 % weapon damage per arc [P] | = one flock tick (2.0 per s ÷ 4) |
 | Overcast Volley Storm Shelf | "strikes 2 random enemies with bolts" | two bolts during the 2 s linger (at +0.5 s and +1.5 s) | timing not given |
 | Bounty | "drops a health globe" | "drops a healing pickup" | the originality gate (D3 term) |
+| Bolt-Thrower's Arbalest | Device projectiles "pierce" (every enemy) | pierce up to 2 enemies, then burst | bandwidth [M]: unbounded, the Sentry kit's damage events ×1.6 put the perf budget at +18.1 % (gate +15 %); capped +11.9 % (§8); the item's value moved about 5 % |
 | Node Wind Shear | name | **Crosswind** | a D3 rune label (originality gate) |
 | Quarry Mark text | — | adds who it marks and "not cast while your mark lives" | the auto filter is visible behaviour |
 | Spotter's Repeater | "your Mark bonus" | Mark-tagged skills (Quarry Mark, Marker Bolt) | Hunter's Mark keeps its own roll |
@@ -101,8 +102,8 @@ time), `overcast_arrow`, `overcast_heavy`, `quarry_mark` (`s` = the monster, `f:
 
 ## 6. Parity
 
-Full report: `RANGER-PARITY.md` / `.json` (after every fit and the event timing: 3 seeds, 25-evaluation search per kit,
-with and without the shared legendaries; 1467 s). Gate in `npm run verify` (`server/test/parity.test.ts`): D3 and D4
+Full report: `RANGER-PARITY.md` / `.json` (after every fit, the event timing and the Arbalest's pierce cap: 3 seeds, 25-evaluation
+search per kit, with and without the shared legendaries; 775 s). Gate in `npm run verify` (`server/test/parity.test.ts`): D3 and D4
 hard limits on ranger items for the parity-ready main skills Arrowfall, Pitch Mortar, Companion and Murmuration (greedy
 kits, seed 101: D3 0.93 / 0.92 / 0.83 / 0.81). A skill is flagged only when both the searched audit and the greedy gate
 hold; Tracking Arrow, Skipstone Bolt, Multishot and Overcast Volley pass the searched audit (below) but not the greedy
@@ -114,29 +115,29 @@ cost 30 → 15 %, Rainkeeper 4 cost 30 → 15 %, Farwatch 6 replaces the 5th cas
 
 | Main skill | Ranger items only: legendary / best 6 / best hybrid | D3 · D4 | With shared legendaries: legendary / best 6 / hybrid | D3 · D4 |
 |---|---|---|---|---|
-| Tracking Arrow | ×8.7 / ×7.5 SW6 / ×8.1 SW4 | 1.15 · 1.00 | ×13.3 / ×8.7 TK6 / ×9.3 TK4 | 1.53 · 1.00 |
-| Skipstone Bolt | ×9.1 / ×7.8 SW6 / ×8.4 TK4 | 1.18 · 1.00 | ×14.0 / ×9.0 TK6 / ×9.3 RK4 | 1.56 · 1.00 |
-| Multishot | ×9.0 / ×7.3 TK6 / ×8.9 FW4 | 1.23 · 1.00 | ×16.0 / ×8.6 TK6 / ×10.4 TK4 | 1.86 · 1.00 |
-| Burst Arrow | ×9.3 / ×9.4 FW6 / ×11.9 FW4 | 0.99 · **1.27** | ×21.1 / ×13.3 FW6 / ×19.6 FW4 | 1.58 · 1.00 |
-| Overcast Volley | ×7.4 / ×6.7 SW6 / ×7.2 SW4 | 1.11 · 1.00 | ×15.5 / ×8.8 RK6 / ×11.2 RK4 | 1.76 · 1.00 |
+| Tracking Arrow | ×8.6 / ×7.5 SW6 / ×7.9 TK4 | 1.15 · 1.00 | ×13.3 / ×8.7 TK6 / ×9.3 TK4 | 1.53 · 1.00 |
+| Skipstone Bolt | ×9.1 / ×7.8 SW6 / ×8.5 TK4 | 1.18 · 1.00 | ×14.0 / ×9.0 TK6 / ×9.3 RK4 | 1.56 · 1.00 |
+| Multishot | ×9.0 / ×7.3 TK6 / ×8.9 FW4 | 1.22 · 1.00 | ×16.0 / ×8.6 TK6 / ×10.4 TK4 | 1.86 · 1.00 |
+| Burst Arrow | ×9.3 / ×9.4 FW6 / ×12.0 FW4 | 0.99 · **1.27** | ×21.1 / ×13.3 FW6 / ×19.6 FW4 | 1.58 · 1.00 |
+| Overcast Volley | ×7.5 / ×6.8 SW6 / ×7.4 SW4 | 1.09 · 1.00 | ×15.5 / ×8.8 RK6 / ×11.2 RK4 | 1.76 · 1.00 |
 | Arrowfall | ×8.2 / ×7.7 SW6 / ×7.8 SW4 | 1.06 · 1.00 | ×15.0 / ×8.7 TK6 / ×9.9 RK4 | 1.72 · 1.00 |
-| Sentry | ×17.4 / ×13.4 SB6 / ×15.7 SB4 | **1.30** · 1.00 | ×32.8 / ×17.9 TK6 / ×25.4 RK4 | 1.83 · 1.00 |
-| Spring Snare | ×5.7 / ×6.9 SW6 / ×6.5 SW4 | 0.82 · 1.00 | ×14.4 / ×11.1 SW6 / ×11.1 RK4 | 1.30 · 0.99 |
-| Pitch Mortar | ×8.7 / ×8.8 SB6 / ×8.9 SB4 | 0.99 · 1.01 | ×22.8 / ×12.8 SW6 / ×15.3 TK4 | 1.78 · 1.00 |
+| Sentry | ×17.7 / ×14.1 SB6 / ×16.9 SB4 | **1.25** · 1.00 | ×33.6 / ×20.2 SB6 / ×33.2 SB4 | 1.66 · 1.00 |
+| Spring Snare | ×5.5 / ×6.0 SW6 / ×6.0 SW4 | 0.91 · 1.00 | ×15.1 / ×10.8 SW6 / ×11.1 RK4 | 1.41 · 1.00 |
+| Pitch Mortar | ×8.9 / ×9.0 SB6 / ×9.1 SB4 | 0.99 · 1.01 | ×22.9 / ×12.9 SW6 / ×15.3 TK4 | 1.78 · 1.00 |
 | Companion | ×8.1 / ×9.8 TK6 / ×10.0 TK4 | 0.82 · 1.02 | ×20.8 / ×12.3 TK6 / ×14.4 TK4 | 1.69 · 1.00 |
-| Murmuration | ×8.5 / ×10.0 TK6 / ×10.1 TK4 | 0.85 · 1.01 | ×16.3 / ×12.7 TK6 / ×14.1 TK4 | 1.29 · 1.00 |
+| Murmuration | ×8.5 / ×10.0 TK6 / ×10.1 TK4 | 0.84 · 1.01 | ×16.3 / ×12.7 TK6 / ×14.1 TK4 | 1.29 · 1.00 |
 
 SB Siegebreaker's Arsenal, FW Farwatch, RK Rainkeeper, TK Thicket Kin, SW Snarewright. (D4 1.00 = the hybrid lies
-between the two.) Checks, ranger items only: D1 1/11, D2 Whistle Charm 11/11, D3 0.82–1.30, D4 1.00–1.27, D5 4/5 (hard
-pass; Rainkeeper is nobody's best), D6 1.94. With the shared legendaries: D1 1/11, D2 Wingbeat Boots 11/11, D3
-1.29–1.86, D4 0.99–1.00 (hard pass), D5 3/5 (legendary-only is every main's top kit, so only hybrids count),
-D6 2.05. Paper model before the wave: D1 5/11. The causes, measured:
+between the two.) Checks, ranger items only: D1 1/11, D2 Whistle Charm 11/11, D3 0.82–1.25 (Sentry 1.252, over the hard
+limit by 0.002), D4 1.00–1.27, D5 4/5 (hard pass; Rainkeeper is nobody's best), D6 1.94. With the shared legendaries:
+D1 1/11, D2 Wingbeat Boots 11/11, D3 1.29–1.86, D4 1.00 (hard pass), D5 4/5 (hard pass; legendary-only is every main's
+top kit, so only hybrids count), D6 2.10. Paper model before the wave: D1 5/11. The causes, measured:
 
-* **Sentry is the class's outlier** (D1, D6; ×17.4 against a median best of ×9.0). Ablation of its legendary-only kit
-  (ranger items only): Bolt-Thrower's Arbalest (Cube) ×2.20, Sapper's Pack ×1.50, Bowyer's Gloves ×1.37, Kennel-Wood
+* **Sentry is the class's outlier** (D1, D6; ×17.7 against a median best of ×9.1). Ablation of its legendary-only kit
+  (ranger items only, before the pierce cap): Bolt-Thrower's Arbalest (Cube) ×2.20, Sapper's Pack ×1.50, Bowyer's Gloves ×1.37, Kennel-Wood
   Bow ×1.25, Fuse Cord Belt ×1.25, Wingbeat Boots ×1.19, Gearwright's Heart ×1.12 (after the §0 cut), Whistle Charm
   ×1.12. The Arbalest's value is its +100–150 % roll on the thin Device bucket (pierce 1 / 2 / all and a 50 % burst
-  moved it by ±5 %, `ranger.ts` notes); it sits in every Sentry kit, so it lifts the outlier, not D3. D3 1.30 comes from
+  moved it by ±5 %, `ranger.ts` notes); it sits in every Sentry kit, so it lifts the outlier, not D3. D3 1.25 comes from
   the armour slots: Siegebreaker 6 gives up Bowyer's Gloves, Hawkfeather Cap, Wingbeat Boots and Skimmer's Leggings, and
   its 4-piece "Devices fire your Spender Projectile skills" copies a skill the Sentry fixture does not carry. Not changed
   here (bible rolls; a design call for the balance pass).
@@ -150,15 +151,16 @@ D6 2.05. Paper model before the wave: D1 5/11. The causes, measured:
   sit in the armour and jewellery slots a 6-piece gives up. Hand-off to the shared-items lane and the Torment re-fit.
 * **D2** counts frequency: Companion is in every fixture (the bible's Beast identity), so Whistle Charm ("Beasts attack
   faster") is in every top kit; with the shared pool Wingbeat Boots (+v % Beast damage to elites, the elites of the three
-  encounters) is. Spring Snare and Companion sit at D3 0.82 (inside the hard band, under the 0.85 target).
+  encounters) is. Companion (0.82) and Murmuration (0.84) sit inside the hard band, under the 0.85 target.
 
 ## 7. Endgame power and the simulation
 
 Measured in `server/test/sim.ts` (sim fixture = the audit's Siegebreaker 6 Sentry kit, `CLASS_LEGS` / `CUBE` for the
-ranger): the set kit lifts the ranger ×17 over rares against 8 sturdy targets (×348 on 343a5d5 with the old sets [M];
+ranger): the set kit lifts the ranger ×29 over rares against 8 sturdy targets (×348 on 343a5d5 with the old sets [M];
 warrior ×20, unchanged; mage ×182, its rares differ only because the ranger runs first in the shared RNG stream).
-`BUDGET.md` §9 risk 1 expects this drop. The ranger's L70 set kit reaches 64.6 % of a Torment II rift in 12 minutes
-(2 deaths; it completed on the old sets); before the last fits shifted the seeded stream it measured 81.5 %. The sim
+`BUDGET.md` §9 risk 1 expects this drop. The ranger's L70 set kit reaches 57.1 % of a Torment II rift in 12 minutes
+(4 deaths; it completed on the old sets); before the last fits and the Arbalest's pierce cap shifted the seeded stream it
+measured 64.6–81.5 % (×17 spike: bolts that pierced every enemy burst behind the pack). The sim
 checks the same 30 % progress floor as for the warrior until the Torment re-fit. L1 Normal and L20 Hard ranger rifts
 complete (7:39, 9:34).
 
@@ -187,7 +189,8 @@ frame in every run).
 **Draw calls and visible objects, before and after the new skills** (lead's `rift-gl.mjs` method, copied to
 `.local/scn/rift-gl-ranger.mjs`: L70 hero with the debug set and legendaries in a Torment I rift, 6 s fight, then WebGL
 calls counted over 4 s and a stage walk; "old" = the pre-wave kit Tracking Arrow, Multishot, Burst Arrow, Sentry,
-Arrowfall; "new" = Skipstone Bolt, Spring Snare, Overcast Volley, Pitch Mortar, Murmuration; unlimited resource on):
+Arrowfall; "new" = Skipstone Bolt, Spring Snare, Overcast Volley, Pitch Mortar, Murmuration; unlimited resource on;
+measured before the Arbalest's pierce cap, which only lowers the damage numbers on screen):
 
 | Measurement | Old kit | New kit |
 |---|---|---|
@@ -210,8 +213,12 @@ town); the gallery measured about 8 ms per frame for both kits on a quieter mach
 **Server tick** (`sim.ts perf`, interleaved head / 343a5d5, 6 runs each under the same background load): 4 players
 + 150 unkillable monsters, simulation only: head 1.91–4.09 ms (lowest 1.91), base 1.76–4.52 ms (lowest 1.76), so
 about +9 % at the lowest and inside the noise otherwise; 4-player Torment III rift: head 0.26–0.28 ms, base 0.20–0.40 ms
-per tick (the rift lasts 7:13 instead of 3:59 with the weaker ranger kit). The sim's L70 ranger rift ticks at 0.59 ms
-average (warrior 0.24, mage 0.17): the Siegebreaker 6 kit keeps several Sentries that copy Multishot and Burst Arrow.
+per tick (the rift lasts 7:13 instead of 3:59 with the weaker ranger kit). These runs predate the Arbalest's pierce cap,
+which cut the sim's L70 ranger rift from 0.59 to 0.14 ms per tick (warrior 0.24, mage 0.17).
+
+**Snapshot bandwidth** (`scripts/perf-budget.ts`, deterministic): recorded baseline 81.5 KB/s per client, 343a5d5 88.5
+(+8.6 %), this wave with the Arbalest piercing every enemy 96.2 (+18.1 %, over the +15 % gate: the Sentry kit's damage
+events ×1.6), with the cap at 2 91.2 KB/s (+11.9 %; gate passes). The mage wave adds to the same budget.
 
 ## 9. Owner-visible changes
 
@@ -221,8 +228,9 @@ average (warrior 0.24, mage 0.17): the Siegebreaker 6 kit keeps several Sentries
   Volleys, Skyfall, Devices, Beasts) on two pages; eight new passives; specialization trees for all 12 skills.
 * Multishot is Spender · Projectile · Piercing and no longer Area (items keyed to Area skills stop affecting it).
 * The companion's bite now carries the skill's own damage multiplier (Beast sets and items reach it).
-* Ranger endgame power drops as budgeted: set kit ×17 over rares (×348 before); the L70 set kit no longer clears Torment
-  II in 12 minutes (64.6 %) until the Torment re-fit.
+* Ranger endgame power drops as budgeted: set kit ×29 over rares (×348 before); the L70 set kit no longer clears Torment
+  II in 12 minutes (57.1 %) until the Torment re-fit.
+* Bolt-Thrower's Arbalest: Device projectiles pierce up to 2 enemies (the bible says "pierce"; capped for bandwidth, §8).
 * Redesigned sets: existing Siegebreaker's Arsenal, Farwatch and Rainkeeper pieces get the new tag-keyed bonuses.
 * Changed legendaries keep their stored roll: a Rainspindle rolled before the wave keeps its 30–40 value, which now reads
   as "+30–40 % damage" next to the fixed 35 % cooldown cut and 40 % radius (fresh drops roll 150–200 % damage; an old roll above 35 loses up to 5 points of

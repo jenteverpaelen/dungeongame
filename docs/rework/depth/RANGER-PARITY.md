@@ -14,9 +14,9 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 | Burst Arrow | Tracking Arrow · Burst Arrow, Quarry Mark, Companion, Arrowfall | 6919 s | ×21.06 | ×13.30 (Farwatch 6) | ×19.60 (Farwatch 4) | legendary-only ×21.06 (329 s) | 1.58 | no |
 | Overcast Volley | Tracking Arrow · Overcast Volley, Quarry Mark, Companion, Arrowfall | 9806 s | ×15.48 | ×8.81 (Rainkeeper 6) | ×11.21 (Rainkeeper 4) | legendary-only ×15.48 (633 s) | 1.76 | no |
 | Arrowfall | Tracking Arrow · Arrowfall, Quarry Mark, Companion, Murmuration | 13414 s | ×14.99 | ×8.70 (Thicket Kin 6) | ×9.88 (Rainkeeper 4) | legendary-only ×14.99 (895 s) | 1.72 | yes |
-| Sentry | Tracking Arrow · Sentry, Quarry Mark, Companion, Arrowfall | 12346 s | ×32.83 | ×17.93 (Thicket Kin 6) | ×25.40 (Rainkeeper 4) | legendary-only ×32.83 (376 s) | 1.83 | no |
-| Spring Snare | Tracking Arrow · Spring Snare, Quarry Mark, Companion, Arrowfall | 7669 s | ×14.43 | ×11.13 (Snarewright 6) | ×11.06 (Rainkeeper 4) | legendary-only ×14.43 (531 s) | 1.30 | no |
-| Pitch Mortar | Tracking Arrow · Pitch Mortar, Quarry Mark, Companion, Arrowfall | 11787 s | ×22.84 | ×12.84 (Snarewright 6) | ×15.27 (Thicket Kin 4) | legendary-only ×22.84 (516 s) | 1.78 | yes |
+| Sentry | Tracking Arrow · Sentry, Quarry Mark, Companion, Arrowfall | 12346 s | ×33.59 | ×20.20 (Siegebreaker's Arsenal 6) | ×33.22 (Siegebreaker's Arsenal 4) | legendary-only ×33.59 (368 s) | 1.66 | no |
+| Spring Snare | Tracking Arrow · Spring Snare, Quarry Mark, Companion, Arrowfall | 7672 s | ×15.13 | ×10.76 (Snarewright 6) | ×11.14 (Rainkeeper 4) | legendary-only ×15.13 (507 s) | 1.41 | no |
+| Pitch Mortar | Tracking Arrow · Pitch Mortar, Quarry Mark, Companion, Arrowfall | 11836 s | ×22.93 | ×12.90 (Snarewright 6) | ×15.33 (Thicket Kin 4) | legendary-only ×22.93 (516 s) | 1.78 | yes |
 | Companion | Tracking Arrow · Companion, Quarry Mark, Arrowfall, Murmuration | 13270 s | ×20.85 | ×12.31 (Thicket Kin 6) | ×14.37 (Thicket Kin 4) | legendary-only ×20.85 (637 s) | 1.69 | yes |
 | Murmuration | Tracking Arrow · Murmuration, Quarry Mark, Companion, Arrowfall | 13266 s | ×16.33 | ×12.65 (Thicket Kin 6) | ×14.11 (Thicket Kin 4) | legendary-only ×16.33 (812 s) | 1.29 | yes |
 
@@ -25,9 +25,9 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 | D1 | 1/11 | fail | fail |
 | D2 | wingbeat_boots 11/11 | fail | fail |
 | D3 | 1.29–1.86 | fail | fail |
-| D4 | 0.99–1.00 | pass | pass |
-| D5 | 3/5 (thicket_kin, rainkeeper, farwatch) | fail | fail |
-| D6 | 2.05 | fail | fail |
+| D4 | 1.00–1.00 | pass | pass |
+| D5 | 4/5 (thicket_kin, rainkeeper, farwatch, siegebreaker) | fail | pass |
+| D6 | 2.10 | fail | fail |
 
 <details><summary>Kits</summary>
 
@@ -69,14 +69,14 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 **Sentry** — best: legendary-only
 
-- legendary-only: mainhand Rainspindle, offhand Sapper's Pack, head Hawkfeather Cap, shoulders Huntsman’s Pauldrons, chest Gearwright's Heart, hands Bowyer’s Gloves, wrists Wardkeeper's Cuffs, waist Fuse Cord Belt, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Signal Horn Charm
-- Thicket Kin 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, wrists Coiled Wire Bracers, waist Fuse Cord Belt, neck Surveyor's Plumb, ring1 Seal of the Patient Thief, ring2 Ouroboros Loop; Cube Bolt-Thrower’s Arbalest, Huntsman’s Pauldrons, Signal Horn Charm
-- Rainkeeper 4: feet set, head set, chest set, hands set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, shoulders Kilnwatch Spaulders, wrists Wardkeeper's Cuffs, waist Fuse Cord Belt, legs Causeway Waders, neck Surveyor's Plumb, ring1 Ouroboros Loop, ring2 Raincount Ring; Cube Bolt-Thrower’s Arbalest, Gearwright's Heart, Signal Horn Charm
+- legendary-only: mainhand Rainspindle, offhand Sapper's Pack, head Overcast Hood, shoulders Huntsman’s Pauldrons, chest Gearwright's Heart, hands Bowyer’s Gloves, wrists Wardkeeper's Cuffs, waist Fuse Cord Belt, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Signal Horn Charm
+- Siegebreaker's Arsenal 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, wrists Coiled Wire Bracers, waist Fuse Cord Belt, neck Whistle Charm, ring1 Ouroboros Loop, ring2 Raincount Ring; Cube Bolt-Thrower’s Arbalest, Huntsman’s Pauldrons, Signal Horn Charm
+- Siegebreaker's Arsenal 4: feet set, head set, chest set, hands set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, shoulders Kilnwatch Spaulders, wrists Wardkeeper's Cuffs, waist Fuse Cord Belt, legs Causeway Waders, neck Surveyor's Plumb, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Bolt-Thrower’s Arbalest, Gearwright's Heart, Signal Horn Charm
 
 **Spring Snare** — best: legendary-only
 
-- legendary-only: mainhand Kennel-Wood Bow, offhand rare, head Overcast Hood, shoulders Huntsman’s Pauldrons, chest Hearthguard Coat, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Patchwork Signet, ring2 Seal of the Patient Thief; Cube Bolt-Thrower’s Arbalest, Trailhide Breeches, Signal Horn Charm
-- Snarewright 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Tripline Crossbow, offhand Skipping-Stone Quiver, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Ouroboros Loop, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Signal Horn Charm
+- legendary-only: mainhand Kennel-Wood Bow, offhand rare, head Overcast Hood, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Featherguard Cuffs, waist Witching Cord, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Seal of the Patient Thief, ring2 Patchwork Signet; Cube Bolt-Thrower’s Arbalest, Trailhide Breeches, Signal Horn Charm
+- Snarewright 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Tripline Crossbow, offhand Skipping-Stone Quiver, legs Causeway Waders, feet Wingbeat Boots, neck Surveyor's Plumb, ring1 Ouroboros Loop, ring2 Patchwork Signet; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Signal Horn Charm
 - Rainkeeper 4: head set, chest set, feet set, legs set, mainhand Tripline Crossbow, offhand Skipping-Stone Quiver, shoulders Kilnwatch Spaulders, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Surveyor's Plumb, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Bolt-Thrower’s Arbalest, Causeway Waders, Signal Horn Charm
 
 **Pitch Mortar** — best: legendary-only
@@ -103,25 +103,25 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 | Main skill | Fixture (internal) | Rares | Legendary-only | Best 6-piece | Best 4-piece hybrid | Best | D3 leg ÷ 6pc | parityReady |
 |---|---|---:|---:|---:|---:|---|---:|---|
-| Tracking Arrow | Tracking Arrow · Quarry Mark, Companion, Arrowfall, Murmuration | 13403 s | ×8.68 | ×7.51 (Snarewright 6) | ×8.10 (Snarewright 4) | legendary-only ×8.68 (1545 s) | 1.15 | no |
-| Skipstone Bolt | Skipstone Bolt · Quarry Mark, Companion, Arrowfall, Murmuration | 14189 s | ×9.14 | ×7.77 (Snarewright 6) | ×8.44 (Thicket Kin 4) | legendary-only ×9.14 (1553 s) | 1.18 | no |
-| Multishot | Tracking Arrow · Multishot, Quarry Mark, Companion, Arrowfall | 9546 s | ×8.98 | ×7.29 (Thicket Kin 6) | ×8.94 (Farwatch 4) | legendary-only ×8.98 (1063 s) | 1.23 | no |
-| Burst Arrow | Tracking Arrow · Burst Arrow, Quarry Mark, Companion, Arrowfall | 6914 s | ×9.32 | ×9.43 (Farwatch 6) | ×11.94 (Farwatch 4) | Farwatch 4 ×11.94 (579 s) | 0.99 | no |
-| Overcast Volley | Tracking Arrow · Overcast Volley, Quarry Mark, Companion, Arrowfall | 9544 s | ×7.43 | ×6.72 (Snarewright 6) | ×7.17 (Snarewright 4) | legendary-only ×7.43 (1285 s) | 1.11 | no |
+| Tracking Arrow | Tracking Arrow · Quarry Mark, Companion, Arrowfall, Murmuration | 13290 s | ×8.60 | ×7.45 (Snarewright 6) | ×7.89 (Thicket Kin 4) | legendary-only ×8.60 (1545 s) | 1.15 | no |
+| Skipstone Bolt | Skipstone Bolt · Quarry Mark, Companion, Arrowfall, Murmuration | 14209 s | ×9.15 | ×7.78 (Snarewright 6) | ×8.45 (Thicket Kin 4) | legendary-only ×9.15 (1553 s) | 1.18 | no |
+| Multishot | Tracking Arrow · Multishot, Quarry Mark, Companion, Arrowfall | 9546 s | ×8.98 | ×7.34 (Thicket Kin 6) | ×8.94 (Farwatch 4) | legendary-only ×8.98 (1063 s) | 1.22 | no |
+| Burst Arrow | Tracking Arrow · Burst Arrow, Quarry Mark, Companion, Arrowfall | 6926 s | ×9.34 | ×9.44 (Farwatch 6) | ×11.96 (Farwatch 4) | Farwatch 4 ×11.96 (579 s) | 0.99 | no |
+| Overcast Volley | Tracking Arrow · Overcast Volley, Quarry Mark, Companion, Arrowfall | 9782 s | ×7.47 | ×6.83 (Snarewright 6) | ×7.38 (Snarewright 4) | legendary-only ×7.47 (1309 s) | 1.09 | no |
 | Arrowfall | Tracking Arrow · Arrowfall, Quarry Mark, Companion, Murmuration | 13414 s | ×8.18 | ×7.69 (Snarewright 6) | ×7.83 (Snarewright 4) | legendary-only ×8.18 (1640 s) | 1.06 | yes |
-| Sentry | Tracking Arrow · Sentry, Quarry Mark, Companion, Arrowfall | 12349 s | ×17.39 | ×13.41 (Siegebreaker's Arsenal 6) | ×15.75 (Siegebreaker's Arsenal 4) | legendary-only ×17.39 (710 s) | 1.30 | no |
-| Spring Snare | Tracking Arrow · Spring Snare, Quarry Mark, Companion, Arrowfall | 7893 s | ×5.66 | ×6.90 (Snarewright 6) | ×6.52 (Snarewright 4) | Snarewright 6 ×6.90 (1144 s) | 0.82 | no |
-| Pitch Mortar | Tracking Arrow · Pitch Mortar, Quarry Mark, Companion, Arrowfall | 11602 s | ×8.73 | ×8.79 (Siegebreaker's Arsenal 6) | ×8.92 (Siegebreaker's Arsenal 4) | Siegebreaker's Arsenal 4 ×8.92 (1301 s) | 0.99 | yes |
+| Sentry | Tracking Arrow · Sentry, Quarry Mark, Companion, Arrowfall | 12349 s | ×17.68 | ×14.13 (Siegebreaker's Arsenal 6) | ×16.94 (Siegebreaker's Arsenal 4) | legendary-only ×17.68 (698 s) | 1.25 | no |
+| Spring Snare | Tracking Arrow · Spring Snare, Quarry Mark, Companion, Arrowfall | 7672 s | ×5.48 | ×6.02 (Snarewright 6) | ×5.98 (Snarewright 4) | Snarewright 6 ×6.02 (1275 s) | 0.91 | no |
+| Pitch Mortar | Tracking Arrow · Pitch Mortar, Quarry Mark, Companion, Arrowfall | 11836 s | ×8.91 | ×8.97 (Siegebreaker's Arsenal 6) | ×9.10 (Siegebreaker's Arsenal 4) | Siegebreaker's Arsenal 4 ×9.10 (1301 s) | 0.99 | yes |
 | Companion | Tracking Arrow · Companion, Quarry Mark, Arrowfall, Murmuration | 13197 s | ×8.09 | ×9.85 (Thicket Kin 6) | ×10.03 (Thicket Kin 4) | Thicket Kin 4 ×10.03 (1316 s) | 0.82 | yes |
-| Murmuration | Tracking Arrow · Murmuration, Quarry Mark, Companion, Arrowfall | 13266 s | ×8.49 | ×10.04 (Thicket Kin 6) | ×10.09 (Thicket Kin 4) | Thicket Kin 4 ×10.09 (1314 s) | 0.85 | yes |
+| Murmuration | Tracking Arrow · Murmuration, Quarry Mark, Companion, Arrowfall | 13266 s | ×8.45 | ×10.04 (Thicket Kin 6) | ×10.09 (Thicket Kin 4) | Thicket Kin 4 ×10.09 (1314 s) | 0.84 | yes |
 
 | Check | Measured | Target | Hard limit |
 |---|---|---|---|
 | D1 | 1/11 | fail | fail |
 | D2 | whistle_charm 11/11 | fail | fail |
-| D3 | 0.82–1.30 | fail | fail |
+| D3 | 0.82–1.25 | fail | fail |
 | D4 | 1.00–1.27 | fail | fail |
-| D5 | 4/5 (snarewright, thicket_kin, farwatch, siegebreaker) | fail | pass |
+| D5 | 4/5 (thicket_kin, farwatch, snarewright, siegebreaker) | fail | pass |
 | D6 | 1.94 | fail | fail |
 
 <details><summary>Kits</summary>
@@ -130,7 +130,7 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 - legendary-only: mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, head Hawkfeather Cap, shoulders Squallcatcher Pauldrons, chest Tar-Stained Jerkin, hands Bowyer’s Gloves, wrists Featherguard Cuffs, waist rare, legs Skimmer’s Leggings, feet Wingbeat Boots, neck Whistle Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Spotter’s Repeater, Trailhide Breeches, Roost Charm
 - Snarewright 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, legs Trailhide Breeches, feet Wingbeat Boots, neck Whistle Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Spotter’s Repeater, Huntsman’s Pauldrons, Roost Charm
-- Snarewright 4: waist set, chest set, head set, hands set, mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, shoulders Squallcatcher Pauldrons, wrists Featherguard Cuffs, legs Trailhide Breeches, feet Wingbeat Boots, neck Whistle Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Spotter’s Repeater, Hawkfeather Cap, Roost Charm
+- Thicket Kin 4: chest set, feet set, head set, hands set, mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, shoulders Squallcatcher Pauldrons, wrists Featherguard Cuffs, waist rare, legs Trailhide Breeches, neck Whistle Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Spotter’s Repeater, Hawkfeather Cap, Roost Charm
 
 **Skipstone Bolt** — best: legendary-only
 
@@ -166,12 +166,12 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 - legendary-only: mainhand Kennel-Wood Bow, offhand Sapper's Pack, head Hawkfeather Cap, shoulders Huntsman’s Pauldrons, chest Gearwright's Heart, hands Bowyer’s Gloves, wrists Coiled Wire Bracers, waist Fuse Cord Belt, legs Skimmer’s Leggings, feet Wingbeat Boots, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Whistle Charm
 - Siegebreaker's Arsenal 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, wrists Coiled Wire Bracers, waist Fuse Cord Belt, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Huntsman’s Pauldrons, Whistle Charm
-- Siegebreaker's Arsenal 4: head set, feet set, legs set, chest set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, shoulders Squallcatcher Pauldrons, hands Bowyer’s Gloves, wrists Coiled Wire Bracers, waist Fuse Cord Belt, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Gearwright's Heart, Whistle Charm
+- Siegebreaker's Arsenal 4: head set, feet set, legs set, chest set, mainhand Kennel-Wood Bow, offhand Sapper's Pack, shoulders Huntsman’s Pauldrons, hands Bowyer’s Gloves, wrists Coiled Wire Bracers, waist Fuse Cord Belt, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Gearwright's Heart, Whistle Charm
 
 **Spring Snare** — best: Snarewright 6
 
 - legendary-only: mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, head Hawkfeather Cap, shoulders Squallcatcher Pauldrons, chest Tar-Stained Jerkin, hands Snarehand Gloves, wrists Coiled Wire Bracers, waist Fuse Cord Belt, legs Trailhide Breeches, feet Wingbeat Boots, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Featherguard Cuffs, Whistle Charm
-- Snarewright 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, legs Trailhide Breeches, feet Wingbeat Boots, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Whistle Charm
+- Snarewright 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Tripline Crossbow, offhand Skipping-Stone Quiver, legs Trailhide Breeches, feet Wingbeat Boots, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Snarehand Gloves, Whistle Charm
 - Snarewright 4: head set, chest set, waist set, shoulders set, mainhand Kennel-Wood Bow, offhand Skipping-Stone Quiver, hands Bowyer’s Gloves, wrists Featherguard Cuffs, legs Trailhide Breeches, feet Wingbeat Boots, neck Roost Charm, ring1 Raincount Ring, ring2 Weathervane Ring; Cube Bolt-Thrower’s Arbalest, Huntsman’s Pauldrons, Whistle Charm
 
 **Pitch Mortar** — best: Siegebreaker's Arsenal 4

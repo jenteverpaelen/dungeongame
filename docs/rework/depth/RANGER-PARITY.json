@@ -38,17 +38,17 @@
      "hard": false
     },
     "D4": {
-     "value": "0.99–1.00",
+     "value": "1.00–1.00",
      "target": true,
      "hard": true
     },
     "D5": {
-     "value": "3/5 (thicket_kin, rainkeeper, farwatch)",
+     "value": "4/5 (thicket_kin, rainkeeper, farwatch, siegebreaker)",
      "target": false,
-     "hard": false
+     "hard": true
     },
     "D6": {
-     "value": "2.05",
+     "value": "2.10",
      "target": false,
      "hard": false
     }
@@ -5048,49 +5048,49 @@
      },
      "ms": {
       "rare": 12346112,
-      "legendary": 376050,
-      "siegebreaker6": 852652,
-      "siegebreaker4": 599337,
-      "farwatch6": 834404,
-      "farwatch4": 570047,
-      "rainkeeper6": 841451,
-      "rainkeeper4": 486039,
-      "thicket_kin6": 688610,
-      "thicket_kin4": 487583,
-      "snarewright6": 844329,
-      "snarewright4": 550925
+      "legendary": 367600,
+      "siegebreaker6": 611320,
+      "siegebreaker4": 371600,
+      "farwatch6": 769165,
+      "farwatch4": 538083,
+      "rainkeeper6": 785382,
+      "rainkeeper4": 472601,
+      "thicket_kin6": 660084,
+      "thicket_kin4": 451100,
+      "snarewright6": 627366,
+      "snarewright4": 603072
      },
      "timeouts": {
       "rare": 7,
       "legendary": 0,
-      "siegebreaker6": 3,
-      "siegebreaker4": 2,
+      "siegebreaker6": 2,
+      "siegebreaker4": 0,
       "farwatch6": 3,
       "farwatch4": 2,
       "rainkeeper6": 3,
-      "rainkeeper4": 2,
-      "thicket_kin6": 3,
-      "thicket_kin4": 2,
+      "rainkeeper4": 1,
+      "thicket_kin6": 2,
+      "thicket_kin4": 0,
       "snarewright6": 3,
       "snarewright4": 2
      },
      "factor": {
       "rare": 1,
-      "legendary": 32.831038425741255,
-      "siegebreaker6": 14.479661104413054,
-      "siegebreaker4": 20.599615908912682,
-      "farwatch6": 14.796324082818394,
-      "farwatch4": 21.658059774018632,
-      "rainkeeper6": 14.672407543635934,
-      "rainkeeper4": 25.401484243033995,
-      "thicket_kin6": 17.929033850800888,
-      "thicket_kin4": 25.321046878172538,
-      "snarewright6": 14.622394824766175,
-      "snarewright4": 22.4097871761129
+      "legendary": 33.58572361262242,
+      "siegebreaker6": 20.19582542694497,
+      "siegebreaker4": 33.22419806243273,
+      "farwatch6": 16.05131798768795,
+      "farwatch4": 22.944623784806435,
+      "rainkeeper6": 15.71988153535477,
+      "rainkeeper4": 26.123753441063393,
+      "thicket_kin6": 18.703849813054095,
+      "thicket_kin4": 27.368902682332077,
+      "snarewright6": 19.679281312662784,
+      "snarewright4": 20.472036506420462
      },
      "best": "legendary",
-     "bestSet6": "thicket_kin6",
-     "bestHybrid": "rainkeeper4",
+     "bestSet6": "siegebreaker6",
+     "bestHybrid": "siegebreaker4",
      "kits": {
       "rare": {
        "id": "sentry/rare",
@@ -5173,7 +5173,7 @@
          "legendary": "sappers_pack"
         },
         "head": {
-         "legendary": "hawkfeather_cap"
+         "legendary": "overcast_hood"
         },
         "shoulders": {
          "legendary": "huntsmans_pauldrons"
@@ -5257,19 +5257,19 @@
          "legendary": "sappers_pack"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "coiled_wire_bracers"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "fuse_cord_belt"
         },
         "neck": {
-         "legendary": "roost_charm"
+         "legendary": "whistle_charm"
         },
         "ring1": {
-         "legendary": "raincount_ring"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "raincount_ring"
         }
        },
        "cube": [
@@ -5309,16 +5309,16 @@
          "base": "hands_gloves"
         },
         "mainhand": {
-         "legendary": "rainspindle"
+         "legendary": "kennel_wood_bow"
         },
         "offhand": {
          "legendary": "sappers_pack"
         },
         "shoulders": {
-         "legendary": "squallcatcher_pauldrons"
+         "legendary": "kilnwatch_spaulders"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -5327,13 +5327,13 @@
          "legendary": "causeway_waders"
         },
         "neck": {
-         "legendary": "roost_charm"
+         "legendary": "surveyors_plumb"
         },
         "ring1": {
-         "legendary": "raincount_ring"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -5399,7 +5399,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "raincount_ring"
         }
        },
        "cube": [
@@ -5439,7 +5439,7 @@
          "base": "hands_gloves"
         },
         "mainhand": {
-         "legendary": "rainspindle"
+         "legendary": "kennel_wood_bow"
         },
         "offhand": {
          "legendary": "sappers_pack"
@@ -5448,7 +5448,7 @@
          "legendary": "kilnwatch_spaulders"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -5529,7 +5529,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "raincount_ring"
+         "legendary": "weathervane_ring"
         }
        },
        "cube": [
@@ -5593,7 +5593,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "raincount_ring"
+         "legendary": "weathervane_ring"
         }
        },
        "cube": [
@@ -5708,7 +5708,7 @@
          "legendary": "kilnwatch_spaulders"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "coiled_wire_bracers"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -5720,10 +5720,10 @@
          "legendary": "surveyors_plumb"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "raincount_ring"
         }
        },
        "cube": [
@@ -5777,7 +5777,7 @@
          "legendary": "sappers_pack"
         },
         "legs": {
-         "legendary": "skimmers_leggings"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "wingbeat_boots"
@@ -5789,7 +5789,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "raincount_ring"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -5838,10 +5838,10 @@
          "legendary": "kilnwatch_spaulders"
         },
         "wrists": {
-         "legendary": "featherguard_cuffs"
+         "legendary": "coiled_wire_bracers"
         },
         "legs": {
-         "legendary": "causeway_waders"
+         "legendary": "skimmers_leggings"
         },
         "feet": {
          "legendary": "wingbeat_boots"
@@ -5853,7 +5853,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "raincount_ring"
+         "legendary": "weathervane_ring"
         }
        },
        "cube": [
@@ -5877,18 +5877,18 @@
       ]
      },
      "ms": {
-      "rare": 7669427,
-      "legendary": 531389,
-      "siegebreaker6": 1043512,
-      "siegebreaker4": 800567,
-      "farwatch6": 1062472,
-      "farwatch4": 729980,
+      "rare": 7672127,
+      "legendary": 506960,
+      "siegebreaker6": 1017587,
+      "siegebreaker4": 811316,
+      "farwatch6": 1065674,
+      "farwatch4": 750011,
       "rainkeeper6": 1064897,
-      "rainkeeper4": 693472,
-      "thicket_kin6": 910655,
+      "rainkeeper4": 688793,
+      "thicket_kin6": 960769,
       "thicket_kin4": 697276,
-      "snarewright6": 688809,
-      "snarewright4": 802522
+      "snarewright6": 712981,
+      "snarewright4": 721735
      },
      "timeouts": {
       "rare": 6,
@@ -5906,17 +5906,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 14.432792172965568,
-      "siegebreaker6": 7.349629903633116,
-      "siegebreaker4": 9.579993929302606,
-      "farwatch6": 7.218474463327033,
-      "farwatch4": 10.506352228828186,
-      "rainkeeper6": 7.202036441083035,
-      "rainkeeper4": 11.059461665359235,
-      "thicket_kin6": 8.421879855708253,
-      "thicket_kin4": 10.999126601231076,
-      "snarewright6": 11.134330416704776,
-      "snarewright4": 9.556656390728229
+      "legendary": 15.133594366419441,
+      "siegebreaker6": 7.539529298231994,
+      "siegebreaker4": 9.456398000285954,
+      "farwatch6": 7.199318928678001,
+      "farwatch4": 10.229352636161336,
+      "rainkeeper6": 7.204571897563802,
+      "rainkeeper4": 11.13850895697256,
+      "thicket_kin6": 7.9854023183512375,
+      "thicket_kin4": 11.00299881252187,
+      "snarewright6": 10.760633172552986,
+      "snarewright4": 10.63011631693073
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
@@ -6006,7 +6006,7 @@
          "legendary": "overcast_hood"
         },
         "shoulders": {
-         "legendary": "huntsmans_pauldrons"
+         "legendary": "kilnwatch_spaulders"
         },
         "chest": {
          "legendary": "hearthguard_coat"
@@ -6015,7 +6015,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "featherguard_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -6030,10 +6030,10 @@
          "legendary": "surveyors_plumb"
         },
         "ring1": {
-         "legendary": "patchwork_signet"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "patchwork_signet"
         }
        },
        "cube": [
@@ -6099,7 +6099,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -6229,7 +6229,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "patchwork_signet"
         }
        },
        "cube": [
@@ -6281,7 +6281,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "featherguard_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -6293,7 +6293,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "raincount_ring"
         }
        },
        "cube": [
@@ -6619,7 +6619,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "weathervane_ring"
+         "legendary": "patchwork_signet"
         }
        },
        "cube": [
@@ -6668,7 +6668,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "featherguard_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -6677,13 +6677,13 @@
          "legendary": "wingbeat_boots"
         },
         "neck": {
-         "legendary": "whistle_charm"
+         "legendary": "surveyors_plumb"
         },
         "ring1": {
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "raincount_ring"
+         "legendary": "weathervane_ring"
         }
        },
        "cube": [
@@ -6707,18 +6707,18 @@
       ]
      },
      "ms": {
-      "rare": 11787401,
+      "rare": 11835708,
       "legendary": 516157,
       "siegebreaker6": 960951,
       "siegebreaker4": 869502,
       "farwatch6": 1291066,
       "farwatch4": 851328,
       "rainkeeper6": 1190054,
-      "rainkeeper4": 849216,
+      "rainkeeper4": 859739,
       "thicket_kin6": 981829,
       "thicket_kin4": 772050,
       "snarewright6": 917734,
-      "snarewright4": 837615
+      "snarewright4": 844235
      },
      "timeouts": {
       "rare": 7,
@@ -6736,17 +6736,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 22.836851965584113,
-      "siegebreaker6": 12.266391314437469,
-      "siegebreaker4": 13.556496707310622,
-      "farwatch6": 9.129975539592863,
-      "farwatch4": 13.845898408134115,
-      "rainkeeper6": 9.904929524206464,
-      "rainkeeper4": 13.880333154344713,
-      "thicket_kin6": 12.005553920285507,
-      "thicket_kin4": 15.267665306651123,
-      "snarewright6": 12.844027790187571,
-      "snarewright4": 14.072576302955415
+      "legendary": 22.93044170669002,
+      "siegebreaker6": 12.316661307392364,
+      "siegebreaker4": 13.612053796310992,
+      "farwatch6": 9.167391907152695,
+      "farwatch4": 13.90264152007217,
+      "rainkeeper6": 9.945521799851099,
+      "rainkeeper4": 13.766629174668125,
+      "thicket_kin6": 12.0547549522371,
+      "thicket_kin4": 15.330235088401011,
+      "snarewright6": 12.896665046734675,
+      "snarewright4": 14.019447191836397
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
@@ -7498,7 +7498,7 @@
          "legendary": "kilnwatch_spaulders"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "wardkeepers_cuffs"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -7539,7 +7539,7 @@
      "ms": {
       "rare": 13269848,
       "legendary": 636561,
-      "siegebreaker6": 1749739,
+      "siegebreaker6": 1763907,
       "siegebreaker4": 1158106,
       "farwatch6": 1631532,
       "farwatch4": 1107753,
@@ -7567,7 +7567,7 @@
      "factor": {
       "rare": 1,
       "legendary": 20.846153000262348,
-      "siegebreaker6": 7.583901370432962,
+      "siegebreaker6": 7.522986189181176,
       "siegebreaker4": 11.458232666094467,
       "farwatch6": 8.133366676228231,
       "farwatch4": 11.979067535813488,
@@ -9199,7 +9199,7 @@
      "hard": false
     },
     "D3": {
-     "value": "0.82–1.30",
+     "value": "0.82–1.25",
      "target": false,
      "hard": false
     },
@@ -9209,7 +9209,7 @@
      "hard": false
     },
     "D5": {
-     "value": "4/5 (snarewright, thicket_kin, farwatch, siegebreaker)",
+     "value": "4/5 (thicket_kin, farwatch, snarewright, siegebreaker)",
      "target": false,
      "hard": true
     },
@@ -9233,18 +9233,18 @@
       ]
      },
      "ms": {
-      "rare": 13402567,
+      "rare": 13289531,
       "legendary": 1544714,
       "siegebreaker6": 2973572,
       "siegebreaker4": 2673403,
       "farwatch6": 2914465,
       "farwatch4": 2349101,
-      "rainkeeper6": 2350646,
+      "rainkeeper6": 2343029,
       "rainkeeper4": 1973081,
       "thicket_kin6": 1929237,
       "thicket_kin4": 1684362,
       "snarewright6": 1783673,
-      "snarewright4": 1654889
+      "snarewright4": 2179763
      },
      "timeouts": {
       "rare": 7,
@@ -9258,25 +9258,25 @@
       "thicket_kin6": 5,
       "thicket_kin4": 4,
       "snarewright6": 5,
-      "snarewright4": 4
+      "snarewright4": 6
      },
      "factor": {
       "rare": 1,
-      "legendary": 8.676406765265286,
-      "siegebreaker6": 4.50722800725861,
-      "siegebreaker4": 5.013298406562722,
-      "farwatch6": 4.598637142665978,
-      "farwatch4": 5.7054026199810055,
-      "rainkeeper6": 5.701652652079471,
-      "rainkeeper4": 6.79270997997548,
-      "thicket_kin6": 6.947081670111033,
-      "thicket_kin4": 7.957058518299511,
-      "snarewright6": 7.514026954492219,
-      "snarewright4": 8.098770974971735
+      "legendary": 8.603230759868817,
+      "siegebreaker6": 4.469214466641467,
+      "siegebreaker4": 4.971016715399811,
+      "farwatch6": 4.559852665926679,
+      "farwatch4": 5.657283786435747,
+      "rainkeeper6": 5.671944734785613,
+      "rainkeeper4": 6.7354208975708545,
+      "thicket_kin6": 6.888490631270289,
+      "thicket_kin4": 7.889949428923236,
+      "snarewright6": 7.450654352002862,
+      "snarewright4": 6.096777952465475
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
-     "bestHybrid": "snarewright4",
+     "bestHybrid": "thicket_kin4",
      "kits": {
       "rare": {
        "id": "hungering_arrow/rare",
@@ -10021,13 +10021,13 @@
          "legendary": "skipping_stone_quiver"
         },
         "shoulders": {
-         "legendary": "squallcatcher_pauldrons"
+         "legendary": "huntsmans_pauldrons"
         },
         "wrists": {
          "legendary": "featherguard_cuffs"
         },
         "legs": {
-         "legendary": "trailhide_breeches"
+         "legendary": "skimmers_leggings"
         },
         "feet": {
          "legendary": "wingbeat_boots"
@@ -10063,7 +10063,7 @@
       ]
      },
      "ms": {
-      "rare": 14189131,
+      "rare": 14208994,
       "legendary": 1553153,
       "siegebreaker6": 3177270,
       "siegebreaker4": 2104295,
@@ -10092,17 +10092,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 9.135694294122986,
-      "siegebreaker6": 4.46582474891967,
-      "siegebreaker4": 6.742938133674223,
-      "farwatch6": 4.608126452915314,
-      "farwatch4": 5.443155627777369,
-      "rainkeeper6": 6.010410634884797,
-      "rainkeeper4": 7.076869787097363,
-      "thicket_kin6": 7.254027151865892,
-      "thicket_kin4": 8.438266641768589,
-      "snarewright6": 7.76834514807296,
-      "snarewright4": 8.182918164653396
+      "legendary": 9.148483117889867,
+      "siegebreaker6": 4.472076342268677,
+      "siegebreaker4": 6.752377399556621,
+      "farwatch6": 4.6145772507643334,
+      "farwatch4": 5.450775361518254,
+      "rainkeeper6": 6.018824454338626,
+      "rainkeeper4": 7.086776515323434,
+      "thicket_kin6": 7.264181878136127,
+      "thicket_kin4": 8.450079154480287,
+      "snarewright6": 7.779219854894412,
+      "snarewright4": 8.19437322159131
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
@@ -10900,11 +10900,11 @@
       "farwatch6": 1399839,
       "farwatch4": 1068327,
       "rainkeeper6": 1674487,
-      "rainkeeper4": 1397464,
-      "thicket_kin6": 1309808,
-      "thicket_kin4": 1169774,
+      "rainkeeper4": 1394638,
+      "thicket_kin6": 1300955,
+      "thicket_kin4": 1173639,
       "snarewright6": 1618981,
-      "snarewright4": 1530759
+      "snarewright4": 1521970
      },
      "timeouts": {
       "rare": 6,
@@ -10928,11 +10928,11 @@
       "farwatch6": 6.819088480889588,
       "farwatch4": 8.935116308021795,
       "rainkeeper6": 5.70062711743955,
-      "rainkeeper4": 6.830677570227212,
-      "thicket_kin6": 7.287805540964783,
-      "thicket_kin4": 8.160230950593876,
+      "rainkeeper4": 6.844518792690289,
+      "thicket_kin6": 7.337399064533362,
+      "thicket_kin4": 8.133357872395175,
       "snarewright6": 5.896070429486201,
-      "snarewright4": 6.235877757373956
+      "snarewright4": 6.271888407787276
      },
      "best": "legendary",
      "bestSet6": "thicket_kin6",
@@ -11723,15 +11723,15 @@
       ]
      },
      "ms": {
-      "rare": 6914398,
+      "rare": 6926048,
       "legendary": 741625,
-      "siegebreaker6": 1369984,
+      "siegebreaker6": 1389393,
       "siegebreaker4": 865776,
       "farwatch6": 733466,
       "farwatch4": 579304,
       "rainkeeper6": 1286798,
       "rainkeeper4": 748654,
-      "thicket_kin6": 1071610,
+      "thicket_kin6": 1078228,
       "thicket_kin4": 654556,
       "snarewright6": 1266629,
       "snarewright4": 801075
@@ -11752,17 +11752,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 9.323307601550649,
-      "siegebreaker6": 5.047064783238344,
-      "siegebreaker4": 7.986359058232153,
-      "farwatch6": 9.427019111997012,
-      "farwatch4": 11.935698700509578,
-      "rainkeeper6": 5.373335985912319,
-      "rainkeeper4": 9.235772466319554,
-      "thicket_kin6": 6.452345536155877,
-      "thicket_kin4": 10.563493421494876,
-      "snarewright6": 5.4588975935337025,
-      "snarewright4": 8.631399057516463
+      "legendary": 9.339016349233104,
+      "siegebreaker6": 4.984945224281395,
+      "siegebreaker4": 7.999815194692392,
+      "farwatch6": 9.442902602165608,
+      "farwatch4": 11.955809039813293,
+      "rainkeeper6": 5.382389465945704,
+      "rainkeeper4": 9.251333726928594,
+      "thicket_kin6": 6.423546782313203,
+      "thicket_kin4": 10.581291745855205,
+      "snarewright6": 5.468095235463581,
+      "snarewright4": 8.645942015416784
      },
      "best": "farwatch4",
      "bestSet6": "farwatch6",
@@ -12553,23 +12553,23 @@
       ]
      },
      "ms": {
-      "rare": 9544405,
-      "legendary": 1284740,
-      "siegebreaker6": 2220464,
-      "siegebreaker4": 1696592,
-      "farwatch6": 2087798,
-      "farwatch4": 1473897,
-      "rainkeeper6": 1587297,
-      "rainkeeper4": 1522100,
-      "thicket_kin6": 1532370,
-      "thicket_kin4": 1407321,
-      "snarewright6": 1421329,
-      "snarewright4": 1331849
+      "rare": 9781938,
+      "legendary": 1309458,
+      "siegebreaker6": 2345762,
+      "siegebreaker4": 1884587,
+      "farwatch6": 1902744,
+      "farwatch4": 1521979,
+      "rainkeeper6": 1743827,
+      "rainkeeper4": 1493457,
+      "thicket_kin6": 1489948,
+      "thicket_kin4": 1388500,
+      "snarewright6": 1432283,
+      "snarewright4": 1325209
      },
      "timeouts": {
       "rare": 7,
       "legendary": 3,
-      "siegebreaker6": 4,
+      "siegebreaker6": 5,
       "siegebreaker4": 3,
       "farwatch6": 3,
       "farwatch4": 3,
@@ -12582,17 +12582,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 7.429055684418637,
-      "siegebreaker6": 4.298383130733036,
-      "siegebreaker4": 5.625633623169271,
-      "farwatch6": 4.571517455232738,
-      "farwatch4": 6.475625501646316,
-      "rainkeeper6": 6.012992527548405,
-      "rainkeeper4": 6.270550555154063,
-      "thicket_kin6": 6.2285250951141045,
-      "thicket_kin4": 6.781967298150173,
-      "snarewright6": 6.715127180265793,
-      "snarewright4": 7.166281613005679
+      "legendary": 7.470218976095453,
+      "siegebreaker6": 4.17004708917614,
+      "siegebreaker4": 5.190494256831868,
+      "farwatch6": 5.140963787035986,
+      "farwatch4": 6.427117588350431,
+      "rainkeeper6": 5.609465847242874,
+      "rainkeeper4": 6.549862500225986,
+      "thicket_kin6": 6.565288184554092,
+      "thicket_kin4": 7.044967951026288,
+      "snarewright6": 6.829612583546687,
+      "snarewright4": 7.381430400789611
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
@@ -12757,7 +12757,7 @@
          "base": "feet_boots"
         },
         "mainhand": {
-         "legendary": "highcloud_longbow"
+         "legendary": "kennel_wood_bow"
         },
         "offhand": {
          "legendary": "skipping_stone_quiver"
@@ -12821,7 +12821,7 @@
          "legendary": "skipping_stone_quiver"
         },
         "head": {
-         "legendary": "overcast_hood"
+         "legendary": "hawkfeather_cap"
         },
         "shoulders": {
          "legendary": "huntsmans_pauldrons"
@@ -12887,7 +12887,7 @@
          "base": "feet_boots"
         },
         "mainhand": {
-         "legendary": "kennel_wood_bow"
+         "legendary": "highcloud_longbow"
         },
         "offhand": {
          "legendary": "skipping_stone_quiver"
@@ -13017,7 +13017,7 @@
          "base": "feet_boots"
         },
         "mainhand": {
-         "legendary": "rainspindle"
+         "legendary": "highcloud_longbow"
         },
         "offhand": {
          "legendary": "skipping_stone_quiver"
@@ -13383,16 +13383,16 @@
       ]
      },
      "ms": {
-      "rare": 13413927,
+      "rare": 13413967,
       "legendary": 1639930,
-      "siegebreaker6": 3034051,
+      "siegebreaker6": 3019723,
       "siegebreaker4": 2975319,
       "farwatch6": 2938238,
-      "farwatch4": 2782117,
+      "farwatch4": 2832963,
       "rainkeeper6": 2278371,
-      "rainkeeper4": 2452659,
-      "thicket_kin6": 1914159,
-      "thicket_kin4": 2429584,
+      "rainkeeper4": 2452276,
+      "thicket_kin6": 1934580,
+      "thicket_kin4": 2432056,
       "snarewright6": 1745335,
       "snarewright4": 1713475
      },
@@ -13412,17 +13412,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 8.179572908599757,
-      "siegebreaker6": 4.421127726593917,
-      "siegebreaker4": 4.50839960353831,
-      "farwatch6": 4.56529627620363,
-      "farwatch4": 4.8214819865591565,
-      "rainkeeper6": 5.887507785167561,
-      "rainkeeper4": 5.4691365575075865,
-      "thicket_kin6": 7.007739169003202,
-      "thicket_kin4": 5.521079740400003,
-      "snarewright6": 7.68558872651955,
-      "snarewright4": 7.828492974802667
+      "legendary": 8.179597299884751,
+      "siegebreaker6": 4.442118366485933,
+      "siegebreaker4": 4.508413047474909,
+      "farwatch6": 4.565309889804706,
+      "farwatch4": 4.734960181266046,
+      "rainkeeper6": 5.8875253415707975,
+      "rainkeeper4": 5.470007046515156,
+      "thicket_kin6": 6.933787695520475,
+      "thicket_kin4": 5.515484429634844,
+      "snarewright6": 7.685611644755878,
+      "snarewright4": 7.828516319175944
      },
      "best": "legendary",
      "bestSet6": "snarewright6",
@@ -14214,17 +14214,17 @@
      },
      "ms": {
       "rare": 12348662,
-      "legendary": 710162,
-      "siegebreaker6": 920555,
-      "siegebreaker4": 784114,
-      "farwatch6": 1241092,
-      "farwatch4": 854450,
-      "rainkeeper6": 1161211,
-      "rainkeeper4": 869145,
-      "thicket_kin6": 1060379,
-      "thicket_kin4": 795516,
-      "snarewright6": 1160804,
-      "snarewright4": 985528
+      "legendary": 698454,
+      "siegebreaker6": 874218,
+      "siegebreaker4": 728842,
+      "farwatch6": 1218718,
+      "farwatch4": 807323,
+      "rainkeeper6": 1136219,
+      "rainkeeper4": 841441,
+      "thicket_kin6": 1002208,
+      "thicket_kin4": 808541,
+      "snarewright6": 1127084,
+      "snarewright4": 1177901
      },
      "timeouts": {
       "rare": 7,
@@ -14242,17 +14242,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 17.38851417000628,
-      "siegebreaker6": 13.414366333353248,
-      "siegebreaker4": 15.748554419382895,
-      "farwatch6": 9.949836112069049,
-      "farwatch4": 14.45217625373047,
-      "rainkeeper6": 10.634296437081632,
-      "rainkeeper4": 14.20782723251011,
-      "thicket_kin6": 11.645517310320178,
-      "thicket_kin4": 15.522832978846434,
-      "snarewright6": 10.638025024035066,
-      "snarewright4": 12.529996103611465
+      "legendary": 17.67999324221781,
+      "siegebreaker6": 14.125380625885077,
+      "siegebreaker4": 16.94285181150373,
+      "farwatch6": 10.13250153029659,
+      "farwatch4": 15.295813447653542,
+      "rainkeeper6": 10.868205865242528,
+      "rainkeeper4": 14.675612431531148,
+      "thicket_kin6": 12.32145622465596,
+      "thicket_kin4": 15.272771572499106,
+      "snarewright6": 10.95629252123178,
+      "snarewright4": 10.483616195249006
      },
      "best": "legendary",
      "bestSet6": "siegebreaker6",
@@ -14481,7 +14481,7 @@
          "legendary": "sappers_pack"
         },
         "shoulders": {
-         "legendary": "squallcatcher_pauldrons"
+         "legendary": "huntsmans_pauldrons"
         },
         "hands": {
          "legendary": "bowyers_gloves"
@@ -14553,7 +14553,7 @@
          "legendary": "sappers_pack"
         },
         "wrists": {
-         "legendary": "featherguard_cuffs"
+         "legendary": "coiled_wire_bracers"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -14611,13 +14611,13 @@
          "legendary": "sappers_pack"
         },
         "shoulders": {
-         "legendary": "squallcatcher_pauldrons"
+         "legendary": "huntsmans_pauldrons"
         },
         "hands": {
          "legendary": "bowyers_gloves"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "featherguard_cuffs"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -14741,13 +14741,13 @@
          "legendary": "sappers_pack"
         },
         "shoulders": {
-         "legendary": "huntsmans_pauldrons"
+         "legendary": "squallcatcher_pauldrons"
         },
         "hands": {
          "legendary": "bowyers_gloves"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "featherguard_cuffs"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -14871,13 +14871,13 @@
          "legendary": "sappers_pack"
         },
         "shoulders": {
-         "legendary": "squallcatcher_pauldrons"
+         "legendary": "huntsmans_pauldrons"
         },
         "hands": {
          "legendary": "bowyers_gloves"
         },
         "wrists": {
-         "legendary": "coiled_wire_bracers"
+         "legendary": "featherguard_cuffs"
         },
         "waist": {
          "legendary": "fuse_cord_belt"
@@ -14995,7 +14995,7 @@
          "base": "waist_belt"
         },
         "mainhand": {
-         "legendary": "kennel_wood_bow"
+         "legendary": "rainspindle"
         },
         "offhand": {
          "legendary": "sappers_pack"
@@ -15007,7 +15007,7 @@
          "legendary": "coiled_wire_bracers"
         },
         "legs": {
-         "legendary": "trailhide_breeches"
+         "legendary": "skimmers_leggings"
         },
         "feet": {
          "legendary": "wingbeat_boots"
@@ -15043,18 +15043,18 @@
       ]
      },
      "ms": {
-      "rare": 7893248,
-      "legendary": 1393795,
+      "rare": 7672127,
+      "legendary": 1400224,
       "siegebreaker6": 1714638,
       "siegebreaker4": 1686682,
-      "farwatch6": 1863093,
-      "farwatch4": 1673925,
-      "rainkeeper6": 1778681,
+      "farwatch6": 1937122,
+      "farwatch4": 1587822,
+      "rainkeeper6": 1775831,
       "rainkeeper4": 1682234,
-      "thicket_kin6": 1565463,
+      "thicket_kin6": 1542137,
       "thicket_kin4": 1434282,
-      "snarewright6": 1144047,
-      "snarewright4": 1210581
+      "snarewright6": 1274996,
+      "snarewright4": 1282267
      },
      "timeouts": {
       "rare": 6,
@@ -15062,7 +15062,7 @@
       "siegebreaker6": 3,
       "siegebreaker4": 3,
       "farwatch6": 3,
-      "farwatch4": 3,
+      "farwatch4": 4,
       "rainkeeper6": 3,
       "rainkeeper4": 5,
       "thicket_kin6": 3,
@@ -15072,17 +15072,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 5.66313410508719,
-      "siegebreaker6": 4.603448657967454,
-      "siegebreaker4": 4.67974876117727,
-      "farwatch6": 4.236636603755153,
-      "farwatch4": 4.715413175620174,
-      "rainkeeper6": 4.437697372378746,
-      "rainkeeper4": 4.692122499010245,
-      "thicket_kin6": 5.042117252212285,
-      "thicket_kin4": 5.503274809277395,
-      "snarewright6": 6.899408852957964,
-      "snarewright4": 6.520214673780607
+      "legendary": 5.479214040039308,
+      "siegebreaker6": 4.474487909401285,
+      "siegebreaker4": 4.548650545864603,
+      "farwatch6": 3.9605801802880767,
+      "farwatch4": 4.831855837745037,
+      "rainkeeper6": 4.320302438689267,
+      "rainkeeper4": 4.560677646510533,
+      "thicket_kin6": 4.974997033337505,
+      "thicket_kin4": 5.349106382148001,
+      "snarewright6": 6.017373387838079,
+      "snarewright4": 5.983252317964979
      },
      "best": "snarewright6",
      "bestSet6": "snarewright6",
@@ -15435,7 +15435,7 @@
          "base": "legs_leather"
         },
         "mainhand": {
-         "legendary": "tripline_crossbow"
+         "legendary": "kennel_wood_bow"
         },
         "offhand": {
          "legendary": "skipping_stone_quiver"
@@ -15640,7 +15640,7 @@
          "legendary": "tripline_crossbow"
         },
         "offhand": {
-         "legendary": "skipping_stone_quiver"
+         "rare": "quiver"
         },
         "wrists": {
          "legendary": "featherguard_cuffs"
@@ -15767,7 +15767,7 @@
          "base": "wrists_bracers"
         },
         "mainhand": {
-         "legendary": "kennel_wood_bow"
+         "legendary": "tripline_crossbow"
         },
         "offhand": {
          "legendary": "skipping_stone_quiver"
@@ -15873,7 +15873,7 @@
       ]
      },
      "ms": {
-      "rare": 11601792,
+      "rare": 11835708,
       "legendary": 1329046,
       "siegebreaker6": 1319801,
       "siegebreaker4": 1301334,
@@ -15883,7 +15883,7 @@
       "rainkeeper4": 1583871,
       "thicket_kin6": 1399295,
       "thicket_kin4": 1399716,
-      "snarewright6": 1468879,
+      "snarewright6": 1547567,
       "snarewright4": 1446875
      },
      "timeouts": {
@@ -15902,17 +15902,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 8.729413428880566,
-      "siegebreaker6": 8.790561607393842,
-      "siegebreaker4": 8.915306908141952,
-      "farwatch6": 6.3617337214122625,
-      "farwatch4": 7.8967912669533575,
-      "rainkeeper6": 6.625400603503611,
-      "rainkeeper4": 7.3249601766810555,
-      "thicket_kin6": 8.291169481774752,
-      "thicket_kin4": 8.288675702785422,
-      "snarewright6": 7.898398710853651,
-      "snarewright4": 8.018517149028078
+      "legendary": 8.905416366325921,
+      "siegebreaker6": 8.96779741794407,
+      "siegebreaker4": 9.095057840646598,
+      "farwatch6": 6.48999936392489,
+      "farwatch4": 8.056006828308075,
+      "rainkeeper6": 6.758982312912739,
+      "rainkeeper4": 7.472646446585612,
+      "thicket_kin6": 8.458336519461586,
+      "thicket_kin4": 8.455792460756324,
+      "snarewright6": 7.647945452442447,
+      "snarewright4": 8.180186954643629
      },
      "best": "siegebreaker4",
      "bestSet6": "siegebreaker6",
@@ -17534,17 +17534,17 @@
      },
      "ms": {
       "rare": 13266246,
-      "legendary": 1562835,
-      "siegebreaker6": 2197520,
-      "siegebreaker4": 1688158,
+      "legendary": 1569605,
+      "siegebreaker6": 2155523,
+      "siegebreaker4": 1695371,
       "farwatch6": 2074487,
       "farwatch4": 1549485,
-      "rainkeeper6": 2090138,
-      "rainkeeper4": 1624715,
+      "rainkeeper6": 2072905,
+      "rainkeeper4": 1618247,
       "thicket_kin6": 1320995,
       "thicket_kin4": 1314199,
-      "snarewright6": 1676817,
-      "snarewright4": 1671025
+      "snarewright6": 1699039,
+      "snarewright4": 1656942
      },
      "timeouts": {
       "rare": 7,
@@ -17562,17 +17562,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 8.488577488986362,
-      "siegebreaker6": 6.036917070151808,
-      "siegebreaker4": 7.858414911400473,
+      "legendary": 8.45196466626954,
+      "siegebreaker6": 6.154536973161502,
+      "siegebreaker4": 7.824981080837174,
       "farwatch6": 6.394952583457982,
       "farwatch4": 8.561713085315443,
-      "rainkeeper6": 6.347067035765103,
-      "rainkeeper4": 8.165275756055678,
+      "rainkeeper6": 6.399833084487712,
+      "rainkeeper4": 8.197911690860542,
       "thicket_kin6": 10.04261636115201,
       "thicket_kin4": 10.094548846864136,
-      "snarewright6": 7.911564589338013,
-      "snarewright4": 7.938987148606394
+      "snarewright6": 7.808087983854403,
+      "snarewright4": 8.006463714481255
      },
      "best": "thicket_kin4",
      "bestSet6": "thicket_kin6",

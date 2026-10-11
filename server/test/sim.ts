@@ -1627,9 +1627,9 @@ if (!only || only === 'rift') {
     // the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts; here a progress floor guards
     // against further loss (30%; the seeded stream shifts with any content change — the previous, weaker kit measured
     // 2.7–44.5% across such shifts).
-    // Ranger wave: the same for the ranger (bible v2 kit ×17 against 8 sturdy targets [M], was ×348 on 343a5d5; 64.6% of
-    // Torment II in 12 minutes with the audit's Siegebreaker 6 Sentry kit [M]; 81.5% before the last fits shifted the
-    // seeded stream).
+    // Ranger wave: the same for the ranger (bible v2 kit ×29 against 8 sturdy targets [M], was ×348 on 343a5d5; 57.1% of
+    // Torment II in 12 minutes with the audit's Siegebreaker 6 Sentry kit [M]; 64.6–81.5% before the last fits and the
+    // Arbalest's pierce cap shifted the seeded stream).
     riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' || cls === 'ranger' ? 30 : undefined);
   }
 }

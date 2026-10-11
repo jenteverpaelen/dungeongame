@@ -140,8 +140,9 @@
   reach override (a0168b6), condition `targetWithin` (29b31e0), `perSummon` by type / skill / tag (c6d096c).
 - Parity: `RANGER-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on ranger
   items for Arrowfall, Pitch Mortar, Companion and Murmuration. Fits from measurements: Farwatch 4 and Rainkeeper 4 cost
-  cuts 30 → 15 %, Farwatch 6 replaces the 5th cast with a 50 % free cast. Open: Sentry outlier (D1 1/11, D6 1.94; the
+  cuts 30 → 15 %, Farwatch 6 replaces the 5th cast with a 50 % free cast; Bolt-Thrower's Arbalest pierces up to 2 enemies
+  (snapshot bandwidth: +18.1 % over the perf baseline with unbounded pierce, +11.9 % capped; gate +15 %). Open: Sentry outlier (D1 1/11, D6 1.94; the
   Arbalest roll), Burst Arrow D4 1.27 (Farwatch 6's range condition), shared legendaries D3 up to 1.86.
-- `server/test/sim.ts`: ranger fixture kit = the audit's Siegebreaker 6 Sentry kit (set spike ×17, was ×348); ranger
-  L70 Torment II rift on the 30 % progress floor like the warrior (64.6 % measured). Mage byte-identical against 343a5d5
+- `server/test/sim.ts`: ranger fixture kit = the audit's Siegebreaker 6 Sentry kit (set spike ×29, was ×348); ranger
+  L70 Torment II rift on the 30 % progress floor like the warrior (57.1 % measured). Mage byte-identical against 343a5d5
   with the ranger out of the class loops (spike, field, rift).
