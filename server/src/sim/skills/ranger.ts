@@ -142,12 +142,14 @@ function sentry(inst: Instance, p: Player, rt: SkillRuntime): boolean {
 }
 
 /**
- * Bolt-Thrower's Arbalest: pierce everything, burst for the bolt's damage (bible). Measured ×2.7 on the Sentry legendary-only
- * kit: its +100–150 % roll on the thin Device bucket; pierce 1 / 2 / all and a 50 % burst moved it by ±5 % (RANGER-WAVE.md §6).
+ * Bolt-Thrower's Arbalest: pierce, burst for the bolt's damage (bible). Measured ×2.2–2.7 on the Sentry legendary-only kit: its
+ * +100–150 % roll on the thin Device bucket; pierce 1 / 2 / all and a 50 % burst moved it by ±5 % (RANGER-WAVE.md §6).
+ * Pierce is capped at 2 [P, measured]: through every enemy it doubled the Sentry kit's damage events and put the snapshot
+ * bandwidth of the budget scenario 8.8 % over 343a5d5 (+18.1 % over the recorded baseline, limit 15 %); capped, +3.0 %.
  */
 export const ARBALEST_BURST = 1;
 /** Enemies an Arbalest bolt passes through before its final target. */
-export const ARBALEST_PIERCE = Infinity;
+export const ARBALEST_PIERCE = 2;
 
 /** One Sentry bolt (or a finale / salvo bolt) at `tgt`. */
 function sentryBolt(inst: Instance, p: Player, s: Summon, rt: SkillRuntime, tgt: Mob, coef = rt.def.coef) {
