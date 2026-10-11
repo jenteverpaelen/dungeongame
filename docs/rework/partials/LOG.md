@@ -113,3 +113,11 @@
   fractions carried → splitting an absence never earns more [M]; deterministic (Math.random forbidden in the test);
   12 h / 25 % unchanged; report adds rate, basis, share, cap (AFK modal line). Fairness model for alts written for the
   owner (AFK.md). `afk.test.ts` 7/7 (new verify stage `offline-gains`); bot AFK section 26/26. Shots `afk-{assumed,own}-{1920,1366}` (modal fed with reports computed by afk.ts; 635 / 467 px tall).
+- **F-CMB-01 / F-CMB-08 — freeze sheet.** `COMBAT-FREEZE.md`: 16 cross-class rules read from the code (auto-cast,
+  resources, movement, dash, telegraphs, aggro/leash, control and elite/boss immunity, debuffs, monster abilities,
+  elite life, guardian, recovery, death, measured pace, feel options) with locations, for the owner to freeze/change.
+- **F-OPS-05 — security.** `SECURITY-CHECKLIST.md` maps every §12.3 item to evidence (Met / Partial / Open);
+  `accounts-admin.ts` now writes an operator audit line per personal-data action (salted subject digest);
+  `npm audit` 0 / 99, `npm outdated` → patch proposals (vite 8.3.4, @types/node 26.6.5), majors deferred.
+- **F-WLD-06** left deferred: owner 2026-10-09 "keep the town as it is" (PAUSED.md); proposal stays in PLAN.md.
+- **Ledger** `docs/CODEX_ROADMAP_STATUS.md`: 28 rows updated with honest statuses and evidence links.
