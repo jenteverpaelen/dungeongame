@@ -94,6 +94,12 @@ export class MageFx {
   private orreries: Orrery[] = [];
   private lastNeedleSnd = -1;
   private lastZapSnd = -1;
+  private zapLoad = 0;
+  private zapT = 0;
+  private readonly zapSrc = { x: 0, y: 0, t: -1 };
+  private orbFrameT = -1;
+  private orbNow = 0;
+  private orbPrev = 0;
   private lastChime = -1;
 
   constructor(private V: VfxCore, private combat: Combat) {}
@@ -187,7 +193,13 @@ export class MageFx {
         const [g, core, shell] = parts;
         const pul = 1 + Math.sin(t * 16 + p.phase) * 0.07;
         const flick = preferences.get().values.reduceFlashes ? 0.5 : Math.random();
-        g.place(p.x, p.y, p.z); g.setScale(84 * sz * pul); g.setAlpha(0.4 + 0.16 * flick);
+        // Crowd: orbs are slow (2 s in flight), so a Spender chain keeps 6-10 alive along one line and their additive
+        // glows summed into a white band in a real rift (shots/mage). Above two orbs on screen each glow dims so the
+        // total stays near two orbs' worth (counted per frame; the shell and the lightning inside stay full).
+        if (V.real !== this.orbFrameT) { this.orbFrameT = V.real; this.orbPrev = this.orbNow; this.orbNow = 0; }
+        this.orbNow++;
+        const crowd = Math.min(1, 2 / Math.max(1, this.orbPrev));
+        g.place(p.x, p.y, p.z); g.setScale(84 * sz * pul); g.setAlpha((0.4 + 0.16 * flick) * crowd);
         core.place(p.x, p.y, p.z); core.setScale((8 + 6 * flick) * sz); core.setAlpha(0.7);
         shell.place(p.x, p.y + 0.5, p.z); shell.setScale(42 * sz); shell.rotation = Math.sin(t * 3 + p.phase) * 0.12; shell.setAlpha(0.92);
         if (dt <= 0) break;
@@ -314,21 +326,28 @@ export class MageFx {
     const glow = cold ? 0x9fdcff : GLASS, mid = cold ? 0xe2f8ff : 0xc4ecff;
     const d = Math.max(0.1, ev.d / 1000);
     const ax = ev.x, ay = ev.y - 30, bx = ev.tx, by = ev.ty - 24;
+    // Zap load (zaps landing in the last ~quarter second, all orbs): two orbs with extra zap targets land 10+ zaps per
+    // server step on one pack, and their additive flashes summed to a white-out in a real rift (shots/mage). Above 4 in
+    // flight the re-strike is skipped and flash / outer glow / sparks scale down; one source glow per orb per step.
+    const now = V.real;
+    this.zapLoad = this.zapLoad * Math.exp(-(now - this.zapT) / 0.25) + 1; this.zapT = now;
+    const k = Math.min(1, 4 / this.zapLoad);
     const strike = () => {
       const pts = jagged(ax, ay, bx, by, 0.2);
       const life = d * 0.62;
       for (let i = 1; i < pts.length; i++) {
         const [px, py] = pts[i - 1], [qx, qy] = pts[i];
-        s.seg(s.aAdd, px, py, qx, qy, 11, glow, life, 0.38);
+        s.seg(s.aAdd, px, py, qx, qy, 11, glow, life, 0.38 * Math.max(0.4, k));
         s.seg(s.aAdd, px, py, qx, qy, 4, mid, life, 0.7);
         s.seg(s.aAdd, px, py, qx, qy, 1.7, 0xffffff, life, 1);
       }
     };
     strike();
-    V.after(d * 0.45, strike);
-    s.flash(bx, ev.ty, 24, 34, mid, 0.08, 0.85);
-    s.glow(ax, ev.y, 30, 20, 34, glow, 0.1, 0.6);
-    for (let i = 0, n = s.n(3); i < n; i++) s.spark(bx, ev.ty, 24, rand(0, TAU), rand(120, 240), 9, i % 2 ? 0xffffff : glow, 0.16);
+    if (k >= 1) V.after(d * 0.45, strike);
+    s.flash(bx, ev.ty, 24, 34, mid, 0.08, 0.85 * k);
+    const same = now - this.zapSrc.t < 0.1 && Math.abs(ax - this.zapSrc.x) < 24 && Math.abs(ev.y - this.zapSrc.y) < 24;
+    if (!same) { s.glow(ax, ev.y, 30, 20, 34, glow, 0.1, 0.6); this.zapSrc.x = ax; this.zapSrc.y = ev.y; this.zapSrc.t = now; }
+    for (let i = 0, n = s.n(3 * k); i < n; i++) s.spark(bx, ev.ty, 24, rand(0, TAU), rand(120, 240), 9, i % 2 ? 0xffffff : glow, 0.16);
     if (V.real - this.lastZapSnd > 0.07) { this.lastZapSnd = V.real; V.sound('glass_zap', bx, ev.ty, 0.55); }
   }
 
