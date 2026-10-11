@@ -13,6 +13,7 @@ import { CLASSES, isClassId } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
+import { migrateSteps } from '../../shared/src/saveMigrations';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
@@ -149,6 +150,7 @@ const num = (v: unknown, d: number, lo = 0, hi = Number.MAX_SAFE_INTEGER): numbe
 /** Repair saves written by older builds (missing fields, wrong array lengths). Mutates and returns the save. */
 export function normalizeSave(save: CharacterSave): CharacterSave {
   requireSupportedVersion(save);
+  migrateSteps(save, save.version === undefined ? 0 : save.version); // explicit per-version steps (shared/src/saveMigrations.ts)
   save.level = Math.floor(num(save.level, 1, 1, MAX_LEVEL));
   if (save.skills?.slots) autoSlotSkills(save);
   save.xp = num(save.xp, 0);
