@@ -1,7 +1,7 @@
 // Warrior skill behaviour (server authority). Data: shared/src/data/skills/warrior.ts.
 // Cleave, Whirlwind (channel + Dust Devils), Rend, Ground Stomp, Seismic Slam, Battle Rage.
 
-import { skillBuffBonuses } from '../../shared';
+import { modVar, skillBuffBonuses } from '../../shared';
 import { bestConeAngle, pickTarget } from '../brain';
 import { gainResource, makeDot, strikeMob } from '../damage';
 import { addBuff, addDot, chillMob, dragMob, elIdx, getBuff, hasDot, inCone, knockbackMob, stunMob } from '../effects';
@@ -90,7 +90,7 @@ function dustDevil(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: numb
   if (s.tickMs > 0) return;
   s.tickMs += 250;
   const ww = p.ctx.modsOf('whirlwind');
-  const pct = skillPct(p, ww) + p.ctx.power('ninefold_gale');
+  const pct = skillPct(p, ww) + modVar(ww.mods, 'dustDevilPct'); // The Ninefold Gale
   const st: Strike = { skill: 'dust_devil', coef: 1.2 * 0.25, el: skillElement(ww), pct, mult: skillMult(p, 'dust_devil'), src: s.id };
   for (const m of inst.queryMobs(s.x, s.y, 45)) if (!m.dead) strikeMob(inst, p, m, st);
 }

@@ -2,6 +2,7 @@
 // behaviour) + Task Bar Hero-style purchasable tiers. Content lives in the per-class files next to this one.
 
 import type { ClassId, Element } from '../../types';
+import type { PowerEffect } from '../../powers';
 
 export type SkillKind = 'primary' | 'spender' | 'channel' | 'cooldown' | 'buff' | 'summon';
 
@@ -89,6 +90,11 @@ export interface NodeDef {
   unlock?: number;
   /** Cell in the tree page: col 0..NODE_GRID.cols-1 (left → right), row 0..NODE_GRID.rows-1 (top → bottom). */
   pos: { col: number; row: number };
+  /**
+   * Optional power templates (conditional bonuses, procs, stats …) active while the skill is on the bar; `{ roll: k }`
+   * amounts scale with the node's rank (k per rank). Simple per-skill numbers belong in `ranks`.
+   */
+  effects?: PowerEffect[];
 }
 
 /** Most runes a skill may have (D3: five runes per skill; owner chose five for M1). */

@@ -214,4 +214,6 @@ export interface DerivedStats {
   powers: Record<string, number>;
   /** Equipped set piece counts. */
   sets: Record<string, number>;
+  /** Dash cooldown after power templates (shared so client prediction and server agree). */
+  dashCdMs: number;
 }

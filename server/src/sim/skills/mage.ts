@@ -2,7 +2,7 @@
 // Magic Missile, Meteor, Black Hole, Frost Nova (+ Shatter), Hydra (+ hydra AI), Magic Weapon.
 
 import type { Element } from '../../shared';
-import { skillBuffBonuses } from '../../shared';
+import { modVar, skillBuffBonuses } from '../../shared';
 import { bestPoint, pickTarget } from '../brain';
 import { expectedDamage, strikeMob } from '../damage';
 import { addBuff, ccFactor, elIdx, freezeMob } from '../effects';
@@ -120,7 +120,7 @@ function blackHole(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   g.el = skillElement(rt);
   g.strike = strikeOf(p, rt, rt.def.coef / ticks);
   g.freeze = rt.flags.has('freeze');
-  g.voidPct = rt.flags.has('voidHeart') ? p.ctx.power('void_heart') : 0;
+  g.voidPct = rt.flags.has('voidHeart') ? modVar(rt.mods, 'voidPct') : 0; // Heart of the Void
   g.caught = new Set();
   addGround(inst, g);
   if (rt.flags.has('spellsteal')) {

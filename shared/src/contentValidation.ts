@@ -4,6 +4,8 @@ import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS } from './data/items
 import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
 import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, SKILLS, TIER_COSTS, describeNode, describeSkill, nodeModsAt, type SkillDef, type SkillMods } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
+import { NUMERIC_MOD_KEYS } from './data/skills';
+import { OWN_BUCKET_CAP, SUB_STRIKES, powerTextIssues, type PowerEffect } from './powers';
 
 /** Typed registries remain the source of truth; this checks semantic relationships. */
 export const CONTENT_DATA = {
@@ -122,11 +124,9 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     classRefs(l.classes,`legendaries.${l.id}.classes`);
     for (const c of l.classes ?? []) baseRef(l.base,`legendaries.${l.id}.base`,c);
     range(l.range,`legendaries.${l.id}.range`);
-    if(l.skillEffect) {
-      check(!!data.skills[l.skillEffect.skill],`legendaries.${l.id}.skillEffect`,'unknown skill');
-      check(l.classes?.includes(data.skills[l.skillEffect.skill]?.classId)??true,`legendaries.${l.id}.skillEffect`,'wrong skill class');
-      for(const [k,v] of Object.entries(l.skillEffect.mods??{}))if(typeof v==='number')check(Number.isFinite(v),`legendaries.${l.id}.mods.${k}`,'non-finite modifier');
-    }
+    check(Array.isArray(l.effects),`legendaries.${l.id}.effects`,'missing power templates');
+    validateEffects(data, l.effects ?? [], `legendaries.${l.id}.effects`, l.classes, check);
+    for (const issue of powerTextIssues(l.power, l.effects ?? [], true)) check(false,`legendaries.${l.id}.power`,issue);
   }
   for (const s of Object.values(data.sets)) {
     const at=`sets.${s.id}`;
@@ -138,11 +138,9 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
       number(b.count,`${at}.bonuses.count`,1,true);
       check(b.count <= s.pieces.length,`${at}.bonuses.count`,'requires more pieces than the set provides');
     }
-    for(const e of s.effects??[]) {
-      check(s.bonuses.some(b=>b.count===e.count),`${at}.effects`,'missing displayed threshold');
-      for(const skill of e.skills)check(data.skills[skill]?.classId===s.classId,`${at}.effects.${skill}`,'unknown or wrong-class skill');
-      if(e.multiplier!==undefined)number(e.multiplier,`${at}.effects.multiplier`,1);
-      for(const [k,v] of Object.entries(e.mods??{}))if(typeof v==='number')check(Number.isFinite(v),`${at}.mods.${k}`,'non-finite modifier');
+    for(const b of s.bonuses) {
+      validateEffects(data, b.effects ?? [], `${at}.bonuses[${b.count}].effects`, [s.classId], check);
+      for (const issue of powerTextIssues(b.text, b.effects ?? [], false)) check(false,`${at}.bonuses[${b.count}].text`,issue);
     }
   }
   for (const gem of Object.values(data.gems)) for (const slot of ['weapon','head','armor'] as const) {
@@ -189,6 +187,53 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
 }
 
 type Check = (ok: boolean, at: string, message: string) => void;
+
+const BANNED_TEMPLATE_STATS = new Set(['skillDmg', 'flatMin', 'flatMax', 'sockets']);
+
+/** Power templates: referenced skills exist (and belong to the owner's classes), numbers are finite, buckets legal. */
+export function validateEffects(data: Pick<ContentData, 'skills'>, effects: readonly PowerEffect[], at: string, classes: readonly string[] | undefined, check: Check) {
+  const finite = (v: unknown, where: string) => {
+    if (v === undefined) return;
+    const n = typeof v === 'object' && v !== null ? (v as { roll: number }).roll : v;
+    check(typeof n === 'number' && Number.isFinite(n), where, 'expected a finite amount');
+  };
+  const skillRef = (id: string, where: string) => {
+    const owner = Object.hasOwn(SUB_STRIKES, id) ? SUB_STRIKES[id] : id;
+    const skill = Object.hasOwn(data.skills, owner) ? data.skills[owner] : undefined;
+    check(!!skill, where, `unknown skill ${id}`);
+    if (skill && classes) check(classes.includes(skill.classId), where, `${id} belongs to another class`);
+  };
+  effects.forEach((e, i) => {
+    const w = `${at}[${i}]`;
+    switch (e.kind) {
+      case 'skillMods':
+        check(e.skills.length > 0, w, 'no skills'); e.skills.forEach((id) => skillRef(id, w));
+        for (const [k, v] of Object.entries(e.mods ?? {})) if (typeof v === 'number') check(Number.isFinite(v), `${w}.mods.${k}`, 'expected finite modifier');
+        for (const [k, v] of Object.entries(e.mods?.vars ?? {})) check(Number.isFinite(v), `${w}.mods.vars.${k}`, 'expected finite modifier');
+        if (e.roll) check(e.roll.field.startsWith('var:') || (NUMERIC_MOD_KEYS as readonly string[]).includes(e.roll.field), w, 'unknown rolled field');
+        break;
+      case 'ownMult':
+        e.skills.forEach((id) => skillRef(id, w));
+        check(Number.isFinite(e.mult) && e.mult >= 1 && e.mult <= OWN_BUCKET_CAP, w, `own-bucket multiplier must lie in 1..${OWN_BUCKET_CAP}`);
+        break;
+      case 'conditional':
+        e.skills?.forEach((id) => skillRef(id, w)); finite(e.pct, w);
+        check(e.bucket === 'own' ? !('targetState' in e.when) && !('element' in e.when) : !('perSummon' in e.when), w, 'condition not available in this bucket');
+        if ('perSummon' in e.when) check(Number.isInteger(e.when.max) && e.when.max >= 1, w, 'perSummon needs a max of at least 1');
+        break;
+      case 'stat': check(!BANNED_TEMPLATE_STATS.has(e.stat), w, `stat ${e.stat} is not available to templates`); finite(e.value, w); break;
+      case 'elementStacks': check(e.elements.length > 0 && e.windowMs > 0 && Number.isFinite(e.perStack), w, 'needs elements, a window and a finite bonus'); break;
+      case 'elementCycle': check(e.elements.length > 0 && e.periodMs > 0, w, 'needs elements and a period'); finite(e.pct, w); break;
+      case 'proc':
+        check(e.chance === undefined || (e.chance > 0 && e.chance <= 1), w, 'chance must lie in (0, 1]');
+        finite(e.reduceCooldownsMs, w); finite(e.resource, w);
+        if (e.buff) { check(e.buff.id.length > 0 && e.buff.ms > 0, w, 'buff needs an id and a duration'); for (const k of ['dmg', 'chc', 'chd', 'ias'] as const) finite(e.buff[k], w); }
+        break;
+      case 'dashCooldown': check(e.mult > 0 && e.mult <= 1, w, 'dash multiplier must lie in (0, 1]'); break;
+      default: check(false, w, 'unknown template kind');
+    }
+  });
+}
 type NumberCheck = (value: number, at: string, min?: number, integer?: boolean) => void;
 
 function finiteMods(m: SkillMods, at: string, check: Check) {

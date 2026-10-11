@@ -353,6 +353,8 @@ export interface PlayerCtx {
   stunMult: number;
   /** Frozen-enemy vulnerability multiplier (Bone Chill). */
   frozenMult: number;
+  /** Interpreted power templates (server/src/sim/powerRuntime.ts). */
+  powers: import('./powerRuntime').PowerRuntime;
   attackRange: number;
   dashCdMs: number;
 }

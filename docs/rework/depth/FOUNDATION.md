@@ -98,3 +98,56 @@ whole class, and switching builds is a free respec. The specialization pool is s
 (1) zero effect on today's balance (no node ships yet), (2) no save migration of a stored currency, (3) quest rewards
 that grant skill points keep their meaning. Tune `SPEC_POINTS_PER_LEVEL`, `NODE_RANK_COST` or `TREE_RANKS_TARGET` with
 the owner's approval and the leveling bot (`docs/rework/BALANCE.md`) once real trees exist.
+
+## 5. Power templates (legendaries, set bonuses, passives, node effects)
+
+Library: `shared/src/powers.ts` (types, builders, generated text, text validation). Active sources and their canonical
+order: `shared/src/powerSources.ts` — **set bonuses → legendary powers → passives → specialization nodes**. One
+interpreter on the server: `server/src/sim/powerRuntime.ts` (called from `buildCtx`); character-sheet templates
+(`stat`, `dashCooldown`) are read by `shared/src/stats.ts`, so client and server agree.
+
+| Kind | Does | Example |
+|---|---|---|
+| `skillMods` | any `SkillMods` on named skills / sub-strikes (+ the roll into one field or `var:`) | `rolledDamage('seismic_slam', { cost: -40 })` |
+| `ownMult` | own-bucket ×mult on named strikes, capped by `OWN_BUCKET_CAP` | `ownMult(['meteor'], 8)` |
+| `conditional` | +pct % while: `channeling`, `targetState` (stunned/frozen/chilled/bleeding), `perSummon` (×count, max), `element`, `buff`, `lifeBelowPct/AbovePct`; bucket `own` (at cast) or `hit` (per hit) | `conditional({ perSummon: 'sentry', max: 4 }, 'own', 250, ['sentry', 'multishot', 'cluster_arrow'])` |
+| `stat` | character-sheet stat (affix keys; `cdr`/`rcr` stack multiplicatively) | `stat('ias', 7)` |
+| `elementStacks` | ×(1 + perStack %) per distinct element dealt within a window (+ display buff) | Fallen Star 4pc |
+| `elementCycle` | one boosted element at a time, rotating | Ouroboros Loop |
+| `proc` | on `spend / kill / eliteKill / crit / dash / cast` (optional `chance`): shorten cooldowns, gain resource, gain a buff | `proc('eliteKill', { buff: { id: 'hellforge', ms: 30000, dmg: ROLL } })` |
+| `dashCooldown` | dash cooldown × mult | Stridewind ×0.5 |
+
+Amounts are numbers or `{ roll: k }` = k × roll, where roll is the legendary's rolled value (Cube: the range maximum),
+a node's rank, or 1. Element conversion, extra projectiles and extra summons are `skillMods` (`convert`,
+`extraProjectiles`, `extraSummons`). Behaviour that no template can express is a **flag** (or a named `var`) in
+`skillMods` plus code in the class behaviour module (e.g. `fastSentry`, `moltenDouble`, `var:markPct`).
+
+**Legendary** (`shared/src/data/powers/<class>.ts`, append at the end):
+```ts
+{ id: 'thousand_missiles', name: 'Spindle of a Thousand Missiles', base: 'wand', classes: ['mage'],
+  power: 'Magic Missile fires 2 additional missiles and deals {v}% increased damage.', range: [100, 150], cubeSlot: 'weapon',
+  flavor: '…', colors: { … }, effects: [rolledDamage('magic_missile', { projectiles: 2 })] }
+```
+**Set** (same file): every bonus threshold carries its text and its templates.
+```ts
+bonuses: [
+  { count: 2, text: 'Meteor calls down a second meteor on a nearby enemy.', effects: [flags(['meteor'], 'secondMeteor')] },
+  { count: 6, text: 'Meteor deals 700% increased damage.', effects: [ownMult(['meteor'], 8)] },
+]
+```
+**Text** — authored texts are validated against the templates (`powerTextIssues`: every literal number / converted
+element must appear, `{v}` exactly when a roll is used; number words one…ten count); `powerText(effects)` generates
+English for new content (use it, then polish). Validation also checks skill references (and class), finite amounts,
+legal buckets, `ownMult ≤ OWN_BUCKET_CAP` and banned stats (`skillDmg`, `flatMin/Max`, `sockets`).
+
+**The cap.** `OWN_BUCKET_CAP = 127` [M] is the largest authored own-bucket value today (Cinder Oath 6pc), so it binds
+nothing now. Lowering it is plan lever 2 (sets become capped transformations); the parity harness (§8) shows the effect.
+
+**1:1 conversion proof.** All 22 legendaries and 9 sets were converted. (a) `server/test/powerTemplates.test.ts`
+compares the interpreter with a verbatim copy of the old hard-coded logic for every legendary at four rolls, every set
+at 1–6 pieces and mixed class kits (≈3,700 skill × kit comparisons + own-bucket multipliers at 0/1/3/5 sentries + stun
+factor + dash): all strictly equal. (b) `server/test/sim.ts` output is identical to the baseline apart from timing
+lines. (c) `scripts/audit-item-builds.ts` rows (81 encounters: damage per skill, time, max hit) are byte-identical.
+One deliberate micro-change: buffs granted by a power now end when that power stops being active (on stat refresh) for
+every power; before, only Hellforge and Ouroboros did, so Stridewind's 3 s buff and the Fallen Star stack display
+could linger after unequipping. Not observable in any test or fingerprint.

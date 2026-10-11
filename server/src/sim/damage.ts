@@ -8,33 +8,24 @@ import type { Instance } from './instance';
 import { killMob } from './kills';
 import { onMobHit, wakeMob } from './monsters';
 import { skillPct } from './playerctx';
+import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor } from './powerRuntime';
 import { killPlayer } from './players';
 import type { Dot, DotKind, Mob, Player, Strike } from './types';
 
 export interface HitResult { amount: number; crit: boolean; killed: boolean }
 const NO_HIT: HitResult = { amount: 0, crit: false, killed: false };
 
-const TAL_ELEMENTS: Element[] = ['arcane', 'cold', 'fire', 'lightning'];
-export const OURO_CYCLE: Element[] = ['fire', 'cold', 'lightning', 'arcane', 'physical'];
 export const isEliteTier = (t: number) => t === 1 || t === 2 || t === 4;
 
-/** Vulnerability multiplier of a monster as seen by player `p` (stun / freeze / mark / black hole). */
-export function vulnerability(p: Player, m: Mob): number {
+/** Vulnerability multiplier of a monster as seen by player `p` (stun / freeze / mark / black hole / power conditions). */
+export function vulnerability(p: Player, m: Mob, skill?: string): number {
   let v = 1;
   if (m.stunMs > 0) v *= p.ctx.stunMult;
   if (m.freezeMs > 0) v *= p.ctx.frozenMult;
   if (m.markMs > 0) v *= 1 + m.markPct / 100;
   if (m.holeMs > 0) v *= 1 + m.holePct / 100;
+  if (p.ctx.powers.vulnTerms.length) v *= vulnTermsFactor(p, m, skill);
   return v;
-}
-
-/** Fallen Star 4pc stacks: number of Tal elements dealt in the last 8 s (records `el`). */
-export function talStacks(inst: Instance, p: Player, el: Element | null): number {
-  if (p.ctx.setCount('fallen_star') < 4) return 0;
-  if (el && TAL_ELEMENTS.includes(el)) p.lastEle[el] = inst.t;
-  let n = 0;
-  for (const e of TAL_ELEMENTS) if (inst.t - (p.lastEle[e] ?? -1e9) <= 8000) n++;
-  return n;
 }
 
 /** Everything except the weapon roll, crit and target-dependent factors. */
@@ -46,10 +37,8 @@ function baseMult(inst: Instance, p: Player, st: Strike): number {
   m *= 1 + (d.ele[st.el] ?? 0) / 100;
   m *= 1 + (d.dmgPct + p.live.dmg + (st.gen ?? 0)) / 100;
   if (st.mult) m *= st.mult;
-  const tal = talStacks(inst, p, st.el);
-  if (tal) m *= 1 + 0.5 * tal;
-  const ouro = p.ctx.power('ouroboros_loop');
-  if (ouro && OURO_CYCLE[p.ouroIdx] === st.el) m *= 1 + ouro / 100;
+  // Power templates per hit, in canonical order (Fallen Star element stacks, Ouroboros cycle, conditionals).
+  if (p.ctx.powers.hitTerms.length) m = applyHitTerms(inst, p, m, st.skill, st.el);
   return m;
 }
 
@@ -63,7 +52,7 @@ export function rollDamage(inst: Instance, p: Player, m: Mob | null, st: Strike)
     const chc = Math.min(100, d.chc + p.live.chc + (st.chc ?? 0));
     if (inst.rng.next() * 100 < chc) { crit = true; dmg *= 1 + (d.chd + p.live.chd) / 100; }
   }
-  if (m) dmg *= vulnerability(p, m);
+  if (m) dmg *= vulnerability(p, m, st.skill);
   return { amount: combatInteger(dmg), crit };
 }
 
@@ -132,6 +121,7 @@ function onHitProcs(inst: Instance, p: Player, m: Mob, st: Strike, amount: numbe
       if (p.critHealMs <= 0) { p.critHealMs = 1000; p.critHealCount = 0; }
       if (p.critHealCount < 4) { p.critHealCount++; healPlayer(inst, p, p.mhp * 0.015, true); }
     }
+    firePowerProcs(inst, p, 'crit');
   }
   // Area damage (D3): 20% chance to splash area% of the hit to all other enemies within 100. No area-of-area.
   if (!st.noArea && d.area > 0 && inst.rng.next() < 0.2) {
@@ -177,9 +167,9 @@ export function makeDot(inst: Instance, p: Player, st: Strike, kind: DotKind, du
 
 /** Apply pre-computed DoT / ground damage from player `p` (vulnerability and elite bonus applied live). */
 export function dotStrike(inst: Instance, p: Player, m: Mob, amount: number, el: Element, skill: string): boolean {
-  let a = amount * vulnerability(p, m);
+  let a = amount * vulnerability(p, m, skill);
   if (isEliteTier(m.tier)) a *= 1 + p.ctx.d.elite / 100;
-  talStacks(inst, p, el);
+  elementStacks(inst, p, el);
   return hurtMob(inst, m, a, el, p, false, true, p.id, skill);
 }
 

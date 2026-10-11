@@ -2,7 +2,11 @@
 // Affix values are Diablo 3 Reaper of Souls level-70 ranges (non-ancient) unless noted.
 
 import type { ClassId, Element, ItemKind, StatId } from '../types';
-import type { SkillMods } from './skills';
+import type { PowerEffect } from '../powers';
+import { WARRIOR_LEGENDARIES, WARRIOR_SETS } from './powers/warrior';
+import { RANGER_LEGENDARIES, RANGER_SETS } from './powers/ranger';
+import { MAGE_LEGENDARIES, MAGE_SETS } from './powers/mage';
+import { SHARED_LEGENDARIES } from './powers/shared';
 
 // ─────────────────────────── Bases ───────────────────────────
 
@@ -161,7 +165,9 @@ export function affixScale(scale: AffixScale, ilvl: number): number {
   }
 }
 
-// ─────────────────────────── Legendary powers ───────────────────────────
+// ─────────────────────────── Legendary powers and sets ───────────────────────────
+// Data lives per class in shared/src/data/powers/{warrior,ranger,mage,shared}.ts as power templates
+// (shared/src/powers.ts); this file composes the registries in their historical order.
 
 export type CubeSlot = 'weapon' | 'armor' | 'jewelry';
 
@@ -170,125 +176,46 @@ export interface LegendaryDef {
   name: string;
   base: string;
   classes?: ClassId[];
-  /** Power text; {v} is replaced with the rolled value. */
+  /** Power text; {v} is replaced with the rolled value. Validated against `effects` (powerTextIssues). */
   power: string;
   range: [number, number];
   cubeSlot: CubeSlot;
   flavor: string;
   colors: { primary: number; secondary: number; glow: number };
-  skillEffect?: { skill: string; rolled: 'dmg' | 'cooldown'; mods?: SkillMods };
+  /** What the power does (power templates). `{ roll }` amounts use the rolled value (Cube: the maximum). */
+  effects: PowerEffect[];
 }
-
-export const LEGENDARIES: Record<string, LegendaryDef> = {
-  faultcleaver: {id:'faultcleaver',name:'Faultcleaver',base:'axe2h',classes:['warrior'],power:'Seismic Slam deals {v}% increased damage and costs 40% less Fury.',range:[150,200],cubeSlot:'weapon',flavor:'Its edge follows the seams beneath the earth.',colors:{primary:0x5b5045,secondary:0xdb9860,glow:0xffb369},skillEffect:{skill:'seismic_slam',rolled:'dmg',mods:{cost:-40}}},
-  rainspindle: {id:'rainspindle',name:'Rainspindle',base:'bow',classes:['ranger'],power:'Rain of Vengeance cooldown is reduced by {v}% and its radius grows by 40%.',range:[30,40],cubeSlot:'weapon',flavor:'The string remembers every arrow still in the sky.',colors:{primary:0x384c59,secondary:0xaacacb,glow:0xb8e7f0},skillEffect:{skill:'rain_of_vengeance',rolled:'cooldown',mods:{radius:40}}},
-  lanternroot: {id:'lanternroot',name:'Lanternroot',base:'staff',classes:['mage'],power:'Hydras deal {v}% increased damage. You may summon one additional Hydra.',range:[150,200],cubeSlot:'weapon',flavor:'A branch that taught its flames to keep watch.',colors:{primary:0x404a31,secondary:0xe6b45f,glow:0xf6cd7d},skillEffect:{skill:'hydra',rolled:'dmg',mods:{maxSummons:1}}},
-  // Warrior
-  ninefold_gale: { id: 'ninefold_gale', name: 'The Ninefold Gale', base: 'axe2h', classes: ['warrior'], power: 'Whirlwind always spawns Dust Devils, and Dust Devils deal {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: '"Nine storms bound in one edge. It hungers to spin."', colors: { primary: 0xb8c4cc, secondary: 0x6b8fa3, glow: 0x9fe3ff } },
-  bloodwake: { id: 'bloodwake', name: 'Bloodwake', base: 'sword', classes: ['warrior'], power: "Rend's bleed deals {v}% increased damage.", range: [150, 200], cubeSlot: 'weapon', flavor: 'The blade weeps for every wound it opens.', colors: { primary: 0x9e1b1b, secondary: 0x3a0d0d, glow: 0xff3b3b } },
-  eternal_gyre: { id: 'eternal_gyre', name: 'Girdle of the Eternal Gyre', base: 'waist_belt', classes: ['warrior'], power: 'Whirlwind costs {v}% less Fury, and you take 20% less damage while whirlwinding.', range: [40, 50], cubeSlot: 'armor', flavor: 'Buckled once, never unbuckled.', colors: { primary: 0x6d4c2f, secondary: 0xd4af37, glow: 0xffb347 } },
-  anvil_vambraces: { id: 'anvil_vambraces', name: 'Vambraces of the Anvil', base: 'wrists_bracers', classes: ['warrior'], power: 'Stunned enemies take {v}% increased damage from you.', range: [25, 30], cubeSlot: 'armor', flavor: 'Struck a thousand times, they ring like bells.', colors: { primary: 0x5a5a66, secondary: 0xc9a227, glow: 0xffd27f } },
-  last_light: { id: 'last_light', name: 'Bulwark of the Last Light', base: 'shield', classes: ['warrior'], power: 'Ground Stomp pulls in distant enemies and deals {v}% increased damage.', range: [200, 250], cubeSlot: 'armor', flavor: 'It held the gate when the gate itself fell.', colors: { primary: 0xd9c27a, secondary: 0xf5f0e0, glow: 0xfff3b0 } },
-  // Ranger
-  sappers_pack: { id: 'sappers_pack', name: "Sapper's Pack", base: 'quiver', classes: ['ranger'], power: 'You may have 2 additional Sentries, and Sentries deal {v}% increased damage.', range: [30, 40], cubeSlot: 'armor', flavor: 'Mostly gunpowder. Some arrows.', colors: { primary: 0x7a5230, secondary: 0xc9a227, glow: 0xffb347 } },
-  gearwright_heart: { id: 'gearwright_heart', name: "Gearwright's Heart", base: 'chest_leather', classes: ['ranger'], power: 'Sentry cooldown is reduced by {v}%, and Sentries fire 50% faster.', range: [30, 40], cubeSlot: 'armor', flavor: 'Tick. Tick. Tick. Then everything is quiet.', colors: { primary: 0x6b4a2b, secondary: 0xb87333, glow: 0xffc06b } },
-  thunderhead: { id: 'thunderhead', name: 'Thunderhead', base: 'bow', classes: ['ranger'], power: 'Multishot deals Lightning damage and {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: 'Its string hums before the storm breaks.', colors: { primary: 0x2c3e50, secondary: 0x7fd3ff, glow: 0x9fe3ff } },
-  hunters_mark: { id: 'hunters_mark', name: "Hunter's Mark", base: 'handxbow', classes: ['ranger'], power: 'Hungering Arrow always pierces, and pierced enemies take {v}% increased damage for 3 seconds.', range: [15, 20], cubeSlot: 'weapon', flavor: 'Once marked, nothing hides.', colors: { primary: 0x3d2b1f, secondary: 0x8fd16a, glow: 0xb6ff8f } },
-  // Mage
-  cindervane: { id: 'cindervane', name: 'Cindervane', base: 'staff', classes: ['mage'], power: 'Meteor deals {v}% increased damage and its molten ground lasts twice as long.', range: [150, 200], cubeSlot: 'weapon', flavor: 'A splinter of a falling star, still burning.', colors: { primary: 0x4a2a1a, secondary: 0xff7a1a, glow: 0xff9a3c } },
-  void_heart: { id: 'void_heart', name: 'Heart of the Void', base: 'orb', classes: ['mage'], power: 'Black Hole radius is increased by 30%, and enemies inside take {v}% increased damage.', range: [20, 25], cubeSlot: 'armor', flavor: 'Hold it close and hear nothing at all.', colors: { primary: 0x1b0f2e, secondary: 0x8e44ad, glow: 0xc39bff } },
-  starfall_mantle: { id: 'starfall_mantle', name: 'Starfall Mantle', base: 'shoulders_mantle', classes: ['mage'], power: 'Meteor costs {v}% less Arcane Power and falls 50% faster.', range: [30, 40], cubeSlot: 'armor', flavor: 'Embroidered with constellations that no longer exist.', colors: { primary: 0x1f2a5a, secondary: 0xf5d76e, glow: 0xffe08a } },
-  thousand_missiles: { id: 'thousand_missiles', name: 'Spindle of a Thousand Missiles', base: 'wand', classes: ['mage'], power: 'Magic Missile fires 2 additional missiles and deals {v}% increased damage.', range: [100, 150], cubeSlot: 'weapon', flavor: 'Point. Wish. Repeat.', colors: { primary: 0xe8e0ff, secondary: 0xb388ff, glow: 0xd6c2ff } },
-  // Any class
-  ouroboros_loop: { id: 'ouroboros_loop', name: 'Ouroboros Loop', base: 'ring', power: 'Gain a {v}% damage bonus to a single element that rotates every 4 seconds.', range: [150, 200], cubeSlot: 'jewelry', flavor: 'Fire becomes frost becomes storm becomes fire.', colors: { primary: 0xd4af37, secondary: 0x9fe3ff, glow: 0xffe08a } },
-  patient_thief: { id: 'patient_thief', name: 'Seal of the Patient Thief', base: 'ring', power: 'Each resource-spending skill reduces your active cooldowns by {v} seconds.', range: [0.75, 1], cubeSlot: 'jewelry', flavor: 'Time is the only thing worth stealing.', colors: { primary: 0x1a1a1a, secondary: 0xc9a227, glow: 0xffd27f } },
-  hellforge_talisman: { id: 'hellforge_talisman', name: 'Hellforge Talisman', base: 'neck_amulet', power: 'Killing an elite grants {v}% increased damage for 30 seconds.', range: [30, 40], cubeSlot: 'jewelry', flavor: 'Quenched in the blood of something that should not have died.', colors: { primary: 0x8b1e1e, secondary: 0xff7a1a, glow: 0xff5a36 } },
-  witching_cord: { id: 'witching_cord', name: 'Witching Cord', base: 'waist_sash', power: 'Increases Critical Hit Damage by {v}% and attack speed by 7%.', range: [45, 50], cubeSlot: 'armor', flavor: 'Tied at midnight, untied at dawn.', colors: { primary: 0x2e1a3d, secondary: 0xb388ff, glow: 0xd6c2ff } },
-  stridewind: { id: 'stridewind', name: 'Stridewind Greaves', base: 'feet_boots', power: 'Dash cooldown is reduced by 50%, and dashing grants {v}% increased damage for 3 seconds.', range: [40, 50], cubeSlot: 'armor', flavor: 'They have never once stood still.', colors: { primary: 0x2f4f4f, secondary: 0x9fe3ff, glow: 0xbdf6ff } },
-  mountain_fists: { id: 'mountain_fists', name: 'Fists of the Mountain', base: 'hands_gauntlets', power: 'Area damage is increased by {v}% and attack speed by 15%.', range: [40, 50], cubeSlot: 'armor', flavor: 'Every blow is an avalanche.', colors: { primary: 0x6e5a48, secondary: 0xc9a227, glow: 0xffc06b } },
-};
-
-// ─────────────────────────── Sets ───────────────────────────
 
 export interface SetDef {
   id: string;
   name: string;
   classId: ClassId;
   pieces: { base: string; name: string }[];
-  bonuses: { count: number; text: string }[];
+  /** Bonus thresholds: player text plus the power templates active from `count` equipped pieces. */
+  bonuses: { count: number; text: string; effects?: PowerEffect[] }[];
   colors: { primary: number; secondary: number; glow: number };
-  effects?: {count:number; skills:string[]; mods?:SkillMods; multiplier?:number}[];
 }
 
-export const SETS: Record<string, SetDef> = {
-  endless_storm: {
-    id: 'endless_storm', name: 'Raiment of the Endless Storm', classId: 'warrior',
-    pieces: [
-      { base: 'head_horned', name: 'Stormcrown' }, { base: 'shoulders_spiked', name: 'Storm-Torn Mantle' },
-      { base: 'chest_plate', name: 'Heart of the Gale' }, { base: 'hands_gauntlets', name: 'Gyrefists' },
-      { base: 'legs_plate', name: 'Legplates of the Spiral' }, { base: 'feet_greaves', name: 'Eyewall Sabatons' },
-    ],
-    bonuses: [
-      { count: 2, text: 'Whirlwind gains the effect of the Dust Devils rune.' },
-      { count: 4, text: "You take 50% less damage while whirlwinding, and Whirlwind applies Rend's bleed, which deals 200% increased damage." },
-      { count: 6, text: "Whirlwind, Dust Devils and Whirlwind's bleeds deal 5,000% increased damage." },
-    ],
-    colors: { primary: 0x4a5a6a, secondary: 0x9fe3ff, glow: 0x3cff6e },
-  },
-  siegebreaker: {
-    id: 'siegebreaker', name: "Siegebreaker's Arsenal", classId: 'ranger',
-    pieces: [
-      { base: 'head_hood', name: "Siegebreaker's Cowl" }, { base: 'shoulders_pads', name: "Siegebreaker's Spaulders" },
-      { base: 'chest_leather', name: "Siegebreaker's Brigandine" }, { base: 'hands_gloves', name: "Siegebreaker's Grips" },
-      { base: 'legs_leather', name: "Siegebreaker's Breeches" }, { base: 'feet_boots', name: "Siegebreaker's Treads" },
-    ],
-    bonuses: [
-      { count: 2, text: '+1 maximum Sentry, and Sentry cooldown is reduced by 30%.' },
-      { count: 4, text: 'Your Sentries also cast your Multishot and Cluster Arrow.' },
-      { count: 6, text: 'Sentries, Multishot and Cluster Arrow deal 250% increased damage for each active Sentry (max 4).' },
-    ],
-    colors: { primary: 0x3d4a2f, secondary: 0xc9a227, glow: 0x3cff6e },
-  },
-  fallen_star: {
-    id: 'fallen_star', name: 'Regalia of the Fallen Star', classId: 'mage',
-    pieces: [
-      { base: 'head_wizard', name: 'Crown of the Fallen Star' }, { base: 'shoulders_mantle', name: 'Mantle of Burning Skies' },
-      { base: 'chest_robe', name: 'Robes of the Comet' }, { base: 'hands_wraps', name: 'Starcaller Wraps' },
-      { base: 'legs_cloth', name: 'Leggings of the Long Night' }, { base: 'feet_shoes', name: 'Ashwalker Slippers' },
-    ],
-    bonuses: [
-      { count: 2, text: 'Meteor calls down a second meteor on a nearby enemy.' },
-      { count: 4, text: 'Dealing Arcane, Cold, Fire or Lightning damage increases your damage by 50% for 8 seconds per element (max 4).' },
-      { count: 6, text: 'Meteor deals 700% increased damage.' },
-    ],
-    colors: { primary: 0x23154a, secondary: 0xff9a3c, glow: 0x3cff6e },
-  },
-};
+/** Historical registry order (loot rolls pick from `Object.values`, so this order is part of the RNG contract). */
+const LEGACY_LEGENDARY_ORDER = [
+  'faultcleaver', 'rainspindle', 'lanternroot', 'ninefold_gale', 'bloodwake', 'eternal_gyre', 'anvil_vambraces', 'last_light',
+  'sappers_pack', 'gearwright_heart', 'thunderhead', 'hunters_mark', 'cindervane', 'void_heart', 'starfall_mantle', 'thousand_missiles',
+  'ouroboros_loop', 'patient_thief', 'hellforge_talisman', 'witching_cord', 'stridewind', 'mountain_fists',
+];
+const LEGACY_SET_ORDER = ['endless_storm', 'siegebreaker', 'fallen_star', 'cinder_oath', 'fault_warden', 'farwatch', 'rainkeeper', 'glass_concord', 'lantern_garden'];
 
-/** Authored alternative identities; inherited base geometry is original Hearthfall art. */
-function alternativeSet(id:string,name:string,classId:ClassId,bases:string[],color:number,skills:string[],
-  first:SkillMods,firstText:string,second:SkillMods,secondText:string,multiplier:number):SetDef {
-  const parts=['Crown','Mantle','Vest','Grips','Legwraps','Treads'];
-  return {id,name,classId,pieces:bases.map((base,i)=>({base,name:`${name} ${parts[i]}`})),
-    colors:{primary:color,secondary:0xc6b88c,glow:0x3cff6e},
-    bonuses:[{count:2,text:firstText},{count:4,text:secondText},{count:6,text:`${skills.map(s=>s.replaceAll('_',' ')).join(' and ')} deal ${(multiplier-1)*100}% increased damage.`}],
-    effects:[{count:2,skills,mods:first},{count:4,skills,mods:second},{count:6,skills,multiplier}]};
+/** Legacy ids first in their historical order, then every new id in class-file order (warrior, ranger, mage, shared). */
+function compose<T extends { id: string }>(legacy: string[], lists: T[][]): Record<string, T> {
+  const all = lists.flat();
+  const byId = new Map(all.map((x) => [x.id, x]));
+  const out: Record<string, T> = {};
+  for (const id of legacy) { const x = byId.get(id); if (x) out[id] = x; }
+  for (const x of all) if (!Object.hasOwn(out, x.id)) out[x.id] = x;
+  return out;
 }
-const warriorBases=['head_horned','shoulders_spiked','chest_plate','hands_gauntlets','legs_plate','feet_greaves'];
-const rangerBases=['head_hood','shoulders_pads','chest_leather','hands_gloves','legs_leather','feet_boots'];
-const mageBases=['head_wizard','shoulders_mantle','chest_robe','hands_wraps','legs_cloth','feet_shoes'];
-SETS.cinder_oath=alternativeSet('cinder_oath','Cinder Oath','warrior',warriorBases,0x773e35,['cleave','rend'],
-  {radius:40},'Cleave and Rend reach 40% further.',{cost:-40},'Rend costs 40% less Fury.',127);
-SETS.fault_warden=alternativeSet('fault_warden','Fault Warden','warrior',warriorBases,0x726549,['seismic_slam','ground_stomp'],
-  {radius:40},'Seismic Slam and Ground Stomp have 40% increased radius.',{cooldown:-30},'Ground Stomp cooldown is reduced by 30%.',22);
-SETS.farwatch=alternativeSet('farwatch','Farwatch','ranger',rangerBases,0x3a6170,['hungering_arrow','multishot'],
-  {pierce:50},'Hungering Arrow gains 50% pierce chance.',{cost:-40},'Multishot costs 40% less Hatred.',30);
-SETS.rainkeeper=alternativeSet('rainkeeper','Rainkeeper','ranger',rangerBases,0x64546c,['rain_of_vengeance','cluster_arrow'],
-  {radius:40},'Rain of Vengeance and Cluster Arrow have 40% increased radius.',{cooldown:-30},'Rain of Vengeance cooldown is reduced by 30%.',30);
-SETS.glass_concord=alternativeSet('glass_concord','Glass Concord','mage',mageBases,0x667996,['magic_missile','black_hole'],
-  {dmg:40},'Magic Missile and Black Hole deal 40% increased damage.',{cooldown:-30},'Black Hole cooldown is reduced by 30%.',24);
-SETS.lantern_garden=alternativeSet('lantern_garden','Lantern Garden','mage',mageBases,0x536745,['hydra','frost_nova'],
-  {duration:40},'Hydras last 40% longer and Frost Nova freezes last 40% longer.',{cooldown:-30},'Frost Nova cooldown is reduced by 30%.',24);
+
+export const LEGENDARIES: Record<string, LegendaryDef> = compose(LEGACY_LEGENDARY_ORDER, [WARRIOR_LEGENDARIES, RANGER_LEGENDARIES, MAGE_LEGENDARIES, SHARED_LEGENDARIES]);
+export const SETS: Record<string, SetDef> = compose(LEGACY_SET_ORDER, [WARRIOR_SETS, RANGER_SETS, MAGE_SETS]);
 
 // ─────────────────────────── Gems ───────────────────────────
 

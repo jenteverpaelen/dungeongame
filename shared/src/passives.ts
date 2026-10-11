@@ -1,6 +1,8 @@
 import {AFFIX_BY_STAT,affixScale} from './data/items';
 import {SKILLS} from './data/skills';
 import type {CharacterSave,ClassId} from './types';
+import type {PowerEffect} from './powers';
+import type {PowerSource} from './powerSources';
 
 /** L116/D054: limited slots, existing mean head-affix budgets, no new point currency. */
 export const PASSIVE_SLOT_LEVELS=[10,20,30,70] as const;
@@ -8,6 +10,8 @@ export interface PassiveState {revision:1;slots:(string|null)[]}
 export interface PassiveDef {
   id:string;classId:ClassId;name:string;unlock:number;note:string;
   stat:'skillDmg'|'resourceRegen'|'cdr'|'lifePct'|'armor'|'allRes';skill?:string;
+  /** Build-defining behaviour as power templates (conditionals, procs, skill mods …); roll = 1. */
+  effects?:PowerEffect[];
 }
 const catalogue:Record<ClassId,{names:string[];skills:[string,string];notes:[string,string];defense:'armor'|'allRes'}>={
   warrior:{names:['Turning Edge','Fault Reader','Banked Fury','Measured Recovery','Rooted Heart','Iron Poise'],skills:['whirlwind','seismic_slam'],
@@ -62,4 +66,8 @@ export function setPassive(save:CharacterSave,slot:unknown,id:unknown):string|nu
   const slots=save.passives?.slots.slice()??PASSIVE_SLOT_LEVELS.map(()=>null);
   if(id!==null&&slots.some((x,i)=>i!==slot&&x===id))return 'That passive is already equipped in another slot';
   slots[slot]=id as string|null;save.passives={revision:1,slots};return null;
+}
+/** Power-template sources of the active (slotted, unlocked) passives, in slot order. */
+export function passivePowerSources(save:Pick<CharacterSave,'classId'|'level'|'passives'>):PowerSource[]{
+  return activePassives(save).flatMap(p=>p.effects?.length?[{kind:'passive' as const,id:p.id,roll:1,effects:p.effects}]:[]);
 }

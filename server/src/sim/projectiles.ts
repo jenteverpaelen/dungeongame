@@ -1,7 +1,7 @@
 // Projectiles: player arrows / bolts / missiles / fireballs / rockets / lobbed cluster arrows, and monster
 // projectiles (seeds, firebolts, sparks, guardian rings). Clients simulate them from `proj` until `pend`.
 
-import { PLAYER_RADIUS, SKILLS, type Element } from '../shared';
+import { PLAYER_RADIUS, SKILLS, modVar, type Element } from '../shared';
 import { damagePlayer, gainResource, strikeMob } from './damage';
 import { chillMob, elIdx, freezeMob, shotBlocked } from './effects';
 import { nextId } from './ids';
@@ -171,7 +171,7 @@ function onHit(inst: Instance, pr: Proj, p: Player, m: Mob) {
     case 'arrow': {
       const s = pr.bits & PB_DEVOUR && pr.pierced > 0 ? { ...st, mult: (st.mult ?? 1) * (1 + 0.7 * pr.pierced) } : st;
       strikeMob(inst, p, m, s);
-      if (pr.bits & PB_MARK) { m.markMs = 3000; m.markPct = p.ctx.power('hunters_mark'); }
+      if (pr.bits & PB_MARK) { m.markMs = 3000; m.markPct = modVar(p.ctx.modsOf('hungering_arrow').mods, 'markPct'); } // Hunter's Mark
       const pierce = pr.pierce >= 1 || inst.rng.next() < pr.pierce;
       if (!pierce) { endProj(inst, pr, true); return; }
       pr.pierced++;
