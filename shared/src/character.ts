@@ -2,7 +2,7 @@
 
 import { INVENTORY_SIZE, STASH_SIZE } from './constants';
 import { SAVE_VERSION } from './saveVersion';
-import { collectItem, equippedLook, seedCollection } from './itemCollection';
+import { collectItem, equippedAppearance, seedCollection } from './itemCollection';
 import {selectedTitle} from './community';
 import { CLASSES } from './data/classes';
 import { BASES, blocksOffhand } from './data/items';
@@ -49,7 +49,7 @@ export function playerLook(save: CharacterSave): PlayerLook {
   for (const s of LOOK_SLOTS) {
     const it = save.equipment[s as Slot];
     // The wardrobe may change the shape and colours; the visual progression always comes from the worn item.
-    if (it) slots[s] = gearLook(it, equippedLook(save, it, s as Slot));
+    if (it) { const ap = equippedAppearance(save, it, s as Slot); slots[s] = gearLook(it, ap.look, ap.base); }
   }
   const jw: NonNullable<PlayerLook['jw']> = {};
   for (const s of CHARM_SLOTS) { const it = save.equipment[s]; if (it) jw[s] = packGearFx(it); }

@@ -20,7 +20,8 @@ import {
 } from './draw';
 import { rarityOf, trim, type Body } from './gear';
 import { decorBelt, decorHead, decorLeg, decorTorsoFront } from './gearDecor';
-import { itemStyle } from './gearStyle';
+import { beltFrontExtra, headExtra, legExtra, torsoBaseExtra, torsoFrontExtra, waistBand } from './armourBases';
+import { artKey, itemStyle } from './gearStyle';
 import { shieldOutline } from './weaponArt';
 import { BLUSH, BONE, GOLD, OUTFIT } from './palette';
 import { clamp, lerp, light, mix, shade } from './util';
@@ -459,11 +460,12 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
     const hc = head!.variant === 3 ? light(s, 0.2) : BONE;
     horn(c, 1, yaw, hc, true); horn(c, -1, yaw, hc, true);
   }
-  if (shape === 'cap') capVisor(c, head!, yaw, true);
+  if (shape === 'cap' && artKey(head) !== 'widebrim') capVisor(c, head!, yaw, true);
   if (shape === 'cap' && head!.variant % 2 === 1) capFeather(c, head!, yaw, true);
   const bunVisible = b.hairStyle === 'bun' && (!shape || shape === 'circlet');
   if (bunVisible) drawBun(c, b, yaw, true);
   decorHead(c, head, yaw, true, sph, vec, HEAD_R);
+  headExtra(c, head, yaw, true, sph, vec, HEAD_R);
 
   // ── skull
   ball(c, 0, 0, R, RY, b.skin, { hl: 0.2, inset: 0.9, sh: 0.22 });
@@ -561,7 +563,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
       }
       const top = sph(0, 90 * D2R, yaw, R + 2.8);
       if (top.d > 0) ball(c, top.x, top.y, 1.8, 1.4, s, { ow: 1.2, hl: 0.3 });
-      capVisor(c, head!, yaw, false);
+      if (artKey(head) !== 'widebrim') capVisor(c, head!, yaw, false);
       if (head!.variant % 2 === 1) capFeather(c, head!, yaw, false);
       break;
     }
@@ -593,6 +595,7 @@ export function drawHeadView(c: Ctx, b: Body, head: ItemLook | undefined, yawDeg
     default:
       drawHairCap(c, b, yaw, false);
   }
+  headExtra(c, head, yaw, false, sph, vec, HEAD_R);
   decorHead(c, head, yaw, false, sph, vec, HEAD_R);
   drawFace(c, b, yaw);
 }
@@ -754,10 +757,12 @@ export function drawTorsoBase(c: Ctx, b: Body, chest: ItemLook | undefined, wais
       crease(c, [-5, -14, -6, -3], 1, OUT, 0.2); crease(c, [5, -14, 6, -3], 1, OUT, 0.18);
     }
   }
+  torsoBaseExtra(c, chest);
   if (waist) {
     const y = shape === 'robe' ? -5 : -4.4;
     const w = shape === 'robe' ? 11.6 : 11.8;
-    if (waist.shape === 'sash') {
+    if (waistBand(c, waist, y, w)) { /* the base's own waist piece */ }
+    else if (waist.shape === 'sash') {
       rbox(c, -w, y - 1.6, w * 2, 4.4, 1.8, waist.primary, { ow: 1.8, hl: 0.3 });
       crease(c, [-w + 1, y + 0.6, w - 1, y + 0.6], 0.9, trim(waist), 0.9);
     } else {
@@ -771,6 +776,7 @@ export function drawTorsoBase(c: Ctx, b: Body, chest: ItemLook | undefined, wais
 /** Front details, centred on the chest's front line (the rig slides + foreshortens them). */
 export function drawTorsoFront(c: Ctx, b: Body, chest: ItemLook | undefined, neck?: number, neckColor = 0xe8c66a): void {
   drawTorsoFrontBase(c, b, chest);
+  torsoFrontExtra(c, b, chest);
   decorTorsoFront(c, chest, neck, neckColor);
 }
 
@@ -853,6 +859,7 @@ export function drawTorsoBack(c: Ctx, b: Body, chest: ItemLook | undefined): voi
 export function drawBeltFront(c: Ctx, w: ItemLook, robe: boolean): void {
   const y = robe ? -5 : -4.4;
   const p = w.primary, s = trim(w);
+  if (beltFrontExtra(c, w, y)) { decorBelt(c, w, y); return; }
   if (w.shape === 'sash') {
     blob(c, [-1.6, y + 1.6, 1.2, y + 2.6, 3.2, y + 11.6, 0.2, y + 12, -0.8, y + 6], p, { ow: 1.6 });
     blob(c, [0.6, y + 1.2, 2.8, y + 2, 5.8, y + 9, 3.6, y + 9.8], shade(p, 0.15), { ow: 1.6 });
@@ -949,6 +956,7 @@ export function drawLegView(c: Ctx, b: Body, legs: ItemLook | undefined, feet: I
   }
   // toe cap highlight when the toe points at the camera
   if (cs > 0.5 && !inSilhouette()) wash(c, (k) => k.ellipse(0, 9.6, 2.6 * cs, 1.2), light(fp, 0.5), 0.35 * cs);
+  legExtra(c, b, legs, feet, sn, cs, pts);
   decorLeg(c, legs, feet, sn, cs);
 }
 

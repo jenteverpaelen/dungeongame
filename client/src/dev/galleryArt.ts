@@ -731,6 +731,93 @@ function gearSetsView() {
   world.scale.set(ZOOM * Number(qs.get('k') ?? 0.62));
 }
 
+// ─────────────────────────── armour in the maker series (docs/rework/gear/ART-DIRECTION.md §6) ───────────────────────────
+
+/** Armour bases per class for the boards (the showcase's own), and the depth-wave alternatives (?alt=1). */
+const ARMOUR_OF: Record<ClassId, Partial<Record<Slot, string>>> = {
+  warrior: { head: 'head_horned', shoulders: 'shoulders_spiked', chest: 'chest_plate', hands: 'hands_gauntlets', wrists: 'wrists_bracers', waist: 'waist_belt', legs: 'legs_plate', feet: 'feet_greaves', mainhand: 'sword', offhand: 'shield', neck: 'neck_amulet', ring1: 'ring' },
+  ranger: { head: 'head_hood', shoulders: 'shoulders_pads', chest: 'chest_leather', hands: 'hands_gloves', wrists: 'wrists_bracers', waist: 'waist_belt', legs: 'legs_leather', feet: 'feet_boots', mainhand: 'bow', offhand: 'quiver', neck: 'neck_amulet', ring1: 'ring' },
+  mage: { head: 'head_wizard', shoulders: 'shoulders_mantle', chest: 'chest_robe', hands: 'hands_wraps', wrists: 'wrists_bracers', waist: 'waist_sash', legs: 'legs_cloth', feet: 'feet_shoes', mainhand: 'wand', offhand: 'orb', neck: 'neck_amulet', ring1: 'ring' },
+};
+const ARMOUR_ALT: Record<ClassId, Partial<Record<Slot, string>>> = {
+  warrior: { head: 'head_coif', shoulders: 'shoulders_furmantle', chest: 'chest_brigandine', hands: 'hands_gauntlets', wrists: 'wrists_vambraces', waist: 'waist_girdle', legs: 'legs_tassets', feet: 'feet_clogs', mainhand: 'maul2h', neck: 'neck_torc', ring1: 'ring_signet' },
+  ranger: { head: 'head_mask', shoulders: 'shoulders_furmantle', chest: 'chest_apron', hands: 'hands_fingerless', wrists: 'wrists_wraps', waist: 'waist_cord', legs: 'legs_chaps', feet: 'feet_sandals', mainhand: 'longbow', offhand: 'trap_kit', neck: 'neck_charm', ring1: 'ring_coil' },
+  mage: { head: 'head_widebrim', shoulders: 'shoulders_capelet', chest: 'chest_vestment', hands: 'hands_mitts', wrists: 'wrists_cuffs', waist: 'waist_cord', legs: 'legs_waders', feet: 'feet_wraps', mainhand: 'sceptre', offhand: 'tome', neck: 'neck_locket', ring1: 'ring_band' },
+};
+const SERIES_NAMES = ['Millwright', 'Kilnfolk', 'Brinekeeper', 'Warden', 'Array', 'Faultstone', 'Reliquary'];
+const SERIES_ILVL = [8, 20, 30, 42, 55, 65, 70];
+
+/** A full loadout of one class in one series (item level of the band) at one craft (or a grade / Set stage). */
+function seriesLook(cls: ClassId, gen: number, craft: Rarity | 'kindled' | 'fabled', alt: boolean, seedN = 1): PlayerLook {
+  const save = createCharacter('Board', cls, 5);
+  const bases = alt ? { ...ARMOUR_OF[cls], ...ARMOUR_ALT[cls] } : ARMOUR_OF[cls];
+  const eq: Partial<Record<Slot, Item>> = {};
+  Object.entries(bases).forEach(([slot, base], i) => {
+    if (slot === 'offhand' && BASES[bases.mainhand!]?.weapon?.twoHanded) return;
+    const rarity: Rarity = craft === 'kindled' || craft === 'fabled' ? 'rare' : craft;
+    const it = generateItem(new Rng(seedN * 977 + i * 31 + gen * 7), { ilvl: SERIES_ILVL[gen], classId: cls, rarity, base, ancientAllowed: false, smartChance: 1 });
+    if (craft === 'kindled') it.ancient = 1;
+    if (craft === 'fabled') { it.ancient = 2; it.upgrade = 10; }
+    eq[slot as Slot] = it;
+  });
+  save.equipment = eq;
+  return playerLook(save);
+}
+
+/** ?view=armour-board: the seven series (columns) for each class at normal / magic / rare (rows), at hero scale
+ *  (?k= zoom, ?alt=1 the depth-wave bases, ?crafts=normal,rare,fabled, ?classes=warrior,mage). Pair it with
+ *  ?armourArt=series / ?armourArt=current for the before / after. */
+function armourBoardView() {
+  const crafts = (qs.get('crafts')?.split(',') ?? ['normal', 'magic', 'rare']) as (Rarity | 'kindled' | 'fabled')[];
+  const classes = (qs.get('classes')?.split(',') ?? [...CLASS_IDS]) as ClassId[];
+  const alt = !!qs.get('alt');
+  const colW = Number(qs.get('colw') ?? 104), rowH = Number(qs.get('rowh') ?? 118), gx = 150, gy = 108;
+  SERIES_NAMES.forEach((n, ci) => label(`${n}  L${SERIES_ILVL[ci]}`, gx + ci * colW, 8, 11));
+  let r = 0;
+  for (const cls of classes) for (const craft of crafts) {
+    const y = gy + r * rowH;
+    label(`${CLASSES[cls].name} · ${craft}`, 56, y - 40, 10, 0xc9b98f);
+    ground(gx - 50, y - 8, SERIES_NAMES.length * colW, 16, 0x6f8f4c);
+    SERIES_NAMES.forEach((_, gen) => {
+      const v = createPlayerView(seriesLook(cls, gen, craft, alt, 1 + r));
+      addActor(v, gx + gen * colW, y, st({}), 1.2);
+      const yaw = qs.get('yaw'); if (yaw !== null) (v as PlayerArt).setYaw(Number(yaw));
+    });
+    r++;
+  }
+  world.scale.set(ZOOM * Number(qs.get('k') ?? 0.84));
+}
+
+/** ?view=armour-icons: armour and jewellery icons per series (columns) and slot (rows) at 64 px (?px=40, ?rar=,
+ *  ?alt=1 the depth-wave bases, ?cls=). */
+function armourIconsView() {
+  const el = document.getElementById('icons')!;
+  el.style.display = 'block';
+  app.canvas.style.display = 'none';
+  const px = Number(qs.get('px') ?? 64);
+  const rar = (qs.get('rar') ?? 'rare') as Rarity;
+  const cls = (qs.get('cls') ?? 'warrior') as ClassId;
+  const alt = !!qs.get('alt');
+  const wrap = document.createElement('div');
+  wrap.style.cssText = `display:grid;grid-template-columns:110px repeat(7, ${px + 12}px);gap:6px;padding:12px;font:12px monospace;color:#c9b98f;align-items:center`;
+  el.appendChild(wrap);
+  const cell = (t: string) => { const d = document.createElement('div'); d.textContent = t; d.style.textAlign = 'center'; wrap.appendChild(d); };
+  cell(`${cls} · ${rar}${alt ? ' · new bases' : ''}`);
+  SERIES_NAMES.forEach((n) => cell(n));
+  const bases = qs.get('bases')?.split(',') ?? Object.values(alt ? { ...ARMOUR_OF[cls], ...ARMOUR_ALT[cls] } : ARMOUR_OF[cls]).filter((b) => b && BASES[b] && !BASES[b].weapon && BASES[b].kind !== 'offhand') as string[];
+  for (const b of bases) {
+    cell(BASES[b].noun);
+    SERIES_NAMES.forEach((_, gen) => {
+      const it = generateItem(new Rng(gen * 131 + b.length), { ilvl: SERIES_ILVL[gen], classId: cls, rarity: rar, base: b, ancientAllowed: false });
+      const url = itemIconUrl(gearLook(it), it.kind as ItemKind, px > 48 ? 128 : 64);
+      const d = document.createElement('div');
+      const rc = ({ normal: '#777', magic: '#6969ff', rare: '#e8d83a', legendary: '#bf642f', set: '#2fd048' } as Record<Rarity, string>)[it.rarity];
+      d.innerHTML = `<div style="width:${px + 6}px;height:${px + 6}px;margin:auto;background:radial-gradient(#2a2119,#120d0a);border:1px solid ${rc};display:flex;align-items:center;justify-content:center">${url ? `<img src="${url}" width=${px} height=${px}>` : ''}</div>`;
+      wrap.appendChild(d);
+    });
+  }
+}
+
 /** ?view=gear-icons: icons across the tier ladder (tier frames, Set marks, temper stars, Kindled / Fabled jewels). */
 function gearIconsView() {
   const el = document.getElementById('icons')!;
@@ -1186,6 +1273,8 @@ switch (VIEW) {
   case 'gear-vs': gearVsView(); break;
   case 'gear-sets': gearSetsView(); break;
   case 'gear-icons': gearIconsView(); break;
+  case 'armour-board': armourBoardView(); break;
+  case 'armour-icons': armourIconsView(); break;
   case 'gear-measure': void gearMeasureView(); break;
   case 'weapon-board': weaponBoardIcons(); break;
   case 'weapon-hero': weaponBoardHeroes(); break;

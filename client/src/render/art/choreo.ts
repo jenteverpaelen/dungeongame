@@ -8,6 +8,7 @@
 // cycle (0.55..0.92 of it) and relax if no attack follows. Poses are deterministic in t, so the rig can
 // re-evaluate past instants to sample smooth weapon trails.
 
+import { heldShape } from './gearVisuals';
 import type { ActionDef } from '../actions';
 import { clamp, easeIn, easeInOut, easeOut, easeOut3, lerp, smooth } from './util';
 
@@ -86,7 +87,7 @@ export interface Kit { wk: WeaponKind; shield: boolean; orb: boolean; shape: str
 
 /** Weapon reach (grip → business end) and where its trail starts along the blade. */
 export function reachOf(shape: string | undefined): { tip: number; base: number } {
-  switch (shape) {
+  switch (heldShape(shape)) {
     case 'sword': return { tip: 31, base: 8 };
     case 'axe': return { tip: 27, base: 13 };
     case 'mace': return { tip: 27, base: 13 };

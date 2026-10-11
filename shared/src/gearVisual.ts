@@ -128,9 +128,29 @@ export function unpackGearFx(n: number): GearFx {
   };
 }
 
-/** The item's look with its visual identity attached (a new object: stored looks never carry `fx`). */
-export function gearLook(item: Item, look: ItemLook = item.look): ItemLook {
-  return { shape: look.shape, primary: look.primary, secondary: look.secondary, glow: look.glow, variant: look.variant, fx: packGearFx(item) };
+/** Art shapes of the depth-wave bases (docs/rework/gear/ART-DIRECTION.md §7). Their stored looks keep the shape of the
+ *  family they were first drawn with (`BASES[id].shape`, which the collection validates), so the art shape is derived
+ *  from the base id when a look goes on the wire: no stored field, saves unchanged. The client maps every art shape back
+ *  to its family for the rig (gearVisuals.ts SHAPE_FAMILY for held items, ARMOUR_FAMILY for armour). */
+export const ART_SHAPE: Readonly<Record<string, string>> = Object.freeze({
+  cleaver: 'cleaver', maul2h: 'maul2h', polearm: 'polearm', sling: 'sling', longbow: 'longbow', rod: 'rod', sceptre: 'sceptre',
+  censer: 'censer', warhorn: 'warhorn', trap_kit: 'trap_kit', tome: 'tome',
+  head_coif: 'coif', head_mask: 'mask', head_widebrim: 'widebrim', shoulders_furmantle: 'furmantle', shoulders_capelet: 'capelet',
+  chest_brigandine: 'brigandine', chest_vestment: 'vestment', chest_apron: 'apron', hands_mitts: 'mitts', hands_fingerless: 'fingerless',
+  wrists_cuffs: 'cuffs', wrists_vambraces: 'vambraces', wrists_wraps: 'armwraps', waist_girdle: 'girdle', waist_cord: 'cord',
+  legs_chaps: 'chaps', legs_tassets: 'tassets', legs_waders: 'waders', feet_wraps: 'footwraps', feet_sandals: 'sandals', feet_clogs: 'clogs',
+  neck_torc: 'torc', neck_charm: 'charm', neck_locket: 'locket', ring_band: 'band', ring_signet: 'signet', ring_coil: 'coil',
+});
+
+/** The shape a look is drawn with: the base's art shape when it has one, else the stored shape. */
+export function artShape(base: string | undefined, look: ItemLook): string {
+  return (base && ART_SHAPE[base]) || look.shape;
+}
+
+/** The item's look with its visual identity attached (a new object: stored looks never carry `fx`). `base`: the base the
+ *  look comes from (the item's own base for its own look; a wardrobe look passes its source base). */
+export function gearLook(item: Item, look: ItemLook = item.look, base: string | undefined = look === item.look ? item.base : undefined): ItemLook {
+  return { shape: artShape(base, look), primary: look.primary, secondary: look.secondary, glow: look.glow, variant: look.variant, fx: packGearFx(item) };
 }
 
 /** Decoded identity of a look, or null for looks without it (townsfolk, older servers). */

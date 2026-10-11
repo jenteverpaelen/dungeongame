@@ -20,6 +20,7 @@ import type { WFloat, WLayer } from '../weaponDrawing';
 import type { Ctx } from '../draw';
 import { newKit, scratch, type K } from './kit';
 import { gradeAccent } from './grade';
+import { baseDraw } from './bases';
 import { LEGENDARY_ART } from './legendary';
 import { MILLWRIGHT } from './millwright';
 import { KILNFOLK } from './kilnfolk';
@@ -68,6 +69,8 @@ export interface SeriesSpec {
   accent?: number;
   /** Enhancement step 0..3 (+4 / +7 / +10). */
   temper?: number;
+  /** The look's art shape: depth-wave bases (cleaver, maul2h, ...) have their own drawing (bases.ts). */
+  shape?: string;
 }
 
 /** Effect strength of an item (ART-DIRECTION §1.4, owner decision 2026-10-11): plain normal items, then rising with the
@@ -90,6 +93,8 @@ export function seriesDraw(spec: SeriesSpec): Draw | null {
     const L = LEGENDARY_ART[spec.legendary], st = legendaryStage(spec.gen);
     return (k) => L.draw(k, st);
   }
+  const own = spec.shape ? baseDraw(spec.shape, spec.gen) : null;
+  if (own) return own;
   const s = SERIES[Math.max(0, Math.min(SERIES.length - 1, spec.gen))];
   return s?.draw[spec.family] ?? null;
 }

@@ -82,7 +82,9 @@ try {
   server = await startServer(root, path.join(process.env.DATA_DIR, 'client-perf'));
   chrome = await startChrome();
   const { page } = chrome;
-  await page.goto(`${server.base}/?autostart=Perfgate&class=warrior`);
+  // PERF_QUERY (optional, e.g. '&armourArt=series'): measure a display option the defaults do not show; the gate itself
+  // runs with the defaults
+  await page.goto(`${server.base}/?autostart=Perfgate&class=warrior${process.env.PERF_QUERY ?? ''}`);
   await until(() => page.eval('Boolean(window.__game?.world?.map && window.__ui?.get().screen === "game" && __ui.get().me && __game.conn?.ws)'), 60_000, 'the game screen');
   await page.eval('document.activeElement?.blur?.(); true');
   await page.mouse(960, 300);

@@ -8,7 +8,8 @@
 import type { ItemLook } from '@shared/types';
 import { OUT, OW, ball, blob, crease, fill, gem, line, outline, poly, rbox, rivet, spark, star, inSilhouette, type Ctx } from './draw';
 import { unpackGearFx } from '@shared/gearVisual';
-import { itemStyle, motifColor, type ItemStyle, type Motif } from './gearStyle';
+import { armourSeriesOn, itemStyle, motifColor, type ItemStyle, type Motif } from './gearStyle';
+import { beltDecor, handDecor, headDecor, legDecor, shoulderDecor, torsoFrontDecor } from './series/armour';
 import { clamp, light, mix, shade } from './util';
 
 const D2R = Math.PI / 180;
@@ -69,6 +70,31 @@ export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: num
       ball(c, tx + w * 0.4, ty + h * 0.55, w * 0.55, w * 0.7, 0xffd27a, { ow: 1.2, hl: 0.5 });
       break;
     }
+    case 'banner': { // a pole with a swallowtail pennant
+      crease(c, [x, y, tx, ty], 1.2, OUT, 1); crease(c, [x, y, tx, ty], 0.7, light(metal, 0.2), 1);
+      poly(c, [tx, ty, tx + h * 0.55, ty + h * 0.1, tx + h * 0.38, ty + h * 0.22, tx + h * 0.55, ty + h * 0.36, tx, ty + h * 0.32], light(acc, 0.1), { ow: 1.2 });
+      break;
+    }
+    case 'furrow': { // a plough-share point
+      poly(c, [x - w, y, tx - w * 0.3, ty + h * 0.25, tx, ty, x + w, y], mix(metal, 0x9aa1a6, 0.5), { ow: 1.6, hl: 0.3 });
+      crease(c, [x - w * 0.4, y - 1, tx - 0.4, ty + 1], 0.9, light(acc, 0.4), 0.9);
+      break;
+    }
+    case 'antler': { // a tine with a side point
+      line(c, (k) => k.moveTo(x, y).quadraticCurveTo(x - w, y - h * 0.5, tx, ty), 1.6, 0xd8c8a8, 1.2, false);
+      line(c, (k) => k.moveTo(x - w * 0.3, y - h * 0.45).lineTo(x + w * 1.4, y - h * 0.7), 1.2, 0xd8c8a8, 1, false);
+      break;
+    }
+    case 'knot': { // a rope loop with a hook tooth
+      line(c, (k) => k.moveTo(x - w * 0.6, y).quadraticCurveTo(x - w * 1.2, ty + h * 0.2, tx, ty).quadraticCurveTo(x + w * 1.2, ty + h * 0.2, x + w * 0.6, y), 1.2, 0xb99a68, 1, false);
+      poly(c, [tx - 1, ty + 1, tx + 1, ty + 1, tx, ty - 2.4], light(metal, 0.2), { ow: 1 });
+      break;
+    }
+    case 'chime': { // a tuning-fork tine pair
+      line(c, (k) => k.moveTo(x, y).lineTo(x, y - h * 0.35).moveTo(x - w * 0.6, y - h * 0.35).lineTo(x - w * 0.6, ty).moveTo(x + w * 0.6, y - h * 0.35).lineTo(x + w * 0.6, ty), 1.1, light(acc, 0.2), 1, false);
+      line(c, (k) => k.moveTo(x - w * 0.6, y - h * 0.35).lineTo(x + w * 0.6, y - h * 0.35), 1.1, light(acc, 0.2), 1, false);
+      break;
+    }
     case 'cog': {
       const r = Math.max(2.2, w * 1.1);
       const cx = x + lean * h * 0.5, cy = y - h * 0.55;
@@ -91,6 +117,7 @@ export function motifSpike(c: Ctx, m: Motif | null, x: number, y: number, h: num
 export function decorShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
   const s = itemStyle(l);
   if (!s) return;
+  if (armourSeriesOn()) { shoulderDecor(c, l, isBack); return; }
   const T = s.orn, p = isBack ? shade(l.primary, 0.2) : l.primary;
   if (T >= 5) {
     // a raised top plate widens the silhouette
@@ -137,6 +164,7 @@ type Vec = (fwd: number, up: number, side: number, yaw: number) => Pt;
 export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: boolean, sph: Sph, vec: Vec, R: number): void {
   const s = itemStyle(l);
   if (!s || !l) return;
+  if (armourSeriesOn()) { headDecor(c, l, yaw, back, sph, vec, R); return; }
   const T = s.orn, shape = l.shape;
   const up = vec(0, 1, 0, yaw);
   const top = shape === 'wizard_hat' ? 0 : 1;
@@ -239,7 +267,10 @@ export function decorHead(c: Ctx, l: ItemLook | undefined, yaw: number, back: bo
 /** Front of the chest: Threadbare patches, gem studs, the emblem medallion, filigree and the amulet pendant. */
 export function decorTorsoFront(c: Ctx, chest: ItemLook | undefined, neck: number | undefined, neckColor: number): void {
   const s = itemStyle(chest);
-  if (s) {
+  if (s && armourSeriesOn()) {
+    if (s.rar === 0 && !s.special && s.gen <= 2) patch(c, -6.4, -12, 4.6, 4, chest!.primary);
+    torsoFrontDecor(c, chest!, chest!.shape === 'robe' || chest!.shape === 'tunic');
+  } else if (s) {
     const T = s.orn;
     if (T === 0) patch(c, -6.4, -12, 4.6, 4, chest!.primary);
     if (s.fx.gems > 0 && s.gem) for (let i = 0; i < s.fx.gems; i++) gem(c, (i - (s.fx.gems - 1) / 2) * 5, -16.4, 1.5, light(s.gem, 0.1), 0.9);
@@ -285,12 +316,20 @@ export function emblem(c: Ctx, m: Motif | null, x: number, y: number, r: number,
     case 'shard': poly(c, [x, y - r, x + r * 0.6, y, x, y + r, x - r * 0.6, y], col, { ow: 0 }); break;
     case 'lantern': ball(c, x, y, r * 0.7, r * 0.9, col, { ow: 0.8, hl: 0.4 }); break;
     case 'cog': for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2; c.circle(x + Math.cos(a) * r * 0.85, y + Math.sin(a) * r * 0.85, r * 0.3); } fill(c, col); c.circle(x, y, r * 0.55); fill(c, col); break;
+    // class-wave set motifs (ITEMS-SHARED.md section 6): a swallowtail banner, a plough-share, antler tines, a knot loop,
+    // a tuning fork
+    case 'banner': c.poly([x - r * 0.7, y - r, x + r * 0.8, y - r, x + r * 0.8, y + r, x + r * 0.05, y + r * 0.45, x - r * 0.7, y + r], true); fill(c, col); break;
+    case 'furrow': c.poly([x - r, y + r * 0.2, x + r * 0.3, y - r, x + r, y - r * 0.4, x + r * 0.2, y + r * 0.9], true); fill(c, col); break;
+    case 'antler': if (!inSilhouette()) { c.moveTo(x, y + r).lineTo(x, y - r).moveTo(x, y - r * 0.1).lineTo(x - r * 0.8, y - r * 0.8).moveTo(x, y + r * 0.35).lineTo(x + r * 0.8, y - r * 0.4); c.stroke({ width: r * 0.32, color: col, cap: 'round' }); } break;
+    case 'knot': if (!inSilhouette()) { c.circle(x - r * 0.35, y, r * 0.55).stroke({ width: r * 0.28, color: col }); c.circle(x + r * 0.35, y, r * 0.55).stroke({ width: r * 0.28, color: col }); } break;
+    case 'chime': if (!inSilhouette()) { c.moveTo(x - r * 0.45, y - r).lineTo(x - r * 0.45, y + r * 0.1).quadraticCurveTo(x, y + r * 0.7, x + r * 0.45, y + r * 0.1).lineTo(x + r * 0.45, y - r).moveTo(x, y + r * 0.45).lineTo(x, y + r); c.stroke({ width: r * 0.28, color: col, cap: 'round' }); } break;
     default: spark(c, x, y, r * 1.1, col); break;
   }
 }
 
 /** Charms hanging from the belt buckle (Fine+: one, Runic+: two, Heroic+: three with a glowing jewel). */
 export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
+  if (armourSeriesOn()) { beltDecor(c, w, y); return; }
   const s = itemStyle(w);
   if (!s || s.orn < 3) return;
   const n = s.orn >= 7 ? 3 : s.orn >= 5 ? 2 : 1;
@@ -305,6 +344,11 @@ export function decorBelt(c: Ctx, w: ItemLook, y: number): void {
 /** Leg view ornaments (knee cops, boot cuffs, Threadbare patch). yaw in radians. */
 export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | undefined, sn: number, cs: number): void {
   const ls = itemStyle(legs), fs = itemStyle(feet);
+  if (armourSeriesOn()) {
+    if (ls && ls.rar === 0 && !ls.special && ls.gen <= 2 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
+    legDecor(c, legs, feet, sn, cs);
+    return;
+  }
   if (ls) {
     if (ls.orn === 0 && cs > -0.3) patch(c, -2.4 + sn * 0.6, 1.2, 3.4, 3, legs!.primary);
     if (ls.orn >= 6 && cs > -0.3) poly(c, [0.7 * sn - 1.8, 2.6, 0.7 * sn + 2.2 * sn, -0.6, 0.7 * sn + 1.8, 2.6], light(ls.orMetal, 0.1), { ow: 1.3 });
@@ -323,6 +367,7 @@ export function decorLeg(c: Ctx, legs: ItemLook | undefined, feet: ItemLook | un
 
 /** Glove ornaments: knuckle spikes on armoured hands, a cuff jewel. */
 export function decorHand(c: Ctx, hands: ItemLook | undefined): void {
+  if (armourSeriesOn() && hands) { handDecor(c, hands); return; }
   const s = itemStyle(hands);
   if (!s || s.orn < 5) return;
   if (s.orn >= 6) for (const x of [-2.6, 0, 2.6]) poly(c, [x - 0.9, -2.6, x, -5.8 - (s.orn - 6) * 0.5, x + 0.9, -2.6], light(s.orMetal, 0.1), { ow: 1.1 });
@@ -451,6 +496,34 @@ function drawWingShape(c: Ctx, motif: Motif | 'light' | 'primal', main: number, 
         c.circle(x, y, r * 0.38); fill(c, shade(d, 0.2));
       }
       poly(c, [18, -32, 34, -38, 30, -30], light(m, 0.15), { ow: 1.3 });
+      break;
+    }
+    case 'banner': { // two long war-banners on crossed poles (Hearthbanner)
+      for (const [a, L] of [[-0.55, 40], [-0.95, 34]] as const) {
+        const tx = Math.cos(a) * L, ty = Math.sin(a) * L;
+        line(c, (k) => k.moveTo(0, 2).lineTo(tx, ty), 2, mix(d, 0x6a4a2a, 0.4), 1.4);
+        const nx = Math.cos(a + Math.PI / 2), ny = Math.sin(a + Math.PI / 2);
+        poly(c, [tx * 0.35, ty * 0.35, tx, ty, tx + nx * 14, ty + ny * 14, tx * 0.7 + nx * 9, ty * 0.7 + ny * 9, tx * 0.35 + nx * 14, ty * 0.35 + ny * 14], m, { ow: 1.5, hl: 0.2 });
+      }
+      break;
+    }
+    case 'chime': { // concentric sound-ripple arcs (Hollowstar Choir)
+      for (let i = 0; i < 4; i++) { const r = 12 + i * 8; line(c, (k) => k.arc(2, -2, r, -1.45, -0.15), 2.2 - i * 0.3, i % 2 ? light(m, 0.3) : m, 1.2, false); }
+      break;
+    }
+    case 'antler': { // an antler-branch frame with leaves (Thicket Kin)
+      line(c, (k) => k.moveTo(0, 0).quadraticCurveTo(18, -6, 36, -30), 3, 0xd8c8a8, 1.6, false);
+      for (const [t, l] of [[0.35, 12], [0.6, 14], [0.85, 10]] as const) { const x0 = 36 * t, y0 = -30 * t * t; line(c, (k) => k.moveTo(x0, y0).lineTo(x0 - 4, y0 - l), 2.2, 0xd8c8a8, 1.4, false); blob(c, [x0 - 4, y0 - l, x0 - 9, y0 - l - 4, x0 - 2, y0 - l - 6], m, { ow: 1.2 }); }
+      break;
+    }
+    case 'knot': { // a rope net fan with hooks (Snarewright)
+      for (let i = 0; i < 4; i++) { const a = -0.25 - i * 0.32; line(c, (k) => k.moveTo(0, 0).lineTo(Math.cos(a) * 38, Math.sin(a) * 38), 1.4, 0xb99a68, 1, false); }
+      for (const r of [14, 24, 34]) line(c, (k) => k.arc(0, 0, r, -1.3, -0.25), 1.2, 0xb99a68, 1, false);
+      for (let i = 0; i < 4; i++) { const a = -0.25 - i * 0.32; poly(c, [Math.cos(a) * 38 - 1.4, Math.sin(a) * 38, Math.cos(a) * 38 + 1.4, Math.sin(a) * 38, Math.cos(a) * 41, Math.sin(a) * 41 + 3], light(m, 0.2), { ow: 1 }); }
+      break;
+    }
+    case 'furrow': { // two curved mouldboard blades (Furrowmark)
+      for (const [k2, off] of [[1, 0], [0.75, 9]] as const) blob(c, [0, 2 + off, 14 * k2, -10 * k2 + off, 36 * k2, -24 * k2 + off, 30 * k2, -10 * k2 + off, 14 * k2, 4 + off], k2 === 1 ? m : mix(m, d, 0.4), { ow: 1.6, hl: 0.35 });
       break;
     }
     default: { // 'light' and legendary motifs: layered feathered energy (three lobes, light inner layer)

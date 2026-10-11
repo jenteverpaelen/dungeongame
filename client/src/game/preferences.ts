@@ -51,6 +51,9 @@ export interface Preferences {
   /** Weapon art (docs/rework/gear/ART-DIRECTION.md): the maker series (default since every held family is drawn) or the
    *  previous drawings. Local only, applied when the page loads; `?weaponArt=series|current` overrides it once. */
   weaponArt: WeaponArt;
+  /** Armour art (ART-DIRECTION.md section 6): the previous generation ladder (default until the owner approves) or the
+   *  maker series. Local only, applied when the page loads; `?armourArt=series|current` overrides it once. */
+  armourArt: WeaponArt;
 }
 
 export type GearEffects = 'full' | 'reduced' | 'off';
@@ -99,7 +102,7 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   contextualHints: true, advancedTooltips: false, manualSkills: false,
   gearEffects: 'full', otherGearEffects: 'full',
   graphicsPreset: 'high', ...GRAPHICS_PRESETS.high, maxFps: 0, backgroundFps: 0, lowSpecHint: true,
-  motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'series',
+  motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'series', armourArt: 'current',
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }
@@ -127,6 +130,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
   value.motion = pick(input.motion, MOTION_PREFS) ?? value.motion;
   value.colorVision = pick(input.colorVision, COLOR_VISIONS) ?? value.colorVision;
   value.weaponArt = pick(input.weaponArt, WEAPON_ART_MODES) ?? value.weaponArt;
+  value.armourArt = pick(input.armourArt, WEAPON_ART_MODES) ?? value.armourArt;
   // The preset label always describes the values (a hand-edited value turns it into "custom").
   value.graphicsPreset = presetOf(value);
   return Object.freeze(value);

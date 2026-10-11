@@ -14,8 +14,10 @@ import {
 } from './gear';
 import { rgba } from './util';
 import { lookFx } from '@shared/gearVisual';
-import { SET_STYLE, TOP_COLORS, TOP_CORE, artLook, itemStyle } from './gearStyle';
-import { SHAPE_FAMILY } from './gearVisuals';
+import { SET_STYLE, TOP_COLORS, TOP_CORE, armourSeriesOn, artKey, artLook, itemStyle } from './gearStyle';
+import { iconDecor, jewelIcon } from './series/armour';
+import { gloveIconExtra, legsIconExtra, shoulderIconExtra } from './armourBases';
+import { SHAPE_FAMILY, heldShape } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
 import { drawHeldV2 } from './gear';
 import type { WLayer } from './weaponDrawing';
@@ -39,6 +41,8 @@ function drawIcon(c: Ctx, raw: ItemLook, kind: ItemKind, layer: WLayer = 'base')
     fn(c);
     c.restore?.();
   };
+  const series = armourSeriesOn();
+  if (series && (kind === 'wrists' || kind === 'neck' || kind === 'ring') && jewelIcon(c, look, kind, artKey(look) ?? shape)) return;
   switch (kind) {
     case 'head': if (shape === 'circlet') circletIcon(c, look); else drawHead(c, MANNEQUIN, look, true); break;
     case 'shoulders': shoulderIcon(c, look); break;
@@ -55,13 +59,14 @@ function drawIcon(c: Ctx, raw: ItemLook, kind: ItemKind, layer: WLayer = 'base')
     case 'neck': drawAmulet(c, look); break;
     case 'ring': drawRing(c, look); break;
     case 'offhand':
-      if (shape === 'quiver') sub((k) => drawQuiver(k, look), 0, 0, 0.5);
-      else if (shape === 'orb') drawOrb(c, look);
+      if (heldShape(shape) === 'quiver') sub((k) => drawQuiver(k, look), 0, 0, 0.5);
+      else if (heldShape(shape) === 'orb') drawOrb(c, look);
       else drawShield(c, look);
       break;
     default: // weapons on the diagonal
       sub((k) => drawWeapon(k, look), 0, 0, shape === 'crossbow' || shape === 'handxbow' ? Math.PI / 4 : Math.PI / 4);
   }
+  if (series && kind !== 'shoulders' && kind !== 'offhand' && kind !== 'weapon1h' && kind !== 'weapon2h') iconDecor(c, look, kind);
 }
 
 
@@ -87,6 +92,7 @@ function gloveIcon(c: Ctx, l: ItemLook): void {
   if (wraps) { for (const y of [-2, 3, 8]) crease(c, [-9, y + 1, 9, y - 1], 1.6, s, 1); line(c, (k) => k.moveTo(9, 6).quadraticCurveTo(15, 12, 12, 20), 1.6, s, 1.2, false); }
   else stitch(c, [-7, 7, 7, 7], light(p, 0.4), 1.4, 1.2);
   if (l.glow) gem(c, 0, 1, 2.2, light(l.glow, 0.2), 1.1);
+  gloveIconExtra(c, l);
 }
 
 function shoulderIcon(c: Ctx, l: ItemLook): void {
@@ -122,6 +128,7 @@ function shoulderIcon(c: Ctx, l: ItemLook): void {
     }
   }
   if (l.glow) gem(c, 0, l.shape === 'mantle' ? 1 : -2, 2.2, light(l.glow, 0.2), 1.1);
+  shoulderIconExtra(c, l);
   // the same tier ornaments as on the hero (raised plates, motif spikes, studs, filigree), at icon scale
   c.save?.(); c.translate(-1.1, 1.1); c.scale(1.9, 1.9); decorShoulder(c, l, false); c.restore?.();
 }
@@ -142,6 +149,7 @@ function legsIcon(c: Ctx, l: ItemLook): void {
     crease(c, [-5, -8, -4, 10], 1, OUT, 0.25); crease(c, [5, -8, 4, 10], 1, OUT, 0.25);
   }
   c.poly(pts, true); outline(c, OW);
+  legsIconExtra(c, l);
   if (l.glow) gem(c, 0, -13, 2, light(l.glow, 0.2), 1);
 }
 

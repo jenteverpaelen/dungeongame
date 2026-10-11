@@ -6,7 +6,8 @@
 // picks the bases, OFF=1 adds a rare off-hand), LEG=<id> equips that class legendary, FIGHT=0 skips the Faultline part,
 // TAG=… names the shots.
 export default async function (api) {
-  const art = process.env.ART ?? 'series', q = `&weaponArt=${art}`;
+  // ARMOUR=series|current adds the armour art switch to both clients' addresses
+  const art = process.env.ART ?? 'series', q = `&weaponArt=${art}${process.env.ARMOUR ? `&armourArt=${process.env.ARMOUR}` : ''}`;
   const vet = process.env.VET ?? 'mage', newbie = process.env.NEWBIE ?? 'warrior', stage = process.env.STAGE ?? 'primal';
   const tag = process.env.TAG ?? `${art}-${vet}-${process.env.WEAPON ?? process.env.LEG ?? stage}`;
   const two = await api.newClient();

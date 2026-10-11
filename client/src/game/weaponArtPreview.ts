@@ -5,12 +5,18 @@
 // or server change: it is a local display choice.
 import { preferences, WEAPON_ART_MODES, type WeaponArt } from './preferences';
 import { registerSeriesDrawings } from '../render/art/series/register';
+import { registerSeriesArmour } from '../render/art/series/armour';
 
-/** The page-address override, if any. */
-export function weaponArtFromUrl(search = typeof location === 'undefined' ? '' : location.search): WeaponArt | null {
-  const v = new URLSearchParams(search).get('weaponArt');
+/** The page-address override, if any (`weaponArt`, or `armourArt` for the armour switch). */
+export function weaponArtFromUrl(search = typeof location === 'undefined' ? '' : location.search, key = 'weaponArt'): WeaponArt | null {
+  const v = new URLSearchParams(search).get(key);
   return v && (WEAPON_ART_MODES as readonly string[]).includes(v) ? (v as WeaponArt) : null;
 }
+export const armourArtFromUrl = (search = typeof location === 'undefined' ? '' : location.search): WeaponArt | null => weaponArtFromUrl(search, 'armourArt');
+
+let armourApplied: WeaponArt = 'current';
+/** The armour art this page load runs with. */
+export function appliedArmourArt(): WeaponArt { return armourApplied; }
 
 let applied: WeaponArt = 'current';
 /** The mode this page load runs with. */
@@ -20,5 +26,7 @@ export function appliedWeaponArt(): WeaponArt { return applied; }
 export function applyWeaponArtPreview(): WeaponArt {
   applied = weaponArtFromUrl() ?? preferences.get().values.weaponArt;
   if (applied === 'series') registerSeriesDrawings();
+  armourApplied = armourArtFromUrl() ?? preferences.get().values.armourArt;
+  if (armourApplied === 'series') registerSeriesArmour();
   return applied;
 }

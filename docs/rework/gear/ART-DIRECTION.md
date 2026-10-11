@@ -176,6 +176,36 @@ Armour keeps the slot shapes of `gear.ts` and takes per series: materials, the m
 | Reliquary | — | bronze plates set with glass panes, gold finials | small glass domes as clasps, bronze leading | the relic glow behind the glass |
 The craft ladder is the same (normal worn / magic finished + mark / rare extra fittings), and the A-rules apply per piece.
 
+### 6b Armour as built (2026-10-12, behind Settings → Display → Gear art → **Armour art**, default *Previous art*)
+Code: `series/armour.ts` (palettes, fittings, slot pieces, icons), wired through `gearStyle.artLook` (colours) and the
+`gearDecor` hooks (fittings) so the turntable rig (`heroParts.ts`), the paper doll (`gear.ts`) and the icons share it.
+`?armourArt=series|current` overrides the setting for one page load. Nothing is stored; it is a local display choice.
+* **Materials** by material class of the slot shape (cloth / leather / hard plate / jewellery) from the row above, with a
+  10 % hint of the stored colour so two pieces of one series differ; early plain pieces are dulled (worn); legendaries /
+  Sets keep their own palette mixed 30 % towards the series. Values in `ARMOUR_SERIES` (two changes after the first board,
+  [M] `armour-board-warrior.jpg`: Millwright iron warmed towards rust so it parts from Faultstone slate and Array blue;
+  Brinekeeper plates are salt-bleached hide instead of tar so the band reads bleached / oilskin yellow / tar black).
+* **The badge** (the series motif as a fitting, where a buckle, brooch, brow jewel or knee boss sits): a stamped mill wheel ·
+  a glaze-capped terracotta disc with the kiln cone (an ember brooch when lit) · salt cubes grown on a whipping knot (a
+  sea-glass toggle when lit) · a white enamel shield with the crimson key ward (a lamp lens when lit) · a graduated ring
+  round a lens (the signal when lit) · a split slate tablet with two rune slots · a ribbed glass dome on bronze (the relic
+  inside when lit). **The band** (trim along a path): strap iron with square pegs · glazed collar with drips · tarred
+  whipping · brass over crimson enamel · graduated copper (verdigris when plain) · bone wrap · bronze leading with gold dots.
+* **Signature pieces** that change the silhouette at hero scale, on the helm and the pauldron: Millwright strap bands ·
+  Kilnfolk goggles pushed up on the brow and clay scales on the shoulder · Brinekeeper salt grown at the temple and on the
+  pauldron · Warden a swallowtail pennant flying off the crown and the pauldron · Array a graduated halo floating round the
+  head and a graduated pauldron rim · Faultstone a slate slab hovering over the crown and the pauldron (the gap widens with
+  craft) · Reliquary a glass dome crowning the helm and a glass pane with a finial on the pauldron. Wizard hats carry the
+  badge on the band (the cone takes the crown).
+* **Craft**: normal plain (patches on G0–G2), magic adds the maker's mark and the blue accent, rare the extra fittings, the
+  gold accent and the series' **light** (Kilnfolk ember, Brinekeeper sea-glass, Warden lamp, Array signal, Faultstone rune,
+  Reliquary relic; Millwright none) — painted into the bake, no additive sprite. **Grades**: Kindled an ember in a
+  three-bar cage, Fabled a ring of Inscription ticks with a starlight glint (on helm, chest, pauldron), on top of the live
+  grade effects. **Legendary / Set**: the item's motif on a disc in the series' bezel (`armour-board-grades.jpg`).
+* **Not yet**: no per-series bespoke slot silhouettes (Kilnfolk clay scale shirts, Warden tabards with pennants, Faultstone
+  plates hovering off the whole body are fittings on today's silhouettes, not new shapes); magic and rare differ by
+  fittings, accent and light, not by a bigger silhouette — an owner call whether rare armour should grow more.
+
 ## 7. Interface and integration (code)
 * `series/kit.ts` — the drawing primitives (passes 'under' / 'paint' / 'light', weighted ink, three tones, poles, lashings,
   cubes, rings, glow parts, floats, the rarity accent).
@@ -189,13 +219,20 @@ The craft ladder is the same (normal worn / magic finished + mark / rare extra f
   mace, bow, crossbow, hand crossbow, staff, wand, shield, quiver, orb) with fallback to the default drawing for looks the
   series cannot draw. Called once at client start by `game/weaponArtPreview.ts` (the default since 2026-10-11, §11) and
   by the galleries.
-* **Depth-wave bases** (cleaver, maul, polearm, sling, longbow, rod, sceptre, censer, warhorn, trap kit, tome) reuse an
-  existing shape in `shared/data/items.ts` (cleaver → `axe`, maul / polearm → `axe2h`, longbow → `bow`, sling → `handxbow`,
-  rod / sceptre → `wand`, censer → `staff`, warhorn / trap kit → `quiver`, tome → `orb`), and `ItemLook` carries no base
-  id, so today they draw as their family's series piece [M: code]. A dedicated silhouette per base needs its own shape
-  key in `items.ts` and the rig to stop branching on shape strings (`player.ts weaponKind`, `choreo reachOf`, `icons.ts`
-  off-hand branches, `gear.ts isRangedShape`, quiver / orb / shield detection) in favour of `SHAPE_FAMILY` — gear /
-  content work; the series kit can then draw the bases as one more function per series.
+* **Depth-wave bases — done 2026-10-12.** Their stored looks keep the shape they were first drawn with (`BASES[id].shape`,
+  which the collection validates), so nothing stored changes: `shared/gearVisual.ts ART_SHAPE` gives each new base an art
+  shape (cleaver, maul2h, polearm, sling, longbow, rod, sceptre, censer, warhorn, trap_kit, tome; coif, mask, widebrim,
+  furmantle, capelet, brigandine, vestment, apron, mitts, fingerless, cuffs, vambraces, armwraps, girdle, cord, chaps,
+  tassets, waders, footwraps, sandals, clogs, torc, charm, locket, band, signet, coil) and `gearLook(item, look, base)`
+  derives it from the base id when a look goes on the wire (wardrobe looks pass their source base: `equippedAppearance`).
+  The rig never branches on a shape it does not know: held art shapes map to their family's shape (`gearVisuals.heldShape`,
+  used by the poses, reach, two-hander / ranged tests, off-hand placement and the icon poses), armour art shapes to the slot
+  silhouette they extend (`ARMOUR_FAMILY` through `artLook`, the base's own key kept as `artKey`). Drawings:
+  `series/bases.ts` (held: one own silhouette per base, dressed per series — palette, badge at the junction, the series'
+  effects; a first pass, less bespoke than the family pieces) and `armourBases.ts` (armour and jewellery: the base's own
+  parts on the slot silhouette, with either armour art). Placement still follows the family: a warhorn and a trap kit are
+  worn where a quiver sits, a tome where an orb sits; the hero's pendant does not show the neck base (looks carry jewellery
+  as `jw` numbers only — a protocol change, not done).
 * **Integration notes before the game switches** [M, `rig-icons-rare.jpg`]: `icons.ts renderIcon` still (a) paints a
   backdrop halo for every lit item from G5 in `ItemStyle.light` (the rarity yellow) — against A4 — and (b) tints the light
   layer's glow with `ItemStyle.light` instead of the drawing's own light, so the Reliquary's glass glowed yellow. **Done (2026-10-11):** the halo is limited to legendary / Set / graded items, the
@@ -232,11 +269,27 @@ bow (thin limbs), the G5 staff (the tallest weapon), Bloodwake's waves at 40 px 
 (two short whippings on a plain tarred socket, limbs +40 % wider, the obelisk head at 0.82×, deeper and fewer waves).
 
 ## 9. Owner decisions (safe defaults in place)
+0. **Armour art** (2026-10-12): ships as *Previous art* by default; the lead or the owner switches the default after the
+   morning review (`preferences.ts armourArt`). Sheets: `shots-art/armour-*.jpg` (§8b).
 1. The series idea itself, and the seven makers (G5 Faultstone and G6 Reliquary borrow the Faultstone obelisk and the Glass
    Reliquary because no endgame lore exists yet; the names follow the owner's name register of 2026-10-11).
 2. Whether item names should follow the makers later (e.g. "Millwright's Riving Knife" instead of "Short Sword") — not done.
 3. Light budget at the top (default ≤ 5 % bright pixels for series items; halos only legendary / graded).
 4. Whether the band boundaries should follow the zones more tightly (G0 covers four zones; G2 straddles salt and glass).
+
+### 8b Armour checkpoint (2026-10-12, 1920×1080, JPEG, `scripts/armour-shots.mjs`)
+| Sheet | What it shows |
+|---|---|
+| `armour-board-warrior.jpg`, `-ranger.jpg`, `-mage.jpg` | the seven series (columns) × normal / magic / rare, each class's own armour, at hero scale |
+| `armour-board-warrior-previous.jpg`, `armour-board-mage-previous.jpg` | the same boards with the previous armour art (the generation ladder: grey steel everywhere) |
+| `armour-board-grades.jpg` | rare → Kindled → Fabled +10 per series |
+| `armour-board-newbases.jpg` (+ `-previous`) | the depth-wave armour, jewellery and held bases on all three classes |
+| `armour-icons-warrior.jpg`, `armour-icons-mage.jpg` (+ `-previous`), `armour-icons-ranger-40px.jpg`, `armour-icons-newbases*.jpg` | icons before / after at 64 px, at the 40 px bag size, and the new bases |
+| `armour-vs.jpg` (+ `-previous`) | level-10 newcomers beside level-60 veterans, all classes, on the town ground at the game camera |
+| `armour-town-<class>.jpg`, `armour-card-<class>.jpg` | in game (real client, `?armourArt=series`): a level-70 veteran beside a newcomer in town; the bag and item card |
+| `armour-crowd.jpg` (+ `-previous`) | 30 heroes of mixed stages at the game camera |
+| `armour-sets.jpg` | all 15 Sets at 2 / 4 / 6 pieces, incl. the six class-wave Sets with their new wings (banner, mouldboard, antler, rope net, frost, sound ripples) |
+| `bases-held-rare.jpg`, `bases-held-normal.jpg` | the eleven depth-wave held bases in every series |
 
 ## 10. Rollout status (2026-10-11) and estimate [P]
 **Done:** all 13 held families × 7 series (91 drawings, each with its series' effects), the bespoke Bloodwake and
@@ -248,6 +301,10 @@ Kilnfolk saggar lid and stoneware orb lost a crack that read as a face; the Brin
 Reliquary rose window no longer white out (smaller cores; large glass panes light less per area); maces and hand crossbows
 trimmed to the axes' size band (+22–30 % over the canonical tip, `extents.jpg`). **Open:** depth-wave bases (own shape
 keys first, §7), armour (§6, after review), more bespoke legendaries.
+**2026-10-12:** armour in the maker series (§6b, behind its switch), the depth-wave bases with their own shape keys and
+drawings (§7), `LEGENDARY_VISUAL` for the 87 class-wave legendaries and `SET_STYLE` for the six class-wave Sets (motifs,
+colours and signatures from ITEMS-SHARED.md §6 [S]); the five new Set motifs (banner, furrow, antler, knot, chime) got
+emblems, pauldron spikes, motif colours and 6-piece wings.
 
 Original estimate: (measured on this pass: kit 417 lines, 7 series files 156–197 lines for 5 families × 3 craft
 levels, 2 legendaries 96 lines, gallery 475 lines)
@@ -291,3 +348,12 @@ levels, 2 legendaries 96 lines, gallery 475 lines)
   rounds): Fabled 36–55 vs 40–58, L70 39–61 vs 33–71, + monsters 25–43 vs 28–52, Low 37–51 vs 42–78; within that noise,
   not a measured regression, but not a measured gain either. The honest frame-rate check is the perf agent's verify gate
   on a quiet machine.
+* **Armour cost [M] (2026-10-12, PERF.md §7).** Armour is drawn into the hero sheet with the rest of the body (no texture
+  per item, no filter, no per-frame Graphics, no additive sprite: the series light on armour is painted). `client-perf`
+  gate (built client, recorded town crowd of 25 level-70 heroes): default settings pass (272 draws, 502 binds, 0 uploads,
+  2,466 visible, 1,950 renderables). With `PERF_QUERY=&armourArt=series` (the gate's optional query, defaults unchanged):
+  three runs 272.7–273.2 draws, 500–535 binds, 0 uploads, 429–434 KB, 2,466–2,501 visible, 1,949–1,984 renderables — all
+  inside the budgets (330 / 660 / 0.5 / 540 / 3,000 / 2,400); main-thread CPU 8.0–13.3 ms vs 7.3–9.0 ms with the previous
+  armour on a shared machine (noise of the same order). Bake cost is higher: 30 mixed heroes in the perf gallery pump
+  2.5–2.8 s vs 2.1 s and bake 685–731 vs 600–608 sheet parts (+20–30 % time, +14–20 % parts: the helm pieces enlarge the
+  24 head views); steady fps the same (101 / 149 vs 105 / 143).
