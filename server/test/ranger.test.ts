@@ -299,6 +299,8 @@ test('Arrowfall: Flood Plain leaves wet ground; Hailstones stuns after 5 waves; 
     assert(f.posts[0].stunMs > 0, 'Hailstones: stunned after 5 waves');
     f.tick(20 * 3);
     assert(f.inst.grounds.some((g) => g.fx?.def.id === 'wet_ground'), 'wet ground after the storm');
+    f.tick(12);
+    assert.equal(f.posts[0].ps?.slowPct, 30, 'Flood Plain: the wet ground slows 30 %');
   } finally { f.inst.destroy(); }
   assert.equal(SKILLS.rain_of_vengeance.nodes!.find((n) => n.id === 'wind_shear')!.name, 'Crosswind', 'renamed (originality gate)');
   assert.equal(LEGENDARIES.rainspindle.range[0], 150, 'Rainspindle: damage roll (BUDGET.md §4 lever)');
@@ -317,14 +319,14 @@ test('Companion: Badger Sett stuns with bursts; Heron spears from 200 units and 
 
 // ─────────────────────────── Passives, sets, legendaries ───────────────────────────
 
-test('passives: Engineer’s Margin (+1 Device maximum, −15 damage), Weather Eye (Aerial chills, +15 % vs chilled), Hatred Well, Second Skin', () => {
+test('passives: Engineer’s Margin (+1 Device maximum, −15 damage), Weather Eye (Aerial slows 30 %, +15 % vs slowed), Hatred Well, Second Skin', () => {
   const f = fixture({ slots: ['sentry', 'overcast_volley', null, null], passives: ['ranger_engineers_margin', 'ranger_weather_eye', 'ranger_hatred_well', 'ranger_second_skin'], posts: [[220, 0]] });
   try {
     assert.equal(slot(f, 'sentry').mods.maxSummons, 1);
     assert.equal(slot(f, 'sentry').mods.dmg, -15);
     assert(f.p.ctx.powers.index.get('overcast_volley')?.has('chill'), 'Weather Eye: Aerial skills count as Chill');
     castSkill(f.inst, f.p, slot(f, 'overcast_volley')); f.tick(30);
-    assert(f.posts[0].chillMs > 0, 'chilled by an Aerial hit');
+    assert.equal(f.posts[0].ps?.slowPct, 30, 'Weather Eye: an Aerial hit slows 30 % (engine wave 3)');
     // Hatred Well: below 40 Hatred regeneration doubles.
     f.p.res = 10; const r0 = f.p.res; f.tick(20);
     const regen = f.p.ctx.d.resourceRegen;
@@ -405,4 +407,51 @@ test('more items and rules: Tar-Stained Jerkin grows your grounds and exposes en
     castSkill(s.inst, s.p, slot(s, 'multishot'));
     assert.equal((s.events['proj:arrow'] ?? 0) - before, 18, 'the Sentry fires a copy of the volley');
   } finally { s.inst.destroy(); }
+});
+
+// ─────────────────────────── Phase 2: engine wave 3 (slow of chosen strength, dash end, movement speed) ───────────────────────────
+
+test('phase 2: Gut Hook, Wake, Tar Pit, Feather Storm, Ripple, Bloodhound slow at the bible strengths; Tracker moves you faster', () => {
+  const slowOf = (m: Mob) => (m.ps && m.ps.slowMs > 0 ? m.ps.slowPct : 0);
+  const gut = fixture({ runes: { hungering_arrow: 'puncturing' }, nodes: { hungering_arrow: { seeking_turn: 2, gut_hook: 3 } }, posts: [[150, 0], [220, 0], [290, 0]] });
+  try { castPrimary(gut.inst, gut.p, gut.posts[0]); gut.tick(12); assert.equal(slowOf(gut.posts[0]), 30, 'Gut Hook 3: a pierced enemy is slowed 30 %'); } finally { gut.inst.destroy(); }
+  const rip = fixture({ primary: 'skipstone_bolt', runes: { skipstone_bolt: 'ripple' }, posts: [[150, 0], [300, 0]] });
+  try { castPrimary(rip.inst, rip.p, rip.posts[0]); rip.tick(8); assert.equal(slowOf(rip.posts[0]), 30, 'Ripple: 30 %'); assert.equal(rip.posts[0].chillMs, 0, 'a slow, not the engine chill'); } finally { rip.inst.destroy(); }
+  const wake = fixture({ primary: 'skipstone_bolt', nodes: { skipstone_bolt: { splash_hatred: 2, wake: 3 } }, posts: [[150, 0], [300, 0]] });
+  try {
+    castPrimary(wake.inst, wake.p, wake.posts[0]); wake.tick(8);
+    assert.equal(slowOf(wake.posts[0]), 40, 'Wake 3: the puddle slows 40 %'); assert(wake.events['aoe:wet'] >= 1, 'puddle visual');
+    wake.tick(40); assert.equal(slowOf(wake.posts[0]), 0, 'the puddle lasts 1 s');
+  } finally { wake.inst.destroy(); }
+  const tar = fixture({ slots: ['pitch_mortar', null, null, null], nodes: { pitch_mortar: { larger_shells: 2, tar_pit: 3 } }, posts: [[300, 0]] });
+  try { castSkill(tar.inst, tar.p, slot(tar, 'pitch_mortar')); let s = 0; for (let i = 0; i < 20 * 5 && !s; i++) { tar.tick(); s = slowOf(tar.posts[0]); } assert.equal(s, 45, 'Tar Pit 3: pitch slows 45 %'); } finally { tar.inst.destroy(); }
+  const fs = fixture({ slots: ['murmuration', null, null, null], nodes: { murmuration: { thick_flock: 2, feather_storm: 3 } }, posts: [[200, 0]] });
+  try { castSkill(fs.inst, fs.p, slot(fs, 'murmuration')); let s = 0; for (let i = 0; i < 20 * 4 && !s; i++) { fs.tick(); s = slowOf(fs.posts[0]); } assert.equal(s, 50, 'Feather Storm 3: 50 % inside the flock'); } finally { fs.inst.destroy(); }
+  const q = fixture({ slots: ['quarry_mark', null, null, null], runes: { quarry_mark: 'bloodhound' }, nodes: { quarry_mark: { tracker: 3 } }, posts: [[200, 0, 2]] });
+  try {
+    castSkill(q.inst, q.p, slot(q, 'quarry_mark')); q.tick(10);
+    assert.equal(slowOf(q.posts[0]), 30, 'Bloodhound: the quarry is slowed 30 %');
+    const b = getBuff(q.p, 'tracker');
+    assert(b && b.mv === 15 && b.ias === 9, `Tracker 3: +15 % movement and +9 % attack speed (${JSON.stringify(b)})`);
+    assert.equal(q.p.live.mv, 15, 'buff movement reaches the live mods (MeState.ms for prediction)');
+  } finally { q.inst.destroy(); }
+});
+
+test('phase 2: Wingbeat Boots part 2: after your dash ends your beasts run to your side at dash speed', () => {
+  const run = (boots: boolean) => {
+    const f = fixture({ slots: ['companion', null, null, null], posts: [[300, 0]] });
+    try {
+      if (boots) f.setPowers({ wingbeat_boots: 30 });
+      castSkill(f.inst, f.p, slot(f, 'companion')); f.tick(20 * 2); // the wolf runs to the post and bites it
+      const wolf = f.p.summons.find((s) => s.type === 'wolf')!;
+      assert(wolf && Math.hypot(wolf.x - f.p.x, wolf.y - f.p.y) > 200, `the wolf fights at the post (${wolf && Math.hypot(wolf.x - f.p.x, wolf.y - f.p.y).toFixed(0)})`);
+      f.p.inQ.push({ seq: 1, mx: -1, my: 0, dash: true } as never);
+      for (let i = 0; i < 20 && (i === 0 || f.p.mv.dashMs > 0); i++) { f.tick(); f.p.inQ.push({ seq: i + 2, mx: 0, my: 0, dash: false } as never); }
+      f.tick(6); // 0.3 s after the landing
+      return Math.hypot(wolf.x - f.p.x, wolf.y - f.p.y);
+    } finally { f.inst.destroy(); }
+  };
+  const near = run(true), far = run(false);
+  assert(near < 90, `with the boots the wolf is at your side (${near.toFixed(0)} units)`);
+  assert(far > 250, `without them it is still far behind (${far.toFixed(0)} units)`);
 });

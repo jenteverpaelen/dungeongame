@@ -25,7 +25,7 @@ import {
 } from './common';
 import {
   barVar, beastHit, beastRate, deviceHit, deviceRate, isRanger, nearestMob, noteCast, noteSpend, quarryOf, rangerTick,
-  rmob, rstate, rv, spot, summonTarget,
+  BEAST_DASH_SPEED, rmob, rstate, rv, slowMob, spot, summonTarget,
 } from './rangerKit';
 import { FALL_LEAD, farwatchShot, freeCasts, huntingCall, skimRipple, splinters, triggerSnare } from './rangerM1';
 
@@ -98,12 +98,14 @@ function hungeringArrow(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
 /** Tracking Arrow's per-arrow hooks: Hunger Pangs, Fletchling Swarm, Barbed Shaft, Farwatch 2's guaranteed pierce. */
 function arrowHooks(inst: Instance, p: Player, rt: SkillRuntime): ProjHooks | undefined {
   const pangs = rv(rt, 'haPierceGen'), darts = rt.flags.has('haDarts'), bleed = rt.flags.has('haBleed'), extraPierce = rv(rt, 'morePierce');
+  const gutHook = rv(rt, 'haSlow');
   let gained = 0, free = extraPierce;
-  const own: ProjHooks | undefined = pangs || darts || bleed || extraPierce ? {
+  const own: ProjHooks | undefined = pangs || darts || bleed || extraPierce || gutHook ? {
     pre: (_i, pr, _m, st) => { if (free > 0 && pr.pierce < 1) { free--; pr.pierce += 2; (pr as Proj & { _fp?: number })._fp = 1; } return st; },
     post: (i, pr, m, through) => {
       const fp = (pr as Proj & { _fp?: number })._fp; if (fp) { pr.pierce -= 2; (pr as Proj & { _fp?: number })._fp = 0; }
       if (through && pangs > 0 && gained < pangs) { gained++; gainResource(p, 1); }
+      if (through && gutHook > 0) slowMob(i, p, m, gutHook, 2000, 'hungering_arrow'); // Gut Hook: pierced enemies, 2 s
       if (bleed && !m.dead) applyStatus(i, p, m, resolveStatus({ kind: 'bleed', ms: 3000, coef: 0.6 }, p.ctx.powers.index), p.x, p.y, 'hungering_arrow');
       if (darts && inst.rng.next() < 0.3) for (let k = 0; k < 2; k++) {
         spawnProj(i, { kind: 'shard', v: 'dart', owner: p, src: p.id, x: m.x, y: m.y, angle: inst.rng.next() * Math.PI * 2, speed: 700, lifeMs: 600, r: 8, el: pr.el,
@@ -598,6 +600,12 @@ function companionAi(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: nu
     s.targetId = tgt ? tgt.id : 0;
   } else s.targetId = tgt.id;
   if (Math.hypot(s.x - p.x, s.y - p.y) > 900) { s.x = p.x - 30; s.y = p.y + 10; }
+  // Wingbeat Boots part 2: after your dash the beasts run to your side at dash speed, then fight on.
+  if (rstate(p).beastDashUntil > inst.t) {
+    const side = s.aux % 2 === 0 ? -1 : 1;
+    const fx = p.x + side * 44 - (p.faceLeft ? -20 : 20), fy = p.y + 14 + (s.aux > 1 ? 24 : 0);
+    if (Math.hypot(fx - s.x, fy - s.y) > 30) { moveSummon(inst, s, fx, fy, BEAST_DASH_SPEED, dtS, 0); return; }
+  }
   s.fireMs -= dtMs * beastRate(rt) * (tgt && tgt.id === rstate(p).lastShot ? 1 + rv(rt, 'compFocus') / 100 : 1);
   if (tgt) {
     const range = s.type === 'heron' ? 200 : s.type === 'raven' ? 60 : 14;

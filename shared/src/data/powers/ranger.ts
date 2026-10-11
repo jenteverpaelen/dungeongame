@@ -87,8 +87,9 @@ export const RANGER_LEGENDARIES: LegendaryDef[] = [
   { id: 'fuse_cord_belt', name: 'Fuse Cord Belt', base: 'waist_belt', classes: ['ranger'], power: 'Your Devices attack {v}% faster.', range: [25, 35], cubeSlot: 'armor', flavor: 'Light the end you are not wearing.', colors: { primary: 0x4a3a2a, secondary: 0xc9a227, glow: 0xffc06b },
     effects: [skillMods(tagged('device'), {}, { field: 'var:deviceIas' })] },
   // Bible part 2 ("after a Movement skill your Beasts dash to your side") needs the movement-end trigger (engine wave 3).
-  { id: 'wingbeat_boots', name: 'Wingbeat Boots', base: 'feet_boots', classes: ['ranger'], power: 'Your Beasts deal {v}% more damage to elites.', range: [25, 40], cubeSlot: 'armor', flavor: 'Every step a small flutter.', colors: { primary: 0x3a3a4a, secondary: 0xa0a0b0, glow: 0xd8dcf0 },
-    effects: [skillMore(tagged('beast'), ROLL, { targetElite: true })] },
+  { id: 'wingbeat_boots', name: 'Wingbeat Boots', base: 'feet_boots', classes: ['ranger'], power: 'Your Beasts deal {v}% more damage to elites, and after your Movement skill they dash to your side.', range: [25, 40], cubeSlot: 'armor', flavor: 'Every step a small flutter.', colors: { primary: 0x3a3a4a, secondary: 0xa0a0b0, glow: 0xd8dcf0 },
+    // Part 2: the dash end (the moment of the engine's dashEnd trigger) is read in rangerTick; beasts run to your side.
+    effects: [skillMore(tagged('beast'), ROLL, { targetElite: true }), flags(tagged('beast'), 'wingbeatDash')] },
   { id: 'roost_charm', name: 'Roost Charm', base: 'neck_amulet', classes: ['ranger'], power: 'Kills by your Summons reduce your Cooldown skills’ cooldowns by 0.5 seconds (at most {v} seconds per cooldown).', range: [3, 5], cubeSlot: 'jewelry', flavor: 'A feather for each that came back fed.', colors: { primary: 0x2c2c38, secondary: 0x3a3a4a, glow: 0xb0b8d8 },
     effects: [skillMods(tagged('summon'), {}, { field: 'var:roostCharm' })] },
 ];

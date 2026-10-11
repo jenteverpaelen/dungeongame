@@ -24,14 +24,16 @@ export const RANGER_PASSIVES: PassiveDef[] = [
   { id: 'ranger_long_shot', classId: 'ranger', name: 'Long Shot', unlock: 24, note: 'Let the arrow work for it.',
     effects: [{ kind: 'projectile', tags: tagged('projectile'), distBonus: { pct: 20, atUnits: 400 } }],
     text: 'Your Projectiles deal up to 20% more damage by distance flown (none at the bow, 20% after 400 units).' },
-  // Bible: "Chill (30%)"; the engine's one chill is the 40% slow, so the text names the chill (as the warrior's Deep Earth).
+  // Bible: "Chill (30%)": a slow of that strength (engine wave 3); 2 s [P] = Freezing Drizzle's chill. 'slowed' holds while
+  // chilled or slowed, so the bonus covers both.
   { id: 'ranger_weather_eye', classId: 'ranger', name: 'Weather Eye', unlock: 28, note: 'Read the sky, then use it.',
-    effects: [{ kind: 'tagGrant', tags: tagged('aerial'), add: ['chill'] }, proc('hit', { tags: tagged('aerial'), applyStatus: { kind: 'chill', ms: 2000 } }), conditional({ targetState: 'chilled' }, 'hit', 15)],
-    text: 'Your Aerial skills chill enemies for 2 seconds (and count as Chill skills); you deal 15% more damage to chilled enemies.' },
+    effects: [{ kind: 'tagGrant', tags: tagged('aerial'), add: ['chill'] }, proc('hit', { tags: tagged('aerial'), applyStatus: { kind: 'slow', pct: 30, ms: 2000 } }), conditional({ targetState: 'slowed' }, 'hit', 15)],
+    text: 'Your Aerial skills slow enemies by 30% for 2 seconds (and count as Chill skills); you deal 15% more damage to slowed or chilled enemies.' },
   // Bible: "Stun and Chill effects last 20% longer"; the engine's control-duration stat covers Stun and Freeze.
   { id: 'ranger_trappers_instinct', classId: 'ranger', name: 'Trapper’s Instinct', unlock: 36, note: 'A held animal is a hit animal.',
-    effects: [conditional({ any: [{ targetState: 'stunned' }, { targetState: 'chilled' }] }, 'hit', 15), { kind: 'stat', stat: 'ccDuration', value: 20 }],
-    text: 'Stunned and chilled enemies take 15% more damage from you, and your Stun and Freeze effects last 20% longer.' },
+    // The ranger's chills of a given strength are slows (engine wave 3); 'slowed' holds while chilled or slowed.
+    effects: [conditional({ any: [{ targetState: 'stunned' }, { targetState: 'slowed' }] }, 'hit', 15), { kind: 'stat', stat: 'ccDuration', value: 20 }],
+    text: 'Stunned, chilled and slowed enemies take 15% more damage from you, and your Stun and Freeze effects last 20% longer.' },
   { id: 'ranger_hatred_well', classId: 'ranger', name: 'Hatred Well', unlock: 45, note: 'Never quite empty.',
     effects: [flags(ANY_SKILL, 'hatredWell')],
     text: 'Your Hatred regenerates twice as fast below 40 Hatred, and every 100 Hatred you spend reduces your Cooldown skills’ cooldowns by 1 second.' },

@@ -18,7 +18,7 @@ import type { Mob, Player, Proj, SkillRuntime, Strike, Summon } from '../types';
 import { emitCast, face, faceTo, strikeOf, trimSummons, type SkillBehaviour, type SummonBehaviour } from './common';
 import {
   barVar, beastHit, beastStrike, deviceHit, deviceHooks, deviceRate, gather, hasTag, nearestMob, noteCast, noteSpend,
-  quarryOf, rangerMark, reduceCooldowns, rmob, rstate, rv, setQuarry, spot, strongestMob, summonTarget,
+  quarryOf, rangerMark, reduceCooldowns, rmob, rstate, rv, setQuarry, slowMob, slowPulse, spot, strongestMob, summonTarget,
 } from './rangerKit';
 
 // ─────────────────────────── Shared projectile effects (Piercing items) ───────────────────────────
@@ -93,7 +93,15 @@ function onSkipHit(inst: Instance, p: Player, rt: SkillRuntime, m: Mob, ch: Skip
   if (ch.heavy) knockbackMob(m, m.x - p.x, m.y - p.y, 60, inst, p);
   if (rt.flags.has('skipRipple')) {
     inst.emit({ e: 'aoe', v: 'skip_ripple', x: Math.round(m.x), y: Math.round(m.y), r: 50, d: 500, el: elIdx(ch.st.el), s: p.id }, m.x, m.y, p.id);
-    for (const o of inst.queryMobs(m.x, m.y, 50)) { if (o.dead) continue; if (o !== m) strikeMob(inst, p, o, { ...ch.st, coef: 0.4, primary: false, noProc: true }); chillMob(o, 1000, inst, p); }
+    // Bible: "chills 30% for 1 s": a 30 % slow (engine wave 3).
+    for (const o of inst.queryMobs(m.x, m.y, 50)) { if (o.dead) continue; if (o !== m) strikeMob(inst, p, o, { ...ch.st, coef: 0.4, primary: false, noProc: true }); slowMob(inst, p, o, 30, 1000, 'skipstone_bolt'); }
+  }
+  // Wake: each skip point leaves a 1 s puddle (radius 50 [P], Ripple's) that slows by the node's strength.
+  const wake = rv(rt, 'skipPuddle');
+  if (wake > 0) {
+    const wx = m.x, wy = m.y;
+    inst.emit({ e: 'aoe', v: 'wet', x: Math.round(wx), y: Math.round(wy), r: 50, d: 1000, el: elIdx('cold'), s: p.id }, wx, wy, p.id);
+    slowPulse(inst, p, () => ({ x: wx, y: wy, r: 50 }), wake, inst.t + 1000, 'skipstone_bolt');
   }
   if (pass) {
     if (rt.flags.has('skipGen')) gainResource(p, 1);
@@ -483,7 +491,12 @@ function shellImpact(inst: Instance, p: Player, s: Summon, rt: SkillRuntime, x: 
   const gen = rv(rt, 'mortarGen'); if (gen > 0 && hit >= 3) gainResource(p, gen);
   if (grape) {
     for (let i = 0; i < 5; i++) spawnProj(inst, { kind: 'shard', v: 'pellet', owner: p, src: s.id, x, y, angle: (i * Math.PI * 2) / 5 + inst.rng.next() * 0.4, speed: 700, lifeMs: 400, r: 8, el: st.el, strike: { ...st, coef: st.coef * 0.6 }, reach: 260 });
-  } else if (!freeze) placeGround(inst, p, 'pitch_fire', x, y, 0, radius / 100);
+  } else if (!freeze) {
+    const g = placeGround(inst, p, 'pitch_fire', x, y, 0, radius / 100);
+    // Tar Pit: the pitch slows the enemies in it (its live radius: Tar-Stained Jerkin may grow it).
+    const tar = rv(rt, 'mortarSlow');
+    if (g && tar > 0) slowPulse(inst, p, () => (g.endT > inst.t ? { x: g.x, y: g.y, r: g.r } : null), tar, g.endT, 'pitch_mortar');
+  }
   const powder = rv(rt, 'powderHorn'); if (powder > 0 && inst.rng.next() * 100 < powder) placeGround(inst, p, 'powder_patch', x, y, 0, 1);
 }
 
@@ -555,8 +568,10 @@ function flockAi(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: number
     s.tickMs += 250;
     const st: Strike = { ...strikeOf(p, rt, rt.def.coef / 4 * fs.pct), src: s.id };
     const q = rs.quarry;
+    const feather = rv(rt, 'flockSlow'); // Feather Storm: enemies inside are slowed (refreshed by every tick)
     for (const m of inst.queryMobs(s.x, s.y, s.r)) {
       if (m.dead) continue;
+      if (feather > 0) slowMob(inst, p, m, feather, 500, 'murmuration');
       let hit = beastStrike(inst, p, st, m);
       if (rt.flags.has('flockElite') && (m.id === q || isEliteTier(m.tier))) hit = { ...hit, mult: (hit.mult ?? 1) * 1.5 }; // Pecking Order
       strikeMob(inst, p, m, hit);

@@ -9,8 +9,8 @@ export const RANGER_GROUNDS: GroundDef[] = [
   { id: 'pitch_fire', name: 'Burning Pitch', owner: 'pitch_mortar', tags: ['burn'], element: 'fire', radius: 100, durationMs: 3000, tick: { everyMs: 500, coef: 0.3 }, maxPerOwner: 6, visual: 'pitch' },
   // Spring Snare rune Pitch-Soaked: "the snap leaves burning ground for 2 s". Rate [P] = the Mortar's pitch (0.6 per s).
   { id: 'snare_fire', name: 'Burning Ground', owner: 'spring_snare', tags: ['burn'], element: 'fire', radius: 90, durationMs: 2000, tick: { everyMs: 500, coef: 0.3 }, maxPerOwner: 6, visual: 'snare_fire' },
-  // Arrowfall rune Flood Plain: wet ground that chills for 3 s after the storm (the engine's one chill, 40 % [M]).
-  { id: 'wet_ground', name: 'Wet Ground', owner: 'rain_of_vengeance', tags: ['chill'], radius: 240, durationMs: 3000, tick: { everyMs: 500, status: { kind: 'chill', ms: 600 } }, maxPerOwner: 2, visual: 'wet' },
+  // Arrowfall rune Flood Plain: wet ground for 3 s after the storm that "chills 30%": a 30 % slow (engine wave 3).
+  { id: 'wet_ground', name: 'Wet Ground', owner: 'rain_of_vengeance', tags: ['chill'], radius: 240, durationMs: 3000, tick: { everyMs: 500, status: { kind: 'slow', pct: 30, ms: 600 } }, maxPerOwner: 2, visual: 'wet' },
   // Powder Horn: "a burning powder patch (Ground, 2 s, 100% weapon damage per second as Fire)". Radius [P] 60 = the
   // burst radius of Bolt-Thrower's Arbalest (the bible's other small blast).
   { id: 'powder_patch', name: 'Powder Patch', tags: ['burn'], element: 'fire', radius: 60, durationMs: 2000, tick: { everyMs: 500, coef: 0.5 }, maxPerOwner: 4, visual: 'powder_patch' },

@@ -5,7 +5,7 @@
 import { modVar, type SkillTag } from '../../shared';
 import { pickTarget } from '../brain';
 import { gainResource, isEliteTier, strikeMob, type HitResult } from '../damage';
-import { addBuff, chillMob, dragMob, elIdx, getBuff, markMob, removeBuff, stunMob } from '../effects';
+import { addBuff, dragMob, elIdx, getBuff, markMob, removeBuff, stunMob } from '../effects';
 import type { Instance } from '../instance';
 import { spawnLoot } from '../loot';
 import { skillMult } from '../playerctx';
@@ -40,6 +40,8 @@ export interface RangerState {
   slowMs: number;
   /** Murmuration: elites the current flock killed (Return to Roost), feast extension (Crowfeast). */
   flockElites: number; flockFeastMs: number;
+  /** Wingbeat Boots part 2: dashing last tick; beasts run to your side until this time (inst.t). */
+  dashing: boolean; beastDashUntil: number;
 }
 
 const states = new WeakMap<Player, RangerState>();
@@ -47,11 +49,36 @@ export function rstate(p: Player): RangerState {
   let s = states.get(p);
   if (!s) {
     s = { lastShot: 0, arrows: 0, projCasts: 0, lastProjSpender: null, lastAerialSpender: null, quarry: 0, quarryPct: 0, quarryUntil: 0, quarry2: 0, quarry2Pct: 0,
-      spent: 0, howlT: 0, roost: new Map(), stormT: 0, slowMs: 0, flockElites: 0, flockFeastMs: 0 };
+      spent: 0, howlT: 0, roost: new Map(), stormT: 0, slowMs: 0, flockElites: 0, flockFeastMs: 0, dashing: false, beastDashUntil: 0 };
     states.set(p, s);
   }
   return s;
 }
+
+/**
+ * A slow of chosen strength (engine wave 3 status `slow`, movement only). The bible's "chills N %" and "slowed N %"
+ * (Gut Hook, Wake, Tar Pit, Feather Storm, Ripple, Flood Plain, Bloodhound, Weather Eye) all use it; the engine's
+ * fixed chill (40 % movement and attacks) stays for chills without a number.
+ */
+export function slowMob(inst: Instance, p: Player, m: Mob, pct: number, ms: number, source: string) {
+  if (m.dead || pct <= 0) return;
+  applyStatus(inst, p, m, resolveStatus({ kind: 'slow', pct, ms }, p.ctx.powers.index), p.x, p.y, source);
+}
+
+/** Every 250 ms until `untilT` (inst.t), slow the enemies within the area `at()` returns for 500 ms (Wake, Tar Pit). */
+export function slowPulse(inst: Instance, p: Player, at: () => { x: number; y: number; r: number } | null, pct: number, untilT: number, source: string) {
+  const pulse = () => {
+    if (!inst.playerById(p.id) || inst.t > untilT) return;
+    const a = at();
+    if (!a) return;
+    for (const m of inst.queryMobs(a.x, a.y, a.r)) slowMob(inst, p, m, pct, 500, source);
+    inst.sched.schedule(inst.t + 250, pulse);
+  };
+  pulse();
+}
+
+/** Wingbeat Boots part 2 [P]: beasts run to your side at your dash's speed (DASH 230 units in 170 ms [M]) for up to 0.6 s. */
+export const BEAST_DASH_SPEED = 230 / 0.17, BEAST_DASH_MS = 600;
 
 /** Per-monster ranger state: who marked it with a class mark (Hunter's Accord moves it), sentry hit times (Crossfire). */
 export interface RangerMobState { markedBy: number; sentryHits: Map<number, number> }
@@ -246,6 +273,10 @@ export const beastRate = (rt: SkillRuntime) => 1 + rv(rt, 'beastIas') / 100;
 export function rangerTick(inst: Instance, p: Player, dtMs: number) {
   if (!isRanger(p) || p.deadMs > 0) return;
   const st = rstate(p);
+  // Wingbeat Boots part 2: the tick your dash (the Movement skill) ends, the moment of the engine's dashEnd trigger.
+  const dashing = p.mv.dashMs > 0;
+  if (st.dashing && !dashing && p.ctx.modsOf('companion').flags.has('wingbeatDash')) st.beastDashUntil = inst.t + BEAST_DASH_MS;
+  st.dashing = dashing;
   // Hatred Well: regeneration doubled below 40 Hatred.
   if (p.res < 40 && p.ctx.primary.flags.has('hatredWell') && p.ctx.d.resourceRegen > 0) p.res = Math.min(p.mres, p.res + p.ctx.d.resourceRegen * dtMs / 1000);
   const q = quarryOf(inst, p);
@@ -259,7 +290,7 @@ export function rangerTick(inst: Instance, p: Player, dtMs: number) {
   st.slowMs += 250;
   const qrt = p.ctx.modsOf('quarry_mark');
   if (q) {
-    if (qrt.flags.has('markSlow')) chillMob(q, 600, inst, p);                                     // Bloodhound
+    if (qrt.flags.has('markSlow')) slowMob(inst, p, q, 30, 600, 'quarry_mark');                     // Bloodhound: slowed 30 %
     const weaken = rv(qrt, 'markWeaken');
     if (weaken > 0) applyStatus(inst, p, q, resolveStatus({ kind: 'weaken', ms: 600, pct: weaken }, p.ctx.powers.index), p.x, p.y, 'quarry_mark'); // Exposed Joints
     const splash = qrt.flags.has('markSplash') ? 120 : 0, accord = p.ctx.primary.flags.has('huntersAccord') ? 150 : 0;
@@ -268,7 +299,7 @@ export function rangerTick(inst: Instance, p: Player, dtMs: number) {
     const haste = rv(qrt, 'markHaste');
     if (haste > 0) {
       const near = Math.hypot(q.x - p.x, q.y - p.y) <= 400;
-      if (near) addBuff(p, { id: 'tracker', ms: 600, ias: haste }); else if (getBuff(p, 'tracker')) removeBuff(p, 'tracker');
+      if (near) addBuff(p, { id: 'tracker', ms: 600, ias: haste, mv: rv(qrt, 'markSpeed') }); else if (getBuff(p, 'tracker')) removeBuff(p, 'tracker');
     }
   }
   if (st.quarry2) {

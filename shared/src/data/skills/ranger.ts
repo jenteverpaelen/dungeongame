@@ -51,6 +51,7 @@ export const RANGER_SKILLS: SkillDef[] = [
         effects: [{ kind: 'projectile', skills: ['hungering_arrow'], distBonus: { pct: { roll: 30 }, atUnits: 600 } }] },
       { id: 'split_feathers', name: 'Split Feathers', text: 'Every {var:haEvery}th arrow fires 2 extra arrows in a narrow fan.', maxRank: 3,
         ranks: [{ vars: { haEvery: 5 } }, { vars: { haEvery: -1 } }, { vars: { haEvery: -1 } }], requires: needs('hunger_pangs'), pos: at(1, 1) },
+      { id: 'gut_hook', name: 'Gut Hook', text: 'Enemies your arrows pierce are slowed by {var:haSlow}% for 2 seconds.', maxRank: 3, ranks: v3('haSlow', 10), requires: needs('seeking_turn'), pos: at(2, 1) },
     ],
   },
   {
@@ -153,7 +154,7 @@ export const RANGER_SKILLS: SkillDef[] = [
       { id: 'dark_cloud', name: 'Dark Cloud', unlock: 11, desc: 'Deals Lightning damage; the storm follows the densest pack.', mods: { element: 'lightning', flags: ['follow'] } },
       { id: 'beastly_bombs', name: 'Firedrop', unlock: 14, desc: 'Deals Fire damage and 50% more damage in a shorter burst.', mods: { element: 'fire', dmg: 50, duration: -40 } },
       { id: 'stampede', name: 'Stampede', unlock: 18, desc: 'Cooldown reduced by 33%.', mods: { cooldown: -33 } },
-      { id: 'flood_plain', name: 'Flood Plain', unlock: 23, addTags: ['chill'], desc: 'The storm leaves wet ground that chills enemies for 3 seconds after it ends.', mods: { flags: ['rainWet'] } },
+      { id: 'flood_plain', name: 'Flood Plain', unlock: 23, addTags: ['chill'], desc: 'The storm leaves wet ground for 3 seconds after it ends; it slows enemies in it by 30%.', mods: { flags: ['rainWet'] } },
       { id: 'kestrel_column', name: 'Kestrel Column', unlock: 29, desc: 'A column of diving kestrels: half the radius and half the duration, the same total damage.', mods: { radius: -50, duration: -50, flags: ['rainFocus'] } },
     ],
     tiers: [
@@ -209,7 +210,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     icon: { glyph: 'skip', color: 0x7fb8c9 },
     runes: [
       { id: 'long_skip', name: 'Long Skip', unlock: 18, desc: 'The bolt skips 4 times, losing 30% damage each skip.', mods: { flags: ['skipMore'] } },
-      { id: 'ripple', name: 'Ripple', unlock: 21, addTags: ['chill'], desc: 'Deals Cold damage; every skip point ripples (radius 50) for 40% weapon damage and chills enemies for 1 second.', mods: { element: 'cold', flags: ['skipRipple'] } },
+      { id: 'ripple', name: 'Ripple', unlock: 21, addTags: ['chill'], desc: 'Deals Cold damage; every skip point ripples (radius 50) for 40% weapon damage and slows enemies by 30% for 1 second.', mods: { element: 'cold', flags: ['skipRipple'] } },
       { id: 'fen_lightning', name: 'Fen Lightning', unlock: 25, desc: 'Deals Lightning damage; each skip generates 1 Hatred.', mods: { element: 'lightning', flags: ['skipGen'] } },
       { id: 'heavy_stone', name: 'Heavy Stone', unlock: 30, addTags: ['displace'], removeTags: ['piercing'], desc: 'No skips; the bolt knocks its target back 60 units and deals 80% more damage.', mods: { dmg: 80, flags: ['noSkip', 'skipKnock'] } },
       { id: 'marker_bolt', name: 'Marker Bolt', unlock: 36, addTags: ['mark'], desc: 'The last enemy the bolt skips to is marked for 3 seconds and takes 10% more damage from you.', mods: { flags: ['skipMark'] } },
@@ -226,6 +227,8 @@ export const RANGER_SKILLS: SkillDef[] = [
       { id: 'last_skip', name: 'Last Skip', text: 'The final skip deals {var:skipFinal}% more damage.', maxRank: 3, ranks: v3('skipFinal', 30), requires: needs('smooth_stone'), pos: at(0, 1) },
       { id: 'tripping_stone', name: 'Tripping Stone', text: 'Enemies a skip reaches are knocked down (stunned) for {var:skipTrip} seconds.', maxRank: 3,
         ranks: [{ vars: { skipTrip: 0.2 } }, { vars: { skipTrip: 0.15 } }, { vars: { skipTrip: 0.15 } }], requires: needs('water_dance'), pos: at(1, 1) },
+      // Bible: "a 1 s puddle that chills 20 / 30 / 40%" (a slow of that strength, engine wave 3). Radius [P] 50 = Ripple's skip ripple.
+      { id: 'wake', name: 'Wake', text: 'Each skip leaves a puddle for 1 second that slows enemies in it by {var:skipPuddle}%.', maxRank: 3, ranks: v3('skipPuddle', 20, 10, 10), requires: needs('splash_hatred'), pos: at(2, 1) },
     ],
   },
   {
@@ -294,7 +297,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Mark your quarry for {duration} seconds: the strongest elite in range, else the strongest enemy. It takes 20% more damage from you and your summons, which hunt it first. If it dies, the mark jumps to the strongest enemy nearby. Not cast while your mark lives.',
     icon: { glyph: 'eye', color: 0xe6c35c },
     runes: [
-      { id: 'bloodhound', name: 'Bloodhound', unlock: 34, addTags: ['chill'], desc: 'The quarry is chilled, and your companions move 30% faster.', mods: { flags: ['markSlow'] } },
+      { id: 'bloodhound', name: 'Bloodhound', unlock: 34, addTags: ['chill'], desc: 'The quarry is slowed by 30%, and your companions move 30% faster.', mods: { flags: ['markSlow'] } },
       { id: 'bounty', name: 'Bounty', unlock: 37, desc: 'Killing the quarry restores 30 Hatred and drops a healing pickup.', mods: { flags: ['markBounty'] } },
       { id: 'open_season', name: 'Open Season', unlock: 41, desc: 'Enemies within 120 units of the quarry are marked at half strength.', mods: { flags: ['markSplash'] } },
       { id: 'falcon_strike', name: 'Falcon Strike', unlock: 46, addTags: ['beast'], desc: 'On cast, a falcon stoops on the quarry for 500% weapon damage.', mods: { flags: ['markDive'] } },
@@ -307,7 +310,8 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
     nodes: [
       { id: 'keen_sight', name: 'Keen Sight', text: 'The mark’s bonus is {var:markPctAdd} points higher.', maxRank: 3, ranks: v3('markPctAdd', 3), pos: at(0, 0) },
-      { id: 'tracker', name: 'Tracker', text: 'You attack {var:markHaste}% faster while your quarry is within 400 units.', maxRank: 3, ranks: v3('markHaste', 3), pos: at(1, 0) },
+      { id: 'tracker', name: 'Tracker', text: 'You move {var:markSpeed}% faster and attack {var:markHaste}% faster while your quarry is within 400 units.', maxRank: 3,
+        ranks: [{ vars: { markHaste: 3, markSpeed: 5 } }, { vars: { markHaste: 3, markSpeed: 5 } }, { vars: { markHaste: 3, markSpeed: 5 } }], pos: at(1, 0) },
       { id: 'pack_signal', name: 'Pack Signal', text: 'Your quarry takes {var:markBeasts}% more damage from your companions and Murmuration.', maxRank: 3, ranks: v3('markBeasts', 15), pos: at(2, 0) },
       { id: 'second_quarry', name: 'Second Quarry', text: 'Also marks the next-strongest enemy at {var:markTwo}% strength.', maxRank: 3,
         ranks: [{ vars: { markTwo: 50 } }, { vars: { markTwo: 25 } }, { vars: { markTwo: 25 } }], requires: needs('keen_sight'), pos: at(0, 1) },
@@ -339,6 +343,7 @@ export const RANGER_SKILLS: SkillDef[] = [
       { id: 'larger_shells', name: 'Larger Shells', text: 'Impacts cover {radius}% more radius.', maxRank: 3, ranks: [{ radius: 10 }, { radius: 10 }, { radius: 10 }], pos: at(0, 0) },
       { id: 'ammunition_belt', name: 'Ammunition Belt', text: 'Each shell that hits 3 or more enemies restores {var:mortarGen} Hatred.', maxRank: 3, ranks: v3('mortarGen', 1), pos: at(1, 0) },
       { id: 'walking_fire', name: 'Walking Fire', text: '{var:mortarDouble}% chance to fire a second shell at another group at once.', maxRank: 3, ranks: v3('mortarDouble', 20), pos: at(2, 0) },
+      { id: 'tar_pit', name: 'Tar Pit', text: 'Pitch ground slows enemies in it by {var:mortarSlow}%.', maxRank: 3, ranks: v3('mortarSlow', 15), requires: needs('larger_shells'), pos: at(0, 1) },
       { id: 'overpressure', name: 'Overpressure', text: 'Every 4th shell has double radius and deals {var:mortarHeavy}% more damage.', maxRank: 3, ranks: v3('mortarHeavy', 50), requires: needs('ammunition_belt'), pos: at(1, 1) },
       { id: 'sled_mount', name: 'Sled Mount', text: 'The Mortar follows you (it stays within 200 units), but fires {var:mortarFollow}% slower while it moves.', maxRank: 3,
         ranks: [{ vars: { mortarFollow: 30 } }, { vars: { mortarFollow: -10 } }, { vars: { mortarFollow: -10 } }], requires: needs('walking_fire'), pos: at(2, 1) },
@@ -367,6 +372,8 @@ export const RANGER_SKILLS: SkillDef[] = [
       { id: 'shadow_cover', name: 'Shadow Cover', text: 'While the flock is out you take {var:flockCover}% less damage.', maxRank: 3, ranks: v3('flockCover', 5), pos: at(1, 0),
         effects: [{ kind: 'damageTaken', pct: { roll: -5 }, when: { buff: 'murmuration' } }] },
       { id: 'gathering_flock', name: 'Gathering Flock', text: 'The flock’s radius grows by 10% every 2 seconds, up to {var:flockGrow}% larger.', maxRank: 3, ranks: v3('flockGrow', 20), pos: at(2, 0) },
+      // Bible: "enemies inside are chilled 20 / 35 / 50%" (a slow of that strength, engine wave 3).
+      { id: 'feather_storm', name: 'Feather Storm', text: 'Enemies inside the flock are slowed by {var:flockSlow}%.', maxRank: 3, ranks: v3('flockSlow', 20, 15, 15), requires: needs('thick_flock'), pos: at(0, 1) },
       { id: 'return_to_roost', name: 'Return to Roost', text: 'When it ends, {var:flockRefund}% of the cooldown is refunded for each elite it killed (at most 50%).', maxRank: 3, ranks: v3('flockRefund', 10), requires: needs('shadow_cover'), pos: at(1, 1) },
       { id: 'stoop', name: 'Stoop', text: 'Every 2 seconds the flock stoops on one enemy for {var:flockStoop}% weapon damage.', maxRank: 3,
         ranks: [{ vars: { flockStoop: 150 } }, { vars: { flockStoop: 100 } }, { vars: { flockStoop: 100 } }], requires: needs('gathering_flock'), pos: at(2, 1) },
