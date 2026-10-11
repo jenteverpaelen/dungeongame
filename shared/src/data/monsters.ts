@@ -21,7 +21,22 @@ export interface MonsterDef {
   themes: string[];
   colors: { body: number; accent: number; eye: number };
   scale: number;
+  /** Behaviour toolkit (F-MON-02): abilities layered on the basic attack; runner in server/src/sim/behaviours.ts. */
+  behaviours?: readonly MonsterBehaviour[];
 }
+
+/**
+ * Data-driven monster behaviours. Both generalise the Rift Guardian's existing abilities (server/src/sim/rift.ts), which
+ * now run through the same code with their old numbers:
+ *  - enrage: once below `belowPct` % life (or after `afterMs` in combat, a boss enrage timer [K: Diablo III bosses]),
+ *    moves × speedMul and attacks every × cooldownMul.
+ *  - summon: every `everyMs` while fighting, warns `telegraphMs` ahead at each spot, then calls up to `count` monsters
+ *    (the zone's roster or `roster`) around itself, never more than `maxAlive` of its own at once. `reward: false`
+ *    (the default for authored summoners) makes the summoned give no XP or loot, so a summoner is never a loot fountain.
+ */
+export type MonsterBehaviour =
+  | { kind: 'enrage'; belowPct?: number; afterMs?: number; speedMul: number; cooldownMul: number; announce?: boolean }
+  | { kind: 'summon'; everyMs: number; firstMs?: number; count: number; maxAlive: number; telegraphMs: number; ring: number; roster?: readonly string[]; reward?: boolean };
 
 export const MONSTERS: Record<string, MonsterDef> = {
   // Glade (forest) theme

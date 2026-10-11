@@ -95,3 +95,12 @@
   `stashTabs.test.ts` 5/5 + town-services/persisted/economy suites. Shots `stash-{tabs,buy-short,buy,bought,drag,moved}-
   {1920,1366}` (no scroll; 607 / 432 px tall). Owner picks: hours per tab (0.5 / 1 / 2), tab count (5 / 6 / 10),
   account-wide stash (D-24, P14).
+- **F-MON-02 — behaviour toolkit.** `server/src/sim/behaviours.ts` + `MonsterDef.behaviours` (data): `enrage` (life
+  threshold and/or combat timer → speed × / attack cooldown ×, once; cue or notice) and `summon` (every N ms, fixed
+  spots with ground warnings, nothing appears if the summoner dies during the warning, alive cap per summoner, minions
+  give no XP/loot unless `reward: true` — never a loot fountain). The Rift Guardian's enrage and adds now run through
+  the same runners with their old numbers (BOSS_ENRAGE / BOSS_ADDS): `sim.ts rift` output identical before/after [M].
+  Taunt branch kept (a taunted monster still goes for its taunt target). `behaviours.test.ts` 5/5 (adventure stage).
+  **Dependency (engine lane):** a damage-absorbing shield needs an absorb hook in `hurtMob` (damage.ts) + `F_SHIELD` in
+  `mobStatusFlags` (effects.ts); once it exists, a `shield` runner fits here. Which zones' monsters get which behaviour
+  is content design for the owner/lead (roadmap P7: ≥ 1 new behaviour per zone); none assigned here.

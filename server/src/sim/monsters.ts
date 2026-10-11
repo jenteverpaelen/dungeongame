@@ -15,6 +15,7 @@ import { killMob, packMemberGone } from './kills';
 import { dropGoldPile } from './loot';
 import { spawnProj } from './projectiles';
 import { bossTick } from './rift';
+import { attackCooldownMul, tickBehaviours } from './behaviours';
 import { fractureLine } from './fracture';
 import { tickMobStatus } from './status';
 import {
@@ -264,7 +265,7 @@ function think(inst: Instance, m: Mob, dtMs: number) {
     }
     case 'return': {
       const d = Math.hypot(m.homeX - m.x, m.homeY - m.y);
-      if (d < 24) { m.state = 'idle'; m.hp = m.mhp; m.dots.length = 0; return; } // leashed: reset like D3
+      if (d < 24) { m.state = 'idle'; m.hp = m.mhp; m.dots.length = 0; if (m.bh) m.bh.startT = -1; return; } // leashed: reset like D3 (enrage timers restart)
       step(inst, m, m.homeX, m.homeY, m.speed * 1.4, dtS, null);
       return;
     }
@@ -301,6 +302,7 @@ function think(inst: Instance, m: Mob, dtMs: number) {
       if (m.tier !== 4 && Math.hypot(m.x - m.homeX, m.y - m.homeY) > LEASH_RANGE) { m.state = 'return'; m.target = 0; return; }
       if (m.affixes.length) eliteTick(inst, m, p, dtMs);
       if (m.boss) bossTick(inst, m, p, dtMs);
+      else if (m.def.behaviours) tickBehaviours(inst, m, p, dtMs);
       if (m.dead || m.state !== 'chase') return;
       const dx = p.x - m.x, dy = p.y - m.y;
       const d = Math.hypot(dx, dy);
@@ -427,7 +429,7 @@ function resolveAttack(inst: Instance, m: Mob) {
   const atk = m.def.attack;
   m.attackFlagMs = 260;
   m.attackSeq++;
-  m.atkCdMs = m.cooldownMs * (m.boss?.enraged ? 0.8 : 1);
+  m.atkCdMs = m.cooldownMs * attackCooldownMul(m);
   const p = targetOf(inst, m);
   switch (atk.kind) {
     case 'fracture':
