@@ -142,6 +142,35 @@ presence comes from size + light + trail), staves at G0–G2 are thin lines in i
 crossbow families are busier than the rest. Iterated three times before moving on (v1 → v3: float transform fix, light
 toned from white to rarity colour, mace / orb redesigned, bow light along the limb curve, crossbow decluttered).
 
+## 7b. Evidence (1920×1080, visible page target, JPEG in `shots-v2/`)
+| What | Before | After |
+|---|---|---|
+| Weapon / off-hand icons, every base × generation × rarity × grade | `before-icons.jpg` | `board-icons.jpg`, `board-icons40.jpg` (bag size), `board-zoom-0..3.jpg` |
+| Weapons on the hero (default camera) | `before-hero-melee.jpg`, `before-hero-ranged.jpg` | `board-hero-melee.jpg`, `board-hero-ranged.jpg` |
+| Armour icons | `../shots/icons.jpg` (pass 2) | `armour-icons.jpg` |
+| Hero ladder starter → Fabled set, three classes | `../shots/ladder.jpg` (pass 2) | `hero-ladder.jpg` |
+| Newcomer vs endgame, town and field (gallery, game camera, all classes) | `../shots/vs-all.jpg` (pass 2) | `vs-town-fabled.jpg`, `vs-town-l70.jpg`, `vs-field-fabled.jpg`, `vs-field-walk.jpg` |
+| Two real clients in Hearthmere (level-1 newcomer next to an endgame hero) | `../shots/duo-town.jpg` (pass 2) | `game-warrior-duo-town.jpg`, `game-mage-duo-town.jpg` |
+| Endgame hero in a rift with a guardian, elites and telegraphs | `../shots/field-boss.jpg` | `game-mage-field.jpg`, `game-warrior-field.jpg` |
+| UI: item card (no tier strip), showcase card (no rank), inspect | `../shots/game-*-tooltip.jpg`, `*-showcase.jpg` | `game-ui-card.jpg`, `game-ui-showcase.jpg`, `game-ui-inspect.jpg` |
+
+**Crowd performance (perf gallery, no monsters, every hero a unique look, after all bakes).** The machine was shared with
+other agents' processes during this session (CPU load ~30 % before any bench): the legacy-look reference that pass 2
+measured at 145–163 fps (30 heroes) swung between 42 and 163 fps today. Absolute numbers are therefore not comparable with
+pass 2's table. The honest comparison is **interleaved A/B in the same minutes** against the pass-2 code (base commit
+39ab451 exported read-only to `.local/base`, served by its own Vite), two rounds, best of the 1-second samples / medians:
+
+| Case | Pass 2 (rank effects) | V2 | Draw calls / frame (pass 2 → V2) |
+|---|---|---|---|
+| 30 heroes, Fabled stage, full effects | best 105 (medians 73 / 89) | best 103 (medians 71 / 98) | 230 → 187 |
+| 100 heroes, mixed stages, full | best 47 (medians 34 / 41) | best 51 (medians 39 / 48) | 367 → 342 |
+| 100 heroes, Fabled stage, full | best 37 (medians 34 / 21) | best 39 (medians 37 / 21) | 602 → 390 |
+
+[M] No regression against pass 2 within the noise; draw calls drop (the weapon light layer joins the additive batch,
+the rank light column is gone). CPU profile of the 100-hero mix: the same distribution as pass 2 plus `placeWeaponFx`
+≈ 2 % of samples. Crowd budget: decorative floats and their glows only for the 16 heroes with a presence slot (the
+local hero always); structural floats (zenith segments, floating heads, the Fabled Inscription) always show.
+
 ## 8. Decisions
 | # | What | Why | Evidence | Rollback |
 |---|---|---|---|---|

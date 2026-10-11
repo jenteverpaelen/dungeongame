@@ -1,5 +1,8 @@
 # Gear visual progression — decisions (what / why / evidence / rollback)
 
+> **Superseded by `DESIGN-V2.md` (2026-10-11):** the player-facing tier ladder, the hero gear rank and the rank-driven
+> effects described here were replaced by item-driven looks (generation × rarity × signature × grade). Kept for history.
+
 **D1 — Derive, never store.** The visual tier, temper and rank are pure functions of fields every save already has
 (rarity, ilvl, ancient, set, legendary power, upgrade, sockets, enchanted). Looks gain an optional `fx` number only on
 the wire (`playerLook`, loot views); stored `item.look` and collection looks never carry it (test: "player looks carry
