@@ -71,6 +71,7 @@ export function expectedDamage(inst: Instance, p: Player, st: Strike): number {
 export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitResult {
   if (m.dead) return NO_HIT;
   const { amount, crit } = rollDamage(inst, p, m, st);
+  if (p.ctx.powers.elementStacks?.generic) elementStacks(inst, p, st.el); // generic-bucket stacks record dealt elements here
   const killed = hurtMob(inst, m, amount, st.el, p, crit, false, st.src ?? p.id, st.skill);
   if (p.pw?.cast) countCastHit(inst, p, m, st.skill);
   if (m.ps && m.ps.vulns.length) consumeVulns(m, p, st.skill);
