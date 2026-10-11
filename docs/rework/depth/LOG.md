@@ -45,3 +45,4 @@
 - Final verify: every stage green except the two machine-load perf thresholds of `server/test/sim.ts` (sim tick avg
   3.42 ms / 4.10 ms vs < 3 ms). A/B in the same conditions right after: HEAD 2.21–2.57 ms, baseline 7846e60
   2.59–2.70 ms (sim only) — no regression; the step-4 verify passed all 26 stages on a quieter machine.
+- Re-run of `npm run verify` on cc8fb90: **passed**, all stages (server bot 757/0, sim 382/382, sim tick 2.35 ms).
