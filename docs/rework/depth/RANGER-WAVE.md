@@ -214,7 +214,10 @@ town); the gallery measured about 8 ms per frame for both kits on a quieter mach
 + 150 unkillable monsters, simulation only: head 1.91–4.09 ms (lowest 1.91), base 1.76–4.52 ms (lowest 1.76), so
 about +9 % at the lowest and inside the noise otherwise; 4-player Torment III rift: head 0.26–0.28 ms, base 0.20–0.40 ms
 per tick (the rift lasts 7:13 instead of 3:59 with the weaker ranger kit). These runs predate the Arbalest's pierce cap,
-which cut the sim's L70 ranger rift from 0.59 to 0.14 ms per tick (warrior 0.24, mage 0.17).
+which cut the sim's L70 ranger rift from 0.59 to 0.14 ms per tick (warrior 0.24, mage 0.17). After the cap, 3 more
+interleaved runs under heavier load: head 3.1–6.4 ms, base 2.4–5.3 ms (simulation only), 4-player rift 0.22–0.60 vs
+0.34–0.81 ms (the rift now lasts 6:13). The sim's absolute check "tick avg < 3 ms" fails for both trees under that load
+(it passed for both in the quieter runs above); it needs a quiet machine to judge.
 
 **Snapshot bandwidth** (`scripts/perf-budget.ts`, deterministic): recorded baseline 81.5 KB/s per client, 343a5d5 88.5
 (+8.6 %), this wave with the Arbalest piercing every enemy 96.2 (+18.1 %, over the +15 % gate: the Sentry kit's damage
