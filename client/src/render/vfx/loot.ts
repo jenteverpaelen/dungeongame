@@ -48,11 +48,11 @@ function beamStyleByRarity(l: LootView): BeamStyle | null {
   if (l.rarity === 'legendary') {
     if (l.ancient === 2) return { outer: 0xff4630, core: 0xffd890, width: 70, height: 520, glow: 0xff5a30 };
     if (l.ancient === 1) return { outer: 0xff8a2a, core: 0xffe6a0, width: 66, height: 500, glow: 0xff9a40 };
-    return { outer: 0xd8702f, core: 0xffd27a, width: 54, height: 450, glow: 0xe07a30 };
+    return { outer: 0xef6c2a, core: 0xffd8a8, width: 54, height: 450, glow: 0xf07a34 };
   }
   if (l.rarity === 'set') {
-    if (l.ancient) return { outer: 0x3cff5a, core: 0xd8ffd8, width: 66, height: 500, glow: 0x40ff60 };
-    return { outer: 0x2fd84a, core: 0xbaffc0, width: 54, height: 450, glow: 0x30e050 };
+    if (l.ancient) return { outer: 0x4fe0b4, core: 0xe0fff4, width: 66, height: 500, glow: 0x52e6b8 };
+    return { outer: 0x34c79a, core: 0xc8f5e6, width: 54, height: 450, glow: 0x3ad6a6 };
   }
   return null;
 }
@@ -266,7 +266,7 @@ class LootItemView implements EntityView {
         this.shadowW = 28;
         const r = l.rarity ?? 'normal';
         if (r === 'rare') this.addGlow(0xffe040, 46, 0.22);
-        else if (r === 'magic') this.addGlow(0x6969ff, 42, 0.2);
+        else if (r === 'magic') this.addGlow(0x7a9cff, 42, 0.2);
         if (this.beamStyle) this.addGlow(this.beamStyle.glow, 70, 0.55);
       }
     }

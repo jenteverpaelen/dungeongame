@@ -20,16 +20,21 @@ export function rarityClass(item: Pick<Item, 'rarity' | 'ancient'>): string {
   return `r-${item.rarity}${item.ancient ? ` anc-${item.ancient}` : ''}`;
 }
 
-export function itemTypeLine(item: Item): string {
+/** The item's base noun with handedness for melee weapons ("Two-Handed Axe", "Ring"). */
+export function itemNoun(item: Item): string {
   const base = BASES[item.base];
-  const rar = RARITY_LABEL[item.rarity];
   let noun = base?.noun ?? item.kind;
   if (base?.weapon && !base.weapon.ranged) {
     if (base.id === 'sword2h') noun = 'Two-Handed Sword';
     else if (base.id === 'axe2h') noun = 'Two-Handed Axe';
     else if (['Sword', 'Axe', 'Mace'].includes(noun)) noun = `${base.weapon.twoHanded ? 'Two-Handed' : 'One-Handed'} ${noun}`;
   }
-  return `${rar ? rar + ' ' : ''}${noun}`;
+  return noun;
+}
+
+export function itemTypeLine(item: Item): string {
+  const rar = RARITY_LABEL[item.rarity];
+  return `${rar ? rar + ' ' : ''}${itemNoun(item)}`;
 }
 
 export function slotName(item: Item): string {
