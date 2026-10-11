@@ -53,7 +53,7 @@ export interface AdventureData {
   paint?: ZonePaint;
   pois?: ZonePoi[];
   /** Solid footprint and render dimensions are one authored source. */
-  kilns?: {x:number;y:number;w:number;d:number;h:number}[];
+  kilns?: {x:number;y:number;w:number;d:number;h:number;/** World state that lets the firing mouth go cold (docs/rework/quests/DESIGN.md §7). */cold?:string}[];
   /** Original production trays and signal pedestals; render and collision share footprints. */
   works?: {kind:'pan'|'relay';x:number;y:number;w:number;d:number;h:number}[];
   /** Decorative only: fixed sites, no collision or gameplay state. */
@@ -72,7 +72,7 @@ export interface AdventureData {
   scenery: Prop[];
   npcs: NpcSpot[];
   portals: Portal[];
-  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board';
+  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'pyre';
     /** Present only while this world state is on (per player, server-checked). */
     when?: string;
     /** Phased positions: the first entry whose world state is on wins; otherwise x/y (per player, server-checked). */

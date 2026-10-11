@@ -2,7 +2,7 @@
 // investigates (or starts a hold-to-repair) right away and shows the reading as a card; the server stays authoritative
 // (holdStart → inspect after the hold, proximity and line of sight checked there).
 import { questText, type QuestMessageKey, QUEST_MESSAGES } from '@shared/data/questMessages';
-import { activeQuests, contactSpot, objectStepAt, questState } from '@shared/quests';
+import { activeQuests, contactSpot, objectStepAt, questObjective, questState } from '@shared/quests';
 import { boardState, boardUnlocked } from '@shared/bounties';
 import { questRequest } from '@shared/questRequests';
 import type { QuestDef, QuestStep } from '@shared/questTypes';
@@ -65,6 +65,13 @@ export function interactObject(zone: string, target: string): boolean {
     if (!wanted) return false;
     togglePanel('dialogue', false);
     void run('quest', { action: 'activateField', target }).then((r) => { if (r.ok) ui.set({ reading: { title: ev.name, text: ev.blurb ?? '', at: Date.now() } }); });
+    return true;
+  }
+  // An object a quest needs later: say what comes first instead of reading out an action that did not happen.
+  const later = activeQuests(save).find((q) => { const st = questState(save, q.id); return !!st && q.steps.some((s, i) => i > st.step && s.zone === zone && (s.targets ?? [s.target]).includes(target)); });
+  if (later) {
+    const name = a?.interactions.find((i) => i.id === target)?.name ?? '';
+    ui.set({ reading: { title: name, text: `${questText('ui.quest.notYet')} ${questObjective(save, later).text}.`, at: Date.now() } });
     return true;
   }
   return showReading(zone, target);

@@ -55,7 +55,7 @@ function cairnspill() {
   z.phase('cs_haul', true, () => {
     z.decor('banner', ...P(85.6, 16.4)); z.resident('cs_crew1', 'worker', 'Quarryman', ...P(52.6, 40.4), 15); z.resident('cs_crew2', 'porter', 'Haulier', ...P(71.2, 25.6), -20);
     z.resident('cs_crew3', 'carpenter', 'Cart wright', ...P(44.4, 46.6), 30); z.walker('cs_haulcart', 'porter', [P(41, 47), P(47, 43), P(54, 38), P(61, 33), P(54, 38), P(47, 43)], 40, 4);
-    for (const [x, y] of [P(36, 50.5), P(54, 36.6), P(68, 25.6)]) { z.decor('lamppost', x, y); z.light(x, y - 70, 0xffc070, 180); }
+    for (const [x, y] of [P(36, 49.4), P(54, 36.6), P(68, 25.6)]) { z.decor('lamppost', x, y); z.light(x, y - 70, 0xffc070, 180); }
   });
   z.portal(...P(90, 19), 'cinderwash_kilns', 'Cinderwash Kilns');
   z.pack('old_track', ...P(18.5, 42), ['vault_moth', 'siltusk', 'grave_bat', 'gloomshroom']);
@@ -126,11 +126,11 @@ function cinderwash() {
   z.contact('ember_niche', 'Firekeepers’ offering niche', ...P(38, 60), 'marker');
   z.landmark('Slag Heaps', ...P(48, 44));
   z.phase('cw_niche', true, () => { z.fire(...P(37.6, 59.2), 0.35); z.fire(...P(38.6, 59.4), 0.3); });
-  z.kilns = [{ x: Math.round(58 * S), y: Math.round(15 * S), w: 300, d: 220, h: 160 }, { x: Math.round(70 * S), y: Math.round(18 * S), w: 230, d: 180, h: 130 }];
+  z.kilns = [{ x: Math.round(58 * S), y: Math.round(15 * S), w: 300, d: 220, h: 160, cold: 'cw_quiet' }, { x: Math.round(70 * S), y: Math.round(18 * S), w: 230, d: 180, h: 130, cold: 'cw_quiet' }];
   z.pack('stoker', ...P(64, 27.5), [{ type: 'cinder_cultist', dx: 0, dy: 0, tier: 2, name: 'The Unattended Flame', questTarget: true, affixes: ['faulted'] }, 'ember_imp', 'bonewalker', 'grave_bat']);
   z.contact('draught', 'Kiln draught lever', ...P(68.5, 25), 'mechanism');
-  // The draught closed (cw_quiet): the raging smoke over the upper kilns settles to a thin breath.
-  z.phase('cw_quiet', false, () => { z.emit('smoke', ...P(60, 14), 8); z.emit('smoke', ...P(72, 17), 6); z.emit('embers', ...P(64, 20), 8); z.light(...P(64, 18), 0xff6a2a, 320, 0.4); });
+  // The draught closed (cw_quiet): the kiln mouths go dark, the fire spilling out of them dies and the smoke thins.
+  z.phase('cw_quiet', false, () => { z.fire(...P(59.6, 17.7), 0.9); z.fire(...P(71.2, 20.2), 0.75); z.emit('smoke', ...P(60, 14), 8); z.emit('smoke', ...P(72, 17), 6); z.emit('embers', ...P(64, 20), 8); z.light(...P(64, 18), 0xff6a2a, 320, 0.4); });
   z.phase('cw_quiet', true, () => { z.emit('smoke', ...P(60, 14), 2); z.resident('cw_keeper2', 'worker', 'Firekeeper', ...P(57.6, 29.6), 20); });
   z.landmark('Upper Kilns', ...P(66, 30));
   z.elite('flats_rare', ...P(79, 67), 'bonewalker', 'Ashen Tallyman', ['electrified'], ['ember_imp', 'cinder_cultist']);
@@ -191,11 +191,11 @@ function kilnwatch() {
   z.ruins(...P(12.5, 37), 380, 260); z.graves(...P(20.5, 40.5), 4); z.landmark('Abandoned Watch', ...P(17, 40.5));
   z.location('crown', ...P(54.5, 33));
   z.shrine('shrine_crown', ...P(50.5, 30.5), 'keen'); z.landmark('Crown Approach', ...P(55, 36));
-  z.kilns = [{ x: Math.round(58 * S), y: Math.round(9 * S), w: 400, d: 240, h: 200 }];
+  z.kilns = [{ x: Math.round(58 * S), y: Math.round(9 * S), w: 400, d: 240, h: 200, cold: 'kw_cold' }];
   z.pack('heart', ...P(62, 19.5), [{ type: 'kiln_heart', dx: 0, dy: 0, tier: 2, name: 'The Last Ember', questTarget: true, combat: 'furnace' }]);
   z.contact('seal', 'Cold draw seal', ...P(68.5, 15), 'mechanism');
-  // The cold draw shut (kw_cold): no more smoke and embers over the crown furnace.
-  z.phase('kw_cold', false, () => { z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.light(...P(62, 12), 0xff6a2a, 360, 0.4); });
+  // The cold draw shut (kw_cold): the furnace mouth goes dark; no more flames, smoke or embers over the crown.
+  z.phase('kw_cold', false, () => { z.fire(...P(60.2, 11.9), 1.1); z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.light(...P(62, 12), 0xff6a2a, 360, 0.4); });
   z.phase('kw_cold', true, () => { z.emit('smoke', ...P(60, 8), 1); });
   z.landmark('Crown Furnace', ...P(62, 23));
   z.elite('slagmaw', ...P(79, 45.5), 'magma_brute', 'Slagmaw', ['molten'], ['ember_imp', 'bonewalker', 'ash_wisp'], { questTarget: true });

@@ -43,7 +43,7 @@ function sablefen() {
   z.decor('lamppost', ...P(40, 61)); z.decor('barrels', ...P(48, 61)); z.landmark('Toll Island', ...P(44, 69.5));
   z.contact('toll_gate', 'Toll gate', ...P(48.6, 66.6), 'mechanism');
   // The toll gate thrown open (sf_toll): the toll banner and barrier are gone.
-  z.phase('sf_toll', false, () => { z.decor('banner', ...P(41, 68)); z.decor('fence', ...P(47.4, 64.6)); z.decor('fence', ...P(49.6, 64.6), 1, 1); z.decor('barrels', ...P(50.4, 67.4)); });
+  z.phase('sf_toll', false, () => { z.decor('banner', ...P(41, 68)); z.decor('fence', ...P(48.3, 66.2)); z.decor('fence', ...P(50.1, 64.6), 1, 1); z.decor('barrels', ...P(50.4, 67.4)); });
   z.phase('sf_toll', true, () => { z.decor('fence', ...P(51.2, 68.4), 1, 2); z.resident('sf_tollfree', 'porter', 'Carter', ...P(40.6, 66.6), 10); });
   z.camp(...P(36, 38), { tents: 2 });
   z.contact('ferrier', 'Sera', ...P(40.5, 38.8), 'person');
@@ -68,6 +68,8 @@ function sablefen() {
   z.pack('chainwatch', ...P(46, 14.5), [boss('salt_guard', 'Chainwatch', ['frozen', 'mortar']), 'vault_moth', 'brine_crab', 'bonewalker']);
   z.contact('chain', 'North chain winch', ...P(50.5, 15.5), 'mechanism');
   z.wheel = { x: Math.round(55.5 * F), y: Math.round(9 * F), radius: 38, spin: 'sf_chain' };
+  // Chain still up (sf_chain off): drovers and their cargo wait at the bridge head; lowered, they cross and the lamp is lit.
+  z.phase('sf_chain', false, () => { z.resident('sf_wait1', 'porter', 'Waiting drover', ...P(52.6, 13.6), -20); z.resident('sf_wait2', 'worker', 'Waiting drover', ...P(53.6, 12.6), 15); z.decor('crates', ...P(52.3, 11.1)); z.decor('barrels', ...P(53.2, 14)); });
   z.phase('sf_chain', true, () => { z.walker('sf_ferry2', 'fisher', [P(58, 12), P(65, 12), P(72, 12), P(65, 12)], 40, 6); z.light(...P(55.5, 9), 0xffc070, 160); });
   z.decor('pillar', ...P(40, 9), 1, 1); z.decor('lamppost', ...P(50, 18)); z.landmark('North Chain', ...P(46, 18));
   z.ruins(...P(18, 10.5), 360, 220); z.cache('cache_chapel', ...P(20.5, 13.5), 'Chapel reliquary'); z.shrine('shrine_chapel', ...P(14.5, 13.5), 'empowered'); z.landmark('Drowned Chapel', ...P(18, 16));

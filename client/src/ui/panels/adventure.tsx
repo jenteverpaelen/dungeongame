@@ -219,6 +219,9 @@ export function codexEntries(save: CharacterSave): CodexEntry[] {
       for (const [k, target] of (st.targets ?? [st.target]).entries()) {
         const used = i < s.step || s.claimed || (i === s.step && !!st.targets && !!((s.parts ?? 0) & (1 << k)));
         const key = `read.${st.zone}.${target}` as QuestMessageKey;
+        // An authored record already covers this step (e.g. "Tracks at the crossing" for the cart): no duplicate reading.
+        // For a gather the record sums up its last object (the journal, the second ledger page).
+        if (LORE.some(l => l.quest === q.id && l.afterStep === i + 1) && (!st.targets || k === st.targets.length - 1)) continue;
         if (!used || seen.has(key) || !Object.hasOwn(QUEST_MESSAGES, key)) continue;
         seen.add(key); out.push({ id: key, zone: st.zone, title: ADVENTURES[st.zone]?.interactions.find(x => x.id === target)?.name ?? target, text: t(key) });
       }

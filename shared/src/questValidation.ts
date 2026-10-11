@@ -113,10 +113,11 @@ export function validateWorldStates():string[] {
     const q=QUESTS.find(d=>d.id===c.quest);
     if(!q)errors.push(`world state ${key}: unknown quest ${c.quest}`);
     else if(c.step!==undefined&&(!Number.isInteger(c.step)||c.step<1||c.step>q.steps.length))errors.push(`world state ${key}: step outside ${q.id}`);
+    if(!Object.hasOwn(QUEST_MESSAGES,`ws.${key}`))errors.push(`world state ${key}: no reveal caption ws.${key}`);
   }
   for(const [zone,a] of Object.entries(ADVENTURES)){
     const keys=[...(a.paint?.phases??[]).map(p=>p.key),...a.interactions.flatMap(i=>[...(i.when?[i.when]:[]),...(i.moves??[]).map(m=>m.key)]),
-      ...(a.paint?.structures??[]).flatMap(st=>st.spin?[st.spin]:[]),...(a.wheel?.spin?[a.wheel.spin]:[])];
+      ...(a.paint?.structures??[]).flatMap(st=>st.spin?[st.spin]:[]),...(a.wheel?.spin?[a.wheel.spin]:[]),...(a.kilns??[]).flatMap(k=>k.cold?[k.cold]:[])];
     for(const key of keys)if(!WORLD_STATES[key])errors.push(`${zone}: unknown world state ${key}`);
   }
   return errors;

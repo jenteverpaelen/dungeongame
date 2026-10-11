@@ -12,6 +12,8 @@ import { sideXpFor } from '../../shared/src/storyBudget';
 import { BOUNTY_BOARDS } from '../../shared/src/bounties';
 import { xpToNext } from '../../shared/src/progression';
 import { World } from '../src/world';
+import { ADVENTURES, loadAdventure } from '../../shared/src/adventure';
+import { CollisionWorld } from '../../shared/src/movement';
 import { Instance } from '../src/sim/instance';
 import type { Session } from '../src/net/session';
 import { runCommand } from '../src/commands';
@@ -127,4 +129,15 @@ test('an ordered gather resets on a wrong flag and says where to start', async (
     for (const f of ['flag_red', 'flag_blue', 'flag_yellow']) assert(touch(f).ok, f);
     assert.equal(questState(save, q.id)!.step, 2); assert.equal(questState(save, q.id)!.parts, undefined);
   } finally { await server.shutdown(); }
+});
+
+test('phased props never stand on open floor, so nobody walks through a crate that only some players see', () => {
+  // Phases are per player and carry no collision (collision stays identical for everyone, AGENTS.md rule 5), so solid-looking
+  // props go against an edge. Thin poles (survey stakes, signal flags) are the only exception.
+  const thin = new Set(['stake', 'signalflag']), bad: string[] = [];
+  for (const zone of Object.keys(ADVENTURES)) {
+    const map = loadAdventure(zone, 1), cw = new CollisionWorld(map);
+    for (const ph of map.adventure!.paint?.phases ?? []) for (const d of ph.decor) if (!thin.has(d.kind) && cw.isFree(d.x, d.y, 30)) bad.push(`${zone}/${ph.key}/${d.kind}@${d.x},${d.y}`);
+  }
+  assert.deepEqual(bad, []);
 });

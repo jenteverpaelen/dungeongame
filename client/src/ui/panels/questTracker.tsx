@@ -89,7 +89,7 @@ export function QuestTracker() {
     </div>}
     <div class={`qt-card qt-list ${collapsed ? 'collapsed' : ''}`}>
       <button class="qt-head qt-collapse" aria-expanded={!collapsed} onClick={() => { setCollapsed(!collapsed); safeSet('hearthfall.trackerCollapsed', collapsed ? '0' : '1'); }}>
-        <UiIcon name="quest" size={15} /><span>{t('ui.quest.tracker')} · {all.filter((q) => questState(save, q.id)).length}</span><b class="qt-chev">{collapsed ? '▸' : '▾'}</b>
+        <UiIcon name="quest" size={15} /><span>{t('ui.quest.tracker')}{all.some((q) => questState(save, q.id)) ? ` · ${all.filter((q) => questState(save, q.id)).length}` : ''}</span><b class="qt-chev">{collapsed ? '▸' : '▾'}</b>
       </button>
       {!collapsed && <>
         {shown.map((q) => <Row key={q.id} save={save} q={q} zone={zoneId} me={me} focus={q === focus} />)}

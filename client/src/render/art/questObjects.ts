@@ -6,7 +6,7 @@ import { ellipse, hash, INK, line, poly, rrect, tone, type Paint } from './townK
 import { glowSprite, ringSprite, sparkleSprite } from './fx';
 import type { EntityView, ViewState } from '../types';
 
-export type ClueKind = 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'person' | undefined;
+export type ClueKind = 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'pyre' | 'person' | undefined;
 type Art = { x0: number; y0: number; x1: number; y1: number; draw: (c: Paint) => void };
 const D = 2;
 const cache = new Map<string, Texture>();
@@ -33,7 +33,25 @@ function spokedWheel(c: Paint, x: number, y: number, rx: number, ry: number, bro
   ellipse(c, x, y, rx * 0.16, ry * 0.16, '#2a2018');
 }
 
-const ART: Record<'cart' | 'ledger' | 'marker' | 'mechanism', (used: boolean) => Art> = {
+const ART: Record<'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'pyre', (used: boolean) => Art> = {
+  // Signal pyre: a stone ring with stacked logs and kindling; once lit the world-state fire burns on top (charred logs).
+  pyre: (used) => ({ x0: -44, y0: -60, x1: 44, y1: 14, draw: (c) => {
+    ellipse(c, 2, 4, 40, 10, 'rgba(10,8,12,0.4)');
+    for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2; ellipse(c, Math.cos(a) * 30, Math.sin(a) * 9 - 2, 8, 5, '#7a756a', INK, 1); }
+    const wood = used ? '#3a2a20' : '#7a5232', end = used ? '#2a1a12' : '#c89a62';
+    for (const [x0, y0, x1, y1] of [[-22, -4, 18, -26], [22, -4, -16, -28], [-18, -10, 20, -12], [-6, -2, 4, -40]] as const) { line(c, [[x0, y0], [x1, y1]], INK, 9); line(c, [[x0, y0], [x1, y1]], wood, 6.5); ellipse(c, x0, y0, 3.4, 3.4, end, INK, 0.8); }
+    if (!used) { line(c, [[-6, -30], [-2, -46]], '#c8b48a', 2); line(c, [[4, -30], [8, -44]], '#c8b48a', 2); line(c, [[0, -32], [0, -50]], '#d8c49a', 2); }
+  } }),
+  // Bounty board (docs/rework/quests/DESIGN.md §5): two posts, a shingled cap, pinned notices and a bronze pin.
+  board: () => ({ x0: -50, y0: -108, x1: 50, y1: 12, draw: (c) => {
+    ellipse(c, 2, 4, 44, 9, 'rgba(10,8,12,0.4)');
+    for (const x of [-36, 36]) rrect(c, x - 4, -92, 8, 96, 2, '#5a4030', INK, 1.4);
+    rrect(c, -44, -86, 88, 58, 3, '#8a6a42', INK, 1.6); rrect(c, -40, -82, 80, 50, 2, '#6a4e30');
+    poly(c, [[-50, -86], [0, -106], [50, -86], [46, -82], [0, -100], [-46, -82]], '#4a3424', INK, 1.4);
+    const papers: [number, number, number, string][] = [[-30, -78, -0.08, '#efe4c8'], [-6, -80, 0.06, '#f4ead2'], [16, -76, -0.04, '#e8dcc0'], [-22, -56, 0.05, '#f0e6cc'], [6, -58, -0.07, '#efe4c8']];
+    for (const [x, y, r, col] of papers) { c.save(); c.translate(x + 9, y + 10); c.rotate(r); rrect(c, -9, -10, 18, 20, 1, col, INK, 0.9); for (let k = 0; k < 3; k++) line(c, [[-6, -5 + k * 5], [6, -5 + k * 5]], 'rgba(60,50,40,0.5)', 0.8); ellipse(c, 0, -8, 1.8, 1.8, '#b83a2a'); c.restore(); }
+    rrect(c, 26, -100, 18, 18, 2, '#e0a464', INK, 1.3); ellipse(c, 35, -95, 2.4, 2.4, '#5a2a10');
+  } }),
   cart: (used) => ({ x0: -72, y0: -64, x1: 72, y1: 22, draw: (c) => {
     ellipse(c, 2, 6, 64, 15, 'rgba(56,42,28,0.9)'); ellipse(c, -10, 3, 36, 7, 'rgba(120,96,64,0.35)');
     for (let k = 0; k < 5; k++) line(c, [[-60 + k * 26, 12], [-48 + k * 26, 4 + (k % 2) * 6]], 'rgba(40,28,18,0.6)', 2.2);
@@ -96,11 +114,11 @@ export class QuestObjectView implements EntityView {
   private tracked = false;
   private used = false;
   private pulseT = -1;
-  private kind: 'cart' | 'ledger' | 'marker' | 'mechanism';
+  private kind: 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'pyre';
   private ringBase: [number, number];
   private sparkBase: number;
   constructor(kind: ClueKind, private seed = 0) {
-    this.kind = kind === 'ledger' || kind === 'marker' || kind === 'mechanism' ? kind : 'cart';
+    this.kind = kind === 'ledger' || kind === 'marker' || kind === 'mechanism' || kind === 'board' || kind === 'pyre' ? kind : 'cart';
     this.ring = ringSprite(0xffd77a, this.kind === 'cart' ? 168 : 100, 0, true);
     this.ringBase = [this.ring.scale.x, this.ring.scale.y]; this.sparkBase = this.spark.scale.x;
     const art = ART[this.kind](false);

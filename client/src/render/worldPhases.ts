@@ -77,11 +77,20 @@ export class WorldPhases {
   }
   /** Where the change happened: a wheel or structure that starts turning, drained water, a new fire, or the people. */
   revealPoint(key: string): { x: number; y: number } | undefined {
-    if (this.a.wheel?.spin === key) return { x: this.a.wheel.x, y: this.a.wheel.y - 40 };
-    const st = this.a.paint?.structures?.find((s) => s.spin === key); if (st) return { x: st.x, y: st.y - st.d };
+    // Draining water is the largest visible change, so it wins over a wheel that starts turning.
     const on = this.groups.filter((g) => g.phase.key === key), off = on.filter((g) => !g.phase.on), shown = on.filter((g) => g.phase.on);
     const water = off.flatMap((g) => g.phase.overlays.flatMap((o) => o.polygon.map(([x, y]) => ({ x, y }))));
     if (water.length) return centroid(water);
+    const kilns = (this.a.kilns ?? []).filter((k) => k.cold === key);
+    if (kilns.length) return centroid(kilns.map((k) => ({ x: k.x + k.w / 2, y: k.y + k.d - k.h * 0.3 })));
+    // A wheel that starts turning shares the frame with the people and props that change around it.
+    const st = this.a.paint?.structures?.find((s) => s.spin === key);
+    const spin = this.a.wheel?.spin === key ? { x: this.a.wheel.x, y: this.a.wheel.y - 40 } : st ? { x: st.x, y: st.y - st.d } : undefined;
+    if (spin) {
+      const near = on.flatMap((g) => [...g.phase.residents, ...g.phase.decor]).filter((p) => Math.hypot(p.x - spin.x, p.y - spin.y) < 900);
+      if (!near.length) return spin;
+      const c = centroid(near)!; return { x: (spin.x + c.x) / 2, y: (spin.y + c.y) / 2 };
+    }
     const fire = shown.flatMap((g) => g.phase.fires); if (fire.length) return centroid(fire);
     const people = shown.flatMap((g) => [...g.phase.residents, ...g.phase.decor]); if (people.length) return centroid(people);
     const moved = this.a.interactions.flatMap((i) => (i.moves ?? []).filter((m) => m.key === key)); if (moved.length) return centroid(moved);

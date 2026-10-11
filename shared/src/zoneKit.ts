@@ -170,7 +170,11 @@ export class ZoneBuilder {
     (i.moves ??= []).push({ key, x, y }); n.r = 0; this.reserve(x, y, 120);
   }
   /** The zone's bounty board (DESIGN.md §5). */
-  board(x: number, y: number, name = 'Bounty board') { this.contact('bounty_board', name, x, y, 'board'); }
+  board(x: number, y: number, name = 'Bounty board') {
+    this.contact('bounty_board', name, x, y, 'board');
+    // The camp's decorative notice board would read as a second board: the bounty board replaces it.
+    for (let i = this.paint.decor.length - 1; i >= 0; i--) { const d = this.paint.decor[i]; if (d.kind === 'noticeboard' && Math.hypot(d.x - x, d.y - y) < 700) this.paint.decor.splice(i, 1); }
+  }
   /** Visuals inside `fn` show only while world state `key` is on (`on`) or still off (`!on`), per player. */
   phase(key: string, on: boolean, fn: () => void) {
     const phases = (this.paint.phases ??= []);

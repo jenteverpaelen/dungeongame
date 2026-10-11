@@ -82,8 +82,8 @@ z.landmark('Old Ridge', ...P(19.5, 36));
 
 // The overlook: survey marker and its alarm.
 z.contact('survey', 'Survey marker', ...P(33.5, 21.6), 'marker');
-z.contact('overlook_fire', 'Signal fire', ...P(36.8, 25.6), 'mechanism');
-z.phase('rw_signal', true, () => { z.fire(...P(36.8, 25.2), 0.9); z.emit('smoke', ...P(36.8, 24.6), 7); z.emit('embers', ...P(36.8, 25), 4); });
+z.contact('overlook_fire', 'Signal fire', ...P(36.8, 25.6), 'pyre');
+z.phase('rw_signal', true, () => { z.fire(...P(36.8, 25.66), 1.6); z.emit('smoke', ...P(36.8, 24.2), 8); z.emit('embers', ...P(36.8, 25), 5); });
 z.pack('overlook', ...P(32, 25), ['mossback', 'thornling', 'bog_slime', 'bog_slime', 'grave_bat', 'gloomshroom']);
 z.event('survey_alarm', 'The Overlook Alarm', 'survey', 'overlook', 'Raise the alarm at the survey marker to draw out the creatures nesting around the overlook.', 'Raise the alarm');
 z.decor('signpost', ...P(30.5, 22)); z.landmark('The Overlook', ...P(33, 26));
@@ -115,12 +115,12 @@ z.wall(rect(74 * S, 12 * S, 10 * S, 0.4 * S)); z.wall(rect(74 * S, 12 * S, 0.4 *
 z.wall(rect(74 * S, 19.1 * S, 3 * S, 0.4 * S)); z.wall(rect(80.6 * S, 19.1 * S, 3.4 * S, 0.4 * S));
 z.contact('ledger', 'Mill ledger', ...P(76.5, 14), 'ledger');
 z.wheel = { x: Math.round(84.8 * S), y: Math.round(9.6 * S), radius: 38, spin: 'rw_wheel' };
-z.contact('mill_brake', 'Wheel brake', ...P(88.4, 12.7), 'mechanism');
+z.contact('mill_brake', 'Wheel brake', ...P(87.6, 10.4), 'mechanism');
 // The wheel turns (rw_wheel): spray at the race, millhands back in the yard and the lamps lit.
 z.phase('rw_wheel', true, () => {
   z.emit('fog', ...P(84.8, 11), 2); z.light(...P(84.8, 9.8), 0x9ad8ff, 160);
   z.resident('rw_millhand1', 'worker', 'Millhand', ...P(72.6, 23.8), 20); z.resident('rw_millhand2', 'carpenter', 'Millwright', ...P(77.6, 29.6), -30);
-  z.decor('lamppost', ...P(73.2, 21.4)); z.light(...P(73.2, 20.7), 0xffc070, 180); z.decor('crates', ...P(70.8, 26.4), 0.9);
+  z.decor('lamppost', ...P(73.2, 21.4)); z.light(...P(73.2, 20.7), 0xffc070, 180); z.decor('crates', ...P(70.2, 26.5), 0.9);
 });
 z.decor('barrels', ...P(81.5, 14)); z.decor('crates', ...P(82, 17)); z.light(...P(78.5, 13.5), 0xffc070, 160);
 z.landmark('Rillwake Mill', ...P(79, 21.5));

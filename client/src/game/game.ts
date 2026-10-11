@@ -557,7 +557,7 @@ export class Game {
     }
 
     let interact = null as typeof st.interact;
-    if (st.hold) tickHold({ x: px, y: py }, Math.hypot(this.predictor.vx, this.predictor.vy) > 40, this.world.zone?.zone);
+    if (st.hold) { const mv = this.input.move(); tickHold({ x: px, y: py }, Math.hypot(mv.x, mv.y) > 0.2, this.world.zone?.zone); }
     if (this.predictor.ready) {
       const s = this.scene.nearestInteractable(px, py);
       if (s?.poiId) interact = { role: 'clue', name: s.name };

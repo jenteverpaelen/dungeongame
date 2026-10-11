@@ -106,6 +106,7 @@ export const BOUNTY_MESSAGES = {
   'ws.sl_beacon': 'The upper beacon burns. Far below, the ward answers.',
   'ws.bw_open': 'The west street gate opens and the crews come home.',
   'ws.bw_water': 'Water runs in the ward cistern again.',
+  'ui.quest.notYet': 'Not yet. First:',
   'ui.quest.records': 'Recovered records',
   'ui.quest.recordsEmpty': 'Nothing recorded here yet. Read what you find on the road.',
   'ui.quest.found': 'Found',

@@ -6,6 +6,7 @@ import type { CharacterSave } from '@shared/types';
 import { contactSpot, questMarker, questState, trackerQuests, stepTargets } from '@shared/quests';
 import { questBadgeTexture } from './art/questBadges';
 import { WorldPhases } from './worldPhases';
+import { boardComplete, boardState, boardUnlocked } from '@shared/bounties';
 import { QUESTS } from '@shared/data/quests';
 import { ui } from '../ui/store';
 import { ordinarySelected } from '@shared/itemCollection';
@@ -383,13 +384,14 @@ export class Scene {
       for(const s of this.statics)if(s.questBadge&&s.npcId&&this.map) {
         const spot=contactSpot(this.map.adventure,s.npcId,questSave);
         if(spot){s.hidden=!spot.present;s.view.root.visible=spot.present;if(spot.x!==s.x||spot.y!==s.y){s.x=spot.x;s.y=spot.y;s.view.root.position.set(spot.x,spot.y);s.view.root.zIndex=spot.y;}}
-        const marker=questSave&&!s.hidden?questMarker(questSave,this.map.zone,s.npcId):undefined;
-        if(marker){s.questBadge.texture=questBadgeTexture(marker.cat,marker.glyph);s.questBadge.scale.set(marker.glyph==='◆'?0.8:1);}
+        const board=s.npcId==='bounty_board'&&!!questSave&&boardUnlocked(questSave,zone),boardReady=board&&boardComplete(boardState(questSave!,zone));
+        const marker=board?{cat:'bounty' as const,glyph:boardReady?'!':''}:questSave&&!s.hidden?questMarker(questSave,this.map.zone,s.npcId):undefined;
+        if(marker){s.questBadge.texture=questBadgeTexture(marker.cat,marker.glyph);s.questBadge.scale.set(marker.glyph==='◆'?0.8:board&&!boardReady?0.7:1);}
         s.questBadge.visible=!!marker;
         if(s.role==='clue'&&questSave&&'setClueState' in s.view) {
           // Tracked: a tracked quest's current step uses this object. Used: a quest already finished a step (or gather part) here.
           const id=s.npcId;
-          const tracked=rows.some(q=>{const st=questState(questSave,q.id),step=st&&!st.claimed?q.steps[st.step]:undefined;return !!step&&step.zone===zone&&stepTargets(step,st!.parts).includes(id);});
+          const tracked=boardReady||rows.some(q=>{const st=questState(questSave,q.id),step=st&&!st.claimed?q.steps[st.step]:undefined;return !!step&&step.zone===zone&&stepTargets(step,st!.parts).includes(id);});
           const used=QUESTS.some(q=>{const st=questState(questSave,q.id);return !!st&&q.steps.some((x,i)=>x.zone===zone&&(x.targets?x.targets.includes(id)&&(i<st.step||st.claimed||i===st.step&&!!((st.parts??0)&(1<<x.targets.indexOf(id)))):x.target===id&&(i<st.step||st.claimed)));});
           (s.view as unknown as { setClueState(t:boolean,u:boolean):void }).setClueState(tracked,used);
         }

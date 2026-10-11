@@ -95,8 +95,11 @@ why players dislike them anyway).
 A **world state** is a quest milestone (`{quest, step}` reached, or `done`). Zone plans tag visuals with it; the client
 shows or hides them from the player's own save (per player, like WoW phasing, R7); the server uses the same rule for
 contacts that move or appear. Kinds: rotors and wheels that start turning, flood water that drains, fires and beacons that
-light, smoke that settles, people who come back, banners, the giver's new spot. Collision never changes (identical on
-server and client for everyone in a channel).
+light, kilns whose mouths go cold, people who come back, banners, the giver's new spot. Collision never changes (identical
+on server and client for everyone in a channel), so phased props stand against an edge, never on open floor. When a state
+turns on, the camera pans to the change (draining water, then a cold kiln, then a turning wheel framed with the people
+around it, then fires, people, a moved contact) for about 2.6 s with a one-line caption; reduced motion skips the pan.
+Smoke particles alone proved too faint in the 1920×1080 shots, so every state has a change that reads in a still frame.
 
 ## 8. Story delivery (P8)
 
