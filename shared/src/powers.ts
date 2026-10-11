@@ -36,6 +36,8 @@ export const ITEM_COUNT_CAP: { readonly maxSummons: number; readonly projectiles
 export const SUB_STRIKES: Record<string, { owner: string; tags?: SkillTag[] }> = {
   dust_devil: { owner: 'whirlwind', tags: ['summon', 'area'] },
   cleave_rupture: { owner: 'cleave', tags: ['area'] },
+  // Lantern Garden 6 (MAGE.md §7): ember sprites claw as their own strike; Summon and Burn, never boosted by Cinderkin by name.
+  ember_sprite: { owner: 'cinderkin', tags: ['summon', 'burn'] },
 };
 export const subStrikeOwner = (id: string): string => (Object.hasOwn(SUB_STRIKES, id) ? SUB_STRIKES[id].owner : id);
 
