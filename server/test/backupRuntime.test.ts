@@ -10,15 +10,11 @@ import { Packr } from 'msgpackr';
 import { createCharacter } from '../../shared/src/character';
 import { PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
 import { restoreCharacterBackup, verifyCharacterBackup } from '../src/backups';
+import { ServerClock, testTimeout } from './loadClock';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-async function until(predicate: () => boolean) {
-  const deadline = Date.now() + 6000;
-  while (!predicate()) {
-    if (Date.now() > deadline) throw new Error('Timed out during backup/restore drill');
-    await new Promise(resolve => setTimeout(resolve, 15));
-  }
-}
+// Quiet-machine deadlines as before (6 s per wait), scaled by the load this server's own start-up measured
+// (server/test/loadClock.ts): unchanged on a quiet machine, a real hang still fails.
 async function start(saveDir: string, backupDir = '', keepCount = 0) {
   const reservation = net.createServer();
   await new Promise<void>(resolve => reservation.listen(0, '127.0.0.1', resolve));
@@ -33,11 +29,10 @@ async function start(saveDir: string, backupDir = '', keepCount = 0) {
   child.stdout!.on('data', data => { log += data; });
   child.stderr!.on('data', data => { log += data; });
   const closed = new Promise<number | null>(resolve => child.once('close', resolve));
-  return { child, closed, port, log: () => log, ready: () => {
-    if (startupError) throw startupError;
-    if (child.exitCode !== null) throw new Error(log);
-    return log.includes('listening on');
-  }, async stop() {
+  const clock = new ServerClock(() => log, () => { if (startupError) throw startupError; if (child.exitCode !== null) throw new Error(log); });
+  return { child, closed, port, clock, log: () => log, ready: () => clock.ready(6000, 'Backup/restore drill start-up'),
+  until: (predicate: () => boolean) => clock.until(predicate, 6000, 'Backup/restore drill'),
+  async stop() {
     if (child.exitCode === null && child.signalCode === null) {
       await new Promise<void>((resolve, reject) => child.send('hearthfall:shutdown', err => err ? reject(err) : resolve()));
     }
@@ -48,7 +43,7 @@ async function start(saveDir: string, backupDir = '', keepCount = 0) {
   } };
 }
 
-test('configured real server backup restores through CLI and reconnects with the same owned items', { timeout: 30000 }, async () => {
+test('configured real server backup restores through CLI and reconnects with the same owned items', { timeout: testTimeout(30000) }, async () => {
   assert.ok(process.env.DATA_DIR, 'Runtime restore test requires an isolated DATA_DIR');
   const runDir = await fs.mkdtemp(path.join(process.env.DATA_DIR, 'restore-drill-'));
   const saveDir = path.join(runDir, 'saves'), backups = path.join(runDir, 'backups');
@@ -61,8 +56,8 @@ test('configured real server backup restores through CLI and reconnects with the
   await fs.writeFile(path.join(saveDir, c.id + '.json'), bytes);
   const first = await start(saveDir, backups);
   try {
-    await until(first.ready);
-    await until(() => first.log().includes('[backup] verified 1 characters'));
+    await first.ready();
+    await first.until(() => first.log().includes('[backup] verified 1 characters'));
     assert.equal(await first.stop(), 0);
   } finally { await first.cleanup(); await fs.writeFile(path.join(runDir, 'before.log'), first.log()); }
   const bundle = path.join(backups, (await fs.readdir(backups))[0]);
@@ -86,13 +81,13 @@ test('configured real server backup restores through CLI and reconnects with the
   const second = await start(restored);
   let ws: WebSocket | undefined;
   try {
-    await until(second.ready);
+    await second.ready();
     ws = new WebSocket(`ws://127.0.0.1:${second.port}/ws`, { origin: `http://127.0.0.1:${second.port}` });
-    await new Promise<void>((resolve, reject) => { ws!.once('open', resolve); ws!.once('error', reject); });
+    await second.clock.waitEvent(ws!, 'open', 6000, 'WebSocket open');
     const codec = new Packr({ useRecords: false }), messages: S2C[] = [];
     ws.on('message', data => messages.push(codec.unpack(Buffer.from(data as Buffer)) as S2C));
     ws.send(codec.pack({ t: 'hello', name: c.name, classId: c.classId, v: PROTOCOL_VERSION }));
-    await until(() => messages.some(m => m.t === 'welcome'));
+    await second.until(() => messages.some(m => m.t === 'welcome'));
     const restoredChar = messages.find(m => m.t === 'welcome');
     assert.ok(restoredChar?.t === 'welcome');
     assert.equal(restoredChar.char.gold, c.gold);
@@ -111,7 +106,7 @@ test('configured real server backup restores through CLI and reconnects with the
   } finally { ws?.terminate(); await second.cleanup(); await fs.writeFile(path.join(runDir, 'after.log'), second.log()); }
 });
 
-test('real startup rotation is opt-in, scoped by source and previewed without deletion', { timeout: 30000 }, async () => {
+test('real startup rotation is opt-in, scoped by source and previewed without deletion', { timeout: testTimeout(30000) }, async () => {
   assert.ok(process.env.DATA_DIR, 'Runtime rotation requires an isolated DATA_DIR');
   const runDir = await fs.mkdtemp(path.join(process.env.DATA_DIR, 'rotation-runtime-'));
   const saveDir = path.join(runDir, 'saves'), backups = path.join(runDir, 'backups');
@@ -122,8 +117,8 @@ test('real startup rotation is opt-in, scoped by source and previewed without de
     c.gold = 10 + i; await fs.writeFile(path.join(saveDir, c.id + '.json'), JSON.stringify(c));
     const server = await start(saveDir, backups, keep);
     try {
-      await until(server.ready);
-      await until(() => server.log().includes(keep ? '[backup] rotation kept' : '[backup] verified'));
+      await server.ready();
+      await server.until(() => server.log().includes(keep ? '[backup] rotation kept' : '[backup] verified'));
       assert.equal(await server.stop(), 0);
     } finally { await server.cleanup(); await fs.writeFile(path.join(runDir, `run-${i}.log`), server.log()); }
     const names = (await fs.readdir(backups)).sort(); counts.push(names.length);
@@ -143,7 +138,7 @@ test('real startup rotation is opt-in, scoped by source and previewed without de
   assert.match(output, /Read-only rotation plan/); assert.deepEqual((await fs.readdir(backups)).sort(), previous);
   const differentSource = await start(restored.directory, backups, 1);
   try {
-    await until(differentSource.ready); await until(() => differentSource.log().includes('[backup] rotation kept'));
+    await differentSource.ready(); await differentSource.until(() => differentSource.log().includes('[backup] rotation kept'));
     assert.match(differentSource.log(), /preserved 3 excluded entries/); assert.equal(await differentSource.stop(), 0);
   } finally { await differentSource.cleanup(); await fs.writeFile(path.join(runDir, 'other-source.log'), differentSource.log()); }
   assert.equal((await fs.readdir(backups)).length, 4);

@@ -9,15 +9,11 @@ import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 import { Packr } from 'msgpackr';
 import { MAX_MESSAGE_BYTES, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION } from '../../shared/src/protocol';
+import { ServerClock, testTimeout } from './loadClock';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
-async function until(predicate: () => boolean) {
-  const deadline = Date.now() + 6000;
-  while (!predicate()) {
-    if (Date.now() > deadline) throw new Error('Connection drill timed out');
-    await new Promise(resolve => setTimeout(resolve, 15));
-  }
-}
+// Quiet-machine deadlines as before (6 s per wait, 3 s per upgrade, 9 s for shutdown), scaled by the load this server's
+// own start-up measured (server/test/loadClock.ts): unchanged on a quiet machine, a real hang still fails.
 async function start(origins?: string) {
   assert.ok(process.env.DATA_DIR, 'Connection drill requires isolated DATA_DIR');
   const runDir = await fs.mkdtemp(path.join(process.env.DATA_DIR, 'connection-'));
@@ -36,27 +32,27 @@ async function start(origins?: string) {
   child.stdout!.on('data', data => { log += data; });
   child.stderr!.on('data', data => { log += data; });
   const closed = new Promise<number | null>(resolve => child.once('close', resolve));
-  return { port, runDir, log: () => log, async ready() {
-    await until(() => {
-      if (error) throw error;
-      if (child.exitCode !== null) throw Error(log);
-      return log.includes('listening on');
-    });
-  }, async stop() {
+  const clock = new ServerClock(() => log, () => { if (error) throw error; if (child.exitCode !== null) throw Error(log); });
+  return { port, runDir, clock, log: () => log, async ready() {
+    await clock.ready(6000, 'Connection drill start-up');
+  }, until: (predicate: () => boolean) => clock.until(predicate, 6000, 'Connection drill'),
+  opened: (ws: WebSocket) => clock.waitEvent(ws, 'open', 6000, 'WebSocket open'),
+  async stop() {
     if (child.exitCode === null && child.signalCode === null && child.connected) child.send('hearthfall:shutdown');
-    const fallback = setTimeout(() => child.kill('SIGKILL'), 9000);
+    const fallback = setTimeout(() => child.kill('SIGKILL'), clock.scaled(9000));
     try { return await closed; }
     finally { clearTimeout(fallback); await fs.writeFile(path.join(runDir, 'server.log'), log); }
   } };
 }
 
-function upgrade(port: number, origin?: string | string[], extra: http.OutgoingHttpHeaders = {}, requestPath = '/ws') {
+function upgrade(server: { port: number; clock: ServerClock }, origin?: string | string[], extra: http.OutgoingHttpHeaders = {}, requestPath = '/ws') {
+  const port = server.port;
   return new Promise<number>((resolve, reject) => {
     const req = http.request({ hostname: '127.0.0.1', port, path: requestPath, headers: {
       Connection: 'Upgrade', Upgrade: 'websocket', 'Sec-WebSocket-Version': '13',
       'Sec-WebSocket-Key': 'dGhlIHNhbXBsZSBub25jZQ==', ...(origin === undefined ? {} : { Origin: origin }), ...extra,
     } });
-    req.setTimeout(3000, () => req.destroy(Error('Upgrade timed out')));
+    req.setTimeout(server.clock.scaled(3000), () => req.destroy(Error('Upgrade timed out')));
     req.on('error', reject);
     req.on('response', res => { res.resume(); resolve(res.statusCode!); });
     req.on('upgrade', (res, socket) => { socket.destroy(); resolve(res.statusCode!); });
@@ -64,7 +60,7 @@ function upgrade(port: number, origin?: string | string[], extra: http.OutgoingH
   });
 }
 
-test('real upgrade denies foreign/missing/opaque/duplicate origins and preserves known local browser origins', { timeout: 20000 }, async () => {
+test('real upgrade denies foreign/missing/opaque/duplicate origins and preserves known local browser origins', { timeout: testTimeout(20000) }, async () => {
   const server = await start();
   const observations: Record<string, number> = {};
   try {
@@ -78,14 +74,14 @@ test('real upgrade denies foreign/missing/opaque/duplicate origins and preserves
       ['list', `${local} https://untrusted.example`, 403],
     ];
     for (const [name, origin, expected] of cases) {
-      observations[name] = await upgrade(server.port, origin);
+      observations[name] = await upgrade(server, origin);
       assert.equal(observations[name], expected, name);
     }
-    observations.forgedHost = await upgrade(server.port, 'https://untrusted.example', {
+    observations.forgedHost = await upgrade(server, 'https://untrusted.example', {
       Host: 'untrusted.example', 'X-Forwarded-Host': 'untrusted.example', 'X-Forwarded-Proto': 'https',
     });
     assert.equal(observations.forgedHost, 403);
-    observations.wrongPath = await upgrade(server.port, local, {}, '/elsewhere');
+    observations.wrongPath = await upgrade(server, local, {}, '/elsewhere');
     assert.equal(observations.wrongPath, 404);
     assert.equal((await fetch(`http://127.0.0.1:${server.port}/healthz`)).status, 200);
   } finally {
@@ -95,19 +91,19 @@ test('real upgrade denies foreign/missing/opaque/duplicate origins and preserves
   }
 });
 
-test('explicit origin list replaces local defaults without wildcard or suffix acceptance', { timeout: 15000 }, async () => {
+test('explicit origin list replaces local defaults without wildcard or suffix acceptance', { timeout: testTimeout(15000) }, async () => {
   const server = await start('https://play.example,https://stage.example:8443');
   try {
     await server.ready();
-    assert.equal(await upgrade(server.port, 'https://play.example'), 101);
-    assert.equal(await upgrade(server.port, 'https://stage.example:8443'), 101);
-    assert.equal(await upgrade(server.port, `http://127.0.0.1:${server.port}`), 403);
-    assert.equal(await upgrade(server.port, 'https://play.example.untrusted.example'), 403);
-    assert.equal(await upgrade(server.port, 'http://play.example'), 403);
+    assert.equal(await upgrade(server, 'https://play.example'), 101);
+    assert.equal(await upgrade(server, 'https://stage.example:8443'), 101);
+    assert.equal(await upgrade(server, `http://127.0.0.1:${server.port}`), 403);
+    assert.equal(await upgrade(server, 'https://play.example.untrusted.example'), 403);
+    assert.equal(await upgrade(server, 'http://play.example'), 403);
   } finally { assert.equal(await server.stop(), 0); }
 });
 
-test('real session log uses socket peer instead of forged forwarding attribution', { timeout: 15000 }, async () => {
+test('real session log uses socket peer instead of forged forwarding attribution', { timeout: testTimeout(15000) }, async () => {
   const server = await start();
   let ws: WebSocket | undefined;
   try {
@@ -115,18 +111,18 @@ test('real session log uses socket peer instead of forged forwarding attribution
     ws = new WebSocket(`ws://127.0.0.1:${server.port}/ws`, {
       origin: `http://127.0.0.1:${server.port}`, headers: { 'X-Forwarded-For': '203.0.113.77, 198.51.100.9' },
     });
-    await new Promise<void>((resolve, reject) => { ws!.once('open', resolve); ws!.once('error', reject); });
+    await server.opened(ws!);
     const codec = new Packr({ useRecords: false });
     let welcomed = false;
     ws.on('message', data => { if (codec.unpack(Buffer.from(data as Buffer)).t === 'welcome') welcomed = true; });
     ws.send(codec.pack({ t: 'hello', name: 'PeerTrace', classId: 'mage', v: PROTOCOL_VERSION }));
-    await until(() => welcomed && server.log().includes('logged in'));
+    await server.until(() => welcomed && server.log().includes('logged in'));
     assert.match(server.log(), /from (?:::ffff:)?127\.0\.0\.1(?:\r?\n|$)/);
     assert.doesNotMatch(server.log(), /203\.0\.113\.77|198\.51\.100\.9/);
   } finally { ws?.terminate(); assert.equal(await server.stop(), 0); }
 });
 
-test('invalid allowlist prevents listening and data initialization', { timeout: 15000 }, async () => {
+test('invalid allowlist prevents listening and data initialization', { timeout: testTimeout(15000) }, async () => {
   const server = await start('https://*.example');
   try {
     await assert.rejects(server.ready(), /WS_ALLOWED_ORIGINS/);
@@ -134,7 +130,7 @@ test('invalid allowlist prevents listening and data initialization', { timeout: 
   } finally { assert.equal(await server.stop(), 1); }
 });
 
-test('real hello rejects inherited and coerced class keys before creating saves or reserving names', { timeout: 30000 }, async () => {
+test('real hello rejects inherited and coerced class keys before creating saves or reserving names', { timeout: testTimeout(30000) }, async () => {
   const server=await start(), codec=new Packr({useRecords:false});
   const observations:unknown[]=[];
   let ws:WebSocket|undefined;
@@ -147,18 +143,18 @@ test('real hello rejects inherited and coerced class keys before creating saves 
       const messages:any[]=[];let closed=false;
       ws.on('message',data=>messages.push(codec.unpack(data as Buffer)));
       ws.on('close',()=>{closed=true;});
-      await new Promise<void>((resolve,reject)=>{ws!.once('open',resolve);ws!.once('error',reject);});
+      await server.opened(ws!);
       ws.send(codec.pack({t:'hello',name,classId,v:PROTOCOL_VERSION}));
-      await until(()=>closed || messages.some(m=>m.t==='welcome') || server.log().slice(startLog).includes('unhandled rejection'));
+      await server.until(()=>closed || messages.some(m=>m.t==='welcome') || server.log().slice(startLog).includes('unhandled rejection'));
       // Probe reuse while the malformed attempt still owns its socket, if it stayed open.
       const next=new WebSocket(`ws://127.0.0.1:${server.port}/ws`,{origin:`http://127.0.0.1:${server.port}`});
       const replies:any[]=[];
       try {
         next.on('message',data=>replies.push(codec.unpack(data as Buffer)));
-        await new Promise<void>((resolve,reject)=>{next.once('open',resolve);next.once('error',reject);});
+        await server.opened(next);
         const savedBeforeReuse=(await fs.readdir(path.join(server.runDir,'saves'))).includes(`${name.toLowerCase()}.json`);
         next.send(codec.pack({t:'hello',name,classId:['warrior','ranger','mage'][index%3],v:PROTOCOL_VERSION}));
-        await until(()=>replies.some(m=>m.t==='welcome'||m.t==='err'));
+        await server.until(()=>replies.some(m=>m.t==='welcome'||m.t==='err'));
         observations.push({index,classId,rejected:closed&&messages.some(m=>m.t==='err'&&m.msg==='Unknown class.'),
           malformedWelcome:messages.some(m=>m.t==='welcome'),savedBeforeReuse,reused:replies.some(m=>m.t==='welcome')});
       } finally {next.terminate();}
@@ -174,7 +170,7 @@ test('real hello rejects inherited and coerced class keys before creating saves 
   }
 });
 
-test('real socket closes sustained text flood and oversized whole/fragmented messages', {timeout:20000},async()=>{
+test('real socket closes sustained text flood and oversized whole/fragmented messages', {timeout:testTimeout(20000)},async()=>{
   const server=await start(),observations:unknown[]=[];
   let ws:WebSocket|undefined;
   try {
@@ -183,14 +179,14 @@ test('real socket closes sustained text flood and oversized whole/fragmented mes
       ws=new WebSocket(`ws://127.0.0.1:${server.port}/ws`,{origin:`http://127.0.0.1:${server.port}`});
       let closed:{code:number;reason:string}|undefined;
       ws.on('close',(code,reason)=>{closed={code,reason:reason.toString()};});
-      await new Promise<void>((resolve,reject)=>{ws!.once('open',resolve);ws!.once('error',reject);});
+      await server.opened(ws!);
       if(kind==='text-flood')for(let i=0;i<MAX_MESSAGES_PER_SECOND+601;i++)ws.send('unsupported');
       else if(kind==='oversize')ws.send(Buffer.alloc(MAX_MESSAGE_BYTES+1));
       else {
         ws.send(Buffer.alloc(MAX_MESSAGE_BYTES/2),{fin:false});
         ws.send(Buffer.alloc(MAX_MESSAGE_BYTES/2+1),{fin:true});
       }
-      await until(()=>!!closed);
+      await server.until(()=>!!closed);
       observations.push({kind,...closed});
       assert.equal(closed!.code,kind==='text-flood'?4000:1009);
       if(kind==='text-flood')assert.equal(closed!.reason,'Too many messages');

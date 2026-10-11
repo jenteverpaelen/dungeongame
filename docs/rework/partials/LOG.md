@@ -173,3 +173,15 @@
   simulation 455/455, perf budget 4/4, pace targets 0 misses over 7 bands, served build reaches the game in ~9 s with
   0 page errors. One earlier run failed only the sim's absolute 3 ms tick check (3.06 ms) on a loaded machine; five
   samples right after ranged 1.7–8.1 ms (load), the clean rerun measured 2.69 ms.
+- **Load-robust runtime deadlines (lead request).** `server/test/loadClock.ts`: quiet-machine deadlines (6 s waits,
+  3 s upgrades, 9 s shutdown, the node:test timeouts) scale by the slowdown measured now; factor ≥ 1 (a quiet or faster
+  machine keeps the old deadline exactly) and ≤ 10 (a hang still fails). Two signals [M, 2026-10-12]: the engine's
+  calibrated gauge (`perfGauge.ts`) for waits, and — because the gauge barely moves when several servers start at once
+  (1.17–1.35 for 1/4/8 parallel starts while start-up went 2.0 → 5.7 s) — each server's own new start-up marker
+  `[server] modules loaded in N ms` (~80 % of start-up) ÷ the fastest measured 1,624 ms. Ready = within 6 s × max(gauge,
+  boot) from spawn; before the marker the cap is 10× (module loading finishes or exits). Used by connectionRuntime and
+  backupRuntime (`ServerClock`); `RUNTIME_DEADLINE_ABSOLUTE=1` disables. Proof: `loadClock.test.ts` 4/4 (hung init fails
+  at quiet × boot factor, no marker fails at the cap, never-closing socket fails); injected hangs in the real tests fail
+  (hello never answered → 9.1 s at load 1.52; flood kick removed → 10.0 s at 1.66; world.init hang → 7.6 s at 1.25);
+  under load the five runtime files + proofs ran concurrently 3 × green (22/22, boots 2.3–3.5 s). Before: the same
+  concurrent run failed 1–4 tests per round on 6 s deadlines.
