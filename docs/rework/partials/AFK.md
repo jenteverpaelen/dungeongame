@@ -1,5 +1,10 @@
 # Offline gains v2 and the alt fairness model (F-MET-02)
 
+> **Parked by the owner (2026-10-11):** "remove offline rewards for now, not sure if i want it as a feature". The
+> feature is off by default behind `OFFLINE_REWARDS` (`server/src/config.ts`): no gains, no report, no rate
+> measurement; saves keep any existing `afk` field. Everything below describes the dormant code, which stays tested
+> (`server/test/afk.test.ts` with the switch on; `server/test/bot.ts` checks the parked behaviour).
+
 Labels: **[M]** measured here, **[K]** prior knowledge (not re-checked), **[P]** proposal for the owner.
 Code: `server/src/afk.ts`, table `shared/src/data/afkRates.ts` (generated), tests `server/test/afk.test.ts`.
 

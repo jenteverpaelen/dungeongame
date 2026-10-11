@@ -151,7 +151,7 @@ Update the affected rows when adding or removing content or systems. Reference t
 | F-END-08 | Primal / ancient chase tuning | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL |
 | F-END-09 | Final campaign boss + ending | P12 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-MET-01 | Account-wide stash and shared currencies | P14 | Open | Not implemented; per-character stash is retained, account ownership prerequisite open. [account design](phase/P03-foundations/ACCOUNT-DESIGN.md). | MISSING (stash is per character, approved exception) |
-| F-MET-02 | Offline / AFK evolution | P14 | Implemented; fairness model awaiting owner | Own measured rate capped by band median, live drop rules, minute-by-minute progression, split-absence and alt tests. [AFK](rework/partials/AFK.md). | PARTIAL — `afk.ts` |
+| F-MET-02 | Offline / AFK evolution | P14 | Parked by the owner (2026-10-11) | Owner: remove offline rewards for now. Off by default behind OFFLINE_REWARDS (no gains, no report, no rate measurement); v2 code dormant and tested. [AFK](rework/partials/AFK.md). | PARTIAL — `afk.ts` |
 | F-MET-03 | Account achievements and titles | P14 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-MET-04 | Collections / bestiary | P14 | Open | Open: no newer full-scope completion evidence; original baseline retained. | MISSING |
 | F-MET-05 | Pets / companions as a system | P14 | Open | Open: no newer full-scope completion evidence; original baseline retained. | PARTIAL — Companion skill is a summon, not a pet system |

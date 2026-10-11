@@ -144,3 +144,9 @@
   browser log errors, and the page carries a CSP. Proven: with `import 'pixi.js/unsafe-eval'` removed it fails with
   Pixi's unsafe-eval error; with it, game screen in ~8 s, 0 errors. It also caught a favicon 404 → `<link rel="icon"
   href="data:,">` in client/index.html.
+- **Offline rewards parked (owner 2026-10-11).** `OFFLINE_REWARDS` (server/src/config.ts) defaults off: `applyAfkGains`
+  returns nothing unless switched on (or `{ enabled: true }` in tests), the session neither grants nor sends a report
+  (so the modal never shows) and the field-rate meter neither samples nor writes `afk`; saves keep any existing field.
+  Tests: `afk.test.ts` 8/8 (new "parked" case + the dormant formula with the switch on), bot AFK section 20/20 checks
+  the parked behaviour (no report, no gold/XP/kills after 2 h and 100 h, no rate measured). Docs: ARCHITECTURE §1.10,
+  AFK.md, REPORT.md, roadmap row F-MET-02 "Parked by the owner".
