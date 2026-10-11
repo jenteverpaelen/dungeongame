@@ -171,6 +171,13 @@ the rank light column is gone). CPU profile of the 100-hero mix: the same distri
 ≈ 2 % of samples. Crowd budget: decorative floats and their glows only for the 16 heroes with a presence slot (the
 local hero always); structural floats (zenith segments, floating heads, the Fabled Inscription) always show.
 
+**Checks.** `npm run typecheck` clean; `npm test` (isolated `DATA_DIR`) 72 / 72 including the rewritten
+`shared/test/gearVisual.test.ts` (generation bands = name bands, round-trip of every packed field, plain items < 2³²,
+id capacity for the planned content, append-only orders, item-driven look rules, no rank in the hero summary, every
+weapon / off-hand base has a client family, descriptor bytes). `npm run verify`: first run failed only on two
+load-sensitive stages (connection drills timing out at 6 s, and the simulation's 3 ms tick-average threshold at
+3.01 ms; the base commit measured 2.6–4.3 ms on the same machine in interleaved runs); the rerun passed every stage.
+
 ## 8. Decisions
 | # | What | Why | Evidence | Rollback |
 |---|---|---|---|---|
