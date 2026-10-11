@@ -1,0 +1,64 @@
+{
+ "approved": "owner 2026-10-11, as recommended (changeable)",
+ "rules": {
+  "trashTtkMaxS": 1,
+  "championFactor": 1.25,
+  "killsFactor": 0.75
+ },
+ "bands": [
+  {
+   "fromLevel": 1,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 4.8,
+   "killsPerMinMin": 58
+  },
+  {
+   "fromLevel": 5,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 7.3,
+   "killsPerMinMin": 70
+  },
+  {
+   "fromLevel": 10,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 8.1,
+   "killsPerMinMin": 42
+  },
+  {
+   "fromLevel": 15,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 9.9,
+   "killsPerMinMin": 66
+  },
+  {
+   "fromLevel": 20,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 9.1,
+   "killsPerMinMin": 60
+  },
+  {
+   "fromLevel": 25,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 6.4,
+   "killsPerMinMin": 63
+  },
+  {
+   "fromLevel": 30,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 6.9,
+   "killsPerMinMin": 77
+  },
+  {
+   "fromLevel": 35,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 8.2,
+   "killsPerMinMin": 68
+  },
+  {
+   "fromLevel": 40,
+   "trashTtkMaxS": 1,
+   "championTtkMaxS": 6.7,
+   "killsPerMinMin": 86
+  }
+ ]
+}

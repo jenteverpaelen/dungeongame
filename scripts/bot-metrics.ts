@@ -125,6 +125,47 @@ ${rows.map(([l, k]) => `  [${l}, ${k}],`).join('\n')}
 `;
 }
 
+/**
+ * Pace targets per five-level band (F-CMB-08; owner 2026-10-11: "use recommendations", changeable). Checked on the
+ * median over the classes (class spread is the parity harness's job):
+ *  - trash time-to-kill median ≤ 1.0 s — the target the balance pass fitted monster life to (docs/rework/BALANCE.md §3);
+ *  - champion time-to-kill median ≤ 1.25 × the recorded baseline band [P: tolerance];
+ *  - kills per minute median ≥ 0.75 × the recorded baseline band [P: tolerance].
+ * Deaths are reported, not gated: bots never dodge, so their deaths say little about humans.
+ */
+export const TARGET_RULES = { trashTtkMaxS: 1.0, championFactor: 1.25, killsFactor: 0.75 } as const;
+export interface BandTarget { fromLevel: number; trashTtkMaxS: number; championTtkMaxS: number; killsPerMinMin: number }
+const median = (v: (number | null)[]) => {
+  const s = v.filter((x): x is number => x !== null && Number.isFinite(x)).sort((a, b) => a - b);
+  if (!s.length) return null;
+  return s.length % 2 ? s[s.length >> 1] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
+};
+const bands = (rep: MetricsReport) => {
+  const m = new Map<number, MetricRow[]>();
+  for (const r of rep.rows) { const l = m.get(r.fromLevel) ?? []; l.push(r); m.set(r.fromLevel, l); }
+  return [...m.entries()].sort((a, b) => a[0] - b[0]);
+};
+export function makeTargets(baseline: MetricsReport): BandTarget[] {
+  return bands(baseline).map(([fromLevel, rows]) => ({
+    fromLevel, trashTtkMaxS: TARGET_RULES.trashTtkMaxS,
+    championTtkMaxS: Math.round((median(rows.map((r) => r.ttkChampionS)) ?? 0) * TARGET_RULES.championFactor * 10) / 10,
+    killsPerMinMin: Math.round((median(rows.map((r) => r.killsPerMin)) ?? 0) * TARGET_RULES.killsFactor),
+  }));
+}
+/** Bands of `rep` that miss their target (bands the run did not reach are skipped; a band needs all three classes). */
+export function checkTargets(rep: MetricsReport, targets: BandTarget[]): string[] {
+  const problems: string[] = [];
+  for (const [fromLevel, rows] of bands(rep)) {
+    const t = targets.find((x) => x.fromLevel === fromLevel);
+    if (!t || new Set(rows.map((r) => r.class)).size < 3) continue;
+    const trash = median(rows.map((r) => r.ttkTrashS)), champ = median(rows.map((r) => r.ttkChampionS)), kpm = median(rows.map((r) => r.killsPerMin));
+    if (trash !== null && trash > t.trashTtkMaxS) problems.push(`L${fromLevel}+ trash TTK median ${trash} s > ${t.trashTtkMaxS} s`);
+    if (champ !== null && champ > t.championTtkMaxS) problems.push(`L${fromLevel}+ champion TTK median ${champ} s > ${t.championTtkMaxS} s`);
+    if (kpm !== null && kpm < t.killsPerMinMin) problems.push(`L${fromLevel}+ kills/min median ${kpm} < ${t.killsPerMinMin}`);
+  }
+  return problems;
+}
+
 function arg(name: string, fallback: string) { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; }
 function writeReport(rep: MetricsReport, outDir: string) {
   fs.mkdirSync(outDir, { recursive: true });
@@ -153,6 +194,25 @@ async function main() {
     const file = path.join(root, 'shared/src/data/afkRates.ts');
     fs.writeFileSync(file, renderAfkTable(afkTable(rep)));
     console.log(`wrote ${path.relative(root, file)}`);
+  } else if (cmd === 'targets') {
+    const rep = JSON.parse(fs.readFileSync(path.join(outDir, 'baseline.json'), 'utf8')) as MetricsReport;
+    const file = path.join(outDir, 'targets.json');
+    fs.writeFileSync(file, JSON.stringify({ approved: 'owner 2026-10-11, as recommended (changeable)', rules: TARGET_RULES, bands: makeTargets(rep) }, null, 1) + '\n');
+    console.log(`wrote ${path.relative(root, file)}`);
+  } else if (cmd === 'check') {
+    // Simulate `minutes` of leveling (default 120) and check every reached band against targets.json.
+    if (!process.env.DATA_DIR) throw new Error('Set an isolated DATA_DIR first');
+    const minutes = String(Number(a1 ?? 120) || 120);
+    const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'hf-bot-targets-')), 'sim.json');
+    spawnSync(process.execPath, ['--import', 'tsx', path.join(root, 'server/test/sim.ts'), 'leveling', minutes],
+      { cwd: root, env: { ...process.env, SIM_JSON: tmp }, stdio: 'ignore' });
+    if (!fs.existsSync(tmp)) throw new Error('simulation wrote no metrics');
+    const rep = buildReport(JSON.parse(fs.readFileSync(tmp, 'utf8')));
+    const targets = (JSON.parse(fs.readFileSync(path.join(outDir, 'targets.json'), 'utf8')) as { bands: BandTarget[] }).bands;
+    const problems = checkTargets(rep, targets);
+    const reached = new Set(rep.rows.map((r) => r.fromLevel)).size;
+    console.log(`${minutes} simulated minutes per class: ${reached} band(s) reached, ${problems.length} target miss(es)`);
+    if (problems.length) { console.error(`PACE TARGETS MISSED:\n  ${problems.join('\n  ')}`); process.exitCode = 1; }
   } else if (cmd === 'compare' && a1 && a2) {
     const load = (f: string) => { const j = JSON.parse(fs.readFileSync(f, 'utf8')); return 'perClass' in j ? j as MetricsReport : buildReport(j); };
     const r = compareReports(load(a1), load(a2), Number(arg('--max-drift', 'Infinity')));

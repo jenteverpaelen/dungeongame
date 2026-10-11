@@ -150,3 +150,11 @@
   Tests: `afk.test.ts` 8/8 (new "parked" case + the dormant formula with the switch on), bot AFK section 20/20 checks
   the parked behaviour (no report, no gold/XP/kills after 2 h and 100 h, no rate measured). Docs: ARCHITECTURE §1.10,
   AFK.md, REPORT.md, roadmap row F-MET-02 "Parked by the owner".
+- **Owner decisions 2026-10-11 ("use recommendations for now").** Names: register B1–B6 + table C applied (see
+  NAME-REGISTER status; the damage altar became Hearthfire Altar because Kindled is now a grade; class skill and power
+  files left to the class agents). Combat freeze: 16 rows frozen as recommended. Pace targets (F-CMB-08): per band on
+  the class median — trash TTK ≤ 1.0 s (BALANCE.md fit target), champion TTK ≤ 1.25 × baseline, kills/min ≥ 0.75 ×
+  baseline — `bot-metrics/targets.json`, verify stage `pace-targets` (120 simulated min per class, ~45 s). Baseline
+  re-recorded after the Warrior pilot (the old one already missed L5 champion TTK, 5.8 > 5.6 s), AFK table regenerated.
+  Stash: five tabs at one measured hour each → 170 K / 630 K / 2.1 M / 3.4 M from the new baseline; D-24 recommendation
+  adopted: per character now, account-wide shared tab(s) for account holders together with F-MET-01 (P14).
