@@ -206,7 +206,8 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 
 ## 9. Files
 
-`client/src/render/depthSort.ts` (new) · `scene.ts` · `art/player.ts` (2 lines) · `ui/hud/Minimap.tsx` ·
-`ui/styles/hud.css` (1 rule) · `game/preferences.ts` · `game/quality.ts` (+ test) · `main.ts` · `shared/src/format.ts`
+`client/src/render/depthSort.ts` (new) · `scene.ts` · `art/player.ts` (lazy sort, `stale`) · `art/fx.ts`
+(`additiveAsNormal`) · `art/map.ts` (prop lights) · `ui/hud/Minimap.tsx` · `ui/styles/hud.css` (1 rule) ·
+`game/preferences.ts` · `game/quality.ts` (+ test) · `main.ts` (first-run default, `window.__bakes`) · `shared/src/format.ts`
 (+ `shared/test/format.test.ts`) · `scripts/client-perf-check.mjs`, `scripts/perf/` (harness, replay, recorders,
 recordings, budgets, `ab.mjs` paired A/B, `crowd-cache-check.mjs`, `record-field.mjs`) · `scripts/verify.mjs` (stage) · `scripts/shoot.mjs` (`CHROME_EXTRA` flags for the SwiftShader run).
