@@ -105,6 +105,26 @@ export function compareReports(base: MetricsReport, next: MetricsReport, maxDrif
   return { lines, worst, unmatched, ok: worst <= maxDrift };
 }
 
+/** Median kills/min over the classes per five-level band (for offline gains, shared/src/data/afkRates.ts). */
+export function afkTable(rep: MetricsReport): [number, number][] {
+  const bands = new Map<number, number[]>();
+  for (const r of rep.rows) { const l = bands.get(r.fromLevel) ?? []; l.push(r.killsPerMin); bands.set(r.fromLevel, l); }
+  return [...bands.entries()].sort((a, b) => a[0] - b[0]).map(([lvl, v]) => {
+    const s = [...v].sort((a, b) => a - b), mid = s.length >> 1;
+    return [lvl, Math.round((s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2) * 10) / 10];
+  });
+}
+export function renderAfkTable(rows: [number, number][]): string {
+  return `// Measured active kill rates for offline gains (F-MET-02). Generated from docs/rework/partials/bot-metrics/baseline.json
+// by \`npx tsx scripts/bot-metrics.ts afk-table\` — do not edit by hand; server/test/afk.test.ts checks it matches.
+// Median over the three classes of the engaged leveling bot's kills per minute in each five-level band [M]
+// (an upper bound for human play: the bot never goes back to town).
+export const AFK_BAND_KPM: readonly (readonly [fromLevel: number, killsPerMinute: number])[] = [
+${rows.map(([l, k]) => `  [${l}, ${k}],`).join('\n')}
+];
+`;
+}
+
 function arg(name: string, fallback: string) { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; }
 function writeReport(rep: MetricsReport, outDir: string) {
   fs.mkdirSync(outDir, { recursive: true });
@@ -128,6 +148,11 @@ async function main() {
     writeReport(buildReport(JSON.parse(fs.readFileSync(tmp, 'utf8'))), outDir);
   } else if (cmd === 'render' && a1) {
     writeReport(buildReport(JSON.parse(fs.readFileSync(a1, 'utf8'))), outDir);
+  } else if (cmd === 'afk-table') {
+    const rep = JSON.parse(fs.readFileSync(path.join(outDir, 'baseline.json'), 'utf8')) as MetricsReport;
+    const file = path.join(root, 'shared/src/data/afkRates.ts');
+    fs.writeFileSync(file, renderAfkTable(afkTable(rep)));
+    console.log(`wrote ${path.relative(root, file)}`);
   } else if (cmd === 'compare' && a1 && a2) {
     const load = (f: string) => { const j = JSON.parse(fs.readFileSync(f, 'utf8')); return 'perClass' in j ? j as MetricsReport : buildReport(j); };
     const r = compareReports(load(a1), load(a2), Number(arg('--max-drift', 'Infinity')));

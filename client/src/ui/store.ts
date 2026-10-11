@@ -14,7 +14,8 @@ export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' |
 export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string; item?:import('@shared/types').Item }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
 export interface PickupLine { id: number; lk: LootView['lk']; name: string; rarity?: string; amount?: number; at: number }
-export interface AfkReport { ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
+export interface AfkReport { ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
+  rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
 
 export interface TargetInfo {
   id: number;

@@ -1006,6 +1006,7 @@
 .afk-row.hi b { color: #7fe39a; }
 .afk-row.sm { padding: calc(var(--u) * 3) calc(var(--u) * 6); font-size: var(--f-m); }
 .afk-row.sm b { font-size: calc(var(--u) * 17); color: #b9d4e8; }
+.afk-basis { margin: calc(var(--u) * 10) calc(var(--u) * 6) 0; font-size: var(--f-s); line-height: 1.4; color: var(--text-faint); text-align: center; }
 .afk-mats { margin-top: calc(var(--u) * 12); padding-top: calc(var(--u) * 10); border-top: 1px solid rgba(140, 106, 56, 0.35); }
 .afk-mats-title { font-family: var(--font-display); font-weight: 700; font-size: var(--f-xs); letter-spacing: 0.2em; text-transform: uppercase; color: var(--bronze-2); margin-bottom: calc(var(--u) * 4); }
 .afk-claim { display: block; margin: calc(var(--u) * 24) auto 0; min-width: calc(var(--u) * 200); padding: calc(var(--u) * 12) calc(var(--u) * 32); font-size: var(--f-m); letter-spacing: 0.16em; }

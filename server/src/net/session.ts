@@ -9,7 +9,7 @@ export {CHAT_MAX_LEN} from '../../../shared/src/social';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
-import { applyAfkGains } from '../afk';
+import { FieldRateMeter, applyAfkGains } from '../afk';
 import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
@@ -85,6 +85,8 @@ export class Session implements PlayerLink {
   private helloTimer: NodeJS.Timeout | null;
   private derivedLevel = 0;
   private playMark = 0;
+  /** Own field kill rate for offline gains (F-MET-02). */
+  private readonly afkMeter = new FieldRateMeter();
   private kicking = false;
   private commandReceipts = new CommandReceipts();
   private commandSave:Promise<void>|null=null;
@@ -188,6 +190,7 @@ export class Session implements PlayerLink {
     const now = Date.now();
     if (this.playMark) this.save.stats.playMs += now - this.playMark;
     this.playMark = now;
+    this.afkMeter.record(this.save, now);
     this.persistDirty = false;
     this.lastSaveAt = now;
     await saveCharacter(this.save);
@@ -195,6 +198,7 @@ export class Session implements PlayerLink {
 
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
+    if (this.state === 'ready') this.afkMeter.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
     if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
     this.observe(now);
   }

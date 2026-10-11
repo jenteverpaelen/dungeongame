@@ -186,7 +186,9 @@ export type S2C =
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
   | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item }
-  | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
+  | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
+      /** v2 breakdown (F-MET-02): kills/min used, whether it is the hero's own measured rate, the offline share, cap hit. */
+      rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
   | { t: 'world'; world: WorldInfo }
   | { t: 'party'; party: import('./party').PartyView }
   | { t: 'social'; social: import('./social').SocialView }
