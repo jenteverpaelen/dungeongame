@@ -904,3 +904,64 @@ placeholders.
 
 * The test (5 pieces + Journeyman's Ring give the same 6-piece power as 6 pieces, and 5 pieces alone do not) runs
   through `buildCtx`, which is the live power runtime.
+
+### 13.11 Load-robust tick checks in `server/test/sim.ts` (lead request)
+
+**Checks.** "sim tick avg", "tick avg incl. snapshot consumers" (4 players + 150 monsters, 30 s) and "party rift tick
+avg" are each "< 3 ms". They failed in most verify runs on the shared machine: load, not code (lead A/B: median
+4.61 vs 4.63 ms).
+
+**What the load does [M], on this laptop: Ryzen 7 7435HS, 8 cores / 16 threads, 41 node processes.**
+
+* The test thread lost only ~8 % of a busy second to preemption: 921 ms thread CPU per 1000 ms wall.
+* The ticks still ran several times slower: 2.6–11.5 ms, against ~1.0–1.4 ms in earlier quiet runs.
+* So the slowdown is in execution (shared cores, lower clocks, shared caches), and thread CPU time would not remove it.
+  On Windows thread CPU time also only moves in 15.6 ms steps [M].
+
+**Method (`server/test/perfGauge.ts`).**
+
+1. Before every measured tick (every 4th tick in the party rift), a fixed, deterministic, allocation-free reference
+   workload runs twice. It is a miniature of the simulation's work: grid bucketing, neighbour lookups in a Map, float
+   math, a store per body.
+2. Only the second, cache-warm run is timed. Under load a cold run after a tick costs ~0.06 ms more [M, paired samples],
+   which would blur the quiet reference.
+3. Load factor = mean sample ÷ `QUIET_GAUGE_MS`, never below 1.
+4. Each check is `mean tick < 3 ms × load factor`.
+5. The 30 s perf window is measured up to 3 times, and a later window runs only when the previous one failed. This
+   covers spikes the gauge missed; a real slowdown fails all three.
+
+**`QUIET_GAUGE_MS` = 0.125 ms × 1.05.**
+
+* 0.125 ms [M] is the fastest warm sample measured on the owner's laptop. It was taken under load, and load only adds
+  time, so a quiet run's fastest sample is at most that.
+* × 1.05 [P] is the quiet spread of a fixed, warm, allocation-free workload (timer and interrupt noise).
+* On a quiet laptop the factor is therefore 1 and every check is plain 3 ms; a faster machine also gets 1.
+* `SIM_PERF_ABSOLUTE=1` forces plain 3 ms.
+* On a slower machine the limit means "3 ms on the reference laptop".
+* Each perf line prints the fastest and mean sample, so the constant can be lowered after a quiet measurement; lowering
+  it only makes the checks stricter.
+
+**Tracking [M].** Under load, mean sim tick ÷ mean gauge sample stayed in 15.1–19.8 in 16 of 18 runs (ticks 3.4–9.8 ms).
+The two outliers were 23.3 and 28.6 during the heaviest load.
+
+* With the constant, the limit passes up to ×22.9, so a typical loaded run has 15–35 % headroom.
+* The best-of-3 windows cover the outliers.
+* A cold-sample variant tracked worse (11.5–18.1), and a memory-bound variant (pointer chasing over 4 MB) worse still
+  (6.5–8.6).
+
+**Proof [M], 2026-10-11, same load.**
+
+* **Normal:** 4 / 4 runs pass in their first window:
+  * sim ticks 3.60–9.80 ms;
+  * load factors 1.74–4.31;
+  * the full `sim.ts` run passes 455 / 455, with output identical to the content baseline outside timing lines.
+* **`SIM_PERF_INJECT_MS=1.5`** (1.5 ms of quiet-equivalent reference work added inside every timed tick): both perf
+  checks fail in all three windows. The party rift (0.5 ms ticks) correctly still passes, because 0.25 + 1.5 ms of quiet
+  work is under 3 ms.
+* **`SIM_PERF_INJECT_MS=3`:** all three tick checks fail.
+* **`SIM_PERF_ABSOLUTE=1`:** fails under this load (6.1 and 12.6 ms), which was the original problem.
+
+**Side effect.** Extra windows consume the shared simulation RNG, so after a retry the party rift's rift time can differ
+by a second (3:58 vs 3:59 [M]). Without a retry the output is unchanged.
+
+**Out of scope.** `scripts/perf-budget.ts` (4 × 150 monsters, < 10 ms) still uses absolute numbers.

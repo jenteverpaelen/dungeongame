@@ -163,3 +163,6 @@
   - Cinder pools and the Quakestep tremor reuse the existing lava-pool and tremor-ring visuals.
   - `server/test/passives.test.ts` (not in verify) still expects 18 passives from before the pilot.
   - Stable ids: 86 new entries unrecorded (`scripts/content-ids.ts --update`); 81 were pending before this wave.
+- **Sim tick checks under load (lead request).** `server/test/perfGauge.ts` measures the machine's slowdown in the same
+  run, and the three "< 3 ms" tick checks use 3 ms × that load factor (factor 1 on a quiet machine). The 30 s perf
+  window is best of up to 3. Proof (passes under load, fails an injected 1.5 / 3 ms slowdown) in FOUNDATION.md §13.11.
