@@ -8,7 +8,7 @@ import { MAX_RUNES, SKILLS, collectSkillMods, describeNode, runeUnlockLevel, ski
 import { MAX_LEVEL } from '../src/constants';
 import {
   NODE_RANK_COST, SPEC_POINTS, TREE_RANKS_TARGET, buySkillNode, type SpecEconomy, nodeBuyError, normalizeSkillNodes, refundSkillNode, resetSkillNodes,
-  specPointsAvailable, specPointsForLevel, specPointsSpent, treeBuyableRanks,
+  specPointsAvailable, specPointsForLevel, specPointsSpent, treeBuyableRanks, treeTotalRanks,
 } from '../src/specialization';
 import { FIXTURE_NODES, FIXTURE_PASSIVES, installFixtureNodes, installFixturePassives, installFixtureSkills } from './fixtures/depthContent';
 import { PASSIVE_SLOT_LEVELS, passiveEffect, passivePowerSources as passiveSources, passivesForClass, setPassive } from '../src/passives';
@@ -20,11 +20,12 @@ function fixture(): ContentData {
 }
 const expectPath = (errors: string[], path: string) => assert.ok(errors.some(e => e.startsWith(path + ':')), errors.join('\n'));
 
-test('existing skills keep their unlock levels 1/2/4/6/9/12 and rune levels skill+2/+5/+9', () => {
+test('existing skills keep their unlock levels 1/2/4/6/9/12 and rune levels skill+2/+5/+9 (+14/+20 for the bible runes)', () => {
   for (const classId of ['warrior', 'ranger', 'mage'] as const) {
     const list = skillsForClass(classId);
     assert.deepEqual(list.slice(0, 6).map(s => s.unlock), [1, 2, 4, 6, 9, 12]);
-    for (const s of list.slice(0, 6)) assert.deepEqual(s.runes.map((_, i) => runeUnlockLevel(s, i)), [2, 5, 9].map(o => s.unlock + o));
+    // Runes 4 and 5 (bible v2) unlock at skill + 14 / + 20, clamped to the level cap.
+    for (const s of list.slice(0, 6)) assert.deepEqual(s.runes.map((_, i) => runeUnlockLevel(s, i)), [2, 5, 9, 14, 20].slice(0, s.runes.length).map(o => Math.min(MAX_LEVEL, s.unlock + o)));
   }
 });
 
@@ -62,8 +63,8 @@ test('rune selection honours each rune’s own unlock level on the authoritative
 
 // ─────────────────────────── Specialization nodes ───────────────────────────
 
-test('shipped data has no specialization nodes yet (content comes later); fixture trees validate', () => {
-  for (const s of Object.values(SKILLS)) assert.equal(s.nodes, undefined, `${s.id} ships nodes`);
+test('only the warrior (pilot class) ships specialization trees so far; fixture trees validate', () => {
+  for (const s of Object.values(SKILLS)) assert.equal(!!s.nodes?.length, s.classId === 'warrior', `${s.id} trees`);
   const data = fixture();
   for (const [id, nodes] of Object.entries(FIXTURE_NODES)) data.skills[id].nodes = structuredClone(nodes);
   assert.deepEqual(validateContent(data), []);
@@ -92,17 +93,17 @@ test('node validation rejects bad ranks, prerequisites, cycles, layout and place
   }
 });
 
-test('point economy: one specialization point per level after the first, derived from the level', () => {
-  assert.equal(specPointsForLevel(1), 0);
-  assert.equal(specPointsForLevel(2), 1);
-  assert.equal(specPointsForLevel(MAX_LEVEL), 69);
+test('point economy (lead decision d): one specialization point per level from 21, 50 at level 70, 10 ranks per tree', () => {
+  assert.equal(specPointsForLevel(20), 0);
+  assert.equal(specPointsForLevel(21), 1);
+  assert.equal(specPointsForLevel(40), 20);
+  assert.equal(specPointsForLevel(MAX_LEVEL), 50);
+  assert.equal(SPEC_POINTS.treeRankCap, 10);
   assert.equal(NODE_RANK_COST, 1);
-  // 69 points against 14..17-rank trees: 4.1..4.9 full trees, i.e. one bar (primary + four slots), never a class.
-  assert(specPointsForLevel(MAX_LEVEL) / TREE_RANKS_TARGET.max >= 4 && specPointsForLevel(MAX_LEVEL) / TREE_RANKS_TARGET.min <= 5);
-  for (const id of Object.keys(FIXTURE_NODES)) {
-    const total = FIXTURE_NODES[id].reduce((n, x) => n + x.maxRank, 0);
-    assert(total >= TREE_RANKS_TARGET.min && total <= TREE_RANKS_TARGET.max, `${id} fixture tree ${total}`);
-  }
+  // 50 points against 10-rank trees: exactly the five active trees of one bar (primary + four slots), never a class.
+  assert.equal(specPointsForLevel(MAX_LEVEL) / TREE_RANKS_TARGET.max, 5);
+  // Fixture trees hold more ranks than the cap, so a full tree is a choice.
+  for (const id of Object.keys(FIXTURE_NODES)) assert(FIXTURE_NODES[id].reduce((n, x) => n + x.maxRank, 0) > SPEC_POINTS.treeRankCap, `${id} fixture tree`);
 });
 
 test('shipped trees respect the economy target per class (no-op until a class ships trees)', () => {
@@ -112,31 +113,37 @@ test('shipped trees respect the economy target per class (no-op until a class sh
     const avg = trees.reduce((n, s) => n + treeBuyableRanks(s), 0) / trees.length; // after SPEC_POINTS.treeRankCap
     assert(avg >= TREE_RANKS_TARGET.min && avg <= TREE_RANKS_TARGET.max, `${classId} average tree ${avg} ranks`);
     assert(trees.length * avg > specPointsForLevel(MAX_LEVEL), `${classId}: every tree must not be affordable at level 70`);
+    // A real choice inside each tree: the cap buys at most about five sixths of a tree's ranks.
+    for (const s of trees) assert(SPEC_POINTS.treeRankCap / treeTotalRanks(s) <= 0.84, `${s.id}: ${treeTotalRanks(s)} ranks for a cap of ${SPEC_POINTS.treeRankCap}`);
   }
 });
+
+/** The foundation's original economy (one point per level from 2, whole trees): exercises the rules at low levels. */
+const FROM_L2: SpecEconomy = { source: 'separate', perLevel: 1, fromLevel: 2, treeRankCap: Infinity };
 
 test('buying and refunding ranks follows level, prerequisites, budget and dependants', () => {
   const undo = installFixtureNodes();
   try {
     const save = createCharacter('NodeRules', 'warrior', 7);
     save.level = 10;
-    assert.match(nodeBuyError(save, 'whirlwind', 'fx_reach') ?? '', /Requires Placeholder Gale rank 1/);
-    assert.equal(buySkillNode(save, 'whirlwind', 'fx_gale'), null);
-    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach'), null);
-    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach'), null);
-    assert.match(buySkillNode(save, 'whirlwind', 'fx_reach') ?? '', /highest rank/);
-    assert.match(buySkillNode(save, 'whirlwind', 'fx_devils') ?? '', /unlocks at level 20/);
-    assert.match(refundSkillNode(save, 'whirlwind', 'fx_gale') ?? '', /needs Placeholder Gale rank 1/);
-    assert.equal(specPointsSpent(save), 3); assert.equal(specPointsAvailable(save), 9 - 3);
+    assert.match(nodeBuyError(save, 'whirlwind', 'fx_reach', FROM_L2) ?? '', /Requires Placeholder Gale rank 1/);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_gale', FROM_L2), null);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach', FROM_L2), null);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach', FROM_L2), null);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_reach', FROM_L2) ?? '', /highest rank/);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_devils', FROM_L2) ?? '', /unlocks at level 20/);
+    assert.match(refundSkillNode(save, 'whirlwind', 'fx_gale', FROM_L2) ?? '', /needs Placeholder Gale rank 1/);
+    assert.equal(specPointsSpent(save), 3); assert.equal(specPointsAvailable(save, FROM_L2), 9 - 3);
+    assert.match(nodeBuyError(save, 'whirlwind', 'fx_thrift') ?? '', /No specialization points left/, 'shipped economy: no points before level 21');
     for (const bad of [['meteor', 'fx_mass'], ['whirlwind', 'missing'], ['__proto__', 'x'], [7, 'fx_gale'], ['whirlwind', null]] as const)
-      assert(nodeBuyError(save, bad[0], bad[1]), `${String(bad[0])}/${String(bad[1])} must be rejected`);
+      assert(nodeBuyError(save, bad[0], bad[1], FROM_L2), `${String(bad[0])}/${String(bad[1])} must be rejected`);
     save.level = 3;
     const before = structuredClone(save.skills.nodes);
-    assert.match(buySkillNode(save, 'whirlwind', 'fx_thrift') ?? '', /No specialization points left/);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_thrift', FROM_L2) ?? '', /No specialization points left/);
     assert.deepEqual(save.skills.nodes, before, 'a rejected purchase changes nothing');
-    assert.equal(refundSkillNode(save, 'whirlwind', 'fx_reach'), null);
+    assert.equal(refundSkillNode(save, 'whirlwind', 'fx_reach', FROM_L2), null);
     assert.equal(save.skills.nodes!.whirlwind.fx_reach, 1);
-    assert.equal(resetSkillNodes(save, 'whirlwind'), 2);
+    assert.equal(resetSkillNodes(save, 'whirlwind', FROM_L2), 2);
     assert.deepEqual(save.skills.nodes, {});
   } finally { undo(); }
 });
@@ -189,7 +196,10 @@ test('save normalisation keeps legal trees and clears illegal ones (free respec,
 
 test('passive data: still four slots at 10/20/30/70, six stat passives per class unchanged, template passives validate', () => {
   assert.deepEqual([...PASSIVE_SLOT_LEVELS], [10, 20, 30, 70]);
-  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.equal(passivesForClass(classId).length, 6);
+  // The six stat passives keep their place; the warrior pilot appends bible v2 rule passives.
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) assert.deepEqual(passivesForClass(classId).slice(0, 6).map(p => !!p.stat), [true, true, true, true, true, true]);
+  assert.equal(passivesForClass('ranger').length, 6); assert.equal(passivesForClass('mage').length, 6);
+  assert(passivesForClass('warrior').slice(6).every(p => !p.stat && p.effects?.length), 'warrior rule passives are templates');
   const data = fixture();
   data.passives.push(...structuredClone(FIXTURE_PASSIVES));
   assert.deepEqual(validateContent(data), []);
@@ -221,10 +231,11 @@ test('a template passive in a slot reaches the character sheet; its text is auth
 
 // ─────────────────────────── Economy switch, tags, validation of the new vocabulary ───────────────────────────
 
-test('the point economy flips by one config: separate from L2 (shipped), bible preset (L10, cap 10), shared tier points', () => {
-  assert.deepEqual(SPEC_POINTS, { source: 'separate', perLevel: 1, fromLevel: 2, treeRankCap: Infinity });
+test('the point economy flips by one config: separate from L21 with a 10-rank cap (shipped), the v1 bible preset, shared tier points', () => {
+  assert.deepEqual(SPEC_POINTS, { source: 'separate', perLevel: 1, fromLevel: 21, treeRankCap: 10 });
   const bible: SpecEconomy = { source: 'separate', perLevel: 1, fromLevel: 10, treeRankCap: 10 };
   assert.equal(specPointsForLevel(70, bible), 61); assert.equal(specPointsForLevel(9, bible), 0); assert.equal(specPointsForLevel(10, bible), 1);
+  assert.equal(specPointsForLevel(70, FROM_L2), 69);
   const shared: SpecEconomy = { source: 'shared', perLevel: 1, fromLevel: 2, treeRankCap: Infinity };
   const undo = installFixtureNodes();
   try {
@@ -247,11 +258,9 @@ test('the point economy flips by one config: separate from L2 (shipped), bible p
   } finally { undo(); }
 });
 
-test('the economy target holds for the shipped switch with the tree cap applied (bible preset reported, not enforced)', () => {
-  for (const eco of [SPEC_POINTS]) {
-    const trees = specPointsForLevel(MAX_LEVEL, eco);
-    assert(trees / TREE_RANKS_TARGET.max >= 4 && trees / TREE_RANKS_TARGET.min <= 5);
-  }
+test('the economy target holds for the shipped switch with the tree cap applied: five full trees at level 70', () => {
+  const trees = specPointsForLevel(MAX_LEVEL) / Math.min(SPEC_POINTS.treeRankCap, TREE_RANKS_TARGET.max);
+  assert(trees >= 4.5 && trees <= 5.5, `${trees} trees`);
 });
 
 test('skills carry derived and authored tags; validation rejects unknown tags, empty queries and illegal buckets', () => {
@@ -273,11 +282,15 @@ test('a class may own several primary attacks; the auto-attack is chosen on the 
   assert.match(setPrimarySkill(save, 'whirlwind') ?? '', /Only a primary/);
   assert.match(setPrimarySkill(save, 'cleave') ?? '', /Already/);
   assert.match(setPrimarySkill(save, 'magic_missile') ?? '', /Unknown skill/);
+  // The warrior ships its second primary (Tolling Blow, level 16).
+  assert.match(setPrimarySkill(save, 'tolling_blow') ?? '', /level 16/);
+  save.level = 16; assert.equal(setPrimarySkill(save, 'tolling_blow'), null); assert.equal(save.skills.primary, 'tolling_blow');
+  const mage = createCharacter('TwoPrimariesMage', 'mage', 2);
   const undo = installFixtureSkills(12);
   try {
-    assert.match(setPrimarySkill(save, 'fx_warrior_primary2') ?? '', /level 16/);
-    save.level = 16; assert.equal(setPrimarySkill(save, 'fx_warrior_primary2'), null); assert.equal(save.skills.primary, 'fx_warrior_primary2');
-    assert.equal(skillsForClass('warrior').length, 12);
+    assert.match(setPrimarySkill(mage, 'fx_mage_primary2') ?? '', /level 16/);
+    mage.level = 16; assert.equal(setPrimarySkill(mage, 'fx_mage_primary2'), null); assert.equal(mage.skills.primary, 'fx_mage_primary2');
+    assert.equal(skillsForClass('mage').length, 12);
   } finally { undo(); }
-  assert.equal(skillsForClass('warrior').length, 6, 'fixture removed');
+  assert.equal(skillsForClass('mage').length, 6, 'fixture removed');
 });

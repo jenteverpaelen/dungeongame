@@ -1,6 +1,6 @@
 // Geometry helpers, crowd control on monsters/players, DoT bookkeeping and player buffs.
 
-import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TILE, angleDiff, type Element } from '../shared';
+import { ELEMENT_INDEX, F_BLEED, F_BURN, F_CHILL, F_FROZEN, F_POISON, F_STUN, T_VOID, T_WALL, TICK_MS, TILE, angleDiff, type Element } from '../shared';
 import type { Instance } from './instance';
 import type { Buff, Dot, DotKind, Mob, Player } from './types';
 import { adventureCover } from '../../../shared/src/adventureCover';
@@ -142,8 +142,15 @@ export function dragMob(inst: Instance, m: Mob, tx: number, ty: number, step: nu
   landed(m, 'pull', true, inst, by);
 }
 
+/**
+ * Ticks a dot will still deal. monsters.ts advances dots once per simulation tick (TICK_MS) and removes a dot in the
+ * first update where `leftMs <= 0`, so a tick still lands when it is due less than one simulation tick after leftMs
+ * runs out: elapsed = nextMs + k × tickMs < leftMs + TICK_MS.
+ */
+export const ticksAhead = (d: Dot): number => Math.max(0, Math.ceil((d.leftMs - d.nextMs + TICK_MS) / d.tickMs - 1e-9));
+
 /** Damage an expiring / replaced dot still had to deal. */
-const remainingDamage = (d: Dot) => d.perTick * Math.max(0, Math.ceil(d.leftMs / d.tickMs));
+const remainingDamage = (d: Dot) => d.perTick * ticksAhead(d);
 
 /**
  * Add a damage-over-time effect. Default: one dot per (kind, owner, skill), refreshed in place (keeps the stronger
@@ -156,9 +163,11 @@ export function addDot(m: Mob, dot: Dot, stacks = 1, carryPct = 0) {
     for (let i = 0; i < m.dots.length; i++) {
       const d = m.dots[i];
       if (d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill) {
-        if (carryPct > 0) dot.perTick += remainingDamage(d) * carryPct / 100 / Math.max(1, Math.round(dot.leftMs / dot.tickMs));
-        else if (dot.perTick < d.perTick && d.leftMs > dot.leftMs * 0.5) { d.leftMs = Math.max(d.leftMs, dot.leftMs); return; }
+        if (carryPct <= 0 && dot.perTick < d.perTick && d.leftMs > dot.leftMs * 0.5) { d.leftMs = Math.max(d.leftMs, dot.leftMs); return; }
+        const carried = carryPct > 0 ? remainingDamage(d) * carryPct / 100 : 0;
         dot.nextMs = Math.min(dot.nextMs, d.nextMs);
+        // The carried damage is spread over the ticks the new dot will really deal (exact, so repeated carries never grow).
+        if (carried > 0) dot.perTick += carried / Math.max(1, ticksAhead(dot));
         m.dots[i] = dot;
         return;
       }
@@ -175,7 +184,7 @@ export function addDot(m: Mob, dot: Dot, stacks = 1, carryPct = 0) {
   }
   if (same < stacks && m.dots.length < 8) { m.dots.push(dot); return; }
   if (oldest < 0) return;
-  if (carryPct > 0) dot.perTick += remainingDamage(m.dots[oldest]) * carryPct / 100 / Math.max(1, Math.round(dot.leftMs / dot.tickMs));
+  if (carryPct > 0) dot.perTick += remainingDamage(m.dots[oldest]) * carryPct / 100 / Math.max(1, ticksAhead(dot));
   m.dots[oldest] = dot;
 }
 
@@ -235,7 +244,7 @@ export function removeBuff(p: Player, id: string) {
 export function refreshLive(p: Player) {
   const l = p.live;
   l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
-  let dr = 1, cci = false, cdrec = 0;
+  let dr = 1, cci = false, cdrec = 0, cost = 1;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
@@ -245,8 +254,9 @@ export function refreshLive(p: Player) {
     if (b.dr) dr *= 1 - Math.min(100, b.dr) / 100;
     if (b.cci) cci = true;
     if (b.cdrec) cdrec += b.cdrec;
+    if (b.cost) cost *= Math.max(0, 1 + b.cost / 100);
   }
-  l.dr = dr; l.cci = cci; l.cdrec = cdrec;
+  l.dr = dr; l.cci = cci; l.cdrec = cdrec; l.cost = cost;
 }
 
 /** Advance buff timers; returns true if any expired. */

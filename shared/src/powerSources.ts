@@ -11,8 +11,8 @@ import { savedNodeRanks } from './specialization';
 import type { CharacterSave, DerivedStats } from './types';
 
 export interface PowerSource {
-  kind: 'set' | 'legendary' | 'inscription' | 'passive' | 'node' | 'affix';
-  /** set:<id>:<count>, legendary id, inscription:<id>, passive id, or <skill>:<node>. */
+  kind: 'set' | 'legendary' | 'inscription' | 'passive' | 'node' | 'rune' | 'affix';
+  /** set:<id>:<count>, legendary id, inscription:<id>, passive id, <skill>:<node>, <skill>:rune:<rune>, or affixes. */
   id: string;
   /** Value for `{ roll }` amounts: the legendary's rolled value (Cube: maximum), a node's rank, otherwise 1. */
   roll: number;
@@ -49,7 +49,10 @@ export function itemPowerSources(powers: Readonly<Record<string, number>>, sets:
   return out;
 }
 
-/** Specialization-node effects of the skills currently on the bar (unlocked primary and slotted skills). */
+/**
+ * Specialization-node effects, then the equipped rune's effects, of the skills currently on the bar (unlocked primary and
+ * slotted skills; a rune counts once it is unlocked).
+ */
 export function nodePowerSources(save: Pick<CharacterSave, 'classId' | 'level' | 'skills'>): PowerSource[] {
   const out: PowerSource[] = [];
   const bar = [save.skills.primary, ...save.skills.slots];
@@ -58,12 +61,15 @@ export function nodePowerSources(save: Pick<CharacterSave, 'classId' | 'level' |
     if (!id || seen.has(id) || !Object.hasOwn(SKILLS, id)) continue;
     seen.add(id);
     const skill = SKILLS[id];
-    if (skill.classId !== save.classId || skill.unlock > save.level || !skill.nodes) continue;
+    if (skill.classId !== save.classId || skill.unlock > save.level) continue;
     const ranks = savedNodeRanks(save, id);
-    for (const node of skill.nodes) {
+    for (const node of skill.nodes ?? []) {
       const r = Math.min(node.maxRank, Math.max(0, Math.floor(ranks[node.id] ?? 0)));
       if (r > 0 && node.effects?.length) out.push({ kind: 'node', id: `${id}:${node.id}`, roll: r, effects: node.effects });
     }
+    const runeId = save.skills.runes?.[id];
+    const rune = runeId ? skill.runes.find((x) => x.id === runeId) : undefined;
+    if (rune?.effects?.length && rune.unlock <= save.level) out.push({ kind: 'rune', id: `${id}:rune:${rune.id}`, roll: 1, effects: rune.effects });
   }
   return out;
 }

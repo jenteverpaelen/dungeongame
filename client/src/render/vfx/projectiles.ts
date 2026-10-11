@@ -175,6 +175,14 @@ export class Projectiles {
         add(s.aAdd, T.core, p.hot);
         break;
       }
+      case 'stone': {
+        // Ironplough · Stone Spray: a small thrown stone, tumbling on a low arc (fire rune: still glowing)
+        p.z = 16;
+        p.color = p.el === EL_FIRE ? 0xff8a3d : 0x9a8a74;
+        add(s.gNormal, T.shadow, 0x000000);
+        add(s.aBody, T.chunk[p.id % 3], p.el === EL_FIRE ? 0xd8a070 : 0x9a8a74);
+        break;
+      }
       default: {
         // 'orb' and anything unknown: glowing orb in the element colour.
         p.z = 28;
@@ -307,6 +315,13 @@ export class Projectiles {
         b.place(p.x, p.y, p.z); b.rotation = p.spin * 9; b.setScale(24 * sz); b.setAlpha(1);
         break;
       }
+      case 'stone': {
+        const [sh, b] = parts;
+        p.z = 12 + 16 * Math.sin(Math.PI * clamp(t / p.life, 0, 1));
+        sh.place(p.x, p.y, 0); sh.setScale(12 * sz, 0.5); sh.setAlpha(0.28);
+        b.place(p.x, p.y, p.z); b.rotation = p.phase + p.spin * 13; b.setScale(10 * sz); b.setAlpha(1);
+        break;
+      }
       case 'spark': {
         const [g, c] = parts;
         const j = 4;
@@ -385,6 +400,11 @@ export class Projectiles {
           this.combat.zigzag(x, y - z, rand(0, TAU), rand(10, 18), 0xd6c2ff, 0.08, 1.8);
           break;
         }
+        case 'stone': {
+          if (p.el === EL_FIRE) { if (Math.random() < 0.5) s.ember(x, y, z, 0xff8a3d, 0.4, 3.5, 20); }
+          else if (Math.random() < 0.4) { const g = s.aBody.add(T.dot, x, y, 0.3); g.z = z; g.vz = -20; g.gz = 300; g.w0 = g.w1 = 2.2; g.fo = 0.4; g.tintTo(0x7d7062); }
+          break;
+        }
         default: {
           const f = s.aAdd.add(T.dot, x + rand(-3, 3), y, 0.3);
           f.z = z + rand(-3, 3); f.w0 = 11 * p.sz; f.w1 = 1; f.fo = 0.1; f.tintTo(p.color);
@@ -456,6 +476,12 @@ export class Projectiles {
       case 'cluster': {
         // The explosion itself arrives as an `aoe cluster` event; just a spark when the shell lands.
         s.flash(x, y, 8, 40, 0xffd090, 0.08, 0.8);
+        break;
+      }
+      case 'stone': {
+        for (let i = 0; i < 3; i++) s.chunk(x, y, z, rand(-90, 90), rand(-40, 40), rand(60, 150), rand(3, 5), i % 2 ? 0x8f8578 : 0x6e665c, 0.5);
+        s.dust(x, y, 10, 26, 0xa89c88, 0.4, 0.32);
+        if (hit) s.flash(x, y, z, 20, p.el === EL_FIRE ? 0xffb070 : 0xfff0d8, 0.07, 0.6);
         break;
       }
       case 'spark': {

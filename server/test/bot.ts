@@ -525,7 +525,14 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
 
   // ── equip / unequip / swap / destroy
   section2(tag, 'inventory & equipment');
-  const mainhand = b.findInv((i) => i.rarity === 'legendary' && (i.kind === 'weapon1h' || i.kind === 'weapon2h'));
+  // The warrior's debug grants (32 class + the shared legendaries + a set + rares) fill the 60-slot bag; the steps
+  // below need a few free slots, so drop some non-weapon debug legendaries first.
+  const free = () => b.char.inventory.filter((x) => x === null).length;
+  for (const it of b.inv().filter((i) => i.rarity === 'legendary' && i.kind !== 'weapon1h' && i.kind !== 'weapon2h')) {
+    if (free() >= 4) break;
+    await b.cmd('destroy', { itemId: it.id });
+  }
+  const mainhand =b.findInv((i) => i.rarity === 'legendary' && (i.kind === 'weapon1h' || i.kind === 'weapon2h'));
   c('have a legendary weapon to equip', !!mainhand);
   if (mainhand) {
     const dpsBefore = b.derived.sheetDps;

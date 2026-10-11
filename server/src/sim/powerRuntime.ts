@@ -40,6 +40,8 @@ export interface ProcRuntime {
   chance?: number; reduceMs: number; resource: number; buff: Buff | null;
   /** Wave 2 (absent on procs that do not use them, so legacy procs stay the same objects). */
   key?: string; icdMs?: number; skills?: ReadonlySet<string>; status?: readonly StatusKind[]; minHitPct?: number; buffMax?: number; every?: number; repeat?: boolean;
+  /** Gate: the proc fires only while this condition holds (warrior pilot addition). */
+  when?: RCondition;
   reset?: readonly string[];
   strike?: { id: string; coef: number; radius: number; el?: Element; at: 'target' | 'self'; visual?: string };
   summon?: { type: string; skill: string; lifeMs: number; at: 'target' | 'self'; max?: number };
@@ -286,7 +288,8 @@ const ownFactor = (pct: number) => 1 + pct / 100;
 function procRuntime(e: Extract<PowerEffect, { kind: 'proc' }>, roll: number, key: string, index: TagIndex): ProcRuntime {
   const pr: ProcRuntime = { chance: e.chance, reduceMs: amount(e.reduceCooldownsMs, roll), resource: amount(e.resource, roll), buff: e.buff ? grantBuff(e.buff, roll) : null };
   // Wave-2 fields are only set when authored, so a legacy proc is the same object shape as before.
-  if (e.icdMs || e.skills || e.tags || e.status || e.minHitPct || e.buff?.maxStacks || e.resetCooldowns || e.strike || e.summon || e.ground || e.applyStatus || e.clearProjectiles || e.every || e.repeat) pr.key = key;
+  if (e.icdMs || e.skills || e.tags || e.status || e.minHitPct || e.buff?.maxStacks || e.resetCooldowns || e.strike || e.summon || e.ground || e.applyStatus || e.clearProjectiles || e.every || e.repeat || e.when) pr.key = key;
+  if (e.when) pr.when = resolveCondition(e.when, index);
   if (e.every && e.every > 1) pr.every = e.every;
   if (e.repeat) pr.repeat = true;
   if (e.icdMs) pr.icdMs = e.icdMs;
@@ -579,6 +582,7 @@ export function firePowerProcs(inst: Instance, p: Player, on: ProcTrigger, c?: P
       if (pr.status && (!c?.status || !pr.status.includes(c.status))) continue;
       if (pr.minHitPct && !(c?.amount !== undefined && c.amount >= p.mhp * pr.minHitPct / 100)) continue;
       if (pr.icdMs && (p.pw?.icd.get(pr.key) ?? -Infinity) > inst.t) continue;
+      if (pr.when && !conditionCount(p, pr.when, c?.el, c?.mob ?? null)) continue;
       if (pr.every) {
         const counts = powerState(p).counts, n = (counts.get(pr.key) ?? 0) + 1;
         counts.set(pr.key, n);
@@ -625,7 +629,7 @@ function powerBuffCatalogue() {
   for (const l of Object.values(LEGENDARIES)) buffGrants(l.effects, c);
   for (const s of Object.values(SETS)) for (const b of s.bonuses) buffGrants(b.effects ?? [], c);
   for (const p of PASSIVES) buffGrants(p.effects ?? [], c);
-  for (const s of Object.values(SKILLS)) for (const n of s.nodes ?? []) buffGrants(n.effects ?? [], c);
+  for (const s of Object.values(SKILLS)) { for (const n of s.nodes ?? []) buffGrants(n.effects ?? [], c); for (const r of s.runes) buffGrants(r.effects ?? [], c); }
   return (catalogue = c);
 }
 

@@ -182,6 +182,8 @@ export type PowerEffect =
       every?: number;
       /** attack trigger only: make the same primary attack again at the same enemy ("repeats once"). */
       repeat?: boolean;
+      /** Fires only while this holds (player state, or the trigger's enemy for target conditions). */
+      when?: Condition;
       reduceCooldownsMs?: Amount; resetCooldowns?: string[]; resource?: Amount; buff?: BuffGrant; strike?: ProcStrike;
       summon?: { type: string; skill: string; lifeMs: number; at?: 'target' | 'self'; max?: number };
       ground?: { def: string; at?: 'target' | 'self'; scale?: Amount };
@@ -405,7 +407,7 @@ export function describeEffect(e: PowerEffect): string {
       if (e.repeat) parts.push('repeats once');
       const icd = e.icdMs ? ` (once every ${e.icdMs / 1000} seconds)` : '';
       const every = e.every && e.every > 1 ? `Every ${e.every}th: ` : '';
-      return `${every}${e.chance !== undefined ? `${Math.round(e.chance * 100)}% chance: ` : ''}${when} ${parts.join(' and ')}${icd}.`;
+      return `${every}${e.chance !== undefined ? `${Math.round(e.chance * 100)}% chance: ` : ''}${when}${e.when ? ` ${conditionText(e.when)}` : ''} ${parts.join(' and ')}${icd}.`;
     }
     case 'damageTaken': {
       const v = typeof e.pct === 'number' ? fmt(e.pct) : '{v}', more = typeof e.pct === 'number' && e.pct < 0 ? 'less' : 'more';
@@ -461,7 +463,8 @@ export function effectTokens(e: PowerEffect): string[] {
     case 'elementCycle': return [n(e.periodMs / 1000), ...a(e.pct)];
     case 'proc': return [...(typeof e.reduceCooldownsMs === 'number' ? [n(e.reduceCooldownsMs / 1000)] : []), ...a(e.resource), ...(e.buff ? [n(e.buff.ms / 1000), ...a(e.buff.dmg)] : []),
       ...(e.icdMs ? [n(e.icdMs / 1000)] : []), ...(e.strike && typeof e.strike.coef === 'number' ? [n(e.strike.coef * 100)] : []),
-      ...(e.every && e.every > 1 ? [n(e.every)] : []), ...(e.summon ? [n(e.summon.lifeMs / 1000)] : []), ...(e.applyStatus?.ms ? [n(e.applyStatus.ms / 1000)] : []), ...(e.applyStatus ? a(e.applyStatus.pct) : [])];
+      ...(e.every && e.every > 1 ? [n(e.every)] : []), ...(e.summon ? [n(e.summon.lifeMs / 1000)] : []), ...(e.applyStatus?.ms ? [n(e.applyStatus.ms / 1000)] : []), ...(e.applyStatus ? a(e.applyStatus.pct) : []),
+      ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'damageTaken': return [...a(e.pct), ...(e.perLegendary ? [n(e.perLegendary.max)] : []), ...(e.when ? conditionTokens(e.when, n) : [])];
     case 'firstHit': return [...a(e.pct), n(e.windowMs / 1000)];
     case 'cheatDeath': return [n(e.lifePct), n(e.cooldownMs / 1000), ...(e.invulnMs ? [n(e.invulnMs / 1000)] : [])];

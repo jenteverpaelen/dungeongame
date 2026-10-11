@@ -45,7 +45,7 @@ export class Casts {
       case 'cleave': {
         const wide = hasFlag('cleave', ev.r, 'wideArc');
         this.aoe.cleave(x, y, ev.rad ?? (wide ? 150 : 120), a, el, wide, V.skinOf(ev.s));
-        V.mark('cleave', x, y);
+        this.aoe.noteCleave(x, y, a);
         break;
       }
       case 'whirlwind': {
@@ -81,6 +81,90 @@ export class Casts {
         }
         for (let i = 0, n = s.n(14); i < n; i++) s.ember(x + rand(-20, 20), y, rand(0, 40), 0xff5a2a, rand(0.6, 1), 5, 120);
         V.sound('rage', x, y, vol);
+        break;
+      }
+      // ── warrior M1 (the impacts themselves arrive as aoe / tele events; these are the caster's flourishes) ──
+      case 'tolling_blow': {
+        // The weapon raised overhead: a short glint above the head, then a heavy swish as it comes down.
+        const c = el === EL_FIRE ? 0xffb070 : 0xffe2a0;
+        s.glint(x - dir * 4, y, 66, 20, c, 0.16, 0.8);
+        for (let i = 0; i < 3; i++) {
+          const p = s.aAdd.add(T.streak, x + dir * (10 + i * 5), y + 1, 0.12);
+          p.z = 62 - i * 6; p.rotation = Math.PI / 2 + dir * (0.5 - i * 0.2); p.anchorX = 0.9; p.w0 = 34; p.w1 = 50; p.k = 0.4; p.a0 = 0.5; p.fo = 0.2;
+          p.tintTo(c);
+        }
+        V.sound('swing', x, y, vol * 0.6);
+        break;
+      }
+      case 'sawtooth_hatchet': {
+        // Release: a red flick off the hand toward the throw.
+        const c = el === EL_FIRE ? 0xffa050 : 0xff5a4a;
+        s.flash(hx, y, hz, 30, c, 0.08, 0.6);
+        for (let i = 0; i < 4; i++) s.spark(hx, y, hz, a + rand(-0.35, 0.35), rand(160, 280), 11, i % 2 ? c : 0xffd0c0, 0.16);
+        V.sound('swing', x, y, vol * 0.8);
+        break;
+      }
+      case 'muster_standard': {
+        // The plant itself (pole, banner, dust) is the `standard` aoe, timed to the hero's stab.
+        for (let i = 0, n = s.n(6); i < n; i++) s.dust(x + rand(-14, 14), y + rand(-5, 5), 14, 30, 0xc9b597, 0.4, 0.35);
+        break;
+      }
+      case 'ironplough': {
+        // Bracing for the push: dust kicked out around the feet.
+        for (let i = 0, n = s.n(8); i < n; i++) {
+          const aa = (i / 8) * TAU;
+          s.dust(x + Math.cos(aa) * 10, y + Math.sin(aa) * 6, 16, 40, 0xb8a284, rand(0.45, 0.65), 0.38, Math.cos(aa) * 150, Math.sin(aa) * 90);
+        }
+        V.sound('swing', x, y, vol * 0.6);
+        break;
+      }
+      case 'cairnfall': {
+        // Calling the stones: grit and pebbles lift off the ground around the hero, a pale flash overhead.
+        const c = el === EL_FIRE ? 0xffb070 : 0xe8dcc0;
+        s.flash(x, y, 74, 70, c, 0.22, 0.55);
+        s.ring(s.gAdd, T.ringHard, x, y, 12, 64, el === EL_FIRE ? 0xff8a3d : 0xd8c8a8, 0.45, 0.5);
+        for (let i = 0, n = s.n(10); i < n; i++) {
+          const aa = (i / 10) * TAU + rand(-0.2, 0.2);
+          const p = s.aBody.add(T.chunk[i % 3], x + Math.cos(aa) * rand(26, 46), y + Math.sin(aa) * rand(14, 26), rand(0.5, 0.75));
+          p.vz = rand(50, 90); p.gz = -260; p.drag = 0.6; p.vr = rand(-5, 5); p.rotation = rand(0, TAU);
+          p.w0 = rand(4, 7); p.w1 = 3; p.fi = 0.1; p.fo = 0.55;
+          p.tintTo(i % 2 ? 0x9d9386 : 0x7a7166);
+        }
+        for (let i = 0, n = s.n(8); i < n; i++) {
+          const aa = (i / 8) * TAU;
+          s.dust(x + Math.cos(aa) * 14, y + Math.sin(aa) * 9, 16, 40, 0xb8a990, rand(0.5, 0.7), 0.35, Math.cos(aa) * 110, Math.sin(aa) * 70);
+        }
+        V.sound('cairn_fall', x, y, vol);
+        break;
+      }
+      case 'kilnheart': {
+        // Bellows: air drawn in toward the chest, then the heart catches in a burst of flame (Cold Forge: frost).
+        const cold = el === EL_COLD;
+        const main = cold ? 0x7fd8ff : 0xff6a1a, hot = cold ? 0xe8fbff : 0xffd36a;
+        for (let i = 0; i < 10; i++) {
+          const aa = (i / 10) * TAU, d = 64;
+          const p = s.aAdd.add(T.streak, x + Math.cos(aa) * d, y + Math.sin(aa) * d * 0.6, 0.18);
+          p.z = 32; p.vx = (-Math.cos(aa) * d) / 0.18; p.vy = (-Math.sin(aa) * d * 0.6) / 0.18; p.align = true; p.anchorX = 0.9;
+          p.w0 = 30; p.w1 = 10; p.k = 0.4; p.a0 = 0.45; p.fo = 0.3; p.tintTo(hot);
+        }
+        V.after(0.16, () => {
+          s.flash(x, y, 32, 90, hot, 0.16, 0.8);
+          s.ring(s.gAdd, T.ringThick, x, y, 10, 80, main, 0.45, 0.6);
+          for (let i = 0, n = s.n(12); i < n; i++) {
+            const aa = (i / 12) * TAU, d = rand(10, 22);
+            const f = s.aAdd.add(cold ? T.wisp : T.flame, x + Math.cos(aa) * d, y + Math.sin(aa) * d * 0.6, rand(0.35, 0.55));
+            f.z = rand(6, 30); f.anchorY = 0.85; f.vz = rand(120, 200); f.vx = -Math.sin(aa) * 40; f.vy = Math.cos(aa) * 24; f.drag = 1.2;
+            f.w0 = rand(16, 24); f.w1 = 4; f.k = 1.5; f.fo = 0.3; f.flick = 0.2; f.a0 = 0.85;
+            f.tintFade(hot, main);
+          }
+          for (let i = 0, n = s.n(14); i < n; i++) s.ember(x + rand(-20, 20), y, rand(0, 40), main, rand(0.6, 1), 5, 120);
+          s.smoke(x, y, 40, 26, 70, cold ? 0xdff4ff : 0x4e423b, 1.1, 0.3, 50);
+        });
+        // the stoked aura: the local player's buff list ends it; for everyone else the cast's (rune-scaled) duration
+        const def = SKILLS.kilnheart, rune = def?.runes.find((q) => q.id === ev.r);
+        const life = (def?.duration ?? 20) * (1 + (rune?.mods.duration ?? 0) / 100);
+        this.aoe.kilnAura(ev.s, cold, life);
+        V.sound('kiln_ignite', x, y, vol);
         break;
       }
       case 'magic_weapon': {

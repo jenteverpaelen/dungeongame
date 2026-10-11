@@ -70,17 +70,23 @@ export interface KitSpec {
   runes?: Record<string, string>;
 }
 /** Run-time variants (see the header). */
-export interface RunOptions { seeds?: number[]; dash?: boolean; lifePct?: number }
+export interface RunOptions { seeds?: number[]; dash?: boolean; lifePct?: number; /** Collects damage per strike id (diagnostics). */ breakdown?: Map<string, number> }
 
 export interface ParityProfile { classId: ClassId; set: string; skills: string[]; slots: string[] }
 
-/** Skills a set's top bonus names (the "set-backed" skills; tag targets resolved for the class); sub-strikes map to their owner. */
+/**
+ * Skills a set's top bonus names (the "set-backed" skills; tag targets resolved for the class); sub-strikes map to their
+ * owner. A top bonus that targets every skill (e.g. "all your skills vs stunned enemies") falls back to the next bonus.
+ */
 export function setSkills(set: SetDef): string[] {
-  const top = [...set.bonuses].sort((a, b) => b.count - a.count)[0];
   const index = tagIndexFor(set.classId, {});
-  const ids = new Set<string>();
-  for (const e of top?.effects ?? []) if ('skills' in e || 'tags' in e) for (const s of resolveTargets(e as { skills?: string[] }, index) ?? []) ids.add(subStrikeOwner(s));
-  return [...ids].filter((id) => Object.hasOwn(SKILLS, id));
+  for (const b of [...set.bonuses].sort((a, b) => b.count - a.count)) {
+    const ids = new Set<string>();
+    for (const e of b.effects ?? []) if ('skills' in e || 'tags' in e) for (const s of resolveTargets(e as { skills?: string[] }, index) ?? []) ids.add(subStrikeOwner(s));
+    const out = [...ids].filter((id) => Object.hasOwn(SKILLS, id));
+    if (out.length) return out;
+  }
+  return [];
 }
 
 /** The loadout the planner plays for a set: `SetDef.parityLoadout`, else its named non-primary skills, then fill. */
@@ -118,9 +124,11 @@ export function planKit(profile: ParityProfile, kind: KitKind): KitSpec {
   const set = SETS[profile.set];
   const pool = Object.values(LEGENDARIES).map((l) => ({ l, r: relevance(l, profile) })).filter((x) => x.r > 0);
   const bestFor = (slot: Slot, used: Set<string>) => pool.filter((x) => !used.has(x.l.id) && slotOf(x.l).includes(slot)).sort((a, b) => b.r - a.r)[0];
-  // Hybrid: set pieces go to the four armor slots whose best legendary alternative matters least.
-  const armorValue = ARMOR_SLOTS.map((s, i) => ({ s, i, v: bestFor(s, new Set())?.r ?? 0 }));
-  const setSlots = kind === 'set' ? ARMOR_SLOTS : kind === 'legendary' ? [] : [...armorValue].sort((a, b) => a.v - b.v || a.i - b.i).slice(0, 4).map((x) => x.s);
+  // The set's own footprint (most sets: the six armour slots; some trade legs / feet for belt / bracers).
+  const pieceSlots = set.pieces.map((p) => BASES[p.base].kind as Slot);
+  // Hybrid: set pieces go to the four footprint slots whose best legendary alternative matters least.
+  const armorValue = pieceSlots.map((s, i) => ({ s, i, v: bestFor(s, new Set())?.r ?? 0 }));
+  const setSlots = kind === 'set' ? pieceSlots : kind === 'legendary' ? [] : [...armorValue].sort((a, b) => a.v - b.v || a.i - b.i).slice(0, 4).map((x) => x.s);
   const used = new Set<string>(), equipment: Partial<Record<Slot, SlotItem>> = {};
   const weapons = [...pool.filter((x) => slotOf(x.l).includes('mainhand')), null];
   let best = { score: -1, weapon: null as LegendaryDef | null, off: null as LegendaryDef | null };
@@ -134,16 +142,11 @@ export function planKit(profile: ParityProfile, kind: KitKind): KitSpec {
   equipment.mainhand = best.weapon ? { legendary: best.weapon.id } : { rare: weaponBase };
   if (best.weapon) used.add(best.weapon.id);
   if (!blocksOffhand(weaponBase)) { equipment.offhand = best.off ? { legendary: best.off.id } : { rare: CLASS_OFFHAND[profile.classId] }; if (best.off) used.add(best.off.id); }
-  for (const slot of ARMOR_SLOTS) {
-    const piece = set.pieces.find((p) => BASES[p.base].kind === slot)!;
-    if (setSlots.includes(slot)) { equipment[slot] = { set: set.id, base: piece.base }; continue; }
+  for (const slot of [...ARMOR_SLOTS, ...OTHER_SLOTS]) {
+    const piece = set.pieces.find((p) => BASES[p.base].kind === slot);
+    if (piece && setSlots.includes(slot)) { equipment[slot] = { set: set.id, base: piece.base }; continue; }
     const b = bestFor(slot, used);
-    equipment[slot] = b ? { legendary: b.l.id } : { rare: piece.base };
-    if (b) used.add(b.l.id);
-  }
-  for (const slot of OTHER_SLOTS) {
-    const b = bestFor(slot, used);
-    equipment[slot] = b ? { legendary: b.l.id } : { rare: RARE_BASE[slot]! };
+    equipment[slot] = b ? { legendary: b.l.id } : { rare: piece?.base ?? RARE_BASE[slot] ?? set0Base(profile.classId, slot)! };
     if (b) used.add(b.l.id);
   }
   const cube = (['weapon', 'armor', 'jewelry'] as const).map((cs) => pool.filter((x) => x.l.cubeSlot === cs && !used.has(x.l.id)).sort((a, b) => b.r - a.r)[0]?.l.id ?? null);
@@ -166,13 +169,16 @@ function meanRolls(item: Item): Item {
 
 /** Build the character a KitSpec describes, for one seed (rare affixes come from the seed). */
 export function kitSave(spec: KitSpec, seed: number): CharacterSave {
-  const rng = new Rng(seed);
   const save = createCharacter(`Parity${spec.classId}`, spec.classId, seed);
   save.level = 70; save.difficulty = PARITY_DIFFICULTY; save.equipment = {}; save.inventory.fill(null);
+  // One RNG stream per slot: changing one slot's item never reshuffles the random affixes of the others (kit
+  // comparisons then measure the items, not affix luck).
+  let rng = new Rng(seed);
   const gen = (o: Omit<GenOptions, 'ilvl' | 'classId'>) => meanRolls(generateItem(rng, { ilvl: 70, classId: spec.classId, smartChance: 1, ancientAllowed: false, ...o }));
-  for (const slot of [...ARMOR_SLOTS, ...OTHER_SLOTS, 'mainhand', 'offhand'] as Slot[]) {
+  for (const [i, slot] of ([...ARMOR_SLOTS, ...OTHER_SLOTS, 'mainhand', 'offhand'] as Slot[]).entries()) {
     const it = spec.equipment[slot];
     if (!it) continue;
+    rng = new Rng(seed * 64 + i);
     save.equipment[slot] = 'set' in it ? gen({ rarity: 'set', set: it.set, base: it.base })
       : 'legendary' in it ? gen({ rarity: 'legendary', legendary: it.legendary }) : gen({ rarity: 'rare', base: it.rare });
   }
@@ -194,6 +200,7 @@ export function runEncounter(save: CharacterSave, encounter: number, seed: numbe
   const inst = new Instance({ zoneId: 'whispering_glade', key: 'parity', channel: 0, seed: 41, theme: 'glade', level: 70, difficulty: PARITY_DIFFICULTY });
   try {
     inst.spawner.tick = () => {};
+    if (opts.breakdown) inst.dmgBySkill = opts.breakdown;
     for (const m of [...inst.mobs]) inst.removeEntity(m.id);
     const s = { save, derived: computeStats(save), sessionId: save.id, send() {}, sendRaw() {}, markDirty() {}, changed(refresh: boolean) { s.derived = computeStats(save); if (refresh) inst.refreshPlayer(s); }, rec: { inst } } as unknown as Session;
     let center: { x: number; y: number } | undefined;

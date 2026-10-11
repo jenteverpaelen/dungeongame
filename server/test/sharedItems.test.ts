@@ -272,8 +272,10 @@ test('grades: Kindled adds one kindled affix at normal ranges, Fabled rolls maxi
   }
   assert(kindled && fabled, 'both grades drop');
   for (const it of [kindled, fabled]) {
-    assert.equal(it.affixes.length, 7, '5 primary + 2 secondary');
-    assert.equal(it.kindledAffix, 6); assert(it.affixes[6].primary);
+    // A socketed legendary spends one primary slot on its sockets (items.ts), so it carries one affix fewer.
+    const socketed = it.sockets.length > 0 ? 1 : 0;
+    assert.equal(it.affixes.length + socketed, 7, '5 primary (sockets count as one) + 2 secondary');
+    assert.equal(it.kindledAffix, it.affixes.length - 1); assert(it.affixes[it.affixes.length - 1].primary);
     for (const a of it.affixes) {
       const def = AFFIX_BY_STAT[a.stat], s = affixScale(def.scale, 70), hi = def.ranges[it.kind]![1] * s;
       assert(a.max <= Math.round(hi * 10) / 10 + 1e-9 || a.max <= Math.round(hi), `${a.stat}: normal ranges (no ×1.3)`);

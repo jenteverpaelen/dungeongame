@@ -199,6 +199,92 @@ export function SkillGlyph({ glyph, color, size = 40 }: { glyph: string; color: 
         </>
       );
       break;
+    case 'bell': // Tolling Blow: a bronze bell with a ringing ripple
+      body = (
+        <>
+          <path d="M3.4 11 C1.6 14 1.6 18 3.4 21 M28.6 11 C30.4 14 30.4 18 28.6 21" stroke={c} stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".85" />
+          <path d="M6 13 C5.2 15 5.2 17 6 19 M26 13 C26.8 15 26.8 17 26 19" stroke={hi} stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".75" />
+          <rect x="14" y="2.4" width="4" height="3.6" rx="1" fill={c} {...sw} />
+          <path d="M16 5 C10.6 5 8.6 9.6 8.6 15 V19.6 C8.6 22 6.4 23 5 24.6 H27 C25.6 23 23.4 22 23.4 19.6 V15 C23.4 9.6 21.4 5 16 5 Z" fill={c} {...sw} />
+          <path d="M16 5 C21.4 5 23.4 9.6 23.4 15 V19.6 C23.4 22 25.6 23 27 24.6 H16 Z" fill={lo} opacity=".35" />
+          <rect x="4.4" y="24.2" width="23.2" height="2.6" rx="1.2" fill={hi} {...sw} />
+          <circle cx="16" cy="28.6" r="2" fill={c} {...sw} />
+          <path d="M11.4 10.4 C12 8.2 13.6 7 15.4 6.8" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".7" />
+        </>
+      );
+      break;
+    case 'hatchet': // Sawtooth Hatchet: a toothed hand hatchet mid-spin with a red smear
+      body = (
+        <>
+          <path d="M4.6 21 C3.6 12.4 9.6 5 18 4" stroke="#b3261e" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".55" />
+          <path d="M8 26.4 C13 30 22 29.6 27 23.4" stroke="#b3261e" stroke-width="2" fill="none" stroke-linecap="round" opacity=".45" />
+          <g transform="rotate(-32 16 16)">
+            <rect x="12.6" y="7" width="3.4" height="23" rx="1.5" fill="#7a4a26" {...sw} />
+            <path d="M11 6.4 H16 C19 6.4 21 5 23.4 3.4 L24.4 5 L26 5.4 L25.8 7.4 L27.4 8.4 L26.2 10.2 L27.4 12 L25.8 13.2 L26.2 15 L24.6 15.8 L24 17.6 C21 15.8 18.8 15 16 15 H11 Z" fill={c} {...sw} />
+            <path d="M21.6 4.6 L23.4 3.4 L24.4 5 L26 5.4 L25.8 7.4 L27.4 8.4 L26.2 10.2 L27.4 12 L25.8 13.2 L26.2 15 L24.6 15.8 L24 17.6 L22.4 16.6 C23.2 12.6 23.2 8.6 21.6 4.6 Z" fill="#e4ded2" stroke={lo} stroke-width=".8" stroke-linejoin="round" />
+            <path d="M16 7.6 C18.6 7.6 20.6 6.8 22.6 5.6" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6" />
+            <path d="M16 15 C18.8 15 21 15.8 24 17.6 L24.4 16 C21.6 14.4 19 13.6 16 13.6 Z" fill={lo} opacity=".6" />
+          </g>
+        </>
+      );
+      break;
+    case 'banner': // Muster Standard: a pole with a madder-red banner bearing a hearth sigil
+      body = (
+        <>
+          <path d="M2 30 H14" stroke={lo} stroke-width="1.6" stroke-linecap="round" opacity=".7" />
+          <rect x="6.6" y="4" width="2.6" height="26.4" rx="1.1" fill="#6b4a2c" {...sw} />
+          <path d="M7.9 0.8 L10 4.6 H5.8 Z" fill="#e3d4ae" {...sw} />
+          <path d="M9.2 5.4 C15 4 21 7 29 5 L26 11.4 L29 17.8 C21 19.8 15 17 9.2 18.4 Z" fill={c} {...sw} />
+          <path d="M9.2 15.4 C15 14 21 17 28 15.6 L29 17.8 C21 19.8 15 17 9.2 18.4 Z" fill={lo} opacity=".45" />
+          <path d="M14.6 15.6 V12.4 C14.6 10 16.6 9 18 9 C19.4 9 21.4 10 21.4 12.4 V15.6" stroke="#ffe3a0" stroke-width="1.3" fill="none" stroke-linecap="round" />
+          <path d="M18 15.2 C16.8 14.4 16.8 13 17.6 12 C17.6 12.8 18 12.9 18.4 12.4 C18.4 11.6 18 11 18.4 10.2 C19.8 11.2 20 13 19.2 14.2 C18.9 14.8 18.5 15.2 18 15.2 Z" fill="#ffc861" />
+          <path d="M11 7 C15 6 19 7.6 23 7" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".55" />
+        </>
+      );
+      break;
+    case 'plough': // Ironplough: a plough share pushing a furrow of soil
+      body = (
+        <>
+          <path d="M1.6 26 C7 23.6 13 23.6 18 25.6 M1.6 30 C7 27.6 13 27.6 18 29.6" stroke={lo} stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".8" />
+          <path d="M14 26 C16 18 22 13.6 30.4 14 C29 20 26 25.6 20.4 29 C18 28 16 27 14 26 Z" fill={c} {...sw} />
+          <circle cx="26.4" cy="8.6" r="1.9" fill={c} {...sw} /><circle cx="30" cy="10.6" r="1.3" fill={c} {...sw} /><circle cx="22" cy="7.4" r="1.2" fill={c} {...sw} />
+          <path d="M3 3 L12.6 13" stroke={lo} stroke-width="3.6" stroke-linecap="round" />
+          <path d="M3 3 L12.6 13" stroke="#9a7a52" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M9.6 10.6 L22.4 15.4 L27 24.6 L17 25 C14.2 21.6 11.6 16.6 9.6 10.6 Z" fill="#d6d0c2" {...sw} />
+          <path d="M11.6 12.4 L21 16" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".8" />
+          <path d="M17 25 L27 24.6 L24.6 22.4 L17.6 22.4 Z" fill="#000" opacity=".25" />
+        </>
+      );
+      break;
+    case 'cairn': // Cairnfall: stacked flat stones, one more falling
+      body = (
+        <>
+          <path d="M12.2 1.6 V5 M16 0.8 V4.6 M19.8 1.6 V5" stroke={hi} stroke-width="1.1" stroke-linecap="round" opacity=".7" />
+          <g transform="rotate(-10 16 8.6)"><rect x="11" y="6.4" width="10" height="4.4" rx="2.2" fill={c} {...sw} /></g>
+          <rect x="4" y="24" width="24" height="6" rx="3" fill={c} {...sw} />
+          <rect x="7" y="19" width="18" height="5.4" rx="2.7" fill={c} {...sw} />
+          <rect x="10.4" y="14.6" width="11.6" height="4.8" rx="2.4" fill={c} {...sw} />
+          <path d="M6 25.8 H20 M9 20.6 H19 M12.4 16.2 H18.6" stroke={hi} stroke-width="1" stroke-linecap="round" opacity=".8" />
+          <path d="M4.6 28 H27.4 C27 29.4 26 30 25 30 H7 C6 30 5 29.4 4.6 28 Z" fill={lo} opacity=".45" />
+          <path d="M1.6 29 C2.6 27.4 3.8 27.6 4.4 28.6 M30.4 29 C29.4 27.4 28.2 27.6 27.6 28.6" stroke={lo} stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".7" />
+        </>
+      );
+      break;
+    case 'furnace': // Kilnheart: a domed kiln with a roaring mouth and a smoking flue
+      body = (
+        <>
+          <path d="M21 3.6 C23.6 2.2 26.4 3.4 26 6 C28.4 6.4 28.4 9.4 26 9.6" stroke={hi} stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".55" />
+          <rect x="19.6" y="5.6" width="4.4" height="7" rx="1" fill={lo} {...sw} />
+          <path d="M4 26 C4 15 9 8 16 8 C23 8 28 15 28 26 Z" fill={c} {...sw} />
+          <path d="M16 8 C23 8 28 15 28 26 H22 C22 18 20 11 16 8 Z" fill={lo} opacity=".35" />
+          <path d="M7.4 16 H24.6 M5.6 21 H26.4 M12 8.8 V16 M20 8.8 V16 M9 16 V21 M16 16 V21 M23 16 V21" stroke={lo} stroke-width=".9" opacity=".55" />
+          <path d="M10.4 26 V21.4 C10.4 17.8 13 16 16 16 C19 16 21.6 17.8 21.6 21.4 V26 Z" fill="#2a0e06" stroke={lo} stroke-width="1" />
+          <path d="M16 25.6 C13 24.4 12.6 21.6 14.4 19.6 C14.4 21 15.2 21.4 15.8 20.6 C15.8 19 15.2 17.8 16 16.6 C19 18.4 19.6 21.8 18.2 23.8 C17.6 24.9 16.9 25.6 16 25.6 Z" fill="#ffd36a" />
+          <rect x="2.4" y="25.6" width="27.2" height="4" rx="1.4" fill={hi} {...sw} />
+          <path d="M8 11.4 C9.6 9.4 11.6 8.6 13.4 8.4" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round" opacity=".6" />
+        </>
+      );
+      break;
     default: // rune
       body = (
         <>

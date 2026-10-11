@@ -248,7 +248,7 @@ test('sub-strikes, proc strikes and grounds carry their own tags (plus their own
     ] }], idx);
     assert.equal(rt.ownStatic.get('dust_devil'), 1.3); assert.equal(rt.ownStatic.get('whirlwind'), undefined, 'Dust Devils from an item count as summons; Whirlwind does not');
     assert.equal(rt.ownStatic.get('fx_nova'), 1.2, 'proc strike tags');
-    assert(idx.get('fx_crack')!.has('ground') && idx.get('fx_crack')!.has('melee'), 'ground: own tags + ground + its owner (Ground Stomp)');
+    assert(idx.get('fx_crack')!.has('ground') && idx.get('fx_crack')!.has('stun'), 'ground: own tags + ground + its owner (Ground Stomp)');
     assert(idx.get('fx_cinder')!.has('burn') && idx.get('fx_cinder')!.has('fire'));
   } finally { undo(); }
 });

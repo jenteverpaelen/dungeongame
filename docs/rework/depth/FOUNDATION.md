@@ -543,6 +543,20 @@ Search, stub-level, following the BUDGET.md §4 method:
 * `setReduce` (Journeyman's Ring).
 * Item generation and migration for Kindled / Fabled.
 
+### 11.14 Pilot additions (warrior pilot, `WARRIOR-PILOT.md` §3)
+
+* `RuneDef.effects`: power templates active while the rune is equipped (source kind `rune`, after nodes).
+* `SkillDef.vars`: base named parameters, merged before runes (e.g. `channelMovePct`).
+* Proc `when`: a `Condition` gate on any proc.
+* `Buff.cost`: resource-cost factor while the buff lasts (`skillCost` reads `LiveMods.cost`).
+* Client prediction of channel slows: the pilot's `MeState.mvf` was replaced by the shared-items wave's `MeState.ms`
+  (`powerActions.channelMsPct`) at the merge. The carried Muster Standard is drawn from its own `standard_carry` events
+  (class code).
+* Grounds placed while grounds update start next tick (no proc chains inside one tick).
+* Dot carry-over is exact: `effects.ticksAhead(dot)` counts the ticks a dot will still deal.
+* The warrior's Ringing Ears mark and returning hatchet are class code (built before the shared-items wave's
+  `vulnerable.consume` and `returns` projectiles; they can move onto those later). Still not built: recast elsewhere,
+  directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.
 ## 12. Shared-items wave (ITEMS-SHARED.md §2, §3, §5, §7)
 
 ### 12.1 Shared legendaries (`shared/src/data/powers/shared.ts`, appended after the six v1 items)

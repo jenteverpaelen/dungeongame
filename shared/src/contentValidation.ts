@@ -2,7 +2,7 @@ import { MAX_LEVEL } from './constants';
 import { CLASSES } from './data/classes';
 import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS } from './data/items';
 import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
-import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, NUMERIC_MOD_KEYS, SKILLS, TIER_COSTS, describeNode, describeSkill, nodeModsAt, MECHANIC_TAGS, SKILL_TAGS, type SkillDef, type SkillMods, type TagQuery } from './data/skills';
+import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, NUMERIC_MOD_KEYS, SKILLS, TIER_COSTS, describeNode, describeSkill, matchesTags, nodeModsAt, skillTags, MECHANIC_TAGS, SKILL_TAGS, type SkillDef, type SkillMods, type TagQuery } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
 import { PASSIVES } from './passives';
 import { OWN_BUCKET_CAP, isTargetCondition, subStrikeOwner, powerTextIssues, usesElement, type BuffGrant, type Condition, type PowerEffect, type StatusSpec, type Targets } from './powers';
@@ -102,8 +102,20 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for (const t of s.tags ?? []) check(MECHANIC_TAGS.includes(t), `${at}.tags`, `${t} is not an authored mechanic tag (kind and element tags are derived)`);
     for (const [i, r] of s.runes.entries()) for (const t of r.tags ?? []) check(MECHANIC_TAGS.includes(t), `${at}.runes[${i}].tags`, `${t} is not an authored mechanic tag`);
     if (s.category !== undefined) check(typeof s.category === 'string' && s.category.trim().length > 0 && s.category.length <= 16, `${at}.category`, 'category must be a short non-empty label');
-    if (s.parityReady) check(Object.values(data.sets).some(set => set.classId === s.classId && set.bonuses.some(b => (b.effects ?? []).some(e => 'skills' in e && e.skills?.includes(s.id)))), `${at}.parityReady`, 'only set-backed skills can be parity-ready');
+    if (s.parityReady) {
+      // Set-backed: a set bonus of the class names the skill or targets one of its base tags (bible v2 sets key off tags).
+      const tags = skillTags(s);
+      const targets = (e: PowerEffect) => ('skills' in e && !!e.skills?.includes(s.id)) || ('tags' in e && !!e.tags && matchesTags(tags, e.tags));
+      check(Object.values(data.sets).some(set => set.classId === s.classId && set.bonuses.some(b => (b.effects ?? []).some(targets))), `${at}.parityReady`, 'only set-backed skills can be parity-ready');
+    }
     validateNodes(s, at, check, number);
+    // Rune and node power templates: targets of the owner's class, legal buckets; a rune's desc names its numbers.
+    for (const [i, r] of s.runes.entries()) if (r.effects?.length) {
+      validateEffects(data, r.effects, `${at}.runes[${i}].effects`, [s.classId], check);
+      for (const issue of powerTextIssues(r.desc, r.effects, false)) check(false, `${at}.runes[${i}].desc`, issue);
+    }
+    for (const n of s.nodes ?? []) if (n.effects?.length) validateEffects(data, n.effects, `${at}.nodes.${n.id}.effects`, [s.classId], check);
+    for (const [k, v] of Object.entries(s.vars ?? {})) check(Number.isFinite(v), `${at}.vars.${k}`, 'expected finite value');
   }
   for (const base of Object.values(data.bases)) {
     const at = `bases.${base.id}`;
@@ -318,6 +330,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         if (e.every !== undefined) check(Number.isInteger(e.every) && e.every >= 2, w, 'every must be an integer of at least 2');
         if (e.repeat) check(e.on === 'attack', w, 'repeat needs on: attack');
         if (e.skills || e.tags) check(!['dash', 'takeDamage', 'applyStatus'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
+        if (e.when) validateCondition(e.when, ['dash', 'spend', 'cast'].includes(e.on) ? 'own' : 'hit', w, check);
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
         if (e.strike) {
           check(e.strike.id.length > 0 && !Object.hasOwn(data.skills, e.strike.id), w, 'proc strike needs an id of its own (not a skill id)');

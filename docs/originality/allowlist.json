@@ -293,16 +293,6 @@
     },
     {
       "file": "shared/src/data/skills/warrior.ts",
-      "text": "Broad Sweep",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Gathering Storm",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
       "text": "Momentum",
       "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
     },
@@ -318,16 +308,6 @@
     },
     {
       "file": "shared/src/data/skills/warrior.ts",
-      "text": "Blood Funnel",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Volcanic Eruption",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
       "text": "Rend",
       "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
     },
@@ -338,42 +318,12 @@
     },
     {
       "file": "shared/src/data/skills/warrior.ts",
-      "text": "Lacerate",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
       "text": "Contagion",
       "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
     },
     {
       "file": "shared/src/data/skills/warrior.ts",
       "text": "Ground Stomp",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Wrenching Smash",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Jarring Slam",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Foot of the Mountain",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Seismic Slam",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Shattered Ground",
       "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
     },
     {
@@ -394,11 +344,6 @@
     {
       "file": "shared/src/data/skills/warrior.ts",
       "text": "Into the Fray",
-      "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
-    },
-    {
-      "file": "shared/src/data/skills/warrior.ts",
-      "text": "Marauder's Rage",
       "reason": "class agent lane: skill, rune, tier and class power names are renamed by the class agents from docs/rework/depth/NAMES.md (lead, 2026-10-11)"
     },
     {

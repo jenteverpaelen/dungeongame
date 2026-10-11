@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { SKILLS } from '../../shared/src/data/skills';
 import { SETS } from '../../shared/src/data/items';
 import { PARITY_WINDOW, kitSave, measureProfile, parityProfiles, parityReadySkills, planKit, setSkills } from './parity/harness';
+import { WARRIOR_MAIN, warriorDiversity } from './parity/warrior';
 
 assert(process.env.DATA_DIR, 'isolated DATA_DIR required');
 
@@ -23,12 +24,13 @@ test('every set names set-backed skills of its class; every planned kit is plain
       assert.equal(Object.values(save.equipment).filter((it) => it?.set === p.set).length, pieces);
     }
   }
-  assert.deepEqual(setSkills(SETS.endless_storm), ['whirlwind']);
+  assert.deepEqual(setSkills(SETS.endless_storm), ['whirlwind', 'ironplough'], 'Endless Storm keys off Channel');
+  for (const id of ['ground_stomp', 'cairnfall', 'tolling_blow']) assert(setSkills(SETS.fault_warden).includes(id), `Fault Warden backs ${id}`);
 });
 
-test('parity rule (1.25) holds for every parity-ready set-backed skill', () => {
-  const ready = new Set(parityReadySkills());
-  const profiles = parityProfiles().filter((p) => p.skills.some((id) => ready.has(id)));
+test('parity rule (1.25) holds for every parity-ready set-backed skill (the warrior uses the D-checks below)', () => {
+  const ready = new Set(parityReadySkills().filter((id) => SKILLS[id].classId !== 'warrior'));
+  const profiles = parityProfiles().filter((p) => p.classId !== 'warrior' && p.skills.some((id) => ready.has(id)));
   const backed = new Set(parityProfiles().flatMap((p) => p.skills));
   console.log(`parity: ${ready.size} parity-ready skill(s); ${backed.size} set-backed skills report-only (scripts/audit-parity.ts)`);
   for (const p of profiles) {
@@ -36,5 +38,22 @@ test('parity rule (1.25) holds for every parity-ready set-backed skill', () => {
     console.log(`parity ${p.set}: legendary/set ${r.ratio.toFixed(3)}, hybrid between ${r.hybridBetween}`);
     assert(r.ratio <= PARITY_WINDOW, `${p.set}: legendary-only kit is ${r.ratio.toFixed(2)}× slower than the set kit (limit ${PARITY_WINDOW})`);
     assert(r.hybridBetween, `${p.set}: hybrid kit is not between the set and legendary-only kits`);
+  }
+});
+
+test('warrior: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready warrior main skill', () => {
+  // Deterministic gate: planned kits without the search, one seed (~15 s). The full report with three seeds and the
+  // search is scripts/audit-warrior-parity.ts (docs/rework/depth/WARRIOR-PARITY.md).
+  // Warrior items only: the shared legendaries belong to the shared-items lane, and with them legendary-only kits beat
+  // the sets (D3 1.2-1.46 measured after merging that wave; WARRIOR-PILOT.md §6). The audit reports both.
+  const ready = WARRIOR_MAIN.filter((id) => SKILLS[id].parityReady);
+  assert(ready.length > 0, 'the warrior pilot flags its passing main skills');
+  const d = warriorDiversity({ seeds: [101], mains: ready, excludeShared: true });
+  for (const r of d.rows) {
+    const leg = r.factor.legendary, set6 = r.factor[r.bestSet6], hyb = r.factor[r.bestHybrid];
+    const d3 = leg / set6, lo = Math.min(leg, set6), hi = Math.max(leg, set6);
+    console.log(`warrior ${r.main}: legendary ×${leg.toFixed(2)}, best 6-piece ×${set6.toFixed(2)} (${r.bestSet6}), hybrid ×${hyb.toFixed(2)} (${r.bestHybrid}); D3 ${d3.toFixed(2)}`);
+    assert(d3 >= 0.8 && d3 <= 1.25, `${r.main}: D3 legendary-only ÷ best 6-piece = ${d3.toFixed(2)} (hard 0.80–1.25)`);
+    assert(hyb >= lo * 0.9 && hyb <= hi * 1.1, `${r.main}: D4 best hybrid ×${hyb.toFixed(2)} outside ±10% of [${lo.toFixed(2)}, ${hi.toFixed(2)}]`);
   }
 });
