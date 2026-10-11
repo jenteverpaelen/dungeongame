@@ -403,7 +403,10 @@
 .slot.is-dim .slot-icon { filter: grayscale(0.9) brightness(0.5) drop-shadow(0 calc(var(--u) * 2) calc(var(--u) * 3) rgba(0, 0, 0, 0.75)); }
 .slot.is-dim .slot-well::before { content: ''; position: absolute; inset: 0; background: rgba(5, 8, 20, 0.35); z-index: 1; }
 .slot.on-cd .slot-icon { filter: saturate(0.6) brightness(0.8) drop-shadow(0 calc(var(--u) * 2) calc(var(--u) * 3) rgba(0, 0, 0, 0.75)); }
-.slot-sweep { position: absolute; inset: 0; z-index: 1; }
+/* The cooldown sweep repaints ten times a second; as its own compositor layer (will-change) that repaint stays inside it
+   instead of re-rasterising the drop-shadowed icons beneath: -13 % GPU-process time in fights (docs/rework/PERF.md §HUD).
+   The seconds stay unpromoted: promoted, their glyphs land one pixel higher. */
+.slot-sweep { position: absolute; inset: 0; z-index: 1; will-change: transform; }
 .slot-cd {
   position: absolute;
   inset: 0;

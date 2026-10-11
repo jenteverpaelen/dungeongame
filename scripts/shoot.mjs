@@ -250,7 +250,7 @@ const BUILTIN = {
 try {
   tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-shoot-'));
   chrome = spawn(CHROME, ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${path.join(tmp, 'chrome')}`, `--window-size=${W},${H}`,
-    '--force-device-scale-factor=1', '--no-first-run', '--no-default-browser-check', '--mute-audio', '--hide-scrollbars', 'about:blank'], { windowsHide: true, stdio: 'ignore' });
+    '--force-device-scale-factor=1', '--no-first-run', '--no-default-browser-check', '--mute-audio', '--hide-scrollbars', ...(process.env.CHROME_EXTRA ?? '').split(' ').filter(Boolean), 'about:blank'], { windowsHide: true, stdio: 'ignore' });
   const active = await until(async () => { try { return await fs.readFile(path.join(tmp, 'chrome', 'DevToolsActivePort'), 'utf8'); } catch { return false; } }, 20000, 'Chrome DevTools port');
   const [port, browserPath] = active.trim().split('\n');
   browser = await cdp(`ws://127.0.0.1:${port}${browserPath}`);

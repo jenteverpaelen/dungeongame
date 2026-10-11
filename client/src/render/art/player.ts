@@ -20,6 +20,7 @@ import { SHAPE_FAMILY } from './gearVisuals';
 import { weaponDrawing, type WFloat } from './weaponDrawing';
 import { weaponSkinOf, type WeaponSkin } from './weaponSkin';
 import { WeaponImpacts } from './weaponImpact';
+import { lazyDepthSort } from '../depthSort';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -531,7 +532,7 @@ export class PlayerArt implements PlayerView {
     this.mode = mode === true ? 'npc' : mode === false ? 'portable' : mode;
     this.root.addChild(this.rig);
     this.rig.addChild(this.glowBack, this.shadow, this.under, this.body, this.over);
-    this.body.sortableChildren = true;
+    lazyDepthSort(this.body); // part depths change every frame; re-sort only when the order really changes
     this.setLook(look);
   }
 
@@ -557,6 +558,7 @@ export class PlayerArt implements PlayerView {
     for (const c of this.over.removeChildren()) c.destroy({ children: true });
     for (const c of this.glowBack.removeChildren()) c.destroy({ children: true });
     this.fxAdd = new Container();
+    lazyDepthSort(this.fxAdd); // hand / tip glows follow the hands' depth every frame
     this.fxAdd.zIndex = 1000;
     this.body.addChild(this.fxAdd);
     this.ribbonF = new Ribbon(22); this.ribbonB = new Ribbon(22);
