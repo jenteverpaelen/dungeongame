@@ -37,10 +37,16 @@
   Reveal pan prefers draining water, then a cold kiln, then a turning wheel framed with its nearby changes. Phased props
   moved off open floor (new test: no walk-through props, thin stakes/flags excepted). FPS in headless runs 23–98 with
   other agents on the machine; not a benchmark.
+- **Q7 — merge + verification.** Merged `claude/town-ui-rework` (f8b3998; SAVE_VERSION 15, PROTOCOL_VERSION 23) at the end
+  with a normal merge: the quest rework needs no save or protocol bump. One conflict (`scripts/verify.mjs`: kept the extended
+  adventure stage and the new depth stage). Before the merge: `npm test` 54/54, quest server tests 62/62 (isolated
+  DATA_DIR), `content:check` valid. On the merged tree: typecheck clean and `npm run verify` passed (shared, foundations,
+  adventure 70/70, depth, server bot 757 passed / 0 failed, simulation 382/382, content, build). Post-merge browser smoke: the first-hour character loads through the v15 path with its quest state
+  and reserved pick intact (`shots/post-merge-journal.jpg`).
 
 ## Save
 
-No SAVE_VERSION bump. New optional, normalised fields: `questHidden`, `bounties`, quest state `parts` / `rewardAlt`.
+No SAVE_VERSION bump (the branch now carries v15 from the merged depth foundation). New optional, normalised fields: `questHidden`, `bounties`, quest state `parts` / `rewardAlt`.
 `migrateQuests` (idempotent, on load): `rillwake` → `quests.silent_wheel` r2; 14 quests r1 → r2 by step maps (finished
 work stays finished; added steps before it count as done; ready stays ready); retired contracts removed, a finished
 unclaimed one is paid its old gold; retired tracked quest dropped.
