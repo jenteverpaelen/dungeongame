@@ -5,7 +5,7 @@
 // pale wavy temper line splits the hard edge from the dark back (ART-REFERENCES RW2). The one light is an ember kept in
 // a crucible (R6). Maker's mark: a stamped kiln cone (RW1).
 import type { SeriesInfo } from './index';
-import { RARITY_ACCENT, detail, disc, float, glowSpot, jit, lash, pole, qpts, ribbon, ring, slab, type K } from './kit';
+import { accentOf, detail, disc, float, glowSpot, jit, lash, pole, qpts, ribbon, ring, slab, type K } from './kit';
 import { mix, shade, light } from '../util';
 import { OUT } from '../draw';
 
@@ -24,7 +24,7 @@ function drips(k: K, xs: number[], y: number, lens: number[], col: number, w = 0
 /** The rarity accent of the kilnfolk: a glass-glaze bead pressed into the clay (rule A5). */
 function glazeEye(k: K, x: number, y: number, r = 1.2): void {
   if (!k.q || k.pass === 'light') return;
-  disc(k, x, y, r, r, RARITY_ACCENT[k.q], { line: 0.6, inner: true });
+  disc(k, x, y, r, r, accentOf(k), { line: 0.6, inner: true });
   if (k.pass === 'paint') k.c.circle(x - r * 0.35, y - r * 0.35, r * 0.35).fill(0xffffff);
 }
 

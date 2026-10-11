@@ -120,8 +120,8 @@ function staff(k: K): void {
   pole(k, [0, 22.6, 0, -36.0], 2.6, BRONZE_D);
   if (k.pass === 'paint') for (const y of [19.6, 8.0, -4.0, -16.0, -28.0]) k.c.rect(-1.3, y - 0.45, 2.6, 0.9).fill(BRONZE_L);
   disc(k, 0, -36.4, 2.0, 1.6, GRANITE, { line: 0.7 });
-  // the head is drawn 1.35× round the pole top (rule A7: the business end carries the identity)
-  k.c.save(); localXf(k.c, 0, -37.0, 0, 1.35); localXf(k.c, 0, 37.0, 0, 1);
+  // the head is drawn 1.15× round the pole top (rule A7: the business end carries the identity)
+  k.c.save(); localXf(k.c, 0, -37.0, 0, 1.15); localXf(k.c, 0, 37.0, 0, 1);
   // the cradle: two faceted prongs
   for (const s of [-1, 1]) {
     const out = [s * 0.8, -37.4, s * 8.2, -44.6, s * 8.8, -52.4, s * 6.8, -51.6, s * 6.0, -45.6, s * 0.4, -39.8];
@@ -131,8 +131,8 @@ function staff(k: K): void {
   }
   k.c.restore();
   // the hovering Cube (a float with a cause: the Cube is what holds the Ancients' work together)
-  float(k, 0, -37.0 + (-50.6 + 37.0) * 1.35, (kk) => {
-    kk.c.save(); localXf(kk.c, 0, 0, 0, 1.3 * 1.35);
+  float(k, 0, -37.0 + (-50.6 + 37.0) * 1.15, (kk) => {
+    kk.c.save(); localXf(kk.c, 0, 0, 0, 1.3 * 1.15);
     cube(kk, 0, 0, 5.2, BRONZE, { line: 0.85 });
     if (kk.pass === 'paint') {
       const ch = (pts: number[]) => { kk.c.moveTo(pts[0], pts[1]); for (let i = 2; i < pts.length; i += 2) kk.c.lineTo(pts[i], pts[i + 1]); kk.c.stroke({ width: 0.7, color: kk.q >= 1 ? light(TEAL, 0.2) : GROOVE, cap: 'round', join: 'round' }); };

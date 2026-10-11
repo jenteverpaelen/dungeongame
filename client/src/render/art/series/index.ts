@@ -61,6 +61,8 @@ export interface SeriesSpec {
   grade?: 0 | 1 | 2;
   seed?: number;
   rig?: boolean;
+  /** Accent colour override (legendary / Set colour on a series base); default the rarity token. */
+  accent?: number;
 }
 
 const Q: Record<Rarity, 0 | 1 | 2> = { normal: 0, magic: 1, rare: 2, legendary: 2, set: 2 };
@@ -91,6 +93,7 @@ export function seriesModel(spec: SeriesSpec): SeriesModel | null {
     const passes = layer === 'base' ? (['under', 'paint'] as const) : (['light'] as const);
     for (const pass of passes) {
       const k = newKit(c, pass, q, rig, seed, pass === 'paint' ? floats : []);
+      k.accent = spec.accent ?? 0;
       d(k);
       if (grade) gradeAccent(k, grade);
       last = k;

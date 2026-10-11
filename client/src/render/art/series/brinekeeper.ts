@@ -4,7 +4,7 @@
 // and Lockglass's green glass. Shape language: long, lean and tapering, whip curves, wrapped in black whippings; the
 // accents are hard little cubes (rule A1). No light yet (R6). Maker's mark: a stamped salt cube.
 import type { SeriesInfo } from './index';
-import { RARITY_ACCENT, cube, detail, disc, lash, pole, qpts, ribbon, ring, slab, bevel, type K } from './kit';
+import { accentOf, cube, detail, disc, lash, pole, qpts, ribbon, ring, slab, bevel, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { localXf } from '../weaponArt';
 import { OUT } from '../draw';
@@ -21,7 +21,7 @@ function salt(k: K, x: number, y: number, size: number, n: number, seedRot = 0, 
   for (let i = Math.min(n, spots.length) - 1; i >= 0; i--) {
     const [dx, dy, s] = spots[i];
     // the rarity accent of the brinekeepers: one crystal of the cluster grown in the rarity colour (rule A5)
-    const col = accent && k.q && i === 1 ? mix(RARITY_ACCENT[k.q], SALT, 0.15) : i % 2 ? SALT : mix(SALT, BRINE, k.q >= 2 ? 0.75 : 0.45);
+    const col = accent && k.q && i === 1 ? mix(accentOf(k), SALT, 0.15) : i % 2 ? SALT : mix(SALT, BRINE, k.q >= 2 ? 0.75 : 0.45);
     cube(k, x + dx * size * 1.5, y + dy * size * 1.5, size * s, col, { rot: (i * 0.37 + seedRot) % 0.8 - 0.4, line: 0.55 });
   }
 }

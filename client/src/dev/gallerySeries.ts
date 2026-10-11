@@ -369,6 +369,33 @@ async function metricsView(): Promise<void> {
   (window as unknown as { __metrics: unknown }).__metrics = out;
 }
 
+/** ?view=extents: [M] drawn extent of every rare drawing in the hand-local frame (floats at rest) vs the family's
+ *  canonical reach (gearVisuals.ts SHAPE_FAMILY: sword 31, axe 27, bow ±21 string, staff 50, wand 20). */
+function extentsView(): void {
+  showSheet();
+  const CANON: Record<string, number> = { blade: 31, axe: 27, bow: 21, staff: 50, wand: 20 };
+  const out: Record<string, number> = {};
+  let html = '<div style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">Drawn tip (−y, units) of each rare drawing, floats at rest, vs canonical reach</div><table style="font:12px monospace">';
+  html += `<tr><td></td>${SERIES.map((s) => `<td style="padding:2px 10px">${s.name}</td>`).join('')}<td>canon</td></tr>`;
+  for (const f of FAMS) {
+    html += `<tr><td style="color:#c9b98f">${f.label}</td>`;
+    for (const s of SERIES) {
+      const m = seriesModel({ family: f.fam, gen: s.gen, rarity: 'rare', seed: 3 });
+      if (!m) { html += '<td>—</td>'; continue; }
+      const c = new GraphicsContext(); m.draw(c, 'base');
+      for (const fl of m.floats) { c.save(); localXf(c, fl.x, fl.y); fl.draw(c); c.restore(); }
+      const g = new Graphics(c); const b = g.getLocalBounds(); g.destroy(); c.destroy();
+      const tip = f.fam === 'bow' ? Math.max(-b.minY, b.maxY) : -b.minY;
+      out[`${f.fam}-G${s.gen}`] = +tip.toFixed(1);
+      const over = tip / CANON[f.fam] - 1;
+      html += `<td style="padding:2px 10px;color:${over > 0.2 ? '#ff8a6a' : '#d8c79c'}">${tip.toFixed(1)} (${over >= 0 ? '+' : ''}${(over * 100).toFixed(0)}%)</td>`;
+    }
+    html += `<td>${CANON[f.fam]}</td></tr>`;
+  }
+  sheet.innerHTML = html + '</table></div>';
+  (window as unknown as { __extents: unknown }).__extents = out;
+}
+
 // ─────────────────────────── run ───────────────────────────
 
 switch (VIEW) {
@@ -376,6 +403,7 @@ switch (VIEW) {
   case 'rarity': rarityView(); break;
   case 'hero': heroView(); break;
   case 'metrics': await metricsView(); break;
+  case 'extents': extentsView(); break;
   default: sheetView();
 }
 

@@ -41,12 +41,14 @@ export interface K {
   lit: boolean;
   /** Colour of the strongest light drawn (icons tint their glow with it). */
   litCol: number;
+  /** Override of the rarity accent colour (a legendary / Set drawn on a series base carries its own colour there). */
+  accent: number;
   /** Junction of grip and head: where the series motif and the grade accents sit (set by the drawing). */
   anchor: { x: number; y: number; r: number };
 }
 
 export function newKit(c: Ctx, pass: Pass, q: 0 | 1 | 2, rig: boolean, seed: number, floats: WFloat[]): K {
-  return { c, pass, q, rig, seed, floats, lit: false, litCol: 0, anchor: { x: 0, y: -6, r: 3 } };
+  return { c, pass, q, rig, seed, floats, lit: false, litCol: 0, accent: 0, anchor: { x: 0, y: -6, r: 3 } };
 }
 
 // ───────────────────────── tones ─────────────────────────
@@ -279,20 +281,22 @@ export function peg(k: K, x: number, y: number, s: number, col: number): void {
 
 /** The one place rarity colour appears on the object: magic blue, rare gold (the UI rarity tokens, ART_DIRECTION §5). */
 export const RARITY_ACCENT = [0, 0x5a7dff, 0xd4b13a] as const;
+/** The accent colour of a kit: its override, else the rarity token. */
+export const accentOf = (k: K): number => k.accent || RARITY_ACCENT[k.q];
 
 /** A bead on a short cord hanging from (x, y) at angle `a` (0 = straight down). */
 export function bead(k: K, x: number, y: number, len: number, a: number, cord: number, r = 1.5): void {
   if (!k.q) return;
   const bx = x + Math.sin(a) * len, by = y + Math.cos(a) * len;
   pole(k, [x, y, bx, by], 0.7, cord, { flat: true });
-  disc(k, bx, by, r, r * 1.08, RARITY_ACCENT[k.q], { line: 0.7 });
+  disc(k, bx, by, r, r * 1.08, accentOf(k), { line: 0.7 });
 }
 
 /** A cabochon stone in a metal bezel (set into a part). */
 export function stone(k: K, x: number, y: number, r: number, bezel: number): void {
   if (!k.q) return;
   disc(k, x, y, r + 0.7, r + 0.7, bezel, { line: 0.7, inner: true });
-  disc(k, x, y, r, r, RARITY_ACCENT[k.q], { line: 0.6, inner: true });
+  disc(k, x, y, r, r, accentOf(k), { line: 0.6, inner: true });
 }
 
 // ───────────────────────── light (R6) ─────────────────────────
@@ -354,10 +358,10 @@ export function glowPoly(k: K, pts: number[], col: number, on: boolean, dormant:
  *  in both base passes around its own origin. */
 export function float(k: K, x: number, y: number, draw: (kk: K) => void, m: { bob?: number; orbit?: number; spin?: number; phase?: number; glow?: number; glowR?: number; deco?: boolean } = {}): void {
   if (k.pass !== 'paint') return;
-  const q = k.q, rig = k.rig, seed = k.seed;
+  const q = k.q, rig = k.rig, seed = k.seed, accent = k.accent;
   k.floats.push({
     x, y, bob: m.bob ?? 0.8, orbit: m.orbit ?? 0, spin: m.spin ?? 0, phase: m.phase ?? 0, glow: m.glow ?? 0, glowR: m.glowR ?? 6, deco: m.deco ?? false,
-    draw: (c: Ctx) => { for (const pass of ['under', 'paint'] as const) draw({ ...newKit(c, pass, q, rig, seed, []) }); },
+    draw: (c: Ctx) => { for (const pass of ['under', 'paint'] as const) draw({ ...newKit(c, pass, q, rig, seed, []), accent }); },
   });
 }
 

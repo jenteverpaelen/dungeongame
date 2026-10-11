@@ -69,7 +69,7 @@ function axe(k: K): void {
   for (const y of [5.6, -10.2]) ring(k, 0, y, 1.9, 0.7, 0.9, q >= 1 ? BRASS : STEEL);
   if (q >= 1) slab(k, [-1.5, -0.4, 1.5, -0.4, 1.5, 2.6, -1.5, 2.6], CRIMSON, { line: 0.6, flat: true, inner: true });
   // spear point on top
-  bevel(k, [-1.5, -27, 1.5, -27, 1.6, -30, 0, -35.6, -1.6, -30], [-1.5, -27, 0, -27, 0, -35.6, -1.6, -30], STEEL, { edge: [-1.1, -29.8, -0.1, -34.6], edgeCol: EDGE });
+  bevel(k, [-1.5, -27, 1.5, -27, 1.6, -29.4, 0, -33.4, -1.6, -29.4], [-1.5, -27, 0, -27, 0, -33.4, -1.6, -29.4], STEEL, { edge: [-1.1, -29.2, -0.1, -32.6], edgeCol: EDGE });
   // the squared blade: crisp straight edge
   const blade = [1.6, -26.4, 9.6, -28.4, 10.8, -27.6, 10.8, -16.6, 9.6, -15.8, 1.6, -18.6];
   bevel(k, blade, [1.6, -26.4, 9.6, -28.4, 10.0, -28.1, 8.6, -22.4, 1.6, -22.4], STEEL, { edge: [10.0, -27.0, 10.0, -17.2], edgeCol: EDGE, ridge: [3, -22.4, 8.6, -22.4] });

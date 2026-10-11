@@ -12,7 +12,7 @@ import { localXf } from '../weaponArt';
 const SLATE = 0x544a62, SLATE_L = 0x7c708a, BONE = 0xdcd3c2, RUNE = 0xff4a9a, VOID = 0x1c1622, BREAK = 0xb0a4ba;
 
 /** Gap between split pieces by craft (they touch on a normal piece, the rift holds them apart on better ones). */
-const gap = (k: K) => [0.6, 1.7, 2.7][k.q];
+const gap = (k: K) => [0.5, 1.2, 1.8][k.q];
 
 /** A slab segment of an obelisk: two-tone faces split down the middle, fracture edges pale where it broke. */
 function segment(k: K, pts: number[], litPts: number[], fracture: number[][]): void {
@@ -33,33 +33,33 @@ const chip = (kk: K) => slab(kk, [-1.0, -0.6, 0.8, -1.0, 1.1, 0.6, -0.6, 0.9], S
 function sword(k: K): void {
   const q = k.q, G = gap(k);
   k.anchor = { x: 0, y: -6.4, r: 3.4 };
-  const b0 = -8.0, b1 = -15.2, EDGE = light(SLATE_L, 0.35);
+  const b0 = -8.0, b1 = -14.0, EDGE = light(SLATE_L, 0.35);
   // three blade pieces, each with two ground edges (bright interior lines) so the column reads as a blade
   segment(k, [-3.8, b0, 3.8, b0, 3.5, b1 + 0.5, 1.2, b1, -0.8, b1 + 0.7, -3.5, b1], [-3.8, b0, 0, b0, -0.2, b1 + 0.6, -3.5, b1], [[-3.3, b1 + 0.15, -0.8, b1 + 0.7, 1.2, b1, 3.3, b1 + 0.5]]);
   detail(k, [-3.1, b0 - 0.6, -2.9, b1 + 0.6], EDGE, 0.7); detail(k, [3.1, b0 - 0.6, 2.9, b1 + 0.9], shade(EDGE, 0.25), 0.6);
-  slot(k, 0, -11.6, 1.8, 4.2, q >= 1);
+  slot(k, 0, -11.0, 1.8, 3.6, q >= 1);
   const mid = (kk: K) => {
-    const h = 9.8;
+    const h = 7.6;
     segment(kk, [-3.5, 0, -0.8, -0.7, 1.2, 0, 3.5, -0.5, 3.0, -h + 0.5, 0.5, -h, -3.0, -h + 0.6], [-3.5, 0, -0.8, -0.7, -0.2, -h + 0.3, -3.0, -h + 0.6], [[-3.2, -0.3, -0.8, -0.9, 1.2, -0.2, 3.2, -0.7], [-2.8, -h + 0.8, 0.5, -h + 0.2, 2.8, -h + 0.7]]);
     detail(kk, [-2.8, -0.8, -2.4, -h + 1.1], EDGE, 0.7); detail(kk, [2.8, -1.0, 2.4, -h + 1.1], shade(EDGE, 0.25), 0.6);
-    slot(kk, 0, -h / 2, 1.6, 4.2, kk.q >= 1);
+    slot(kk, 0, -h / 2, 1.6, 3.4, kk.q >= 1);
   };
   const tip = (kk: K) => {
     // the point: two long facets meeting at a sharp tip
-    segment(kk, [-3.0, 0, 0.5, -0.6, 3.0, -0.1, 2.4, -6.4, 0, -14.6, -2.4, -6.4], [-3.0, 0, 0.5, -0.6, 0, -14.6, -2.4, -6.4], [[-2.8, -0.3, 0.5, -0.9, 2.8, -0.4]]);
-    detail(kk, [-2.3, -0.8, -1.9, -6.6, -0.2, -13.4], EDGE, 0.7);
-    if (kk.pass === 'paint') detail(kk, [0, -1.0, 0, -13.8], shade(SLATE, 0.35), 0.5);
-    slot(kk, 0, -3.4, 1.3, 2.6, kk.q === 2);
+    segment(kk, [-3.0, 0, 0.5, -0.6, 3.0, -0.1, 2.4, -4.8, 0, -10.8, -2.4, -4.8], [-3.0, 0, 0.5, -0.6, 0, -10.8, -2.4, -4.8], [[-2.8, -0.3, 0.5, -0.9, 2.8, -0.4]]);
+    detail(kk, [-2.3, -0.8, -1.9, -5.0, -0.2, -9.8], EDGE, 0.7);
+    if (kk.pass === 'paint') detail(kk, [0, -1.0, 0, -10.2], shade(SLATE, 0.35), 0.5);
+    slot(kk, 0, -2.8, 1.3, 2.2, kk.q === 2);
   };
   float(k, 0, b1 - G, mid, { bob: q === 0 ? 0 : 0.35, phase: 0.4, glow: q >= 1 ? RUNE : 0, glowR: 4 });
-  float(k, 0, b1 - G - 9.8 - G, tip, { bob: q === 0 ? 0 : 0.55, phase: 1.6, glow: q === 2 ? RUNE : 0, glowR: 3 });
+  float(k, 0, b1 - G - 7.6 - G, tip, { bob: q === 0 ? 0 : 0.55, phase: 1.6, glow: q === 2 ? RUNE : 0, glowR: 3 });
   // stepped guard (the obelisk's base, two steps) and a bone grip
   slab(k, [-7.0, -5.0, 7.0, -5.0, 7.0, -6.8, 5.4, -6.8, 5.4, -8.4, -5.4, -8.4, -5.4, -6.8, -7.0, -6.8], SLATE_L, { hi: [[-6.6, -6.2, 6.6, -6.2], [-5.0, -7.9, 5.0, -7.9]] });
   slab(k, [-1.7, -5.0, 1.7, -5.0, 1.9, 4.0, -1.9, 4.0], BONE, { hi: [[-1.1, -4.2, -1.2, 3.2]] });
   if (k.pass === 'paint') for (const y of [-2.6, 0.2, 3.0]) detail(k, [-1.8, y, 1.8, y - 0.3], shade(BONE, 0.45), 0.6);
   slab(k, [-2.6, 3.8, 2.6, 3.8, 1.8, 8.0, 0, 9.8, -1.8, 8.0], SLATE, { hi: [[-2.0, 4.6, -0.6, 8.4]] });
   stone(k, 0, 5.8, 0.9, BONE);
-  if (q === 2) { float(k, 5.4, -24.6, chip, { bob: 0.9, phase: 2.2, deco: true }); float(k, -5.0, -31.0, chip, { bob: 1.1, phase: 0.9, deco: true }); }
+  if (q === 2) { float(k, 5.2, -22.6, chip, { bob: 0.9, phase: 2.2, deco: true }); float(k, -4.8, -28.0, chip, { bob: 1.1, phase: 0.9, deco: true }); }
 }
 
 // ── axe: a wedge of obelisk split off its haft, hovering in its socket ──
@@ -117,18 +117,18 @@ function staff(k: K): void {
   for (const y of [20.2, 2.0]) ring(k, 0, y, 2.1, 0.7, 0.9, BONE);
   slab(k, [-1.9, -4.0, 1.9, -4.0, 1.9, 0.4, -1.9, 0.4], BONE, { line: 0.6 });
   stone(k, 0, -1.8, 0.8, BONE);
-  k.c.save(); localXf(k.c, 0, -33.0, 0, 1.25); localXf(k.c, 0, 33.0, 0, 1);
+  k.c.save(); localXf(k.c, 0, -33.0, 0, 1.1); localXf(k.c, 0, 33.0, 0, 1);
   slab(k, [-7.0, -32.8, 7.0, -32.8, 7.0, -35.2, 5.2, -35.2, 5.2, -37.4, -5.2, -37.4, -5.2, -35.2, -7.0, -35.2], SLATE_L, { hi: [[-6.6, -34.4, 6.6, -34.4], [-4.8, -36.9, 4.8, -36.9]] });
-  segment(k, [-4.2, -37.2, 4.2, -37.2, 3.2, -55.6, 1.0, -56.4, -0.8, -55.4, -3.2, -55.8], [-4.2, -37.2, 0, -37.2, -0.2, -55.6, -3.2, -55.8], [[-3.0, -55.6, -0.8, -55.1, 1.0, -56.2, 3.0, -55.4]]);
-  for (const [y, on] of [[-41.4, q >= 1], [-46.6, q >= 1], [-51.6, q === 2]] as const) slot(k, 0, y, 1.9, 3.4, on);
+  segment(k, [-4.2, -37.2, 4.2, -37.2, 3.3, -51.6, 1.0, -52.4, -0.8, -51.4, -3.3, -51.8], [-4.2, -37.2, 0, -37.2, -0.2, -51.6, -3.3, -51.8], [[-3.1, -51.6, -0.8, -51.1, 1.0, -52.2, 3.1, -51.4]]);
+  for (const [y, on] of [[-40.8, q >= 1], [-44.8, q >= 1], [-48.6, q === 2]] as const) slot(k, 0, y, 1.9, 2.8, on);
   k.c.restore();
-  const HK = 1.25, hy = (y: number) => -33.0 + (y + 33.0) * HK;
-  float(k, 0, hy(-56.4 - G * 1.4), (kk) => {
+  const HK = 1.1, hy = (y: number) => -33.0 + (y + 33.0) * HK;
+  float(k, 0, hy(-52.4 - G * 1.2), (kk) => {
     kk.c.save(); localXf(kk.c, 0, 0, 0, HK);
-    segment(kk, [-3.1, 0.3, -0.8, -0.5, 1.0, 0.2, 3.1, -0.3, 0, -6.8], [-3.1, 0.3, -0.8, -0.5, 0, -6.8], [[-2.9, 0, -0.8, -0.8, 1.0, -0.1, 2.9, -0.6]]);
+    segment(kk, [-3.2, 0.3, -0.8, -0.5, 1.0, 0.2, 3.2, -0.3, 0, -5.6], [-3.2, 0.3, -0.8, -0.5, 0, -5.6], [[-3.0, 0, -0.8, -0.8, 1.0, -0.1, 3.0, -0.6]]);
     kk.c.restore();
   }, { bob: q === 0 ? 0 : 0.7, phase: 0.3 });
-  if (q === 2) for (const [x, y, p] of [[-6.6, -50.0, 0.4], [6.4, -45.0, 2.4]] as const) float(k, x * HK, hy(y), chip, { bob: 1.0, phase: p, deco: true });
+  if (q === 2) for (const [x, y, p] of [[-6.4, -48.0, 0.4], [6.2, -43.6, 2.4]] as const) float(k, x * HK, hy(y), chip, { bob: 1.0, phase: p, deco: true });
   k.anchor = { x: 0, y: -33.2, r: 2.8 };
 }
 

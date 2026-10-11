@@ -58,9 +58,9 @@ function sword(k: K): void {
 // ── axe: the sextant axe — the bit is a graduated arc on two radial arms, open in the middle ──
 function axe(k: K): void {
   const q = k.q;
-  pole(k, [0, 8, 0, -24.8], 2.6, STAR_L);
+  pole(k, [0, 8, 0, -22.4], 2.6, STAR_L);
   for (const y of [6.0, -2.0, -14.0]) ring(k, 0, y, 1.8, 0.6, 0.9, cop(k));
-  const cx = 0.4, cy = -24.2, R = 13.6, a0 = -1.1, a1 = 0.66;
+  const cx = 0.4, cy = -21.8, R = 13.6, a0 = -0.92, a1 = 0.7;
   // the limb (blade): a thick arc band whose outer rim is the cutting edge
   // angles from +x, y down: the limb runs from up-right round to down-right of the pivot
   const arcO: number[] = [], arcI: number[] = [];
@@ -81,10 +81,10 @@ function axe(k: K): void {
   if (q === 2) glowSpot(k, cx + Math.cos(ai) * 4.6, cy + Math.sin(ai) * 4.6, 0.9, SIGNAL, true);
   // pivot boss and the counterweight disc behind
   disc(k, cx, cy, 2.6, 2.6, cop(k), { line: 0.8 });
-  ring(k, -5.6, -24.4, 2.6, 2.6, 1.3, STAR_L, { ticks: 12, tickCol: shade(STAR_L, 0.5) });
-  pole(k, [-1.8, -24.3, -3.2, -24.4], 1.4, STAR_L);
-  if (q >= 1) stone(k, -5.6, -24.4, 0.9, COPPER);
-  k.anchor = { x: 0.4, y: -24.2, r: 2.6 };
+  ring(k, -5.6, -21.9, 2.6, 2.6, 1.3, STAR_L, { ticks: 12, tickCol: shade(STAR_L, 0.5) });
+  pole(k, [-1.8, -21.8, -3.2, -21.9], 1.4, STAR_L);
+  if (q >= 1) stone(k, -5.6, -21.9, 0.9, COPPER);
+  k.anchor = { x: 0.4, y: -21.8, r: 2.6 };
 }
 
 // ── bow: two limbs that are one true circle, a sighting ring with cross-hairs at the grip ──
