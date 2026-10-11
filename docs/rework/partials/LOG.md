@@ -48,3 +48,8 @@
   unique display names per registry, rune names per skill), localization ratchet `scripts/i18n-check.ts` +
   `i18n-localized.json` (listed files may not contain inline JSX text or literal aria-label/title/placeholder/alt). All
   three run in `npm run content:check`.
+- **F-TEL-05 — owner analytics.** `server/src/telemetryAnalytics.ts` (pure): new-hero funnel (created → L2 → L5 → quest →
+  L10 → 2nd session → L20), session-length histogram, return rate (2+ sessions, 2+ days), median play minutes per level,
+  active heroes per day, deaths by zone; `analyze-telemetry.ts --html out.html` writes one self-contained page (single
+  series bars ≤24 px, value at tip, hover/focus tooltip, table view per chart, light/dark tokens, no network, names
+  escaped). Test added (5/5). Shots: `shots/tel05-analytics-1366.jpg`, `-hover.jpg` (synthetic sample, labelled).

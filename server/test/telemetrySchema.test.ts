@@ -60,3 +60,32 @@ test('a character can be exported and scrubbed, including events still in the bu
   t.log({ e: 'unknown', c: 'alpha' });
   assert.equal(t.rejected, 1);
 });
+
+// ───────────────── F-TEL-05: owner analytics ─────────────────
+import { analytics, renderAnalyticsHtml } from '../src/telemetryAnalytics';
+import type { StoredEvent } from '../src/telemetry';
+
+test('analytics: funnel, sessions, return rate, level pace and a self-contained, escaped HTML page', () => {
+  const t0 = Date.UTC(2026, 9, 10, 18);
+  const ev = (min: number, c: string, e: string, extra: Record<string, unknown> = {}): StoredEvent => ({ t: t0 + min * 60_000, c, e, ...extra });
+  const events: StoredEvent[] = [
+    ev(0, 'ann', 'login', { fresh: true, lvl: 1, playMs: 0 }), ev(3, 'ann', 'level', { lvl: 2, playMs: 180_000 }), ev(20, 'ann', 'level', { lvl: 5, playMs: 1_200_000 }),
+    ev(25, 'ann', 'quest', { q: 'q1', a: 'claim' }), ev(40, 'ann', 'logout', {}), ev(1500, 'ann', 'login', { fresh: false }), ev(1510, 'ann', 'logout', {}),
+    ev(0, 'bob', 'login', { fresh: true }), ev(2, 'bob', 'logout', {}),
+    ev(0, 'old', 'login', { fresh: false }), ev(9, 'old', 'death', { zone: '<b>zone</b>', n: 2 }), ev(70, 'old', 'logout', {}),
+  ];
+  const a = analytics(events);
+  assert.equal(a.characters, 3);
+  assert.equal(a.fresh, 2);
+  assert.deepEqual(a.funnel.map(s => s.reached), [2, 1, 1, 1, 0, 1, 0]);
+  assert.equal(a.sessions.count, 4);
+  assert.deepEqual(a.sessions.buckets.map(b => b.count), [1, 1, 0, 1, 1, 0]);
+  assert.deepEqual([a.returning.secondSession, a.returning.laterDay, a.returning.of], [1, 1, 3]);
+  assert.deepEqual(a.levelPace.map(r => [r.level, r.medianMin]), [[2, 3], [5, 20]]);
+  assert.deepEqual(a.deathsByZone, [{ zone: '<b>zone</b>', deaths: 2 }]);
+  const html = renderAnalyticsHtml(a);
+  assert.ok(html.startsWith('<!doctype html>'));
+  assert.ok(!/<script[^>]+src=/.test(html) && !/<link[^>]+href=/.test(html) && !/https?:\/\//.test(html), 'no external resources');
+  assert.ok(html.includes('&lt;b&gt;zone&lt;/b&gt;') && !html.includes('<b>zone</b>'), 'names are escaped');
+  assert.match(renderAnalyticsHtml(analytics([])), /No data in this log yet/);
+});
