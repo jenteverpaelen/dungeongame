@@ -1,79 +1,250 @@
-# Shared content — conventions, power templates, shared legendaries, bases, affixes, gear motifs (M1)
+# Shared content — rules, tags, power templates, shared legendaries, bases, affixes, item grades, gear motifs (v2)
 
-Read with `WARRIOR.md`, `RANGER.md`, `MAGE.md` and `BUDGET.md`. Labels: **[M]** measured in this repo, **[P]** proposal,
-**[S]/[SN]/[K]** reference evidence as defined in `REFERENCES.md`, **[NEW-BEHAVIOUR]** needs new server code.
+Read with `WARRIOR.md`, `RANGER.md`, `MAGE.md`, `BUDGET.md`, `BUILD-TOOLS.md` and `NAMES.md`. Labels: **[M]** measured in
+this repo, **[P]** proposal, **[S]/[SN]/[K]** reference evidence as defined in `REFERENCES.md`, **[NEW-BEHAVIOUR]** needs
+new server code. v2 (2026-10-11) follows the owner's direction to let players discover builds (`BUILD-TOOLS.md`).
 
-## 0. Shared conventions [P]
+## 0. Rules for everything that ships
 
-| Topic | Today [M] | Proposal [P] |
+1. **No shipped build names.** Nothing that ships may say or imply "this is the X build":
+   * item names, item text, set names and set descriptions;
+   * skill and rune text, UI, tooltips, loading tips and patch notes.
+
+   Text describes mechanics only ("Your Channel skills cost 25% less"), never a playstyle label or a recommended
+   combination. The class documents' build tables are **internal test fixtures** for the parity harness; their names
+   (Gyre, Faultline, …) are working labels that never appear in game data or text.
+2. **Tags are authoritative.** An item or set that says "your Projectile skills" applies to exactly the skills whose tag
+   line shows Projectile — including tags a rune adds or removes. No hidden tags (the PoE ambiguity this avoids is in
+   `REFERENCES.md` §6).
+3. **Ids never change.** Display names may change (`NAMES.md`); skill, rune, node, legendary, set, base and affix ids
+   stay stable forever, because build codes and the data export depend on them (`BUILD-TOOLS.md` T5/T7).
+4. **Named-skill items are the minority.** About three-quarters of the new legendaries and every set bonus key off tags
+   or mechanics. Named-skill signatures (one per skill, mostly weapons) are a small chase layer.
+
+| Topic | Today [M] | v2 |
 |---|---|---|
-| Runes per skill | 3, unlock at skill unlock + 2 / 5 / 9 (`RUNE_UNLOCK_OFFSETS`) | 5, unlock at + 2 / 5 / 9 / **14 / 20**, clamped to 70 (new L50 skills: 52/55/59/64/70) |
+| Runes per skill | 3, unlock at skill unlock + 2 / 5 / 9 | 5, unlock at + 2 / 5 / 9 / **14 / 20**, clamped to 70 [P] |
 | Skill unlocks | 1, 2, 4, 6, 9, 12 | + **16, 20, 26, 32, 40, 50** (plan §3.2) |
-| Categories | none (`SkillKind` only) | a display `category` per skill (5 per class, listed in each class doc), as D3's class pages group skills (`REFERENCES.md` §1) |
-| Second primary | one primary per class; `save.skills.primary` already selectable | each class gets a second primary at L16 (Tolling Blow, Skipstone Bolt, Rime Needles) |
-| Upgrade tiers | 3 purchasable tiers per skill (2/4/6 points), 69 points by L70, all six skills cost 72 | kept unchanged |
-| Specialization nodes | none | 6 nodes per skill, ranks 1–3; N1–N3 open, N4/N5/N6 need 2 ranks in N1/N2/N3; **max 10 of 18 ranks per skill**; ≤1 plain-number node per skill |
-| Node points | — | **separate specialization points: 1 per level from L10 (61 at L70)** — enough for ~6 trees at the cap, so a 5-skill loadout plus one swap is fully specialized; free respec like tiers [M: tier reset is free]. Alternatives and why not: sharing the 69 tier points starves both systems (110 points wanted for a 5-skill loadout); Last Epoch's per-skill XP needs a new progression system (`REFERENCES.md` §3). Owner decision. |
-| Passives | 6 per class, 4 slots at 10/20/30/70 | 14 per class (8 new rules-changing passives at 14/18/24/28/36/45/55/64), slots unchanged |
+| Categories | none | a display `category` per skill [P] (display grouping only; tags do the mechanics) |
+| Tags | none | 22 mechanic tags + 5 element tags on every skill and rune (§1) [P] |
+| Second primary | one primary per class; `save.skills.primary` already selectable | a second primary per class at L16 |
+| Upgrade tiers | 3 tiers per skill (2/4/6 points), 69 points by L70 | unchanged |
+| Specialization nodes | none | 6 per skill, ranks 1–3, N4/N5/N6 need 2 ranks in N1/N2/N3, **max 10 of 18 ranks per skill** |
+| Node points | — | **separate pool (lead decision a)**: 1 point per level from L21 = **50 at L70** — see below |
+| Respec | tiers free [M] | free for skills, runes, tiers, nodes, passives; loadouts (`BUILD-TOOLS.md` T4) |
+| Passives | 6 per class, 4 slots at 10/20/30/70 | 14 per class (8 new rules-changing, unlocks 14/18/24/28/36/45/55/64), slots unchanged |
+| Top item grades | Ancient (×1.3 affixes) / Primal (max rolls) — D3's ladder [M/K] | **Kindled / Fabled** (§7); no extra multiplier (lead decision b) |
 
-## 1. Power template kinds (for the engineers' template library)
+**Lead decision (a) — separate node pool: confirmed, with a size challenge.**
+* Count the right totals: a character can only benefit from the **5 active trees** (primary + 4 slots), at most
+  5 × 10 = 50 ranks. The 12 × 6 × 3 = 216 possible ranks are not the binding total.
+* With 61 points at L70 every active tree is full and 11 points are spare. Because respec is free and loadouts exist,
+  the spare points buy nothing, so there is no trade-off at level 70.
+* The real trade-off is inside each tree: 10 of 18 ranks (56%) and prerequisites. That is Last Epoch's structure:
+  5 specialisation slots, a skill-level cap of 20, and more nodes than points (`REFERENCES.md` §3).
+* Proposal [P]: **1 point per level from L21 (50 at L70)**. Every active tree fills exactly at max level; while
+  levelling (e.g. 20 points at L40) players choose which trees to deepen first.
+* If the lead wants a cross-tree trade-off at L70 as well, 45 points (one tree at 5) is the next step; the parity model
+  is unaffected either way (nodes are not modelled).
 
-Every legendary power, set bonus and rules-changing passive in these documents is written as one or more of the
-templates below. "Bucket" is where the number lands in `server/src/sim/damage.ts baseMult()` [M]:
+**Lead decision (b) — no chase multiplier for the top tier: confirmed.**
+* The sweep in `BUDGET.md` §5 breaks parity at any 6-piece above ×1.3, and D3's own test of +800% per Ancient item was
+  rolled back to +100% [S, `REFERENCES.md` §4].
+* The top tier becomes rolls + looks + a build-bending Inscription (§7).
+
+**Lead decision (c) — approved changes, applied:**
+* The Ninefold Gale's roll covers Whirlwind and Dust Devils.
+* Lantern Garden becomes a Summon set.
+* Frost Nova moves into the Chill set (Hoarfrost Vigil).
+
+## 1. Tags and power templates
+
+### 1.1 Tag vocabulary [P]
+
+Tags are data on `SkillDef` (`tags: Tag[]`) and `RuneDef` (`addTags`, `removeTags`); the element tag follows the current
+element (`mods.element` [M]). The tooltip shows them on one line (`BUILD-TOOLS.md` T1).
+
+| Group | Tag | Meaning |
+|---|---|---|
+| Role | **Primary** | the automatic attack (generates resource) |
+| | **Spender** | an attack whose main job is spending resource |
+| | **Channel** | held/channelled, drains resource per second |
+| | **Cooldown** | has a cooldown |
+| | **Buff** | grants the player (and possibly allies) a timed bonus |
+| | **Movement** | moves the player (today: Dash on Space) |
+| Delivery | **Strike** | a melee weapon hit |
+| | **Projectile** | launches projectiles (including lobbed shells) |
+| | **Piercing** | its projectiles or beams pass through, skip or chain to further enemies |
+| | **Area** | hits everything in a region |
+| | **Aerial** | strikes from above (falling stones, arrows, stars) |
+| | **Ground** | leaves a lasting ground effect (molten ground, fields, banners, pitch) |
+| | **Summon** | creates entities that act on their own |
+| | **Device** | a mechanical summon (turret, mortar, trap) |
+| | **Beast** | a living animal summon |
+| | **Trap** | waits and triggers when enemies arrive |
+| Effect | **Bleed** · **Burn** | applies that damage-over-time |
+| | **Chill** | chills or freezes |
+| | **Stun** | stuns or immobilises |
+| | **Displace** | knocks back or pulls enemies |
+| | **Mark** | marks a target that takes more damage |
+| Element | **Physical · Fire · Cold · Lightning · Arcane** | follows the current element |
+
+### 1.2 Tags of every skill [P]
+
+| Class | Skill (id) | Tags |
+|---|---|---|
+| Warrior | Cleave (`cleave`) | Primary, Strike, Area, Physical |
+| | Tolling Blow (`tolling_blow`) | Primary, Strike, Stun, Physical |
+| | Whirlwind (`whirlwind`) | Channel, Spender, Strike, Area, Physical |
+| | Ironplough (`ironplough`) | Channel, Spender, Strike, Area, Displace, Physical |
+| | Rend (`rend`) | Spender, Area, Bleed, Physical |
+| | Sawtooth Hatchet (`sawtooth_hatchet`) | Spender, Projectile, Piercing, Bleed, Physical |
+| | Ground Stomp (`ground_stomp`) | Cooldown, Area, Stun, Physical |
+| | Seismic Slam (`seismic_slam`) | Spender, Area, Displace, Physical |
+| | Cairnfall (`cairnfall`) | Cooldown, Aerial, Area, Stun, Physical |
+| | Battle Rage (`battle_rage`) | Buff, Physical |
+| | Muster Standard (`muster_standard`) | Buff, Cooldown, Ground, Physical |
+| | Kilnheart (`kilnheart`) | Buff, Cooldown, Burn, Fire |
+| Ranger | Hungering Arrow (`hungering_arrow`) | Primary, Projectile, Piercing, Physical |
+| | Skipstone Bolt (`skipstone_bolt`) | Primary, Projectile, Piercing, Physical |
+| | Multishot (`multishot`) | Spender, Projectile, Piercing, Physical |
+| | Cluster Arrow (`cluster_arrow`) | Spender, Projectile, Area, Fire |
+| | Overcast Volley (`overcast_volley`) | Spender, Aerial, Area, Physical |
+| | Rain of Vengeance (`rain_of_vengeance`) | Cooldown, Aerial, Area, Ground, Physical |
+| | Sentry (`sentry`) | Summon, Device, Cooldown, Projectile, Physical |
+| | Spring Snare (`spring_snare`) | Summon, Device, Trap, Area, Stun, Physical |
+| | Pitch Mortar (`pitch_mortar`) | Summon, Device, Area, Ground, Burn, Fire |
+| | Companion (`companion`) | Summon, Beast, Physical |
+| | Quarry Mark (`quarry_mark`) | Cooldown, Mark, Physical |
+| | Murmuration (`murmuration`) | Cooldown, Summon, Beast, Area, Physical |
+| Mage | Magic Missile (`magic_missile`) | Primary, Projectile, Arcane |
+| | Rime Needles (`rime_needles`) | Primary, Projectile, Chill, Cold |
+| | Meteor (`meteor`) | Spender, Aerial, Area, Ground, Burn, Fire |
+| | Stormglass Orb (`stormglass_orb`) | Spender, Projectile, Area, Lightning |
+| | Thrumming Ray (`thrumming_ray`) | Channel, Spender, Piercing, Arcane |
+| | Black Hole (`black_hole`) | Cooldown, Area, Ground, Displace, Arcane |
+| | Frost Nova (`frost_nova`) | Cooldown, Area, Chill, Cold |
+| | Rimefield (`rimefield`) | Cooldown, Area, Ground, Chill, Cold |
+| | Hydra (`hydra`) | Summon, Projectile, Fire |
+| | Cinderkin (`cinderkin`) | Summon, Area, Burn, Fire |
+| | Magic Weapon (`magic_weapon`) | Buff, Arcane |
+| | Orrery (`orrery`) | Cooldown, Summon, Area, Arcane |
+| All | Dash | Movement |
+
+**Runes that change tags** (everything else keeps the skill's tags; element runes switch the element tag):
+* **Warrior**
+  * Cleave: Hemorrhage Arc +Bleed.
+  * Whirlwind: Dust Devils +Summon; Gyre of Ash +Ground +Burn; Tethered Spin +Displace.
+  * Rend: Gathering Tear node +Displace.
+  * Seismic Slam: Permafrost +Chill.
+  * Tolling Blow: Furnace Clapper +Burn.
+  * Sawtooth Hatchet: Kiln-Heated +Burn.
+  * Muster Standard: Ember Pennant +Area.
+  * Ironplough: Stone Spray +Projectile; Smouldering Share +Burn.
+  * Cairnfall: Waymarker and Kiln Stones +Ground (Kiln Stones also +Burn).
+  * Kilnheart: Cold Forge −Burn +Chill.
+* **Ranger**
+  * Hungering Arrow: Barbed Shaft +Bleed.
+  * Sentry: Polar Station +Chill; Flame Lance −Projectile +Area.
+  * Cluster Arrow: Freezing Charge +Chill.
+  * Rain of Vengeance: Flood Plain +Chill.
+  * Companion: Badger Sett +Stun; Heron +Chill.
+  * Skipstone Bolt: Ripple +Chill; Heavy Stone −Piercing +Displace; Marker Bolt +Mark.
+  * Spring Snare: Pitch-Soaked +Ground +Burn; Bramble Spring +Projectile.
+  * Overcast Volley: Freezing Drizzle +Chill; Pinning Shower +Stun.
+  * Quarry Mark: Falcon Strike +Beast.
+  * Pitch Mortar: Grapeshot +Projectile −Ground; Frostpot −Burn +Chill.
+* **Mage**
+  * Magic Missile: Glacial Spike +Chill; Static Thread +Piercing.
+  * Meteor: Comet −Burn +Chill; Lodestone +Displace.
+  * Black Hole: Absolute Zero +Chill.
+  * Hydra: Frost Hydra +Chill; Forked Tongues +Piercing.
+  * Magic Weapon: Ignite +Burn; Chilling Edge +Chill.
+  * Rime Needles: Arcane Thorns −Chill +Piercing.
+  * Thrumming Ray: Frostline +Chill; Searing Thread +Burn.
+  * Cinderkin: Frostkin −Burn +Chill; Lanternkin +Projectile.
+  * Rimefield: Static Frost −Chill.
+  * Stormglass Orb: Hailglass +Chill.
+  * Orrery: Comet Ring +Aerial; Frozen Moons +Chill.
+
+### 1.3 Power template kinds
+
+Every legendary power, set bonus, Inscription and rules-changing passive is one or more templates. **Every template takes
+a target selector**: a tag set (any-of / all-of), the player (`*`), or — for the signature layer only — one named skill.
+"Bucket" is where the number lands in `server/src/sim/damage.ts baseMult()` [M]:
 `coef × (1+main) × (1+skillPct) × (1+ele) × (1+generic) × own(mult) × vulnerability × crit`.
 
 | Template | What it does | Bucket / mechanism [M] | Existing examples [M] | Magnitude band [P] |
 |---|---|---|---|---|
-| `skillDamage` | +v% increased damage to named skill(s) | additive skill bucket (`skillPct`, with runes, tiers, gear "+x% skill damage") | Faultcleaver, Bloodwake, Lanternroot, Cindervane, Thunderhead (150–200) | weapon signature 150–200; primary / off-hand signature 100–150 (Thousand Missiles anchor); Bulwark of the Last Light 200–250 stays |
-| `skillMods` | any `SkillMods` field (radius, cost, cooldown, duration, projectiles, pierce, maxSummons) with one rolled field | merged into the skill's mods (`mergeMods`) | Rainspindle (cooldown 30–40 + radius 40), Starfall Mantle (cost 30–40), Sapper's Pack (+2 Sentries) | cost/cooldown 15–40%; counts +1–2 |
-| `skillFlag` | grants a behaviour flag (a rune effect or a new behaviour) | `flags` | Ninefold Gale (`dustDevils`), Bulwark (`pull`) | — |
-| `skillMore` **(new)** | ×(1+v%) on named skill(s), optionally while a condition holds or per stack | own bucket (`Strike.mult`, the same product set bonuses use) | none today — the reason a legendary kit could not stack like a set | 25–40% conditional, 6–8% per stack (max 5), 15–30% per compounding pierce/skip |
-| `vulnerability` | enemies in a condition take +v% from you | `vulnerability()` product (`stunMult`, `markPct`, `holePct`) | Anvil Vambraces 25–30, Heart of the Void 20–25, Hunter's Mark 15–20 | 15–30% |
-| `buff` / `buffOnEvent` | gain a buff (generic damage, attack speed, crit) on an event or while a state holds | generic bucket (`p.live.dmg`) / `live.ias` / `live.chc` | Hellforge Talisman (elite kill, 30–40), Stridewind (dash, 40–50) | generic 10–30% with an uptime condition |
-| `stat` | flat character stat | `computeStats` | Witching Cord (chd 45–50 + 7% ias), Fists of the Mountain (area 40–50 + 15% ias) | as affix maxima |
-| `element` / `conversion` | element swap or +v% to one element | `ele` bucket / `mods.element` | Thunderhead (Lightning), Ouroboros Loop (rotating element, own multiplier 150–200) | element +30–40% while a state holds |
-| `proc` | on event, cast a strike, summon or ground | new: generic proc hook | Rupture-style death hooks exist for runes (`skillDeathHooks`) | proc damage 40–80% weapon damage, internal cooldown |
-| `resource` / `cooldown` | resource refunds, cost cuts, cooldown refunds | `gainResource`, `readyAt` | Seal of the Patient Thief (0.75–1 s per spend) | per-event 0.05–0.5 s; refunds 3–5 resource |
-| `noSet` **(new)** | bonus that applies only while no set bonus is active | generic bucket | none (D3's no-set ring set and gem are the pattern, `REFERENCES.md` §4) | 2–3% per equipped legendary, max 10 |
-| `defensive` | damage reduction / control immunity | damage-taken multiplier (`stormDR`, `gyre` pattern) | Girdle of the Eternal Gyre (20% while whirling) | 15–30% DR while a state holds |
+| `skillDamage` | +v% increased damage to the selected skills | additive skill bucket | Faultcleaver, Bloodwake, Lanternroot, Cindervane, Thunderhead (150–200) | named weapon signature 150–200; primary/off-hand named 100–150; **tag additive 40–90** |
+| `skillMods` | any `SkillMods` field with one rolled field | `mergeMods` | Rainspindle, Starfall Mantle, Sapper's Pack | cost/cooldown 15–40%; counts +1–2 |
+| `skillFlag` | grants a behaviour flag | `flags` | Ninefold Gale, Bulwark | — |
+| `skillMore` | ×(1+v%) on the selected skills, optionally conditional or per stack | own bucket (`Strike.mult`) | none today | 25–40% conditional, 4–8% per stack (max 5) |
+| `vulnerability` | enemies in a state take +v% from you | `vulnerability()` | Anvil Vambraces 25–30, Heart of the Void 20–25, Hunter's Mark 15–20 | 12–30% |
+| `buff` / `buffOnEvent` | a buff on an event or while a state holds | generic bucket / `live.*` | Hellforge Talisman, Stridewind | 10–30% with an uptime condition |
+| `stat` | flat character stat | `computeStats` | Witching Cord, Fists of the Mountain | as affix maxima |
+| `element` / `conversion` | element swap or +v% to one element | `ele` / `mods.element` | Thunderhead, Ouroboros Loop | 30–40% conditional |
+| `proc` | on an event, cast a strike, summon or ground | generic proc hook [NEW-BEHAVIOUR] | death hooks of runes | 40–80% weapon damage, internal cooldown |
+| `resource` / `cooldown` | refunds, cost cuts, cooldown refunds | `gainResource`, `readyAt` | Seal of the Patient Thief | 0.05–0.5 s per event; 3–5 resource |
+| `tagGrant` **(new)** | adds a tag to a skill (e.g. "Aerial skills also count as Projectile") | tag resolution | none | Inscriptions only (§7) |
+| `noSet` | bonus only while no set bonus is active | generic bucket | none | 2–3% per equipped legendary, max 10 |
+| `setReduce` **(new)** | set bonuses need one fewer item (minimum 2) | set counting | none | Journeyman's Ring only |
+| `defensive` | damage reduction / control immunity | damage-taken multiplier | Girdle of the Eternal Gyre | 15–30% DR while a state holds |
 
-One generic **conditional multiplier** (a predicate on the target — stunned, frozen, chilled, bleeding, immobilised, in a
-Black Hole, farther than N, above X% Life — or on the player — in own ground, standing still, buff active) serves the
-`skillMore`, `vulnerability` and set 6-piece templates; building it once removes most per-item [NEW-BEHAVIOUR] work.
+One generic **conditional multiplier** serves `skillMore`, `vulnerability` and the set 6-pieces. Its predicate is one of:
+* a target state: stunned, frozen, chilled, bleeding, burning, displaced, marked, inside your Ground, farther than N;
+* a player state: channelling, standing still, in own Ground, a Buff active, no enemy within N.
 
-**Cube** [M]: up to three extracted powers, one per `CubeSlot` (weapon = main-hand weapons; armor = every armour slot,
-belt, bracers and off-hands; jewelry = amulet and rings); an extracted power rolls at the range maximum and does not stack
-with the same power equipped. Ancient status multiplies affixes and weapon damage by 1.3 but **not** legendary power values
-(`shared/src/items.ts`), so parity does not depend on Ancients.
+Building it once replaces most per-item [NEW-BEHAVIOUR] work.
 
-## 2. Shared legendaries (6 existing + 12 new)
+**Cube** [M]:
+* up to three extracted powers, one per `CubeSlot` (weapon / armor / jewelry);
+* an extracted power rolls at the range maximum and does not stack with an equipped copy;
+* Ancient status (Kindled after §7) does not change legendary values.
+* [P]: Journeyman's Ring and Patchwork Signet **cannot be extracted** — their cost is the jewelry slot they occupy.
+
+## 2. Shared legendaries (6 existing + 13 new)
 
 Existing [M]: Ouroboros Loop (ring), Seal of the Patient Thief (ring), Hellforge Talisman (amulet), Witching Cord (sash),
-Stridewind Greaves (boots), Fists of the Mountain (gauntlets). The new twelve fill every armour slot so a legendary-only
-kit always has something worth wearing where a set would go (the slot rule in `BUDGET.md` §3), and their magnitudes were
-cut in the parity model because generic-bucket powers stack undiluted (`BUDGET.md` §6).
+Stridewind Greaves (boots), Fists of the Mountain (gauntlets).
+* **Proposed change [P]:** Ouroboros Loop **150–200% → 60–80%**. In the v2 diversity search it sat in 7–8 of every
+  class's 9–11 top kits even at 60–80% (`BUDGET.md` §4), because an unconditional rotating multiplier fits every build.
+  This is owner-visible; a further cut to 40–60% or an element-specific rework is the next step if the harness confirms.
 
-| Legendary | Base (slot) | Power (`{v}` = rolled) | Range | Template | Cube | Who wants it |
+The v1 shared items were universal (always-on damage, "above 80% Life", elite bonus). In the v1 model they filled 4–6
+footprint slots of every legendary kit. v2 keys each one to a tag or mechanic, so different main skills pick different
+ones (`BUDGET.md` §4 shows no item in every top kit).
+
+| Legendary | Base (slot) | Power (`{v}` = rolled) | Range | Template | Cube | Keys off |
 |---|---|---|---|---|---|---|
-| **Patchwork Signet** | Ring | While no set bonus is active, each equipped legendary item increases your damage by {v}% (max 10 items) and reduces damage taken by 1%. | 2–3 | noSet | jewelry | every legendary-only kit (Hatchetwind, Skipshot, Orrery) |
-| **Watchkeeper's Hood** | Hood (head) | Elite enemies within 500 units are outlined and take {v}% increased damage from you. | 15–20 | vulnerability (elites) | armor | bossing, all classes |
-| **Kilnwatch Spaulders** | Plate Spaulders (shoulders) | Casting a skill with a cooldown grants {v}% increased damage for 5 s. | 15–20 | buffOnEvent | armor | cooldown builds (Faultline, Stormwatch, Hoarfrost) |
-| **Hearthguard Coat** | Hauberk (chest) | While above 80% Life you deal {v}% increased damage and take 10% less damage. | 15–20 | buff (state) | armor | all; note the harness runs immortal bots (`BUDGET.md` §7) |
-| **Ink-Stained Gloves** | Gloves (hands) | Your primary attack deals {v}% increased damage; every 4th primary attack repeats once. | 75–100 | skillDamage + proc | armor | primary-heavy builds (Warcaller, Farwatch, Glass Concord) |
-| **Causeway Waders** | Waders (legs, new base) | After standing still for 1 s you deal {v}% increased damage until you have moved for 1 s. | 20–25 | buff (state) | armor | turret / ranged play |
-| **Ridgewalker Boots** | Boots (feet) | Every 100 units moved gives a stack (max 5) of {v}% increased damage; stacks fall off after 2 s standing still. | 4–5 per stack | buff (stacking) | armor | melee and kiting play |
-| **Surveyor's Plumb** | Amulet | Enemies above 75% Life take {v}% increased damage from you. | 25–35 | vulnerability (opener) | jewelry | all |
-| **Brine Tally** | Ring | Killing 20 enemies within 10 s grants {v}% attack speed and cooldown recovery for 10 s. | 15–20 | buffOnEvent | jewelry | pack clearing |
-| **Signal Horn Charm** | Amulet | Your summons (Sentries, Mortars, Snares, Hydras, Cinderkin, Companions, Dust Devils) deal {v}% more damage. | 25–35 | skillMore (summons) | jewelry | Siege, Packmaster, Trapper, Lantern Garden |
-| **Lockglass Cincture** | Belt (waist) | Channelled skills (Whirlwind, Ironplough, Thrumming Ray) cost {v}% less and you cannot be knocked back while channeling. | 20–30 | resource + defensive | armor | Gyre, Ploughline, Hollowstar |
-| **Wardkeeper's Cuffs** | Bracers (wrists) | Enemies you stun, freeze, immobilise or knock back take {v}% increased damage from you for 3 s. | 15–20 | vulnerability (controlled) | armor | control builds (Faultline, Trapper, Hoarfrost) |
+| **Patchwork Signet** | Ring | While no set bonus is active, each equipped legendary item increases your damage by {v}% (max 10 items) and reduces damage taken by 1%. | 2–3 | noSet | — (not extractable) | no set |
+| **Journeyman's Ring** | Ring | Set bonuses require one fewer item (minimum 2). Does not stack. | — | setReduce | — (not extractable) | sets |
+| **Watchkeeper's Hood** | Hood (head) | While no enemy is within 200 units, your Projectile and Aerial skills deal {v}% more damage. | 20–30 | skillMore (cond.) | armor | Projectile, Aerial |
+| **Kilnwatch Spaulders** | Plate Spaulders (shoulders) | Casting a Cooldown skill grants {v}% increased damage for 5 s. | 15–20 | buffOnEvent | armor | Cooldown |
+| **Hearthguard Coat** | Hauberk (chest) | While channelling or standing in one of your Ground effects, you deal {v}% increased damage and take 15% less damage. | 20–30 | buff (state) | armor | Channel, Ground |
+| **Ink-Stained Gloves** | Gloves (hands) | Your Primary skills deal {v}% increased damage; every 5th Primary attack repeats once. | 50–75 | skillDamage + proc | armor | Primary |
+| **Causeway Waders** | Waders (legs) | After you stand still for 1 s, your Summons and Ground effects deal {v}% more damage until you move. | 25–35 | skillMore (cond.) | armor | Summon, Ground |
+| **Ridgewalker Boots** | Boots (feet) | Every 100 units you move adds a stack (max 5): your Spender skills deal {v}% more damage per stack; stacks fall off after 2 s standing still. | 4–6 per stack | skillMore (stacking) | armor | Spender |
+| **Surveyor's Plumb** | Amulet | Your Marks also apply to the nearest other enemy, and Marked enemies take {v}% more damage from you. | 20–30 | vulnerability (marked) | jewelry | Mark |
+| **Brine Tally** | Ring | Killing an enemy that suffers your Bleed or Burn adds a tally (max 20); at 20 your attack speed and cooldown recovery are {v}% faster for 10 s. | 15–20 | buffOnEvent | jewelry | Bleed, Burn |
+| **Signal Horn Charm** | Amulet | Your Summons deal {v}% more damage. | 15–25 | skillMore | jewelry | Summon |
+| **Lockglass Cincture** | Belt (waist) | Your Channel skills cost {v}% less, and you cannot be knocked back while channelling. | 20–30 | resource + defensive | armor | Channel |
+| **Wardkeeper's Cuffs** | Bracers (wrists) | Enemies you Stun, Chill or Displace take {v}% more damage from you for 3 s. | 12–18 | vulnerability (controlled) | armor | Stun, Chill, Displace |
 
-Flavour: Patchwork Signet "Mended so often there is nothing original left." · Watchkeeper's Hood "Venn never takes it
-off. Never." · Kilnwatch Spaulders "Warm on the coldest watch." · Hearthguard Coat "It smells of bread and smoke." ·
-Ink-Stained Gloves "Orren counts people. These count blows." · Causeway Waders "Sera lent them out once." · Ridgewalker
-Boots "Tallis wore through three pairs." · Surveyor's Plumb "Iven trusts it more than the ground." · Brine Tally "Neris
-notches it every evening." · Signal Horn Charm "Small enough to forget, loud enough to remember." · Lockglass Cincture
-"Aven says it holds still on purpose." · Wardkeeper's Cuffs "Mera's keys, melted down."
+Flavour (original):
+* Patchwork Signet "Mended so often there is nothing original left."
+* Journeyman's Ring "Fits any hand that has learned two trades."
+* Watchkeeper's Hood "Venn never takes it off. Never."
+* Kilnwatch Spaulders "Warm on the coldest watch."
+* Hearthguard Coat "It smells of bread and smoke."
+* Ink-Stained Gloves "Orren counts people. These count blows."
+* Causeway Waders "Sera lent them out once."
+* Ridgewalker Boots "Tallis wore through three pairs."
+* Surveyor's Plumb "Iven trusts it more than the ground."
+* Brine Tally "Neris notches it every evening."
+* Signal Horn Charm "Small enough to forget, loud enough to remember."
+* Lockglass Cincture "Aven says it holds still on purpose."
+* Wardkeeper's Cuffs "Mera's keys, melted down."
 
 ## 3. New item bases (42 → 80)
 
@@ -136,19 +307,50 @@ so rename the old ladder's tiers 1 and 2 to "Loop" and "Circle" [P] to avoid two
 | `trap_kit` | off-hand | ranger | Snare Bag, Trap Kit, Hook Pouch, Trapper's Kit, Runic Kit, Starforged Kit | armorMult 0.3 | = quiver; allowed with ranged two-handers like the quiver [M rule] | satchel with hooks and coiled wire |
 | `tome` | off-hand | mage | Notebook, Tome, Ledger of Stars, Grimoire, Runic Tome, Starforged Tome | armorMult 0.3 | = orb | thick book on a chain, glowing page edge |
 
-## 4. Slot footprints — the set-versus-legendary slot puzzle
+## 4. Sets as building blocks — structure decision
 
-Every set today covers the same six armour slots [M] (head, shoulders, chest, hands, legs, feet), so a set kit always
-loses the same legendary slots. Three new sets (Furrowmark, Snarewright, Hollowstar Choir) cover **head, shoulders, chest,
-hands, belt, bracers** instead, so their legs and feet stay open for legendaries and their belt/bracer legendaries are
-the ones a set wearer gives up. This is the cheapest lever for "a full set shouldn't always mean it can be better" [P]:
-which legendaries a set blocks becomes part of the build decision. Rule for authors [P]: each skill's three legendaries
-go one to a weapon or off-hand, one to the standard footprint, one to jewelry/belt/bracers (rule R5 in `BUDGET.md` §3).
+**Decision [P]:** keep the 2/4/6 thresholds, make every bonus tag-keyed so one set serves several skills, put most of the
+value in the 2- and 4-piece, cap the 6-piece (transform + ×1.25, or ×1.35 while a condition holds), and add **one shared
+set-reduction ring** (Journeyman's Ring). Evidence and alternatives: `REFERENCES.md` §7.
+
+* **Why not 2/2/2 charms like D4** [S]? They live outside armour slots, which is a new item system and slot type.
+  Existing saves, set ids and the gear visuals (sigil sockets lighting per piece, mantle at 4, wings at 6 [M,
+  `docs/rework/gear/DESIGN.md` §2–3]) assume six armour pieces. The ring gets most of the benefit cheaply:
+  * **5 + ring** → the 6-piece bonus with one footprint slot free for a legendary;
+  * **3 + 3 + ring** → two 4-piece bonuses;
+  * **2 + 2 + 2** (no ring) → three 2-piece bonuses.
+* **What the model shows** (`BUDGET.md` §4): with tag-keyed bonuses, 3–5 of each class's 5 sets appear in a top kit,
+  and every set is the best 4-piece hybrid for at least one main skill. The configurations used span 6-piece, 5 + ring, 4 + 2 free and 3 + ring. No set is in every top kit.
+* **Footprints:** each set covers six armour slots. Three sets (Furrowmark, Snarewright, Hollowstar Choir) cover head,
+  shoulders, chest, hands, **belt and bracers** instead of legs and feet. Which legendaries a set blocks is part of the
+  choice.
+* **Gear visuals with the ring:** count *worn pieces* for the sigil sockets and wings, and the *effective* count for
+  bonuses [P]. A 5 + ring wearer shows five lit sockets and gets the 6-piece bonus; wings stay a six-piece reward for the
+  look.
+
+| Class | Set | Keys off | 2-piece / 4-piece / 6-piece (summary; full text in the class doc §7) |
+|---|---|---|---|
+| Warrior | Raiment of the Endless Storm | Channel | cheaper channels / channel bleed + damage reduction / wind wisps orbit while channelling, ×1.25 |
+| | Fault Warden | Stun | bigger, faster Stun skills / Spender aftershock on stunned + Stun skills 15% more / fault lines re-stun, ×1.35 vs stunned |
+| | Cinder Oath | Bleed, Burn, Primary | bleeds burn / Primary hits extend damage-over-time, +20% vs afflicted / cinder pools, ×1.25 |
+| | Hearthbanner | Buff, Primary | shorter Buff cooldowns / Primary +25% with two Buffs up / Ground buffs follow you, shockwaves, ×1.25 while a Buff is up |
+| | Furrowmark (belt+bracers) | Displace, Channel | farther Displace / collision stuns, +35% vs displaced / furrows, ×1.25 |
+| Ranger | Siegebreaker's Arsenal | Device, Spender | +1 each Device / Devices fire your Spender Projectiles at 20% / ×(1 + 0.1 per Device) |
+| | Farwatch | Projectile, Piercing | one more pierce/skip / cheaper Projectile Spenders, Piercing 15% more / farwatch shot, ×1.35 at range |
+| | Rainkeeper | Aerial, Ground | bigger, faster Aerial cooldowns / cheaper Spenders and Aerial +15% / storm follows you, ×1.35 inside |
+| | Thicket Kin | Beast | Beast speed and Hatred / +1 each Beast, Beast marks / bites leap, ×1.25 |
+| | Snarewright (belt+bracers) | Trap, Stun, Device | +1 Trap, faster arming / Devices hunt stunned, Traps 15% more / re-arming traps, ×1.35 vs stunned |
+| Mage | Regalia of the Fallen Star | Aerial, Spender | Aerial skills strike twice / element signs +5% each / falling star every 4th Spender, ×1.25 |
+| | Glass Concord | Projectile | +1 projectile / splits inside your Ground, Projectiles +10% / shatter on kill, ×1.25 |
+| | Lantern Garden | Summon | +1 each Summon / lanterns speed up Summons / ember sprites, ×1.25 |
+| | Hoarfrost Vigil | Chill, Ground | faster, bigger Chill and Ground skills / +20% vs frozen / chill becomes freeze, ×1.35 vs chilled |
+| | Hollowstar Choir (belt+bracers) | Channel, Arcane | faster channel ramp / Channel +15%, Buffs doubled / beams refract, ×1.35 at full power |
 
 ## 5. New affixes (33 → 55)
 
 Ranges are level-70 values like the existing table and use the same `affixScale` kinds [M]; each is anchored to an existing
-affix of the same bucket so a new stat does not out-scale its legendary counterpart [P].
+affix of the same bucket so a new stat does not out-scale its legendary counterpart [P]. v2: the skill-group affixes key off
+the tags of §1 (Summon, Primary, Spender, Cooldown, Channel, Bleed/Burn = damage-over-time, Stun/Chill = control).
 
 | stat | P/S | Label | Slots: range | scale | group | Anchor |
 |---|---|---|---|---|---|---|
@@ -207,7 +409,7 @@ existing "personal rain cloud" orbiter now matches its 6-piece.
 | stone | Quakestep Sabatons, Fissure-Lined Breastplate, Tremor Signet, Cairnwright's Hammer, Stonecount Gauntlets |
 | ember / flame | Ashgrip Gauntlets, Kilnmaw, Slagforged Helm, Coalheart Locket, Powderkeg Crossbow, Fuse-Burnt Boots, Powder Horn, Tar-Stained Jerkin, Mortarman's Pack, Fuse Cord Belt, Kindling Rod, Firekeeper's Gloves, Kilnwatch Spaulders |
 | blood | Tanner's Pauldrons, Red Ledger, Grinning Saw, Woodcutter's Grips, Sawyer's Ring |
-| gold | Bellwright's Maul, Belfry Pauldrons, Brass Warhorn Helm, Furycord Belt, Seething Sigil, Thresher's Knot, Patchwork Signet, Brine Tally |
+| gold | Bellwright's Maul, Belfry Pauldrons, Brass Warhorn Helm, Furycord Belt, Seething Sigil, Thresher's Knot, Patchwork Signet, Journeyman's Ring, Brine Tally |
 | holy | Ward Pennant Shield, Quartermaster's Cuirass, Rally Knot, Hearthguard Coat |
 | banner | (set only) |
 | furrow | Coulter Blade, Yoke Greaves, Ox-Harness Belt, Millwheel Edge |
@@ -228,3 +430,76 @@ existing "personal rain cloud" orbiter now matches its 6-piece.
 Each legendary also needs a `colors` triple (primary, secondary, glow) like the existing 22 [M]; the class agent picks them
 from the motif's palette. Names of all new items still need the release naming audit (P11 report: the scoped item naming
 pass is not trademark clearance) [M].
+
+## 7. Item grades: Kindled and Fabled (replacing Ancient / Primal)
+
+**Owner (2026-10-11):** "primal sets should become mythic items or smth, i dont wanna copy full diablos tooltip and like
+rank design etc". Today's ladder is D3's:
+* `AncientTier` 0/1/2 in `shared/src/types.ts`;
+* `ANCIENT_MULT = 1.3` on affixes and weapon damage at tier 1, all rolls at maximum at tier 2 (`shared/src/items.ts`);
+* drop chances 10% and 1/400 (the latter at difficulty ≥ 6);
+* gear-visual tiers 8 "Ancient" and 9 "Primal" [M].
+
+References for top tiers (D4 Ancestral/Greater Affixes/Mythic Uniques, Last Epoch Primordial, Grim Dawn Mythical
+relics, Lost Ark grades) are in `REFERENCES.md` §8.
+
+**Name.** "Mythic" is D4's top tier (and "Mythical" Grim Dawn's relic tier), so it would read as a copy. Proposed:
+**Kindled** (grade 1) and **Fabled** (grade 2). Neither is a tier name in any ARPG/MMO I could find [SN]. Both fit the
+hearth/kiln world (`docs/rework/CAST.md`), and "Fabled" carries the owner's "mythic" meaning without the word.
+
+**Concept: breadth, not depth** (original against D3's ×1.3 and D4's ×1.5 Greater Affix) [P]:
+
+| Grade | Drops | What changes | What never changes |
+|---|---|---|---|
+| **Kindled** (1) | ilvl-70 legendary or set item, 10% (today's Ancient chance, unchanged) | one **extra primary affix** — the *kindled affix*, drawn from the slot's normal pool, normal ranges, marked with an ember; affix count 5 primary + 2 secondary instead of 4 + 2 | no affix, weapon-damage or power multiplier |
+| **Fabled** (2) | 1/400 at difficulty ≥ 6 (today's Primal chance, unchanged) | all affixes (kindled affix included) at maximum, plus one **Inscription**: a rule change from a slot-keyed pool (below); a unique look | no damage multiplier; only **one Inscription is active** at a time (like Last Epoch's one Primordial item [SN]) |
+
+Stat effect [inferred]: an Ancient item gets +30% on six affixes; a Kindled item gets a seventh affix (+1/6 ≈ +17% of
+its affix value), so endgame stats drop a few percent on 10% of items — small next to the set-multiplier change in
+`BUDGET.md`.
+
+**Inscription pool [P]** — each is a `tagGrant`, `skillFlag` or `proc` template, never a multiplier:
+
+| Slot group | Inscription |
+|---|---|
+| Weapons | Your Primary skill also gains the tags of the skill in slot 1. |
+| Weapons | Your Piercing projectiles return to you once after their last hit. |
+| Head / shoulders | Your Aerial skills also count as Projectile skills (and Projectile skills as Aerial). |
+| Head / shoulders | Your Cooldown skills store one extra charge. |
+| Chest / legs | Your Channel skills can be used at full movement speed. |
+| Chest / legs | Your Summons inherit your Bleed and Burn effects. |
+| Hands / feet | When a Movement skill ends, your most recent Ground skill is cast there at half size (once per 8 s). |
+| Hands / feet | Your Stuns also Chill, and your Chills count as Stuns for item powers. |
+| Belt / bracers | Your Buff skills do not expire in combat; they cost their resource again every 10 s instead. |
+| Belt / bracers | Your Spender skills refund 30% of their cost when they hit 5 or more enemies. |
+| Jewelry | Your Ground effects follow you at half size. |
+| Jewelry | Your Displace effects also Mark the enemies they move. |
+
+**Data and save migration [P]** — ids and old saves stay readable:
+1. **Keep the stored field.** Keep `ancient: 0 | 1 | 2` in saves, the protocol (`ancient?: AncientTier`) and the gear
+   descriptor (2 bits, `gearVisual.ts`) so no packed format changes. Rename the type to `ItemGrade` with an alias
+   `AncientTier = ItemGrade`. Display names change: 1 = Kindled, 2 = Fabled.
+2. **New fields:** `kindledAffix?: number` (index of the extra affix in `affixes`), `inscription?: string` (stable id
+   from the pool), and `legacyGrade?: true`.
+3. **Generation (`items.ts`):** new items no longer apply `ANCIENT_MULT` (keep the constant for legacy reads only).
+   Grade 1 adds one primary affix and sets `kindledAffix`. Grade 2 also rolls every affix at maximum and picks an
+   Inscription for the slot. Weapon damage gets no grade multiplier.
+4. **Save revision N+1:**
+   * every item with `ancient === 1` keeps its stored affix values and ranges exactly (no silent nerf of owned items) and
+     gets `legacyGrade: true`; the Mystic offers a one-time free *rekindle* that rerolls it into the new form;
+   * every item with `ancient === 2` keeps its maximum values and receives an Inscription picked deterministically
+     (`hash(item.id) mod pool size` within its slot group).
+
+   The game has not launched, so legacy items exist only in playtest saves.
+5. **Other code paths:**
+   * `cube.ts` salvage bonus (+1 soul) keys on grade ≥ 1;
+   * `itemCollection.ts` exclusion and `campaignSets.ts` / `itemRecipes.ts` `ancientAllowed` options keep their meaning
+     (rename the options with aliases);
+   * `loot.ts` prefixes become "Kindled " / "Fabled ";
+   * the gear-visual tiers stay 8 and 9, and showcase stage ids `ancient` / `primal` stay as internal ids with new labels.
+   * The colours (today amber and crimson, D3's) and tooltip treatment are the lead's UI work; a suggestion: ember-orange
+     for Kindled (close to today's amber) and a white-gold "starlight" for Fabled instead of crimson.
+6. **Tests:**
+   * golden saves with grade-1 and grade-2 items load and display identically except for names;
+   * a rekindled item has normal ranges and a kindled affix;
+   * a migrated Fabled item always gets the same Inscription.

@@ -1,7 +1,15 @@
 # Mage — content bible (M1: 12 skills, 5 runes, 6 nodes, 14 passives, 5 sets, 34 legendaries)
 
+> **v2 (2026-10-11).** Builds are no longer authored.
+> * §2 is an internal test-fixture list.
+> * §7 sets and §8 legendaries key off tags (`ITEMS-SHARED.md` §1); named-skill signatures are the minority.
+> * Shipping text describes mechanics only (`ITEMS-SHARED.md` §0).
+> * Skill and rune names here are working names and ids; shipping display names are in `NAMES.md`.
+> * Tags of every skill and the runes that change them: `ITEMS-SHARED.md` §1.2.
+> * Approved by the lead: Lantern Garden is now a Summon set and Frost Nova moves into the Chill set (Hoarfrost Vigil).
+
 Design document for the class agent. Approved plan: `docs/rework/ITEMS-AND-SKILLS-PLAN.md`. Shared conventions, templates,
-bases and affixes: `ITEMS-SHARED.md`. Parity arithmetic: `BUDGET.md`. Reference patterns: `REFERENCES.md`.
+bases and affixes: `ITEMS-SHARED.md`. Parity and diversity arithmetic: `BUDGET.md`; build tools: `BUILD-TOOLS.md`; names: `NAMES.md`. Reference patterns: `REFERENCES.md`.
 
 **Labels and notation** as in `WARRIOR.md` (top): **[M]** measured in this repo, **[P]** proposal, **[NEW-BEHAVIOUR]**
 needs new server code, `{field:±n}` = `SkillMods`, `flag:x` = behaviour flag, `x(r)` = flag with the node rank. Rune
@@ -22,36 +30,33 @@ regenerates 10/s [M]; Magic Missile generates nothing [M]. Weapons: staff (2H, c
 | Frost | Frost Nova (6), **Rimefield (32)** |
 | Conjuring | Hydra (9), Magic Weapon (12), **Cinderkin (26)** |
 
-## 2. Build archetypes
+## 2. Internal test fixtures (never shipped)
 
-Requested playstyles: meteor, missiles, summons, frost control, arcane beam (new — no channel existed for the mage) —
-one archetype each, plus a legendary-native Orrery build with no set.
+These labels exist **only for the parity harness**. No item, set, skill text, tooltip or UI may use them or describe
+"a build" (`ITEMS-SHARED.md` §0 rule 1).
 
-| # | Archetype | Playstyle | Core skills (primary in italics) | Set | Relevant legendaries | Passives |
-|---|---|---|---|---|---|---|
-| M-A | **Starfall** | meteor | Meteor, Black Hole, Frost Nova, Magic Weapon, *Magic Missile* | Fallen Star | Cindervane (staff), Starfall Mantle (shoulders), Craterheart Amulet, Horizon Cowl (head), Undertow Staff (Cube) | Falling Measure, Astral Debt, Ley Anchor, Starborn |
-| M-B | **Glass Concord** | missiles | Black Hole, Stormglass Orb, Magic Weapon, Frost Nova, *Magic Missile* | Glass Concord | Spindle of a Thousand Missiles (wand), Glasswright's Wraps (hands), Echoing Bead (ring), Heart of the Void (orb), Horizon Cowl (head) | Missile Choir, Ley Anchor, Deep Current, Return Pattern |
-| M-C | **Lantern Garden** | summons | Hydra, Cinderkin, Magic Weapon, Frost Nova, *Magic Missile* | Lantern Garden | Lanternroot (staff), Kindling Rod (wand, Cube), Coiled Pauldrons (shoulders), Firekeeper's Gloves (hands), Lanternkeeper's Sash (belt) | Coiled Flame, Conjurer's Hearth, Unbroken Ward, Return Pattern |
-| M-D | **Hoarfrost** | frost control | Frost Nova, Rimefield, Black Hole (Absolute Zero), Magic Weapon, *Rime Needles* | Hoarfrost Vigil (new) | Hoarneedle Wand, Winterbound Robe (chest), Frostthread Gloves (hands), Rimewalker Slippers (feet), Snowglobe Pendant | Chill Margin, Unbroken Ward, Ley Anchor, Return Pattern |
-| M-E | **Hollowstar** | arcane beam | Thrumming Ray, Stormglass Orb, Magic Weapon, Black Hole, *Magic Missile* | Hollowstar Choir (new) | Resonant Staff, Hornlistener Circlet (head), Conductor's Legwraps (legs), Signal Coil (ring), Stormglass Prism (orb, Cube) | Resonance, Deep Current, Ley Anchor, Prism Mantle |
-| M-F | **Orrery** | celestial ultimate + missiles, legendary-native | Orrery, Meteor, Magic Weapon, Black Hole, *Magic Missile* | none (Patchwork Signet) | Armillary Staff, Star-Chart Robe (chest), Clockmaker's Ring, Spindle of a Thousand Missiles (Cube), Horizon Cowl (head) | Starborn, Missile Choir, Ley Anchor |
+v2 replaces the v1 hand-picked kits with a search over the whole item pool (`budget-model.mjs`, `BUDGET.md` §4). The
+labels stay as named regression cases. All five requested playstyles (meteor, missiles, summons, frost control, arcane
+beam) remain covered.
 
-* **Starfall.** Black Hole gathers, Meteor lands on the knot, Frost Nova holds stragglers. Set kit: Fallen Star's
-  second meteor, star-signs (now +5% each, generic bucket) and every 4th meteor a falling-star line. Legendary kit: Starfall Mantle,
-  Horizon Cowl (two Black Holes) and the Craterheart Amulet in the free slots.
-* **Glass Concord.** Magic Missile as the engine (Split, Seeker), Black Hole to group, Stormglass Orb as the AoE
-  spender. Set kit: missiles split inside Black Holes and shatter on kills. Legendary kit: Glasswright's Wraps (*more*
-  after a pierce), Echoing Bead (double casts).
-* **Lantern Garden.** Hydras and Cinderkin do the work; Magic Weapon buffs them (summon strikes already read the owner's
-  generic damage [M]). Set kit: Hydra volleys spawn Cinderkin. Legendary kit: Coiled Pauldrons and Firekeeper's Gloves.
-* **Hoarfrost.** Rime Needles chill and build to a freeze; Rimefield and Frost Nova freeze packs; everything frozen takes
-  more. Set kit: three seconds of chill becomes a freeze, frozen kills burst into needles. Legendary kit: Winterbound Robe,
-  Frostthread Gloves, Rimewalker Slippers.
-* **Hollowstar.** Channel Thrumming Ray through packs; it ramps to 2.5×; Stormglass Orb thrown into the beam's path.
-  Set kit: the beam refracts through your orb into three. Hollowstar Choir covers belt and bracers instead of legs and
-  feet (slot puzzle, `ITEMS-SHARED.md` §4), so Conductor's Legwraps stays available to a set wearer.
-* **Orrery.** Five spheres orbit you and fire your Magic Missile; Meteor and Black Hole between windows. No set exists
-  for it on purpose; Patchwork Signet is its "set".
+| Label (internal) | Main skill | Support found by the search | Best configuration found (paper) | Playstyle covered |
+|---|---|---|---|---|
+| Starfall | Meteor | Rimefield | Regalia of the Fallen Star 5 + Journeyman's Ring | meteor |
+| Glass Concord | Magic Missile | Rime Needles | Glass Concord 5 + ring | missiles |
+| Lantern Garden | Hydra | Rime Needles | Lantern Garden 5 + ring | summons |
+| Hoarfrost | Rime Needles | Magic Missile | Hoarfrost Vigil 3 + ring (4-piece bonus) | frost control |
+| Hollowstar | Thrumming Ray | Rimefield | Hollowstar Choir 5 + ring | arcane beam |
+| Orrery | Orrery | Frost Nova | Lantern Garden 5 + ring | celestial summon |
+
+Other main skills in the same search found these best kits:
+
+| Main skill | Best kit |
+|---|---|
+| Stormglass Orb | Glass Concord 5 + ring |
+| Black Hole | no set |
+| Frost Nova | Hoarfrost Vigil 4 + 2 |
+| Rimefield | no set |
+| Cinderkin | Lantern Garden 5 + ring |
 
 ## 3. New skills (6)
 
@@ -65,7 +70,7 @@ for 20 AP (Black Hole) and 1.75 + 2 s freeze at 11 s (Frost Nova); summon 2.8/s 
 | primary | cold | 0.9 per needle × 3 | 0 | 0 | 0 | 340 | 0 | 0.75 (freeze) | 0 | `always` |
 
 * *Anchor:* Magic Missile 2.3 [M]. Three needles total 2.7 if all hit (about 70% land at range, ≈1.9 on one target,
-  more on packs) and give the frost build its chill/freeze engine [P]. Range 340 < 380 to pay for the control.
+  more on packs) and add a Primary with Chill (design note) [P]. Range 340 < 380 to pay for the control.
 * **Behaviour.** Three needles in a 12° fan; each chills 30% for 1.5 s; a target hit by 6 needles within 2 s is frozen for
   `duration` s (per-target build-up counter). [NEW-BEHAVIOUR] freeze build-up counter on monsters (`freezeMob` exists [M]).
 * **Desc:** "Fire three needles of rime for {coef} weapon damage each as Cold, chilling enemies. Six needles in two seconds
@@ -258,7 +263,7 @@ Unlocks [P]: Magic Missile 15/21, Meteor 16/22, Black Hole 18/24, Frost Nova 20/
 | N1 Wider Ring *(plain)* | Radius +8 / 16 / 24%. | `{radius}` |
 | N2 Brittle | +5 / 10 / 15% critical hit chance against frozen enemies. | `novaBrittle(r)` [NEW-BEHAVIOUR] target-conditional crit |
 | N3 Retort of Frost | When an enemy hits you in melee, Frost Nova goes off for free (once per 20 / 15 / 10 s). | `novaReflex(r)` |
-| N4 Chill Aura | After the freeze ends, enemies stay chilled 30% for 2 / 3 / 4 s. | `novaChillAfter(r)` |
+| N4 Lingering Cold | After the freeze ends, enemies stay chilled 30% for 2 / 3 / 4 s. | `novaChillAfter(r)` |
 | N5 Cold Return | Each enemy frozen reduces its cooldown by 0.2 / 0.4 / 0.6 s (max 3 s). | `novaRefund(r)` |
 | N6 Glacial Burst | +40 / 80 / 120% damage to enemies that were already chilled. | `novaChilledBonus(r)` |
 
@@ -345,120 +350,116 @@ Unlocks [P]: Magic Missile 15/21, Meteor 16/22, Black Hole 18/24, Frost Nova 20/
 ## 6. Passives (6 existing kept + 8 new)
 
 Existing [M]: Falling Measure (Meteor damage, L10), Coiled Flame (Hydra damage, L10), Deep Current (resource regeneration,
-L20), Return Pattern (cooldown reduction, L30), Steady Vessel (Life, L40), Prism Mantle (All Resistance, L50).
+L20), Return Pattern (cooldown reduction, L30), Steady Vessel (Life, L40), Prism Mantle (All Resistance, L50). v2 keys the
+new passives to tags.
 
-| Passive (unlock) | Effect | Archetypes | Template / behaviour |
-|---|---|---|---|
-| **Chill Margin** (14) | Cold skills deal 15% more damage to chilled enemies; your chills last 25% longer. | Hoarfrost | vs-chilled bonus |
-| **Astral Debt** (18) | Meteor, Stormglass Orb and Rimefield can be cast with too little AP, going up to 50 AP into debt; while in debt, AP regeneration −50% and you take 10% more damage. | Starfall, Glass Concord | [NEW-BEHAVIOUR] negative resource |
-| **Conjurer's Hearth** (24) | +1 maximum Hydra and +1 maximum Cinderkin; summons last 20% longer; your own non-summon damage −10%. | Lantern Garden | maxSummons + penalty |
-| **Resonance** (28) | Channels ramp 40% faster; casting another skill keeps the ramp if you resume within 1 s. | Hollowstar | channel ramp rule |
-| **Ley Anchor** (36) | While standing in your Black Hole, Rimefield, molten ground or Orrery ring, skills cost 25% less and cooldowns recover 15% faster. | Starfall, Hoarfrost, Orrery, Glass Concord | [NEW-BEHAVIOUR] "inside own ground" test |
-| **Missile Choir** (45) | Your primary fires one more projectile for every 25 AP you hold (max +3), each at 60% damage. | Glass Concord, Orrery | resource-scaled projectiles |
-| **Unbroken Ward** (55) | The first hit you take every 8 s is reduced by 60%; freezing an enemy resets the timer. | defensive, Hoarfrost | [NEW-BEHAVIOUR] hit hook |
-| **Starborn** (64) | Meteor, Orrery and Stormglass Orb deal 20% more damage; every 30 AP spent calls a small meteor (75% of Meteor's impact, half radius) on a nearby enemy. | Starfall, Orrery | spend-triggered proc |
+| Passive (unlock) | Effect (shipping text) | Template / behaviour |
+|---|---|---|
+| **Chill Margin** (14) | Your Cold skills deal 15% more damage to Chilled enemies; your Chills last 25% longer. | conditional multiplier |
+| **Astral Debt** (18) | Your Spender skills can be cast with too little Arcane Power, going up to 50 into debt; while in debt, Arcane Power regeneration is halved and you take 10% more damage. | [NEW-BEHAVIOUR] negative resource |
+| **Conjurer's Hearth** (24) | Your Summon skills get +1 maximum each and your Summons last 20% longer; your damage from non-Summon skills is 10% lower. | maxSummons + penalty |
+| **Resonance** (28) | Your Channel skills ramp up 40% faster; casting another skill keeps the ramp if you resume within 1 s. | channel ramp rule |
+| **Ley Anchor** (36) | While you stand in one of your Ground effects, your skills cost 25% less and your cooldowns recover 15% faster. | [NEW-BEHAVIOUR] "inside own Ground" test |
+| **Missile Choir** (45) | Your Primary Projectile skills fire one more projectile for every 25 Arcane Power you hold (max +3), each at 60% damage. | resource-scaled projectiles |
+| **Unbroken Ward** (55) | The first hit you take every 8 s is reduced by 60%; freezing an enemy resets the timer. | [NEW-BEHAVIOUR] hit hook |
+| **Starborn** (64) | Your Aerial and Cooldown skills deal 20% more damage; every 30 Arcane Power you spend calls a small falling star on a nearby enemy for 150% weapon damage as Fire. | spend-triggered proc (v1's "75% of Meteor's impact" was 5.55× weapon damage per 30 AP, about doubling Meteor; corrected) |
 
-## 7. Sets: three redesigned, two new
+## 7. Sets: building blocks keyed on tags
 
-Cap rule [P] (`BUDGET.md` §3): whole set ≤ ×2.5 per skill including transforms; the 6-piece is a transform (damage value
-≤ ×1.10) plus ×1.25 own bucket (×1.35 while a condition holds), hard cap ×1.3 effective; the 2- and 4-piece carry ≈×1.5–1.7. Today [M]: Fallen
-Star ×8 on Meteor **plus** a 4-piece that multiplies all damage by up to ×3 (1 + 0.5 per element, max 4, `damage.ts`
-`talStacks`); Glass Concord ×24; Lantern Garden ×24. Standard mage footprint [M]: pointed hat, mantle, robe, wraps, cloth
-leggings, slippers.
+Structure, the set-reduction ring and evidence: `ITEMS-SHARED.md` §4, `REFERENCES.md` §7.
+* **Cap rule [P]:** the 6-piece is a transform (damage value ≤ ×1.10) plus ×1.25 own bucket, or ×1.35 while a condition
+  holds; hard cap ×1.3 effective.
+* The 2- and 4-piece carry most of the value. A whole set is at most ×2.5 per skill.
+* Today [M]: Fallen Star ×8 on Meteor plus a 4-piece that multiplies all damage by up to ×3; Glass Concord ×24; Lantern
+  Garden ×24.
+* Standard mage footprint [M]: pointed hat, mantle, robe, wraps, cloth leggings, slippers.
+* Texts are shipping text: mechanics only.
 
-### Regalia of the Fallen Star (redesign) — motif *star* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Meteor calls a second meteor on a nearby enemy. | unchanged. | `flag:secondMeteor` |
-| 4 | +50% damage per element dealt in the last 8 s (max 4), multiplicative. | Each element dealt in the last 8 s gives a star-sign: **+5% damage per sign in the generic bucket** (max 4 = +20%). | `talStacks` moves from own bucket to `live.dmg` |
-| 6 | Meteor +700% (×8). | **Transform:** every 4th Meteor is a falling star: three craters in a line, and enemies within 1.5× radius are pulled to the first impact before it lands. Meteor deals **×1.25**. | `fallingStar` [NEW-BEHAVIOUR], `multiplier:1.25` |
-
-### Glass Concord (redesign: missiles) — motif *shard* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Magic Missile and Black Hole +40% damage. | Magic Missile fires +1 missile; Black Hole cooldown −20%. | `{projectiles:+1}`, `{cooldown:-20}` |
-| 4 | Black Hole cooldown −30%. | Missiles that hit an enemy inside your Black Hole split into 2 shards (40% each); you take 20% less damage while a Black Hole you cast is open. | `holeSplit` [NEW-BEHAVIOUR], `holeDR` |
-| 6 | Magic Missile and Black Hole +2,300% (×24). | **Transform:** missiles that kill shatter into 3 shards that seek new targets (50% each). Magic Missile, its shards and Stormglass Orb deal **×1.25**. | `missileShatterKill` [NEW-BEHAVIOUR], `multiplier:1.25` |
-
-### Lantern Garden (redesign: summons) — motif *lantern* (unchanged)
-Skill change [P]: today the set is Hydra + Frost Nova [M]; Frost Nova moves to Hoarfrost Vigil and Lantern Garden becomes
-the summoner set (Hydra + Cinderkin). Saves keep the same set id; only bonuses change (an owner-visible change, listed in
-`BUDGET.md` §8 risks and open questions).
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Hydras and Frost Nova freezes last 40% longer. | +1 maximum Hydra; Hydras last 40% longer. | `{maxSummons:+1, duration:+40}` |
-| 4 | Frost Nova cooldown −30%. | Cinderkin that burst leave a lantern for 4 s (radius 200): Hydras within it attack 30% faster; you take 15% less damage while you have 3+ summons. | `kinLantern` [NEW-BEHAVIOUR], `summonDR` |
-| 6 | Hydra and Frost Nova +2,300% (×24). | **Transform:** every 3rd Hydra volley spawns a Cinderkin (max 6 kin in total). Hydra and Cinderkin deal **×1.25**. | `hydraSpawnsKin` [NEW-BEHAVIOUR], `multiplier:1.25` |
-
-### Hoarfrost Vigil (new) — motif *frost* (exists as a legendary motif; promoted to a set signature)
-Footprint: standard mage. Colours primary 0x5d7f99, secondary 0xdff6ff, glow 0x3cff6e. Pieces: Hoarfrost Hat, Icicle
-Mantle, Vigil Robe, Rimehand Wraps, Snowdrift Leggings, Frostprint Slippers.
+### Regalia of the Fallen Star — keys off **Aerial, Spender** — motif *star*
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | Frost Nova cooldown −25%; Rimefield radius +30%. | `{cooldown:-25}`, `{radius:+30}` |
-| 4 | Frozen enemies take 20% more damage from you; you take 20% less damage from chilled enemies; enemies stay chilled 1 s longer after any freeze ends. | vulnerability (frozen), `chilledDR`, `postFreezeChill` |
-| 6 | **Transform:** enemies chilled for 3 s straight freeze for 1 s (once per 6 s each); frozen enemies you kill burst into 3 Rime Needles. Rime Needles, Frost Nova and Rimefield deal **×1.35 to chilled or frozen enemies**. | `deepFrost`, `frozenKillNeedles` [NEW-BEHAVIOUR], conditional multiplier |
+| 2 | Your Aerial skills strike a second time on a nearby enemy at 60% damage; your Spender skills cost 10% less. | second strike (generalises today's second meteor [M]), `{cost:-10}` |
+| 4 | Each element you dealt damage with in the last 8 s grants a star-sign: +5% damage per sign (max 4), generic bucket. | `talStacks` moved from own bucket to `live.dmg` |
+| 6 | **Transform:** every 4th Spender cast is a falling star: it also calls three craters in a line that pull enemies toward the first one. Your Aerial and Spender skills deal **×1.25**. | `fallingStar` [NEW-BEHAVIOUR], `multiplier:1.25` |
 
-### Hollowstar Choir (new) — motif *chime* (new)
+### Glass Concord — keys off **Projectile** — motif *shard*
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Projectile skills fire one more projectile (the item/set count cap of +2 applies, `BUDGET.md` R7). | `{projectiles:+1}` on Projectile |
+| 4 | Projectiles that hit an enemy inside one of your Ground effects split into 2 shards (40% each); your Projectile skills deal 10% more damage; you take 20% less damage while one of your Ground effects is active. | `groundSplit` [NEW-BEHAVIOUR], multiplier, DR |
+| 6 | **Transform:** Projectiles that kill shatter into 3 shards that seek new targets (50% each). Your Projectile skills and shards deal **×1.25**. | `shatterOnKill` [NEW-BEHAVIOUR], `multiplier:1.25` |
+
+### Lantern Garden — keys off **Summon** — motif *lantern*
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Summon skills get +1 maximum each; your Summons last 30% longer. | Summon-tag mods |
+| 4 | Your Summons that expire or die leave a lantern (4 s, radius 200) in which your Summons attack 30% faster; you take 15% less damage while you have 3 or more Summons. | `summonLantern` [NEW-BEHAVIOUR], DR |
+| 6 | **Transform:** every 3rd attack by one of your Summons spawns an ember sprite (6 s, claws for 100% weapon damage per second, max 6). Your Summons deal **×1.25**. | `emberSprite` summon [NEW-BEHAVIOUR], `multiplier:1.25` |
+
+### Hoarfrost Vigil — keys off **Chill, Ground** — motif *frost* (new set signature)
+Colours primary 0x5d7f99, secondary 0xdff6ff, glow 0x3cff6e. Pieces: Hoarfrost Hat, Icicle Mantle, Vigil Robe, Rimehand
+Wraps, Snowdrift Leggings, Frostprint Slippers.
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Chill and Ground skills' cooldowns are 20% shorter and their areas 20% larger. | tag mods |
+| 4 | Frozen enemies take 20% more damage from you; you take 20% less damage from Chilled enemies; Chills linger 1 s after a freeze ends. | vulnerability (frozen), DR |
+| 6 | **Transform:** enemies Chilled for 3 s straight freeze for 1 s (once per 6 s each); frozen enemies you kill burst into 3 frost needles. All your skills deal **×1.35 to Chilled or frozen enemies**. | `deepFrost`, `frozenKillNeedles` [NEW-BEHAVIOUR], conditional multiplier |
+
+### Hollowstar Choir — keys off **Channel, Arcane** — motif *chime* (new)
 Footprint **circlet, mantle, robe, wraps, sash, bracers** (legs and feet free). Colours primary 0x3d3566, secondary
 0xc8b6ff, glow 0x3cff6e. Pieces: Listener's Circlet, Chorus Mantle, Array Robe, Tuning Wraps, Signal Sash, Resonance
 Bracers.
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | Thrumming Ray reaches full resonance 50% faster and costs 15% less. | `rayTune`, `{cost:-15}` |
-| 4 | While channeling Thrumming Ray you take 25% less damage; Magic Weapon's damage bonus is doubled; Stormglass Orb costs 30% less. | `channelDR`, `weaponDouble`, `{cost:-30}` on the orb |
-| 6 | **Transform:** when your Ray passes through your Stormglass Orb it refracts into 3 beams at 40% damage each. Thrumming Ray and Stormglass Orb deal **×1.35 at full resonance**. | `rayRefract` [NEW-BEHAVIOUR], conditional multiplier |
+| 2 | Your Channel skills reach full power 50% faster and cost 15% less. | Channel-tag mods |
+| 4 | While channelling you take 25% less damage; your Buff skills' damage bonuses are doubled; your Spender skills cost 30% less; your Channel skills deal 15% more damage. | DR, buff double, cost, multiplier |
+| 6 | **Transform:** when a Channel beam passes through one of your Projectiles or Ground effects, it refracts into 3 beams at 40% damage. Your Channel and Arcane skills deal **×1.35 at full channel power**. | `beamRefract` [NEW-BEHAVIOUR], conditional multiplier |
 
-## 8. Legendaries (5 existing + 29 new = 34)
+## 8. Legendaries (5 existing + 29 new = 34; 14 named, 20 tag-keyed)
 
-Anchors [M]: staff signatures +150–200% (Cindervane, Lanternroot); wand primary signature 100–150% with +2 missiles
-(Spindle of a Thousand Missiles); orb vulnerability 20–25% (Heart of the Void); cost reduction 30–40% (Starfall Mantle).
-skillMore 25–40% [P]. FP = standard set footprint.
+Templates and the Cube rule: `ITEMS-SHARED.md` §1.3.
+* 20 of the 29 new items are tag-keyed (69%).
+* Anchors [M]: staff signatures +150–200% (Cindervane, Lanternroot); wand primary signature 100–150% with +2 missiles
+  (Spindle of a Thousand Missiles); orb vulnerability 20–25% (Heart of the Void).
+* New tag additives 40–90% and skillMore 25–40% [P], checked by the diversity search (`BUDGET.md` §4).
+* Coverage: every mage main skill is touched by its named signature plus 5–9 tag-keyed legendaries.
 
-| Legendary | Base (slot) | Power (`{v}` = rolled) | Range | Template | Cube | Archetype |
+| Legendary | Layer | Base (slot) | Power (shipping text; `{v}` = rolled) | Range | Template | Cube |
 |---|---|---|---|---|---|---|
-| Lanternroot [M] | Staff (2H) | Hydras deal {v}% increased damage; +1 Hydra. | 150–200 | skillDamage + skillMods | weapon | Lantern Garden |
-| Cindervane [M] | Staff (2H) | Meteor deals {v}% increased damage; molten ground lasts twice as long. | 150–200 | skillDamage + skillFlag | weapon | Starfall, Orrery |
-| Heart of the Void [M] | Orb | Black Hole radius +30%; enemies inside take {v}% increased damage. | 20–25 | vulnerability | armor | Glass Concord, Starfall |
-| Starfall Mantle [M] | Mantle (FP) | Meteor costs {v}% less AP and falls 50% faster. | 30–40 | skillMods | armor | Starfall |
-| Spindle of a Thousand Missiles [M] | Wand (1H) | Magic Missile fires 2 more missiles and deals {v}% increased damage. | 100–150 | skillMods + skillDamage | weapon | Glass Concord, Orrery |
-| **Glasswright's Wraps** | Wraps (FP) | Magic Missile pierces one enemy (50% damage after the pierce) and deals {v}% more damage to enemies after a pierce. | 25–40 | skillMore (cond.) | armor | Glass Concord |
-| **Echoing Bead** | Ring | Magic Missile has a {v}% chance to be cast twice. | 20–30 | skillFlag (chance) | jewelry | Glass Concord, Orrery |
-| **Craterheart Amulet** | Amulet | Molten ground pulls enemies 20 units per second toward its centre; enemies on it take {v}% more damage from Meteor. | 20–30 | skillMore (cond.) | jewelry | Starfall |
-| **Undertow Staff** | Staff (2H) | Black Hole deals {v}% increased damage and pulls from 30% further. | 150–200 | skillDamage + skillMods | weapon | Starfall, Glass Concord |
-| **Horizon Cowl** | Pointed Hat (FP) | You may have two Black Holes open; Black Hole cooldown −{v}%. | 20–30 | skillMods | armor | Starfall, Glass Concord, Orrery |
-| **Frostlocked Wand** | Wand (1H) | Frost Nova also goes off around your target and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Hoarfrost |
-| **Winterbound Robe** | Robe (FP) | Frozen enemies take {v}% more damage from your Cold skills. | 25–40 | skillMore (cond.) | armor | Hoarfrost |
-| **Rimecourt Band** | Ring | Frost Nova's cooldown is reduced by 1 s per enemy it freezes (max {v} s). | 2–3 | cooldown | jewelry | Hoarfrost, Starfall |
-| **Coiled Pauldrons** | Mantle (FP) | Hydra shots hit every enemy in a short line; Hydras deal {v}% more damage. | 25–35 | skillMore | armor | Lantern Garden |
-| **Lanternkeeper's Sash** | Sash | Hydras and Cinderkin last {v}% longer; summoning one adds 2 s to the others. | 30–40 | skillMods | armor | Lantern Garden |
-| **Glyphstone Orb** | Orb | Magic Weapon's bonus is {v} points higher; its rune effect triggers 50% more often. | 10–15 | buff (generic) | armor | Glass Concord, Hollowstar, Orrery |
-| **Spellwright's Circlet** | Circlet (FP) | While Magic Weapon is active, critical hits reduce all cooldowns by {v} s. | 0.1–0.2 | cooldown | armor | Starfall, Orrery |
-| **Runeweaver Cuffs** | Bracers | Magic Weapon also grants {v}% attack speed and costs no AP. | 10–15 | buff | armor | Glass Concord, Lantern Garden |
-| **Hoarneedle Wand** | Wand (1H) | Rime Needles fires 2 more needles and deals {v}% increased damage. | 100–150 | skillMods + skillDamage | weapon | Hoarfrost |
-| **Frostthread Gloves** | Gloves (FP) | Needles deal {v}% more damage to frozen enemies and re-freeze them for 0.25 s. | 25–40 | skillMore (cond.) | armor | Hoarfrost |
-| **Snowglobe Pendant** | Amulet | Freezing an enemy with Rime Needles releases a free Frost Nova at {v}% damage (once per 6 s). | 40–60 | proc | jewelry | Hoarfrost |
-| **Resonant Staff** | Staff (2H) | Thrumming Ray reaches full resonance 50% faster and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Hollowstar |
-| **Hornlistener Circlet** | Circlet (FP) | Thrumming Ray is 20 units wider and deals {v}% more damage to enemies in the far half of the beam. | 25–40 | skillMore (cond.) | armor | Hollowstar |
-| **Signal Coil** | Ring | While channeling Thrumming Ray, AP regeneration is {v}% higher. | 40–60 | resource | jewelry | Hollowstar |
-| **Kindling Rod** | Wand (1H) | +2 maximum Cinderkin; Cinderkin deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Lantern Garden |
-| **Firekeeper's Gloves** | Gloves (FP) | Cinderkin deal {v}% more damage and their bursts leave embers for 2 s. | 25–35 | skillMore | armor | Lantern Garden |
-| **Cistern Staff** | Staff (2H) | Rimefield freezes after 0.75 s and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Hoarfrost |
-| **Rimewalker Slippers** | Slippers (FP) | Leaving your Rimefield drops a half-size field at your feet (once per cast); frozen enemies take {v}% more damage from Rimefield. | 25–35 | skillMore (cond.) | armor | Hoarfrost |
-| **Stormglass Prism** | Orb | Stormglass Orb zaps 2 more enemies and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | armor | Hollowstar, Glass Concord |
-| **Conductor's Legwraps** | Cloth Leggings (FP) | Stormglass Orb detonates a second time 1 s later at 50% damage; it deals {v}% more damage. | 25–35 | skillMore | armor | Hollowstar, Glass Concord |
-| **Static Loop** | Ring | Each enemy zapped by Stormglass Orb reduces its cost by 1 AP (max {v}). | 8–12 | resource | jewelry | Hollowstar |
-| **Armillary Staff** | Staff (2H) | Orrery has 2 more spheres and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon | Orrery |
-| **Star-Chart Robe** | Robe (FP) | Orrery's spheres fire twice as often and Orrery deals {v}% more damage while you stand still. | 25–40 | skillMore (cond.) | armor | Orrery |
-| **Clockmaker's Ring** | Ring | Orrery's cooldown is {v}% shorter and it lasts 2 s longer. | 15–20 | skillMods | jewelry | Orrery |
-
-**Coverage:** Magic Missile — Spindle of a Thousand Missiles, Glasswright's Wraps, Echoing Bead · Meteor — Cindervane,
-Starfall Mantle, Craterheart Amulet · Black Hole — Undertow Staff, Horizon Cowl, Heart of the Void · Frost Nova —
-Frostlocked Wand, Winterbound Robe, Rimecourt Band · Hydra — Lanternroot, Coiled Pauldrons, Lanternkeeper's Sash · Magic
-Weapon — Glyphstone Orb, Spellwright's Circlet, Runeweaver Cuffs · Rime Needles — Hoarneedle Wand, Frostthread Gloves,
-Snowglobe Pendant · Thrumming Ray — Resonant Staff, Hornlistener Circlet, Signal Coil · Cinderkin — Kindling Rod,
-Firekeeper's Gloves, Lanternkeeper's Sash · Rimefield — Cistern Staff, Rimewalker Slippers, Winterbound Robe · Stormglass
-Orb — Stormglass Prism, Conductor's Legwraps, Static Loop · Orrery — Armillary Staff, Star-Chart Robe, Clockmaker's Ring.
+| Lanternroot [M] | Named | Staff (2H) | Hydras deal {v}% increased damage; +1 Hydra. | 150–200 | skillDamage + skillMods | weapon |
+| Cindervane [M] | Named | Staff (2H) | Meteor deals {v}% increased damage; molten ground lasts twice as long. | 150–200 | skillDamage + skillFlag | weapon |
+| Heart of the Void [M] | Named | Orb | Black Hole radius +30%; enemies inside take {v}% increased damage. | 20–25 | vulnerability | armor |
+| Starfall Mantle [M] | Named | Mantle (FP) | Meteor costs {v}% less Arcane Power and falls 50% faster. | 30–40 | skillMods | armor |
+| Spindle of a Thousand Missiles [M] | Named | Wand (1H) | Magic Missile fires 2 more missiles and deals {v}% increased damage. | 100–150 | skillMods + skillDamage | weapon |
+| **Undertow Staff** | Named | Staff (2H) | Black Hole deals {v}% increased damage and pulls from 30% farther. | 150–200 | skillDamage + skillMods | weapon |
+| **Frostlocked Wand** | Named | Wand (1H) | Frost Nova also goes off around your target and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Hoarneedle Wand** | Named | Wand (1H) | Rime Needles fires 2 more needles and deals {v}% increased damage. | 100–150 | skillMods + skillDamage | weapon |
+| **Resonant Staff** | Named | Staff (2H) | Thrumming Ray reaches full resonance 50% faster and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Kindling Rod** | Named | Wand (1H) | +2 maximum Cinderkin; Cinderkin deal {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Cistern Staff** | Named | Staff (2H) | Rimefield freezes after 0.75 s and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Stormglass Prism** | Named | Orb | Stormglass Orb zaps 2 more enemies and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | armor |
+| **Armillary Staff** | Named | Staff (2H) | Orrery has 2 more spheres and deals {v}% increased damage. | 150–200 | skillMods + skillDamage | weapon |
+| **Runeweaver Cuffs** | Named | Bracers | Magic Weapon costs nothing and also grants {v}% attack speed. | 10–15 | buff | armor |
+| **Glasswright's Wraps** | Tag (Projectile) | Wraps (FP) | Your Projectiles pierce one enemy (50% damage after the pierce) and deal {v}% more damage to enemies after a pierce. | 25–40 | skillFlag + skillMore (cond.) | armor |
+| **Echoing Bead** | Tag (Primary) | Ring | Your Primary skills have a {v}% chance to be cast twice. | 20–30 | skillFlag (chance) | jewelry |
+| **Craterheart Amulet** | Tag (Aerial) | Amulet | Your Aerial skills deal {v}% increased damage, and their Ground effects pull enemies 20 units per second inward. | 60–90 | skillDamage + skillFlag | jewelry |
+| **Horizon Cowl** | Tag (Ground) | Pointed Hat (FP) | Your Ground skills deal {v}% increased damage, and your Ground effects last 1 s longer. | 40–60 | skillDamage + skillMods | armor |
+| **Winterbound Robe** | Tag (Cold, Chill) | Robe (FP) | Your Cold skills deal {v}% more damage to Chilled or frozen enemies. | 25–40 | skillMore (cond.) | armor |
+| **Rimecourt Band** | Tag (Chill + Cooldown) | Ring | Each enemy you freeze reduces your Chill skills' cooldowns by 0.5 s (max {v} s per cast). | 2–3 | cooldown | jewelry |
+| **Coiled Pauldrons** | Tag (Summon) | Mantle (FP) | Your Summons deal {v}% more damage, and summoned projectiles pierce in a short line. | 20–30 | skillMore + skillFlag | armor |
+| **Lanternkeeper's Sash** | Tag (Summon) | Sash | Your Summons last {v}% longer; summoning one adds 2 s to the others. | 30–40 | skillMods | armor |
+| **Glyphstone Orb** | Tag (Buff) | Orb | Your Buff skills' damage bonuses are {v} points higher, and their rune effects trigger 50% more often. | 10–15 | buff (generic) | armor |
+| **Spellwright's Circlet** | Tag (Buff → Cooldown) | Circlet (FP) | While a Buff skill is active, your critical hits reduce your cooldowns by {v} s. | 0.1–0.2 | cooldown | armor |
+| **Frostthread Gloves** | Tag (Primary, Chill) | Gloves (FP) | Your Primary skills deal {v}% more damage to frozen enemies and re-freeze them for 0.25 s. | 25–40 | skillMore (cond.) | armor |
+| **Snowglobe Pendant** | Tag (Chill) | Amulet | Freezing an enemy releases a burst of frost around it for {v}% weapon damage that Chills (once per 6 s). | 60–80 | proc | jewelry |
+| **Hornlistener Circlet** | Tag (Piercing) | Circlet (FP) | Your Piercing skills deal {v}% more damage to enemies farther than 200 units. | 25–40 | skillMore (cond.) | armor |
+| **Signal Coil** | Tag (Channel) | Ring | Your Channel skills deal {v}% increased damage, and your resource regeneration is 30% higher while channelling. | 60–90 | skillDamage + resource | jewelry |
+| **Firekeeper's Gloves** | Tag (Burn, Summon) | Gloves (FP) | Your Burn effects deal {v}% more damage, and your Summons apply Burn on hit. | 25–35 | skillMore + skillFlag | armor |
+| **Rimewalker Slippers** | Tag (Ground, Movement) | Slippers (FP) | Your Ground effects deal {v}% more damage; when a Movement skill ends, drop a half-size copy of your most recent Ground effect (once per 8 s). | 25–35 | skillMore + proc | armor |
+| **Conductor's Legwraps** | Tag (Lightning) | Cloth Leggings (FP) | Your Lightning skills chain to one more enemy and deal {v}% more damage. | 25–35 | skillMods + skillMore | armor |
+| **Static Loop** | Tag (Spender) | Ring | Your Spender skills deal {v}% increased damage; each enemy they hit refunds 1 Arcane Power (max 8 per cast). | 60–90 | skillDamage + resource | jewelry |
+| **Star-Chart Robe** | Tag (Arcane, Summon) | Robe (FP) | While you stand still, your Arcane skills deal {v}% more damage and your Summons attack 30% faster. | 25–40 | skillMore (cond.) | armor |
+| **Clockmaker's Ring** | Tag (Cooldown) | Ring | Your Cooldown skills' cooldowns are {v}% shorter. | 15–20 | skillMods | jewelry |
 
 Flavour lines: Glasswright's Wraps "Fine cuts on every fingertip." · Echoing Bead "It answers before you ask." ·
 Craterheart Amulet "Still warm from where it landed." · Undertow Staff "Lean on it and the floor leans back." · Horizon
@@ -477,12 +478,24 @@ will stand up." · Armillary Staff "All the rings still turn." · Star-Chart Rob
 
 ## 9. [NEW-BEHAVIOUR] summary for the Mage
 
-1. Cast functions / entities for the six new skills: needle fan with a freeze build-up counter, ray channel with ramp and
-   line hit, cinderkin summon (companion AI + expiry burst), `rime` ground with exposure timers, stormglass projectile
-   with a periodic area tick, Orrery orbit volumes + borrowed primary casts.
-2. Fallen Star 4-piece moved from the own bucket to the generic bucket (`damage.ts talStacks` → `live.dmg`).
-3. Set transforms: falling-star line, missile split inside Black Hole, shatter on kill, Hydra-spawned Cinderkin and kin
-   lanterns, deep-frost auto freeze + needle burst, ray refraction through the orb.
-4. Target-conditional crit (Brittle), skill-excluding vulnerability (Overtone), "inside own ground" test (Ley Anchor),
-   negative resource (Astral Debt), first-hit reduction hook (Unbroken Ward), wall bounce (Pinball).
-5. Lightning chain on Hydra shots (Forked Tongues), missile chain (Static Thread), molten trail (Ember Tail).
+1. **Six new skills:**
+   * needle fan with a freeze build-up counter;
+   * ray channel with ramp and line hit;
+   * cinderkin summon (companion AI + expiry burst);
+   * `rime` ground with exposure timers;
+   * stormglass projectile with a periodic area tick;
+   * Orrery orbit volumes + borrowed primary casts.
+2. **Tags (shared):** tag resolution, the tag line, selectors, the conditional multiplier (`ITEMS-SHARED.md` §1); the
+   projectile count cap of `BUDGET.md` R7.
+3. **Fallen Star 4-piece** moved from the own bucket to the generic bucket (`damage.ts talStacks` → `live.dmg`).
+4. **Set transforms:**
+   * an Aerial second strike, the falling-star line;
+   * projectile split inside own Ground, shatter on kill;
+   * summon lanterns and ember sprites;
+   * chill-to-freeze with needle bursts;
+   * beam refraction through own Projectiles/Ground.
+5. **Player side:** a target-conditional crit (Brittle); a skill-excluding vulnerability (Overtone); the "inside own
+   Ground" test (Ley Anchor); negative resource (Astral Debt); a first-hit reduction hook (Unbroken Ward); a Movement-end
+   hook (Rimewalker Slippers).
+6. **Projectile features:** wall bounce (Pinball); Lightning chains on Hydra shots and missiles; summoned projectiles
+   piercing (Coiled Pauldrons); Summons applying Burn (Firekeeper's Gloves).
