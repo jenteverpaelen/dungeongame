@@ -2,13 +2,15 @@
 import { boundedCombat, combatInteger } from '../../../shared/src/combatBounds';
 
 import { ELEMENT_INDEX, armorReduction, resistReduction, type Element } from '../shared';
-import { addDot, elIdx, getBuff } from './effects';
+import { addOwnedDot, elIdx, getBuff } from './effects';
 import { onEliteDamaged } from './elites';
 import type { Instance } from './instance';
 import { killMob } from './kills';
 import { onMobHit, wakeMob } from './monsters';
 import { skillPct } from './playerctx';
+import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './powerActions';
 import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor } from './powerRuntime';
+import { scopedVulnerability, weakenFactor } from './status';
 import { killPlayer } from './players';
 import type { Dot, DotKind, Mob, Player, Strike } from './types';
 
@@ -25,6 +27,7 @@ export function vulnerability(p: Player, m: Mob, skill?: string): number {
   if (m.markMs > 0) v *= 1 + m.markPct / 100;
   if (m.holeMs > 0) v *= 1 + m.holePct / 100;
   if (p.ctx.powers.vulnTerms.length) v *= vulnTermsFactor(p, m, skill);
+  if (m.ps && m.ps.vulns.length) v *= scopedVulnerability(m, p, skill);
   return v;
 }
 
@@ -69,6 +72,7 @@ export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitRes
   if (m.dead) return NO_HIT;
   const { amount, crit } = rollDamage(inst, p, m, st);
   const killed = hurtMob(inst, m, amount, st.el, p, crit, false, st.src ?? p.id, st.skill);
+  if (p.pw?.cast) countCastHit(inst, p, m, st.skill);
   if (!st.noProc) onHitProcs(inst, p, m, st, amount, crit, killed);
   return { amount, crit, killed };
 }
@@ -121,8 +125,9 @@ function onHitProcs(inst: Instance, p: Player, m: Mob, st: Strike, amount: numbe
       if (p.critHealMs <= 0) { p.critHealMs = 1000; p.critHealCount = 0; }
       if (p.critHealCount < 4) { p.critHealCount++; healPlayer(inst, p, p.mhp * 0.015, true); }
     }
-    firePowerProcs(inst, p, 'crit');
+    firePowerProcs(inst, p, 'crit', { skill: st.skill, mob: m, el: st.el, amount });
   }
+  if (c.powers.procs.hit) firePowerProcs(inst, p, 'hit', { skill: st.skill, mob: m, el: st.el, amount });
   // Area damage (D3): 20% chance to splash area% of the hit to all other enemies within 100. No area-of-area.
   if (!st.noArea && d.area > 0 && inst.rng.next() < 0.2) {
     const splash = Math.max(1, Math.round(amount * (d.area / 100)));
@@ -141,7 +146,7 @@ function primaryHitProcs(inst: Instance, p: Player, m: Mob) {
   if (!getBuff(p, 'magic_weapon')) return;
   const mw = p.ctx.modsOf('magic_weapon');
   if (mw.flags.has('igniteHits')) {
-    addDot(m, makeDot(inst, p, { skill: 'magic_weapon', coef: 1.0, el: 'fire', pct: skillPct(p, mw) }, 'burn', 3000, 500));
+    addOwnedDot(p, m, makeDot(inst, p, { skill: 'magic_weapon', coef: 1.0, el: 'fire', pct: skillPct(p, mw) }, 'burn', 3000, 500));
   }
   if (mw.flags.has('electrify') && inst.rng.next() < 0.25) {
     let n = 0;
@@ -215,7 +220,10 @@ export function defenseMult(p: Player, level: number, elite: boolean): number {
 export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element, src: Mob | null, level: number, melee = false): number {
   if (p.debugInfiniteHp || p.deadMs > 0 || p.invulnMs > 0 || inst.kind === 'town' || raw <= 0) return 0;
   const lvl = Math.max(1, src?.level ?? level);
-  const amount = combatInteger(raw * defenseMult(p, lvl, !!src && isEliteTier(src.tier)));
+  if (src?.ps && src.ps.weakenMs > 0) raw *= weakenFactor(src); // power status: weakened attacker
+  let mult = defenseMult(p, lvl, !!src && isEliteTier(src.tier));
+  if (p.ctx.powers.defense || (p.live.dr !== undefined && p.live.dr !== 1)) mult *= powerDefense(inst, p, src);
+  const amount = combatInteger(raw * mult);
   p.hp -= amount;
   p.taken += amount;
   p.sinceHurtMs = 0;
@@ -228,6 +236,8 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
     const th = p.ctx.d.thorns * (1 + p.ctx.d.mainStat / 100);
     hurtMob(inst, src, th, 'physical', p, false, false, p.id, 'thorns');
   }
+  if (p.hp <= 0 && p.ctx.powers.defense?.cheat.length) tryCheatDeath(inst, p, src);
+  if (p.hp > 0 && p.ctx.powers.procs.takeDamage) onPlayerDamaged(inst, p, amount, src);
   if (p.hp <= 0) killPlayer(inst, p, el);
   return amount;
 }

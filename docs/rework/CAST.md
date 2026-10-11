@@ -19,6 +19,8 @@ hero rig, but make each silhouette readable at gameplay size without the namepla
 | **Tallis** | Shiverline Escarpment | Ridge lookout | nervous, chatty, honest | wiry, 20s, wind-whipped hair, patched green cloak, mismatched mittens | signal flags in both hands; startles at gusts |
 | **Mera** | Beaconbreak Ward | Ward quartermaster | brisk, clipboard, secretly generous | solid, 40s, ink-black braid pinned up, crimson ward sash, key ring the size of a fist | taps a wax tablet; scans the queue |
 | **Eris** | Hollowstar Array | Western reader | dreamy, hears the signal as music | thin, 30s, pale lilac shawl, copper earring, barefoot on cold stone, headphones-like horn cups | sways softly; fingers keep a rhythm |
+| **Hollis** | Bracken Sluice (Maintenance Camp; the forecourt once the floodgate opens) | Sluice foreman | practical, tired, keeps a list of everything that breaks | 50s, broad, knee braces over oilskin trousers, sleeves rolled, pencil behind the ear | crosses things off a slate; rubs a knee |
+| **Wenna** | Rillwake Crossing (Upstream Path, then the mill) | Survey lead of the lost party | brisk, proud, slightly embarrassed to be rescued; "I have never lost a surveyor" | 30s, wiry, chalk-dusted coat, rolled maps in a quiver, compass on a cord | points down the road; taps the compass |
 | **Daro** | Hollowstar Array | Eastern reader | blunt, sceptical, rival to Eris | square, 40s, dark brow, grey tunic with sleeves cut off, one horn cup on a strap | arms folded; taps a foot out of time on purpose |
 
 ## Hearthmere service people and places

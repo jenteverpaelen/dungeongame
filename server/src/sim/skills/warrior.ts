@@ -6,7 +6,7 @@
 import { modVar, skillBuffBonuses } from '../../shared';
 import { bestConeAngle, bestPoint, pickTarget } from '../brain';
 import { expectedDamage, gainResource, isEliteTier, makeDot, strikeMob } from '../damage';
-import { addBuff, addDot, chillMob, elIdx, getBuff, hasDot, inCone } from '../effects';
+import { addBuff, addDot, addOwnedDot, chillMob, elIdx, getBuff, hasDot, inCone } from '../effects';
 import { addGround, newGround } from '../grounds';
 import type { Instance } from '../instance';
 import { skillCost, skillDurationMs, skillElement, skillMult, skillPct, skillRadius } from '../playerctx';
@@ -14,7 +14,7 @@ import { moveSummon, spawnSummon } from '../summons';
 import type { ChannelState, Mob, Player, SkillRuntime, Strike, Summon } from '../types';
 import { DEG, emitCast, face, strikeOf, type DeathHook, type SkillBehaviour, type SummonBehaviour } from './common';
 import {
-  addCarriedDot, chExtra, inOwnStandard, nearestMob, noteSpend, rageActive, reduceCooldowns, refundCooldownLater, refundDuringCast,
+  chExtra, inOwnStandard, nearestMob, noteSpend, rageActive, reduceCooldowns, refundCooldownLater, refundDuringCast,
   startRageLoop, warriorDeathHook, wHit, wPull, wPush, wStun, wstate, type ChannelExtra,
 } from './warriorKit';
 
@@ -59,7 +59,7 @@ function cleaveSwing(inst: Instance, p: Player, rt: SkillRuntime, ang: number, o
     if (m.dead || (!full && !inCone(m.x, m.y, m.r, p.x, p.y, ang, half, radius))) continue;
     const r = wHit(inst, p, m, st, rt);
     // Hemorrhage Arc: 40 % weapon damage over 2 s, its own dot (keyed by skill, so separate from Rend's).
-    if (bleed && !r.killed && !m.dead) addDot(m, makeDot(inst, p, { ...st, coef: 0.4, primary: false }, 'bleed', 2000, 500));
+    if (bleed && !r.killed && !m.dead) addOwnedDot(p, m, makeDot(inst, p, { ...st, coef: 0.4, primary: false }, 'bleed', 2000, 500));
     hit++;
   }
   if (hit && o.gen !== false) gainResource(p, rt.def.gen + (rt.mods.gen ?? 0) + (hit >= 3 ? modVar(rt.mods, 'crowdFury') : 0) + drillFury(inst, p));
@@ -177,7 +177,7 @@ function emberTrail(inst: Instance, p: Player, rt: SkillRuntime, ex: ChannelExtr
 function applyRend(inst: Instance, p: Player, rt: SkillRuntime, m: Mob) {
   const dot = makeDot(inst, p, strikeOf(p, rt), 'bleed', skillDurationMs(rt), 500, { heal: rt.flags.has('bleedHeal'), spread: rt.flags.has('bleedSpread') });
   const carry = modVar(rt.mods, 'rollover'); // Rollover: carry part of the remaining bleed into the new one
-  if (carry > 0) addCarriedDot(m, dot, carry); else addDot(m, dot);
+  if (carry > 0) addDot(m, dot, 1, carry); else addOwnedDot(p, m, dot);
 }
 
 // ─────────────────────────── Dust Devils and wind wisps ───────────────────────────
@@ -355,7 +355,7 @@ function seismicSlam(inst: Instance, p: Player, rt: SkillRuntime): boolean {
     const r = wHit(inst, p, m, st, rt);
     if (r.killed || m.dead) continue;
     wPush(inst, p, m, m.x - ox, m.y - oy, kb, rt);
-    if (chill) chillMob(m, 2000);
+    if (chill) chillMob(m, 2000, inst, p);
     if (heave > 0 && Math.hypot(m.x - ox, m.y - oy) > len * 0.7) wStun(inst, p, m, heave * 1000, rt); // Heave: the far 30 %
   }
   if (rt.flags.has('aftershock')) {

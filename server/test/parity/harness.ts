@@ -13,9 +13,11 @@
 // slot, 48 tier points (primary + first three slotted skills at tier 3), no runes, gems, upgrades or Paragon; actual
 // 20 Hz simulation, infinite player HP, deterministic chase, seeded RNG.
 //
-// Variants NOT built yet (content bible BUDGET.md §7–9): dash-driven powers (the bot never dashes, so Stridewind-style
-// procs read as 0 — add a `dash` option that dashes on cooldown toward the pack); "above X % life" powers (the immortal
-// bot sits at 100 % life, so they read as always on — add a `lifePct` option that pins life). Hook: RunOptions.
+// Variants (content bible BUDGET.md §7, engine wave 2), via RunOptions; the default run is unchanged:
+//   * dash: the bot dashes on cooldown toward the pack while it is out of reach (movement-triggered powers);
+//   * lifePct: the bot's Life is pinned at this % of maximum instead of 100 % (life-threshold powers).
+// Item-pool search (BUDGET.md §4 method, stub-level): slotCandidates + searchKit (coordinate ascent from random starts
+// with a pluggable score — runKit's estTotalMs for the real thing, a cheap proxy in tests) + classCoverage (D1).
 
 import { Instance } from '../../src/sim/instance';
 import { createMob } from '../../src/sim/monsters';
@@ -27,7 +29,7 @@ import { MONSTERS } from '../../../shared/src/data/monsters';
 import { generateItem, type GenOptions } from '../../../shared/src/items';
 import { Rng } from '../../../shared/src/math';
 import { computeStats } from '../../../shared/src/stats';
-import { SUB_STRIKES, type PowerEffect } from '../../../shared/src/powers';
+import { subStrikeOwner, type PowerEffect } from '../../../shared/src/powers';
 import type { CharacterSave, ClassId, Item, Slot } from '../../../shared/src/types';
 import type { Session } from '../../src/net/session';
 
@@ -67,18 +69,24 @@ export interface KitSpec {
   tiers?: Record<string, number>;
   runes?: Record<string, string>;
 }
-/** Run-time variants; reserved for the dash / life variants above (not implemented). */
-export interface RunOptions { seeds?: number[] }
+/** Run-time variants (see the header). */
+export interface RunOptions { seeds?: number[]; dash?: boolean; lifePct?: number }
 
 export interface ParityProfile { classId: ClassId; set: string; skills: string[]; slots: string[] }
 
-/** Skills a set's top bonus names (the "set-backed" skills; tag targets resolved for the class); sub-strikes map to their owner. */
+/**
+ * Skills a set's top bonus names (the "set-backed" skills; tag targets resolved for the class); sub-strikes map to their
+ * owner. A top bonus that targets every skill (e.g. "all your skills vs stunned enemies") falls back to the next bonus.
+ */
 export function setSkills(set: SetDef): string[] {
-  const top = [...set.bonuses].sort((a, b) => b.count - a.count)[0];
   const index = tagIndexFor(set.classId, {});
-  const ids = new Set<string>();
-  for (const e of top?.effects ?? []) if ('skills' in e || 'tags' in e) for (const s of resolveTargets(e as { skills?: string[] }, index) ?? []) ids.add(Object.hasOwn(SUB_STRIKES, s) ? SUB_STRIKES[s] : s);
-  return [...ids].filter((id) => Object.hasOwn(SKILLS, id));
+  for (const b of [...set.bonuses].sort((a, b) => b.count - a.count)) {
+    const ids = new Set<string>();
+    for (const e of b.effects ?? []) if ('skills' in e || 'tags' in e) for (const s of resolveTargets(e as { skills?: string[] }, index) ?? []) ids.add(subStrikeOwner(s));
+    const out = [...ids].filter((id) => Object.hasOwn(SKILLS, id));
+    if (out.length) return out;
+  }
+  return [];
 }
 
 /** The loadout the planner plays for a set: `SetDef.parityLoadout`, else its named non-primary skills, then fill. */
@@ -97,7 +105,7 @@ export function relevance(l: LegendaryDef, profile: Pick<ParityProfile, 'classId
   const bar = new Set([...profile.slots, ...skillsForClass(profile.classId).filter((s) => s.kind === 'primary').map((s) => s.id)]);
   const index = tagIndexFor(profile.classId, {});
   const touches = (e: PowerEffect) => ('skills' in e || 'tags' in e) && (e.skills || e.tags)
-    && (resolveTargets(e, index) ?? []).some((s) => bar.has(Object.hasOwn(SUB_STRIKES, s) ? SUB_STRIKES[s] : s));
+    && (resolveTargets(e, index) ?? []).some((s) => bar.has(subStrikeOwner(s)));
   if (l.effects.some(touches)) return 2;
   const generic = l.effects.some((e) => (e.kind === 'stat' && ['chd', 'chc', 'area', 'ias', 'dmgPct'].includes(e.stat))
     || e.kind === 'elementCycle' || e.kind === 'elementStacks' || (e.kind === 'proc' && e.on !== 'dash')
@@ -116,9 +124,11 @@ export function planKit(profile: ParityProfile, kind: KitKind): KitSpec {
   const set = SETS[profile.set];
   const pool = Object.values(LEGENDARIES).map((l) => ({ l, r: relevance(l, profile) })).filter((x) => x.r > 0);
   const bestFor = (slot: Slot, used: Set<string>) => pool.filter((x) => !used.has(x.l.id) && slotOf(x.l).includes(slot)).sort((a, b) => b.r - a.r)[0];
-  // Hybrid: set pieces go to the four armor slots whose best legendary alternative matters least.
-  const armorValue = ARMOR_SLOTS.map((s, i) => ({ s, i, v: bestFor(s, new Set())?.r ?? 0 }));
-  const setSlots = kind === 'set' ? ARMOR_SLOTS : kind === 'legendary' ? [] : [...armorValue].sort((a, b) => a.v - b.v || a.i - b.i).slice(0, 4).map((x) => x.s);
+  // The set's own footprint (most sets: the six armour slots; some trade legs / feet for belt / bracers).
+  const pieceSlots = set.pieces.map((p) => BASES[p.base].kind as Slot);
+  // Hybrid: set pieces go to the four footprint slots whose best legendary alternative matters least.
+  const armorValue = pieceSlots.map((s, i) => ({ s, i, v: bestFor(s, new Set())?.r ?? 0 }));
+  const setSlots = kind === 'set' ? pieceSlots : kind === 'legendary' ? [] : [...armorValue].sort((a, b) => a.v - b.v || a.i - b.i).slice(0, 4).map((x) => x.s);
   const used = new Set<string>(), equipment: Partial<Record<Slot, SlotItem>> = {};
   const weapons = [...pool.filter((x) => slotOf(x.l).includes('mainhand')), null];
   let best = { score: -1, weapon: null as LegendaryDef | null, off: null as LegendaryDef | null };
@@ -132,16 +142,11 @@ export function planKit(profile: ParityProfile, kind: KitKind): KitSpec {
   equipment.mainhand = best.weapon ? { legendary: best.weapon.id } : { rare: weaponBase };
   if (best.weapon) used.add(best.weapon.id);
   if (!blocksOffhand(weaponBase)) { equipment.offhand = best.off ? { legendary: best.off.id } : { rare: CLASS_OFFHAND[profile.classId] }; if (best.off) used.add(best.off.id); }
-  for (const slot of ARMOR_SLOTS) {
-    const piece = set.pieces.find((p) => BASES[p.base].kind === slot)!;
-    if (setSlots.includes(slot)) { equipment[slot] = { set: set.id, base: piece.base }; continue; }
+  for (const slot of [...ARMOR_SLOTS, ...OTHER_SLOTS]) {
+    const piece = set.pieces.find((p) => BASES[p.base].kind === slot);
+    if (piece && setSlots.includes(slot)) { equipment[slot] = { set: set.id, base: piece.base }; continue; }
     const b = bestFor(slot, used);
-    equipment[slot] = b ? { legendary: b.l.id } : { rare: piece.base };
-    if (b) used.add(b.l.id);
-  }
-  for (const slot of OTHER_SLOTS) {
-    const b = bestFor(slot, used);
-    equipment[slot] = b ? { legendary: b.l.id } : { rare: RARE_BASE[slot]! };
+    equipment[slot] = b ? { legendary: b.l.id } : { rare: piece?.base ?? RARE_BASE[slot] ?? set0Base(profile.classId, slot)! };
     if (b) used.add(b.l.id);
   }
   const cube = (['weapon', 'armor', 'jewelry'] as const).map((cs) => pool.filter((x) => x.l.cubeSlot === cs && !used.has(x.l.id)).sort((a, b) => b.r - a.r)[0]?.l.id ?? null);
@@ -183,10 +188,10 @@ export function kitSave(spec: KitSpec, seed: number): CharacterSave {
   return save;
 }
 
-export interface EncounterResult { encounter: number; seed: number; hp: number; ms: number; cleared: boolean; dealt: number; estMs: number }
+export interface EncounterResult { encounter: number; seed: number; hp: number; ms: number; cleared: boolean; dealt: number; estMs: number; /** dash variant only */ dashes?: number }
 
 /** One matched encounter in the actual simulation. estMs = measured time, or cap × hp / damage dealt on a timeout. */
-export function runEncounter(save: CharacterSave, encounter: number, seed: number): EncounterResult {
+export function runEncounter(save: CharacterSave, encounter: number, seed: number, opts: RunOptions = {}): EncounterResult {
   const random = Math.random, rng = new Rng(seed * 7 + encounter);
   Math.random = () => rng.next();
   const inst = new Instance({ zoneId: 'whispering_glade', key: 'parity', channel: 0, seed: 41, theme: 'glade', level: 70, difficulty: PARITY_DIFFICULTY });
@@ -200,19 +205,23 @@ export function runEncounter(save: CharacterSave, encounter: number, seed: numbe
     if (!center) throw new Error('no free arena');
     s.entityId = inst.addPlayer(s, { x: center.x, y: center.y + 140 });
     const p = inst.playerById(s.entityId)!; p.debugInfiniteHp = true;
+    if (opts.lifePct !== undefined) p.debugPinLifePct = opts.lifePct;
     const targets = PACKS[encounter].map((id, i) => createMob(inst, MONSTERS[id], 70, center!.x + (i % 3 - 1) * 65, center!.y + Math.floor(i / 3) * 60,
       { tier: encounter === 2 ? 4 : encounter === 1 ? 1 : 0, dormant: false, difficulty: PARITY_DIFFICULTY }));
     const hp = targets.reduce((n, m) => n + m.mhp, 0);
-    let seq = 0;
+    let seq = 0, dashes = 0;
     while (targets.some((m) => !m.dead) && inst.t < ENCOUNTER_CAP_MS) {
       const t = targets.filter((m) => !m.dead).sort((a, b) => Math.hypot(p.x - a.x, p.y - a.y) - Math.hypot(p.x - b.x, p.y - b.y))[0];
       const dx = t.x - p.x, dy = t.y - p.y, d = Math.hypot(dx, dy), stop = save.classId === 'warrior' ? 45 : 150;
-      inst.queueInput(s, { t: 'in', seq: ++seq, mx: d > stop ? dx / d : 0, my: d > stop ? dy / d : 0 });
+      const dash = !!opts.dash && d > stop && p.mv.dashCdMs <= 0 && p.mv.dashMs <= 0;
+      inst.queueInput(s, { t: 'in', seq: ++seq, mx: d > stop ? dx / d : 0, my: d > stop ? dy / d : 0, ...(dash ? { dash: 1 as const } : {}) });
+      const cd = p.mv.dashCdMs;
       inst.tick();
+      if (p.mv.dashCdMs > cd) dashes++;
     }
     const left = targets.reduce((n, m) => n + Math.max(0, m.dead ? 0 : m.hp), 0), dealt = hp - left;
     const cleared = targets.every((m) => m.dead);
-    return { encounter, seed, hp, ms: inst.t, cleared, dealt, estMs: cleared ? inst.t : dealt > 0 ? Math.round(ENCOUNTER_CAP_MS * hp / dealt) : Infinity };
+    return { encounter, seed, hp, ms: inst.t, cleared, dealt, estMs: cleared ? inst.t : dealt > 0 ? Math.round(ENCOUNTER_CAP_MS * hp / dealt) : Infinity, ...(opts.dash ? { dashes } : {}) };
   } finally { inst.destroy(); Math.random = random; }
 }
 
@@ -221,7 +230,7 @@ export interface KitResult { spec: KitSpec; totalMs: number; estTotalMs: number;
 /** Play any kit on every matched encounter and seed. */
 export function runKit(spec: KitSpec, opts: RunOptions = {}): KitResult {
   const rows: EncounterResult[] = [];
-  for (const seed of opts.seeds ?? SEEDS) { const save = kitSave(spec, seed); for (let e = 0; e < PACKS.length; e++) rows.push(runEncounter(save, e, seed)); }
+  for (const seed of opts.seeds ?? SEEDS) { const save = kitSave(spec, seed); for (let e = 0; e < PACKS.length; e++) rows.push(runEncounter(save, e, seed, opts)); }
   return { spec, rows, totalMs: rows.reduce((n, r) => n + r.ms, 0), estTotalMs: rows.reduce((n, r) => n + r.estMs, 0), timeouts: rows.filter((r) => !r.cleared).length };
 }
 
@@ -235,6 +244,82 @@ export function measureProfile(profile: ParityProfile, opts: RunOptions = {}): P
   const lo = Math.min(set, leg) * (1 - HYBRID_TOLERANCE), hi = Math.max(set, leg) * (1 + HYBRID_TOLERANCE);
   const hybridBetween = hyb >= lo && hyb <= hi;
   return { profile, kits, ratio, hybridBetween, passes: ratio <= PARITY_WINDOW && hybridBetween };
+}
+
+// ─────────────────────────── Item-pool search (stub-level, BUDGET.md §4) ───────────────────────────
+
+const EQUIP_ORDER: Slot[] = [...ARMOR_SLOTS, ...OTHER_SLOTS, 'mainhand', 'offhand'];
+
+/** Everything a slot can hold for a class: its legendaries, the pieces of the class's sets, and a mean rare. */
+export function slotCandidates(classId: ClassId, slot: Slot): SlotItem[] {
+  const out: SlotItem[] = [];
+  for (const l of Object.values(LEGENDARIES)) if ((!l.classes || l.classes.includes(classId)) && slotOf(l).includes(slot) && (!l.classes || !BASES[l.base].classes || BASES[l.base].classes!.includes(classId))) out.push({ legendary: l.id });
+  for (const set of Object.values(SETS)) if (set.classId === classId) for (const p of set.pieces) if (BASES[p.base].kind === slot) out.push({ set: set.id, base: p.base });
+  const rare = slot === 'mainhand' ? CLASS_WEAPON[classId] : slot === 'offhand' ? CLASS_OFFHAND[classId] : RARE_BASE[slot] ?? set0Base(classId, slot);
+  if (rare) out.push({ rare });
+  return out;
+}
+const set0Base = (classId: ClassId, slot: Slot) => Object.values(SETS).find((s) => s.classId === classId)?.pieces.find((p) => BASES[p.base].kind === slot)?.base;
+
+const baseOf = (it: SlotItem) => ('legendary' in it ? LEGENDARIES[it.legendary].base : 'set' in it ? it.base : it.rare);
+const itemKey = (it: SlotItem | undefined) => (!it ? '-' : 'legendary' in it ? `L:${it.legendary}` : 'set' in it ? `S:${it.set}:${it.base}` : `R:${it.rare}`);
+
+/** A kit is legal when no legendary repeats and a two-hander leaves the off-hand empty. */
+export function kitLegal(spec: KitSpec): boolean {
+  const seen = new Set<string>();
+  for (const it of Object.values(spec.equipment)) if (it && 'legendary' in it) { if (seen.has(it.legendary)) return false; seen.add(it.legendary); }
+  const mh = spec.equipment.mainhand;
+  return !(mh && blocksOffhand(baseOf(mh)) && spec.equipment.offhand);
+}
+
+export interface SearchOptions {
+  /** Lower is better (runKit(spec).estTotalMs for the real search). */
+  score: (spec: KitSpec) => number;
+  restarts?: number;
+  seed?: number;
+  /** Slots the search may change (default: every equipment slot). */
+  slots?: Slot[];
+  /** Safety cap on score evaluations. */
+  maxEvals?: number;
+}
+export interface SearchResult { best: KitSpec; score: number; evals: number }
+
+/**
+ * Coordinate ascent over the item pool: from `restarts` random legal starts (seeded), repeatedly try every candidate in
+ * every slot and keep any improvement until no slot improves. Deterministic for a seed; the evaluation is pluggable.
+ */
+export function searchKit(base: KitSpec, opts: SearchOptions): SearchResult {
+  const rng = new Rng(opts.seed ?? 1), slots = opts.slots ?? EQUIP_ORDER, cap = opts.maxEvals ?? 5000;
+  const cands = new Map(slots.map((s) => [s, slotCandidates(base.classId, s)] as const));
+  const cache = new Map<string, number>();
+  let evals = 0;
+  const key = (k: KitSpec) => slots.map((s) => itemKey(k.equipment[s])).join('|');
+  const score = (k: KitSpec) => { const id = key(k); let v = cache.get(id); if (v === undefined) { v = kitLegal(k) ? opts.score(k) : Infinity; evals++; cache.set(id, v); } return v; };
+  let best = base, bestScore = score(base);
+  for (let r = 0; r < (opts.restarts ?? 1) && evals < cap; r++) {
+    let cur: KitSpec = r === 0 ? base : { ...base, equipment: { ...base.equipment } };
+    if (r > 0) for (const s of slots) { const c = cands.get(s)!; if (c.length) cur.equipment[s] = c[Math.floor(rng.next() * c.length)]; }
+    let curScore = score(cur), improved = true;
+    while (improved && evals < cap) {
+      improved = false;
+      for (const s of slots) for (const c of cands.get(s)!) {
+        if (evals >= cap) break;
+        const next = { ...cur, equipment: { ...cur.equipment, [s]: c } };
+        if (s === 'mainhand' && blocksOffhand(baseOf(c))) delete next.equipment.offhand;
+        const v = score(next);
+        if (v < curScore) { cur = next; curScore = v; improved = true; }
+      }
+    }
+    if (curScore < bestScore) { best = cur; bestScore = curScore; }
+  }
+  return { best, score: bestScore, evals };
+}
+
+/** D1 of BUDGET.md §6: main skills whose best kit is within `window` of the class's best (scores: lower = better). */
+export function classCoverage(bestBySkill: Record<string, number>, window = PARITY_WINDOW): { within: string[]; total: number; share: number } {
+  const vals = Object.values(bestBySkill).filter(Number.isFinite), top = Math.min(...vals);
+  const within = Object.entries(bestBySkill).filter(([, v]) => v <= top * window).map(([k]) => k);
+  return { within, total: Object.keys(bestBySkill).length, share: within.length / Math.max(1, Object.keys(bestBySkill).length) };
 }
 
 /** Skills whose data says the parity rule is enforced (`SkillDef.parityReady`). */

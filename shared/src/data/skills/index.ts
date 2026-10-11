@@ -3,7 +3,7 @@
 
 import type { ClassId } from '../../types';
 import type { NodeDef, SkillDef, SkillMods, SkillTag, TagQuery } from './types';
-import { NUMERIC_MOD_KEYS } from './types';
+import { NUMERIC_MOD_KEYS, TAG_ALIASES } from './types';
 import { WARRIOR_SKILLS } from './warrior';
 import { RANGER_SKILLS } from './ranger';
 import { MAGE_SKILLS } from './mage';
@@ -31,9 +31,9 @@ export function runeUnlockLevel(skill: SkillDef, runeIndex: number): number {
  */
 export function skillTags(skill: SkillDef, runeId?: string | null): Set<SkillTag> {
   const rune = runeId ? skill.runes.find((r) => r.id === runeId) : undefined;
-  const out = new Set<SkillTag>([skill.kind, rune?.mods.element ?? skill.element, ...(skill.tags ?? []), ...(rune?.tags ?? [])]);
-  if (skill.kind === 'channel') out.add('spender');
-  if (skill.cooldown > 0) out.add('cooldown');
+  const out = new Set<SkillTag>([skill.kind, rune?.mods.element ?? skill.element, ...(skill.tags ?? []), ...(rune?.tags ?? []), ...(rune?.addTags ?? [])]);
+  for (const t of rune?.removeTags ?? []) out.delete(t);
+  for (const t of [...out]) { const a = TAG_ALIASES[t]; if (a) out.add(a); }
   return out;
 }
 

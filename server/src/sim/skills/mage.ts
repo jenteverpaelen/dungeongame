@@ -89,7 +89,7 @@ function meteorImpact(inst: Instance, p: Player, rt: SkillRuntime, x: number, y:
   for (const m of inst.queryMobs(x, y, radius)) {
     if (m.dead) continue;
     const r = strikeMob(inst, p, m, st);
-    if (comet && !r.killed && !m.dead) freezeMob(m, 1500);
+    if (comet && !r.killed && !m.dead) freezeMob(m, 1500, 0, 0, inst, p);
   }
   inst.emit({ e: 'aoe', v: small ? 'meteorSmall' : 'meteor', x: Math.round(x), y: Math.round(y), r: Math.round(radius), d: 600, el: elIdx(el), s: p.id }, x, y, p.id);
   if (!small) for (const q of inst.playersNear(x, y, 700)) inst.emitTo(q.id, { e: 'shake', m: q === p ? 4 : 2, d: 160 });
@@ -148,7 +148,7 @@ function castNova(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: num
   let frozen = 0;
   for (const m of inst.queryMobs(x, y, radius)) {
     if (m.dead) continue;
-    freezeMob(m, freezeMs, shatter ? p.id : 0, depth);
+    freezeMob(m, freezeMs, shatter ? p.id : 0, depth, inst, p);
     if (ccFactor(m) > 0) frozen++;
     strikeMob(inst, p, m, st);
   }

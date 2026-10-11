@@ -24,6 +24,8 @@ function person(name: string, topics: Topic[]): DialogueDef {
 }
 
 export const CAST_DIALOGUES: Readonly<Record<string, DialogueDef>> = {
+  'rillwake_crossing/wenna': person('wenna', [{ id: 'wait' }, { id: 'rod' }]),
+  'bracken_sluice/foreman': person('hollis', [{ id: 'tally' }, { id: 'fire', when: ['mill_names_recovered'] }, { id: 'pumps', when: ['waterworks_repaired'] }]),
   'cairnspill_terraces/surveyor': person('iven', [{ id: 'quarry' }, { id: 'seal' }, { id: 'orren', when: ['mill_names_recovered'] }, { id: 'open', when: ['stone_road_open'] }]),
   'cinderwash_kilns/firekeeper': person('kessa', [{ id: 'kilns' }, { id: 'tally' }, { id: 'pumps', when: ['waterworks_repaired'] }, { id: 'quiet', when: ['kiln_draught_closed'] }]),
   'kilnwatch_crown/watchkeeper': person('venn', [{ id: 'watch' }, { id: 'furnace' }, { id: 'orders' }, { id: 'home', when: ['frontier_reopened'] }]),

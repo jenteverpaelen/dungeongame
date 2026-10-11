@@ -264,7 +264,7 @@ export function wStun(inst: Instance, p: Player, m: Mob, ms: number, rt: SkillRu
   if (rageActive(p)) { const br = p.ctx.slotted('battle_rage'); if (br) d *= 1 + modVar(br.mods, 'longRinging') / 100; }
   const already = m.stunMs > 0;
   if (already && rt?.flags.has('belfry')) d += 1000;
-  stunMob(m, d);
+  stunMob(m, d, inst, p);
   if (!already) {
     const max = p.ctx.power('stonecount_gauntlets');
     if (max > 0) {
@@ -309,7 +309,7 @@ const pushScale = (rt: SkillRuntime | null) => (rt?.flags.has('furrowPush') ? 1.
 export function wPush(inst: Instance, p: Player, m: Mob, dx: number, dy: number, dist: number, rt: SkillRuntime | null, ch: ChannelExtra | null = null): Mob | null {
   if (m.dead || ccFactor(m) <= 0) return null;
   const d = dist * pushScale(rt);
-  knockbackMob(m, dx, dy, d);
+  knockbackMob(m, dx, dy, d, inst, p);
   displaced(inst, p, m, ch);
   const l = Math.hypot(dx, dy) || 1, f = ccFactor(m), ux = dx / l, uy = dy / l;
   const ex = m.x + ux * d * f, ey = m.y + uy * d * f;
@@ -327,7 +327,7 @@ export function wPush(inst: Instance, p: Player, m: Mob, dx: number, dy: number,
 /** Drag an enemy toward (tx, ty) by up to `step` units (pulls). */
 export function wPull(inst: Instance, p: Player, m: Mob, tx: number, ty: number, step: number, rt: SkillRuntime | null, ch: ChannelExtra | null = null) {
   if (m.dead || step <= 0) return;
-  dragMob(inst, m, tx, ty, step * pushScale(rt));
+  dragMob(inst, m, tx, ty, step * pushScale(rt), p);
   displaced(inst, p, m, ch);
 }
 

@@ -97,3 +97,38 @@ export function installFixtureSkills(totalPerClass: number): () => void {
   }
   return () => { for (const id of added) delete SKILLS[id]; for (const s of categorized) delete s.category; };
 }
+
+// ─────────────── Engine wave 2 fixtures ───────────────
+
+import { registerGroundDefs, type GroundDef } from '../../src/data/grounds';
+import { registerInscriptions, type InscriptionDef } from '../../src/data/inscriptions';
+
+/**
+ * The six bible grounds as data (WARRIOR.md / MAGE.md v2 wording), proving they need no code. Shapes and durations follow
+ * the bible text where it gives them; radii, lengths and coefficients it does not give are placeholders.
+ */
+export const FIXTURE_GROUNDS: GroundDef[] = [
+  // "The cone leaves a crack for 1 / 1.5 / 2 s; enemies entering it take 40% of the slam once."
+  { id: 'fx_crack', name: 'Crack', owner: 'ground_stomp', shape: 'line', lineLength: 240, radius: 24, durationMs: 1500, onEnter: { coef: 0.4 } },
+  // "tremor ground for 2 s that slows enemies" (chill = the engine's one slow).
+  { id: 'fx_tremor', name: 'Tremor', radius: 120, durationMs: 2000, tick: { everyMs: 500, status: { kind: 'chill', ms: 600 } } },
+  // "a fault line under it for 3 s that re-stuns enemies crossing it (once per 3 s each)."
+  { id: 'fx_faultline', name: 'Fault Line', shape: 'line', lineLength: 200, radius: 20, durationMs: 3000, onEnter: { status: { kind: 'stun', ms: 1000 }, againAfterMs: 3000 } },
+  // "a cinder pool (radius 80, 2 s) that applies your damage-over-time at 50%" (a bleed status here).
+  { id: 'fx_cinder', name: 'Cinder Pool', tags: ['burn'], element: 'fire', radius: 80, durationMs: 2000, tick: { everyMs: 500, status: { kind: 'burn', coef: 0.5, ms: 2000 } }, maxPerOwner: 3 },
+  // "a 3 s furrow that strikes enemies crossing it for 50% weapon damage and pushes them toward you."
+  { id: 'fx_furrow', name: 'Furrow', shape: 'line', lineLength: 220, radius: 22, durationMs: 3000, onEnter: { coef: 0.5, status: { kind: 'pull', dist: 40, origin: 'owner' } } },
+  // "ticks every 0.5 s for coef/12; enemies inside are chilled; an enemy inside for 1.5 s straight freezes for 1.5 s (once per enemy)."
+  { id: 'fx_rime', name: 'Rimefield', element: 'cold', radius: 200, durationMs: 6000, tick: { everyMs: 500, coef: 4 / 12, status: { kind: 'chill', ms: 600 } },
+    insideFor: { ms: 1500, status: { kind: 'freeze', ms: 1500 } } },
+];
+export const installFixtureGrounds = (): (() => void) => registerGroundDefs(FIXTURE_GROUNDS);
+
+/** Two Inscriptions from the ITEMS-SHARED.md §7 pool, as data. */
+export const FIXTURE_INSCRIPTIONS: InscriptionDef[] = [
+  { id: 'fx_aerial_projectile', name: 'Placeholder Skyshot', group: 'headShoulders', text: 'Aerial and Projectile skills count as each other.',
+    effects: [{ kind: 'tagGrant', tags: { anyOf: ['aerial'] }, add: ['projectile'] }, { kind: 'tagGrant', tags: { anyOf: ['projectile'] }, add: ['aerial'] }] },
+  { id: 'fx_cooldown_charge', name: 'Placeholder Second Wind', group: 'headShoulders', text: 'Cooldown skills store 1 extra charge.',
+    effects: [{ kind: 'rule', tags: { anyOf: ['cooldown'] }, rule: { id: 'charges', extra: 1 } }] },
+];
+export const installFixtureInscriptions = (): (() => void) => registerInscriptions(FIXTURE_INSCRIPTIONS);

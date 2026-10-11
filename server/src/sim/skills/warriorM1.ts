@@ -7,7 +7,7 @@
 import { WARRIOR_FX, modVar } from '../../shared';
 import { anyEnemyWithin, bestConeAngle, bestPoint, pickTarget } from '../brain';
 import { expectedDamage, gainResource, healPlayer, hurtMob, isEliteTier, makeDot } from '../damage';
-import { addBuff, addDot, elIdx, shotBlockedAt } from '../effects';
+import { addBuff, addOwnedDot, elIdx, shotBlockedAt } from '../effects';
 import { addGround, newGround } from '../grounds';
 import type { Instance } from '../instance';
 import { spawnProj } from '../projectiles';
@@ -72,7 +72,7 @@ function toll(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number,
     const r = wHit(inst, p, m, st, rt);
     if (r.killed || m.dead) continue;
     if (prime > 0) mstate(m).prime = { owner: p.id, pct: prime, until: inst.t + 8000 }; // Ringing Ears
-    if (ignite) addDot(m, makeDot(inst, p, { ...st, coef: 1.5, primary: false }, 'burn', 3000, 500)); // Furnace Clapper
+    if (ignite) addOwnedDot(p, m, makeDot(inst, p, { ...st, coef: 1.5, primary: false }, 'burn', 3000, 500)); // Furnace Clapper
   }
   inst.emit({ e: 'aoe', v: 'toll', x: Math.round(x), y: Math.round(y), r: Math.round(radius), d: 520, el: elIdx(st.el), s: p.id }, x, y, p.id);
   if (!main) return;
@@ -153,7 +153,7 @@ function launchHatchet(inst: Instance, p: Player, rt: SkillRuntime, ang: number,
     const r = wHit(inst, p, m, coefMul === 1 && mult === 1 ? st : { ...st, coef: st.coef * coefMul, mult: (st.mult ?? 1) * mult }, rt);
     passes.set(m, { last: pass, n: (seen?.n ?? 0) + (grind ? 0 : 1) });
     cast.hit.add(m);
-    if (!r.killed && !m.dead && !cast.bled.has(m)) { cast.bled.add(m); addDot(m, bleedOf()); }
+    if (!r.killed && !m.dead && !cast.bled.has(m)) { cast.bled.add(m); addOwnedDot(p, m, bleedOf()); }
     // Splinters: the first elite of a pass throws splinters that apply the bleed.
     if (splinters > 0 && !passElite && isEliteTier(m.tier)) {
       passElite = true;
@@ -163,7 +163,7 @@ function launchHatchet(inst: Instance, p: Player, rt: SkillRuntime, ang: number,
         if (!t) break;
         used.add(t);
         const s2 = wHit(inst, p, t, { ...st, coef: 0.4, noArea: true }, rt);
-        if (!s2.killed && !t.dead) addDot(t, bleedOf());
+        if (!s2.killed && !t.dead) addOwnedDot(p, t, bleedOf());
         inst.emit({ e: 'beam', v: 'splinter', x: Math.round(m.x), y: Math.round(m.y), tx: Math.round(t.x), ty: Math.round(t.y), el: elIdx(st.el), d: 200 }, t.x, t.y, p.id);
       }
     }

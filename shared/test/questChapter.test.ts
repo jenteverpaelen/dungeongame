@@ -44,20 +44,20 @@ test('bounded history, derived readings and marker priority cover locked, offere
   const save=createCharacter('StoryFixture','mage',1),q=Q('silent_wheel');
   assert.equal(questStatus(save,q),'available');assert.equal(questStatus(save,Q('high_water')),'locked');
   assert.equal(questStatus(save,Q('first_road')),'locked','the tutorial quest needs a valid introduction record');
-  assert.equal(questMarker(save,q.start.zone,q.start.target),'!');assert.equal(LORE.filter(l=>loreAvailable(save,l)).length,0);
-  writeQuestState(save,q.id,{revision:1,step:1,claimed:false});
+  assert.deepEqual(questMarker(save,q.start.zone,q.start.target),{glyph:'!',cat:'story'});assert.equal(LORE.filter(l=>loreAvailable(save,l)).length,0);
+  writeQuestState(save,q.id,{revision:2,step:1,claimed:false});
   const cart=LORE.find(l=>l.id==='cart_tracks')!,ledger=LORE.find(l=>l.id==='mill_ledger')!;
   assert.equal(questStatus(save,q),'active');assert(loreAvailable(save,cart));assert(!loreAvailable(save,ledger));
-  writeQuestState(save,q.id,{revision:1,step:3,claimed:false});assert.equal(questMarker(save,q.start.zone,q.start.target),'?');
-  writeQuestState(save,q.id,{revision:1,step:3,claimed:true});assert.equal(questStatus(save,q),'complete');
-  assert.equal(questMarker(save,q.start.zone,q.start.target),'!','next offer replaces the completed marker');
+  writeQuestState(save,q.id,{revision:2,step:4,claimed:false});assert.deepEqual(questMarker(save,q.start.zone,q.start.target),{glyph:'?',cat:'story'});
+  writeQuestState(save,q.id,{revision:2,step:4,claimed:true});assert.equal(questStatus(save,q),'complete');
+  assert.deepEqual(questMarker(save,q.start.zone,q.start.target),{glyph:'!',cat:'story'},'next offer replaces the completed marker');
   const repeat={...structuredClone(Q('high_water')),id:'repeat_validation',repeat:'on_return' as const,requires:[],unlocks:undefined};
   const catalogue=QUESTS as typeof repeat[];catalogue.push(repeat);
   try {
-    writeQuestState(save,repeat.id,{revision:1,step:0,cycle:1,completions:1,claimed:false});save.trackedQuest=repeat.id;
+    writeQuestState(save,repeat.id,{revision:repeat.revision,step:0,cycle:1,completions:1,claimed:false});save.trackedQuest=repeat.id;
     assert(questCompleted(save,repeat.id));assert.equal(trackedQuest(save)?.id,repeat.id,'repeated activity remains trackable');
     for(const change of [{cycle:-1},{completions:2},{cycle:Number.MAX_SAFE_INTEGER+1},{claimed:true},{progress:1}])
-      assert(!validQuestState(repeat,{revision:1,step:0,cycle:1,completions:1,claimed:false,...change}));
+      assert(!validQuestState(repeat,{revision:repeat.revision,step:0,cycle:1,completions:1,claimed:false,...change}));
   }finally{catalogue.splice(catalogue.indexOf(repeat),1);}
 });
 

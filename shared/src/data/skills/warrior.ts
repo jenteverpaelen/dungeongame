@@ -51,7 +51,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'whirlwind', classId: 'warrior', name: 'Whirlwind', kind: 'channel', unlock: 2, element: 'physical', tags: ['strike', 'area'], category: 'Steel Storm',
+    id: 'whirlwind', classId: 'warrior', name: 'Whirlwind', kind: 'channel', unlock: 2, element: 'physical', tags: ['spender', 'strike', 'area'], category: 'Steel Storm',
     coef: 3.4, cost: 10, gen: 0, cooldown: 0, range: 260, radius: 100, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 25, within: 240 },
     desc: 'Become a whirling storm of steel, dealing {coef} weapon damage per second to all enemies around you while you move. Costs {cost} Fury per second. Starts automatically at 25 Fury when enemies are near.',
@@ -275,7 +275,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'muster_standard', classId: 'warrior', name: 'Muster Standard', kind: 'buff', unlock: 26, element: 'physical', tags: ['ground'], category: 'Warcries',
+    id: 'muster_standard', classId: 'warrior', name: 'Muster Standard', kind: 'buff', unlock: 26, element: 'physical', tags: ['cooldown', 'ground'], category: 'Warcries',
     coef: 0, cost: 0, gen: 10, cooldown: 20, range: 0, radius: 240, duration: 12, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 240 },
     desc: 'Plant a war standard for {duration} seconds. You and allies within {radius} units gain 15% attack speed and 2 resource per second. Generates {gen} Fury.',
@@ -303,7 +303,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'ironplough', classId: 'warrior', name: 'Ironplough', kind: 'channel', unlock: 32, element: 'physical', tags: ['strike', 'area', 'displace'], category: 'Steel Storm',
+    id: 'ironplough', classId: 'warrior', name: 'Ironplough', kind: 'channel', unlock: 32, element: 'physical', tags: ['spender', 'strike', 'area', 'displace'], category: 'Steel Storm',
     coef: 2.6, cost: 12, gen: 0, cooldown: 0, range: 200, radius: 150, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 30, within: 200 },
     desc: 'Drive forward behind your weapon, dealing {coef} weapon damage per second to enemies in front of you and pushing them back. Damage rises the longer you push, up to double. Costs {cost} Fury per second.',

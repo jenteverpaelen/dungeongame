@@ -3,9 +3,10 @@
 
 import { PLAYER_RADIUS, SKILLS, modVar, type Element } from '../shared';
 import { damagePlayer, gainResource, strikeMob } from './damage';
-import { chillMob, elIdx, freezeMob, shotBlocked } from './effects';
+import { chillMob, elIdx, freezeMob, inCone, shotBlocked, shotBlockedAt } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
+import type { ProjRule } from './powerRuntime';
 import { clusterExplode } from './skills';
 import {
   PB_BATTERY, PB_CHILL, PB_DEVOUR, PB_FREEZE, PB_MARK, PB_SPLIT,
@@ -39,9 +40,67 @@ export interface ProjSpec {
   tx?: number;
   ty?: number;
   sz?: number;
+  /** A bounced projectile keeps its power rule, distance flown and remaining bounces. */
+  inherit?: { rule: ProjRule; flown: number; bounces: number };
+}
+
+/** Merged power projectile rules for a strike id (canonical order: sums, first defined, any). */
+function projRuleFor(p: Player, skill: string): ProjRule | null {
+  let out: ProjRule | null = null;
+  for (const { skills, rule } of p.ctx.powers.projRules) {
+    if (skills && !skills.has(skill)) continue;
+    if (!out) { out = { ...rule }; continue; }
+    if (rule.distPct) { if (!out.distPct) out.distAt = rule.distAt; out.distPct += rule.distPct; }
+    out.bounces += rule.bounces;
+    if (out.bounceScale === 1) out.bounceScale = rule.bounceScale;
+    out.retarget ||= rule.retarget;
+    out.seekMarked ??= rule.seekMarked;
+  }
+  return out;
+}
+
+/** Destroy hostile projectiles inside a cone (deflection). Returns how many. */
+export function clearHostileProjectiles(inst: Instance, x: number, y: number, ang: number, half: number, range: number): number {
+  let n = 0;
+  for (const pr of inst.projs) {
+    if (pr.dead || !isHostile(pr.kind) || !inCone(pr.x, pr.y, pr.r, x, y, ang, half, range)) continue;
+    endProj(inst, pr, false);
+    n++;
+  }
+  return n;
+}
+
+/** Reflect off the wall between (fx, fy) and (fx + sx, fy + sy): end this projectile and fire its continuation. */
+function bounceProj(inst: Instance, pr: Proj, fx: number, fy: number, sx: number, sy: number) {
+  const bx = shotBlockedAt(inst, fx + sx, fy), by = shotBlockedAt(inst, fx, fy + sy);
+  let vx = pr.vx, vy = pr.vy;
+  if (bx === by) { vx = -vx; vy = -vy; } else if (bx) vx = -vx; else vy = -vy;
+  pr.x = fx; pr.y = fy;
+  endProj(inst, pr, false);
+  const rule = pr.rule!, st = pr.strike;
+  spawnProj(inst, {
+    kind: pr.kind, v: pr.v, owner: pr.owner, mob: pr.mob, src: pr.owner?.id ?? pr.mob?.id ?? 0, x: fx, y: fy, angle: Math.atan2(vy, vx),
+    speed: pr.speed, lifeMs: Math.max(1, pr.lifeMs), r: pr.r, el: pr.el, strike: st && rule.bounceScale !== 1 ? { ...st, coef: st.coef * rule.bounceScale } : st,
+    dmg: pr.dmg, mobLevel: pr.mobLevel, pierce: pr.pierce, hits: pr.hits, bits: pr.bits, splash: pr.splash, seek: pr.seek, turn: pr.turn,
+    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1 },
+  });
+}
+
+/** Strike scaled by distance flown (power projectile rule). */
+export function flownStrike(pr: Proj): Strike {
+  const st = pr.strike!, r = pr.rule!;
+  return { ...st, mult: (st.mult ?? 1) * (1 + r.distPct / 100 * Math.min(1, (pr.flown ?? 0) / r.distAt)) };
 }
 
 export function spawnProj(inst: Instance, s: ProjSpec): Proj {
+  const rule = s.inherit ? s.inherit.rule : s.owner && s.strike && s.owner.ctx.powers.projRules.length ? projRuleFor(s.owner, s.strike.skill) : null;
+  if (rule && !s.inherit) {
+    if (rule.retarget && !s.seek) s = { ...s, seek: true };
+    if (rule.seekMarked && !s.homing) {
+      const t = inst.mobHash.nearest(s.x, s.y, rule.seekMarked.range, (o) => !o.dead && o.markMs > 0);
+      if (t) s = { ...s, homing: t.id, turn: rule.seekMarked.turn }; // callers may reuse a spec for a volley
+    }
+  }
   // Target acquisition and visible projectile travel share the current skill reach.
   const reach=s.owner&&s.strike?SKILLS[s.strike.skill]?.range??0:0;
   const lifeMs=reach>0&&s.speed>0&&s.kind!=='cluster'
@@ -52,8 +111,9 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
     x: s.x, y: s.y, vx, vy, speed: s.speed, lifeMs, r: s.r, el: s.el,
     strike: s.strike ?? null, dmg: s.dmg ?? 0, mobLevel: s.mobLevel ?? 1,
     pierce: s.pierce ?? 0, hits: s.hits ?? null, homing: s.homing ?? 0, turn: s.turn ?? 0, seek: !!s.seek,
-    splash: s.splash ?? 0, pierced: 0, bits: s.bits ?? 0, tx: s.tx ?? 0, ty: s.ty ?? 0, dead: false,
+    splash: s.splash ?? 0, pierced: 0, bits: s.bits ?? 0, tx: s.tx ?? 0, ty: s.ty ?? 0, dead: false, rule: undefined, flown: 0, bounces: 0,
   };
+  if (rule) { pr.rule = rule; pr.flown = s.inherit?.flown ?? 0; pr.bounces = s.inherit?.bounces ?? rule.bounces; }
   inst.projs.push(pr);
   const ev: { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number } = {
     e: 'proj', id: pr.id, s: s.src, v: s.v, x: Math.round(s.x), y: Math.round(s.y), vx: Math.round(vx), vy: Math.round(vy),
@@ -118,7 +178,11 @@ export function updateProjectiles(inst: Instance, dtMs: number) {
       const fromX=pr.x,fromY=pr.y;
       pr.x += sx; pr.y += sy;
       if (isLob(pr.kind)) continue;
-      if (shotBlocked(inst, fromX, fromY, pr.x, pr.y)) { endProj(inst, pr, false); break; }
+      if (pr.rule?.distPct) pr.flown! += Math.hypot(sx, sy);
+      if (shotBlocked(inst, fromX, fromY, pr.x, pr.y)) {
+        if (pr.bounces && pr.bounces > 0) bounceProj(inst, pr, fromX, fromY, sx, sy); else endProj(inst, pr, false);
+        break;
+      }
       if (isHostile(pr.kind)) hostileCollide(inst, pr);
       else friendlyCollide(inst, pr);
     }
@@ -166,7 +230,7 @@ function friendlyCollide(inst: Instance, pr: Proj) {
 }
 
 function onHit(inst: Instance, pr: Proj, p: Player, m: Mob) {
-  const st = pr.strike!;
+  const st = pr.rule?.distPct ? flownStrike(pr) : pr.strike!;
   switch (pr.kind) {
     case 'arrow': {
       const s = pr.bits & PB_DEVOUR && pr.pierced > 0 ? { ...st, mult: (st.mult ?? 1) * (1 + 0.7 * pr.pierced) } : st;
@@ -197,23 +261,23 @@ function onHit(inst: Instance, pr: Proj, p: Player, m: Mob) {
       return;
     case 'missile':
       strikeMob(inst, p, m, st);
-      if (pr.bits & PB_FREEZE && !m.dead && inst.rng.next() < 0.15) freezeMob(m, 1000);
+      if (pr.bits & PB_FREEZE && !m.dead && inst.rng.next() < 0.15) freezeMob(m, 1000, 0, 0, inst, p);
       if (pr.bits & PB_BATTERY) gainResource(p, p.ctx.primary.mods.gen ?? 0);
       endProj(inst, pr, true);
       return;
     case 'bolt':
       strikeMob(inst, p, m, st);
-      if (pr.bits & PB_CHILL && !m.dead) chillMob(m, 2000);
+      if (pr.bits & PB_CHILL && !m.dead) chillMob(m, 2000, inst, p);
       endProj(inst, pr, true);
       return;
     case 'fireball': {
       strikeMob(inst, p, m, st);
-      if (pr.bits & PB_CHILL && !m.dead) chillMob(m, 2000);
+      if (pr.bits & PB_CHILL && !m.dead) chillMob(m, 2000, inst, p);
       if (pr.splash > 0) {
         for (const o of inst.queryMobs(m.x, m.y, pr.splash)) {
           if (o === m || o.dead) continue;
           strikeMob(inst, p, o, { ...st, noArea: true });
-          if (pr.bits & PB_CHILL && !o.dead) chillMob(o, 2000);
+          if (pr.bits & PB_CHILL && !o.dead) chillMob(o, 2000, inst, p);
         }
       }
       endProj(inst, pr, true);

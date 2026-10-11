@@ -23,7 +23,8 @@ test('every set names set-backed skills of its class; every planned kit is plain
       assert.equal(Object.values(save.equipment).filter((it) => it?.set === p.set).length, pieces);
     }
   }
-  assert.deepEqual(setSkills(SETS.endless_storm), ['whirlwind']);
+  assert.deepEqual(setSkills(SETS.endless_storm), ['whirlwind', 'ironplough'], 'Endless Storm keys off Channel');
+  assert.deepEqual(setSkills(SETS.fault_warden).sort(), ['cairnfall', 'ground_stomp', 'ironplough', 'rend', 'sawtooth_hatchet', 'seismic_slam', 'tolling_blow', 'whirlwind'], 'a 6-piece on every skill falls back to the 4-piece targets (Spender and Stun skills)');
 });
 
 test('parity rule (1.25) holds for every parity-ready set-backed skill', () => {

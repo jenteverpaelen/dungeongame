@@ -5,7 +5,9 @@ import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
 import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, NUMERIC_MOD_KEYS, SKILLS, TIER_COSTS, describeNode, describeSkill, matchesTags, nodeModsAt, skillTags, MECHANIC_TAGS, SKILL_TAGS, type SkillDef, type SkillMods, type TagQuery } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
 import { PASSIVES } from './passives';
-import { OWN_BUCKET_CAP, SUB_STRIKES, isTargetCondition, powerTextIssues, type Condition, type PowerEffect, type Targets } from './powers';
+import { OWN_BUCKET_CAP, isTargetCondition, subStrikeOwner, powerTextIssues, usesElement, type BuffGrant, type Condition, type PowerEffect, type StatusSpec, type Targets } from './powers';
+import { GROUND_DEFS, type GroundDef } from './data/grounds';
+import { INSCRIPTIONS } from './data/inscriptions';
 
 /** Typed registries remain the source of truth; this checks semantic relationships. */
 export const CONTENT_DATA = {
@@ -13,6 +15,7 @@ export const CONTENT_DATA = {
   legendaries: LEGENDARIES, sets: SETS, gems: GEMS, gemRanks: GEM_RANKS,
   monsters: MONSTERS, guardians: RIFT_GUARDIANS, eliteAffixes: ELITE_AFFIXES,
   zones: ZONES, fieldIds: FIELD_IDS, maxRunes: MAX_RUNES, tierCosts: TIER_COSTS, passives: PASSIVES,
+  grounds: GROUND_DEFS, inscriptions: INSCRIPTIONS,
 };
 export type ContentData = typeof CONTENT_DATA;
 
@@ -152,6 +155,17 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
       for (const issue of powerTextIssues(b.text, b.effects ?? [], false)) check(false,`${at}.bonuses[${b.count}].text`,issue);
     }
   }
+  for (const g of Object.values(data.grounds ?? {})) validateGround(data, g, check);
+  for (const [key, ins] of Object.entries(data.inscriptions ?? {})) {
+    const at = `inscriptions.${key}`;
+    check(key === ins.id, `${at}.id`, 'must match its registry key');
+    check(ins.effects.length > 0, `${at}.effects`, 'needs power templates');
+    validateEffects(data, ins.effects, `${at}.effects`, undefined, check);
+    ins.effects.forEach((e, i) => check(INSCRIPTION_KINDS.has(e.kind) && !(e.kind === 'skillMods' && Object.keys(e.mods ?? {}).some((k) => k !== 'flags'))
+      && !(e.kind === 'projectile' && e.distBonus) && !(e.kind === 'proc' && e.buff && (e.buff.dmg ?? e.buff.chc ?? e.buff.chd ?? e.buff.ias ?? e.buff.stackDmg ?? e.buff.stackIas) !== undefined),
+      `${at}.effects[${i}]`, 'Inscriptions change rules: tagGrant, rule, proc, flags, projectile behaviour, deflect or control immunity, never a multiplier or a stat'));
+    for (const issue of powerTextIssues(ins.text, ins.effects, false)) check(false, `${at}.text`, issue);
+  }
   ids(data.passives.map(p=>p.id),'passives');
   for (const p of data.passives) {
     const at=`passives.${p.id}`;
@@ -222,7 +236,15 @@ function validateQuery(q: TagQuery | undefined, where: string, check: Check) {
 
 /** Template conditions: known shape and legal for the bucket ('own' = cast time, no target or strike element). */
 function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, check: Check) {
-  if (bucket === 'own') check(!isTargetCondition(c) && !('element' in c), where, 'target / element conditions are per hit, not available in the own bucket');
+  if (bucket === 'own') check(!isTargetCondition(c) && !usesElement(c), where, 'target / element conditions are per hit, not available in the own bucket');
+  if ('all' in c || 'any' in c) {
+    const kids = 'all' in c ? c.all : c.any;
+    check(kids.length > 0, where, 'composite condition needs children');
+    kids.forEach((k, i) => validateCondition(k, bucket, `${where}.${'all' in c ? 'all' : 'any'}[${i}]`, check));
+    return;
+  }
+  for (const k of ['targetControlledWithinMs', 'standingStillMs'] as const)
+    if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
   if ('perSummon' in c || 'buffStacks' in c) check(Number.isInteger(c.max) && c.max >= 1, where, 'scaling condition needs a max of at least 1');
   if ('channeling' in c && typeof c.channeling === 'object') validateQuery(c.channeling, where, check);
   for (const k of ['targetLifeAbovePct', 'targetFartherThan', 'lifeBelowPct', 'lifeAbovePct'] as const)
@@ -230,14 +252,17 @@ function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, c
 }
 
 /** Power templates: targets exist (skills of the owner's classes, valid tag queries), finite numbers, legal buckets. */
-export function validateEffects(data: Pick<ContentData, 'skills'>, effects: readonly PowerEffect[], at: string, classes: readonly string[] | undefined, check: Check) {
+export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick<ContentData, 'grounds'>>, effects: readonly PowerEffect[], at: string, classes: readonly string[] | undefined, check: Check) {
+  const grounds = data.grounds ?? GROUND_DEFS;
   const finite = (v: unknown, where: string) => {
     if (v === undefined) return;
     const n = typeof v === 'object' && v !== null ? (v as { roll: number }).roll : v;
     check(typeof n === 'number' && Number.isFinite(n), where, 'expected a finite amount');
   };
   const skillRef = (id: string, where: string) => {
-    const owner = Object.hasOwn(SUB_STRIKES, id) ? SUB_STRIKES[id] : id;
+    if (Object.hasOwn(grounds, id) && !grounds[id].owner) return; // a ground without an owner skill is its own strike id
+    const owner = Object.hasOwn(grounds, id) ? grounds[id].owner! : subStrikeOwner(id);
+    if (procStrikes.has(owner)) return;
     const skill = Object.hasOwn(data.skills, owner) ? data.skills[owner] : undefined;
     check(!!skill, where, `unknown skill ${id}`);
     if (skill && classes) check(classes.includes(skill.classId), where, `${id} belongs to another class`);
@@ -247,6 +272,18 @@ export function validateEffects(data: Pick<ContentData, 'skills'>, effects: read
     t.skills?.forEach((id) => skillRef(id, where));
     validateQuery(t.tags, where, check);
   };
+  const buff = (b: BuffGrant | undefined, where: string) => {
+    if (!b) return;
+    check(b.id.length > 0 && b.ms > 0, where, 'buff needs an id and a duration');
+    for (const k of ['dmg', 'chc', 'chd', 'ias', 'dr', 'stackDmg', 'stackIas'] as const) finite(b[k], where);
+    if (typeof b.dr === 'number') check(b.dr >= 0 && b.dr <= 100, where, 'buff dr must lie in 0..100');
+    if (b.maxStacks !== undefined) check(Number.isInteger(b.maxStacks) && b.maxStacks >= 1, where, 'maxStacks must be an integer of at least 1');
+    if (b.stackDmg !== undefined || b.stackIas !== undefined) check((b.maxStacks ?? 1) > 1, where, 'per-stack values need maxStacks above 1');
+    check(!(b.ias !== undefined && b.stackIas !== undefined), where, 'use ias or stackIas, not both');
+  };
+  const status = (s: StatusSpec, where: string) => validateStatus(s, where, check, skillRef);
+  // Proc strike ids are strike ids of their own (targetable by name).
+  const procStrikes = new Set(effects.flatMap((e) => (e.kind === 'proc' && e.strike ? [e.strike.id] : [])));
   effects.forEach((e, i) => {
     const w = `${at}[${i}]`;
     switch (e.kind) {
@@ -278,13 +315,135 @@ export function validateEffects(data: Pick<ContentData, 'skills'>, effects: read
       case 'proc':
         check(e.chance === undefined || (e.chance > 0 && e.chance <= 1), w, 'chance must lie in (0, 1]');
         finite(e.reduceCooldownsMs, w); finite(e.resource, w);
-        if (e.buff) { check(e.buff.id.length > 0 && e.buff.ms > 0, w, 'buff needs an id and a duration'); for (const k of ['dmg', 'chc', 'chd', 'ias'] as const) finite(e.buff[k], w); }
+        buff(e.buff, w);
+        targets(e, w, false);
+        if (e.icdMs !== undefined) check(Number.isFinite(e.icdMs) && e.icdMs >= 0, w, 'icdMs must be a finite non-negative number');
+        if (e.status) { check(e.on === 'applyStatus' && e.status.length > 0, w, 'status filters need on: applyStatus and at least one kind'); e.status.forEach((k) => check(STATUS_KINDS.has(k), w, `unknown status ${k}`)); }
+        if (e.minHitPct !== undefined) check(e.on === 'takeDamage' && e.minHitPct > 0 && e.minHitPct <= 100, w, 'minHitPct needs on: takeDamage and lies in (0, 100]');
+        if (e.skills || e.tags) check(!['dash', 'takeDamage', 'applyStatus'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
+        e.resetCooldowns?.forEach((id) => skillRef(id, w));
+        if (e.strike) {
+          check(e.strike.id.length > 0 && !Object.hasOwn(data.skills, e.strike.id), w, 'proc strike needs an id of its own (not a skill id)');
+          finite(e.strike.coef, w);
+          if (e.strike.radius !== undefined) check(e.strike.radius >= 0, w, 'strike radius must be non-negative');
+          e.strike.tags?.forEach((t) => check(TAGS.has(t), w, `unknown tag ${t}`));
+          if (!e.strike.radius) check((e.strike.at ?? 'target') === 'target' && !['dash', 'cast', 'spend'].includes(e.on), w, 'a single-target proc strike needs a trigger with an enemy (or give it a radius)');
+        }
+        if (e.summon) { check(e.summon.type.length > 0 && e.summon.lifeMs > 0, w, 'summon needs a type and a lifetime'); skillRef(e.summon.skill, w); }
+        if (e.ground) { check(Object.hasOwn(grounds, e.ground.def), w, `unknown ground ${e.ground.def}`); finite(e.ground.scale, w); }
+        if (e.applyStatus) status(e.applyStatus, w);
+        if (e.clearProjectiles) check(e.clearProjectiles.range > 0 && e.clearProjectiles.halfAngleDeg > 0 && e.clearProjectiles.halfAngleDeg <= 180, w, 'clearProjectiles needs a range and a half angle in (0, 180]');
         break;
+      case 'damageTaken':
+        finite(e.pct, w);
+        if (typeof e.pct === 'number') check(e.pct >= -100, w, 'damage taken cannot drop below -100%');
+        if (e.when) validateCondition(e.when, 'hit', w, check);
+        if (e.perLegendary) check(Number.isInteger(e.perLegendary.max) && e.perLegendary.max >= 1, w, 'perLegendary needs a max of at least 1');
+        break;
+      case 'firstHit':
+        finite(e.pct, w); check(e.windowMs > 0, w, 'firstHit needs a window');
+        if (typeof e.pct === 'number') check(e.pct >= -100, w, 'cannot reduce by more than 100%');
+        e.resetOnStatus?.forEach((k) => check(STATUS_KINDS.has(k), w, `unknown status ${k}`));
+        break;
+      case 'cheatDeath':
+        check(e.lifePct >= 0 && e.lifePct <= 100 && e.cooldownMs > 0 && (e.invulnMs ?? 0) >= 0, w, 'cheatDeath needs lifePct 0..100, a cooldown and invulnMs >= 0');
+        if (e.when) validateCondition(e.when, 'hit', w, check);
+        e.resetCooldowns?.forEach((id) => skillRef(id, w));
+        buff(e.buff, w);
+        break;
+      case 'controlImmunity': if (e.when) validateCondition(e.when, 'own', w, check); break;
+      case 'projectile':
+        targets(e, w, false);
+        if (e.distBonus) { finite(e.distBonus.pct, w); check(e.distBonus.atUnits > 0, w, 'distBonus needs atUnits > 0'); }
+        if (e.bounces !== undefined) check(Number.isInteger(e.bounces) && e.bounces >= 0, w, 'bounces must be a non-negative integer');
+        if (e.bounceScale !== undefined) check(e.bounceScale > 0, w, 'bounceScale must be positive');
+        if (e.seekMarked) check(e.seekMarked.turn > 0 && e.seekMarked.range > 0, w, 'seekMarked needs a turn rate and a range');
+        break;
+      case 'deflect':
+        check(e.range > 0 && e.halfAngleDeg > 0 && e.halfAngleDeg <= 180, w, 'deflect needs a range and a half angle in (0, 180]');
+        if (e.when) validateCondition(e.when, 'own', w, check);
+        break;
+      case 'dot':
+        targets(e, w, false);
+        if (e.stacks !== undefined) check(Number.isInteger(e.stacks) && e.stacks >= 1 && e.stacks <= 8, w, 'stacks must be an integer in 1..8');
+        if (e.strengthPct !== undefined) check(e.strengthPct >= 0, w, 'strengthPct must be non-negative');
+        finite(e.carryPct, w);
+        if (typeof e.carryPct === 'number') check(e.carryPct >= 0 && e.carryPct <= 100, w, 'carryPct must lie in 0..100');
+        break;
+      case 'stacking':
+        targets(e, w, false);
+        check(e.buff.length > 0 && e.per > 0 && Number.isInteger(e.max) && e.max >= 1 && e.decayMs > 0, w, 'stacking needs a buff id, per > 0, an integer max and a decay time');
+        if (e.skills || e.tags) check(e.source === 'kills', w, 'only kill-fed stacking can be filtered by skill or tag');
+        finite(e.stackDmg, w); finite(e.stackIas, w);
+        buff(e.onMax?.buff, w);
+        break;
+      case 'resourceDebt':
+        targets(e, w, false);
+        check(e.max > 0 && (e.regenPct ?? 0) >= -100, w, 'resourceDebt needs max > 0 and regenPct >= -100');
+        break;
+      case 'tagGrant':
+        targets(e, w, false);
+        check(!!e.add?.length || e.fromSlot !== undefined, w, 'tagGrant needs tags to add or a slot to copy from');
+        e.add?.forEach((t) => check(TAGS.has(t), w, `unknown tag ${t}`));
+        if (e.fromSlot !== undefined) check(Number.isInteger(e.fromSlot) && e.fromSlot >= 0 && e.fromSlot < 4, w, 'fromSlot must be a slot index 0..3');
+        break;
+      case 'rule': {
+        targets(e, w, false);
+        const r = e.rule;
+        switch (r.id) {
+          case 'charges': check(Number.isInteger(r.extra) && r.extra >= 1, w, 'charges needs an integer extra of at least 1'); break;
+          case 'channelMove': check(r.pct > 0 && r.pct <= 100, w, 'channelMove pct must lie in (0, 100]'); break;
+          case 'buffUpkeep': check(r.everyMs > 0, w, 'buffUpkeep needs everyMs > 0'); break;
+          case 'spendRefund': check(r.pct > 0 && r.pct <= 100 && Number.isInteger(r.minHits) && r.minHits >= 1 && (r.windowMs ?? 1) > 0, w, 'spendRefund needs pct in (0, 100], an integer minHits and a positive window'); break;
+          case 'groundsFollow': check(r.scale > 0 && r.scale <= 1, w, 'groundsFollow scale must lie in (0, 1]'); check(!e.skills && !e.tags, w, 'groundsFollow applies to all your grounds'); break;
+          case 'countsAs': check(r.state !== r.as, w, 'countsAs needs two different states'); check(!e.skills && !e.tags, w, 'countsAs applies to all your powers'); break;
+          default: check(false, w, 'unknown rule');
+        }
+        break;
+      }
       case 'dashCooldown': check(e.mult > 0 && e.mult <= 1, w, 'dash multiplier must lie in (0, 1]'); break;
       default: check(false, w, 'unknown template kind');
     }
   });
 }
+const STATUS_KINDS = new Set<string>(['stun', 'freeze', 'chill', 'knockback', 'pull', 'weaken', 'vulnerable', 'taunt', 'bleed', 'burn', 'freezeBuild', 'mark']);
+/** Kinds an Inscription may use (rule changes, never multipliers or stats). */
+const INSCRIPTION_KINDS = new Set<string>(['tagGrant', 'rule', 'proc', 'skillMods', 'projectile', 'deflect', 'controlImmunity']);
+
+/** A status a power applies: known kind and the numbers that kind needs. */
+function validateStatus(s: StatusSpec, where: string, check: Check, skillRef: (id: string, where: string) => void) {
+  check(STATUS_KINDS.has(s.kind), where, `unknown status ${s.kind}`);
+  const timed = ['stun', 'freeze', 'chill', 'weaken', 'vulnerable', 'taunt', 'mark', 'freezeBuild'].includes(s.kind);
+  if (timed) check((s.ms ?? 0) > 0, where, `${s.kind} needs a duration (ms)`);
+  if (s.kind === 'knockback' || s.kind === 'pull') check(Number.isFinite(s.dist) && s.dist !== 0, where, `${s.kind} needs a distance`);
+  if (s.kind === 'weaken' || s.kind === 'vulnerable' || s.kind === 'freezeBuild') check(s.pct !== undefined, where, `${s.kind} needs pct`);
+  if (s.kind === 'weaken' && typeof s.pct === 'number') check(s.pct > 0 && s.pct <= 100, where, 'weaken pct must lie in (0, 100]');
+  if (s.kind === 'bleed' || s.kind === 'burn') check(s.coef !== undefined, where, `${s.kind} needs a coefficient`);
+  if (s.radius !== undefined) check(s.radius > 0, where, 'status radius must be positive');
+  if (s.windowMs !== undefined) check(s.kind === 'freezeBuild' && s.windowMs > 0, where, 'windowMs belongs to freezeBuild and must be positive');
+  if (s.skills || s.tags || s.exceptSource) check(s.kind === 'vulnerable', where, 'skill / tag scopes belong to vulnerable');
+  if (s.origin) check(['knockback', 'pull', 'taunt'].includes(s.kind), where, 'origin belongs to knockback, pull and taunt');
+  s.skills?.forEach((id) => skillRef(id, where));
+  validateQuery(s.tags, where, check);
+}
+
+/** A data-driven ground definition. */
+function validateGround(data: Pick<ContentData, 'skills'>, g: GroundDef, check: Check) {
+  const at = `grounds.${g.id}`;
+  check(g.name.length > 0 && g.radius > 0 && g.durationMs > 0, at, 'ground needs a name, a radius and a duration');
+  if (g.shape === 'line') check((g.lineLength ?? 0) > 0, at, 'line grounds need a lineLength');
+  if (g.owner) check(Object.hasOwn(data.skills, g.owner), `${at}.owner`, `unknown skill ${g.owner}`);
+  g.tags?.forEach((t) => check(TAGS.has(t), `${at}.tags`, `unknown tag ${t}`));
+  if (g.tick) check(g.tick.everyMs > 0 && (g.tick.coef !== undefined || !!g.tick.status), `${at}.tick`, 'tick needs everyMs and a coefficient or a status');
+  if (g.onEnter) check(g.onEnter.coef !== undefined || !!g.onEnter.status, `${at}.onEnter`, 'onEnter needs a coefficient or a status');
+  if (g.insideFor) check(g.insideFor.ms > 0, `${at}.insideFor`, 'insideFor needs ms > 0');
+  for (const c of [g.tick?.coef, g.onEnter?.coef]) if (c !== undefined) check(Number.isFinite(c) && c >= 0, at, 'coefficients must be finite and non-negative');
+  if (g.pull) check(g.pull.speed > 0, `${at}.pull`, 'pull needs a speed');
+  if (g.maxPerOwner !== undefined) check(Number.isInteger(g.maxPerOwner) && g.maxPerOwner >= 1, at, 'maxPerOwner must be an integer of at least 1');
+  const ref = (id: string, where: string) => check(Object.hasOwn(data.skills, id), where, `unknown skill ${id}`);
+  for (const [k, s] of [['tick', g.tick?.status], ['onEnter', g.onEnter?.status], ['insideFor', g.insideFor?.status]] as const) if (s) validateStatus(s, `${at}.${k}`, check, ref);
+}
+
 type NumberCheck = (value: number, at: string, min?: number, integer?: boolean) => void;
 
 function finiteMods(m: SkillMods, at: string, check: Check) {

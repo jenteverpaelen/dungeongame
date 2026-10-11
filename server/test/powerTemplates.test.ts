@@ -283,8 +283,8 @@ test('skillMore: unconditional own bucket (rolled), cast-time conditions with st
 
 test('tag queries resolve once per character (equipped runes re-derive the element) for skills, sets and conditions', () => {
   assert.deepEqual([...skillTags(SKILLS.cleave)].sort(), ['area', 'physical', 'primary', 'strike']);
-  assert.deepEqual([...skillTags(SKILLS.whirlwind)].sort(), ['area', 'channel', 'physical', 'spender', 'strike'], 'Channel skills are Spenders (derived)');
-  assert(skillTags(SKILLS.cairnfall).has('cooldown') && skillTags(SKILLS.muster_standard).has('cooldown') && !skillTags(SKILLS.battle_rage).has('cooldown'), 'Cooldown is derived from a cooldown');
+  assert.deepEqual([...skillTags(SKILLS.whirlwind)].sort(), ['area', 'channel', 'physical', 'spender', 'strike'], 'Channel skills that drain resource are authored Spenders');
+  assert(skillTags(SKILLS.cairnfall).has('cooldown') && skillTags(SKILLS.muster_standard).has('cooldown') && !skillTags(SKILLS.battle_rage).has('cooldown'), 'Cooldown: the kind, or authored on a Buff with a cooldown');
   assert(skillTags(SKILLS.cleave, 'gathering_storm').has('lightning') && !skillTags(SKILLS.cleave, 'gathering_storm').has('physical'));
   assert(skillTags(SKILLS.whirlwind, 'dust_devils').has('summon'), 'rune tags join while equipped');
   assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'area'], noneOf: ['melee'] }));

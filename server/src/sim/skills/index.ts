@@ -2,6 +2,7 @@
 // summon type to the per-class behaviour modules. To add a skill: data in shared/src/data/skills/<class>.ts, behaviour
 // in ./<class>.ts registered in its <CLASS>_BEHAVIOURS map (docs/rework/depth/FOUNDATION.md has the full recipe).
 
+import { debtFloor } from '../powerActions';
 import { anyEnemyWithin } from '../brain';
 import type { Instance } from '../instance';
 import { skillCost, skillRadius } from '../playerctx';
@@ -72,7 +73,8 @@ export function channelTick(inst: Instance, p: Player, dtMs: number) {
   const rt = p.ctx.slotted(ch.skill);
   if (!rt) { p.channel = null; return; }
   p.res -= skillCost(p, rt) * (dtMs / 1000);
-  if (p.res <= 0) { p.res = 0; endChannel(inst, p); return; }
+  const floor = p.ctx.powers.debt.length ? debtFloor(p, ch.skill) : 0; // resource debt (engine wave 2)
+  if (p.res <= floor) { p.res = floor; endChannel(inst, p); return; }
   const a = rt.def.auto;
   const within = (a.when === 'channel' ? a.within : 240) + 40;
   if (anyEnemyWithin(inst, p.x, p.y, within)) ch.graceMs = 600;

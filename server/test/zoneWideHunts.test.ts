@@ -44,7 +44,7 @@ async function fixture() {
 function hunt(id: string, step: Partial<QuestDef['steps'][number]>): QuestDef {
   return {
     ...structuredClone(QUESTS.find(q => q.id === 'high_water')!), id, requires: [], unlocks: undefined, chapter: undefined, repeat: 'on_return',
-    reward: { gold: 40 }, steps: [{ id: 'hunt', kind: 'kill', zone: 'rillwake_crossing', target: ZONE_WIDE, count: 3, text: 'quest.wheel.warden', ...step }],
+    reward: { gold: 40 }, steps: [{ id: 'hunt', kind: 'kill', zone: 'rillwake_crossing', target: ZONE_WIDE, count: 3, text: 'q.silent_wheel.warden', ...step }],
   };
 }
 

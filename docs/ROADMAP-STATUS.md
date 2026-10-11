@@ -41,9 +41,11 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 
 | What | Status |
 |---|---|
-| **Build depth: foundation** | engine for 5 runes, a skill tree per skill, data-driven legendaries/sets, and a test that a full legendary build can compete with a full set |
-| **Build depth: content design** | ✅ done (`docs/rework/depth/`): per class 12 skills, 60 runes, 72 tree nodes, 14 passives, 5 sets, ~34 legendaries; plus 18 shared legendaries, 80 item shapes, 55 affixes. On paper every set build and its legendary-only rival are within 1.25× of each other |
-| **Questing rework** | all quests redone; main/side/contract look different; tracker for several quests; better contracts; objectives that visibly change the world; more story |
+| **Build depth: foundation** | ✅ merged: 5 runes per skill, a skill tree per skill, legendaries/sets as data that can target a skill or a kind of skill (tags), new Skills window, set-vs-legendary test in `verify`. ✅ Engine wave 2 merged (procs, defensive powers, ground effects, projectile tricks, monster statuses, Inscriptions). 🔨 Shared items: 19 shared legendaries, 80 item shapes, 55 affixes, set-reduction ring, Kindled/Fabled |
+| **Build depth: content design** | ✅ done (`docs/rework/depth/`): per class 12 skills, 60 runes, trees, 14 passives, 5 sets; 122 legendaries, three quarters of them working on a *kind* of skill so players find their own combinations; build tools plan; Kindled/Fabled replace Ancient/Primal; Diablo-copied names replaced |
+| **Warrior pilot** | 🔨 the full new Warrior on the foundation (12 skills, runes, trees, passives, sets, legendaries), measured against the set-vs-legendary test |
+| **Gear visuals v2** | 🔨 looks come from the item itself (type → shape, level → material/size, rarity → decoration, legendaries unique); weapons escalate strongly; the 0–9 tier ladder goes |
+| **Questing rework** | ✅ merged: story / side story / lesson / bounty marks everywhere; tracker under the minimap with up to five quests; contracts replaced by bounty boards (3 per field zone, a cache for all three); quest givers walk to the work site; Investigate no longer opens a window; repairs and 22 visible world changes with a camera pan; lore records in the journal. Not yet: escort/defend objectives, voiced lines |
 | **Finishing Codex's partial items** | accounts part 2, save migrations, settings (gamepad, colour-blind, low-spec), stash tabs, AFK rewards, telemetry, security audit, combat spec |
 
 ## Next (in this order)

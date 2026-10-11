@@ -2,6 +2,7 @@
 
 import '../styles/hud.css';
 import '../styles/account.css';
+import '../styles/quests.css';
 import { useUI } from '../store';
 import { preferences } from '../../game/preferences';
 import { useLocal } from '../panels/state';
@@ -15,6 +16,7 @@ import { AfkModal, DeathScreen, HelpPanel, InteractPrompt } from './Overlays';
 import { ContextualGuidance } from './Guidance';
 import {PartyFrames} from '../panels/party';
 import { MenuBar } from './MenuBar';
+import { HoldBar, ReadingCard } from './QuestMoments';
 
 function GameHud() {
   const ready = useUI((s) => !!(s.char && s.me));
@@ -32,6 +34,8 @@ function GameHud() {
       {ready && <BottomBar />}
       {ready && <MenuBar />}
       <InteractPrompt />
+      <ReadingCard />
+      <HoldBar />
       <ContextualGuidance />
       <DeathScreen />
       <HelpPanel />

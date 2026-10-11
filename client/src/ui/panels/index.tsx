@@ -31,13 +31,14 @@ import { InspectPanel } from './inspect';
 import {CommunityPanel} from './community';
 import { CollectionPanel } from './collection';
 import { DialoguePanel } from './dialogue';
+import { BountyPanel } from './bounty';
 import { TipLayer, hideTip, installAltTracking } from './tooltip';
 
 export { ItemTooltip, showItemTooltip, hideItemTooltip, moveItemTooltip, itemHover } from './tooltip';
 export type { ItemTooltipProps } from './tooltip';
 
 /** Panels docked on the left; opening one closes the others (Diablo 3 behaviour). */
-const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue'];
+const LEFT_DOCK: PanelId[] = ['cube', 'stash', 'skills', 'paragon', 'waypoint', 'obelisk', 'settings', 'adventure', 'worldmap', 'runSummary', 'character', 'merchant','party','social','inspect','community','collection','dialogue','bounty'];
 
 /** Tallest window at scale 1 (the quest journal, 909 px, measured at 1080p) plus the dock's margins. */
 const TALLEST_PANEL = 915;
@@ -105,6 +106,7 @@ export function PanelsRoot() {
             {panels.inspect && <InspectPanel />}
             {panels.community && <CommunityPanel />}
             {panels.dialogue && <DialoguePanel />}
+            {panels.bounty && <BountyPanel />}
           </div>
           {panels.debug && <div class="pn-dock top"><DebugPanel /></div>}
         </>

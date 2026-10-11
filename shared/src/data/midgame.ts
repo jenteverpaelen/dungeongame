@@ -40,12 +40,21 @@ function sablefen() {
   z.pack('cargo', ...P(24, 60), ['saltglass_skimmer', 'bog_slime', 'grave_bat', 'siltusk']);
   z.wreck(...P(25.5, 65)); z.wreck(...P(17, 59)); z.landmark('Sunken Cargo Road', ...P(12, 75)); z.landmark('Drowned Wagons', ...P(22, 66));
   z.pack('toll', ...P(44.5, 65.5), [boss('salt_guard', 'The Tollkeeper', ['plagued', 'fast']), 'reedclaw', 'grave_bat', 'bog_slime']);
-  z.decor('lamppost', ...P(40, 61)); z.decor('barrels', ...P(48, 61)); z.decor('banner', ...P(41, 68)); z.landmark('Toll Island', ...P(44, 69.5));
+  z.decor('lamppost', ...P(40, 61)); z.decor('barrels', ...P(48, 61)); z.landmark('Toll Island', ...P(44, 69.5));
+  z.contact('toll_gate', 'Toll gate', ...P(48.6, 66.6), 'mechanism');
+  // The toll gate thrown open (sf_toll): the toll banner and barrier are gone.
+  z.phase('sf_toll', false, () => { z.decor('banner', ...P(41, 68)); z.decor('fence', ...P(48.3, 66.2)); z.decor('fence', ...P(50.1, 64.6), 1, 1); z.decor('barrels', ...P(50.4, 67.4)); });
+  z.phase('sf_toll', true, () => { z.decor('fence', ...P(51.2, 68.4), 1, 2); z.resident('sf_tollfree', 'porter', 'Carter', ...P(40.6, 66.6), 10); });
   z.camp(...P(36, 38), { tents: 2 });
   z.contact('ferrier', 'Sera', ...P(40.5, 38.8), 'person');
   z.resident('sf_poler', 'fisher', 'Ferry poler', ...P(41.5, 40), 20); z.resident('sf_mender', 'carpenter', 'Net mender', ...P(30, 39.5), -20);
   z.decor('rowboat', ...P(36, 46.8), 1, 1); z.decor('rowboat', ...P(50, 44.5), 1, 2); z.fishery(...P(42, 33));
   z.landmark('Ferriers’ Refuge', ...P(37, 41));
+  z.board(...P(31.6, 36.4), 'Ferriers’ bounty board');
+  z.phase('sf_drivers', true, () => {
+    z.resident('sf_driver1', 'porter', 'Convoy driver', ...P(33, 33.6), 20); z.resident('sf_driver2', 'worker', 'Convoy driver', ...P(40, 34), -15);
+    z.resident('sf_driver3', 'merchant', 'Convoy master', ...P(30.4, 41.8), 30); z.decor('crates', ...P(28.6, 35.2)); z.decor('cart', ...P(26.6, 37.4));
+  });
   z.pack('upper_bank', ...P(68, 51), ['saltglass_skimmer', 'vault_moth', 'siltusk', 'grave_bat']);
   z.contact('false_writ', 'Unsigned toll writ', ...P(72.5, 48), 'ledger');
   z.decor('noticeboard', ...P(76, 44.5)); z.landmark('Upper Bank', ...P(70, 55));
@@ -58,7 +67,10 @@ function sablefen() {
   z.shrine('shrine_willow', ...P(10, 28), 'keen'); z.landmark('Willow Hollow', ...P(14, 35));
   z.pack('chainwatch', ...P(46, 14.5), [boss('salt_guard', 'Chainwatch', ['frozen', 'mortar']), 'vault_moth', 'brine_crab', 'bonewalker']);
   z.contact('chain', 'North chain winch', ...P(50.5, 15.5), 'mechanism');
-  z.wheel = { x: Math.round(55.5 * F), y: Math.round(9 * F), radius: 38 };
+  z.wheel = { x: Math.round(55.5 * F), y: Math.round(9 * F), radius: 38, spin: 'sf_chain' };
+  // Chain still up (sf_chain off): drovers and their cargo wait at the bridge head; lowered, they cross and the lamp is lit.
+  z.phase('sf_chain', false, () => { z.resident('sf_wait1', 'porter', 'Waiting drover', ...P(52.6, 13.6), -20); z.resident('sf_wait2', 'worker', 'Waiting drover', ...P(53.6, 12.6), 15); z.decor('crates', ...P(52.3, 11.1)); z.decor('barrels', ...P(53.2, 14)); });
+  z.phase('sf_chain', true, () => { z.walker('sf_ferry2', 'fisher', [P(58, 12), P(65, 12), P(72, 12), P(65, 12)], 40, 6); z.light(...P(55.5, 9), 0xffc070, 160); });
   z.decor('pillar', ...P(40, 9), 1, 1); z.decor('lamppost', ...P(50, 18)); z.landmark('North Chain', ...P(46, 18));
   z.ruins(...P(18, 10.5), 360, 220); z.cache('cache_chapel', ...P(20.5, 13.5), 'Chapel reliquary'); z.shrine('shrine_chapel', ...P(14.5, 13.5), 'empowered'); z.landmark('Drowned Chapel', ...P(18, 16));
   z.portal(...P(87, 21), 'saltwind_pans', 'Saltwind Pans'); z.landmark('Salt Stair', ...P(84, 18));
@@ -82,7 +94,7 @@ function saltwind() {
   z.region('firing_lane', P(58, 64), [7.4 * F, 5 * F], { role: 'yard', ground: 'cinder', roster: works, packs: 1 });
   z.region('station', P(40, 40), [6.4 * F, 4.8 * F], { role: 'outpost', ground: 'planks' });
   z.region('inlet', P(22, 38), [5.4 * F, 4.4 * F], { roster: pans, packs: 1 });
-  z.region('overflow', P(68, 40), [7 * F, 5 * F], { roster: works, packs: 2 });
+  const overflow = z.region('overflow', P(68, 40), [7 * F, 5 * F], { roster: works, packs: 2 });
   z.region('dispatch', P(54, 18), [7 * F, 5 * F], { role: 'arena', ground: 'stone' });
   z.region('crust_flats', P(84, 58), [6 * F, 4.6 * F], { roster: pans, packs: 2 });
   z.region('cistern_stair', P(34, 12), [4.6 * F, 3.8 * F], { ground: 'stone' });
@@ -103,10 +115,13 @@ function saltwind() {
   z.pack('pan_lane', ...P(32, 61), ['saltglass_skimmer', 'salt_guard', 'vault_moth', 'bog_slime']);
   z.pack('boiler', ...P(58.5, 65.5), [boss('salt_guard', 'The Dry Boil', ['molten', 'mortar']), 'brine_crab', 'cinder_cultist', 'bonewalker']);
   z.kilnYard(...P(53, 69)); z.kilnYard(...P(64, 60)); z.landmark('Firing Lane', ...P(58, 69.5));
+  z.contact('boiler_damper', 'Boiler damper', ...P(52.6, 60.6), 'mechanism');
+  z.phase('sw_banked', false, () => { z.emit('smoke', ...P(58, 62), 8); z.emit('embers', ...P(60, 64), 6); z.light(...P(58, 64), 0xff6a2a, 300, 0.4); });
   z.camp(...P(40, 42), { tents: 1 });
   z.contact('briner', 'Neris', ...P(36, 36.5), 'person');
   z.resident('sw_raker', 'worker', 'Salt raker', ...P(45, 37), 0); z.resident('sw_clerk', 'clerk', 'Tally clerk', ...P(34.5, 42.5), 30);
   z.saltWorks(...P(46, 44)); z.landmark('Brine Keepers’ Station', ...P(40, 45.5));
+  z.board(...P(44.6, 40.6), 'Station bounty board');
   z.contact('inlet', 'Brine inlet tally', ...P(20.5, 40.6), 'ledger');
   z.shrine('shrine_inlet', ...P(25.5, 41.5), 'frenzied'); z.landmark('Brine Inlet', ...P(22, 42.5));
   z.pack('overflow', ...P(69, 41.5), ['reedclaw', 'vault_moth', 'saltglass_skimmer', 'bonewalker']);
@@ -115,6 +130,7 @@ function saltwind() {
   z.pack('boilover', ...P(66, 45), ['brine_crab', 'salt_guard', 'cinder_cultist', 'brine_crab', 'salt_guard', 'bonewalker']);
   z.event('boil_over', 'Boil-over', 'boil_valve', 'boilover', 'The overflow valve is red hot. Open it and the brine boils over — along with everything living in the tanks.', 'Open the valve');
   z.landmark('Overflow', ...P(68, 45.5));
+  z.phase('sw_spill', false, () => { z.overlay('flood', overflow); });
   z.pack('dispatch_watch', ...P(53.5, 19.5), [boss('salt_guard', 'White Ledger', ['frozen', 'electrified']), 'vault_moth', 'bonewalker', 'brine_crab']);
   z.wall(rect(48 * F, 12 * F, 12 * F, 0.5 * F)); z.wall(rect(48 * F, 12 * F, 0.5 * F, 2.4 * F)); z.wall(rect(59.5 * F, 12 * F, 0.5 * F, 2.4 * F));
   z.contact('dispatch', 'Salt dispatch', ...P(57, 14.5), 'ledger');
@@ -218,11 +234,14 @@ function shiverline() {
   z.contact('lookout', 'Tallis', ...P(48, 49), 'person');
   z.resident('sl_runner', 'guard', 'Flag runner', ...P(57, 50), -15); z.decor('signalflag', ...P(55, 47.5), 1, 2);
   z.landmark('Lookout Shelter', ...P(52, 57.5));
+  z.board(...P(56, 54.7), 'Shelter bounty board');
   z.contact('gale_horn', 'Cracked gale horn', ...P(85, 37), 'marker');
   z.pack('gale', ...P(79, 42), ['ridge_harrier', 'ridge_harrier', 'rimehorn', 'ridge_harrier', 'signal_adept', 'ridge_harrier']);
   z.event('gale_harriers', 'Gale Harriers', 'gale_horn', 'gale', 'Blow the cracked horn and the harriers riding the gale will dive for you.', 'Sound the horn');
   z.elite('rimecrown', ...P(82, 43.5), 'rimehorn', 'Rimecrown', ['frozen', 'fast'], ['ridge_harrier', 'rimehorn'], { questTarget: true });
   z.contact('flag_post', 'Torn signal post', ...P(76.5, 37.5), 'marker');
+  z.contact('flag_red', 'Red signal flag', ...P(75, 38.3), 'marker'); z.contact('flag_blue', 'Blue signal flag', ...P(74.6, 40.2), 'marker'); z.contact('flag_yellow', 'Yellow signal flag', ...P(78.4, 35.9), 'marker');
+  z.phase('sl_flags', true, () => { z.decor('signalflag', ...P(76, 36.2)); z.decor('signalflag', ...P(77.2, 36.4), 1, 1); z.decor('signalflag', ...P(76.6, 35.6), 1, 2); });
   z.landmark('Scree Fields', ...P(80, 45));
   z.pack('code_watch', ...P(17, 27), ['ridge_harrier', 'signal_adept', 'salt_guard', 'rimehorn']);
   z.contact('code', 'Ridge code wheel', ...P(10, 23.5), 'ledger');
@@ -231,6 +250,8 @@ function shiverline() {
   z.pack('beacon_watch', ...P(65, 18), [boss('signal_adept', 'Mute Flame', ['faulted', 'mortar']), 'ridge_harrier', 'bonewalker', 'salt_guard']);
   z.contact('beacon', 'Upper beacon control', ...P(62, 12), 'mechanism');
   z.light(...P(72, 8), 0xffd070, 220); z.landmark('Upper Beacon', ...P(66, 21));
+  // The beacon lit (sl_beacon): a big honest fire on the ridge, visible from far below.
+  z.phase('sl_beacon', true, () => { z.fire(...P(62.4, 10.6), 1.6); z.emit('smoke', ...P(62.4, 9), 7); z.emit('embers', ...P(62.4, 10), 6); z.light(...P(62.4, 10), 0xffd070, 520, 0.25); });
   z.cache('cache_eyrie', ...P(8.5, 5.5), 'Eyrie cache'); z.shrine('shrine_eyrie', ...P(12.5, 7.5), 'empowered'); z.landmark('Eyrie', ...P(10, 10));
   z.portal(...P(89.5, 19.5), 'beaconbreak_ward', 'Beaconbreak Ward'); z.landmark('Ward Road', ...P(88, 16));
   for (const [x, y] of [P(12, 78), P(52, 52), P(66, 16), P(80, 40)]) z.sound('wind', x, y);
@@ -274,8 +295,15 @@ function beaconbreak() {
   z.walker('bw_patrol', 'guard', [P(46, 62), P(46, 70), P(54, 70), P(54, 62)], 45, 4);
   z.decor('well', ...P(50, 50)); z.decor('noticeboard', ...P(42, 55)); z.decor('banner', ...P(58, 49)); z.decor('banner', ...P(42, 49)); z.light(...P(50, 54), 0xffc070, 240);
   z.landmark('Ward Crossroads', ...P(50, 60.5));
+  z.board(...P(44.2, 57.6), 'Ward bounty board');
   z.pack('gatekeeper', ...P(26, 57.5), [boss('salt_guard', 'The Closed Hand', ['vortex', 'frozen']), 'ridge_harrier', 'bonewalker', 'signal_adept']);
   z.decor('barrels', ...P(20, 53)); z.decor('crates', ...P(32, 60)); z.landmark('West Gate Street', ...P(26, 61));
+  z.contact('west_bar', 'West street gate bar', ...P(31.8, 53.9), 'mechanism');
+  z.phase('bw_open', false, () => { z.decor('barrels', ...P(34, 53.6)); z.decor('crates', ...P(34.2, 57.6), 0.9); z.decor('banner', ...P(33.2, 53.2)); });
+  z.phase('bw_open', true, () => {
+    z.resident('bw_back1', 'porter', 'Returning crew', ...P(30.4, 53.4), 20); z.resident('bw_back2', 'worker', 'Returning crew', ...P(22.4, 53.6), -10);
+    z.resident('bw_back3', 'merchant', 'Carter', ...P(33.4, 59.6), 15); z.decor('cart', ...P(35, 61.2));
+  });
   z.pack('stores_watch', ...P(19, 32), ['bonewalker', 'signal_adept', 'ridge_harrier', 'rimehorn']);
   z.contact('stores', 'Granary dispatch board', ...P(13.5, 29.5), 'ledger');
   z.decor('hay', ...P(23, 26)); z.decor('crates', ...P(25, 34)); z.decor('cart', ...P(13, 34)); z.landmark('Raised Granary', ...P(18, 36));
@@ -285,6 +313,7 @@ function beaconbreak() {
   z.pack('cistern_watch', ...P(81, 32), ['saltglass_skimmer', 'salt_guard', 'signal_adept', 'vault_moth']);
   z.contact('cistern', 'Ward cistern stopcock', ...P(86.5, 29.5), 'mechanism');
   z.decor('well', ...P(77, 26)); z.landmark('Ward Cistern', ...P(82, 36));
+  z.phase('bw_water', true, () => { z.overlay('pool', [P(75.6, 26.6), P(77, 25.8), P(78.4, 26.6), P(78.4, 27.6), P(77, 28.2), P(75.6, 27.6)]); z.resident('bw_water1', 'innkeeper', 'Water carrier', ...P(79.6, 27.2), -20); });
   z.works = [{ kind: 'relay', x: Math.round(54 * F), y: Math.round(10 * F), w: 100, d: 100, h: 160 }];
   z.pack('relay_keeper', ...P(49, 19.5), [boss('signal_adept', 'The Countermand', ['electrified', 'faulted']), 'ridge_harrier', 'salt_guard', 'bonewalker']);
   z.contact('relay_book', 'Relay duty book', ...P(45, 15.8), 'ledger');
