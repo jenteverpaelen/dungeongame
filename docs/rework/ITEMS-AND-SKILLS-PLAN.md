@@ -119,6 +119,13 @@ research behind it").
   dummy, respec/loadouts, build codes, opt-in public build API and static data export for fan sites (GDPR: opt-in).
 * **Lead decisions:** (a) specialization points from a separate pool (Last Epoch model); (b) no Primal "chase"
   multiplier (parity model; D3 history); (c) Ninefold Gale / Lantern Garden / Frost Nova changes approved.
+* **After bible v2 (merged 5b82205):** (d) pool size = 50 points at level 70 (1 per level from 21), a cap of 10 of 18 ranks per
+  tree, so the choice is inside each tree (bible v2 argument: 5 active trees × 10 = 50; extra points buy nothing with free
+  respec); one switch `SPEC_POINTS`, re-tune after playtests. (e) Ancient / Primal become **Kindled** (extra affix, no
+  multiplier) / **Fabled** (max rolls + one rule-changing Inscription), `ITEMS-SHARED.md` §7. (f) `depth/NAMES.md`
+  adopted with its recommendations (generic names kept per the owner; Diablo coinages and copied rune bundles renamed);
+  the owner may veto any row. (g) Ranger misses the diversity thresholds (5/11 main skills); apply the `BUDGET.md` §4
+  levers before the ranger wave.
 
 ## 4. Risks and open decisions
 
