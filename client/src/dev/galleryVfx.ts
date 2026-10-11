@@ -1,8 +1,8 @@
 // VFX gallery: a standalone Pixi page that drives the real `Vfx` module with scripted server events
 // against placeholder targets. Scenes: ?scene=combat | proj | aoe | aoe2 | tele | beam | cast | death |
-// loot | mix | stress | warrior | warrior2 | warrior3 | mage | mage2. Exposes window.__gallery / window.__perf for automated
-// screenshots and profiling. The warrior and mage scenes use the real hero rig so the skill poses play with their
-// effects; mage2 also uses the real summon rigs (cinderkin, frostkin, ember sprite, hydra).
+// loot | mix | stress | warrior | warrior2 | warrior3 | ranger | ranger2 | ranger3 | ranger4 | rangerfight | mage | mage2.
+// Exposes window.__gallery / window.__perf for automated screenshots and profiling. The warrior, ranger and mage scenes use
+// the real hero rig so the skill poses play with their effects; the ranger scenes and mage2 also use the real summon views.
 
 import '@fontsource/alegreya-sans/700.css';
 import '@fontsource/lilita-one/400.css';
@@ -22,11 +22,13 @@ const qs = new URLSearchParams(location.search);
 const SCENE = qs.get('scene') ?? 'combat';
 /** ?manual=1: time only advances through __gallery.advance(sec) (deterministic captures). */
 const MANUAL = qs.get('manual') === '1';
-const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress', 'warrior', 'warrior2', 'warrior3', 'mage', 'mage2'];
+const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress', 'warrior', 'warrior2', 'warrior3', 'ranger', 'ranger2', 'ranger3', 'ranger4', 'rangerfight', 'mage', 'mage2'];
+/** Ranger M1 scenes also draw the real summon views (snare, mortar, flock, badger, heron, sentry). */
+const RANGER_SCENE = SCENE.startsWith('ranger');
 /** Scenes that draw players with the real hero rig (skill poses) instead of placeholders. */
-const REAL_HEROES = SCENE === 'warrior' || SCENE === 'warrior2' || SCENE === 'warrior3' || SCENE === 'mage' || SCENE === 'mage2';
+const REAL_HEROES = SCENE === 'warrior' || SCENE === 'warrior2' || SCENE === 'warrior3' || RANGER_SCENE || SCENE === 'mage' || SCENE === 'mage2';
 /** Scenes that draw summons with their real rigs. */
-const REAL_SUMMONS = SCENE === 'mage2';
+const REAL_SUMMONS = SCENE === 'mage2' || RANGER_SCENE;
 
 await Promise.all([
   document.fonts.load('700 26px "Alegreya Sans"'),
@@ -87,6 +89,8 @@ interface Ent {
   view: EntityView; plate: Nameplate | null; desc: EntDesc; dying?: boolean;
   /** Scripted velocity (units/s) for views that face / animate by it; defaults to the F_MOVING stand-in. */
   vx?: number; vy?: number;
+  /** Scripted attackSeq (summons snap / fire / burst on change). */
+  aseq?: number;
 }
 
 const ents = new Map<number, Ent>();
@@ -248,6 +252,31 @@ function proj(v: string, x: number, y: number, tx: number, ty: number, speed: nu
 
 const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 const pickOne = <T,>(a: T[]) => a[(Math.random() * a.length) | 0];
+
+// ── ranger scene helpers ──
+function summon(t: string, x: number, y: number, r = 14): Ent {
+  return addEnt({ id: nextId++, k: 'summon', t, r }, x, y, 34);
+}
+/** Skipstone Bolt: one `proj` per leg (hero → first enemy → next …) at 900 units/s, a `pend` with hit at each. */
+function skipChain(v: string, src: Ent, chain: Ent[], el: number, onSkip?: (m: Ent, k: number) => void): void {
+  let px = src.x + 16, py = src.y - 2, at = 0;
+  chain.forEach((m, k) => {
+    const sx = px, sy = py, d = Math.hypot(m.x - sx, m.y - sy), t0 = at;
+    later(t0, () => proj(v, sx, sy, m.x, m.y, 900, el, src.id));
+    later(t0 + d / 900, () => { fire({ e: 'dmg', t: m.id, a: Math.round(rnd(900, 1500) * (1 - k * 0.2)), el, s: src.id }); onSkip?.(m, k); });
+    at += d / 900 + 0.01; px = m.x; py = m.y;
+  });
+}
+/** A one-shot shove of `dist` units along +x over 0.15 s (Heavy Stone knockback); then walks back. */
+function knock(e: Ent, x0: number, dist: number): (dt: number) => void {
+  let t = 0;
+  return (dt) => { if (t > 1.2) return; t += dt; e.x = x0 + dist * (t < 0.15 ? 1 - (1 - t / 0.15) ** 2 : Math.max(0, 1 - (t - 0.5) / 0.7)); };
+}
+/** Slide an entity from (x0, y0) to (x1, y1) between t0 and t1 seconds from now (Chain Snare drag). */
+function slide(e: Ent, x0: number, y0: number, x1: number, y1: number, t0: number, t1: number): (dt: number) => void {
+  let t = 0;
+  return (dt) => { if (t > t1) return; t += dt; const f = Math.min(1, Math.max(0, (t - t0) / (t1 - t0))); const k = f * f; e.x = x0 + (x1 - x0) * k; e.y = y0 + (y1 - y0) * k; };
+}
 
 // ─────────────────────────── scenes ───────────────────────────
 
@@ -829,6 +858,387 @@ const scenes: Record<string, () => void> = {
       }, 0.3);
     }
   },
+
+  // Ranger M1 shots & marks (server contract: the ranger wave; docs/rework/depth/RANGER.md §3–§4), real hero rig.
+  ranger() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -190 + Math.floor(i / 3) * 420 });
+    { // Skipstone Bolt: sidearm flick, the slate skips twice; every skip point ripples
+      const c = cell(0), h = player(10, 'ranger', 'Sylwen', c.x - 210, c.y + 40);
+      const ms = [mob('bonewalker', c.x - 40, c.y + 10), mob('ember_imp', c.x + 70, c.y + 110), mob('grave_bat', c.x + 170, c.y - 10)];
+      label('Skipstone Bolt · skips + ripples', c.x, c.y + 150);
+      every(1.6, () => { fire({ e: 'cast', s: h.id, sk: 'skipstone_bolt', x: h.x, y: h.y, tx: ms[0].x, ty: ms[0].y }); skipChain('skip', h, ms, 0); }, 0.3);
+    }
+    { // Ripple rune (cold): a cold burst at every skip point, the last one a chilling ripple ring
+      const c = cell(1), h = player(11, 'ranger', 'Rowan', c.x - 210, c.y + 40);
+      const ms = [mob('bog_slime', c.x - 40, c.y + 60), mob('thornling', c.x + 60, c.y - 20), mob('gloomshroom', c.x + 170, c.y + 90)];
+      label('Skipstone · Ripple (cold)', c.x, c.y + 150);
+      every(2, () => {
+        fire({ e: 'cast', s: h.id, sk: 'skipstone_bolt', r: 'ripple', x: h.x, y: h.y, tx: ms[0].x, ty: ms[0].y });
+        skipChain('skip', h, ms, 2, (m, k) => fire({ e: 'aoe', v: k === ms.length - 1 ? 'skim_ripple' : 'skip_ripple', x: m.x, y: m.y, r: k === ms.length - 1 ? 40 : 50, d: 1000, el: 2, s: h.id }));
+      }, 0.5);
+    }
+    { // Heavy Stone (knockback, no skips) and Fen Lightning (lightning skips), alternating
+      const c = cell(2), h = player(12, 'ranger', 'Ash', c.x - 210, c.y + 40);
+      const heavy = mob('magma_brute', c.x + 10, c.y + 40, 1, [], 'Cinderhide');
+      const ms = [mob('ember_imp', c.x + 90, c.y - 40), mob('bonewalker', c.x + 170, c.y + 70)];
+      label('Heavy Stone · Fen Lightning', c.x, c.y + 150);
+      let k = 0;
+      every(1.8, () => {
+        if (k++ % 2 === 0) {
+          heavy.x = c.x + 10;
+          fire({ e: 'cast', s: h.id, sk: 'skipstone_bolt', r: 'heavy_stone', x: h.x, y: h.y, tx: heavy.x, ty: heavy.y });
+          const d = Math.hypot(heavy.x - h.x, heavy.y - h.y);
+          proj('skip_heavy', h.x + 16, h.y - 2, heavy.x, heavy.y, 900, 0, h.id);
+          later(d / 900, () => { fire({ e: 'dmg', t: heavy.id, a: 4200, el: 0, s: h.id }); const x0 = heavy.x; stressTicks.push(knock(heavy, x0, 60)); });
+        } else {
+          fire({ e: 'cast', s: h.id, sk: 'skipstone_bolt', r: 'fen_lightning', x: h.x, y: h.y, tx: heavy.x, ty: heavy.y });
+          skipChain('skip', h, [heavy, ...ms], 3);
+        }
+      }, 0.4);
+    }
+    { // Quarry Mark: point and whistle, the sigil hovers over the elite; the sentry's bolts at it leave a pale trail
+      const c = cell(3), h = player(13, 'ranger', 'Wren', c.x - 220, c.y + 50);
+      const elite = mob('mossback', c.x + 120, c.y + 30, 2, ['frozen'], 'Rotheart the Vile');
+      mob('bonewalker', c.x + 30, c.y + 110); mob('ember_imp', c.x + 200, c.y + 120);
+      const sentry = summon('sentry', c.x - 120, c.y - 40);
+      label('Quarry Mark · sigil · summons hunt it (pale trail)', c.x, c.y + 190);
+      every(6, () => {
+        fire({ e: 'cast', s: h.id, sk: 'quarry_mark', x: h.x, y: h.y, tx: elite.x, ty: elite.y });
+        fire({ e: 'aoe', v: 'quarry_mark', x: elite.x, y: elite.y, r: 24, d: 5200, el: 0, s: elite.id, f: 1 });
+      }, 0.3);
+      every(0.55, () => { sentry.aseq = (sentry.aseq ?? 0) + 1; proj('bolt', sentry.x + 8, sentry.y - 24, elite.x, elite.y, 1000, 0, sentry.id, elite.id); }, 0.9);
+    }
+    { // Falcon Strike: a falcon stoops on the quarry; when it dies the mark jumps (pale streak + chime)
+      const c = cell(4), h = player(14, 'ranger', 'Kestrel', c.x - 220, c.y + 50);
+      const next = mob('magma_brute', c.x + 160, c.y + 90, 1, [], 'Grimfang');
+      mob('grave_bat', c.x + 60, c.y - 30);
+      label('Falcon Strike · mark jumps on death', c.x, c.y + 190);
+      every(4.4, () => {
+        const q = mob('bonewalker', c.x + 20, c.y + 40);
+        fire({ e: 'cast', s: h.id, sk: 'quarry_mark', r: 'falcon_strike', x: h.x, y: h.y, tx: q.x, ty: q.y });
+        fire({ e: 'aoe', v: 'quarry_mark', x: q.x, y: q.y, r: 18, d: 12000, el: 0, s: q.id, f: 1 });
+        fire({ e: 'aoe', v: 'falcon_dive', x: q.x, y: q.y, r: 60, d: 0, el: 0, s: h.id, delay: 260 });
+        later(0.27, () => fire({ e: 'dmg', t: q.id, a: 18400, c: 1, el: 0, s: h.id }));
+        later(1.7, () => {
+          killEnt(q, 0);
+          fire({ e: 'beam', v: 'quarry_jump', x: q.x, y: q.y, tx: next.x, ty: next.y, el: 0, d: 400 });
+          later(0.3, () => fire({ e: 'aoe', v: 'quarry_mark', x: next.x, y: next.y, r: 22, d: 2200, el: 0, s: next.id, f: 1 }));
+        });
+      }, 0.3);
+    }
+    { // Tracking Arrow · Fletchling Swarm darts; Farwatch's long shaft; stone splinters off an impact
+      const c = cell(5), h = player(15, 'ranger', 'Lark', c.x - 230, c.y + 10);
+      const t0 = mob('thornling', c.x - 20, c.y + 10), t1 = mob('ember_imp', c.x + 80, c.y - 70), t2 = mob('bog_slime', c.x + 100, c.y + 80);
+      label('Fletchling darts · Farwatch shaft · splinters', c.x, c.y + 190);
+      every(2.2, () => {
+        fire({ e: 'cast', s: h.id, sk: 'hungering_arrow', r: 'fletchling_swarm', x: h.x, y: h.y, tx: t0.x, ty: t0.y });
+        const d = Math.hypot(t0.x - h.x, t0.y - h.y);
+        proj('arrow', h.x + 16, h.y - 2, t0.x, t0.y, 900, 0, h.id);
+        later(d / 900, () => { for (const t of [t1, t2]) proj('dart', t0.x, t0.y - 6, t.x, t.y, 520, 0, h.id, t.id); });
+        later(1.1, () => {
+          fire({ e: 'cast', s: h.id, sk: 'hungering_arrow', x: h.x, y: h.y + 130, tx: h.x + 400, ty: h.y + 130 });
+          proj('farwatch', h.x + 10, h.y + 128, h.x + 560, h.y + 128, 1400, 0, h.id, undefined, false);
+          for (let k = 0; k < 4; k++) { const a = -0.6 + k * 0.4; proj('splinter', t2.x, t2.y - 8, t2.x + Math.cos(a) * 130, t2.y + Math.sin(a) * 90, 520, 0, h.id, undefined, false); }
+        });
+      }, 0.5);
+    }
+  },
+
+  // Ranger M1 devices: Spring Snare (set, arm, snap, chain, tripwire, shrapnel, thorns, fire), Pitch Mortar, Flame Lance.
+  ranger2() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -190 + Math.floor(i / 3) * 420 });
+    { // Spring Snare: kneel and set, the arming click, an enemy steps on it: snap, dust, rope whip, jaws hold 1.5 s
+      const c = cell(0), h = player(10, 'ranger', 'Sylwen', c.x - 200, c.y + 40);
+      const m = mob('bonewalker', c.x + 200, c.y + 40);
+      label('Spring Snare · set · arm · snap', c.x, c.y + 150);
+      let sn: Ent | null = null, walking = false;
+      const sx = c.x + 10, sy = c.y + 40;
+      every(4.8, () => {
+        m.x = c.x + 200; m.flags = 0; walking = false;
+        fire({ e: 'cast', s: h.id, sk: 'spring_snare', x: h.x, y: h.y, tx: sx, ty: sy });
+        later(0.2, () => { sn = summon('snare', sx, sy, 12); });
+        later(0.8, () => { if (sn) fire({ e: 'aoe', v: 'snare_arm', x: sx, y: sy, r: 12, d: 0, el: 0, s: sn.id }); });
+        later(1.2, () => { walking = true; });
+      }, 0.3);
+      stressTicks.push((dt) => {
+        if (!walking) return;
+        m.x -= 90 * dt; m.vx = -90; m.flags = F_MOVING;
+        if (m.x > sx + 28) return;
+        walking = false; m.vx = 0; m.flags = F_STUN;
+        if (sn) { sn.aseq = (sn.aseq ?? 0) + 1; fire({ e: 'aoe', v: 'snare_snap', x: sn.x, y: sn.y, r: 90, d: 0, el: 0, s: sn.id }); const id = sn.id; later(0.06, () => removeEnt(id)); sn = null; }
+        fire({ e: 'dmg', t: m.id, a: 6400, el: 0, s: h.id });
+        later(1.5, () => { m.flags = 0; });
+      });
+    }
+    { // Chain Snare + Tripwire: a taut wire between two snares; the snap tethers two enemies and drags them in
+      const c = cell(1), h = player(11, 'ranger', 'Rowan', c.x - 230, c.y + 80);
+      const a = summon('snare', c.x - 70, c.y + 50, 12), b = summon('snare', c.x + 90, c.y + 50, 12);
+      const v = mob('thornling', c.x - 64, c.y + 46), o1 = mob('ember_imp', c.x + 30, c.y - 50), o2 = mob('bog_slime', c.x - 150, c.y - 30);
+      label('Chain Snare tether · Tripwire wire · pull', c.x, c.y + 150);
+      void h;
+      every(4.2, () => {
+        o1.x = c.x + 30; o1.y = c.y - 50; o2.x = c.x - 150; o2.y = c.y - 30;
+        fire({ e: 'beam', v: 'snare_wire', x: a.x, y: a.y, tx: b.x, ty: b.y, el: 0, d: 1500 });
+        later(1.6, () => {
+          a.aseq = (a.aseq ?? 0) + 1;
+          fire({ e: 'aoe', v: 'snare_snap', x: a.x, y: a.y, r: 90, d: 0, el: 0, s: a.id });
+          for (const o of [o1, o2]) {
+            fire({ e: 'beam', v: 'snare_tether', x: v.x, y: v.y, tx: o.x, ty: o.y, el: 0, d: 420 });
+            const x0 = o.x, y0 = o.y, L = Math.hypot(v.x - x0, v.y - y0);
+            stressTicks.push(slide(o, x0, y0, x0 + ((v.x - x0) / L) * 60, y0 + ((v.y - y0) / L) * 60, 0.12, 0.42));
+          }
+          later(0.42, () => fire({ e: 'aoe', v: 'trap_pull', x: v.x, y: v.y, r: 110, d: 0, el: 0, s: h.id }));
+        });
+      }, 0.3);
+    }
+    { // Shrapnel Jaw (cone behind the victim), Bramble Spring thorns, Pitch-Soaked: a burning snap and burning ground
+      const c = cell(2), h = player(12, 'ranger', 'Ash', c.x - 230, c.y + 40);
+      const sa = summon('snare', c.x - 80, c.y + 40, 12), sb = summon('snare', c.x + 110, c.y + 40, 12);
+      const v1 = mob('bonewalker', c.x - 76, c.y + 36), v2 = mob('gloomshroom', c.x + 114, c.y + 36);
+      label('Shrapnel cone · Bramble thorns · Pitch-Soaked fire', c.x, c.y + 150);
+      void h;
+      every(3.4, () => {
+        sa.aseq = (sa.aseq ?? 0) + 1;
+        fire({ e: 'aoe', v: 'snare_snap', x: sa.x, y: sa.y, r: 90, d: 0, el: 0, s: sa.id });
+        fire({ e: 'aoe', v: 'snare_cone', x: v1.x, y: v1.y, r: 150, d: 0, el: 0, s: h.id, a: -0.35 });
+        for (let k = 0; k < 4; k++) { const ang = k * (Math.PI / 2) + 0.5; proj('thorn', sa.x, sa.y - 4, sa.x + Math.cos(ang) * 120, sa.y + Math.sin(ang) * 80, 520, 0, h.id, undefined, false); }
+        later(1.2, () => {
+          sb.aseq = (sb.aseq ?? 0) + 1;
+          fire({ e: 'aoe', v: 'snare_snap', x: sb.x, y: sb.y, r: 90, d: 0, el: 1, s: sb.id });
+          fire({ e: 'aoe', v: 'snare_fire', x: v2.x, y: v2.y + 4, r: 70, d: 2000, el: 1, s: h.id });
+        });
+      }, 0.3);
+    }
+    { // Pitch Mortar: thoomp and smoke, an arcing pitch pot with a burning wick, a tar splash that catches; burning pitch
+      const c = cell(3), h = player(13, 'ranger', 'Wren', c.x - 240, c.y + 90);
+      const mo = summon('mortar', c.x - 170, c.y + 40, 16);
+      const pack = [mob('bonewalker', c.x + 100, c.y + 20), mob('ember_imp', c.x + 150, c.y + 70), mob('grave_bat', c.x + 70, c.y + 80)];
+      label('Pitch Mortar · shot · tar fire · burning pitch', c.x, c.y + 190);
+      fire({ e: 'cast', s: h.id, sk: 'pitch_mortar', x: h.x, y: h.y, tx: mo.x, ty: mo.y });
+      every(2.2, () => {
+        const tx = c.x + 110, ty = c.y + 55;
+        mo.aseq = (mo.aseq ?? 0) + 1;
+        fire({ e: 'aoe', v: 'mortar_shot', x: tx, y: ty, r: 100, d: 450, el: 1, s: mo.id });
+        later(0.45, () => {
+          fire({ e: 'aoe', v: 'mortar_impact', x: tx, y: ty, r: 100, d: 0, el: 1, s: mo.id });
+          fire({ e: 'aoe', v: 'pitch', x: tx, y: ty, r: 85, d: 3000, el: 1, s: mo.id });
+          for (const p of pack) fire({ e: 'dmg', t: p.id, a: Math.round(rnd(2400, 3600)), el: 1, s: mo.id });
+        });
+      }, 0.6);
+    }
+    { // Grapeshot (5 pellets instead of pitch) and Frostpot (cold: a frost burst), alternating
+      const c = cell(4), mo = summon('mortar', c.x - 170, c.y + 40, 16);
+      mob('thornling', c.x + 100, c.y + 30); mob('bog_slime', c.x + 160, c.y + 90);
+      label('Mortar · Grapeshot pellets · Frostpot', c.x, c.y + 190);
+      let k = 0;
+      every(1.9, () => {
+        const cold = k++ % 2 === 1, tx = c.x + 120, ty = c.y + 55;
+        mo.aseq = (mo.aseq ?? 0) + 1;
+        fire({ e: 'aoe', v: 'mortar_shot', x: tx, y: ty, r: 80, d: 450, el: cold ? 2 : 1, s: mo.id });
+        later(0.45, () => {
+          fire({ e: 'aoe', v: 'mortar_impact', x: tx, y: ty, r: cold ? 100 : 60, d: 0, el: cold ? 2 : 1, s: mo.id });
+          if (!cold) for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2 + 0.3; proj('pellet', tx, ty - 6, tx + Math.cos(a) * 110, ty + Math.sin(a) * 70, 600, 1, mo.id, undefined, true); }
+        });
+      }, 0.5);
+    }
+    { // Sentry · Flame Lance jets; Burst Arrow · Barrel Bomb's rolling blasts; Powder Horn's burning powder patch
+      const c = cell(5), se = summon('sentry', c.x - 170, c.y + 10);
+      const ms = [mob('ember_imp', c.x - 40, c.y - 10), mob('bonewalker', c.x - 20, c.y + 50)];
+      label('Flame Lance · Barrel Bomb · powder patch', c.x, c.y + 190);
+      every(1.1, () => {
+        const t = pickOne(ms), a = Math.atan2(t.y - se.y, t.x - se.x);
+        se.aseq = (se.aseq ?? 0) + 1;
+        fire({ e: 'aoe', v: 'sentry_flame', x: se.x, y: se.y, r: 150, d: 300, el: 1, s: se.id, a });
+      }, 0.3);
+      every(3.2, () => {
+        for (let k = 0; k < 3; k++) later(0.18 * k, () => fire({ e: 'aoe', v: 'barrel_blast', x: c.x - 60 + k * 70, y: c.y + 120, r: 45, d: 0, el: 1, s: ME }));
+        later(0.56, () => { fire({ e: 'aoe', v: 'cluster', x: c.x + 160, y: c.y + 120, r: 80, d: 0, el: 1, s: ME }); fire({ e: 'aoe', v: 'powder_patch', x: c.x + 160, y: c.y + 120, r: 60, d: 2200, el: 1, s: ME }); });
+      }, 0.8);
+    }
+  },
+
+  // Ranger M1 skyfall & beasts: Overcast Volley (cloud, arrows, Thunder Peal, Storm Shelf), Kestrel Column, the Rainkeeper
+  // storm with Flood Plain's wet ground, Badger Sett and Heron companions.
+  ranger3() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -150 + Math.floor(i / 3) * 440 });
+    const volley = (h: Ent, x: number, y: number, el: number, rune?: string, heavy = false) => {
+      fire({ e: 'cast', s: h.id, sk: 'overcast_volley', r: rune, x: h.x, y: h.y, tx: x, ty: y });
+      fire({ e: 'aoe', v: 'overcast_cloud', x, y, r: 140, d: el === 3 ? 2000 : 1300, el, s: h.id });
+      for (let k = 0; k < 8; k++) {
+        const a = rnd(0, 6.283), d = Math.sqrt(Math.random()) * 130;
+        fire({ e: 'aoe', v: 'overcast_arrow', x: x + Math.cos(a) * d, y: y + Math.sin(a) * d * 0.7, r: 35, d: 0, el, s: h.id, delay: 350 + k * 150 });
+      }
+      if (heavy) fire({ e: 'aoe', v: 'overcast_heavy', x, y, r: 70, d: 0, el, s: h.id, delay: 350 + 8 * 150 });
+    };
+    { // Overcast Volley: loosed upward, a grey cloud puffs over the area, arrows fall over 1.2 s; Thunder Peal finale
+      const c = cell(0), h = player(10, 'ranger', 'Sylwen', c.x - 220, c.y + 80);
+      mob('bonewalker', c.x + 40, c.y + 50); mob('ember_imp', c.x + 100, c.y + 100); mob('grave_bat', c.x + 70, c.y);
+      label('Overcast Volley · Thunder Peal', c.x, c.y + 190);
+      every(3.4, () => volley(h, c.x + 70, c.y + 60, 0, undefined, true), 0.3);
+    }
+    { // Storm Shelf: lightning; the cloud lingers and strikes enemies with bolts
+      const c = cell(1), h = player(11, 'ranger', 'Rowan', c.x - 220, c.y + 80);
+      const ms = [mob('thornling', c.x + 40, c.y + 40), mob('bog_slime', c.x + 120, c.y + 100), mob('gloomshroom', c.x + 90, c.y - 10)];
+      label('Overcast · Storm Shelf (lightning)', c.x, c.y + 190);
+      every(3.6, () => {
+        volley(h, c.x + 70, c.y + 60, 3, 'storm_shelf');
+        for (const [k, at] of [[0, 1.0], [2, 1.6]] as const) later(at, () => fire({ e: 'beam', v: 'volley_bolt', x: c.x + 70, y: c.y + 60, tx: ms[k].x, ty: ms[k].y, el: 3, d: 220 }));
+      }, 0.6);
+    }
+    { // Arrowfall · Kestrel Column: a narrow column of diving kestrels
+      const c = cell(2), h = player(12, 'ranger', 'Ash', c.x - 220, c.y + 80);
+      mob('magma_brute', c.x + 60, c.y + 50, 1, [], 'Cinderhide');
+      label('Arrowfall · Kestrel Column', c.x, c.y + 190);
+      every(3.4, () => {
+        fire({ e: 'cast', s: h.id, sk: 'rain_of_vengeance', r: 'kestrel_column', x: h.x, y: h.y, tx: c.x + 60, ty: c.y + 50 });
+        fire({ e: 'aoe', v: 'kestrel_column', x: c.x + 60, y: c.y + 50, r: 110, d: 2500, el: 0, s: h.id });
+      }, 0.3);
+    }
+    { // Rainkeeper: the storm follows its hero; Flood Plain leaves wet, chilling ground
+      const c = cell(3), h = player(13, 'ranger', 'Wren', c.x - 100, c.y + 60);
+      label('Rainkeeper storm (follows) · Flood Plain wet ground', c.x, c.y + 190);
+      let dir = 1;
+      stressTicks.push((dt) => { h.x += dir * 70 * dt; if (h.x > c.x + 110) dir = -1; else if (h.x < c.x - 110) dir = 1; h.vx = dir * 70; h.flags = F_MOVING; });
+      every(6, () => fire({ e: 'aoe', v: 'rain_storm', x: h.x, y: h.y, r: 150, d: 5800, el: 0, s: h.id, f: 1 }), 0.2);
+      every(3.2, () => fire({ e: 'aoe', v: 'wet', x: c.x + 20, y: c.y + 100, r: 130, d: 3000, el: 2, s: h.id }), 0.4);
+    }
+    { // Badger Sett: the badger burrows (a travelling mound), then bursts up under an enemy
+      const c = cell(4), h = player(14, 'ranger', 'Kestrel', c.x - 230, c.y + 40);
+      const bd = summon('badger', c.x - 150, c.y + 90, 14);
+      const m = mob('bonewalker', c.x + 100, c.y + 60);
+      label('Companion · Badger Sett (burrow · burst)', c.x, c.y + 190);
+      void h;
+      let t = 0;
+      const x0 = c.x - 150;
+      stressTicks.push((dt) => {
+        t = (t + dt) % 3.4;
+        if (t < 1.6) { bd.x = x0 + (t / 1.6) * 230; bd.vx = 230 / 1.6; bd.flags = F_MOVING; }
+        else if (t < 2.4) { bd.x = x0 + 230; bd.vx = 0; bd.flags = 0; }
+        else { bd.x = x0 + 230 - ((t - 2.4) / 1.0) * 230; bd.vx = -230; bd.flags = F_MOVING; }
+      });
+      every(3.4, () => {
+        bd.aseq = (bd.aseq ?? 0) + 1;
+        fire({ e: 'aoe', v: 'badger_burst', x: m.x - 10, y: m.y + 4, r: 70, d: 0, el: 0, s: bd.id });
+        fire({ e: 'dmg', t: m.id, a: 2400, el: 0, s: bd.id });
+        m.flags = F_STUN; later(0.75, () => { m.flags = 0; });
+      }, 1.75);
+    }
+    { // Heron: a wading bird that spears from range; its strikes chill
+      const c = cell(5), h = player(15, 'ranger', 'Lark', c.x - 230, c.y + 40);
+      const hr = summon('heron', c.x - 120, c.y + 70, 14);
+      const ms = [mob('ember_imp', c.x + 80, c.y + 30), mob('thornling', c.x + 60, c.y + 120)];
+      label('Companion · Heron (spear, chill)', c.x, c.y + 190);
+      void h;
+      every(1.3, () => {
+        const t = pickOne(ms);
+        hr.aseq = (hr.aseq ?? 0) + 1;
+        later(0.15, () => { fire({ e: 'beam', v: 'heron_spear', x: hr.x + 20, y: hr.y, tx: t.x, ty: t.y, el: 2, d: 160 }); fire({ e: 'dmg', t: t.id, a: 1800, el: 2, s: hr.id }); });
+      }, 0.4);
+    }
+  },
+
+  // Ranger M1 Murmuration (the flock sweeping between packs: stoops, Stormbirds arcs), Starling Shield, Split Flock and
+  // the six new cast poses.
+  ranger4() {
+    camX = 0; camY = 0;
+    const h = player(10, 'ranger', 'Sylwen', -700, -40);
+    const packs = [{ x: -420, y: -160 }, { x: -120, y: -40 }, { x: -380, y: 90 }];
+    const mobs: Ent[] = [];
+    for (const p of packs) for (let k = 0; k < 4; k++) mobs.push(mob(pickOne(['bonewalker', 'ember_imp', 'grave_bat', 'bog_slime']), p.x + rnd(-70, 70), p.y + rnd(-40, 40)));
+    const fl = summon('flock', packs[0].x, packs[0].y, 120);
+    label('Murmuration · sweeps between packs · stoop · Stormbirds arcs', -300, 210, 15);
+    fire({ e: 'cast', s: h.id, sk: 'murmuration', x: h.x, y: h.y, tx: packs[0].x, ty: packs[0].y });
+    let t = 0;
+    stressTicks.push((dt) => {
+      t += dt;
+      const seg = Math.floor(t / 2.4) % 3, f = (t % 2.4) / 2.4, e = f * f * (3 - 2 * f);
+      const a = packs[seg], b = packs[(seg + 1) % 3];
+      const nx = a.x + (b.x - a.x) * e, ny = a.y + (b.y - a.y) * e;
+      fl.vx = (nx - fl.x) / Math.max(dt, 1e-3); fl.vy = (ny - fl.y) / Math.max(dt, 1e-3); fl.x = nx; fl.y = ny; fl.flags = F_MOVING;
+    });
+    every(2, () => { const m = mobs.filter((q) => Math.hypot(q.x - fl.x, q.y - fl.y) < 130); const tg = m.length ? pickOne(m) : null; if (tg) { fire({ e: 'aoe', v: 'flock_stoop', x: tg.x, y: tg.y, r: 40, d: 0, el: 3, s: h.id }); fire({ e: 'dmg', t: tg.id, a: 3100, el: 3, s: h.id }); } }, 1);
+    every(1, () => { const out = mobs.filter((q) => Math.hypot(q.x - fl.x, q.y - fl.y) > 140); for (let k = 0; k < Math.min(2, out.length); k++) { const tg = pickOne(out); fire({ e: 'beam', v: 'flock_arc', x: fl.x, y: fl.y, tx: tg.x, ty: tg.y, el: 3, d: 200 }); } }, 1.5);
+    { // Starling Shield: a ring of starlings circling a walking hero
+      const g = player(11, 'ranger', 'Rowan', 330, -120);
+      const ring = summon('flock_guard', g.x, g.y, 60);
+      label('Starling Shield (flock_guard)', 330, 0, 15);
+      let dir = 1;
+      stressTicks.push((dt) => { g.x += dir * 60 * dt; if (g.x > 430) dir = -1; else if (g.x < 230) dir = 1; g.vx = dir * 60; g.flags = F_MOVING; ring.x = g.x; ring.y = g.y; });
+    }
+    { // Split Flock: two smaller flocks (radius 84)
+      const f1 = summon('flock', 560, -300, 84), f2 = summon('flock', 760, -230, 84);
+      label('Split Flock (2 × r 84)', 660, -150, 15);
+      let u = 0;
+      stressTicks.push((dt) => { u += dt; f1.x = 600 + Math.cos(u * 0.6) * 90; f1.y = -290 + Math.sin(u * 0.9) * 30; f2.x = 760 + Math.cos(u * 0.7 + 2) * 80; f2.y = -240 + Math.sin(u * 0.8 + 1) * 30; });
+    }
+    // the six new cast poses
+    const casts = ['skipstone_bolt', 'spring_snare', 'overcast_volley', 'quarry_mark', 'pitch_mortar', 'murmuration'];
+    casts.forEach((sk, i) => {
+      const x = -650 + i * 260, y = 330;
+      const p = player(20 + i, 'ranger', '', x, y);
+      label(sk, x, y + 20, 13);
+      every(2, () => fire({ e: 'cast', s: p.id, sk, x, y, tx: x + 120, ty: y - (sk === 'overcast_volley' ? 60 : 0) }), 0.3);
+    });
+  },
+
+  // Performance comparison (owner rule 2026-10-11: smooth on low-end PCs): one ranger fighting a respawning pack of 24 at
+  // the same cadence. ?new=1 (default) uses the M1 kit (skips, snares, Overcast, Quarry Mark, Pitch Mortar, Murmuration
+  // with Stormbirds, Starling Shield, the Rainkeeper storm, badger + heron); ?new=0 the pre-M1 kit (Tracking Arrow,
+  // Multishot, Burst Arrow, Arrowfall, 2 Sentries, wolf). Measured with .local/scn/ranger-perf.mjs.
+  rangerfight() {
+    camX = -60; camY = 0;
+    const NEW = qs.get('new') !== '0';
+    const h = player(ME, 'ranger', 'Sylwen', -420, 40);
+    const pack: Ent[] = [];
+    const spawn = () => { const a = rnd(0, 6.28), d = rnd(60, 250); const m = mob(pickOne(['bonewalker', 'ember_imp', 'grave_bat', 'bog_slime', 'thornling']), 80 + Math.cos(a) * d * 1.2, 40 + Math.sin(a) * d * 0.8); pack.push(m); return m; };
+    for (let i = 0; i < 24; i++) spawn();
+    const elite = mob('magma_brute', 140, -60, 2, ['molten'], 'Cinderhide');
+    const live = () => pack.filter((m) => !m.dying);
+    const hit = (m: Ent, a: number, el = 0) => { fire({ e: 'dmg', t: m.id, a, el, s: ME }); m.hp -= 0.08; if (m.hp <= 0) { killEnt(m, el); } };
+    every(1.5, () => { for (let i = pack.length - 1; i >= 0; i--) if (pack[i].dying) pack.splice(i, 1); while (pack.length < 24) spawn(); });
+    if (NEW) {
+      every(0.5, () => { const ms = live(); if (ms.length < 3) return; const c = [pickOne(ms), pickOne(ms), pickOne(ms)]; fire({ e: 'cast', s: ME, sk: 'skipstone_bolt', x: h.x, y: h.y, tx: c[0].x, ty: c[0].y }); skipChain('skip', h, c, 0); });
+      every(3, () => {
+        const t = pickOne(live()); if (!t) return;
+        const sn = summon('snare', t.x - 20, t.y, 12);
+        later(0.6, () => fire({ e: 'aoe', v: 'snare_arm', x: sn.x, y: sn.y, r: 12, d: 0, el: 0, s: sn.id }));
+        later(1.4, () => { sn.aseq = 1; fire({ e: 'aoe', v: 'snare_snap', x: sn.x, y: sn.y, r: 90, d: 0, el: 1, s: sn.id }); fire({ e: 'aoe', v: 'snare_fire', x: sn.x, y: sn.y, r: 60, d: 2000, el: 1, s: ME }); later(0.06, () => removeEnt(sn.id)); hit(t, 6000); });
+      }, 0.2);
+      const mo = summon('mortar', -330, 120, 16);
+      every(2, () => { const t = pickOne(live()); if (!t) return; mo.aseq = (mo.aseq ?? 0) + 1; fire({ e: 'aoe', v: 'mortar_shot', x: t.x, y: t.y, r: 100, d: 450, el: 1, s: mo.id }); later(0.45, () => { fire({ e: 'aoe', v: 'mortar_impact', x: t.x, y: t.y, r: 100, d: 0, el: 1, s: mo.id }); fire({ e: 'aoe', v: 'pitch', x: t.x, y: t.y, r: 85, d: 3000, el: 1, s: mo.id }); hit(t, 3000, 1); }); }, 0.4);
+      every(2.5, () => { const t = pickOne(live()); if (!t) return; fire({ e: 'cast', s: ME, sk: 'overcast_volley', x: h.x, y: h.y, tx: t.x, ty: t.y }); fire({ e: 'aoe', v: 'overcast_cloud', x: t.x, y: t.y, r: 140, d: 1300, el: 0, s: ME }); for (let k = 0; k < 8; k++) { const a = rnd(0, 6.28), d = Math.sqrt(Math.random()) * 130; fire({ e: 'aoe', v: 'overcast_arrow', x: t.x + Math.cos(a) * d, y: t.y + Math.sin(a) * d * 0.7, r: 35, d: 0, el: 0, s: ME, delay: 350 + k * 150 }); } }, 0.9);
+      every(6, () => { fire({ e: 'cast', s: ME, sk: 'quarry_mark', x: h.x, y: h.y, tx: elite.x, ty: elite.y }); fire({ e: 'aoe', v: 'quarry_mark', x: elite.x, y: elite.y, r: 30, d: 6000, el: 0, s: elite.id, f: 1 }); fire({ e: 'aoe', v: 'falcon_dive', x: elite.x, y: elite.y, r: 60, d: 0, el: 0, s: ME, delay: 260 }); }, 0.1);
+      const fl = summon('flock', 80, 40, 120);
+      let ft = 0;
+      stressTicks.push((dt) => { ft += dt; const nx = 80 + Math.cos(ft * 0.5) * 150, ny = 40 + Math.sin(ft * 0.8) * 80; fl.vx = (nx - fl.x) / Math.max(dt, 1e-3); fl.vy = (ny - fl.y) / Math.max(dt, 1e-3); fl.x = nx; fl.y = ny; fl.flags = F_MOVING; });
+      every(0.25, () => { for (const m of live()) if (Math.hypot(m.x - fl.x, m.y - fl.y) < 120 && Math.random() < 0.25) hit(m, 900); });
+      every(2, () => { const t = live().find((m) => Math.hypot(m.x - fl.x, m.y - fl.y) < 120); if (t) fire({ e: 'aoe', v: 'flock_stoop', x: t.x, y: t.y, r: 40, d: 0, el: 3, s: ME }); }, 0.7);
+      every(0.5, () => { const out = live().filter((m) => Math.hypot(m.x - fl.x, m.y - fl.y) > 140); for (let k = 0; k < Math.min(2, out.length); k++) { const t = pickOne(out); fire({ e: 'beam', v: 'flock_arc', x: fl.x, y: fl.y, tx: t.x, ty: t.y, el: 3, d: 200 }); hit(t, 600, 3); } }, 0.3);
+      const guard = summon('flock_guard', h.x, h.y, 60);
+      void guard;
+      every(10, () => fire({ e: 'aoe', v: 'rain_storm', x: h.x, y: h.y, r: 150, d: 9800, el: 0, s: ME, f: 1 }), 0.05);
+      const bd = summon('badger', -100, 100, 14), hr = summon('heron', -200, -60, 14);
+      every(4, () => { const t = pickOne(live()); if (!t) return; bd.x = t.x - 10; bd.y = t.y + 6; bd.aseq = (bd.aseq ?? 0) + 1; fire({ e: 'aoe', v: 'badger_burst', x: t.x, y: t.y, r: 70, d: 0, el: 0, s: bd.id }); hit(t, 2000); }, 1.1);
+      every(1.2, () => { const t = pickOne(live()); if (!t) return; hr.aseq = (hr.aseq ?? 0) + 1; fire({ e: 'beam', v: 'heron_spear', x: hr.x + 20, y: hr.y, tx: t.x, ty: t.y, el: 2, d: 160 }); hit(t, 1500, 2); }, 0.6);
+    } else {
+      every(0.5, () => { const t = pickOne(live()); if (!t) return; fire({ e: 'cast', s: ME, sk: 'hungering_arrow', x: h.x, y: h.y, tx: t.x, ty: t.y }); proj('arrow', h.x + 16, h.y - 2, t.x, t.y, 900, 0, ME, t.id); later(Math.hypot(t.x - h.x, t.y - h.y) / 900, () => hit(t, 1400)); });
+      every(2.2, () => { const t = pickOne(live()); if (!t) return; fire({ e: 'cast', s: ME, sk: 'multishot', x: h.x, y: h.y, tx: t.x, ty: t.y }); for (let k = -4; k <= 4; k++) { const a = Math.atan2(t.y - h.y, t.x - h.x) + k * 0.13; proj('arrow', h.x, h.y - 10, h.x + Math.cos(a) * 700, h.y + Math.sin(a) * 700, 900, 0, ME, undefined, false); } }, 0.5);
+      every(2.5, () => {
+        const t = pickOne(live()); if (!t) return; const id = pid++, x = h.x, y = h.y, tx = t.x, ty = t.y;
+        fire({ e: 'cast', s: ME, sk: 'cluster_arrow', x, y, tx, ty });
+        fire({ e: 'proj', id, s: ME, v: 'cluster', x, y, vx: (tx - x) / 0.45, vy: (ty - y) / 0.45, life: 450, el: 1 });
+        later(0.45, () => { fire({ e: 'pend', id, x: tx, y: ty }); fire({ e: 'aoe', v: 'cluster', x: tx, y: ty, r: 110, d: 0, el: 1, s: ME }); for (let k = 0; k < 4; k++) { const a = (k / 4) * 6.28 + 0.4; fire({ e: 'aoe', v: 'grenade', x: tx + Math.cos(a) * rnd(60, 110), y: ty + Math.sin(a) * rnd(40, 80), r: 50, d: 0, el: 1, s: ME, delay: 350 + k * 40 }); } hit(t, 5000, 1); });
+      }, 0.9);
+      every(6, () => { fire({ e: 'cast', s: ME, sk: 'rain_of_vengeance', x: h.x, y: h.y, tx: 80, ty: 40 }); fire({ e: 'aoe', v: 'rain', x: 80, y: 40, r: 240, d: 5000, el: 0, s: ME }); }, 0.1);
+      const sentries = [summon('sentry', -330, 120), summon('sentry', -330, -60)];
+      every(1, () => { for (const se of sentries) { const t = pickOne(live()); if (!t) continue; se.aseq = (se.aseq ?? 0) + 1; proj('bolt', se.x + 8, se.y - 24, t.x, t.y, 1000, 0, se.id, t.id); } }, 0.3);
+      summon('wolf', -300, 30, 14);
+      every(0.25, () => { for (const m of live()) if (Math.random() < 0.05) hit(m, 900); });
+    }
+  },
   // Mage M1 bolts, ray, orb and orrery (server contract: server/src/sim/skills/mageM1.ts), real hero rig.
   mage() {
     camX = 0; camY = 0;
@@ -1133,7 +1543,7 @@ const samples: number[] = [];
 const totals: number[] = [];
 const frames: number[] = [];
 const perf = { bakeMs, avgVfx: 0, p95Vfx: 0, maxVfx: 0, avgTotal: 0, p95Total: 0, maxTotal: 0, avgFrame: 0, particles: 0, numbers: 0, projectiles: 0, effects: 0, budget: 1, samples: 0 };
-Object.assign(window as object, { __gallery: { vfx, fire, scene: SCENE, sfx }, __perf: perf });
+Object.assign(window as object, { __gallery: { vfx, fire, scene: SCENE, sfx, app }, __perf: perf });
 
 (scenes[SCENE] ?? scenes.combat)();
 if (qs.has('cx')) camX = Number(qs.get('cx'));
@@ -1170,7 +1580,7 @@ function step(rawMs: number): void {
     e.view.root.zIndex = e.y;
     const moving=!!(e.flags & F_MOVING);
     const vx = e.vx ?? (moving ? 230 / 0.17 : 0), vy = e.vy ?? 0;
-    const st: ViewState = { x: e.x, y: e.y, vx, vy, moving, facingLeft: SCENE !== 'charge' && (e.kind === 'mob' || vx < 0), flags: e.flags, attackSeq: 0, hpFrac: e.hp, time, aps: REAL_HEROES ? 1.6 : 1.2 };
+    const st: ViewState = { x: e.x, y: e.y, vx, vy, moving, facingLeft: SCENE !== 'charge' && (e.kind === 'mob' || vx < 0), flags: e.flags, attackSeq: e.aseq ?? 0, hpFrac: e.hp, time, aps: REAL_HEROES ? 1.6 : 1.2 };
     e.view.update(viewDt, st);
     if (e.plate) { e.plate.root.position.set(e.x, e.y - e.view.height - 8); e.plate.update(e.hp, e.flags, false); }
   }

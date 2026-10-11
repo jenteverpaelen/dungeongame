@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 26; // 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
+export const PROTOCOL_VERSION = 27; // 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.

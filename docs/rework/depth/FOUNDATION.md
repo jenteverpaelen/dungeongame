@@ -1054,3 +1054,14 @@ by a second (3:58 vs 3:59 [M]). Without a retry the output is unchanged.
   * **First run [M], 57 s.**
     * Each single seed misses one band: L25+ 7.35 s; L1+ 4.85 s; L10+ 8.5 s.
     * The median passes all 6 bands.
+
+## 14. Ranger wave additions (`RANGER-WAVE.md` §3; tests `server/test/rangerEngine.test.ts`)
+
+* **Projectile hooks** (`Proj.hooks: ProjHooks`, `ProjSpec.hooks`): `pre(inst, pr, m, st) → Strike` replaces the strike
+  of one hit, `post(inst, pr, m, through)` runs after it (`through`: the projectile flew on), `end(inst, pr, hit)` runs
+  once at the final end — not when the projectile continues as a bounce, a return or a range ricochet (those keep the
+  hooks). Without hooks the hit path is unchanged.
+* **`ProjSpec.reach`**: the flight-time cap uses this reach instead of the strike skill's range (nodes and items that make
+  projectiles fly farther, sub-projectiles from other points).
+* **Condition `targetWithin: N`**: a target condition, true for enemies at most N units from you.
+* **`perSummon`** matches a summon type, the skill that made the summon, or a tag of that skill (`'device'`, `'beast'`).

@@ -79,3 +79,18 @@ test('fixtures of newer versions carry the data their version introduced', async
   const v15 = await read('v15-nodes');
   assert.ok(v15.skills.nodes && Object.keys(v15.skills.nodes).length > 0);
 });
+
+test('legendary rolls of a retired range move to the same place in the current range on load (idempotent, no version bump)', async () => {
+  const original = await read('v16-legacy-rolls');
+  const migrated = normalizeSave(structuredClone(original));
+  const roll = (id: string) => [...migrated.inventory, ...migrated.stash, ...Object.values(migrated.equipment)].find((i) => i?.id === id)!.legendary!;
+  assert.deepEqual(roll('oldrain35'), { power: 'rainspindle', value: 175, min: 150, max: 200 }, 'Rainspindle 30–40: 35 → 175');
+  assert.deepEqual(roll('oldvane60'), { power: 'weathervane_ring', value: 75, min: 75, max: 105 }, 'Weathervane 60–90: the minimum stays the minimum');
+  assert.deepEqual(roll('oldband90'), { power: 'bandolier_belt', value: 105, min: 75, max: 105 }, 'Bandolier 60–90: the maximum stays the maximum');
+  assert.deepEqual(roll('oldvane80'), { power: 'weathervane_ring', value: 95, min: 75, max: 105 }, 'rolled in the old range: moves even though 80 lies in the new one');
+  assert.deepEqual(roll('oldvane62nr'), { power: 'weathervane_ring', value: 77, min: 75, max: 105 }, 'no stored range, below the current one: rescaled');
+  assert.deepEqual(roll('newrain170'), { power: 'rainspindle', value: 170, min: 150, max: 200 }, 'a current roll is left alone');
+  assert.deepEqual(roll('sappers35'), { power: 'sappers_pack', value: 35, min: 30, max: 40 }, 'an unchanged range is left alone');
+  assert.deepEqual(normalizeSave(structuredClone(migrated)), migrated, 'idempotent');
+  assert.equal(migrated.version, SAVE_VERSION, 'loads at the current version (the rescale needs no version of its own)');
+});

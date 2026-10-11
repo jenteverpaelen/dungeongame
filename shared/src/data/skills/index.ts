@@ -10,6 +10,7 @@ import { MAGE_SKILLS } from './mage';
 
 export * from './types';
 export { WARRIOR_FX } from './warrior';
+export { RANGER_FX } from './ranger';
 export { MAGE_FX } from './mage';
 
 export const SKILLS: Record<string, SkillDef> = Object.fromEntries(

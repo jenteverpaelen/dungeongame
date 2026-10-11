@@ -41,6 +41,8 @@ export class VfxCore {
   /** Player nameplates listening for level / paragon changes. */
   readonly levelHooks = new Map<number, (lv: number, paragon: boolean) => void>();
   readonly players = new Set<number>();
+  /** Monsters carrying a Quarry Mark sigil right now (summon shots at them leave a pale trail). */
+  readonly quarry = new Set<number>();
   private timers: Timer[] = [];
   private effects: Effect[] = [];
   private marks: Mark[] = [];
@@ -245,6 +247,7 @@ export class VfxCore {
     this.mineCache.clear();
     this.ents.clear();
     this.players.clear();
+    this.quarry.clear();
     this.levelHooks.clear();
     this.sys.clear();
     for (const c of this.teleLayer.removeChildren()) c.destroy({ children: true });

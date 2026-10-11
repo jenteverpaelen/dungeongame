@@ -246,6 +246,8 @@ export class Scene {
           }
         }
       }
+      // Re-described summon (Murmuration's flock radius changes): resize in place.
+      if (e.kind === 'summon') (e.view as EntityView & { setRadius?(r: number): void }).setRadius?.(e.desc.r);
       return;
     }
     e.view = this.createView(e.desc);

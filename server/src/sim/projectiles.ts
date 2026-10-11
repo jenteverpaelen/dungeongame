@@ -10,7 +10,7 @@ import type { ProjRule } from './powerRuntime';
 import { clusterExplode } from './skills';
 import {
   PB_BATTERY, PB_CHILL, PB_DEVOUR, PB_FREEZE, PB_MARK, PB_SPLIT,
-  type Mob, type Player, type Proj, type ProjHook, type ProjKind, type Strike,
+  type Mob, type Player, type Proj, type ProjHook, type ProjHooks, type ProjKind, type Strike,
 } from './types';
 
 export interface ProjSpec {
@@ -42,6 +42,10 @@ export interface ProjSpec {
   sz?: number;
   /** A bounced projectile keeps its power rule, distance flown and remaining bounces. */
   inherit?: { rule: ProjRule; flown: number; bounces: number; returned?: boolean };
+  /** Class behaviour hooks (ProjHooks). */
+  hooks?: ProjHooks;
+  /** Flight reach instead of the strike skill's range (lifetime cap); e.g. a node that makes arrows fly farther. */
+  reach?: number;
   /** Class-module behaviour (`Proj.hook`). */
   hook?: ProjHook;
   /** Keep `lifeMs` as given: no clamp to the skill's reach (slow orbs that fly longer than the targeting range). */
@@ -88,7 +92,7 @@ function bounceProj(inst: Instance, pr: Proj, fx: number, fy: number, sx: number
     kind: pr.kind, v: pr.v, owner: pr.owner, mob: pr.mob, src: pr.owner?.id ?? pr.mob?.id ?? 0, x: fx, y: fy, angle: Math.atan2(vy, vx),
     speed: pr.speed, lifeMs: Math.max(1, pr.lifeMs), r: pr.r, el: pr.el, strike: st && rule.bounceScale !== 1 ? { ...st, coef: st.coef * rule.bounceScale } : st,
     dmg: pr.dmg, mobLevel: pr.mobLevel, pierce: pr.pierce, hits: pr.hits, bits: pr.bits, splash: pr.splash, seek: pr.seek, turn: pr.turn,
-    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned }, hook: pr.hook, keepLife: true,
+    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned }, hooks: pr.hooks, hook: pr.hook, keepLife: true,
   });
 }
 
@@ -100,7 +104,7 @@ function returnProj(inst: Instance, pr: Proj) {
   spawnProj(inst, {
     kind: pr.kind, v: pr.v, owner: p, src: p.id, x: pr.x, y: pr.y, angle: Math.atan2(dy, dx), speed: pr.speed,
     lifeMs: Math.min(3000, d / pr.speed * 1000 + 50), r: pr.r, el: pr.el, strike: pr.strike, pierce: 1, hits: here, bits: pr.bits, splash: pr.splash,
-    inherit: { rule: pr.rule!, flown: pr.flown ?? 0, bounces: 0, returned: true }, hook: pr.hook,
+    inherit: { rule: pr.rule!, flown: pr.flown ?? 0, bounces: 0, returned: true }, hooks: pr.hooks, hook: pr.hook,
   });
 }
 
@@ -114,7 +118,7 @@ function rangeRicochet(inst: Instance, pr: Proj): boolean {
     kind: pr.kind, v: pr.v, owner: pr.owner, src: pr.owner?.id ?? 0, x: pr.x, y: pr.y, angle: Math.atan2(t.y - pr.y, t.x - pr.x),
     speed: pr.speed, lifeMs: pr.life0 ?? 600, r: pr.r, el: pr.el, strike: st && rule.bounceScale !== 1 ? { ...st, coef: st.coef * rule.bounceScale } : st,
     pierce: pr.pierce, hits: pr.hits, bits: pr.bits, splash: pr.splash, seek: pr.seek, turn: pr.turn,
-    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned }, hook: pr.hook,
+    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned }, hooks: pr.hooks, hook: pr.hook,
   });
   return true;
 }
@@ -135,7 +139,7 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
     }
   }
   // Target acquisition and visible projectile travel share the current skill reach.
-  const reach=s.owner&&s.strike&&!s.keepLife?SKILLS[s.strike.skill]?.range??0:0;
+  const reach=s.reach??(s.owner&&s.strike&&!s.keepLife?SKILLS[s.strike.skill]?.range??0:0);
   const lifeMs=reach>0&&s.speed>0&&s.kind!=='cluster'
     ?Math.min(s.lifeMs,(reach+PLAYER_RADIUS*2)/s.speed*1000):s.lifeMs;
   const vx = Math.cos(s.angle) * s.speed, vy = Math.sin(s.angle) * s.speed;
@@ -147,6 +151,7 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
     splash: s.splash ?? 0, pierced: 0, bits: s.bits ?? 0, tx: s.tx ?? 0, ty: s.ty ?? 0, dead: false, rule: undefined, flown: 0, bounces: 0,
     returned: false, life0: lifeMs, hook: s.hook,
   };
+  if (s.hooks) pr.hooks = s.hooks;
   if (rule) { pr.rule = rule; pr.flown = s.inherit?.flown ?? 0; pr.bounces = s.inherit?.bounces ?? rule.bounces; pr.returned = !!s.inherit?.returned; }
   inst.projs.push(pr);
   const ev: { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number } = {
@@ -160,18 +165,20 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
 }
 
 /**
- * End a projectile. `quiet`: it simply ran out of life, which clients already know from `life`. `continued`: a bounce /
- * ricochet replaces it (its hook carries over and does not end).
+ * End a projectile. `quiet`: it simply ran out of life, which clients already know from `life`. `cont`: it continues
+ * as a new projectile (bounce, ricochet), so neither end hook runs yet. `why` (mage `Proj.hook`): hit, life or wall.
  */
-function endProj(inst: Instance, pr: Proj, hit: boolean, quiet = false, continued = false, why: 'hit' | 'life' | 'wall' = hit ? 'hit' : 'life') {
+function endProj(inst: Instance, pr: Proj, hit: boolean, quiet = false, cont = false, why: 'hit' | 'life' | 'wall' = hit ? 'hit' : 'life') {
   if (pr.dead) return;
   pr.dead = true;
-  if (pr.hook?.end && !continued) pr.hook.end(inst, pr, why);
-  if (quiet) return;
-  const ev: { e: 'pend'; id: number; x: number; y: number; hit?: 1 } = { e: 'pend', id: pr.id, x: Math.round(pr.x), y: Math.round(pr.y) };
-  if (hit) ev.hit = 1;
-  inst.emit(ev, pr.x, pr.y, pr.owner?.id ?? 0);
-  if (hit && pr.rule?.returns && !pr.returned && pr.owner && !isLob(pr.kind)) returnProj(inst, pr);
+  if (pr.hook?.end && !cont) pr.hook.end(inst, pr, why);
+  if (!quiet) {
+    const ev: { e: 'pend'; id: number; x: number; y: number; hit?: 1 } = { e: 'pend', id: pr.id, x: Math.round(pr.x), y: Math.round(pr.y) };
+    if (hit) ev.hit = 1;
+    inst.emit(ev, pr.x, pr.y, pr.owner?.id ?? 0);
+  }
+  if (!quiet && hit && pr.rule?.returns && !pr.returned && pr.owner && !isLob(pr.kind)) returnProj(inst, pr);
+  else if (!cont && pr.hooks?.end) pr.hooks.end(inst, pr, hit);
 }
 
 /** End a projectile from a class hook (`Proj.hook.hit`): `hit` = it struck something. */
@@ -274,7 +281,14 @@ function friendlyCollide(inst: Instance, pr: Proj) {
 
 function onHit(inst: Instance, pr: Proj, p: Player, m: Mob) {
   if (pr.hook?.hit) { pr.hook.hit(inst, pr, p, m); return; }
-  const st = pr.rule?.distPct ? flownStrike(pr) : pr.strike!;
+  let st = pr.rule?.distPct ? flownStrike(pr) : pr.strike!;
+  if (!pr.hooks) { hitKind(inst, pr, p, m, st); return; }
+  if (pr.hooks.pre) st = pr.hooks.pre(inst, pr, m, st);
+  hitKind(inst, pr, p, m, st);
+  pr.hooks.post?.(inst, pr, m, !pr.dead);
+}
+
+function hitKind(inst: Instance, pr: Proj, p: Player, m: Mob, st: Strike) {
   switch (pr.kind) {
     case 'arrow': {
       const s = pr.bits & PB_DEVOUR && pr.pierced > 0 ? { ...st, mult: (st.mult ?? 1) * (1 + 0.7 * pr.pierced) } : st;

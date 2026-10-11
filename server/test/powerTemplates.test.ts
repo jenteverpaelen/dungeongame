@@ -91,24 +91,18 @@ function legacyMult(sets: Record<string, number>, sentries: number, skillId: str
 const STRIKES = [...Object.keys(SKILLS), 'dust_devil'];
 const numeric = ['dmg', 'radius', 'cost', 'cooldown', 'duration', 'projectiles', 'pierce', 'gen', 'maxSummons'] as const;
 /** The 1:1 proof covers the 22 converted legendaries (new content has no legacy code to compare with), except the
- *  warrior items the warrior pilot redesigned (WARRIOR.md §7–§8). The mage wave redesigned the three mage sets (MAGE.md
- *  §7: tag-keyed); the five mage legendaries keep their effects and stay in the proof. */
-const LEGACY_POWERS = () => Object.values(LEGENDARIES).filter((l) => LEGACY_LEGENDARY_ORDER.includes(l.id) && !l.classes?.includes('warrior'));
+ *  warrior items the warrior pilot redesigned (WARRIOR.md §7–§8) and the ranger items and sets the ranger wave redesigned
+ *  (RANGER.md, RANGER-WAVE.md §0 / §4; their behaviour is covered by server/test/ranger.test.ts). The mage wave redesigned
+ *  the three mage sets (MAGE.md §7: tag-keyed); the five mage legendaries keep their effects and stay in the proof. */
+const LEGACY_POWERS = () => Object.values(LEGENDARIES).filter((l) => LEGACY_LEGENDARY_ORDER.includes(l.id) && !l.classes?.includes('warrior') && !l.classes?.includes('ranger'));
 function kits(): { powers: Record<string, number>; sets: Record<string, number>; label: string }[] {
   const out: { powers: Record<string, number>; sets: Record<string, number>; label: string }[] = [];
   for (const l of LEGACY_POWERS()) for (const v of [l.range[0], (l.range[0] + l.range[1]) / 2, l.range[1], l.range[0] + (l.range[1] - l.range[0]) * 0.3719])
     out.push({ powers: { [l.id]: v }, sets: {}, label: `${l.id}=${v}` });
-  for (const s of Object.values(SETS).filter((x) => x.classId !== 'warrior' && x.classId !== 'mage')) for (const n of [1, 2, 3, 4, 5, 6]) out.push({ powers: {}, sets: { [s.id]: n }, label: `${s.id}×${n}` });
-  // Mixed kits: every class legendary of a class + its sets at 6 / 4+2 (the mage: its legendaries alone).
+  for (const s of Object.values(SETS).filter((x) => x.classId !== 'warrior' && x.classId !== 'ranger' && x.classId !== 'mage')) for (const n of [1, 2, 3, 4, 5, 6]) out.push({ powers: {}, sets: { [s.id]: n }, label: `${s.id}×${n}` });
+  // Mixed kit: the mage's legendaries alone (every class's sets were redesigned).
   const magePw = Object.fromEntries(LEGACY_POWERS().filter((l) => !l.classes || l.classes.includes('mage')).map((l) => [l.id, l.range[0] + (l.range[1] - l.range[0]) * 0.6131]));
   out.push({ powers: magePw, sets: {}, label: 'mage all' });
-  for (const classId of ['ranger'] as const) {
-    const pw = Object.fromEntries(LEGACY_POWERS().filter((l) => !l.classes || l.classes.includes(classId)).map((l) => [l.id, l.range[0] + (l.range[1] - l.range[0]) * 0.6131]));
-    const own = Object.values(SETS).filter((s) => s.classId === classId).map((s) => s.id);
-    for (const id of own) out.push({ powers: pw, sets: { [id]: 6 }, label: `${classId} all + ${id}×6` });
-    out.push({ powers: pw, sets: { [own[0]]: 4, [own[1]]: 2 }, label: `${classId} all + 4/2` });
-    out.push({ powers: pw, sets: { [own[0]]: 2, [own[1]]: 2, [own[2]]: 2 }, label: `${classId} all + 2/2/2` });
-  }
   return out;
 }
 
@@ -295,7 +289,7 @@ test('tag queries resolve once per character (equipped runes re-derive the eleme
   assert(skillTags(SKILLS.cairnfall).has('cooldown') && skillTags(SKILLS.muster_standard).has('cooldown') && !skillTags(SKILLS.battle_rage).has('cooldown'), 'Cooldown: the kind, or authored on a Buff with a cooldown');
   assert(skillTags(SKILLS.cleave, 'gathering_storm').has('lightning') && !skillTags(SKILLS.cleave, 'gathering_storm').has('physical'));
   assert(skillTags(SKILLS.whirlwind, 'dust_devils').has('summon'), 'rune tags join while equipped');
-  assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'area'], noneOf: ['melee'] }));
+  assert(matchesTags(skillTags(SKILLS.multishot), { allOf: ['projectile', 'piercing'], noneOf: ['melee', 'area'] }), 'Multishot: Spender · Projectile · Piercing (ITEMS-SHARED §1.2)');
   const effects: PowerEffect[] = [
     { kind: 'skillMore', tags: { anyOf: ['lightning'] }, pct: 30 },
     { kind: 'skillMods', tags: { allOf: ['strike', 'area'] }, mods: { radius: 10 } },

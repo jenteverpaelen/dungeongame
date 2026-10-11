@@ -176,14 +176,16 @@ const CLASS_LEGS: Record<ClassId, Partial<Record<Slot, string>>> = {
   // Warrior: the measured best Endless Storm 6 Whirlwind kit of the warrior parity audit (WARRIOR-PARITY.json, merged pool);
   // the old kit (Eternal Gyre, Bloodwake in the Cube) fed the retired 'Whirlwind applies Rend' 4-piece.
   warrior: { mainhand: 'ninefold_gale', waist: 'furycord_belt', wrists: 'wardkeepers_cuffs', neck: 'signal_horn_charm', ring1: 'ouroboros_loop', ring2: 'rally_knot' },
-  ranger: { mainhand: 'thunderhead', offhand: 'sappers_pack', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
+  // Ranger: the ranger parity audit's best Siegebreaker 6 Sentry kit (RANGER-PARITY.json, pool); its rings and one Cube
+  // pick keyed off Arrowfall / Quarry Mark (not on this bar), so those stay generic.
+  ranger: { mainhand: 'kennel_wood_bow', offhand: 'sappers_pack', wrists: 'wardkeepers_cuffs', waist: 'witching_cord', neck: 'roost_charm', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
   // Mage: the measured best Regalia of the Fallen Star 6 Meteor kit of the mage parity audit (MAGE-PARITY.json, shipped
   // pool); the old kit (Hellforge Talisman, Seal of the Patient Thief) fed the retired Fallen Star bonuses.
   mage: { mainhand: 'cindervane', wrists: 'runeweaver_cuffs', waist: 'witching_cord', neck: 'craterheart_amulet', ring1: 'static_loop', ring2: 'ouroboros_loop' },
 };
 const CLASS_CUBE: Record<ClassId, (string | null)[]> = {
   warrior: ['millwheel_edge', 'gale_stitched_legguards', 'seething_sigil'],
-  ranger: ['hunters_mark', 'gearwright_heart', null],
+  ranger: ['bolt_throwers_arbalest', 'gearwright_heart', 'signal_horn_charm'],
   mage: ['thousand_missiles', 'starfall_mantle', 'rimecourt_band'],
 };
 
@@ -516,7 +518,7 @@ function skillCoverage() {
           check(dmg > 0, `${tag}: dealt damage`);
         }
         if (sk.id === 'sentry') {
-          check(link.sawSummon('sentry') && link.n('proj:bolt@sentry') > 0, `${tag}: sentry placed & firing`);
+          check(link.sawSummon('sentry') && (rune === 'flame_lance' ? link.n('aoe:sentry_flame') > 0 : link.n('proj:bolt@sentry') > 0), `${tag}: sentry placed & firing`);
           if (rune === 'spitfire') check(link.n('proj:rocket@sentry') > 0, `${tag}: rockets`);
           if (rune === 'chain_of_torment') check(link.n('beam:chain') > 0, `${tag}: chains`);
         }
@@ -525,7 +527,14 @@ function skillCoverage() {
           if (rune !== 'comet') check(link.n('aoe:molten') > 0, `${tag}: molten ground`);
         }
         if (sk.id === 'hydra') check(link.sawSummon('hydra'), `${tag}: hydra summoned`);
-        if (sk.id === 'companion') check(link.sawSummon(rune === 'bat' ? 'bat' : rune === 'raven' ? 'raven' : 'wolf'), `${tag}: companion summoned`);
+        if (sk.id === 'companion') check(link.sawSummon(rune === 'bat' ? 'bat' : rune === 'raven' ? 'raven' : rune === 'badger_sett' ? 'badger' : rune === 'heron' ? 'heron' : 'wolf'), `${tag}: companion summoned`);
+        // Ranger wave skills (RANGER.md §3): each one's signature event.
+        if (sk.id === 'skipstone_bolt') check(link.n(rune === 'heavy_stone' ? 'proj:skip_heavy' : 'proj:skip') > 0, `${tag}: skipping bolt`);
+        if (sk.id === 'spring_snare') check(link.sawSummon('snare') && link.n('aoe:snare_snap') > 0, `${tag}: snare set and snapped`);
+        if (sk.id === 'overcast_volley') check(link.n('aoe:overcast_cloud') > 0 && link.n('aoe:overcast_arrow') > 4, `${tag}: arrows fall`);
+        if (sk.id === 'quarry_mark') check(link.n('aoe:quarry_mark') > 0, `${tag}: quarry marked`);
+        if (sk.id === 'pitch_mortar') check(link.sawSummon('mortar') && link.n('aoe:mortar_impact') > 0, `${tag}: mortar shells land`);
+        if (sk.id === 'murmuration') check(link.sawSummon('flock'), `${tag}: the flock flies`);
         if (sk.id === 'black_hole') check(link.n('aoe:blackhole') > 0, `${tag}: black hole`);
         if (sk.id === 'frost_nova') check(link.n('aoe:nova') > 0 || link.n('aoe:nova_cone') > 0, `${tag}: nova`);
         // Mage M1 skills (docs/rework/depth/MAGE.md §3).
@@ -979,7 +988,7 @@ function partyRiftPerf() {
     bots.push(new Bot(inst, link, cls === 'warrior'));
   }
   const sim: number[] = [];
-  let maxActive = 0, doneAt = -1;
+  let maxActive = 0, doneAt = -1, maxProg = 0;
   const gauge = new LoadGauge();
   for (let t = 0; t < 20 * 60 * 8 && doneAt < 0; t++) {
     for (const b of bots) b.step();
@@ -989,16 +998,19 @@ function partyRiftPerf() {
     if (INJECT_MS > 0) gauge.burn(INJECT_MS);
     sim.push(performance.now() - t0 - (linkMs - l0));
     if (t % 20 === 0) maxActive = Math.max(maxActive, inst.mobs.filter((m) => !m.dormant && !m.dead).length);
+    maxProg = Math.max(maxProg, inst.riftState()!.progress);
     if (inst.riftState()!.phase === 'done') doneAt = t;
   }
   sim.sort((a, b) => a - b);
   const avg = sim.reduce((a, b) => a + b, 0) / sim.length;
   const dur = doneAt >= 0 ? `${Math.floor(doneAt / 1200)}:${String(Math.floor((doneAt / 20) % 60)).padStart(2, '0')}` : 'DNF';
-  console.log(`  ${inst.mobs.length + inst.counters.kills} monsters, up to ${maxActive} awake at once, rift done at ${dur}, deaths ${links.map((l) => l.save.stats.deaths).join('/')}`);
+  console.log(`  ${inst.mobs.length + inst.counters.kills} monsters, up to ${maxActive} awake at once, progress ${fmt(maxProg)}%, rift done at ${dur}, deaths ${links.map((l) => l.save.stats.deaths).join('/')}`);
   console.log(`  sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, max ${fmt(sim[sim.length - 1], 3)} ms`);
   summary.push(`perf: 4-player T3 rift: sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, rift ${dur}`);
   const g = gaugeLine('party rift', gauge);
-  check(done === 1, 'party rift completed');
+  // Every class is on the depth budget (warrior, ranger and mage waves): like the solo L70 rifts, a progress floor until
+  // the Torment re-fit (BUDGET.md §9 risk 1); the measurement itself is the tick cost under this load.
+  check(done === 1 || maxProg >= 30, `party rift: completed, or progress ≥ 30% in 8 minutes before the Torment re-fit (${fmt(maxProg)}%)`);
   check(avg < 3 * g.factor, `party rift tick avg < 3 ms × load factor ${fmt(g.factor, 2)} (${fmt(avg, 3)})`);
   inst.destroy();
 }
@@ -1314,6 +1326,11 @@ function equipItemSafe(save: CharacterSave, id: string, slot: Slot): boolean {
 /** Set power spike: damage on a pack of dummies with level-70 rares vs. the full set + legendaries kit. */
 function setSpikeScenario() {
   console.log('\n== Set bonus power spike (20 s against 8 sturdy targets, L70) ==');
+  // The rare kits come from the shared gear stream: start it fresh so this section measures the same kits whatever ran
+  // before it (other sections’ kit sizes shift the stream; the warrior’s rares then varied 39–65 M/s across merges),
+  // and leave the shared stream untouched for the sections after it.
+  const sharedGear = gearRng;
+  gearRng = new Rng(4242);
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     const dps: number[] = [];
     for (const endgame of [false, true]) {
@@ -1339,6 +1356,7 @@ function setSpikeScenario() {
     summary.push(`set spike ${cls}: ×${fmt(spike, 0)} (${fmtC(dps[0])}/s → ${fmtC(dps[1])}/s vs 8 targets)`);
     check(spike > 8, `${cls}: set bonuses are a huge power spike (×${fmt(spike, 1)})`);
   }
+  gearRng = sharedGear; // later sections keep drawing from the shared stream
 }
 const fmtC = (n: number) => n >= 1e9 ? `${fmt(n / 1e9, 2)}B` : n >= 1e6 ? `${fmt(n / 1e6, 2)}M` : n >= 1e3 ? `${fmt(n / 1e3, 1)}K` : fmt(n, 0);
 
@@ -1660,20 +1678,22 @@ if (!only || only === 'powers') powersScenario();
 if (!only || only === 'spike') setSpikeScenario();
 if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
-  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (the warrior at L70: progress floor until the Torment re-fit) ==');
+  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (every class at L70: progress floor until the Torment re-fit) ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     riftScenario(cls, 1, 0, false, 'glade');
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
     riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
     // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×25 over rares against 8 sturdy
-    // targets [M] (its old sets ×255; the ranger's ×387 is still on its old sets), so it no longer clears Torment II in
-    // 12 minutes (71.9% [M]) until the Torment ladder is re-fitted (`sim.ts fit`) once every class is on the budget.
-    // The mage wave put the mage on the budget too (old sets ×180, v2 Fallen Star kit ×13 [M]; 87.3–93.6% of a Torment II
-    // rift in 12 minutes across seeded streams [M], MAGE-PILOT.md §7). The rift flow itself stays covered by the L1 / L20
-    // rifts; here a progress floor guards against further loss (30%; the seeded stream shifts with any content change —
-    // the warrior's previous, weaker kit measured 2.7–44.5% across such shifts, the mage's old-kit run 33.2–71.5%).
-    riftScenario(cls, 70, 5, true, 'ashen', cls !== 'ranger' ? 30 : undefined);
+      // targets [M] (its old sets ×255), so it no longer clears Torment II in 12 minutes (71.9% [M]) until the Torment ladder
+      // is re-fitted (`sim.ts fit`) once every class is on the budget. The rift flow itself stays covered by the L1 / L20
+      // rifts; here a progress floor guards against further loss (30%; the seeded stream shifts with any content change —
+      // the warrior's previous, weaker kit measured 2.7–44.5% across such shifts, the mage's old-kit run 33.2–71.5%).
+      // Ranger wave: the same for the ranger (bible v2 kit ×29 against 8 sturdy targets [M], was ×348 on 343a5d5; 57.1% of
+      // Torment II in 12 minutes with the audit's Siegebreaker 6 Sentry kit [M]; 64.6–81.5% before the last fits and the
+      // Arbalest's pierce cap shifted the seeded stream). The mage wave put the mage on the budget too (old sets ×180, v2
+      // Fallen Star kit ×13 [M]; 87.3–93.6% of a Torment II rift in 12 minutes across seeded streams [M], MAGE-PILOT.md §7).
+      riftScenario(cls, 70, 5, true, 'ashen', 30);
   }
 }
 if (!only || only === 'skills') skillCoverage();
