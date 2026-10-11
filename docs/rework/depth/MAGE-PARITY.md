@@ -8,94 +8,94 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 | Main skill | Fixture (internal) | Rares | Legendary-only | Best 6-piece | Best 4-piece hybrid | Best | D3 leg ÷ 6pc | parityReady |
 |---|---|---:|---:|---:|---:|---|---:|---|
-| Magic Missile | Magic Missile · Magic Weapon, Frost Nova, Black Hole, Rimefield | 17098 s | ×30.83 | ×15.78 (Glass Concord 6) | ×28.60 (Glass Concord 4) | legendary-only ×30.83 (555 s) | 1.95 | no |
-| Rime Needles | Rime Needles · Magic Weapon, Frost Nova, Black Hole, Rimefield | 22918 s | ×22.14 | ×11.60 (Hoarfrost Vigil 6) | ×18.84 (Hoarfrost Vigil 4) | legendary-only ×22.14 (1035 s) | 1.91 | yes |
-| Meteor | Magic Missile · Meteor, Magic Weapon, Frost Nova, Black Hole | 11315 s | ×32.94 | ×41.55 (Regalia of the Fallen Star 6) | ×40.95 (Regalia of the Fallen Star 4) | Regalia of the Fallen Star 6 ×41.55 (272 s) | 0.79 | no |
-| Stormglass Orb | Magic Missile · Stormglass Orb, Magic Weapon, Frost Nova, Black Hole | 22403 s | ×23.63 | ×31.41 (Glass Concord 6) | ×26.46 (Glass Concord 4) | Glass Concord 6 ×31.41 (713 s) | 0.75 | no |
-| Thrumming Ray | Magic Missile · Thrumming Ray, Magic Weapon, Frost Nova, Black Hole | 24550 s | ×9.44 | ×8.31 (Hollowstar Choir 6) | ×7.85 (Hollowstar Choir 4) | legendary-only ×9.44 (2600 s) | 1.14 | no |
-| Black Hole | Magic Missile · Black Hole, Magic Weapon, Frost Nova, Rimefield | 17500 s | ×25.44 | ×17.31 (Glass Concord 6) | ×19.42 (Hoarfrost Vigil 4) | legendary-only ×25.44 (688 s) | 1.47 | no |
-| Frost Nova | Magic Missile · Frost Nova, Magic Weapon, Black Hole, Rimefield | 17395 s | ×35.83 | ×19.68 (Glass Concord 6) | ×24.55 (Glass Concord 4) | legendary-only ×35.83 (486 s) | 1.82 | no |
-| Rimefield | Magic Missile · Rimefield, Magic Weapon, Frost Nova, Black Hole | 22034 s | ×37.19 | ×25.10 (Hoarfrost Vigil 6) | ×31.93 (Hoarfrost Vigil 4) | legendary-only ×37.19 (592 s) | 1.48 | no |
-| Hydra | Magic Missile · Hydra, Magic Weapon, Frost Nova, Black Hole | 18687 s | ×40.10 | ×43.79 (Glass Concord 6) | ×44.01 (Glass Concord 4) | Glass Concord 4 ×44.01 (425 s) | 0.92 | no |
-| Cinderkin | Magic Missile · Cinderkin, Magic Weapon, Frost Nova, Black Hole | 26470 s | ×36.92 | ×23.59 (Hoarfrost Vigil 6) | ×30.81 (Hoarfrost Vigil 4) | legendary-only ×36.92 (717 s) | 1.56 | no |
-| Orrery | Magic Missile · Orrery, Magic Weapon, Frost Nova, Black Hole | 14976 s | ×36.86 | ×21.16 (Glass Concord 6) | ×28.88 (Glass Concord 4) | legendary-only ×36.86 (406 s) | 1.74 | no |
+| Magic Missile | Magic Missile · Magic Weapon, Frost Nova, Black Hole, Rimefield | 16071 s | ×31.20 | ×16.22 (Glass Concord 6) | ×26.16 (Glass Concord 4) | legendary-only ×31.20 (515 s) | 1.92 | no |
+| Rime Needles | Rime Needles · Magic Weapon, Frost Nova, Black Hole, Rimefield | 24426 s | ×25.56 | ×12.29 (Hoarfrost Vigil 6) | ×20.05 (Hoarfrost Vigil 4) | legendary-only ×25.56 (956 s) | 2.08 | yes |
+| Meteor | Magic Missile · Meteor, Magic Weapon, Frost Nova, Black Hole | 11315 s | ×43.29 | ×41.85 (Hollowstar Choir 6) | ×47.01 (Regalia of the Fallen Star 4) | Regalia of the Fallen Star 4 ×47.01 (241 s) | 1.03 | no |
+| Stormglass Orb | Magic Missile · Stormglass Orb, Magic Weapon, Frost Nova, Black Hole | 23104 s | ×28.78 | ×27.30 (Glass Concord 6) | ×21.86 (Glass Concord 4) | legendary-only ×28.78 (803 s) | 1.05 | no |
+| Thrumming Ray | Magic Missile · Thrumming Ray, Magic Weapon, Frost Nova, Black Hole | 24550 s | ×8.64 | ×8.31 (Hollowstar Choir 6) | ×7.85 (Hollowstar Choir 4) | legendary-only ×8.64 (2843 s) | 1.04 | no |
+| Black Hole | Magic Missile · Black Hole, Magic Weapon, Frost Nova, Rimefield | 16281 s | ×27.03 | ×15.48 (Glass Concord 6) | ×16.36 (Hollowstar Choir 4) | legendary-only ×27.03 (602 s) | 1.75 | no |
+| Frost Nova | Magic Missile · Frost Nova, Magic Weapon, Black Hole, Rimefield | 15752 s | ×34.19 | ×17.90 (Glass Concord 6) | ×20.61 (Glass Concord 4) | legendary-only ×34.19 (461 s) | 1.91 | no |
+| Rimefield | Magic Missile · Rimefield, Magic Weapon, Frost Nova, Black Hole | 20172 s | ×35.14 | ×24.72 (Hoarfrost Vigil 6) | ×27.96 (Hoarfrost Vigil 4) | legendary-only ×35.14 (574 s) | 1.42 | no |
+| Hydra | Magic Missile · Hydra, Magic Weapon, Frost Nova, Black Hole | 18687 s | ×40.31 | ×43.79 (Glass Concord 6) | ×44.01 (Glass Concord 4) | Glass Concord 4 ×44.01 (425 s) | 0.92 | no |
+| Cinderkin | Magic Missile · Cinderkin, Magic Weapon, Frost Nova, Black Hole | 26470 s | ×40.30 | ×23.59 (Hoarfrost Vigil 6) | ×30.81 (Hoarfrost Vigil 4) | legendary-only ×40.30 (657 s) | 1.71 | no |
+| Orrery | Magic Missile · Orrery, Magic Weapon, Frost Nova, Black Hole | 13178 s | ×37.05 | ×16.90 (Glass Concord 6) | ×26.69 (Glass Concord 4) | legendary-only ×37.05 (356 s) | 2.19 | no |
 
 | Check | Measured | Target | Hard limit |
 |---|---|---|---|
-| D1 | 6/11 | fail | pass |
+| D1 | 3/11 | fail | fail |
 | D2 | thousand_missiles 10/11 | fail | pass |
-| D3 | 0.75–1.95 | fail | fail |
-| D4 | 0.95–1.00 | fail | pass |
+| D3 | 0.92–2.19 | fail | fail |
+| D4 | 0.80–1.09 | fail | fail |
 | D5 | 4/5 (glass_concord, hoarfrost_vigil, fallen_star, hollowstar_choir) | fail | pass |
-| D6 | 1.23 | pass | pass |
+| D6 | 1.37 | pass | pass |
 
 <details><summary>Kits</summary>
 
 **Magic Missile** — best: legendary-only
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Spellwright’s Circlet, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Patchwork Signet, ring2 Echoing Bead; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Echoing Bead, ring2 Seal of the Patient Thief; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
-- Glass Concord 4: feet set, shoulders set, legs set, head set, mainhand Spindle of a Thousand Missiles, offhand Glyphstone Orb, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Witching Cord, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Spellwright’s Circlet, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Echoing Bead, ring2 Patchwork Signet; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
+- Glass Concord 4: shoulders set, legs set, feet set, head set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, chest Hearthguard Coat, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
 
 **Rime Needles** — best: legendary-only
 
-- legendary-only: mainhand Hoarneedle Wand, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Patchwork Signet, ring2 Rimecourt Band; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
-- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Hoarneedle Wand, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Witching Cord, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
-- Hoarfrost Vigil 4: feet set, shoulders set, legs set, head set, mainhand Hoarneedle Wand, offhand Heart of the Void, chest Hearthguard Coat, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
+- legendary-only: mainhand Hoarneedle Wand, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Patchwork Signet, ring2 Rimecourt Band; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
+- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Hoarneedle Wand, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
+- Hoarfrost Vigil 4: shoulders set, legs set, feet set, head set, mainhand Hoarneedle Wand, offhand Heart of the Void, chest Hearthguard Coat, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Ink-Stained Gloves, Clockmaker’s Ring
 
-**Meteor** — best: Regalia of the Fallen Star 6
+**Meteor** — best: Regalia of the Fallen Star 4
 
-- legendary-only: mainhand Cindervane, head Horizon Cowl, shoulders Starfall Mantle, chest Hearthguard Coat, hands Ink-Stained Gloves, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Watchkeeper's Hood, Rimecourt Band
-- Regalia of the Fallen Star 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cindervane, wrists Runeweaver Cuffs, waist Witching Cord, neck Craterheart Amulet, ring1 Static Loop, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
-- Regalia of the Fallen Star 4: chest set, hands set, head set, shoulders set, mainhand Cindervane, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Static Loop, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
+- legendary-only: mainhand Cindervane, head Horizon Cowl, shoulders Starfall Mantle, chest Hearthguard Coat, hands Ink-Stained Gloves, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Craterheart Amulet, ring1 Static Loop, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Watchkeeper's Hood, Rimecourt Band
+- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Cindervane, legs Causeway Waders, feet Rimewalker Slippers, neck Craterheart Amulet, ring1 Static Loop, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
+- Regalia of the Fallen Star 4: chest set, hands set, head set, shoulders set, mainhand Cindervane, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
 
-**Stormglass Orb** — best: Glass Concord 6
+**Stormglass Orb** — best: legendary-only
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, head Spellwright’s Circlet, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Conductor’s Legwraps, feet Ridgewalker Boots, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Conductor’s Legwraps, Rimecourt Band
-- Glass Concord 4: shoulders set, chest set, head set, hands set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Runeweaver Cuffs, waist Witching Cord, legs Conductor’s Legwraps, feet Ridgewalker Boots, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Glasswright’s Wraps, Rimecourt Band
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Conductor’s Legwraps, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Seal of the Patient Thief, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Snowglobe Pendant, ring1 Seal of the Patient Thief, ring2 Static Loop; Cube Undertow Staff, Conductor’s Legwraps, Rimecourt Band
+- Glass Concord 4: shoulders set, chest set, head set, hands set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Wardkeeper's Cuffs, waist Hexwound Cord, legs Conductor’s Legwraps, feet Ridgewalker Boots, neck Kilnheart Talisman, ring1 Seal of the Patient Thief, ring2 Echoing Bead; Cube Undertow Staff, Glasswright’s Wraps, Rimecourt Band
 
 **Thrumming Ray** — best: legendary-only
 
-- legendary-only: mainhand Resonant Staff, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Lockglass Cincture, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Ink-Stained Gloves, Echoing Bead
-- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Resonant Staff, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
-- Hollowstar Choir 4: shoulders set, wrists set, hands set, head set, mainhand Resonant Staff, chest Hearthguard Coat, waist Witching Cord, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
+- legendary-only: mainhand Resonant Staff, head Hornlistener Circlet, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Lockglass Cincture, legs Causeway Waders, feet Ridgewalker Boots, neck Kilnheart Talisman, ring1 Patchwork Signet, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Rimewalker Slippers, Echoing Bead
+- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Resonant Staff, legs Causeway Waders, feet Ridgewalker Boots, neck Kilnheart Talisman, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
+- Hollowstar Choir 4: shoulders set, wrists set, hands set, head set, mainhand Resonant Staff, chest Hearthguard Coat, waist Hexwound Cord, legs Causeway Waders, feet Ridgewalker Boots, neck Kilnheart Talisman, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
 
 **Black Hole** — best: legendary-only
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Ink-Stained Gloves, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Horizon Cowl, Rimecourt Band
-- Hoarfrost Vigil 4: feet set, hands set, head set, shoulders set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, chest Hearthguard Coat, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, neck Hellforge Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Horizon Cowl, Rimecourt Band
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Ink-Stained Gloves, Rimecourt Band
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Snowglobe Pendant, ring1 Ouroboros Loop, ring2 Echoing Bead; Cube Undertow Staff, Rimewalker Slippers, Rimecourt Band
+- Hollowstar Choir 4: waist set, wrists set, hands set, head set, mainhand Spindle of a Thousand Missiles, offhand Glyphstone Orb, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Horizon Cowl, Rimecourt Band
 
 **Frost Nova** — best: legendary-only
 
-- legendary-only: mainhand Frostlocked Wand, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Ink-Stained Gloves, Echoing Bead
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Frostlocked Wand, offhand Glyphstone Orb, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Ouroboros Loop, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Winterbound Robe, Echoing Bead
-- Glass Concord 4: feet set, head set, legs set, hands set, mainhand Frostlocked Wand, offhand Heart of the Void, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Ouroboros Loop, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Echoing Bead
+- legendary-only: mainhand Frostlocked Wand, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Ink-Stained Gloves, Echoing Bead
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Frostlocked Wand, offhand Heart of the Void, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Ouroboros Loop, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Winterbound Robe, Echoing Bead
+- Glass Concord 4: head set, legs set, feet set, hands set, mainhand Frostlocked Wand, offhand Heart of the Void, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Echoing Bead
 
 **Rimefield** — best: legendary-only
 
-- legendary-only: mainhand Cistern Staff, head Spellwright’s Circlet, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Ink-Stained Gloves, Echoing Bead
-- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cistern Staff, wrists Runeweaver Cuffs, waist Witching Cord, neck Hellforge Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Horizon Cowl, Echoing Bead
-- Hoarfrost Vigil 4: feet set, hands set, head set, shoulders set, mainhand Cistern Staff, chest Hearthguard Coat, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, neck Hellforge Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Horizon Cowl, Echoing Bead
+- legendary-only: mainhand Cistern Staff, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Ink-Stained Gloves, Echoing Bead
+- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cistern Staff, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Rimewalker Slippers, Echoing Bead
+- Hoarfrost Vigil 4: hands set, head set, shoulders set, chest set, mainhand Cistern Staff, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Kilnheart Talisman, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Horizon Cowl, Echoing Bead
 
 **Hydra** — best: Glass Concord 4
 
-- legendary-only: mainhand Lanternroot, head Spellwright’s Circlet, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Runeweaver Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Signal Horn Charm, ring1 Patchwork Signet, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Clockmaker’s Ring
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Lanternroot, wrists Runeweaver Cuffs, waist Witching Cord, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
-- Glass Concord 4: feet set, head set, legs set, hands set, mainhand Lanternroot, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
+- legendary-only: mainhand Lanternroot, head Horizon Cowl, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Signal Horn Charm, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Clockmaker’s Ring
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Lanternroot, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
+- Glass Concord 4: feet set, head set, legs set, hands set, mainhand Lanternroot, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Wardkeeper's Cuffs, waist Hexwound Cord, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
 
 **Cinderkin** — best: legendary-only
 
-- legendary-only: mainhand Kindling Rod, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Signal Horn Charm, ring1 Echoing Bead, ring2 Patchwork Signet; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Clockmaker’s Ring
-- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Kindling Rod, offhand Glyphstone Orb, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Signal Horn Charm, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
-- Hoarfrost Vigil 4: feet set, head set, legs set, hands set, mainhand Frostlocked Wand, offhand Heart of the Void, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Witching Cord, neck Signal Horn Charm, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
+- legendary-only: mainhand Kindling Rod, offhand Heart of the Void, head Horizon Cowl, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Runeweaver Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Signal Horn Charm, ring1 Patchwork Signet, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Clockmaker’s Ring
+- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Kindling Rod, offhand Glyphstone Orb, wrists Wardkeeper's Cuffs, waist Hexwound Cord, neck Signal Horn Charm, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
+- Hoarfrost Vigil 4: head set, feet set, legs set, hands set, mainhand Frostlocked Wand, offhand Heart of the Void, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Signal Horn Charm, ring1 Echoing Bead, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
 
 **Orrery** — best: legendary-only
 
-- legendary-only: mainhand Armillary Staff, head Horizon Cowl, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Lanternkeeper’s Sash, legs Causeway Waders, feet rare, neck Hellforge Talisman, ring1 Clockmaker’s Ring, ring2 Patchwork Signet; Cube Spindle of a Thousand Missiles, Kilnwatch Spaulders, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Armillary Staff, wrists Runeweaver Cuffs, waist Witching Cord, neck Signal Horn Charm, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Rimecourt Band
-- Glass Concord 4: feet set, head set, legs set, hands set, mainhand Armillary Staff, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Wardkeeper's Cuffs, waist Lanternkeeper’s Sash, neck Hellforge Talisman, ring1 Clockmaker’s Ring, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Rimecourt Band
+- legendary-only: mainhand Armillary Staff, head Spellwright’s Circlet, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Hexwound Cord, legs Causeway Waders, feet Rimewalker Slippers, neck Signal Horn Charm, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Kilnwatch Spaulders, Rimecourt Band
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Armillary Staff, wrists Wardkeeper's Cuffs, waist Lanternkeeper’s Sash, neck Kilnheart Talisman, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Rimecourt Band
+- Glass Concord 4: head set, feet set, legs set, hands set, mainhand Armillary Staff, shoulders Kilnwatch Spaulders, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Hexwound Cord, neck Kilnheart Talisman, ring1 Clockmaker’s Ring, ring2 Ouroboros Loop; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Rimecourt Band
 
 </details>
 
@@ -103,94 +103,94 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 | Main skill | Fixture (internal) | Rares | Legendary-only | Best 6-piece | Best 4-piece hybrid | Best | D3 leg ÷ 6pc | parityReady |
 |---|---|---:|---:|---:|---:|---|---:|---|
-| Magic Missile | Magic Missile · Magic Weapon, Frost Nova, Black Hole, Rimefield | 17098 s | ×12.93 | ×13.22 (Glass Concord 6) | ×15.83 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×15.83 (1080 s) | 0.98 | no |
-| Rime Needles | Rime Needles · Magic Weapon, Frost Nova, Black Hole, Rimefield | 22918 s | ×8.26 | ×10.24 (Hoarfrost Vigil 6) | ×11.01 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×11.01 (2082 s) | 0.81 | yes |
-| Meteor | Magic Missile · Meteor, Magic Weapon, Frost Nova, Black Hole | 11315 s | ×20.06 | ×32.85 (Regalia of the Fallen Star 6) | ×29.08 (Regalia of the Fallen Star 4) | Regalia of the Fallen Star 6 ×32.85 (344 s) | 0.61 | no |
-| Stormglass Orb | Magic Missile · Stormglass Orb, Magic Weapon, Frost Nova, Black Hole | 22403 s | ×12.58 | ×25.20 (Glass Concord 6) | ×22.17 (Glass Concord 4) | Glass Concord 6 ×25.20 (889 s) | 0.50 | no |
-| Thrumming Ray | Magic Missile · Thrumming Ray, Magic Weapon, Frost Nova, Black Hole | 24550 s | ×6.13 | ×7.68 (Hollowstar Choir 6) | ×8.28 (Hollowstar Choir 4) | Hollowstar Choir 4 ×8.28 (2964 s) | 0.80 | no |
-| Black Hole | Magic Missile · Black Hole, Magic Weapon, Frost Nova, Rimefield | 17500 s | ×13.14 | ×14.58 (Glass Concord 6) | ×15.98 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×15.98 (1095 s) | 0.90 | no |
-| Frost Nova | Magic Missile · Frost Nova, Magic Weapon, Black Hole, Rimefield | 17395 s | ×14.48 | ×14.80 (Glass Concord 6) | ×17.15 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×17.15 (1014 s) | 0.98 | no |
-| Rimefield | Magic Missile · Rimefield, Magic Weapon, Frost Nova, Black Hole | 22034 s | ×21.02 | ×22.90 (Hoarfrost Vigil 6) | ×24.82 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×24.82 (888 s) | 0.92 | no |
-| Hydra | Magic Missile · Hydra, Magic Weapon, Frost Nova, Black Hole | 18687 s | ×17.56 | ×30.95 (Glass Concord 6) | ×30.73 (Glass Concord 4) | Glass Concord 6 ×30.95 (604 s) | 0.57 | no |
-| Cinderkin | Magic Missile · Cinderkin, Magic Weapon, Frost Nova, Black Hole | 26470 s | ×19.24 | ×16.95 (Glass Concord 6) | ×22.01 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×22.01 (1203 s) | 1.13 | no |
-| Orrery | Magic Missile · Orrery, Magic Weapon, Frost Nova, Black Hole | 14976 s | ×26.80 | ×19.19 (Glass Concord 6) | ×21.88 (Hoarfrost Vigil 4) | legendary-only ×26.80 (559 s) | 1.40 | no |
+| Magic Missile | Magic Missile · Magic Weapon, Frost Nova, Black Hole, Rimefield | 16071 s | ×13.79 | ×12.52 (Glass Concord 6) | ×14.83 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×14.83 (1083 s) | 1.10 | no |
+| Rime Needles | Rime Needles · Magic Weapon, Frost Nova, Black Hole, Rimefield | 24426 s | ×10.41 | ×11.00 (Hoarfrost Vigil 6) | ×11.68 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×11.68 (2091 s) | 0.95 | yes |
+| Meteor | Magic Missile · Meteor, Magic Weapon, Frost Nova, Black Hole | 11315 s | ×22.83 | ×31.08 (Hollowstar Choir 6) | ×34.44 (Regalia of the Fallen Star 4) | Regalia of the Fallen Star 4 ×34.44 (329 s) | 0.73 | no |
+| Stormglass Orb | Magic Missile · Stormglass Orb, Magic Weapon, Frost Nova, Black Hole | 23104 s | ×14.95 | ×15.38 (Glass Concord 6) | ×14.21 (Glass Concord 4) | Glass Concord 6 ×15.38 (1502 s) | 0.97 | no |
+| Thrumming Ray | Magic Missile · Thrumming Ray, Magic Weapon, Frost Nova, Black Hole | 24550 s | ×4.72 | ×9.08 (Hollowstar Choir 6) | ×8.12 (Hollowstar Choir 4) | Hollowstar Choir 6 ×9.08 (2703 s) | 0.52 | no |
+| Black Hole | Magic Missile · Black Hole, Magic Weapon, Frost Nova, Rimefield | 16281 s | ×13.28 | ×12.41 (Glass Concord 6) | ×16.06 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×16.06 (1014 s) | 1.07 | no |
+| Frost Nova | Magic Missile · Frost Nova, Magic Weapon, Black Hole, Rimefield | 15752 s | ×13.49 | ×13.49 (Glass Concord 6) | ×15.22 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×15.22 (1035 s) | 1.00 | no |
+| Rimefield | Magic Missile · Rimefield, Magic Weapon, Frost Nova, Black Hole | 20172 s | ×21.23 | ×21.27 (Hoarfrost Vigil 6) | ×25.19 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×25.19 (801 s) | 1.00 | no |
+| Hydra | Magic Missile · Hydra, Magic Weapon, Frost Nova, Black Hole | 18687 s | ×19.49 | ×30.95 (Glass Concord 6) | ×30.73 (Glass Concord 4) | Glass Concord 6 ×30.95 (604 s) | 0.63 | no |
+| Cinderkin | Magic Missile · Cinderkin, Magic Weapon, Frost Nova, Black Hole | 26470 s | ×18.80 | ×16.95 (Glass Concord 6) | ×22.01 (Hoarfrost Vigil 4) | Hoarfrost Vigil 4 ×22.01 (1203 s) | 1.11 | no |
+| Orrery | Magic Missile · Orrery, Magic Weapon, Frost Nova, Black Hole | 13178 s | ×23.49 | ×16.56 (Hoarfrost Vigil 6) | ×19.53 (Hoarfrost Vigil 4) | legendary-only ×23.49 (561 s) | 1.42 | no |
 
 | Check | Measured | Target | Hard limit |
 |---|---|---|---|
-| D1 | 3/11 | fail | fail |
+| D1 | 2/11 | fail | fail |
 | D2 | snowglobe_pendant 11/11 | fail | fail |
-| D3 | 0.50–1.40 | fail | fail |
-| D4 | 1.00–1.20 | fail | fail |
+| D3 | 0.52–1.42 | fail | fail |
+| D4 | 0.95–1.21 | fail | fail |
 | D5 | 4/5 (hoarfrost_vigil, fallen_star, glass_concord, hollowstar_choir) | fail | pass |
-| D6 | 1.49 | pass | pass |
+| D6 | 2.14 | fail | fail |
 
 <details><summary>Kits</summary>
 
 **Magic Missile** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders rare, chest Star-Chart Robe, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Glyphstone Orb, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
-- Hoarfrost Vigil 4: shoulders set, legs set, feet set, head set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, chest Star-Chart Robe, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
+- Hoarfrost Vigil 4: shoulders set, legs set, head set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
 
 **Rime Needles** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Hoarneedle Wand, offhand Heart of the Void, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
+- legendary-only: mainhand Hoarneedle Wand, offhand Heart of the Void, head Horizon Cowl, shoulders rare, chest Winterbound Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
 - Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Hoarneedle Wand, offhand Heart of the Void, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Frostthread Gloves, Clockmaker’s Ring
-- Hoarfrost Vigil 4: shoulders set, legs set, feet set, head set, mainhand Hoarneedle Wand, offhand Heart of the Void, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
+- Hoarfrost Vigil 4: shoulders set, legs set, head set, feet set, mainhand Hoarneedle Wand, offhand Heart of the Void, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Undertow Staff, Glasswright’s Wraps, Clockmaker’s Ring
 
-**Meteor** — best: Regalia of the Fallen Star 6
+**Meteor** — best: Regalia of the Fallen Star 4
 
-- legendary-only: mainhand Cindervane, head Horizon Cowl, shoulders Starfall Mantle, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Craterheart Amulet, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Heart of the Void, Rimecourt Band
-- Regalia of the Fallen Star 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cindervane, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
-- Regalia of the Fallen Star 4: legs set, feet set, chest set, hands set, mainhand Cindervane, head Horizon Cowl, shoulders Starfall Mantle, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Rimecourt Band
+- legendary-only: mainhand Cindervane, head Horizon Cowl, shoulders Starfall Mantle, chest Winterbound Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Craterheart Amulet, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Heart of the Void, Rimecourt Band
+- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Cindervane, legs rare, feet Rimewalker Slippers, neck Craterheart Amulet, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Starfall Mantle, Rimecourt Band
+- Regalia of the Fallen Star 4: legs set, chest set, hands set, head set, mainhand Cindervane, shoulders Starfall Mantle, wrists Runeweaver Cuffs, waist rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Horizon Cowl, Rimecourt Band
 
 **Stormglass Orb** — best: Glass Concord 6
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, head Horizon Cowl, shoulders rare, chest Winterbound Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs Conductor’s Legwraps, feet rare, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Static Loop, ring2 Clockmaker’s Ring; Cube Undertow Staff, Conductor’s Legwraps, Rimecourt Band
-- Glass Concord 4: shoulders set, feet set, head set, chest set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist rare, legs Conductor’s Legwraps, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs Conductor’s Legwraps, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Conductor’s Legwraps, Rimecourt Band
+- Glass Concord 4: shoulders set, head set, chest set, feet set, mainhand Spindle of a Thousand Missiles, offhand Stormglass Prism, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs Conductor’s Legwraps, neck Snowglobe Pendant, ring1 Static Loop, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
 
-**Thrumming Ray** — best: Hollowstar Choir 4
+**Thrumming Ray** — best: Hollowstar Choir 6
 
-- legendary-only: mainhand Resonant Staff, head Horizon Cowl, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Heart of the Void, Echoing Bead
-- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Resonant Staff, legs rare, feet rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
-- Hollowstar Choir 4: shoulders set, waist set, wrists set, hands set, mainhand Resonant Staff, head Horizon Cowl, chest Star-Chart Robe, legs rare, feet rare, neck Snowglobe Pendant, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Echoing Bead
+- legendary-only: mainhand Resonant Staff, head Hornlistener Circlet, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Heart of the Void, Echoing Bead
+- Hollowstar Choir 6: head set, shoulders set, chest set, hands set, waist set, wrists set, mainhand Resonant Staff, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Signal Coil, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Hornlistener Circlet, Echoing Bead
+- Hollowstar Choir 4: shoulders set, waist set, wrists set, hands set, mainhand Resonant Staff, head Horizon Cowl, chest Star-Chart Robe, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Static Loop; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Echoing Bead
 
 **Black Hole** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Glasswright’s Wraps, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Horizon Cowl, Rimecourt Band
-- Hoarfrost Vigil 4: shoulders set, legs set, feet set, hands set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Frostthread Gloves, Rimecourt Band
+- legendary-only: mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, head Horizon Cowl, shoulders rare, chest Star-Chart Robe, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Glasswright’s Wraps, Rimecourt Band
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Rimewalker Slippers, Rimecourt Band
+- Hoarfrost Vigil 4: shoulders set, legs set, hands set, head set, mainhand Spindle of a Thousand Missiles, offhand Heart of the Void, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Undertow Staff, Horizon Cowl, Rimecourt Band
 
 **Frost Nova** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Frostlocked Wand, offhand Heart of the Void, head Horizon Cowl, shoulders rare, chest Star-Chart Robe, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Echoing Bead
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Frostlocked Wand, offhand Glyphstone Orb, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Winterbound Robe, Echoing Bead
-- Hoarfrost Vigil 4: shoulders set, legs set, feet set, head set, mainhand Frostlocked Wand, offhand Heart of the Void, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Echoing Bead
+- legendary-only: mainhand Frostlocked Wand, offhand Heart of the Void, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Echoing Bead
+- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Frostlocked Wand, offhand Heart of the Void, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Winterbound Robe, Echoing Bead
+- Hoarfrost Vigil 4: shoulders set, legs set, head set, feet set, mainhand Frostlocked Wand, offhand Heart of the Void, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Rimewalker Slippers, Echoing Bead
 
 **Rimefield** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Cistern Staff, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs rare, feet rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Heart of the Void, Echoing Bead
-- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cistern Staff, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Horizon Cowl, Echoing Bead
-- Hoarfrost Vigil 4: shoulders set, legs set, feet set, hands set, mainhand Cistern Staff, head Horizon Cowl, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Echoing Bead
+- legendary-only: mainhand Cistern Staff, head Spellwright’s Circlet, shoulders rare, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist rare, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Heart of the Void, Echoing Bead
+- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cistern Staff, wrists Runeweaver Cuffs, waist rare, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Rimewalker Slippers, Echoing Bead
+- Hoarfrost Vigil 4: shoulders set, legs set, hands set, head set, mainhand Cistern Staff, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Rimecourt Band, ring2 Clockmaker’s Ring; Cube Spindle of a Thousand Missiles, Horizon Cowl, Echoing Bead
 
 **Hydra** — best: Glass Concord 6
 
-- legendary-only: mainhand Lanternroot, head Horizon Cowl, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Firekeeper’s Gloves, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Clockmaker’s Ring
+- legendary-only: mainhand Lanternroot, head Spellwright’s Circlet, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Frostthread Gloves, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Glasswright’s Wraps, Clockmaker’s Ring
 - Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Lanternroot, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
-- Glass Concord 4: legs set, feet set, head set, hands set, mainhand Lanternroot, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
+- Glass Concord 4: legs set, head set, feet set, hands set, mainhand Lanternroot, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
 
 **Cinderkin** — best: Hoarfrost Vigil 4
 
-- legendary-only: mainhand Kindling Rod, offhand Heart of the Void, head Horizon Cowl, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet rare, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Clockmaker’s Ring
+- legendary-only: mainhand Kindling Rod, offhand Glyphstone Orb, head Horizon Cowl, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Clockmaker’s Ring
 - Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Frostlocked Wand, offhand Glyphstone Orb, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Clockmaker’s Ring
-- Hoarfrost Vigil 4: legs set, feet set, head set, hands set, mainhand Kindling Rod, offhand Glyphstone Orb, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
+- Hoarfrost Vigil 4: legs set, head set, feet set, hands set, mainhand Kindling Rod, offhand Glyphstone Orb, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Echoing Bead, ring2 Rimecourt Band; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Clockmaker’s Ring
 
 **Orrery** — best: legendary-only
 
-- legendary-only: mainhand Armillary Staff, head Spellwright’s Circlet, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet rare, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Rimecourt Band
-- Glass Concord 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Armillary Staff, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Rimecourt Band
-- Hoarfrost Vigil 4: legs set, feet set, head set, hands set, mainhand Armillary Staff, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Rimecourt Band
+- legendary-only: mainhand Armillary Staff, head Spellwright’s Circlet, shoulders Coiled Pauldrons, chest Star-Chart Robe, hands Glasswright’s Wraps, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, legs rare, feet Rimewalker Slippers, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Frostthread Gloves, Rimecourt Band
+- Hoarfrost Vigil 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Armillary Staff, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Coiled Pauldrons, Rimecourt Band
+- Hoarfrost Vigil 4: legs set, head set, feet set, hands set, mainhand Armillary Staff, shoulders Coiled Pauldrons, chest Star-Chart Robe, wrists Runeweaver Cuffs, waist Lanternkeeper’s Sash, neck Snowglobe Pendant, ring1 Clockmaker’s Ring, ring2 Echoing Bead; Cube Spindle of a Thousand Missiles, Firekeeper’s Gloves, Rimecourt Band
 
 </details>
 

@@ -186,3 +186,10 @@
 - `server/test/sim.ts`: mage endgame kit = the audit's best Fallen Star 6 Meteor kit (set spike ×13–22 [M]); mage
   L70 Torment II rift is a 30 % progress floor like the warrior's (87.3–93.6 % rift-only, 35.3 % in the full stream).
   Warrior and ranger field / signature / spike sections byte-identical to 343a5d5 with the mage out of the class loops.
+- **Phase 2 (after merging claude/town-ui-rework 7faa331: engine wave 3).** Lingering Pull, Cold Snap Edge, Absolute
+  Field, Tidal Lock, Clockwinding (72 / 72 nodes) and Rimewalker Slippers (34 / 34 legendaries) on the wave-3 `slow`,
+  scoped `vulnerable` and `dashEnd`; Rimefield 50 % / Deep Chill 60 % chills = chill + slow (Rime Needles keeps 40 %).
+  Stormglass Orb paced by the attack rate (an AP-positive Static Charge loop cast it every tick: 184 casts / 10 s →
+  14). Parity (mage items only): D3 0.50–1.40 → 0.52–1.42, D4 1.00–1.20 → 0.95–1.21, D6 1.49 → 2.14; only Rime Needles
+  stays parity-ready. Pace: the L25+ champion-TTK miss is identical on the merged base (not the mage). Content-id lock
+  updated. Details: `MAGE-PILOT.md` §2, §6, §7.

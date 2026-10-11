@@ -23,9 +23,9 @@
   "pool": {
    "checks": {
     "D1": {
-     "value": "6/11",
+     "value": "3/11",
      "target": false,
-     "hard": true
+     "hard": false
     },
     "D2": {
      "value": "thousand_missiles 10/11",
@@ -33,14 +33,14 @@
      "hard": true
     },
     "D3": {
-     "value": "0.75–1.95",
+     "value": "0.92–2.19",
      "target": false,
      "hard": false
     },
     "D4": {
-     "value": "0.95–1.00",
+     "value": "0.80–1.09",
      "target": false,
-     "hard": true
+     "hard": false
     },
     "D5": {
      "value": "4/5 (glass_concord, hoarfrost_vigil, fallen_star, hollowstar_choir)",
@@ -48,7 +48,7 @@
      "hard": true
     },
     "D6": {
-     "value": "1.23",
+     "value": "1.37",
      "target": true,
      "hard": true
     }
@@ -67,18 +67,18 @@
       ]
      },
      "ms": {
-      "rare": 17098018,
-      "legendary": 554667,
-      "fallen_star6": 1444277,
-      "fallen_star4": 632456,
-      "glass_concord6": 1083665,
-      "glass_concord4": 597924,
-      "lantern_garden6": 1450206,
-      "lantern_garden4": 730957,
-      "hoarfrost_vigil6": 1198430,
-      "hoarfrost_vigil4": 655776,
-      "hollowstar_choir6": 1680814,
-      "hollowstar_choir4": 943383
+      "rare": 16070612,
+      "legendary": 515164,
+      "fallen_star6": 1320023,
+      "fallen_star4": 681420,
+      "glass_concord6": 991066,
+      "glass_concord4": 614216,
+      "lantern_garden6": 1449350,
+      "lantern_garden4": 767603,
+      "hoarfrost_vigil6": 1225102,
+      "hoarfrost_vigil4": 638418,
+      "hollowstar_choir6": 1572929,
+      "hollowstar_choir4": 841360
      },
      "timeouts": {
       "rare": 8,
@@ -96,17 +96,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 30.82573508068805,
-      "fallen_star6": 11.838461735525803,
-      "fallen_star4": 27.034320174051633,
-      "glass_concord6": 15.77795536443458,
-      "glass_concord4": 28.5956375726681,
-      "lantern_garden6": 11.790061549876363,
-      "lantern_garden4": 23.391277462285743,
-      "hoarfrost_vigil6": 14.267014343766428,
-      "hoarfrost_vigil4": 26.072954789440296,
-      "hollowstar_choir6": 10.172462866206493,
-      "hollowstar_choir4": 18.12415318062759
+      "legendary": 31.195137859011886,
+      "fallen_star6": 12.174493929272444,
+      "fallen_star4": 23.584003991664467,
+      "glass_concord6": 16.215481108220846,
+      "glass_concord4": 26.16443075400185,
+      "lantern_garden6": 11.088151240211129,
+      "lantern_garden4": 20.936098477989272,
+      "hoarfrost_vigil6": 13.117774683250865,
+      "hoarfrost_vigil4": 25.172554658546595,
+      "hollowstar_choir6": 10.21699771572652,
+      "hollowstar_choir4": 19.100755918988305
      },
      "best": "legendary",
      "bestSet6": "glass_concord6",
@@ -211,16 +211,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "patchwork_signet"
+         "legendary": "echoing_bead"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "patchwork_signet"
         }
        },
        "cube": [
@@ -283,10 +283,10 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "rimecourt_band"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -309,10 +309,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "fallen_star",
          "base": "shoulders_mantle"
@@ -320,6 +316,10 @@
         "legs": {
          "set": "fallen_star",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "fallen_star",
@@ -329,10 +329,10 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "hearthguard_coat"
         },
         "hands": {
          "legendary": "mountain_fists"
@@ -416,7 +416,7 @@
          "legendary": "echoing_bead"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -439,10 +439,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "glass_concord",
          "base": "shoulders_mantle"
@@ -450,6 +446,10 @@
         "legs": {
          "set": "glass_concord",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "glass_concord",
@@ -459,10 +459,10 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "hearthguard_coat"
         },
         "hands": {
          "legendary": "mountain_fists"
@@ -474,7 +474,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "echoing_bead"
@@ -569,10 +569,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "lantern_garden",
          "base": "shoulders_mantle"
@@ -580,6 +576,10 @@
         "legs": {
          "set": "lantern_garden",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "lantern_garden",
@@ -604,7 +604,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "echoing_bead"
@@ -670,13 +670,13 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -699,10 +699,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "hoarfrost_vigil",
          "base": "shoulders_mantle"
@@ -710,6 +706,10 @@
         "legs": {
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "hoarfrost_vigil",
@@ -722,10 +722,10 @@
          "legendary": "void_heart"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "glasswrights_wraps"
+         "legendary": "mountain_fists"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -740,7 +740,7 @@
          "legendary": "echoing_bead"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -791,16 +791,16 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "echoing_bead"
@@ -855,13 +855,13 @@
          "legendary": "hearthguard_coat"
         },
         "hands": {
-         "legendary": "glasswrights_wraps"
+         "legendary": "mountain_fists"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -870,7 +870,7 @@
          "legendary": "echoing_bead"
         },
         "ring2": {
-         "legendary": "rimecourt_band"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -894,46 +894,46 @@
       ]
      },
      "ms": {
-      "rare": 22918013,
-      "legendary": 1035233,
-      "fallen_star6": 2471344,
-      "fallen_star4": 1555850,
-      "glass_concord6": 2073029,
-      "glass_concord4": 1323409,
-      "lantern_garden6": 2663400,
-      "lantern_garden4": 1593435,
-      "hoarfrost_vigil6": 1975055,
-      "hoarfrost_vigil4": 1216536,
-      "hollowstar_choir6": 2558272,
-      "hollowstar_choir4": 1700881
+      "rare": 24425650,
+      "legendary": 955535,
+      "fallen_star6": 2774268,
+      "fallen_star4": 1416893,
+      "glass_concord6": 2042399,
+      "glass_concord4": 1269415,
+      "lantern_garden6": 2600209,
+      "lantern_garden4": 1575794,
+      "hoarfrost_vigil6": 1987236,
+      "hoarfrost_vigil4": 1217973,
+      "hollowstar_choir6": 2512956,
+      "hollowstar_choir4": 1403494
      },
      "timeouts": {
       "rare": 9,
       "legendary": 3,
       "fallen_star6": 5,
-      "fallen_star4": 3,
+      "fallen_star4": 4,
       "glass_concord6": 5,
       "glass_concord4": 3,
       "lantern_garden6": 6,
-      "lantern_garden4": 3,
+      "lantern_garden4": 5,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 5,
-      "hollowstar_choir4": 4
+      "hollowstar_choir6": 4,
+      "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 22.138024000394115,
-      "fallen_star6": 9.273501786881956,
-      "fallen_star4": 14.730220136902657,
-      "glass_concord6": 11.055326770633696,
-      "glass_concord4": 17.31740754369964,
-      "lantern_garden6": 8.604795749793498,
-      "lantern_garden4": 14.382772438160327,
-      "hoarfrost_vigil6": 11.60373407322834,
-      "hoarfrost_vigil4": 18.838746243432173,
-      "hollowstar_choir6": 8.958395745253046,
-      "hollowstar_choir4": 13.474201310967668
+      "legendary": 25.562276630369375,
+      "fallen_star6": 8.804358483030478,
+      "fallen_star4": 17.238881129344275,
+      "glass_concord6": 11.959293947950425,
+      "glass_concord4": 19.241658559257612,
+      "lantern_garden6": 9.393725658206705,
+      "lantern_garden4": 15.50053496840323,
+      "hoarfrost_vigil6": 12.291267871556272,
+      "hoarfrost_vigil4": 20.05434439022868,
+      "hollowstar_choir6": 9.719887654220766,
+      "hollowstar_choir4": 17.403458796403832
      },
      "best": "legendary",
      "bestSet6": "hoarfrost_vigil6",
@@ -1038,10 +1038,10 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "patchwork_signet"
@@ -1101,16 +1101,16 @@
          "legendary": "void_heart"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "echoing_bead"
         },
         "ring2": {
          "legendary": "rimecourt_band"
@@ -1136,10 +1136,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "fallen_star",
          "base": "shoulders_mantle"
@@ -1147,6 +1143,10 @@
         "legs": {
          "set": "fallen_star",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "fallen_star",
@@ -1165,7 +1165,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -1240,10 +1240,10 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "rimecourt_band"
         }
        },
        "cube": [
@@ -1266,10 +1266,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "glass_concord",
          "base": "shoulders_mantle"
@@ -1277,6 +1273,10 @@
         "legs": {
          "set": "glass_concord",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "glass_concord",
@@ -1301,7 +1301,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "echoing_bead"
@@ -1367,7 +1367,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "patient_thief"
@@ -1396,10 +1396,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "lantern_garden",
          "base": "shoulders_mantle"
@@ -1407,6 +1403,10 @@
         "legs": {
          "set": "lantern_garden",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "lantern_garden",
@@ -1425,7 +1425,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -1434,10 +1434,10 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "echoing_bead"
         },
         "ring2": {
-         "legendary": "rimecourt_band"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -1526,10 +1526,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "shoulders": {
          "set": "hoarfrost_vigil",
          "base": "shoulders_mantle"
@@ -1537,6 +1533,10 @@
         "legs": {
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "head": {
          "set": "hoarfrost_vigil",
@@ -1615,7 +1615,7 @@
          "base": "wrists_bracers"
         },
         "mainhand": {
-         "legendary": "hoarneedle_wand"
+         "legendary": "frostlocked_wand"
         },
         "offhand": {
          "legendary": "void_heart"
@@ -1624,7 +1624,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -1688,7 +1688,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -1722,48 +1722,48 @@
      },
      "ms": {
       "rare": 11314945,
-      "legendary": 343550,
-      "fallen_star6": 272300,
-      "fallen_star4": 276300,
-      "glass_concord6": 467741,
-      "glass_concord4": 432337,
-      "lantern_garden6": 549742,
-      "lantern_garden4": 448738,
-      "hoarfrost_vigil6": 546805,
-      "hoarfrost_vigil4": 434338,
-      "hollowstar_choir6": 340152,
-      "hollowstar_choir4": 369268
+      "legendary": 261400,
+      "fallen_star6": 574503,
+      "fallen_star4": 240700,
+      "glass_concord6": 717443,
+      "glass_concord4": 372601,
+      "lantern_garden6": 848233,
+      "lantern_garden4": 368882,
+      "hoarfrost_vigil6": 843387,
+      "hoarfrost_vigil4": 364688,
+      "hollowstar_choir6": 270350,
+      "hollowstar_choir4": 294700
      },
      "timeouts": {
       "rare": 6,
       "legendary": 0,
-      "fallen_star6": 0,
+      "fallen_star6": 3,
       "fallen_star4": 0,
       "glass_concord6": 3,
-      "glass_concord4": 2,
+      "glass_concord4": 1,
       "lantern_garden6": 3,
-      "lantern_garden4": 3,
+      "lantern_garden4": 1,
       "hoarfrost_vigil6": 3,
-      "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 1,
-      "hollowstar_choir4": 1
+      "hoarfrost_vigil4": 1,
+      "hollowstar_choir6": 0,
+      "hollowstar_choir4": 0
      },
      "factor": {
       "rare": 1,
-      "legendary": 32.93536603114539,
-      "fallen_star6": 41.55323172970988,
-      "fallen_star4": 40.95166485703945,
-      "glass_concord6": 24.190620450206417,
-      "glass_concord4": 26.17158605439738,
-      "lantern_garden6": 20.582282234211686,
-      "lantern_garden4": 25.215036390945272,
-      "hoarfrost_vigil6": 20.692833825586817,
-      "hoarfrost_vigil4": 26.05101326616598,
-      "hollowstar_choir6": 33.264378865918765,
-      "hollowstar_choir4": 30.64155301840398
+      "legendary": 43.285941086457534,
+      "fallen_star6": 19.695188710937977,
+      "fallen_star4": 47.00849605317823,
+      "glass_concord6": 15.771211092727924,
+      "glass_concord4": 30.36745741423131,
+      "lantern_garden6": 13.339430321621535,
+      "lantern_garden4": 30.673616495247803,
+      "hoarfrost_vigil6": 13.41607707967991,
+      "hoarfrost_vigil4": 31.02637048655289,
+      "hollowstar_choir6": 41.85294987978546,
+      "hollowstar_choir4": 38.39479131319987
      },
-     "best": "fallen_star6",
-     "bestSet6": "fallen_star6",
+     "best": "fallen_star4",
+     "bestSet6": "hollowstar_choir6",
      "bestHybrid": "fallen_star4",
      "kits": {
       "rare": {
@@ -1862,16 +1862,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "craterheart_amulet"
         },
         "ring1": {
          "legendary": "static_loop"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -1931,15 +1931,15 @@
          "legendary": "craterheart_amulet"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -1986,7 +1986,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -1995,7 +1995,7 @@
          "legendary": "static_loop"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -2063,7 +2063,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -2110,7 +2110,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -2170,7 +2170,7 @@
          "legendary": "cindervane"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2187,7 +2187,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -2234,7 +2234,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -2243,7 +2243,7 @@
          "legendary": "static_loop"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -2294,7 +2294,7 @@
          "legendary": "cindervane"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2311,7 +2311,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -2358,7 +2358,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -2421,7 +2421,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -2482,7 +2482,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -2491,7 +2491,7 @@
          "legendary": "static_loop"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -2515,18 +2515,18 @@
       ]
      },
      "ms": {
-      "rare": 22402607,
-      "legendary": 947977,
-      "fallen_star6": 1079680,
-      "fallen_star4": 1143028,
-      "glass_concord6": 713317,
-      "glass_concord4": 846538,
-      "lantern_garden6": 1616214,
-      "lantern_garden4": 1610791,
-      "hoarfrost_vigil6": 1447107,
+      "rare": 23103637,
+      "legendary": 802739,
+      "fallen_star6": 1500615,
+      "fallen_star4": 1294228,
+      "glass_concord6": 846154,
+      "glass_concord4": 1057035,
+      "lantern_garden6": 1529016,
+      "lantern_garden4": 1549641,
+      "hoarfrost_vigil6": 1455191,
       "hoarfrost_vigil4": 1420537,
-      "hollowstar_choir6": 1356235,
-      "hollowstar_choir4": 1370364
+      "hollowstar_choir6": 1423517,
+      "hollowstar_choir4": 1249315
      },
      "timeouts": {
       "rare": 8,
@@ -2544,19 +2544,19 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 23.632015333705354,
-      "fallen_star6": 20.749302571132187,
-      "fallen_star4": 19.59935102202221,
-      "glass_concord6": 31.406242946684294,
-      "glass_concord4": 26.46379371038276,
-      "lantern_garden6": 13.861163806278128,
-      "lantern_garden4": 13.90782975569146,
-      "hoarfrost_vigil6": 15.480960979388533,
-      "hoarfrost_vigil4": 15.770519880861956,
-      "hollowstar_choir6": 16.51823393438453,
-      "hollowstar_choir4": 16.347924347107774
+      "legendary": 28.78100727633764,
+      "fallen_star6": 15.396112260639804,
+      "fallen_star4": 17.85128818106238,
+      "glass_concord6": 27.304293308310307,
+      "glass_concord4": 21.857021763706975,
+      "lantern_garden6": 15.11013423011924,
+      "lantern_garden4": 14.90902538071721,
+      "hoarfrost_vigil6": 15.876704157735995,
+      "hoarfrost_vigil4": 16.26401635437866,
+      "hollowstar_choir6": 16.229969153863284,
+      "hollowstar_choir4": 18.493043787995823
      },
-     "best": "glass_concord6",
+     "best": "legendary",
      "bestSet6": "glass_concord6",
      "bestHybrid": "glass_concord4",
      "kits": {
@@ -2635,10 +2635,10 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "stormglass_prism"
+         "legendary": "void_heart"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "kilnwatch_spaulders"
@@ -2650,7 +2650,7 @@
          "legendary": "ink_stained_gloves"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2659,13 +2659,13 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -2731,7 +2731,7 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -2780,7 +2780,7 @@
          "legendary": "stormglass_prism"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2795,10 +2795,10 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -2858,13 +2858,13 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -2910,7 +2910,7 @@
          "legendary": "stormglass_prism"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2922,10 +2922,10 @@
          "legendary": "ridgewalker_boots"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -2982,7 +2982,7 @@
          "legendary": "stormglass_prism"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -2991,10 +2991,10 @@
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -3049,16 +3049,16 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -3118,13 +3118,13 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -3251,10 +3251,10 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -3297,7 +3297,7 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "stormglass_prism"
         },
         "head": {
          "legendary": "spellwrights_circlet"
@@ -3309,16 +3309,16 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "patient_thief"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "static_loop"
         }
        },
        "cube": [
@@ -3343,13 +3343,13 @@
      },
      "ms": {
       "rare": 24549740,
-      "legendary": 2599839,
+      "legendary": 2842904,
       "fallen_star6": 3541493,
       "fallen_star4": 3420359,
       "glass_concord6": 4712824,
-      "glass_concord4": 4032961,
+      "glass_concord4": 4507113,
       "lantern_garden6": 4712824,
-      "lantern_garden4": 4032961,
+      "lantern_garden4": 4507113,
       "hoarfrost_vigil6": 4061501,
       "hoarfrost_vigil4": 3248961,
       "hollowstar_choir6": 2954453,
@@ -3371,13 +3371,13 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 9.442792419069027,
+      "legendary": 8.635444601717117,
       "fallen_star6": 6.932031208306779,
       "fallen_star4": 7.177533118599539,
       "glass_concord6": 5.2091357538494965,
-      "glass_concord4": 6.087274337639268,
+      "glass_concord4": 5.44688806337893,
       "lantern_garden6": 5.2091357538494965,
-      "lantern_garden4": 6.087274337639268,
+      "lantern_garden4": 5.44688806337893,
       "hoarfrost_vigil6": 6.0444993119538815,
       "hoarfrost_vigil4": 7.556181807045391,
       "hollowstar_choir6": 8.309402789619602,
@@ -3462,7 +3462,7 @@
          "legendary": "resonant_staff"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "hornlistener_circlet"
         },
         "shoulders": {
          "legendary": "kilnwatch_spaulders"
@@ -3474,7 +3474,7 @@
          "legendary": "mountain_fists"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "lockglass_cincture"
@@ -3489,7 +3489,7 @@
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "signal_coil"
+         "legendary": "patchwork_signet"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -3497,7 +3497,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "ink_stained_gloves",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -3731,13 +3731,13 @@
          "legendary": "lockglass_cincture"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "signal_coil"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -3855,13 +3855,13 @@
          "legendary": "lockglass_cincture"
         },
         "feet": {
-         "legendary": "ridgewalker_boots"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "signal_coil"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -4136,50 +4136,50 @@
       ]
      },
      "ms": {
-      "rare": 17500138,
-      "legendary": 687817,
-      "fallen_star6": 1319276,
-      "fallen_star4": 967806,
-      "glass_concord6": 1010759,
-      "glass_concord4": 901236,
-      "lantern_garden6": 1433456,
-      "lantern_garden4": 1075899,
-      "hoarfrost_vigil6": 1166827,
-      "hoarfrost_vigil4": 901031,
-      "hollowstar_choir6": 1597949,
-      "hollowstar_choir4": 1094769
+      "rare": 16280893,
+      "legendary": 602311,
+      "fallen_star6": 1468625,
+      "fallen_star4": 1151649,
+      "glass_concord6": 1051421,
+      "glass_concord4": 1128193,
+      "lantern_garden6": 1563541,
+      "lantern_garden4": 1226617,
+      "hoarfrost_vigil6": 1191165,
+      "hoarfrost_vigil4": 1009598,
+      "hollowstar_choir6": 1380025,
+      "hollowstar_choir4": 995462
      },
      "timeouts": {
       "rare": 8,
       "legendary": 3,
-      "fallen_star6": 3,
+      "fallen_star6": 4,
       "fallen_star4": 3,
       "glass_concord6": 3,
       "glass_concord4": 3,
-      "lantern_garden6": 3,
+      "lantern_garden6": 4,
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 3,
+      "hollowstar_choir6": 4,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 25.44301463906824,
-      "fallen_star6": 13.264955930373933,
-      "fallen_star4": 18.082278886471048,
-      "glass_concord6": 17.31385819963018,
-      "glass_concord4": 19.417930486576214,
-      "lantern_garden6": 12.20835379669833,
-      "lantern_garden4": 16.265595562408738,
-      "hoarfrost_vigil6": 14.99805712414951,
-      "hoarfrost_vigil4": 19.422348398667747,
-      "hollowstar_choir6": 10.951624864122698,
-      "hollowstar_choir4": 15.985233414537678
+      "legendary": 27.03070838819148,
+      "fallen_star6": 11.08580679206741,
+      "fallen_star4": 14.137026993467627,
+      "glass_concord6": 15.484656479183885,
+      "glass_concord4": 14.430946655403819,
+      "lantern_garden6": 10.41283407342692,
+      "lantern_garden4": 13.273004531976975,
+      "hoarfrost_vigil6": 13.668041791019716,
+      "hoarfrost_vigil4": 16.126114552524868,
+      "hollowstar_choir6": 11.797534827267622,
+      "hollowstar_choir4": 16.355112500527394
      },
      "best": "legendary",
      "bestSet6": "glass_concord6",
-     "bestHybrid": "hoarfrost_vigil4",
+     "bestHybrid": "hollowstar_choir4",
      "kits": {
       "rare": {
        "id": "black_hole/rare",
@@ -4265,13 +4265,13 @@
          "legendary": "kilnwatch_spaulders"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -4280,7 +4280,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -4343,7 +4343,7 @@
          "legendary": "void_heart"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -4360,7 +4360,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -4378,10 +4378,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "fallen_star",
          "base": "hands_wraps"
@@ -4394,14 +4390,15 @@
          "set": "fallen_star",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "fallen_star",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "chest": {
-         "legendary": "starchart_robe"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -4411,6 +4408,9 @@
         },
         "legs": {
          "legendary": "causeway_waders"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -4479,10 +4479,10 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "clockmakers_ring"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -4490,7 +4490,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -4508,10 +4508,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "glass_concord",
          "base": "hands_wraps"
@@ -4524,17 +4520,18 @@
          "set": "glass_concord",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "glass_concord",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
         },
-        "chest": {
-         "legendary": "starchart_robe"
-        },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -4542,8 +4539,11 @@
         "legs": {
          "legendary": "causeway_waders"
         },
+        "feet": {
+         "legendary": "rimewalker_slippers"
+        },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -4615,12 +4615,12 @@
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -4638,10 +4638,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "lantern_garden",
          "base": "hands_wraps"
@@ -4654,23 +4650,27 @@
          "set": "lantern_garden",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "lantern_garden",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
         },
-        "chest": {
-         "legendary": "starchart_robe"
-        },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
         },
         "legs": {
          "legendary": "causeway_waders"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -4739,7 +4739,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -4750,7 +4750,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -4768,10 +4768,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "hoarfrost_vigil",
          "base": "hands_wraps"
@@ -4784,14 +4780,15 @@
          "set": "hoarfrost_vigil",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "hoarfrost_vigil",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "chest": {
-         "legendary": "hearthguard_coat"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -4802,6 +4799,9 @@
         "legs": {
          "legendary": "causeway_waders"
         },
+        "feet": {
+         "legendary": "rimewalker_slippers"
+        },
         "neck": {
          "legendary": "hellforge_talisman"
         },
@@ -4809,7 +4809,7 @@
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -4866,16 +4866,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -4918,7 +4918,7 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "shoulders": {
          "legendary": "kilnwatch_spaulders"
@@ -4930,7 +4930,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -4963,22 +4963,22 @@
       ]
      },
      "ms": {
-      "rare": 17394553,
-      "legendary": 485529,
-      "fallen_star6": 1252021,
-      "fallen_star4": 864383,
-      "glass_concord6": 884070,
-      "glass_concord4": 708607,
-      "lantern_garden6": 1362736,
-      "lantern_garden4": 864097,
-      "hoarfrost_vigil6": 1086737,
-      "hoarfrost_vigil4": 758842,
-      "hollowstar_choir6": 1721992,
-      "hollowstar_choir4": 1185444
+      "rare": 15752402,
+      "legendary": 460709,
+      "fallen_star6": 1280219,
+      "fallen_star4": 839277,
+      "glass_concord6": 879875,
+      "glass_concord4": 764126,
+      "lantern_garden6": 1450166,
+      "lantern_garden4": 853564,
+      "hoarfrost_vigil6": 1061411,
+      "hoarfrost_vigil4": 772723,
+      "hollowstar_choir6": 1420297,
+      "hollowstar_choir4": 1110053
      },
      "timeouts": {
       "rare": 8,
-      "legendary": 2,
+      "legendary": 1,
       "fallen_star6": 3,
       "fallen_star4": 3,
       "glass_concord6": 3,
@@ -4987,22 +4987,22 @@
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 4,
+      "hollowstar_choir6": 3,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 35.82598155825914,
-      "fallen_star6": 13.893179906726804,
-      "fallen_star4": 20.123663931382268,
-      "glass_concord6": 19.675538136120444,
-      "glass_concord4": 24.547531988817497,
-      "lantern_garden6": 12.764433463268015,
-      "lantern_garden4": 20.13032448903306,
-      "hoarfrost_vigil6": 16.006221376469192,
-      "hoarfrost_vigil4": 22.92249638264619,
-      "hollowstar_choir6": 10.101413363128284,
-      "hollowstar_choir4": 14.673449779154478
+      "legendary": 34.19165243136123,
+      "fallen_star6": 12.304458846494233,
+      "fallen_star4": 18.769014282531273,
+      "glass_concord6": 17.902999857934365,
+      "glass_concord4": 20.614927381086364,
+      "lantern_garden6": 10.862481950342236,
+      "lantern_garden4": 18.454857515077954,
+      "hoarfrost_vigil6": 14.841001270949707,
+      "hoarfrost_vigil4": 20.38557413199814,
+      "hollowstar_choir6": 11.090921124243732,
+      "hollowstar_choir4": 14.190675580355173
      },
      "best": "legendary",
      "bestSet6": "glass_concord6",
@@ -5107,7 +5107,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -5176,7 +5176,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "ouroboros_loop"
@@ -5205,10 +5205,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
@@ -5216,6 +5212,10 @@
         "legs": {
          "set": "fallen_star",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "fallen_star",
@@ -5240,7 +5240,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "ouroboros_loop"
@@ -5297,7 +5297,7 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -5335,10 +5335,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
@@ -5346,6 +5342,10 @@
         "legs": {
          "set": "glass_concord",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "glass_concord",
@@ -5376,7 +5376,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "clockmakers_ring"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -5436,7 +5436,7 @@
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "rimecourt_band"
@@ -5465,10 +5465,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
@@ -5476,6 +5472,10 @@
         "legs": {
          "set": "lantern_garden",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "lantern_garden",
@@ -5595,10 +5595,6 @@
         "rimefield"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
@@ -5606,6 +5602,10 @@
         "legs": {
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "hoarfrost_vigil",
@@ -5687,19 +5687,19 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
          "legendary": "clockmakers_ring"
@@ -5751,19 +5751,19 @@
          "legendary": "kilnwatch_spaulders"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "hearthguard_coat"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "rimecourt_band"
         },
         "ring2": {
          "legendary": "clockmakers_ring"
@@ -5790,22 +5790,22 @@
       ]
      },
      "ms": {
-      "rare": 22034091,
-      "legendary": 592415,
-      "fallen_star6": 1125962,
-      "fallen_star4": 943894,
-      "glass_concord6": 975733,
-      "glass_concord4": 890173,
-      "lantern_garden6": 1328956,
-      "lantern_garden4": 928209,
-      "hoarfrost_vigil6": 877983,
-      "hoarfrost_vigil4": 690070,
-      "hollowstar_choir6": 1251835,
-      "hollowstar_choir4": 954270
+      "rare": 20172371,
+      "legendary": 574015,
+      "fallen_star6": 1072691,
+      "fallen_star4": 964887,
+      "glass_concord6": 993987,
+      "glass_concord4": 1000243,
+      "lantern_garden6": 1225081,
+      "lantern_garden4": 1022069,
+      "hoarfrost_vigil6": 815972,
+      "hoarfrost_vigil4": 721455,
+      "hollowstar_choir6": 1140988,
+      "hollowstar_choir4": 885393
      },
      "timeouts": {
       "rare": 8,
-      "legendary": 3,
+      "legendary": 2,
       "fallen_star6": 3,
       "fallen_star4": 3,
       "glass_concord6": 3,
@@ -5819,17 +5819,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 37.193675041989145,
-      "fallen_star6": 19.569124890538045,
-      "fallen_star4": 23.343819327170213,
-      "glass_concord6": 22.582090592405915,
-      "glass_concord4": 24.75259415866354,
-      "lantern_garden6": 16.58000039128459,
-      "lantern_garden4": 23.738286312673115,
-      "hoarfrost_vigil6": 25.09626154492741,
-      "hoarfrost_vigil4": 31.930225919109656,
-      "hollowstar_choir6": 17.601433895042078,
-      "hollowstar_choir4": 23.08999654185922
+      "legendary": 35.142585124082125,
+      "fallen_star6": 18.805388504238405,
+      "fallen_star4": 20.9064595128756,
+      "glass_concord6": 20.29440123462379,
+      "glass_concord4": 20.167470304715955,
+      "lantern_garden6": 16.466152850301327,
+      "lantern_garden4": 19.736799570283416,
+      "hoarfrost_vigil6": 24.721891192344835,
+      "hoarfrost_vigil4": 27.96067807416956,
+      "hollowstar_choir6": 17.679739839507516,
+      "hollowstar_choir4": 22.783522119555947
      },
      "best": "legendary",
      "bestSet6": "hoarfrost_vigil6",
@@ -5910,19 +5910,19 @@
          "legendary": "cistern_staff"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "kilnwatch_spaulders"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "hearthguard_coat"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -5931,7 +5931,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -5991,7 +5991,7 @@
          "legendary": "cistern_staff"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -6008,7 +6008,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -6026,10 +6026,6 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "fallen_star",
          "base": "hands_wraps"
@@ -6042,11 +6038,12 @@
          "set": "fallen_star",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "fallen_star",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "chest": {
-         "legendary": "hearthguard_coat"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -6056,6 +6053,9 @@
         },
         "legs": {
          "legendary": "causeway_waders"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -6115,13 +6115,13 @@
          "legendary": "cistern_staff"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "rimecourt_band"
@@ -6132,7 +6132,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -6150,10 +6150,6 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "glass_concord",
          "base": "hands_wraps"
@@ -6166,14 +6162,15 @@
          "set": "glass_concord",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "glass_concord",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
         },
-        "chest": {
-         "legendary": "starchart_robe"
-        },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -6181,8 +6178,11 @@
         "legs": {
          "legendary": "causeway_waders"
         },
+        "feet": {
+         "legendary": "rimewalker_slippers"
+        },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "rimecourt_band"
@@ -6256,7 +6256,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -6274,10 +6274,6 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "lantern_garden",
          "base": "hands_wraps"
@@ -6290,11 +6286,12 @@
          "set": "lantern_garden",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "lantern_garden",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "chest": {
-         "legendary": "hearthguard_coat"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -6305,8 +6302,11 @@
         "legs": {
          "legendary": "causeway_waders"
         },
+        "feet": {
+         "legendary": "rimewalker_slippers"
+        },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "rimecourt_band"
@@ -6380,7 +6380,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -6398,10 +6398,6 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "hoarfrost_vigil",
          "base": "hands_wraps"
@@ -6414,20 +6410,24 @@
          "set": "hoarfrost_vigil",
          "base": "shoulders_mantle"
         },
+        "chest": {
+         "set": "hoarfrost_vigil",
+         "base": "chest_robe"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
         },
-        "chest": {
-         "legendary": "hearthguard_coat"
-        },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
         },
         "legs": {
          "legendary": "causeway_waders"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -6490,10 +6490,10 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "rimecourt_band"
@@ -6551,7 +6551,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -6585,7 +6585,7 @@
      },
      "ms": {
       "rare": 18686569,
-      "legendary": 466050,
+      "legendary": 463582,
       "fallen_star6": 800129,
       "fallen_star4": 629603,
       "glass_concord6": 426707,
@@ -6594,8 +6594,8 @@
       "lantern_garden4": 537165,
       "hoarfrost_vigil6": 839378,
       "hoarfrost_vigil4": 860144,
-      "hollowstar_choir6": 1061867,
-      "hollowstar_choir4": 681298
+      "hollowstar_choir6": 1040052,
+      "hollowstar_choir4": 726848
      },
      "timeouts": {
       "rare": 6,
@@ -6613,7 +6613,7 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 40.09563137002468,
+      "legendary": 40.309090948311194,
       "fallen_star6": 23.354445345688006,
       "fallen_star4": 29.67992369794934,
       "glass_concord6": 43.792506333385674,
@@ -6622,8 +6622,8 @@
       "lantern_garden4": 34.78739121126656,
       "hoarfrost_vigil6": 22.262400253521058,
       "hoarfrost_vigil4": 21.724930941795794,
-      "hollowstar_choir6": 17.597843232721235,
-      "hollowstar_choir4": 27.427893520896877
+      "hollowstar_choir6": 17.966956459869316,
+      "hollowstar_choir4": 25.70904645813155
      },
      "best": "glass_concord4",
      "bestSet6": "glass_concord6",
@@ -6704,7 +6704,7 @@
          "legendary": "lanternroot"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "coiled_pauldrons"
@@ -6716,7 +6716,7 @@
          "legendary": "ink_stained_gloves"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -6725,7 +6725,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "signal_horn_charm"
@@ -6734,7 +6734,7 @@
          "legendary": "patchwork_signet"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -7284,16 +7284,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "rimecourt_band"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -7345,16 +7345,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "signal_horn_charm"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "rimecourt_band"
         }
        },
        "cube": [
@@ -7379,7 +7379,7 @@
      },
      "ms": {
       "rare": 26470248,
-      "legendary": 717010,
+      "legendary": 656773,
       "fallen_star6": 1340260,
       "fallen_star4": 1046634,
       "glass_concord6": 1196141,
@@ -7388,8 +7388,8 @@
       "lantern_garden4": 1162980,
       "hoarfrost_vigil6": 1121866,
       "hoarfrost_vigil4": 859188,
-      "hollowstar_choir6": 1511502,
-      "hollowstar_choir4": 1400675
+      "hollowstar_choir6": 1481111,
+      "hollowstar_choir4": 1090347
      },
      "timeouts": {
       "rare": 8,
@@ -7407,7 +7407,7 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 36.91754368837255,
+      "legendary": 40.30349603287589,
       "fallen_star6": 19.750084311999164,
       "fallen_star4": 25.290835191671587,
       "glass_concord6": 22.12970544442503,
@@ -7416,8 +7416,8 @@
       "lantern_garden4": 22.760707836764176,
       "hoarfrost_vigil6": 23.594839312359944,
       "hoarfrost_vigil4": 30.808447045349794,
-      "hollowstar_choir6": 17.51254579881469,
-      "hollowstar_choir4": 18.898208363824583
+      "hollowstar_choir6": 17.87188671206952,
+      "hollowstar_choir4": 24.276902674102832
      },
      "best": "legendary",
      "bestSet6": "hoarfrost_vigil6",
@@ -7513,7 +7513,7 @@
          "legendary": "ink_stained_gloves"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -7522,16 +7522,16 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "echoing_bead"
+         "legendary": "patchwork_signet"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -7620,13 +7620,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "fallen_star",
@@ -7750,13 +7750,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "glass_concord",
@@ -7880,13 +7880,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "lantern_garden",
@@ -8010,13 +8010,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "hoarfrost_vigil",
@@ -8108,10 +8108,10 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "signal_horn_charm"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "echoing_bead"
@@ -8160,7 +8160,7 @@
          "legendary": "kindling_rod"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "shoulders": {
          "legendary": "kilnwatch_spaulders"
@@ -8172,7 +8172,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "signal_horn_charm"
@@ -8181,7 +8181,7 @@
          "legendary": "ouroboros_loop"
         },
         "ring2": {
-         "legendary": "rimecourt_band"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -8205,22 +8205,22 @@
       ]
      },
      "ms": {
-      "rare": 14975931,
-      "legendary": 406327,
-      "fallen_star6": 973311,
-      "fallen_star4": 538179,
-      "glass_concord6": 707728,
-      "glass_concord4": 518565,
-      "lantern_garden6": 917892,
-      "lantern_garden4": 540983,
-      "hoarfrost_vigil6": 780156,
-      "hoarfrost_vigil4": 543383,
-      "hollowstar_choir6": 1040754,
-      "hollowstar_choir4": 756077
+      "rare": 13178029,
+      "legendary": 355700,
+      "fallen_star6": 966744,
+      "fallen_star4": 555904,
+      "glass_concord6": 779603,
+      "glass_concord4": 493673,
+      "lantern_garden6": 934597,
+      "lantern_garden4": 549685,
+      "hoarfrost_vigil6": 782322,
+      "hoarfrost_vigil4": 574741,
+      "hollowstar_choir6": 968860,
+      "hollowstar_choir4": 675409
      },
      "timeouts": {
       "rare": 8,
-      "legendary": 1,
+      "legendary": 0,
       "fallen_star6": 3,
       "fallen_star4": 2,
       "glass_concord6": 3,
@@ -8228,23 +8228,23 @@
       "lantern_garden6": 3,
       "lantern_garden4": 2,
       "hoarfrost_vigil6": 3,
-      "hoarfrost_vigil4": 3,
+      "hoarfrost_vigil4": 2,
       "hollowstar_choir6": 3,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 36.85684436426819,
-      "fallen_star6": 15.386583527772727,
-      "fallen_star4": 27.827044533510225,
-      "glass_concord6": 21.16057440146497,
-      "glass_concord4": 28.879563796245407,
-      "lantern_garden6": 16.315569805598045,
-      "lantern_garden4": 27.682812583759564,
-      "hoarfrost_vigil6": 19.196072323996738,
-      "hoarfrost_vigil4": 27.5605438521264,
-      "hollowstar_choir6": 14.389501265428718,
-      "hollowstar_choir4": 19.807415117772397
+      "legendary": 37.04815574922688,
+      "fallen_star6": 13.63135328484066,
+      "fallen_star4": 23.705584057679022,
+      "glass_concord6": 16.903512428761818,
+      "glass_concord4": 26.693841875087355,
+      "lantern_garden6": 14.10022608675183,
+      "lantern_garden4": 23.97378316672276,
+      "hoarfrost_vigil6": 16.8447634094401,
+      "hoarfrost_vigil4": 22.9286391609438,
+      "hollowstar_choir6": 13.601582271948475,
+      "hollowstar_choir4": 19.511183593940856
      },
      "best": "legendary",
      "bestSet6": "glass_concord6",
@@ -8325,7 +8325,7 @@
          "legendary": "armillary_staff"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "spellwrights_circlet"
         },
         "shoulders": {
          "legendary": "coiled_pauldrons"
@@ -8340,22 +8340,22 @@
          "legendary": "wardkeepers_cuffs"
         },
         "waist": {
-         "legendary": "lanternkeepers_sash"
+         "legendary": "witching_cord"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "clockmakers_ring"
+         "legendary": "patchwork_signet"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -8406,13 +8406,13 @@
          "legendary": "armillary_staff"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "lanternkeepers_sash"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "signal_horn_charm"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -8441,13 +8441,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "fallen_star",
@@ -8473,7 +8473,7 @@
          "legendary": "lanternkeepers_sash"
         },
         "neck": {
-         "legendary": "signal_horn_charm"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -8530,13 +8530,13 @@
          "legendary": "armillary_staff"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "lanternkeepers_sash"
         },
         "neck": {
-         "legendary": "signal_horn_charm"
+         "legendary": "hellforge_talisman"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -8565,13 +8565,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "glass_concord",
@@ -8591,10 +8591,10 @@
          "legendary": "starchart_robe"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
-         "legendary": "lanternkeepers_sash"
+         "legendary": "witching_cord"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -8654,7 +8654,7 @@
          "legendary": "armillary_staff"
         },
         "wrists": {
-         "legendary": "runeweaver_cuffs"
+         "legendary": "wardkeepers_cuffs"
         },
         "waist": {
          "legendary": "lanternkeepers_sash"
@@ -8666,7 +8666,7 @@
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "patient_thief"
         }
        },
        "cube": [
@@ -8689,13 +8689,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "lantern_garden",
@@ -8715,7 +8715,7 @@
          "legendary": "starchart_robe"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -8781,16 +8781,16 @@
          "legendary": "runeweaver_cuffs"
         },
         "waist": {
-         "legendary": "lanternkeepers_sash"
+         "legendary": "witching_cord"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "echoing_bead"
+         "legendary": "ouroboros_loop"
         }
        },
        "cube": [
@@ -8813,13 +8813,13 @@
         "black_hole"
        ],
        "equipment": {
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "legs": {
          "set": "hoarfrost_vigil",
@@ -8839,13 +8839,13 @@
          "legendary": "starchart_robe"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "runeweaver_cuffs"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "lanternkeepers_sash"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "signal_horn_charm"
         },
         "ring1": {
          "legendary": "clockmakers_ring"
@@ -8905,7 +8905,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "signal_horn_charm"
@@ -8914,7 +8914,7 @@
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -8966,7 +8966,7 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "hellforge_talisman"
@@ -8975,7 +8975,7 @@
          "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -8991,7 +8991,7 @@
   "noShared": {
    "checks": {
     "D1": {
-     "value": "3/11",
+     "value": "2/11",
      "target": false,
      "hard": false
     },
@@ -9001,12 +9001,12 @@
      "hard": false
     },
     "D3": {
-     "value": "0.50–1.40",
+     "value": "0.52–1.42",
      "target": false,
      "hard": false
     },
     "D4": {
-     "value": "1.00–1.20",
+     "value": "0.95–1.21",
      "target": false,
      "hard": false
     },
@@ -9016,9 +9016,9 @@
      "hard": true
     },
     "D6": {
-     "value": "1.49",
-     "target": true,
-     "hard": true
+     "value": "2.14",
+     "target": false,
+     "hard": false
     }
    },
    "rows": [
@@ -9035,18 +9035,18 @@
       ]
      },
      "ms": {
-      "rare": 17098018,
-      "legendary": 1322045,
-      "fallen_star6": 1772635,
-      "fallen_star4": 1149172,
-      "glass_concord6": 1292968,
-      "glass_concord4": 1118828,
-      "lantern_garden6": 1908637,
-      "lantern_garden4": 1289407,
-      "hoarfrost_vigil6": 1431833,
-      "hoarfrost_vigil4": 1079797,
-      "hollowstar_choir6": 1839614,
-      "hollowstar_choir4": 1325508
+      "rare": 16070612,
+      "legendary": 1165566,
+      "fallen_star6": 1746243,
+      "fallen_star4": 1183511,
+      "glass_concord6": 1283794,
+      "glass_concord4": 1163596,
+      "lantern_garden6": 1905369,
+      "lantern_garden4": 1293551,
+      "hoarfrost_vigil6": 1471224,
+      "hoarfrost_vigil4": 1083479,
+      "hollowstar_choir6": 1680805,
+      "hollowstar_choir4": 1232124
      },
      "timeouts": {
       "rare": 8,
@@ -9059,22 +9059,22 @@
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 5,
+      "hollowstar_choir6": 4,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 12.933007575385105,
-      "fallen_star6": 9.645537857483351,
-      "fallen_star4": 14.878554298225158,
-      "glass_concord6": 13.223852407793542,
-      "glass_concord4": 15.282079104205472,
-      "lantern_garden6": 8.958234593586942,
-      "lantern_garden4": 13.260373179298702,
-      "hoarfrost_vigil6": 11.94134930540084,
-      "hoarfrost_vigil4": 15.834474442881394,
-      "hollowstar_choir6": 9.294350880130288,
-      "hollowstar_choir4": 12.899219016407294
+      "legendary": 13.78781810725433,
+      "fallen_star6": 9.202964306800371,
+      "fallen_star4": 13.578760146716,
+      "glass_concord6": 12.518061308901585,
+      "glass_concord4": 13.811161262156281,
+      "lantern_garden6": 8.434383051261987,
+      "lantern_garden4": 12.423640042023855,
+      "hoarfrost_vigil6": 10.923293801623682,
+      "hoarfrost_vigil4": 14.832416687356192,
+      "hollowstar_choir6": 9.56125903956735,
+      "hollowstar_choir4": 13.043015151072456
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "glass_concord6",
@@ -9167,7 +9167,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "frostthread_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -9179,7 +9179,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -9285,13 +9285,13 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
@@ -9369,7 +9369,7 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -9415,19 +9415,19 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -9545,13 +9545,13 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
@@ -9675,13 +9675,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
@@ -9693,7 +9693,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "frostthread_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -9765,7 +9765,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -9829,7 +9829,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -9862,22 +9862,22 @@
       ]
      },
      "ms": {
-      "rare": 22918013,
-      "legendary": 2773140,
-      "fallen_star6": 2886080,
-      "fallen_star4": 2709827,
-      "glass_concord6": 2576284,
-      "glass_concord4": 2646043,
-      "lantern_garden6": 3172322,
-      "lantern_garden4": 3002436,
-      "hoarfrost_vigil6": 2237454,
-      "hoarfrost_vigil4": 2082278,
-      "hollowstar_choir6": 3029887,
-      "hollowstar_choir4": 2732440
+      "rare": 24425650,
+      "legendary": 2345848,
+      "fallen_star6": 2850018,
+      "fallen_star4": 2592083,
+      "glass_concord6": 2399240,
+      "glass_concord4": 2648090,
+      "lantern_garden6": 3050234,
+      "lantern_garden4": 2783283,
+      "hoarfrost_vigil6": 2220977,
+      "hoarfrost_vigil4": 2091105,
+      "hollowstar_choir6": 2984221,
+      "hollowstar_choir4": 2837700
      },
      "timeouts": {
       "rare": 9,
-      "legendary": 5,
+      "legendary": 4,
       "fallen_star6": 6,
       "fallen_star4": 6,
       "glass_concord6": 5,
@@ -9887,21 +9887,21 @@
       "hoarfrost_vigil6": 5,
       "hoarfrost_vigil4": 3,
       "hollowstar_choir6": 6,
-      "hollowstar_choir4": 6
+      "hollowstar_choir4": 4
      },
      "factor": {
       "rare": 1,
-      "legendary": 8.264282726440065,
-      "fallen_star6": 7.940879324204457,
-      "fallen_star4": 8.457371263922013,
-      "glass_concord6": 8.895763432913451,
-      "glass_concord4": 8.661239821121576,
-      "lantern_garden6": 7.22436530717878,
-      "lantern_garden4": 7.633139557346102,
-      "hoarfrost_vigil6": 10.242897954550127,
-      "hoarfrost_vigil4": 11.006221551589173,
-      "hollowstar_choir6": 7.563982749191637,
-      "hollowstar_choir4": 8.3873801437543
+      "legendary": 10.412290139855608,
+      "fallen_star6": 8.570349380249528,
+      "fallen_star4": 9.423174335081091,
+      "glass_concord6": 10.18057801637185,
+      "glass_concord4": 9.223874566196768,
+      "lantern_garden6": 8.007795467495281,
+      "lantern_garden4": 8.775841335573853,
+      "hoarfrost_vigil6": 10.997705064032631,
+      "hoarfrost_vigil4": 11.680738174314538,
+      "hollowstar_choir6": 8.18493335446671,
+      "hollowstar_choir4": 8.607551890615639
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "hoarfrost_vigil6",
@@ -9985,13 +9985,13 @@
          "legendary": "void_heart"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "rare": "shoulders_mantle"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "winterbound_robe"
         },
         "hands": {
          "legendary": "frostthread_gloves"
@@ -10006,7 +10006,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -10112,13 +10112,13 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "hoarneedle_wand"
@@ -10130,7 +10130,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "frostthread_gloves"
+         "legendary": "firekeepers_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -10242,13 +10242,13 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "hoarneedle_wand"
@@ -10372,13 +10372,13 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "hoarneedle_wand"
@@ -10502,13 +10502,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "hoarneedle_wand"
@@ -10592,7 +10592,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -10644,10 +10644,10 @@
          "legendary": "hoarneedle_wand"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "winterbound_robe"
         },
         "hands": {
          "legendary": "frostthread_gloves"
@@ -10656,7 +10656,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -10690,48 +10690,48 @@
      },
      "ms": {
       "rare": 11314945,
-      "legendary": 564134,
-      "fallen_star6": 344450,
-      "fallen_star4": 389164,
-      "glass_concord6": 531117,
-      "glass_concord4": 576462,
-      "lantern_garden6": 592020,
-      "lantern_garden4": 611414,
-      "hoarfrost_vigil6": 553795,
-      "hoarfrost_vigil4": 612263,
-      "hollowstar_choir6": 477823,
-      "hollowstar_choir4": 491767
+      "legendary": 495613,
+      "fallen_star6": 638220,
+      "fallen_star4": 328500,
+      "glass_concord6": 826759,
+      "glass_concord4": 494349,
+      "lantern_garden6": 948896,
+      "lantern_garden4": 518791,
+      "hoarfrost_vigil6": 939928,
+      "hoarfrost_vigil4": 524148,
+      "hollowstar_choir6": 364060,
+      "hollowstar_choir4": 380481
      },
      "timeouts": {
       "rare": 6,
       "legendary": 3,
-      "fallen_star6": 0,
-      "fallen_star4": 1,
+      "fallen_star6": 3,
+      "fallen_star4": 0,
       "glass_concord6": 3,
       "glass_concord4": 3,
       "lantern_garden6": 3,
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 3,
-      "hollowstar_choir4": 3
+      "hollowstar_choir6": 1,
+      "hollowstar_choir4": 1
      },
      "factor": {
       "rare": 1,
-      "legendary": 20.05719385819681,
-      "fallen_star6": 32.84931049499202,
-      "fallen_star4": 29.075004368338284,
-      "glass_concord6": 21.304053532460834,
-      "glass_concord4": 19.628258237316597,
-      "lantern_garden6": 19.112437079828386,
-      "lantern_garden4": 18.506192203645973,
-      "hoarfrost_vigil6": 20.431648895349362,
-      "hoarfrost_vigil4": 18.480530425650414,
-      "hollowstar_choir6": 23.680201664633138,
-      "hollowstar_choir4": 23.008752112280817
+      "legendary": 22.8302021940506,
+      "fallen_star6": 17.728910093698097,
+      "fallen_star4": 34.44427701674277,
+      "glass_concord6": 13.685904840467416,
+      "glass_concord4": 22.88857669379325,
+      "lantern_garden6": 11.9243257427579,
+      "lantern_garden4": 21.810218373102078,
+      "hoarfrost_vigil6": 12.038097598965027,
+      "hoarfrost_vigil4": 21.587309309584317,
+      "hollowstar_choir6": 31.079890677360876,
+      "hollowstar_choir4": 29.738528336500377
      },
-     "best": "fallen_star6",
-     "bestSet6": "fallen_star6",
+     "best": "fallen_star4",
+     "bestSet6": "hollowstar_choir6",
      "bestHybrid": "fallen_star4",
      "kits": {
       "rare": {
@@ -10815,7 +10815,7 @@
          "legendary": "starfall_mantle"
         },
         "chest": {
-         "legendary": "starchart_robe"
+         "legendary": "winterbound_robe"
         },
         "hands": {
          "legendary": "glasswrights_wraps"
@@ -10830,7 +10830,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -10896,7 +10896,7 @@
          "rare": "waist_sash"
         },
         "neck": {
-         "legendary": "snowglobe_pendant"
+         "legendary": "craterheart_amulet"
         },
         "ring1": {
          "legendary": "static_loop"
@@ -10907,7 +10907,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -10929,10 +10929,6 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "chest": {
          "set": "fallen_star",
          "base": "chest_robe"
@@ -10941,11 +10937,12 @@
          "set": "fallen_star",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "fallen_star",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cindervane"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "starfall_mantle"
@@ -10955,6 +10952,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -10968,7 +10968,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -11031,7 +11031,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -11053,10 +11053,6 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "chest": {
          "set": "glass_concord",
          "base": "chest_robe"
@@ -11065,11 +11061,12 @@
          "set": "glass_concord",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "glass_concord",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cindervane"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "starfall_mantle"
@@ -11079,6 +11076,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -11092,7 +11092,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -11155,7 +11155,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -11177,10 +11177,6 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "chest": {
          "set": "lantern_garden",
          "base": "chest_robe"
@@ -11189,11 +11185,12 @@
          "set": "lantern_garden",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "lantern_garden",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cindervane"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "starfall_mantle"
@@ -11204,8 +11201,11 @@
         "waist": {
          "rare": "waist_sash"
         },
+        "feet": {
+         "legendary": "rimewalker_slippers"
+        },
         "neck": {
-         "legendary": "craterheart_amulet"
+         "legendary": "snowglobe_pendant"
         },
         "ring1": {
          "legendary": "static_loop"
@@ -11216,7 +11216,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -11279,7 +11279,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "starfall_mantle",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -11301,10 +11301,6 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "chest": {
          "set": "hoarfrost_vigil",
          "base": "chest_robe"
@@ -11313,11 +11309,12 @@
          "set": "hoarfrost_vigil",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "hoarfrost_vigil",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cindervane"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "starfall_mantle"
@@ -11327,6 +11324,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -11340,7 +11340,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -11389,7 +11389,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -11441,7 +11441,7 @@
          "legendary": "cindervane"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "legendary": "starfall_mantle"
@@ -11450,7 +11450,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "craterheart_amulet"
@@ -11483,18 +11483,18 @@
       ]
      },
      "ms": {
-      "rare": 22402607,
-      "legendary": 1780566,
-      "fallen_star6": 1292623,
-      "fallen_star4": 1345868,
-      "glass_concord6": 888884,
-      "glass_concord4": 1010620,
-      "lantern_garden6": 2127557,
-      "lantern_garden4": 1973808,
-      "hoarfrost_vigil6": 1669467,
-      "hoarfrost_vigil4": 1767397,
-      "hollowstar_choir6": 1445521,
-      "hollowstar_choir4": 1438288
+      "rare": 23103637,
+      "legendary": 1545338,
+      "fallen_star6": 1688679,
+      "fallen_star4": 2175864,
+      "glass_concord6": 1502121,
+      "glass_concord4": 1626077,
+      "lantern_garden6": 2606413,
+      "lantern_garden4": 2605876,
+      "hoarfrost_vigil6": 2052188,
+      "hoarfrost_vigil4": 1809009,
+      "hollowstar_choir6": 2421022,
+      "hollowstar_choir4": 1928228
      },
      "timeouts": {
       "rare": 8,
@@ -11503,8 +11503,8 @@
       "fallen_star4": 3,
       "glass_concord6": 3,
       "glass_concord4": 3,
-      "lantern_garden6": 3,
-      "lantern_garden4": 3,
+      "lantern_garden6": 6,
+      "lantern_garden4": 4,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
       "hollowstar_choir6": 3,
@@ -11512,17 +11512,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 12.581733561126068,
-      "fallen_star6": 17.331122067300367,
-      "fallen_star4": 16.64547117547932,
-      "glass_concord6": 25.203071491893205,
-      "glass_concord4": 22.167191427044784,
-      "lantern_garden6": 10.52973292842448,
-      "lantern_garden4": 11.349942344949458,
-      "hoarfrost_vigil6": 13.419017566684456,
-      "hoarfrost_vigil4": 12.675480947404573,
-      "hollowstar_choir6": 15.497946415167958,
-      "hollowstar_choir4": 15.57588396760593
+      "legendary": 14.950539623046867,
+      "fallen_star6": 13.681485350383348,
+      "fallen_star4": 10.618143872962648,
+      "glass_concord6": 15.380676390250851,
+      "glass_concord4": 14.208206007464591,
+      "lantern_garden6": 8.864150462724059,
+      "lantern_garden4": 8.865977122472444,
+      "hoarfrost_vigil6": 11.258050919311486,
+      "hoarfrost_vigil4": 12.771432867387613,
+      "hollowstar_choir6": 9.542927325732686,
+      "hollowstar_choir4": 11.981797277085489
      },
      "best": "glass_concord6",
      "bestSet6": "glass_concord6",
@@ -11606,13 +11606,13 @@
          "legendary": "stormglass_prism"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "spellwrights_circlet"
         },
         "shoulders": {
          "rare": "shoulders_mantle"
         },
         "chest": {
-         "legendary": "winterbound_robe"
+         "legendary": "starchart_robe"
         },
         "hands": {
          "legendary": "glasswrights_wraps"
@@ -11627,13 +11627,13 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -11729,10 +11729,6 @@
          "set": "fallen_star",
          "base": "shoulders_mantle"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
@@ -11741,6 +11737,10 @@
          "set": "fallen_star",
          "base": "chest_robe"
         },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
@@ -11748,7 +11748,7 @@
          "legendary": "stormglass_prism"
         },
         "hands": {
-         "legendary": "glasswrights_wraps"
+         "legendary": "firekeepers_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -11763,7 +11763,7 @@
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -11832,7 +11832,7 @@
          "legendary": "static_loop"
         },
         "ring2": {
-         "legendary": "clockmakers_ring"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -11859,10 +11859,6 @@
          "set": "glass_concord",
          "base": "shoulders_mantle"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
@@ -11871,6 +11867,10 @@
          "set": "glass_concord",
          "base": "chest_robe"
         },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
@@ -11878,7 +11878,7 @@
          "legendary": "stormglass_prism"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -11959,10 +11959,10 @@
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "clockmakers_ring"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -11989,10 +11989,6 @@
          "set": "lantern_garden",
          "base": "shoulders_mantle"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
@@ -12001,6 +11997,10 @@
          "set": "lantern_garden",
          "base": "chest_robe"
         },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
+        },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
@@ -12008,7 +12008,7 @@
          "legendary": "stormglass_prism"
         },
         "hands": {
-         "legendary": "glasswrights_wraps"
+         "legendary": "firekeepers_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -12023,10 +12023,10 @@
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
-         "legendary": "clockmakers_ring"
+         "legendary": "echoing_bead"
         }
        },
        "cube": [
@@ -12119,10 +12119,6 @@
          "set": "hoarfrost_vigil",
          "base": "shoulders_mantle"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
@@ -12130,6 +12126,10 @@
         "chest": {
          "set": "hoarfrost_vigil",
          "base": "chest_robe"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
@@ -12153,7 +12153,7 @@
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "clockmakers_ring"
+         "legendary": "static_loop"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -12213,13 +12213,13 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "static_loop"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
          "legendary": "echoing_bead"
@@ -12277,7 +12277,7 @@
          "legendary": "conductors_legwraps"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -12311,7 +12311,7 @@
      },
      "ms": {
       "rare": 24549740,
-      "legendary": 4006594,
+      "legendary": 5198682,
       "fallen_star6": 4105933,
       "fallen_star4": 3301546,
       "glass_concord6": 5858216,
@@ -12320,12 +12320,12 @@
       "lantern_garden4": 4379363,
       "hoarfrost_vigil6": 3983751,
       "hoarfrost_vigil4": 3075380,
-      "hollowstar_choir6": 3194790,
-      "hollowstar_choir4": 2964171
+      "hollowstar_choir6": 2702748,
+      "hollowstar_choir4": 3024287
      },
      "timeouts": {
       "rare": 8,
-      "legendary": 5,
+      "legendary": 4,
       "fallen_star6": 4,
       "fallen_star4": 3,
       "glass_concord6": 6,
@@ -12334,12 +12334,12 @@
       "lantern_garden4": 4,
       "hoarfrost_vigil6": 4,
       "hoarfrost_vigil4": 4,
-      "hollowstar_choir6": 4,
+      "hollowstar_choir6": 3,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 6.127334089753042,
+      "legendary": 4.722300767771523,
       "fallen_star6": 5.9790892837267435,
       "fallen_star4": 7.435831577085402,
       "glass_concord6": 4.190651215318793,
@@ -12348,10 +12348,10 @@
       "lantern_garden4": 5.605778739967434,
       "hoarfrost_vigil6": 6.162468487613809,
       "hoarfrost_vigil4": 7.982668808407416,
-      "hollowstar_choir6": 7.684304758685235,
-      "hollowstar_choir4": 8.282160509633217
+      "hollowstar_choir6": 9.083251564703776,
+      "hollowstar_choir4": 8.117529850837569
      },
-     "best": "hollowstar_choir4",
+     "best": "hollowstar_choir6",
      "bestSet6": "hollowstar_choir6",
      "bestHybrid": "hollowstar_choir4",
      "kits": {
@@ -12430,7 +12430,7 @@
          "legendary": "resonant_staff"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "hornlistener_circlet"
         },
         "shoulders": {
          "rare": "shoulders_mantle"
@@ -12451,13 +12451,13 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "clockmakers_ring"
+         "legendary": "signal_coil"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -13010,13 +13010,13 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "clockmakers_ring"
+         "legendary": "signal_coil"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -13071,13 +13071,13 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
         },
         "ring1": {
-         "legendary": "signal_coil"
+         "legendary": "clockmakers_ring"
         },
         "ring2": {
          "legendary": "static_loop"
@@ -13104,23 +13104,23 @@
       ]
      },
      "ms": {
-      "rare": 17500138,
-      "legendary": 1331525,
-      "fallen_star6": 1540511,
-      "fallen_star4": 1283588,
-      "glass_concord6": 1199912,
-      "glass_concord4": 1130756,
-      "lantern_garden6": 1759195,
-      "lantern_garden4": 1366517,
-      "hoarfrost_vigil6": 1266582,
-      "hoarfrost_vigil4": 1094950,
-      "hollowstar_choir6": 1666358,
-      "hollowstar_choir4": 1395712
+      "rare": 16280893,
+      "legendary": 1225715,
+      "fallen_star6": 1692436,
+      "fallen_star4": 1149864,
+      "glass_concord6": 1311626,
+      "glass_concord4": 1059810,
+      "lantern_garden6": 1890882,
+      "lantern_garden4": 1233710,
+      "hoarfrost_vigil6": 1343911,
+      "hoarfrost_vigil4": 1013720,
+      "hollowstar_choir6": 1574222,
+      "hollowstar_choir4": 1195361
      },
      "timeouts": {
       "rare": 8,
       "legendary": 3,
-      "fallen_star6": 4,
+      "fallen_star6": 6,
       "fallen_star4": 3,
       "glass_concord6": 3,
       "glass_concord4": 3,
@@ -13128,22 +13128,22 @@
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 5,
+      "hollowstar_choir6": 4,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 13.142928596909558,
-      "fallen_star6": 11.359956533903361,
-      "fallen_star4": 13.633765663125551,
-      "glass_concord6": 14.584517864643407,
-      "glass_concord4": 15.476493602510178,
-      "lantern_garden6": 9.947810220015405,
-      "lantern_garden4": 12.806381479337615,
-      "hoarfrost_vigil6": 13.81682196652092,
-      "hoarfrost_vigil4": 15.982590985889766,
-      "hollowstar_choir6": 10.50202777554403,
-      "hollowstar_choir4": 12.53850221249083
+      "legendary": 13.282772096286656,
+      "fallen_star6": 9.619798326199632,
+      "fallen_star4": 14.158972713294789,
+      "glass_concord6": 12.412755617836181,
+      "glass_concord4": 15.362086600428379,
+      "lantern_garden6": 8.610211002061472,
+      "lantern_garden4": 13.196693712460789,
+      "hoarfrost_vigil6": 12.114561901792603,
+      "hoarfrost_vigil4": 16.06054235883676,
+      "hollowstar_choir6": 10.342183631025357,
+      "hollowstar_choir4": 13.620063729701739
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "glass_concord6",
@@ -13227,7 +13227,7 @@
          "legendary": "void_heart"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "shoulders": {
          "rare": "shoulders_mantle"
@@ -13236,7 +13236,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "frostthread_gloves"
+         "legendary": "firekeepers_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -13248,7 +13248,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13328,7 +13328,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -13354,22 +13354,19 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "fallen_star",
          "base": "hands_wraps"
+        },
+        "head": {
+         "set": "fallen_star",
+         "base": "head_wizard"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "head": {
-         "legendary": "spellwrights_circlet"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -13379,6 +13376,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13392,7 +13392,7 @@
        },
        "cube": [
         "undertow_staff",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -13458,7 +13458,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -13484,22 +13484,19 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "glass_concord",
          "base": "hands_wraps"
+        },
+        "head": {
+         "set": "glass_concord",
+         "base": "head_wizard"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "head": {
-         "legendary": "spellwrights_circlet"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -13509,6 +13506,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13522,7 +13522,7 @@
        },
        "cube": [
         "undertow_staff",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -13588,7 +13588,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -13614,22 +13614,19 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "lantern_garden",
          "base": "hands_wraps"
+        },
+        "head": {
+         "set": "lantern_garden",
+         "base": "head_wizard"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "head": {
-         "legendary": "spellwrights_circlet"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -13639,6 +13636,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13652,7 +13652,7 @@
        },
        "cube": [
         "undertow_staff",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -13718,7 +13718,7 @@
        },
        "cube": [
         "undertow_staff",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "rimecourt_band"
        ]
       },
@@ -13744,22 +13744,19 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "hoarfrost_vigil",
          "base": "hands_wraps"
+        },
+        "head": {
+         "set": "hoarfrost_vigil",
+         "base": "head_wizard"
         },
         "mainhand": {
          "legendary": "thousand_missiles"
         },
         "offhand": {
          "legendary": "void_heart"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -13769,6 +13766,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13782,7 +13782,7 @@
        },
        "cube": [
         "undertow_staff",
-        "frostthread_gloves",
+        "horizon_cowl",
         "rimecourt_band"
        ]
       },
@@ -13828,13 +13828,13 @@
          "legendary": "thousand_missiles"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "legs": {
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13889,7 +13889,7 @@
          "legendary": "glyphstone_orb"
         },
         "head": {
-         "legendary": "spellwrights_circlet"
+         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -13898,7 +13898,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -13931,18 +13931,18 @@
       ]
      },
      "ms": {
-      "rare": 17394553,
-      "legendary": 1201409,
-      "fallen_star6": 1545739,
-      "fallen_star4": 1058194,
-      "glass_concord6": 1175524,
-      "glass_concord4": 1034887,
-      "lantern_garden6": 1641326,
-      "lantern_garden4": 1207935,
-      "hoarfrost_vigil6": 1446078,
-      "hoarfrost_vigil4": 1014023,
-      "hollowstar_choir6": 1786289,
-      "hollowstar_choir4": 1065718
+      "rare": 15752402,
+      "legendary": 1167745,
+      "fallen_star6": 1571554,
+      "fallen_star4": 1078422,
+      "glass_concord6": 1167387,
+      "glass_concord4": 1037438,
+      "lantern_garden6": 1668478,
+      "lantern_garden4": 1148595,
+      "hoarfrost_vigil6": 1325553,
+      "hoarfrost_vigil4": 1034654,
+      "hollowstar_choir6": 1528049,
+      "hollowstar_choir4": 1124682
      },
      "timeouts": {
       "rare": 8,
@@ -13960,17 +13960,17 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 14.478460707386077,
-      "fallen_star6": 11.253227744140505,
-      "fallen_star4": 16.43796222620805,
-      "glass_concord6": 14.797275938219892,
-      "glass_concord4": 16.808166495472452,
-      "lantern_garden6": 10.597865993714837,
-      "lantern_garden4": 14.400239251284216,
-      "hoarfrost_vigil6": 12.02877922214431,
-      "hoarfrost_vigil4": 17.154002424008134,
-      "hollowstar_choir6": 9.737815661407533,
-      "hollowstar_choir4": 16.32190973597143
+      "legendary": 13.489590621240083,
+      "fallen_star6": 10.023455764167187,
+      "fallen_star4": 14.60689971087385,
+      "glass_concord6": 13.493727444283687,
+      "glass_concord4": 15.183945450234134,
+      "lantern_garden6": 9.441180525005423,
+      "lantern_garden4": 13.71449640647922,
+      "hoarfrost_vigil6": 11.883645542652765,
+      "hoarfrost_vigil4": 15.224801721155092,
+      "hollowstar_choir6": 10.308833028260219,
+      "hollowstar_choir4": 14.006094167062335
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "glass_concord6",
@@ -14054,7 +14054,7 @@
          "legendary": "void_heart"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "spellwrights_circlet"
         },
         "shoulders": {
          "rare": "shoulders_mantle"
@@ -14063,7 +14063,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "frostthread_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14075,7 +14075,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -14181,25 +14181,25 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "chest": {
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "frostthread_gloves"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14219,7 +14219,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "glasswrights_wraps",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -14265,7 +14265,7 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14311,13 +14311,13 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "frostlocked_wand"
@@ -14329,7 +14329,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14349,7 +14349,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "glasswrights_wraps",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -14395,7 +14395,7 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14441,25 +14441,25 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "chest": {
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "frostthread_gloves"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14479,7 +14479,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "glasswrights_wraps",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -14525,7 +14525,7 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14571,13 +14571,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "mainhand": {
          "legendary": "frostlocked_wand"
@@ -14589,7 +14589,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "frostthread_gloves"
+         "legendary": "glasswrights_wraps"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -14609,7 +14609,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "glasswrights_wraps",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -14661,7 +14661,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -14713,7 +14713,7 @@
          "legendary": "frostlocked_wand"
         },
         "offhand": {
-         "legendary": "glyphstone_orb"
+         "legendary": "void_heart"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -14725,7 +14725,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -14758,46 +14758,46 @@
       ]
      },
      "ms": {
-      "rare": 22034091,
-      "legendary": 1048489,
-      "fallen_star6": 1431772,
-      "fallen_star4": 1127982,
-      "glass_concord6": 1048523,
-      "glass_concord4": 971545,
-      "lantern_garden6": 1377474,
-      "lantern_garden4": 1235808,
-      "hoarfrost_vigil6": 962140,
-      "hoarfrost_vigil4": 887578,
-      "hollowstar_choir6": 1373055,
-      "hollowstar_choir4": 1105541
+      "rare": 20172371,
+      "legendary": 950095,
+      "fallen_star6": 1295749,
+      "fallen_star4": 1025476,
+      "glass_concord6": 1053748,
+      "glass_concord4": 1035454,
+      "lantern_garden6": 1653786,
+      "lantern_garden4": 1069603,
+      "hoarfrost_vigil6": 948266,
+      "hoarfrost_vigil4": 800837,
+      "hollowstar_choir6": 1194817,
+      "hollowstar_choir4": 1013220
      },
      "timeouts": {
       "rare": 8,
       "legendary": 3,
-      "fallen_star6": 3,
+      "fallen_star6": 5,
       "fallen_star4": 3,
       "glass_concord6": 3,
       "glass_concord4": 3,
-      "lantern_garden6": 4,
+      "lantern_garden6": 5,
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 5,
+      "hollowstar_choir6": 4,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 21.01509028707025,
-      "fallen_star6": 15.389385321126548,
-      "fallen_star4": 19.534080331069113,
-      "glass_concord6": 21.01440883986331,
-      "glass_concord4": 22.679434303094556,
-      "lantern_garden6": 15.996012265930247,
-      "lantern_garden4": 17.829704128796706,
-      "hoarfrost_vigil6": 22.90112769451431,
-      "hoarfrost_vigil4": 24.824962989168277,
-      "hollowstar_choir6": 16.047493363339413,
-      "hollowstar_choir4": 19.93059597066052
+      "legendary": 21.231951541687938,
+      "fallen_star6": 15.568116201517423,
+      "fallen_star4": 19.671226825396207,
+      "glass_concord6": 19.143448908088082,
+      "glass_concord4": 19.481667944688997,
+      "lantern_garden6": 12.197691236955688,
+      "lantern_garden4": 18.859680647866544,
+      "hoarfrost_vigil6": 21.272903383649734,
+      "hoarfrost_vigil4": 25.18910964403493,
+      "hollowstar_choir6": 16.88323065373191,
+      "hollowstar_choir4": 19.90917174947198
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "hoarfrost_vigil6",
@@ -14899,7 +14899,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -14976,7 +14976,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -15002,19 +15002,16 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "fallen_star",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "fallen_star",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -15024,6 +15021,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15037,7 +15037,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "echoing_bead"
        ]
       },
@@ -15100,7 +15100,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -15126,19 +15126,16 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "glass_concord",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "glass_concord",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -15148,6 +15145,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15161,7 +15161,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "echoing_bead"
        ]
       },
@@ -15224,7 +15224,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -15250,19 +15250,16 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "lantern_garden",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "lantern_garden",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -15272,6 +15269,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15285,7 +15285,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "echoing_bead"
        ]
       },
@@ -15348,7 +15348,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "horizon_cowl",
+        "rimewalker_slippers",
         "echoing_bead"
        ]
       },
@@ -15374,19 +15374,16 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "hands": {
          "set": "hoarfrost_vigil",
          "base": "hands_wraps"
         },
+        "head": {
+         "set": "hoarfrost_vigil",
+         "base": "head_wizard"
+        },
         "mainhand": {
          "legendary": "cistern_staff"
-        },
-        "head": {
-         "legendary": "horizon_cowl"
         },
         "chest": {
          "legendary": "starchart_robe"
@@ -15396,6 +15393,9 @@
         },
         "waist": {
          "rare": "waist_sash"
+        },
+        "feet": {
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15409,7 +15409,7 @@
        },
        "cube": [
         "thousand_missiles",
-        "frostthread_gloves",
+        "horizon_cowl",
         "echoing_bead"
        ]
       },
@@ -15458,7 +15458,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15519,7 +15519,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15553,7 +15553,7 @@
      },
      "ms": {
       "rare": 18686569,
-      "legendary": 1064093,
+      "legendary": 958753,
       "fallen_star6": 1126346,
       "fallen_star4": 861629,
       "glass_concord6": 603813,
@@ -15562,8 +15562,8 @@
       "lantern_garden4": 778214,
       "hoarfrost_vigil6": 1168643,
       "hoarfrost_vigil4": 937882,
-      "hollowstar_choir6": 1352390,
-      "hollowstar_choir4": 1006284
+      "hollowstar_choir6": 1208834,
+      "hollowstar_choir4": 933398
      },
      "timeouts": {
       "rare": 6,
@@ -15581,7 +15581,7 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 17.561029909979673,
+      "legendary": 19.490493380464,
       "fallen_star6": 16.590434022937888,
       "fallen_star4": 21.68748846661382,
       "glass_concord6": 30.947609607610303,
@@ -15590,8 +15590,8 @@
       "lantern_garden4": 24.01212134451449,
       "hoarfrost_vigil6": 15.989972130068807,
       "hoarfrost_vigil4": 19.92422181041965,
-      "hollowstar_choir6": 13.817440974866717,
-      "hollowstar_choir4": 18.56987589984537
+      "hollowstar_choir6": 15.458341674704716,
+      "hollowstar_choir4": 20.019936832948
      },
      "best": "glass_concord6",
      "bestSet6": "glass_concord6",
@@ -15672,7 +15672,7 @@
          "legendary": "lanternroot"
         },
         "head": {
-         "legendary": "horizon_cowl"
+         "legendary": "spellwrights_circlet"
         },
         "shoulders": {
          "legendary": "coiled_pauldrons"
@@ -15681,7 +15681,7 @@
          "legendary": "starchart_robe"
         },
         "hands": {
-         "legendary": "firekeepers_gloves"
+         "legendary": "frostthread_gloves"
         },
         "wrists": {
          "legendary": "runeweaver_cuffs"
@@ -15693,7 +15693,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -15792,13 +15792,13 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "fallen_star",
@@ -15916,13 +15916,13 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "glass_concord",
@@ -16040,13 +16040,13 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "lantern_garden",
@@ -16164,13 +16164,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "hoarfrost_vigil",
@@ -16252,7 +16252,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -16313,7 +16313,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -16347,7 +16347,7 @@
      },
      "ms": {
       "rare": 26470248,
-      "legendary": 1376064,
+      "legendary": 1407777,
       "fallen_star6": 1755449,
       "fallen_star4": 1423981,
       "glass_concord6": 1561373,
@@ -16356,8 +16356,8 @@
       "lantern_garden4": 1676092,
       "hoarfrost_vigil6": 1562653,
       "hoarfrost_vigil4": 1202794,
-      "hollowstar_choir6": 2012124,
-      "hollowstar_choir4": 1933061
+      "hollowstar_choir6": 2198203,
+      "hollowstar_choir4": 1657276
      },
      "timeouts": {
       "rare": 8,
@@ -16375,7 +16375,7 @@
      },
      "factor": {
       "rare": 1,
-      "legendary": 19.236204130040463,
+      "legendary": 18.802870056834287,
       "fallen_star6": 15.078904599336123,
       "fallen_star4": 18.58890532949527,
       "glass_concord6": 16.953186714513443,
@@ -16384,8 +16384,8 @@
       "lantern_garden4": 15.792837147364226,
       "hoarfrost_vigil6": 16.939300023741676,
       "hoarfrost_vigil4": 22.007299670600286,
-      "hollowstar_choir6": 13.155376110021052,
-      "hollowstar_choir4": 13.69343647199959
+      "hollowstar_choir6": 12.041766843189642,
+      "hollowstar_choir4": 15.972142238227066
      },
      "best": "hoarfrost_vigil4",
      "bestSet6": "glass_concord6",
@@ -16466,7 +16466,7 @@
          "legendary": "kindling_rod"
         },
         "offhand": {
-         "legendary": "void_heart"
+         "legendary": "glyphstone_orb"
         },
         "head": {
          "legendary": "horizon_cowl"
@@ -16490,7 +16490,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -16592,13 +16592,13 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "fallen_star",
@@ -16722,13 +16722,13 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "glass_concord",
@@ -16852,13 +16852,13 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "lantern_garden",
@@ -16982,13 +16982,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "hoarfrost_vigil",
@@ -17076,7 +17076,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -17140,7 +17140,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -17173,18 +17173,18 @@
       ]
      },
      "ms": {
-      "rare": 14975931,
-      "legendary": 558765,
-      "fallen_star6": 1061863,
-      "fallen_star4": 700158,
-      "glass_concord6": 780422,
-      "glass_concord4": 701880,
-      "lantern_garden6": 988829,
-      "lantern_garden4": 775356,
-      "hoarfrost_vigil6": 863575,
-      "hoarfrost_vigil4": 684450,
-      "hollowstar_choir6": 1510773,
-      "hollowstar_choir4": 1002860
+      "rare": 13178029,
+      "legendary": 561037,
+      "fallen_star6": 1089368,
+      "fallen_star4": 734777,
+      "glass_concord6": 808040,
+      "glass_concord4": 754501,
+      "lantern_garden6": 1059859,
+      "lantern_garden4": 752145,
+      "hoarfrost_vigil6": 795584,
+      "hoarfrost_vigil4": 674661,
+      "hollowstar_choir6": 1142607,
+      "hollowstar_choir4": 845368
      },
      "timeouts": {
       "rare": 8,
@@ -17197,25 +17197,25 @@
       "lantern_garden4": 3,
       "hoarfrost_vigil6": 3,
       "hoarfrost_vigil4": 3,
-      "hollowstar_choir6": 4,
+      "hollowstar_choir6": 3,
       "hollowstar_choir4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 26.801841561300368,
-      "fallen_star6": 14.103449315024632,
-      "fallen_star4": 21.389359258910133,
-      "glass_concord6": 19.18952951095689,
-      "glass_concord4": 21.33688237305522,
-      "lantern_garden6": 15.145117103159393,
-      "lantern_garden4": 19.3149095383282,
-      "hoarfrost_vigil6": 17.341783863590308,
-      "hoarfrost_vigil4": 21.88024106947184,
-      "hollowstar_choir6": 9.912760553703302,
-      "hollowstar_choir4": 14.93322198512255
+      "legendary": 23.488698606330775,
+      "fallen_star6": 12.096948873108078,
+      "fallen_star4": 17.934732578727967,
+      "glass_concord6": 16.308634473540913,
+      "glass_concord4": 17.465886725133565,
+      "lantern_garden6": 12.433756754436203,
+      "lantern_garden4": 17.52059642755054,
+      "hoarfrost_vigil6": 16.563969360872015,
+      "hoarfrost_vigil4": 19.532815740053152,
+      "hollowstar_choir6": 11.533299725977523,
+      "hollowstar_choir4": 15.588511748729548
      },
      "best": "legendary",
-     "bestSet6": "glass_concord6",
+     "bestSet6": "hoarfrost_vigil6",
      "bestHybrid": "hoarfrost_vigil4",
      "kits": {
       "rare": {
@@ -17314,7 +17314,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -17413,13 +17413,13 @@
          "set": "fallen_star",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "fallen_star",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "fallen_star",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "fallen_star",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "fallen_star",
@@ -17537,13 +17537,13 @@
          "set": "glass_concord",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "glass_concord",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "glass_concord",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "glass_concord",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "glass_concord",
@@ -17661,13 +17661,13 @@
          "set": "lantern_garden",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "lantern_garden",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "lantern_garden",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "lantern_garden",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "lantern_garden",
@@ -17785,13 +17785,13 @@
          "set": "hoarfrost_vigil",
          "base": "legs_cloth"
         },
-        "feet": {
-         "set": "hoarfrost_vigil",
-         "base": "feet_shoes"
-        },
         "head": {
          "set": "hoarfrost_vigil",
          "base": "head_wizard"
+        },
+        "feet": {
+         "set": "hoarfrost_vigil",
+         "base": "feet_shoes"
         },
         "hands": {
          "set": "hoarfrost_vigil",
@@ -17867,13 +17867,13 @@
          "base": "wrists_bracers"
         },
         "mainhand": {
-         "legendary": "undertow_staff"
+         "legendary": "armillary_staff"
         },
         "legs": {
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
@@ -17934,7 +17934,7 @@
          "rare": "legs_cloth"
         },
         "feet": {
-         "rare": "feet_shoes"
+         "legendary": "rimewalker_slippers"
         },
         "neck": {
          "legendary": "snowglobe_pendant"
