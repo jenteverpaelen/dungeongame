@@ -27,6 +27,9 @@ const trustedProxies = parseTrustedProxies(process.env.TRUSTED_PROXIES);
 const perIp = new Map<string, number>();
 
 async function main(): Promise<void> {
+  // Start-up marker: process start → all modules loaded (the part that slows most on a busy machine). Runtime tests
+  // scale their waits from it (server/test/loadClock.ts); operators see where start-up time goes.
+  console.log(`[server] modules loaded in ${Math.round(performance.now())} ms`);
   const allowedOrigins = webSocketOrigins(process.env.WS_ALLOWED_ORIGINS, PORT);
   ensureDataDir();
   const world = new World();
