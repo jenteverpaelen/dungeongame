@@ -45,10 +45,18 @@ export function fixtureOf(main: string): Fixture {
 /**
  * Fixed specialization per active tree (10 ranks): the top row's first two nodes at 3, the third at 2, then 2 ranks
  * in the middle node of the second row (its prerequisite is the second top node at 2+). Deterministic, not a design.
+ *
+ * Cairnfall keeps the spec measured before its tree was complete (engine wave 3 added N3 Quarry Dust at the top row's
+ * third cell): the positional rule would now spend 2 ranks on that slow instead of Second Fall, which moved Tolling Blow's
+ * legendary-only D3 from 0.91 to 0.79 [M] through the support's node spec, not through any item. Keeping the spec keeps
+ * the parity rows comparable before and after (docs/rework/depth/WARRIOR-PILOT.md §2).
  */
+const FIXED_SPEC: Record<string, Record<string, number>> = { cairnfall: { heavier_stones: 3, tight_ring: 3, fury_cairn: 2, second_fall: 2 } };
+
 export function fixtureNodes(skills: readonly string[]): Record<string, Record<string, number>> {
   const out: Record<string, Record<string, number>> = {};
   for (const id of skills) {
+    if (FIXED_SPEC[id]) { out[id] = { ...FIXED_SPEC[id] }; continue; }
     const nodes = SKILLS[id]?.nodes ?? [];
     const at = (c: number, r: number) => nodes.find((n) => n.pos.col === c && n.pos.row === r);
     const ranks: Record<string, number> = {};

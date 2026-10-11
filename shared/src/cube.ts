@@ -23,11 +23,11 @@ export interface CubeFunction {
 export const CUBE_FUNCTIONS: CubeFunction[] = [
   { op: 'salvage', name: 'Salvage', unlock: 1, desc: 'Break items down into crafting materials.', source: 'D3 Blacksmith salvage' },
   { op: 'fuse', name: 'Gem Fusion', unlock: 2, desc: 'Fuse three gems into one of the next rank.', source: 'D3 Jeweler' },
-  { op: 'enchant', name: 'Enchant', unlock: 3, desc: 'Reroll one property. Choose between two new rolls or keep the original. Only one property per item may ever be enchanted.', source: 'D3 Mystic' },
-  { op: 'upgrade', name: 'Empower', unlock: 4, desc: 'Raise an item\'s upgrade tier (+1 to +10). Each tier adds 6% to all its stats. Higher tiers may fail; failures add Fortune to the next attempt.', source: 'TBH Cube tiers' },
-  { op: 'transmute', name: 'Transmute Rare', unlock: 5, desc: 'Transform a Rare item into a random Legendary of the same type.', source: "Kanai's Cube: Upgrade Rare Item" },
-  { op: 'extract', name: 'Extract Power', unlock: 6, desc: 'Destroy a Legendary to permanently learn its power, then equip up to three learned powers.', source: "Kanai's Cube: Extract Legendary Power" },
-  { op: 'reforge', name: 'Reforge', unlock: 7, desc: 'Reroll every property of a Legendary as if newly found — it may become Ancient.', source: "Kanai's Cube: Rite of Rebirth / Reforge" },
+  { op: 'enchant', name: 'Enchant', unlock: 3, desc: 'Reroll one property. Choose between two new rolls or keep the original. Only one property per item may ever be enchanted.', source: 'reference: D3 artisan enchanting' },
+  { op: 'upgrade', name: 'Empower', unlock: 4, desc: 'Raise an item\'s upgrade tier (+1 to +10). Each tier adds 6% to all its stats. Higher tiers may fail; failures add Fortune to the next attempt.', source: 'reference: Task Bar Hero crafting tiers' },
+  { op: 'transmute', name: 'Transmute Rare', unlock: 5, desc: 'Transform a Rare item into a random Legendary of the same type.', source: "reference: D3 cube recipe (rare to legendary)" },
+  { op: 'extract', name: 'Bind Power', unlock: 6, desc: 'Destroy a Legendary to permanently learn its power, then equip up to three learned powers.', source: "reference: D3 cube recipe (power learning)" },
+  { op: 'reforge', name: 'Reforge', unlock: 7, desc: 'Reroll every property of a Legendary as if newly found — it may become Ancient.', source: "reference: D3 cube recipes (reroll / reforge)" },
   { op: 'socket', name: 'Add Socket', unlock: 8, desc: 'Add a socket to an item that can hold one.', source: "D3 Ramaladni's Gift" },
 ];
 

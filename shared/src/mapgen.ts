@@ -188,11 +188,11 @@ function genTown(seed: number): MapData {
   for (let i = 0; i < 6; i++) P('fence', cx + 9 + i * 1.0, cy + 13.5, 0, 1, i);
 
   const npcs: NpcSpot[] = [
-    { id: 'cube', name: 'The Ancients\' Cube', role: 'cube', x: cx * TILE, y: (cy - 4) * TILE, r: 40 },
-    { id: 'obelisk', name: 'Rift Obelisk', role: 'obelisk', x: (cx + 9) * TILE, y: (cy + 4) * TILE, r: 36 },
+    { id: 'cube', name: 'The Glass Reliquary', role: 'cube', x: cx * TILE, y: (cy - 4) * TILE, r: 40 },
+    { id: 'obelisk', name: 'Faultstone', role: 'obelisk', x: (cx + 9) * TILE, y: (cy + 4) * TILE, r: 36 },
     { id: 'waypoint', name: 'Waypoint', role: 'waypoint', x: (cx - 9) * TILE, y: (cy + 4) * TILE, r: 44 },
     { id: 'stash', name: 'Stash', role: 'stash', x: (cx - 5) * TILE, y: (cy + 7) * TILE, r: 26 },
-    { id: 'paragon', name: 'Paragon Shrine', role: 'paragon', x: (cx + 5) * TILE, y: (cy - 6) * TILE, r: 26 },
+    { id: 'paragon', name: 'Lantern Shrine', role: 'paragon', x: (cx + 5) * TILE, y: (cy - 6) * TILE, r: 26 },
     { id: 'dummy1', name: 'Training Dummy', role: 'dummy', x: (cx + 12) * TILE, y: (cy + 6) * TILE, r: 22 },
     { id: 'dummy2', name: 'Training Dummy', role: 'dummy', x: (cx + 14.5) * TILE, y: (cy + 5) * TILE, r: 22 },
     { id: 'dummy3', name: 'Elite Training Dummy', role: 'dummy', x: (cx + 13.5) * TILE, y: (cy + 7.8) * TILE, r: 28 },

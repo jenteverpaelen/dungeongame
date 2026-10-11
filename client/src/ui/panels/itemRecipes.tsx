@@ -24,7 +24,7 @@ export function ItemRecipes({char}:{char:CharacterSave}) {
   };
   return <>
     <nav>{(['forge','exchange','convertSet'] as const).map(k=><button class={`btn sm${recipe===k?' primary':''}`} onClick={()=>{setRecipe(k);setConfirm(false);setResult('');}}>{k==='forge'?'Forge Rare':k==='exchange'?'Exchange gems':'Convert set'}</button>)}</nav>
-    <p>Requires workshop level {needed}. {recipe==='forge'?'Use the Blacksmith to craft a Rare base at your level with random properties.':recipe==='exchange'?'Use the Jeweler: three matching gems become one chosen gem of the same rank.':'Use the Cube: consume a bag set piece to create a chosen class set piece at the same item level. All rolls and upgrades reset; socketed gems return. Result is never Kindled or Fabled.'}</p>
+    <p>Requires workshop level {needed}. {recipe==='forge'?'Use the Blacksmith to craft a Rare base at your level with random properties.':recipe==='exchange'?'Use the Jeweler: three matching gems become one chosen gem of the same rank.':'Use the Reliquary: consume a bag set piece to create a chosen class set piece at the same item level. All rolls and upgrades reset; socketed gems return. Result is never Kindled or Fabled.'}</p>
     {recipe==='forge'&&<Paged size={10}>{bases.map(b=><button class={`btn sm${base===b.id?' primary':''}`} onClick={()=>setBase(b.id)}>{b.names[baseTierIndex(char.level)]}</button>)}</Paged>}
     {recipe==='exchange'&&<>
       <p>Consume 3:</p><nav>{Object.values(GEMS).map(g=><button class={`btn sm${from===g.id?' primary':''}`} onClick={()=>setFrom(g.id)}>{g.name} ({char.gems[`${g.id}:${rank}`]??0})</button>)}</nav>
@@ -37,7 +37,7 @@ export function ItemRecipes({char}:{char:CharacterSave}) {
       <p>Piece:</p><nav>{SETS[set].pieces.map(p=><button class={`btn sm${piece===p.base?' primary':''}`} onClick={()=>{setPiece(p.base);setConfirm(false);}}>{p.name}</button>)}</nav>
     </>}
     <div class="collection-row"><CostList cost={cost} char={char}/>
-      <button class="btn primary" disabled={char.cube.level<needed||!canAfford(char,cost)||(recipe==='exchange'&&(from===to||(char.gems[`${from}:${rank}`]??0)<3))||(recipe==='convertSet'&&!source)} onClick={()=>void craft()}>{confirm?'Confirm consumption':recipe==='forge'?'Forge at Blacksmith':recipe==='exchange'?'Exchange at Jeweler':'Convert at Cube'}</button>
+      <button class="btn primary" disabled={char.cube.level<needed||!canAfford(char,cost)||(recipe==='exchange'&&(from===to||(char.gems[`${from}:${rank}`]??0)<3))||(recipe==='convertSet'&&!source)} onClick={()=>void craft()}>{confirm?'Confirm consumption':recipe==='forge'?'Forge at Blacksmith':recipe==='exchange'?'Exchange at Jeweler':'Convert at the Reliquary'}</button>
     </div><p role="status">{result}</p>
   </>;
 }

@@ -10,6 +10,7 @@
 
 import { Container, Graphics, Matrix, Sprite, Texture } from 'pixi.js';
 import { gearEffectLevel, preferences } from '../../game/preferences';
+import { effectsFactor } from '../../game/quality';
 import { gearProfile, unpackGearFx, type GearProfile } from '@shared/gearVisual';
 import { LEGENDARIES } from '@shared/data/items';
 import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx';
@@ -155,7 +156,8 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
     const m = weaponDrawing(sl.mainhand, true);
     if (m) {
       if (m.lit) specs.push({ name: 'weaponL', draw: (c) => m.draw(c, 'light') });
-      m.floats.forEach((f, i) => specs.push({ name: `wf${i}`, draw: (c) => f.draw(c), flash: true }));
+      const keep = heldFloatPlan(m.floats);
+      m.floats.forEach((f, i) => { if (keep.has(i)) specs.push({ name: `wf${i}`, draw: (c) => f.draw(c), flash: true }); });
     }
   }
   const off = sl.offhand;
@@ -170,6 +172,22 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
   add('mouthR', (c) => drawMouth(c, 1), false);
   add('brow', (c) => drawBrow(c), false);
   return specs;
+}
+
+/** Crowd budget for a held item's floating pieces by the effects density (Graphics preset: High full, Medium reduced,
+ *  Low minimal). Structural floats (pieces the item is made of) always stay; decorative ones (motes, sparks) are capped
+ *  and only shown in the presence slots; soft glow sprites are capped. */
+function heldFloatBudget(): { deco: number; glows: number } {
+  const d = effectsFactor();
+  return d >= 1 ? { deco: 3, glows: 3 } : d >= 0.5 ? { deco: 2, glows: 1 } : { deco: 0, glows: 0 };
+}
+/** Indices of the floats a hero bakes and shows: every structural float, the LAST `deco` decorative ones (the grade
+ *  accents are added last, so a Fabled weapon keeps its starlight first). */
+function heldFloatPlan(floats: readonly WFloat[]): Set<number> {
+  const keep = new Set<number>();
+  let deco = heldFloatBudget().deco;
+  for (let i = floats.length - 1; i >= 0; i--) if (!floats[i].deco) keep.add(i); else if (deco > 0) { keep.add(i); deco--; }
+  return keep;
 }
 
 /** Shared glyph sheet (arrows, mallet, notes, runes): baked once. */
@@ -562,8 +580,11 @@ export class PlayerArt implements PlayerView {
     const glow = sl.mainhand?.glow ?? 0;
     const wst = itemStyle(sl.mainhand);
     // the swing trail carries the weapon's light (prestige lives in the attack in small sprites, REFERENCES-V2 V7)
-    const wLit = !!wst && !!wst.light && (wst.special || wst.gen >= 3 || wst.top >= 1);
-    this.trailColor = wst ? (wLit ? light(wst.light, 0.12) : wst.light ? light(wst.light, 0.35) : 0xfff4dc) : glow ? light(glow, 0.25) : 0xfff4dc;
+    // the trail takes the DRAWING's light (weaponDrawing present.light; the default drawings report the item style's light,
+    // so the current art is unchanged), e.g. a series weapon trails in its ember / lamp / signal colour
+    const wL = wst ? (weaponSkinOf(sl.mainhand)?.light ?? wst.light) : 0;
+    const wLit = !!wst && !!wL && (wst.special || wst.gen >= 3 || wst.top >= 1);
+    this.trailColor = wst ? (wLit ? light(wL, 0.12) : wL ? light(wL, 0.35) : 0xfff4dc) : glow ? light(glow, 0.25) : 0xfff4dc;
     this.trailAdd = wst ? wLit : !!glow;
     this.trailBoost = !wst ? 1 : 1 + (wLit ? 0.06 * wst.gen : 0) + (wst.special ? 0.2 : 0) + wst.top * 0.15 + wst.temper * 0.05;
     { const pr = Object.values(sl).some((l) => typeof l?.fx === 'number') ? gearProfile(this.look) : null;
@@ -600,11 +621,12 @@ export class PlayerArt implements PlayerView {
     if (wst && sl.mainhand && SHAPE_FAMILY[sl.mainhand.shape]) {
       const fl = weaponDrawing(sl.mainhand, true)?.floats ?? [];
       let glows = 0;
+      const glowMax = heldFloatBudget().glows;
       fl.forEach((f, i) => {
         if (!sheet.has(`wf${i}`)) return;
         const s = mk(`wf${i}`, `wf${i}`);
-        // at most three soft glows per weapon (crowd budget); the pieces themselves carry their light
-        const g = f.glow && glows++ < 3 ? glowSprite(f.glow, f.glowR * 2.2, 0, true) : null;
+        // soft glows per weapon by the effects density (crowd budget); the pieces themselves carry their light
+        const g = f.glow && glows++ < glowMax ? glowSprite(f.glow, f.glowR * 2.2, 0, true) : null;
         if (g) this.fxAdd.addChild(g);
         this.wFloats.push({ f, s, g });
       });
@@ -735,11 +757,12 @@ export class PlayerArt implements PlayerView {
       }
       const w = itemStyle(sl.mainhand);
       this.weaponGlow = null; this.tipSpark = null;
-      if (w && w.light && (w.special || w.gen >= 5 || w.top >= 1)) {
-        const ws = glowSprite(w.light, 30, 0.5, true);
+      const wl = this.skin ? this.skin.light : w?.light ?? 0;
+      if (w && wl && (w.special || w.gen >= 5 || w.top >= 1 || (q === 'full' && (this.skin?.rim ?? 0) > 0.4))) {
+        const ws = glowSprite(wl, 30, 0.5, true);
         ws.blendMode = 'normal'; ws.zIndex = 0;
         this.weaponGlow = ws; this.body.addChild(ws);
-        if (q === 'full' && (w.special || w.top >= 1)) { const tip = sparkleSprite(light(w.edgeLight || w.light, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
+        if (q === 'full' && (w.special || w.top >= 1)) { const tip = sparkleSprite(light(w.edgeLight || wl, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
       }
     }
     this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR, this.mode === 'scene');
@@ -771,8 +794,10 @@ export class PlayerArt implements PlayerView {
       L.alpha = clamp(pulse, 0, 1) * (behind ? 0.35 : 1);
     }
     const rot = bow ? Math.atan2(b, a) : wpn.rotation, k = Math.hypot(a, b);
+    // decorative floats: presence slots only, and none on the Low preset (also if the preset changed after the bake)
+    const deco = rich && effectsFactor() >= 0.5;
     for (const { f, s, g } of this.wFloats) {
-      const vis = wpn.visible && (!f.deco || rich);
+      const vis = wpn.visible && (!f.deco || deco);
       s.visible = vis;
       if (g) g.visible = vis && rich;
       if (!vis) continue;

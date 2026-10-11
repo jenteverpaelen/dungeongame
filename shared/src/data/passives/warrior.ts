@@ -22,11 +22,25 @@ export const WARRIOR_PASSIVES: PassiveDef[] = [
     effects: [skillMods(tagged('buff'), { duration: 30 }),
       conditional({ any: [{ all: [{ buff: 'battle_rage' }, { buff: 'muster_standard' }] }, { all: [{ buff: 'battle_rage' }, { buff: 'kilnheart' }] }, { all: [{ buff: 'muster_standard' }, { buff: 'kilnheart' }] }] }, 'own', 25, tagged('primary'))],
     text: 'Your Buff skills last 30% longer; while two of them are active, your Primary skills deal 25% increased damage.' },
-  // Bible: "slows enemies by 30%"; the engine's one slow is the 40% chill, so the text names the chill.
+  // Slowed = slowed or chilled (a chill slows too).
   { id: 'warrior_deep_earth', classId: 'warrior', name: 'Deep Earth', unlock: 45, note: 'The ground keeps shaking after a stun.',
-    effects: [flags(tagged('stun'), 'deepEarth'), conditional({ targetState: 'chilled' }, 'hit', 10)],
-    text: 'Your Stun skills leave tremor ground for 2 seconds that chills enemies inside, and you deal 10% more damage to chilled enemies.' },
+    effects: [flags(tagged('stun'), 'deepEarth'), conditional({ targetState: 'slowed' }, 'hit', 10)],
+    text: 'Your Stun skills leave tremor ground for 2 seconds that slows enemies inside by 30%, and you deal 10% more damage to slowed enemies.' },
   { id: 'warrior_second_wind', classId: 'warrior', name: 'Second Wind', unlock: 55, note: 'Not yet.',
     effects: [{ kind: 'cheatDeath', lifePct: 40, cooldownMs: 90000, resetCooldowns: ['ground_stomp', 'cairnfall'] }],
     text: 'Once every 90 seconds, fatal damage instead leaves you at 40% Life and resets the cooldowns of Ground Stomp and Cairnfall.' },
+  // ─────────────────────────── engine wave 3 (bible v2 §6) ───────────────────────────
+  { id: 'warrior_spinning_top', classId: 'warrior', name: 'Spinning Top', unlock: 24, note: 'The longer you turn, the faster you go.',
+    effects: [{ kind: 'stacking', buff: 'spinning_top', source: 'channel', per: 1000, max: 5, decayMs: 1000, stackDmg: 4, stackMoveSpeed: 3 }],
+    text: 'While channelling, each second adds a stack (max 5) of 4% increased damage and 3% movement speed; the stacks last 1 second after the channel ends.' },
+  // Two procs on the same hit and internal cooldown: the Mark (target state "marked") and your own vulnerability.
+  { id: 'warrior_grudge_holder', classId: 'warrior', name: 'Grudge Holder', unlock: 36, note: 'Remember who hit you.',
+    effects: [
+      proc('takeDamage', { when: { targetElite: true }, icdMs: 10000, applyStatus: { kind: 'mark', ms: 6000 } }),
+      proc('takeDamage', { when: { targetElite: true }, icdMs: 10000, applyStatus: { kind: 'vulnerable', pct: 15, ms: 6000 } }),
+    ],
+    text: 'The first elite that damages you every 10 seconds is Marked for 6 seconds and takes 15% more damage from you.' },
+  { id: 'warrior_iron_discipline', classId: 'warrior', name: 'Iron Discipline', unlock: 64, note: 'Hold your anger; spend it when it counts.',
+    effects: [{ kind: 'rule', rule: { id: 'noDecay' } }, { kind: 'stat', stat: 'maxResource', value: 20 }, skillMods(tagged('primary'), { vars: { genPct: -15 } })],
+    text: 'Your Fury no longer decays and your maximum Fury is increased by 20, but your Primary skills generate 15% less Fury.' },
 ];

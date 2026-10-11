@@ -59,7 +59,7 @@ function PickupRow({ p }: { p: PickupLine }) {
     case 'item': color = RARITY_COLORS[(p.rarity as keyof typeof RARITY_COLORS) ?? 'normal'] ?? '#ffffff'; break;
     case 'gem': color = gemColor(p.name); icon = <GemMark color={color} />; break;
     case 'mat': color = '#b9d4e8'; text = `${p.amount && p.amount > 1 ? `+${fmtInt(p.amount)} ` : ''}${p.name}`; break;
-    case 'globe': color = '#ff6a58'; text = p.name || 'Health Globe'; break;
+    case 'globe': color = '#ff6a58'; text = p.name || 'Mending Orb'; break;
   }
   const rare = p.lk === 'item' && (p.rarity === 'legendary' || p.rarity === 'set');
   return (

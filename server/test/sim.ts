@@ -21,6 +21,7 @@ import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
 import { encode } from '../src/net/codec';
 import { writeFileSync } from 'node:fs';
+import { LoadGauge, QUIET_GAUGE_MS } from './perfGauge';
 
 // Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
 // so a failing check reproduces exactly. Override with SIM_SEED=<n> to explore other outcomes.
@@ -796,6 +797,29 @@ function inputScenario() {
   inst.destroy();
 }
 
+/**
+ * `SIM_PERF_INJECT_MS=<ms>`: a deliberate code slowdown for proving the tick checks — every measured tick also runs
+ * <ms> of quiet-machine reference work (perfGauge.burn), inside the timed region, so it slows down with the load like
+ * real code does.
+ */
+const INJECT_MS = Number(process.env.SIM_PERF_INJECT_MS ?? 0);
+
+function gaugeLine(label: string, gauge: LoadGauge | ReturnType<LoadGauge['stats']>) {
+  const g = gauge instanceof LoadGauge ? gauge.stats() : gauge;
+  console.log(`  perf: ${label}: load gauge ${g.n} samples, fastest ${fmt(g.min, 3)} ms, mean ${fmt(g.mean, 3)} ms (quiet reference ${fmt(QUIET_GAUGE_MS, 3)} ms) → load factor ${fmt(g.factor, 2)}${INJECT_MS ? `, injected ${INJECT_MS} ms per tick` : ''}`);
+  return g;
+}
+
+/** `sim.ts gauge`: the load gauge alone, back to back (cache-warm, so faster than the in-run samples). */
+function gaugeScenario() {
+  console.log('\n== Load gauge alone ==');
+  for (let k = 0; k < 3; k++) {
+    const gauge = new LoadGauge();
+    for (let i = 0; i < 2000; i++) gauge.sample();
+    gaugeLine(`gauge run ${k + 1}`, gauge);
+  }
+}
+
 function perfScenario() {
   console.log('\n== Performance: 4 players + 150 active monsters ==');
   const inst = newField('ashen_hollow');
@@ -828,37 +852,50 @@ function perfScenario() {
     }
   };
   top();
-  const times: number[] = [];
-  const simTimes: number[] = [];
-  for (let t = 0; t < 20 * 30; t++) {
-    for (const b of bots) b.step();
-    for (const p of inst.players) p.hp = p.mhp;
-    const l0 = linkMs;
-    const t0 = performance.now();
-    inst.phaseMs = process.env.SIM_DEBUG ? [] : null;
-    inst.tick();
-    const dt = performance.now() - t0;
-    times.push(dt);
-    simTimes.push(dt - (linkMs - l0));
-    if (inst.phaseMs && dt > 6) console.log(`    slow tick ${t}: ${fmt(dt, 2)} ms (clients ${fmt(linkMs - l0, 2)}) ` + inst.phaseMs.map((v, i) => `${Instance.PHASES[i]} ${fmt(v, 2)}`).join(', ') + ` events ${inst.events.length}`);
-  }
-  simTimes.sort((a, b) => a - b);
-  const simAvg = simTimes.reduce((s, v) => s + v, 0) / simTimes.length;
+  // One 30 s window of measured ticks, each preceded by a load-gauge sample (server/test/perfGauge.ts).
+  const measure = () => {
+    const times: number[] = [];
+    const simTimes: number[] = [];
+    const gauge = new LoadGauge();
+    for (let t = 0; t < 20 * 30; t++) {
+      for (const b of bots) b.step();
+      for (const p of inst.players) p.hp = p.mhp;
+      gauge.sample();
+      const l0 = linkMs;
+      const t0 = performance.now();
+      inst.phaseMs = process.env.SIM_DEBUG ? [] : null;
+      inst.tick();
+      if (INJECT_MS > 0) gauge.burn(INJECT_MS);
+      const dt = performance.now() - t0;
+      times.push(dt);
+      simTimes.push(dt - (linkMs - l0));
+      if (inst.phaseMs && dt > 6) console.log(`    slow tick ${t}: ${fmt(dt, 2)} ms (clients ${fmt(linkMs - l0, 2)}) ` + inst.phaseMs.map((v, i) => `${Instance.PHASES[i]} ${fmt(v, 2)}`).join(', ') + ` events ${inst.events.length}`);
+    }
+    simTimes.sort((a, b) => a - b);
+    times.sort((a, b) => a - b);
+    const mean = (v: number[]) => v.reduce((x, y) => x + y, 0) / v.length;
+    const g = gauge.stats();
+    return { simTimes, times, simAvg: mean(simTimes), avg: mean(times), g, ok: mean(simTimes) < 3 * g.factor && mean(times) < 3 * g.factor };
+  };
+  // Best of up to 3 windows: a later window runs only when the previous one failed (a load spike the gauge did not
+  // catch); a real slowdown fails all three.
+  let run = measure(), attempt = 1;
+  while (!run.ok && attempt < 3) { console.log(`  perf: window ${attempt} over the load-scaled limit (sim ${fmt(run.simAvg, 3)} ms, factor ${fmt(run.g.factor, 2)}); measuring again`); run = measure(); attempt++; }
+  const { simTimes, times, simAvg, avg } = run;
   console.log(`  simulation only (excluding the fake clients' snapshot processing): avg ${fmt(simAvg, 3)} ms, p99 ${fmt(simTimes[Math.floor(simTimes.length * 0.99)], 3)} ms, max ${fmt(simTimes[simTimes.length - 1], 3)} ms`);
   summary.push(`perf: simulation only: avg ${fmt(simAvg, 3)} ms, p99 ${fmt(simTimes[Math.floor(simTimes.length * 0.99)], 3)} ms`);
-  times.sort((a, b) => a - b);
-  const warm = times.slice(0, Math.floor(times.length));
-  const avg = warm.reduce((s, v) => s + v, 0) / warm.length;
   const p99 = times[Math.floor(times.length * 0.99)];
   const max = times[times.length - 1];
   const alive = inst.mobs.length;
   const evs = links.reduce((s, l) => s + Object.values(l.ev).reduce((a, b) => a + b, 0), 0);
   if (process.env.SIM_DEBUG) for (const l of links) console.log('   ', l.save.classId, JSON.stringify(Object.entries({ ...l.ev, ...l.evV }).sort((a, b) => b[1] - a[1]).slice(0, 14)));
-  console.log(`  ${alive} monsters, ${inst.summons.length} summons, ${inst.projs.length} projectiles in flight, ${evs} events delivered in 30 s`);
+  console.log(`  ${alive} monsters, ${inst.summons.length} summons, ${inst.projs.length} projectiles in flight, ${evs} events delivered in ${30 * attempt} s`);
   console.log(`  tick avg ${fmt(avg, 3)} ms, p99 ${fmt(p99, 3)} ms, max ${fmt(max, 3)} ms; tickStats() ${JSON.stringify(Object.fromEntries(Object.entries(inst.tickStats()).map(([k, v]) => [k, +v.toFixed(3)])))}`);
-  summary.push(`perf: 4 players + 150 monsters: tick avg ${fmt(avg, 3)} ms, p99 ${fmt(p99, 3)} ms, max ${fmt(max, 3)} ms`);
-  check(simAvg < 3, `sim tick avg < 3 ms (${fmt(simAvg, 3)})`);
-  check(avg < 3, `tick avg incl. snapshot consumers < 3 ms (${fmt(avg, 3)})`);
+  const g = gaugeLine(`4 players + 150 monsters (window ${attempt} of at most 3)`, run.g);
+  summary.push(`perf: 4 players + 150 monsters: tick avg ${fmt(avg, 3)} ms, p99 ${fmt(p99, 3)} ms, max ${fmt(max, 3)} ms; load factor ${fmt(g.factor, 2)}`);
+  // 3 ms on a quiet machine; under load the limit scales with the same window's measured slowdown (perfGauge.ts).
+  check(simAvg < 3 * g.factor, `sim tick avg < 3 ms × load factor ${fmt(g.factor, 2)} (${fmt(simAvg, 3)})`);
+  check(avg < 3 * g.factor, `tick avg incl. snapshot consumers < 3 ms × load factor ${fmt(g.factor, 2)} (${fmt(avg, 3)})`);
   check(alive >= 150, 'monsters alive throughout');
   inst.destroy();
 }
@@ -942,10 +979,13 @@ function partyRiftPerf() {
   }
   const sim: number[] = [];
   let maxActive = 0, doneAt = -1;
+  const gauge = new LoadGauge();
   for (let t = 0; t < 20 * 60 * 8 && doneAt < 0; t++) {
     for (const b of bots) b.step();
+    if (t % 4 === 0) gauge.sample(); // every 4th tick: these ticks are short, a sample each would double the run
     const l0 = linkMs, t0 = performance.now();
     inst.tick();
+    if (INJECT_MS > 0) gauge.burn(INJECT_MS);
     sim.push(performance.now() - t0 - (linkMs - l0));
     if (t % 20 === 0) maxActive = Math.max(maxActive, inst.mobs.filter((m) => !m.dormant && !m.dead).length);
     if (inst.riftState()!.phase === 'done') doneAt = t;
@@ -956,8 +996,9 @@ function partyRiftPerf() {
   console.log(`  ${inst.mobs.length + inst.counters.kills} monsters, up to ${maxActive} awake at once, rift done at ${dur}, deaths ${links.map((l) => l.save.stats.deaths).join('/')}`);
   console.log(`  sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, max ${fmt(sim[sim.length - 1], 3)} ms`);
   summary.push(`perf: 4-player T3 rift: sim tick avg ${fmt(avg, 3)} ms, p99 ${fmt(sim[Math.floor(sim.length * 0.99)], 3)} ms, rift ${dur}`);
+  const g = gaugeLine('party rift', gauge);
   check(done === 1, 'party rift completed');
-  check(avg < 3, `party rift tick avg < 3 ms (${fmt(avg, 3)})`);
+  check(avg < 3 * g.factor, `party rift tick avg < 3 ms × load factor ${fmt(g.factor, 2)} (${fmt(avg, 3)})`);
   inst.destroy();
 }
 
@@ -1644,6 +1685,7 @@ if (only === 'fit') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]
 if (only === 'riftstall') riftStallHunt((process.argv[3] ?? 'mage') as ClassId, Number(process.argv[4] ?? 1), Number(process.argv[5] ?? 12));
 if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
 if (only === 'budget') perfBudgetScenario();
+if (only === 'gauge') gaugeScenario();
 if (only === 'leveling') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) levelingScenario(cls, Number(process.argv[3] ?? 25));
 
 if (process.env.SIM_JSON) {

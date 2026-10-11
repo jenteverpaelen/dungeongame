@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   preferences, BACKGROUND_FPS, COLOR_VISIONS, DEFAULT_CAMERA_ZOOM, DEFAULT_UI_SCALE, DENSITIES, FPS_CAPS, GEAR_EFFECT_LEVELS, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM,
-  MIN_UI_SCALE, MAX_UI_SCALE, MOTION_PREFS, NUMBER_SIZES, RENDER_SCALES, type Preferences,
+  MIN_UI_SCALE, MAX_UI_SCALE, MOTION_PREFS, NUMBER_SIZES, RENDER_SCALES, WEAPON_ART_MODES, type Preferences,
 } from '../../game/preferences';
 import { CVD_PALETTES } from '../../game/quality';
 import { ACTIONS, bindings, keyLabel, refreshKeyboardLayout, type Action } from '../../game/bindings';
@@ -20,6 +20,7 @@ import { useUI } from '../store';
 import { text } from '../../i18n/messages';
 import { cls } from './util';
 import { UiIcon, type UiIconName } from '../hud/UiIcons';
+import { appliedWeaponArt, weaponArtFromUrl } from '../../game/weaponArtPreview';
 
 type Section = 'sound' | 'display' | 'graphics' | 'access' | 'controls' | 'gamepad';
 const SECTIONS: { id: Section; icon: UiIconName }[] = [
@@ -125,12 +126,25 @@ function DisplaySettings() {
         <Choice label={text('gear.others')} value={v.otherGearEffects} options={GEAR_EFFECT_LEVELS} name={o => text(`gear.${o}`)} set={o => preferences.set({ otherGearEffects: o })} data="otherGearEffects" />
         <p class="settings-note">{text('gear.settingsNote')}</p>
       </section>
+      <WeaponArtCard />
       <section class="so-card">
         <h4>{text('set.display.guidance')}</h4>
         <Check k="contextualHints" label={text('guide.show')} note={text('guide.settingNote')} />
       </section>
     </div>
   </>;
+}
+
+/** Weapon art preview (docs/rework/gear/ART-DIRECTION.md §7): chosen once per page load, so a change asks for a reload. */
+function WeaponArtCard() {
+  const v = useLocal(preferences, s => s.values.weaponArt);
+  const fromUrl = weaponArtFromUrl();
+  return <section class="so-card">
+    <h4>{text('gear.artHeading')}</h4>
+    <Choice label={text('gear.art')} value={v} options={WEAPON_ART_MODES} name={o => text(`gear.art.${o}`)} set={o => preferences.set({ weaponArt: o })} data="weaponArt" />
+    <p class="settings-note">{text('gear.artNote')}{fromUrl ? ` ${text('gear.artUrl')}` : ''}</p>
+    {!fromUrl && appliedWeaponArt() !== v && <div><button class="btn sm" onClick={() => location.reload()}>{text('set.gfx.reload')}</button></div>}
+  </section>;
 }
 
 /** Interface size, applied when the slider is released: the window itself grows, and a thumb that moves away under the

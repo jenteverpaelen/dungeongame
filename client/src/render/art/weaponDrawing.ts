@@ -57,6 +57,9 @@ export interface WeaponPresentation {
   base: [number, number];
   /** Optional particle hint for impacts and projectile trails. */
   impact?: 'spark' | 'ember' | 'star' | 'shard';
+  /** Optional icon rim light 0..1: a glow in `light` baked round the icon's silhouette (the series art uses it;
+   *  drawings without it keep the plain icon). */
+  rim?: number;
 }
 
 export interface WeaponDrawing {

@@ -7,7 +7,7 @@ import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
-import { channelMsPct, debtRegenFactor, powerTick } from './powerActions';
+import { debtRegenFactor, movePct, powerTick } from './powerActions';
 import { dropInactivePowerBuffs, elementStacks, firePowerProcs, updateOwnGround } from './powerRuntime';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
 import { nextId } from './ids';
@@ -49,7 +49,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     inQ: [], lastIn: { mx: 0, my: 0 }, ack: 0,
     faceLeft: false, moving: false, faceLockMs: 0,
     atkCdMs: 0, readyAt: new Map(), attackFlagMs: 0, castFlagMs: 0,
-    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0, cost: 1 },
+    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0, cost: 1, mv: 0 },
     summons: [], channel: null,
     deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500,
     sinceHitMs: 1e9, sinceHurtMs: 1e9,
@@ -57,7 +57,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     lastEle: {}, ouroIdx: 0, ouroMs: 4000, noticeFullAt: -1e9,
     critHealMs: 0, critHealCount: 0, dealt: 0, kills: 0,
     ffTile: -1, ffT: -1e9, ff: null, ffX0: 0, ffY0: 0,
-    lastVortexT: -1e9, respawnTick: -1, taken: 0, pw: undefined,
+    lastVortexT: -1e9, respawnTick: -1, taken: 0, pw: undefined, acting: undefined,
   };
   return p;
 }
@@ -97,7 +97,7 @@ export function refreshPlayerStats(inst: Instance, p: Player, keepFraction: bool
 
 export function processInputs(inst: Instance, p: Player) {
   const blocked = p.deadMs > 0 || p.frozenMs > 0 || p.stunMs > 0;
-  const msPct = p.channel ? channelMsPct(p) : p.ctx.d.ms; // channel slows / rules / affix (shared with client prediction)
+  const msPct = movePct(p); // buff movement, channel slows / rules / affix (shared with client prediction via MeState.ms)
   const dashCd = p.ctx.dashCdMs;
   const x0 = p.mv.x, y0 = p.mv.y;
   let steps = 0;
@@ -105,14 +105,17 @@ export function processInputs(inst: Instance, p: Player) {
     while (steps < 2 && p.inQ.length) {
       const inp = p.inQ.shift()!;
       p.lastIn.mx = inp.mx; p.lastIn.my = inp.my;
-      const sx = p.mv.x, sy = p.mv.y;
+      const sx = p.mv.x, sy = p.mv.y, wasDashing = p.mv.dashMs > 0;
       const dashed = stepMove(inst.cw, p.mv, inp, msPct, dashCd, TICK_MS, PLAYER_RADIUS, blocked);
       if (dashed) onDash(inst, p, sx, sy);
+      else if (wasDashing && p.mv.dashMs <= 0 && p.ctx.powers.procs.dashEnd) firePowerProcs(inst, p, 'dashEnd'); // a Movement skill ended
       p.ack = inp.seq;
       steps++;
     }
   } else {
+    const wasDashing = p.mv.dashMs > 0;
     stepMove(inst.cw, p.mv, { mx: p.lastIn.mx, my: p.lastIn.my, dash: false }, msPct, dashCd, TICK_MS, PLAYER_RADIUS, blocked);
+    if (wasDashing && p.mv.dashMs <= 0 && p.ctx.powers.procs.dashEnd) firePowerProcs(inst, p, 'dashEnd');
   }
   p.x = p.mv.x; p.y = p.mv.y;
   const moved = Math.abs(p.x - x0) + Math.abs(p.y - y0);
@@ -199,7 +202,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   if (p.res < 0 && p.ctx.powers.debt.length) rr *= debtRegenFactor(p); // resource debt (engine wave 2)
   if (rr > 0) p.res = Math.min(p.mres, p.res + rr * dt);
   // Decay never pushes a debt (negative resource) back up to zero.
-  if (cls.decayPerSec > 0 && p.sinceHitMs > FURY_DECAY_DELAY_MS && !p.channel && p.res > 0) p.res = Math.max(0, p.res - cls.decayPerSec * dt);
+  if (cls.decayPerSec > 0 && p.sinceHitMs > FURY_DECAY_DELAY_MS && !p.channel && p.res > 0 && !p.ctx.powers.rules.noDecay) p.res = Math.max(0, p.res - cls.decayPerSec * dt);
   if ((p.save as { debugInfRes?: boolean }).debugInfRes) p.res = p.mres; // F2 prototype toggle
 
   updateLoot(inst, p, dtMs);

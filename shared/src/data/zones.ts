@@ -74,9 +74,9 @@ export const ZONES: Record<string, ZoneDef> = {
   hollowstar_array:{id:'hollowstar_array',name:'Hollowstar Array',kind:'dungeon',theme:'glade',levelBand:[45,50],size:[96,88],packTarget:0,respawnSec:0,
     blurb:'A private signal station for you and your party with three ordered encounters. Work with the readers to isolate both voices, then confront the Conductor.'},
   rift: {
-    id: 'rift', name: 'Nephalem Rift', kind: 'rift', theme: 'glade', levelBand: [1, 70], size: [110, 110],
+    id: 'rift', name: 'Faultline', kind: 'rift', theme: 'glade', levelBand: [1, 70], size: [110, 110],
     packTarget: 0, respawnSec: 0,
-    blurb: 'A tear in the world. Kill enough to draw out its Guardian.',
+    blurb: 'A fault in the world. Kill enough to draw out its Keeper.',
   },
 };
 

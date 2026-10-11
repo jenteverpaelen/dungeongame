@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hearthfall — Weapon Series</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #17130f; overflow: hidden; color: #e8d9b5; font: 12px/1.3 "Alegreya Sans", sans-serif; }
+      #stage { position: fixed; inset: 0; }
+      #stage canvas { display: block; }
+      #sheet { position: fixed; inset: 0; overflow: auto; display: none; }
+      .cell { background: radial-gradient(#2a2119, #120d0a); border: 1px solid #3a2f24; display: flex; align-items: center; justify-content: center; }
+      .lbl { color: #c9b98f; font-size: 11px; text-align: center; }
+      .sw { display: inline-block; width: 12px; height: 12px; border: 1px solid #0006; margin-right: 2px; vertical-align: middle; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="sheet"></div>
+    <script type="module" src="/src/dev/gallerySeries.ts"></script>
+  </body>
+</html>

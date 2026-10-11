@@ -66,14 +66,14 @@ export function ParagonPanel() {
   const atCap = char.level >= MAX_LEVEL;
   const totalAvail = PARAGON_CATEGORIES.reduce((a, c) => a + Math.max(0, pts[c.id] - paragonSpent(char, c.id)), 0);
   return (
-    <PanelFrame id="paragon" title="Paragon" width={1120}
+    <PanelFrame id="paragon" title="Lantern Ranks" width={1120}
       sub={totalAvail > 0 ? <span class="pn-lv">{totalAvail} unspent point{totalAvail === 1 ? '' : 's'}</span> : <span class="pn-lv">{fmtInt(totalSpent)} points spent</span>}>
       <div class="pg-head">
         <Medallion size={64} tone="violet"><i>{level}</i></Medallion>
         <div class="pg-xp">
           <div class="pg-xp-t">
-            <span>Paragon Level <b>{level}</b></span>
-            <em>{atCap ? `${fmtInt(char.paragon.xp)} / ${fmtInt(need)} XP` : `Reach level ${MAX_LEVEL} to earn Paragon experience`}</em>
+            <span>Lantern Rank <b>{level}</b></span>
+            <em>{atCap ? `${fmtInt(char.paragon.xp)} / ${fmtInt(need)} XP` : `Reach level ${MAX_LEVEL} to earn Lantern experience`}</em>
           </div>
           <Bar tone="violet" frac={atCap ? char.paragon.xp / need : 0} height={14} text={atCap ? `${((char.paragon.xp / need) * 100).toFixed(1)}%` : undefined} />
           <div class="pg-sub">
@@ -103,7 +103,7 @@ export function ParagonPanel() {
         <button class={cls('btn sm', confirm && 'primary')} disabled={totalSpent === 0} onBlur={() => setConfirm(false)} onClick={() => {
           if (!confirm) { setConfirm(true); setTimeout(() => setConfirm(false), 3200); } else { setConfirm(false); void run('paragonReset'); }
         }}>
-          {confirm ? `Refund ${fmtInt(totalSpent)} points?` : 'Reset Paragon'}
+          {confirm ? `Refund ${fmtInt(totalSpent)} points?` : 'Reset Lantern Ranks'}
         </button>
       </div>
     </PanelFrame>

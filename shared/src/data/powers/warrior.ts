@@ -89,6 +89,12 @@ export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
   // Bible: 'Kilnheart lasts 5 s longer' — durations are additive %, so 25% of its 20 s.
   { id: 'kilnmaw', name: 'Kilnmaw', base: 'maul2h', classes: ['warrior'], power: 'Kilnheart lasts 25% longer (5 more seconds), and your Burn skills deal {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: 'Kessa apologises to it, too.', colors: { primary: 0x3a2a24, secondary: 0xff7a2a, glow: 0xffb066 },
     effects: [skillMods(['kilnheart'], { duration: 25 }), skillMods(tagged('burn'), {}, { field: 'dmg' })] },
+  // ─────────────────────────── engine wave 3 (lifeBelow + castSkill, dashEnd) ───────────────────────────
+  { id: 'slagforged_helm', name: 'Slagforged Helm', base: 'head_helm', classes: ['warrior'], power: 'Your Buff skills’ cooldowns are {v}% shorter, and when you fall below 35% Life your ready Buff skill with the longest cooldown activates for free.', range: [20, 30], cubeSlot: 'armor', flavor: 'Poured, not hammered.', colors: { primary: 0x3a2a24, secondary: 0xff7a2a, glow: 0xffb066 },
+    effects: [skillMods(tagged('buff'), {}, { field: 'cooldown', sign: -1 }), proc('lifeBelow', { lifePct: 35, castSkill: { tags: tagged('buff'), pick: 'longestCooldown' } })] },
+  // "Movement skill" = the dash (the engine's one Movement skill); the tremor is centred on the landing point.
+  { id: 'quakestep_sabatons', name: 'Quakestep Sabatons', base: 'feet_greaves', classes: ['warrior'], power: 'When a Movement skill ends, a tremor stuns enemies within 120 units for 1 second and deals {v}% weapon damage to them (once every 3 seconds).', range: [60, 80], cubeSlot: 'armor', flavor: 'The ground remembers where they landed.', colors: { primary: 0x726549, secondary: 0x3a2f25, glow: 0xffd27f },
+    effects: [proc('dashEnd', { icdMs: 3000, strike: { id: 'quakestep', coef: { roll: 0.01 }, radius: 120, at: 'self', visual: 'tremor_ring' }, applyStatus: { kind: 'stun', ms: 1000, radius: 120, at: 'self' } })] },
 ];
 
 /** Bible v2 set colours: every set glows 0x3cff6e [M]; primaries / secondaries from WARRIOR.md §7 or the existing set. */
@@ -119,12 +125,16 @@ export const WARRIOR_SETS: SetDef[] = [
     id: 'cinder_oath', name: 'Cinder Oath', classId: 'warrior',
     pieces: WARRIOR_SET_BASES.map((base, i) => ({ base, name: `Cinder Oath ${['Crown', 'Mantle', 'Vest', 'Grips', 'Legwraps', 'Treads'][i]}` })),
     bonuses: [
-      { count: 2, text: 'Your Bleed and Burn skills’ areas are 20% larger.', effects: [skillMods(tagged('bleed', 'burn'), { radius: 20 })] },
+      // "Your Bleeds also Burn (they deal Fire damage and count as both)": Bleed skills gain the Burn tag, and their Bleeds
+      // also count as Burns (target state burning) and deal Fire damage (engine wave 3 dot rule alsoKind / element).
+      { count: 2, text: 'Your Bleeds also Burn (they deal Fire damage and count as both), and your Bleed and Burn skills’ areas are 20% larger.',
+        effects: [{ kind: 'tagGrant', tags: tagged('bleed'), add: ['burn'] }, { kind: 'dot', dot: 'bleed', alsoKind: 'burn', element: 'fire' }, skillMods(tagged('bleed', 'burn'), { radius: 20 })] },
       // Bible: 30% less. Measured (warrior parity harness): a Fury-limited Spender turns a cost cut into casts 1:1/(1−x),
       // so 30% was worth ×2.2 on Sawtooth Hatchet against the model's ×1.25; 15% fits the model's value.
       { count: 4, text: 'Your Primary hits extend Bleeds and Burns on the target by 0.5 seconds (up to 10 seconds left), your Primary skills deal 20% more damage to Bleeding or Burning enemies, and your Bleed and Burn skills cost 15% less.',
         effects: [flags(tagged('primary'), 'cinderExtend'), skillMore(tagged('primary'), 20, { any: [{ targetState: 'bleeding' }, { targetState: 'burning' }] }), skillMods(tagged('bleed', 'burn'), { cost: -15 })] },
-      { count: 6, text: 'Your Bleed, Burn and Primary skills deal 25% increased damage.', effects: [ownMult(tagged('bleed', 'burn', 'primary'), 1.25)] },
+      { count: 6, text: 'Enemies that die while Bleeding or Burning burst into a cinder pool (80 units, 2 seconds) that gives each enemy in it your strongest damage-over-time from the fallen enemy at 50% strength. Your Bleed, Burn and Primary skills deal 25% increased damage.',
+        effects: [proc('kill', { when: { any: [{ targetState: 'bleeding' }, { targetState: 'burning' }] }, ground: { def: 'cinder_pool', at: 'target', carryDot: true } }), ownMult(tagged('bleed', 'burn', 'primary'), 1.25)] },
     ],
     colors: { primary: 0x773e35, secondary: 0xc6b88c, glow },
     parityLoadout: ['rend', 'ironplough', 'ground_stomp', 'battle_rage'],
@@ -155,8 +165,9 @@ export const WARRIOR_SETS: SetDef[] = [
     bonuses: [
       { count: 2, text: 'Your Displace effects move enemies 50% farther, and your Channel and Displace skills cost 15% less.',
         effects: [flags(tagged('displace'), 'furrowPush'), skillMods(tagged('channel', 'displace'), { cost: -15 })] },
-      { count: 4, text: 'Enemies you Displace into a wall or another enemy are Stunned for 1 second, and your Displace skills deal 35% more damage to enemies Displaced in the last 2 seconds.',
-        effects: [flags(tagged('displace'), 'furrowStun', 'furrowVuln')] },
+      // "In front of you" = your facing ± 90° [P] (the front half; an aiming channel such as Ironplough faces its cone).
+      { count: 4, text: 'Enemies you Displace into a wall or another enemy are Stunned for 1 second, your Displace skills deal 35% more damage to enemies Displaced in the last 2 seconds, and while channelling you take 30% less damage from enemies in front of you.',
+        effects: [flags(tagged('displace'), 'furrowStun', 'furrowVuln'), { kind: 'damageTaken', pct: -30, when: { all: [{ channeling: tagged('channel') }, { targetInFront: 90 }] } }] },
       { count: 6, text: 'Displaced enemies leave a 3 second furrow that strikes enemies crossing it for 50% weapon damage and pulls them toward you; ramp-up effects are kept for 2 seconds after a channel ends. Your Displace skills deal 25% increased damage.',
         // Class code (warriorKit.wPush / wPull) lays the furrow for your Displace effects; the furrow's own pull does not lay more.
         effects: [flags(tagged('displace'), 'furrowGround'), flags(tagged('channel'), 'furrowKeepRamp'), ownMult(tagged('displace'), 1.25)] },
