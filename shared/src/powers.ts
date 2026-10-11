@@ -67,6 +67,7 @@ export type Condition =
   | { targetControlledWithinMs: number }    // stunned, frozen, knocked back or pulled within the last N ms
   | { targetLifeAbovePct: number }         // the enemy is above X % life
   | { targetFartherThan: number }          // the enemy is more than X units from you
+  | { targetWithin: number }               // the enemy is at most X units from you (ranger wave)
   // player
   | { channeling: string | true | TagQuery } // while channelling (that skill, any skill, or a skill matching the tags)
   | { buff: string }                       // while you have this buff
@@ -83,7 +84,7 @@ export type Condition =
   | { element: Element[] };                // the strike's element is one of these (per hit)
 
 export const isTargetCondition = (c: Condition): boolean => 'all' in c ? c.all.some(isTargetCondition) : 'any' in c ? c.any.some(isTargetCondition)
-  : 'targetState' in c || 'targetLifeAbovePct' in c || 'targetFartherThan' in c || 'targetElite' in c || 'targetControlledWithinMs' in c;
+  : 'targetState' in c || 'targetLifeAbovePct' in c || 'targetFartherThan' in c || 'targetWithin' in c || 'targetElite' in c || 'targetControlledWithinMs' in c;
 /** Element conditions need the strike; composite conditions inherit from their children. */
 export const usesElement = (c: Condition): boolean => 'all' in c ? c.all.some(usesElement) : 'any' in c ? c.any.some(usesElement) : 'element' in c;
 
@@ -317,6 +318,7 @@ const conditionText = (c: Condition): string =>
   : 'targetState' in c ? (c.targetState === 'inBlackHole' ? 'against enemies inside your Black Hole' : `against ${STATE_TEXT[c.targetState]} enemies`)
   : 'targetLifeAbovePct' in c ? `against enemies above ${c.targetLifeAbovePct}% Life`
   : 'targetFartherThan' in c ? `against enemies more than ${c.targetFartherThan} units away`
+  : 'targetWithin' in c ? `against enemies within ${c.targetWithin} units`
   : 'perSummon' in c ? `for each active ${skillName(c.perSummon)} (max ${c.max})`
   : 'buffStacks' in c ? `per stack of ${skillName(c.buffStacks)} (max ${c.max})`
   : 'element' in c ? `with ${c.element.map(cap).join(' or ')} damage`
@@ -328,7 +330,7 @@ const conditionTokens = (c: Condition, n: (v: number) => string): string[] =>
   'all' in c ? c.all.flatMap((x) => conditionTokens(x, n)) : 'any' in c ? c.any.flatMap((x) => conditionTokens(x, n))
   : 'targetControlledWithinMs' in c ? [n(c.targetControlledWithinMs / 1000)] : 'standingStillMs' in c ? [n(c.standingStillMs / 1000)]
   : 'noEnemyWithin' in c ? [n(c.noEnemyWithin)]
-  : 'perSummon' in c || 'buffStacks' in c ? [n(c.max)] : 'targetLifeAbovePct' in c ? [n(c.targetLifeAbovePct)] : 'targetFartherThan' in c ? [n(c.targetFartherThan)]
+  : 'perSummon' in c || 'buffStacks' in c ? [n(c.max)] : 'targetLifeAbovePct' in c ? [n(c.targetLifeAbovePct)] : 'targetFartherThan' in c ? [n(c.targetFartherThan)] : 'targetWithin' in c ? [n(c.targetWithin)]
   : 'lifeBelowPct' in c ? [n(c.lifeBelowPct)] : 'lifeAbovePct' in c ? [n(c.lifeAbovePct)] : [];
 
 const PROC_WHEN: Record<ProcTrigger, string> = {

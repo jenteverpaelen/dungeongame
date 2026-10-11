@@ -490,6 +490,7 @@ export function conditionCount(p: Player, w: RCondition, el: Element | undefined
   }
   if ('targetLifeAbovePct' in w) return m && m.hp > m.mhp * w.targetLifeAbovePct / 100 ? 1 : 0;
   if ('targetFartherThan' in w) return m && Math.hypot(m.x - p.x, m.y - p.y) > w.targetFartherThan ? 1 : 0;
+  if ('targetWithin' in w) return m && Math.hypot(m.x - p.x, m.y - p.y) <= w.targetWithin ? 1 : 0;
   if ('channeling' in w) return p.channel ? 1 : 0;
   if ('channelingIn' in w) return p.channel && w.channelingIn.has(p.channel.skill) ? 1 : 0;
   if ('buff' in w) return getBuff(p, w.buff) ? 1 : 0;

@@ -4,7 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter } from '../../shared/src/character';
 import { MONSTERS } from '../../shared/src/data/monsters';
-import type { PowerEffect } from '../../shared/src/powers';
+import { powerText, type PowerEffect } from '../../shared/src/powers';
+import { CONTENT_DATA, validateContent } from '../../shared/src/contentValidation';
 import type { PowerSource } from '../../shared/src/powerSources';
 import { computeStats } from '../../shared/src/stats';
 import type { ClassId } from '../../shared/src/types';
@@ -12,6 +13,7 @@ import { Instance } from '../src/sim/instance';
 import { createMob } from '../src/sim/monsters';
 import { buildCtx } from '../src/sim/playerctx';
 import { spawnProj, updateProjectiles } from '../src/sim/projectiles';
+import { strikeMob } from '../src/sim/damage';
 import type { Mob, Strike } from '../src/sim/types';
 import type { Session } from '../src/net/session';
 
@@ -67,5 +69,18 @@ test('projectile hooks: pre replaces the strike, post sees pierce-through, end r
     // The arrow's flight is capped by Tracking Arrow's 380 range unless `reach` says otherwise.
     const life = (reach?: number) => spawnProj(inst, { kind: 'arrow', v: 'arrow', owner: p, src: p.id, x: p.x, y: p.y, angle: Math.PI, speed: 900, lifeMs: 5000, r: 12, el: 'physical', strike: st, ...(reach ? { reach } : {}) }).lifeMs;
     assert(life(600) > life() * 1.4, `reach 600 flies farther (${life(600)} vs ${life()} ms)`);
+  } finally { inst.destroy(); }
+});
+
+test('condition targetWithin: a target condition that holds for enemies at most N units away (per hit)', () => {
+  const { inst, p, mob } = world('ranger', [{ kind: 'skillMore', skills: ['hungering_arrow'], pct: 50, when: { targetWithin: 200 } }]);
+  try {
+    const near = mob(150, 0), far = mob(-260, 0);
+    const st: Strike = { skill: 'hungering_arrow', coef: 1, el: 'physical', pct: 0 };
+    strikeMob(inst, p, near, st); strikeMob(inst, p, far, st);
+    const ratio = (near.mhp - near.hp) / (far.mhp - far.hp);
+    assert(Math.abs(ratio - 1.5) < 0.01, `+50% within 200 units only (${ratio.toFixed(3)})`);
+    assert.deepEqual(validateContent({ ...CONTENT_DATA }).filter((x) => x.includes('targetWithin')), []);
+    assert.equal(powerText([{ kind: 'skillMore', skills: ['hungering_arrow'], pct: 30, when: { targetWithin: 150 } }]).includes('within 150 units'), true);
   } finally { inst.destroy(); }
 });

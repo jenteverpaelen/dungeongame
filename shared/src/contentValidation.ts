@@ -254,7 +254,7 @@ function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, c
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
   if ('perSummon' in c || 'buffStacks' in c) check(Number.isInteger(c.max) && c.max >= 1, where, 'scaling condition needs a max of at least 1');
   if ('channeling' in c && typeof c.channeling === 'object') validateQuery(c.channeling, where, check);
-  for (const k of ['targetLifeAbovePct', 'targetFartherThan', 'lifeBelowPct', 'lifeAbovePct'] as const)
+  for (const k of ['targetLifeAbovePct', 'targetFartherThan', 'targetWithin', 'lifeBelowPct', 'lifeAbovePct'] as const)
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
 }
 
