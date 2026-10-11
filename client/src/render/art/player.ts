@@ -27,7 +27,7 @@ import { ACTIONS, type ActionDef, type ActionSpec } from '../actions';
 import type { PlayerView, ViewState } from '../types';
 import { Sheet, bakeSheet, type PartSpec } from './bake';
 import {
-  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, levelUpPose, newPose, ploughPose, reachOf, spinPose,
+  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, beamPose, levelUpPose, newPose, ploughPose, reachOf, spinPose,
   type ActCtx, type Kit, type Pose, type V3, type WeaponKind,
 } from './choreo';
 import { OUT } from './draw';
@@ -467,8 +467,11 @@ export class PlayerArt implements PlayerView {
   private moveBlend = 0;
   private chan = 0;
   private spinPhase = 0;
-  /** Which loop F_CHANNEL plays: the last channel skill this hero started (`cast` of whirlwind → spin, ironplough → plough). */
-  private chanPose: 'spin' | 'plough' = 'spin';
+  /** Which loop F_CHANNEL plays: the last channel skill this hero started (`cast` of whirlwind → spin, ironplough → plough,
+   *  thrumming_ray → beam). */
+  private chanPose: 'spin' | 'plough' | 'beam' = 'spin';
+  /** Beam channel: the world point the beam is held on (cast target, then `aimAt` from the ray effect) and its resonance. */
+  private beamAt: { x: number; y: number; res: number } | null = null;
   private castB = 0;
   private dashB = 0;
   private stunB = 0;
@@ -835,13 +838,14 @@ export class PlayerArt implements PlayerView {
       def = wk === 'bow' || wk === 'xbow' || wk === 'hxbow' ? ACTIONS.hungering_arrow : wk === 'staff' || wk === 'wand' ? ACTIONS.magic_missile : ACTIONS.cleave;
     }
     // channels (whirlwind, ironplough) are driven by F_CHANNEL; the cast only picks which loop it shows
-    if (def.pose === 'spin' || def.pose === 'plough') {
-      if (def.pose === 'plough' && this.spinPhase !== 0) {
+    if (def.pose === 'spin' || def.pose === 'plough' || def.pose === 'beam') {
+      if (def.pose !== 'spin' && this.spinPhase !== 0) {
         // a plough started while a whirlwind is still winding down: keep the visible facing, drop the spin
         const deg = (this.spinPhase / D2R) % 360;
         this.yawB = wrapDeg(this.yawB + deg); this.yawH = wrapDeg(this.yawH + deg); this.spinPhase = 0;
       }
       this.chanPose = def.pose;
+      if (def.pose === 'beam') { this.aimAt(a.tx, a.ty, 0); }
       return;
     }
     const now = this.t * 1000;
@@ -864,6 +868,14 @@ export class PlayerArt implements PlayerView {
     else this.combatT = 2.5;
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
+    if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
+  }
+
+  /** Beam channel: hold the facing on this world point (the VFX ray calls it on every beam tick); `res` 0..100. */
+  aimAt(x: number, y: number, res = 0): void {
+    if (this.chanPose !== 'beam') return;
+    const yaw = facingYaw(x - this.sx, y - this.sy, this.side);
+    this.beamAt = { x, y, res: clamp(res / 100) };
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
   }
 
@@ -955,6 +967,9 @@ export class PlayerArt implements PlayerView {
     } else if (act) {
       const yaw = facingYaw(act.tx - s.x, act.ty - s.y, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
+    } else if (chanOn && this.chanPose === 'beam' && this.beamAt) {
+      const yaw = facingYaw(this.beamAt.x - s.x, this.beamAt.y - s.y, this.side);
+      if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
     } else if (moving && speed > 25 && !(chanOn && spinChan)) {
       const yaw = facingYaw(s.vx, s.vy, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
@@ -994,6 +1009,7 @@ export class PlayerArt implements PlayerView {
       else actionPose(P, actCtx);
     }
     if (spinChan) spinPose(P, this.kit, this.spinPhase, this.chan);
+    else if (this.chanPose === 'beam') beamPose(P, this.kit, t, this.chan, this.beamAt?.res ?? 0);
     else ploughPose(P, this.kit, t, this.chan);
 
     // hit flinch: away from the facing side, squash

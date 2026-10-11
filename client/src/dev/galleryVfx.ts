@@ -1,7 +1,8 @@
 // VFX gallery: a standalone Pixi page that drives the real `Vfx` module with scripted server events
 // against placeholder targets. Scenes: ?scene=combat | proj | aoe | aoe2 | tele | beam | cast | death |
-// loot | mix | stress | warrior | warrior2. Exposes window.__gallery / window.__perf for automated screenshots
-// and profiling. The warrior scenes use the real hero rig so the skill poses play with their effects.
+// loot | mix | stress | warrior | warrior2 | warrior3 | mage | mage2. Exposes window.__gallery / window.__perf for automated
+// screenshots and profiling. The warrior and mage scenes use the real hero rig so the skill poses play with their
+// effects; mage2 also uses the real summon rigs (cinderkin, frostkin, ember sprite, hydra).
 
 import '@fontsource/alegreya-sans/700.css';
 import '@fontsource/lilita-one/400.css';
@@ -13,7 +14,7 @@ import { MONSTERS } from '@shared/data/monsters';
 import { F_CHANNEL, F_MOVING, F_STUN, F_WINDUP, type EntDesc, type GameEvent, type LootView } from '@shared/protocol';
 import type { ClassId, ItemLook } from '@shared/types';
 import { sfx } from '../audio/sfx';
-import { createMonsterView, createPlayerView, initArt } from '../render/art';
+import { createMonsterView, createPlayerView, createSummonView, initArt } from '../render/art';
 import type { ActingView, EntityView, Nameplate, ViewState } from '../render/types';
 import { Vfx, type VfxContext } from '../render/vfx';
 
@@ -21,9 +22,11 @@ const qs = new URLSearchParams(location.search);
 const SCENE = qs.get('scene') ?? 'combat';
 /** ?manual=1: time only advances through __gallery.advance(sec) (deterministic captures). */
 const MANUAL = qs.get('manual') === '1';
-const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress', 'warrior', 'warrior2', 'warrior3'];
+const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress', 'warrior', 'warrior2', 'warrior3', 'mage', 'mage2'];
 /** Scenes that draw players with the real hero rig (skill poses) instead of placeholders. */
-const REAL_HEROES = SCENE === 'warrior' || SCENE === 'warrior2' || SCENE === 'warrior3';
+const REAL_HEROES = SCENE === 'warrior' || SCENE === 'warrior2' || SCENE === 'warrior3' || SCENE === 'mage' || SCENE === 'mage2';
+/** Scenes that draw summons with their real rigs. */
+const REAL_SUMMONS = SCENE === 'mage2';
 
 await Promise.all([
   document.fonts.load('700 26px "Alegreya Sans"'),
@@ -149,6 +152,7 @@ function addEnt(desc: EntDesc, x: number, y: number, h = 40): Ent {
   if (desc.k === 'loot') view = vfx.createLootView(desc);
   else if (SCENE === 'charge' && desc.k === 'mob') view = createMonsterView(desc.t, 0, [], desc.sc ?? 1);
   else if (REAL_HEROES && desc.k === 'player') view = createPlayerView(playerLook(createCharacter(desc.n || 'Brakka', desc.t as ClassId, 7 + (desc.id % 5))));
+  else if (REAL_SUMMONS && desc.k === 'summon') view = createSummonView(desc.t, desc.r);
   else {
     const def = MONSTERS[desc.t];
     const color = desc.k === 'player' ? (desc.t === 'mage' ? 0x2e86de : desc.t === 'ranger' ? 0x27ae60 : 0xc0392b) : def?.colors.body ?? 0x8fbf6a;
@@ -825,7 +829,279 @@ const scenes: Record<string, () => void> = {
       }, 0.3);
     }
   },
+  // Mage M1 bolts, ray, orb and orrery (server contract: server/src/sim/skills/mageM1.ts), real hero rig.
+  mage() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -170 + Math.floor(i / 3) * 400 });
+    { // Rime Needles: three-needle volleys (Converging Fan), every 5th volley Arcane Thorns, then a Glacier Spine
+      const c = cell(0), h = player(10, 'mage', 'Ysolde', c.x - 210, c.y + 40);
+      const m1 = mob('bonewalker', c.x + 110, c.y + 20), m2 = mob('ember_imp', c.x + 150, c.y + 100);
+      label('Rime Needles · Arcane Thorns · Glacier Spine', c.x, c.y + 150);
+      let k = 0;
+      every(0.62, () => {
+        k++;
+        const spine = k % 5 === 0, arc = k % 5 === 3, t = k % 2 ? m1 : m2;
+        fire({ e: 'cast', s: h.id, sk: 'rime_needles', r: spine ? 'glacier_spine' : arc ? 'arcane_thorns' : undefined, x: h.x, y: h.y, tx: t.x, ty: t.y });
+        if (spine) { mageShot('needle_spine', h, t.x, t.y, 2, 2, 800); return; }
+        for (const o of [-1, 0, 1]) mageShot('needle', h, t.x, t.y + o * 9, arc ? 5 : 2, 1, 800);
+      }, 0.3);
+    }
+    { // Thrumming Ray: resonance 0 → 100 over 2 s, Harmonic pulses at full; the beam fades 0.3 s after the last tick
+      const c = cell(1), h = player(11, 'mage', 'Maelis', c.x - 210, c.y + 40);
+      mob('bonewalker', c.x + 10, c.y + 60); mob('gloomshroom', c.x + 120, c.y + 80);
+      label('Thrumming Ray · resonance builds · Harmonic', c.x, c.y + 150);
+      let t = -1, tick = 0, pulse = 1;
+      every(5.2, () => { t = 0; tick = 0; pulse = 1; fire({ e: 'cast', s: h.id, sk: 'thrumming_ray', x: h.x, y: h.y, tx: h.x + 300, ty: h.y + 30 }); }, 0.3);
+      stressTicks.push((dt) => {
+        if (t < 0) return;
+        t += dt;
+        if (t > 4.2) { t = -1; h.flags = 0; return; }
+        h.flags = F_CHANNEL;
+        if ((tick -= dt) <= 0) {
+          tick += 0.25;
+          const res = Math.min(100, Math.round((t / 2) * 100));
+          fire({ e: 'aoe', v: 'ray', x: h.x, y: h.y, r: 380, d: res, el: 5, s: h.id, a: 0.1 });
+          if (res >= 100 && (pulse -= 0.25) <= 0) { pulse = 1; fire({ e: 'aoe', v: 'ray_pulse', x: h.x, y: h.y, r: 380, d: 400, el: 5, s: h.id, a: 0.1 }); }
+        }
+      });
+    }
+    { // Forked Signal at full resonance (Frostline cold), the beam refracting off the first enemy it strikes
+      const c = cell(2), h = player(12, 'mage', 'Ilse', c.x - 210, c.y + 40);
+      const m = mob('bonewalker', c.x + 20, c.y + 4);
+      mob('thornling', c.x + 140, c.y + 110);
+      label('Forked Signal · Frostline · full resonance · refraction', c.x, c.y + 150);
+      later(0.2, () => fire({ e: 'cast', s: h.id, sk: 'thrumming_ray', r: 'forked_signal', x: h.x, y: h.y, tx: h.x + 300, ty: h.y }));
+      let tick = 0.3;
+      stressTicks.push((dt) => {
+        if (time < 0.3) return;
+        h.flags = F_CHANNEL;
+        if ((tick -= dt) > 0) return;
+        tick += 0.25;
+        const a0 = Math.atan2(m.y - h.y, m.x - h.x) + 0.1745;
+        for (const o of [-1, 1]) fire({ e: 'aoe', v: 'ray', x: h.x, y: h.y, r: 380, d: 100, el: 2, s: h.id, a: a0 + o * 0.1745 });
+        fire({ e: 'aoe', v: 'ray_refract', x: m.x, y: m.y, r: 170, d: 260, el: 2, s: h.id, a: 0.75 });
+      });
+    }
+    { // Stormglass Orb: a slow crackling orb zapping enemies near it, then shattering (Shattered Charge shards)
+      const c = cell(3), h = player(13, 'mage', 'Corvin', c.x - 230, c.y + 40);
+      const pack = [mob('bonewalker', c.x - 80, c.y - 40), mob('ember_imp', c.x + 10, c.y + 120), mob('grave_bat', c.x + 90, c.y - 30), mob('bog_slime', c.x + 170, c.y + 70)];
+      label('Stormglass Orb · zaps · shatter · glass shards', c.x, c.y + 150);
+      every(3.4, () => {
+        fire({ e: 'cast', s: h.id, sk: 'stormglass_orb', x: h.x, y: h.y, tx: h.x + 400, ty: h.y });
+        orbFlight(h, 3, [{ x: h.x + 20, y: h.y - 10, vx: 220, vy: 0, t: 2 }], pack, true);
+      }, 0.3);
+    }
+    { // Hailglass (cold) + Pinball: the orb glances off a wall and keeps flying
+      const c = cell(4), h = player(14, 'mage', 'Wren', c.x - 230, c.y + 80);
+      const pack = [mob('bonewalker', c.x - 40, c.y - 10), mob('gloomshroom', c.x + 80, c.y + 110), mob('thornling', c.x + 150, c.y + 10)];
+      const wall = new Graphics();
+      wall.roundRect(c.x - 60, c.y - 122, 280, 18, 6).fill(0x4a3d30).stroke({ width: 3, color: 0x1b1410 });
+      ground.addChild(wall);
+      label('Hailglass (cold) · Pinball bounce off a wall', c.x, c.y + 150);
+      every(3.6, () => {
+        fire({ e: 'cast', s: h.id, sk: 'stormglass_orb', r: 'hailglass', x: h.x, y: h.y, tx: h.x + 300, ty: h.y - 300 });
+        orbFlight(h, 2, [{ x: h.x + 20, y: h.y - 10, vx: 150, vy: -160, t: 1.12 }, { x: 0, y: 0, vx: 150, vy: 160, t: 1.3 }], pack, false);
+      }, 0.6);
+    }
+    { // Orrery: five brass spheres, sphere missiles every 1.5 s, Sun at Centre, an Eclipse every 5 s
+      const c = cell(5), h = player(15, 'mage', 'Oriel', c.x, c.y + 40);
+      const ring = [0, 1, 2, 3, 4, 5].map((k) => mob(['bonewalker', 'ember_imp', 'thornling', 'grave_bat', 'gloomshroom', 'bog_slime'][k], c.x + Math.cos(k * 1.05 + 0.3) * 215, c.y + 40 + Math.sin(k * 1.05 + 0.3) * 120));
+      label('Orrery · sphere missiles · Sun at Centre · Eclipse', c.x, c.y + 175);
+      let t0 = -1;
+      every(16, () => {
+        t0 = time;
+        fire({ e: 'cast', s: h.id, sk: 'orrery', r: 'sun_at_centre', x: h.x, y: h.y, tx: h.x, ty: h.y });
+        fire({ e: 'aoe', v: 'orrery', x: h.x, y: h.y, r: 130, d: 15000, el: 5, s: h.id, a: 0, n: 5, f: 1 });
+        fire({ e: 'aoe', v: 'orrery_sun', x: h.x, y: h.y, r: 80, d: 15000, el: 1, s: h.id, f: 1 });
+      }, 0.3);
+      every(1.5, () => {
+        if (t0 < 0 || time - t0 > 15) return;
+        for (let i = 0; i < 5; i++) {
+          const a = (Math.PI * 2 * (time - t0)) / 2 + (i * Math.PI * 2) / 5;
+          const sx = h.x + Math.cos(a) * 130, sy = h.y + Math.sin(a) * 130;
+          const tg = ring.reduce((b, m) => (Math.hypot(m.x - sx, m.y - sy) < Math.hypot(b.x - sx, b.y - sy) ? m : b), ring[0]);
+          proj('missile', sx, sy, tg.x, tg.y, 700, 5, h.id);
+        }
+      }, 1.1);
+      every(5, () => { if (t0 >= 0 && time - t0 < 15) { const tg = pickOne(ring); fire({ e: 'aoe', v: 'eclipse', x: h.x, y: h.y, r: 420, d: 500, el: 5, s: h.id, a: Math.atan2(tg.y - h.y, tg.x - h.x) }); } }, 2.6);
+    }
+  },
+
+  // Mage M1 grounds and conjurings: Rimefield (+ Ice Mirror, Shard Burst, Frost Bloom, Static Frost, Wandering Rime),
+  // Cinderkin (Hearth Bond, Sparkstep, Bonfire Kin, Frostkin, Lanternkin, ember sprites), Cold Front, Wandering Void,
+  // Lodestone, Ember Tail, the Fallen Star crater, Lantern Garden lanterns, Hydra · Last Breath, glass shards.
+  mage2() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -660 + (i % 4) * 440, y: -190 + Math.floor(i / 4) * 420 });
+    { // Rimefield; at 2.6 s Frost Nova inside it (Ice Mirror) adds time; Shard Burst when it ends
+      const c = cell(0), h = player(10, 'mage', 'Ysolde', c.x - 150, c.y + 110);
+      const fx = c.x + 30, fy = c.y + 30;
+      mob('bonewalker', fx - 40, fy - 10); mob('gloomshroom', fx + 50, fy + 30); mob('ember_imp', fx + 10, fy - 60);
+      label('Rimefield · Ice Mirror · Shard Burst', c.x, c.y + 170);
+      every(9, () => {
+        fire({ e: 'cast', s: h.id, sk: 'rimefield', x: h.x, y: h.y, tx: fx, ty: fy });
+        fire({ e: 'aoe', v: 'rimefield', x: fx, y: fy, r: 170, d: 5000, el: 2, s: h.id });
+        later(2.6, () => {
+          fire({ e: 'cast', s: h.id, sk: 'frost_nova', x: h.x, y: h.y, tx: h.x, ty: h.y });
+          fire({ e: 'aoe', v: 'nova', x: h.x, y: h.y, r: 90, d: 450, el: 2, s: h.id });
+          fire({ e: 'aoe', v: 'rimefield_extend', x: fx, y: fy, r: 170, d: 3800, el: 2, s: h.id });
+        });
+        later(6.4, () => fire({ e: 'aoe', v: 'rime_burst', x: fx, y: fy, r: 170, d: 500, el: 2, s: h.id }));
+      }, 0.3);
+    }
+    { // Frost Bloom: the field shrinks to 60 over its duration
+      const c = cell(1), h = player(11, 'mage', 'Maelis', c.x - 150, c.y + 110);
+      const fx = c.x + 30, fy = c.y + 30;
+      mob('thornling', fx - 30, fy); mob('bog_slime', fx + 40, fy + 40);
+      label('Frost Bloom (shrinks to 60)', c.x, c.y + 170);
+      every(7, () => {
+        fire({ e: 'cast', s: h.id, sk: 'rimefield', r: 'frost_bloom', x: h.x, y: h.y, tx: fx, ty: fy });
+        fire({ e: 'aoe', v: 'rimefield_bloom', x: fx, y: fy, r: 170, d: 6000, el: 2, s: h.id });
+      }, 0.5);
+    }
+    { // Static Frost (lightning) + Wandering Rime: the field follows the walking mage and zaps two enemies
+      const c = cell(2), h = player(12, 'mage', 'Ilse', c.x - 100, c.y + 40);
+      const pack = [mob('bonewalker', c.x - 60, c.y - 30), mob('grave_bat', c.x + 70, c.y + 90), mob('ember_imp', c.x + 100, c.y - 40)];
+      label('Static Frost · Wandering Rime (follows)', c.x, c.y + 170);
+      let dir = 1;
+      stressTicks.push((dt) => { h.x += dir * 70 * dt; if (h.x > c.x + 100) dir = -1; else if (h.x < c.x - 100) dir = 1; h.vx = dir * 70; h.flags = F_MOVING; });
+      every(6.5, () => fire({ e: 'aoe', v: 'rimefield', x: h.x, y: h.y, r: 120, d: 6000, el: 3, s: h.id, f: 1 }), 0.3);
+      every(0.5, () => { for (const m of [pickOne(pack), pickOne(pack)]) if (Math.hypot(m.x - h.x, m.y - h.y) < 150) fire({ e: 'beam', v: 'arc', x: h.x, y: h.y, tx: m.x, ty: m.y, el: 3, d: 200 }); }, 0.6);
+    }
+    { // Cinderkin: three kin hop to enemies (Sparkstep sparks), Hearth Bond calls them, they claw and burst
+      const c = cell(3), h = player(13, 'mage', 'Corvin', c.x - 160, c.y + 60);
+      const pack = [mob('bonewalker', c.x + 90, c.y - 10), mob('ember_imp', c.x + 110, c.y + 90), mob('thornling', c.x + 60, c.y + 150)];
+      label('Cinderkin · Hearth Bond · Sparkstep · ember sprites', c.x, c.y + 190);
+      every(6, () => {
+        const tx = c.x - 70, ty = c.y + 60;
+        fire({ e: 'cast', s: h.id, sk: 'cinderkin', x: h.x, y: h.y, tx, ty });
+        pack.forEach((m, k) => kinRun('cinderkin', 14, tx + (k - 1) * 18, ty + (k - 1) * 22, m, h.id, 1, 0.4, 4.4, k === 0));
+        for (let k = 0; k < 2; k++) kinRun('ember_sprite', 12, h.x + 10, h.y - 20 + k * 30, pack[k], h.id, 1, 0.1, 4.6, false);
+      }, 0.3);
+    }
+    { // Bonfire Kin (one big kin), Frostkin (frost bursts) and Lanternkin (kin at your side throw firebolts)
+      const c = cell(4), h = player(14, 'mage', 'Wren', c.x - 170, c.y + 40);
+      const pack = [mob('bonewalker', c.x + 120, c.y - 20), mob('gloomshroom', c.x + 130, c.y + 100), mob('ember_imp', c.x + 40, c.y + 150)];
+      label('Bonfire Kin · Frostkin · Lanternkin bolts', c.x, c.y + 190);
+      every(6.5, () => {
+        fire({ e: 'cast', s: h.id, sk: 'cinderkin', r: 'bonfire_kin', x: h.x, y: h.y, tx: c.x - 60, ty: c.y - 40 });
+        kinRun('cinderkin', 36, c.x - 60, c.y - 40, pack[0], h.id, 1, 0.4, 5, false);
+        kinRun('frostkin', 14, c.x - 40, c.y + 110, pack[2], h.id, 2, 0.6, 3.8, false);
+        const lk = addEnt({ id: nextId++, k: 'summon', t: 'cinderkin', r: 14, owner: h.id }, h.x + 30, h.y + 50);
+        for (let k = 0; k < 4; k++) later(0.6 + k, () => { if (ents.has(lk.id)) { const tg = pickOne(pack); act(lk, tg); proj('kinbolt', lk.x, lk.y - 16, tg.x, tg.y, 600, 1, lk.id); } });
+        later(5, () => { fire({ e: 'aoe', v: 'kin_burst', x: lk.x, y: lk.y, r: 80, d: 420, el: 1, s: h.id }); removeEnt(lk.id); });
+      }, 0.5);
+    }
+    { // Frost Nova · Cold Front (a 120° wave) and Black Hole · Wandering Void (the hole glides after enemies)
+      const c = cell(5), h = player(15, 'mage', 'Oriel', c.x - 160, c.y + 30);
+      mob('bonewalker', c.x + 30, c.y - 40); mob('thornling', c.x + 60, c.y + 50);
+      label('Cold Front cone · Wandering Void', c.x, c.y + 190);
+      every(2.4, () => {
+        fire({ e: 'cast', s: h.id, sk: 'frost_nova', r: 'cold_front', x: h.x, y: h.y, tx: h.x + 200, ty: h.y });
+        fire({ e: 'aoe', v: 'nova_cone', x: h.x, y: h.y, r: 220, d: 450, el: 2, s: h.id, a: -0.05 });
+      }, 0.3);
+      every(5, () => {
+        const x0 = c.x + 40, y0 = c.y + 120;
+        fire({ e: 'aoe', v: 'blackhole', x: x0, y: y0, r: 90, d: 4000, el: 5, s: h.id });
+        for (let k = 1; k <= 14; k++) later(k * 0.25, () => fire({ e: 'aoe', v: 'blackhole_at', x: Math.round(x0 + Math.sin(k * 0.45) * 110), y: Math.round(y0 - 20 + Math.cos(k * 0.45) * 30), r: 90, d: 260, el: 5, s: h.id }));
+      }, 0.8);
+    }
+    { // Meteor · Lodestone (an inward pull before the rock lands), Meteor · Ember Tail (a low streak), the Fallen Star crater
+      const c = cell(6), h = player(16, 'mage', 'Asta', c.x - 170, c.y + 120);
+      mob('bog_slime', c.x - 10, c.y - 30); mob('ember_imp', c.x + 120, c.y + 70);
+      label('Lodestone · Ember Tail · Fallen Star crater', c.x, c.y + 190);
+      every(6, () => {
+        const x = c.x, y = c.y - 20;
+        fire({ e: 'cast', s: h.id, sk: 'meteor', r: 'lodestone', x: h.x, y: h.y, tx: x, ty: y });
+        fire({ e: 'tele', v: 'meteor', x, y, r: 90, d: 1000 });
+        later(0.3, () => fire({ e: 'aoe', v: 'lodestone', x, y, r: 135, d: 700, el: 1, s: h.id }));
+        later(1.0, () => fire({ e: 'aoe', v: 'meteor', x, y, r: 90, d: 0, el: 1, s: h.id }));
+        later(2.4, () => {
+          const tx = c.x + 110, ty = c.y + 60, a = Math.atan2(ty - h.y, tx - h.x);
+          fire({ e: 'cast', s: h.id, sk: 'meteor', r: 'ember_tail', x: h.x, y: h.y, tx, ty });
+          fire({ e: 'tele', v: 'meteor', x: tx, y: ty, r: 80, d: 1000, a });
+          later(1.0, () => {
+            fire({ e: 'aoe', v: 'meteor', x: tx, y: ty, r: 80, d: 0, el: 1, s: h.id });
+            for (let k = 0; k < 3; k++) fire({ e: 'aoe', v: 'molten', x: Math.round(tx - (k + 1) * 50 * Math.cos(a)), y: Math.round(ty - (k + 1) * 50 * Math.sin(a)), r: 34, d: 2000, el: 1, s: h.id });
+          });
+        });
+        later(4.2, () => fire({ e: 'aoe', v: 'star_crater', x: c.x - 40, y: c.y + 80, r: 90, d: 1500, el: 5, s: h.id }));
+      }, 0.3);
+    }
+    { // Lantern Garden lanterns, Hydra · Last Breath, Shattered Charge glass shards
+      const c = cell(7), h = player(17, 'mage', 'Orm', c.x - 170, c.y + 120);
+      const hy = addEnt({ id: nextId++, k: 'summon', t: 'hydra', r: 20, owner: h.id }, c.x - 90, c.y - 40);
+      mob('bonewalker', c.x + 90, c.y - 60); mob('thornling', c.x + 120, c.y + 10);
+      label('Lanterns · Hydra Last Breath · glass shards', c.x, c.y + 190);
+      every(4.5, () => {
+        const spots = [[c.x - 120, c.y + 60], [c.x + 10, c.y + 120], [c.x + 150, c.y + 110]];
+        spots.forEach((p, k) => later(k * 0.25, () => fire({ e: 'aoe', v: 'lantern', x: p[0], y: p[1], r: 200, d: 4000, el: 1, s: h.id })));
+      }, 0.3);
+      every(2.2, () => { act(hy, { x: c.x + 100, y: c.y - 30 }); fire({ e: 'aoe', v: 'hydra_breath', x: hy.x, y: hy.y, r: 260, d: 600, el: 1, s: h.id, a: -0.1 }); }, 0.8);
+      every(4, () => { for (let k = 0; k < 3; k++) fire({ e: 'aoe', v: 'glass_shard', x: c.x + 40 + k * 40, y: c.y + 40 + (k % 2) * 30, r: 24, d: 3600, el: 3, s: h.id }); }, 0.2);
+    }
+  },
 };
+
+/** Mage scenes: a straight projectile from the hero's hand (sz for Glacier Spine). */
+function mageShot(v: string, h: Ent, tx: number, ty: number, el: number, sz: number, speed: number): void {
+  const id = pid++, x = h.x + 14, y = h.y - 8, d = Math.hypot(tx - x, ty - y), life = (d / speed) * 1000;
+  fire({ e: 'proj', id, s: h.id, v, x, y, vx: ((tx - x) / d) * speed, vy: ((ty - y) / d) * speed, life, el, ...(sz !== 1 ? { sz } : {}) });
+  later(life / 1000, () => fire({ e: 'pend', id, x: tx, y: ty, hit: 1 }));
+}
+
+/** Stormglass flight: legs of straight flight (a later leg starts where the last ended: a wall bounce = pend + new proj),
+ *  zaps to up to two enemies within 160 every 0.25 s, then the shatter, with three glass shards (Shattered Charge). */
+function orbFlight(h: Ent, el: number, legs: { x: number; y: number; vx: number; vy: number; t: number }[], pack: Ent[], shards: boolean): void {
+  let t0 = 0, x = legs[0].x, y = legs[0].y;
+  const path: { t0: number; x: number; y: number; vx: number; vy: number; t: number }[] = [];
+  for (const L of legs) { path.push({ t0, x, y, vx: L.vx, vy: L.vy, t: L.t }); x += L.vx * L.t; y += L.vy * L.t; t0 += L.t; }
+  const total = t0, ex = x, ey = y;
+  for (const P of path) {
+    const id = pid++;
+    later(P.t0, () => fire({ e: 'proj', id, s: h.id, v: 'stormglass', x: P.x, y: P.y, vx: P.vx, vy: P.vy, life: P.t * 1000 + 40, el }));
+    later(P.t0 + P.t, () => fire({ e: 'pend', id, x: Math.round(P.x + P.vx * P.t), y: Math.round(P.y + P.vy * P.t) }));
+  }
+  const at = (t: number) => { const P = path.find((q) => t <= q.t0 + q.t) ?? path[path.length - 1]; const u = Math.min(t - P.t0, P.t); return { x: P.x + P.vx * u, y: P.y + P.vy * u }; };
+  for (let k = 1; k * 0.25 < total; k++) later(k * 0.25, () => {
+    const o = at(k * 0.25);
+    const near = pack.filter((m) => Math.hypot(m.x - o.x, m.y - o.y) < 160).sort((a, b) => Math.hypot(a.x - o.x, a.y - o.y) - Math.hypot(b.x - o.x, b.y - o.y)).slice(0, 2);
+    for (const m of near) fire({ e: 'beam', v: 'zap', x: Math.round(o.x), y: Math.round(o.y), tx: m.x, ty: m.y, el, d: 140 });
+  });
+  later(total, () => {
+    fire({ e: 'aoe', v: 'glass_burst', x: Math.round(ex), y: Math.round(ey), r: 160, d: 500, el, s: h.id });
+    if (shards) for (let k = 0; k < 3; k++) { const a = k * 2.1 + 0.4; fire({ e: 'aoe', v: 'glass_shard', x: Math.round(ex + Math.cos(a) * 60), y: Math.round(ey + Math.sin(a) * 40), r: 24, d: 4000, el, s: h.id }); }
+  });
+}
+
+/** Play a summon's attack pose toward a point (real rigs only). */
+function act(e: Ent, t: { x: number; y: number }): void {
+  (e.view as ActingView | undefined)?.playAction?.({ skill: '', tx: t.x, ty: t.y, cycleMs: 500 });
+}
+
+/** A kin (or ember sprite) appears at (x, y), runs to the target, claws it, and bursts after `life` s. */
+function kinRun(type: string, r: number, x: number, y: number, target: Ent, owner: number, el: number, delay: number, life: number, taunt: boolean): void {
+  later(delay, () => {
+    const k = addEnt({ id: nextId++, k: 'summon', t: type, r, owner }, x, y);
+    let age = 0, claw = 0, spark = 0, lx = x, ly = y, done = false;
+    if (taunt) fire({ e: 'aoe', v: 'kin_taunt', x, y, r: 120, d: 1000, el, s: owner });
+    stressTicks.push((dt) => {
+      if (done || !ents.has(k.id)) return;
+      age += dt;
+      const dx = target.x - 26 - k.x, dy = target.y + 6 - k.y, d = Math.hypot(dx, dy), sp = r > 20 ? 90 : type === 'ember_sprite' ? 170 : 130;
+      if (d > 6) { k.x += (dx / d) * Math.min(d, sp * dt); k.y += (dy / d) * Math.min(d, sp * dt); k.vx = dx > 0 ? sp : -sp; k.flags = F_MOVING; }
+      else { k.vx = 0.01; k.flags = 0; if ((claw -= dt) <= 0) { claw = 0.55; act(k, target); } }
+      if (type === 'cinderkin' && (spark += Math.hypot(k.x - lx, k.y - ly)) >= 40) { spark = 0; fire({ e: 'aoe', v: 'ember_trail', x: Math.round(k.x), y: Math.round(k.y), r: 30, d: 1500, el: 1, s: owner }); }
+      lx = k.x; ly = k.y;
+      if (age >= life) {
+        done = true;
+        if (type !== 'ember_sprite') fire({ e: 'aoe', v: 'kin_burst', x: Math.round(k.x), y: Math.round(k.y), r: r > 20 ? 160 : 80, d: 420, el, s: owner });
+        else fire({ e: 'aoe', v: 'explode', x: Math.round(k.x), y: Math.round(k.y - 20), r: 30, d: 0, el: 1, s: owner });
+        removeEnt(k.id);
+      }
+    });
+  });
+}
 
 /** Per-frame scripted motion used by the warrior scenes (in addition to `stressTick`). */
 const stressTicks: ((dt: number) => void)[] = [];

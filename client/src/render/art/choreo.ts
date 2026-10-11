@@ -274,6 +274,29 @@ export function ploughPose(P: Pose, kit: Kit, t: number, k: number): void {
   mixPose(P, P, S, k);
 }
 
+/**
+ * Thrumming Ray channel, blended in by k: both hands pushed out at chest height and held together (a staff is
+ * levelled along the beam), feet braced, a slight lean into the beam and a fine tremble that grows with the note
+ * (`res` 0..1, resonance). No body spin; the facing is held on the beam by the rig.
+ */
+export function beamPose(P: Pose, kit: Kit, t: number, k: number, res = 0): void {
+  if (k <= 0.001) return;
+  const S = tmpC;
+  copyPose(S, P);
+  const jit = (Math.sin(t * 53) * 0.6 + Math.sin(t * 31) * 0.4) * (0.25 + 0.75 * res);
+  S.upper = 0; S.twist = -0.06;
+  S.hR = V(15.5 + 0.25 * jit, -29.5 + 0.3 * jit, 3.2);
+  S.hL = V(15.2 - 0.2 * jit, -29 - 0.25 * jit, -3.2);
+  S.w = kit.wk === 'staff' ? norm(1, -0.06, -0.02) : norm(0.95, -0.3, 0.05);
+  S.lean = 0.16 + 0.04 * res; S.crouch = 0.18; S.spread = 0.4;
+  S.legR = P.legR * 0.7 - 0.28; S.legL = P.legL * 0.7 + 0.3;
+  S.headTilt = 0.04; S.headYaw = 0;
+  S.glowR = 0.55 + 0.45 * res; S.glowL = S.glowR; S.glowTip = 0.25 + 0.6 * res;
+  S.shake = 0.08 + 0.18 * res; S.hairFly = 0.25 + 0.35 * res; S.trail = 0;
+  S.expr = 3;
+  mixPose(P, P, S, k);
+}
+
 // ─────────────────────────── actions ───────────────────────────
 
 export interface ActCtx {
@@ -316,7 +339,7 @@ export function actionPose(P: Pose, c: ActCtx): void {
     case 'toll': return primary(P, c, tollAt);
     case 'throw': return timed(P, c, throwAt, 30, 150);
     case 'plant': return timed(P, c, plantAt, 50, 170);
-    case 'spin': case 'plough': return;
+    case 'spin': case 'plough': case 'beam': return;
   }
 }
 

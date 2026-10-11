@@ -29,7 +29,8 @@ export type Pose =
   | 'toll'       // overhead two-handed strike brought straight down (Tolling Blow, a primary)
   | 'throw'      // arm cocks back over the shoulder and whips forward (Sawtooth Hatchet)
   | 'plant'      // both hands drive a pole straight down into the ground (Muster Standard)
-  | 'plough';    // channel: weapon held low and forward, leaning in (Ironplough; driven by F_CHANNEL)
+  | 'plough'     // channel: weapon held low and forward, leaning in (Ironplough; driven by F_CHANNEL)
+  | 'beam';      // channel: both hands pushed out at chest height, holding a beam (Thrumming Ray; driven by F_CHANNEL)
 
 export interface ActionDef {
   pose: Pose;
@@ -75,6 +76,13 @@ export const ACTIONS: Record<string, ActionDef> = {
   frost_nova: A('groundBurst', 120, 380, 0, 0x7fd3ff, 3),
   hydra: A('summon', 200, 460, 0, 0xff5e3a),
   magic_weapon: A('empower', 200, 560, 0, 0xb388ff),
+  // Mage M1 (docs/rework/depth/MAGE.md §3): existing gestures, plus the held 'beam' channel for the ray
+  rime_needles: A('flick', 40, 240, 0, 0x9fdcff),
+  thrumming_ray: A('beam', 0, 0, 0),           // driven by F_CHANNEL, not by the event
+  cinderkin: A('summon', 200, 460, 0, 0xff8a3d),
+  rimefield: A('thrust', 160, 460, 0, 0xbfe9ff),
+  stormglass_orb: A('thrust', 160, 460, 0, 0x7fd3ff),
+  orrery: A('empower', 200, 560, 0, 0xd8b46a),
 };
 
 /** What the scene hands to a hero view when the server reports a cast. */

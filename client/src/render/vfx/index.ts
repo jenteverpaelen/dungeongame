@@ -10,6 +10,7 @@
 //   aoe.ts         area effects        telegraphs.ts  tele markers + payoffs
 //   beams.ts       beam effects        casts.ts       cast flourishes, dash, level / paragon
 //   slash.ts       perspective weapon arcs
+//   mage.ts        Mage M1 skills: needles, ray, cinderkin bursts, rimefield, stormglass, orrery and their runes
 //   loot.ts        ground loot views   nameplates.ts  player / elite nameplates
 
 import { Container } from 'pixi.js';
@@ -21,6 +22,7 @@ import { Casts } from './casts';
 import { Combat } from './combat';
 import { VfxCore } from './core';
 import { LootManager } from './loot';
+import { MageFx } from './mage';
 import { createNameplate } from './nameplates';
 import { Projectiles } from './projectiles';
 import { Slashes } from './slash';
@@ -89,6 +91,9 @@ export class Vfx {
     this.aoe.onMeteorImpact = (x, y) => this.tele.landMeteor(x, y);
     this.beams = new Beams(this.core);
     this.casts = new Casts(this.core, this.aoe, this.tele);
+    // Mage M1 visuals (mage.ts): routed from the area, beam, cast and projectile handlers
+    const mage = new MageFx(this.core, this.combat);
+    this.aoe.mage = mage; this.beams.mage = mage; this.casts.mage = mage; this.projs.mage = mage;
   }
 
   /** Handle one server event (damage numbers, projectiles, AoEs, deaths, sounds...). */
