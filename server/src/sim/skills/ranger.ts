@@ -27,7 +27,7 @@ import {
   barVar, beastHit, beastRate, deviceHit, deviceRate, isRanger, nearestMob, noteCast, noteSpend, quarryOf, rangerTick,
   rmob, rstate, rv, spot, summonTarget,
 } from './rangerKit';
-import { farwatchShot, freeCasts, huntingCall, skimRipple, splinters, triggerSnare } from './rangerM1';
+import { FALL_LEAD, farwatchShot, freeCasts, huntingCall, skimRipple, splinters, triggerSnare } from './rangerM1';
 
 // ─────────────────────────── Piercing projectile hooks (Featherguard, Skimmer's, Quiver, spotting, Farwatch 2) ───────────────────────────
 
@@ -81,13 +81,16 @@ function hungeringArrow(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
     kind: 'arrow', v: 'arrow', owner: p, src: p.id, x: p.x, y: p.y - 4, angle, speed: 900, lifeMs: 820 * reach / rt.def.range, r: 12,
     el: st.el, strike: st, pierce, homing: target.id, turn, seek: true, bits, reach, hooks: arrowHooks(inst, p, rt),
   });
-  for (const off of fanAngles(n, 10 * DEG)) fire(base + off, tgt);
-  // Hawkfeather Cap: also a second target.
-  if (rt.flags.has('hawkfeather')) {
-    const second = nearestMob(inst, tgt.x, tgt.y, rt.def.range, (o) => o === tgt);
-    if (second) fire(Math.atan2(second.y - p.y, second.x - p.x), second);
-  }
+  // Farwatch 6: every 5th Projectile cast is a farwatch shot instead.
   if (noteCast(p, rt)) farwatchShot(inst, p, rt, base);
+  else {
+    for (const off of fanAngles(n, 10 * DEG)) fire(base + off, tgt);
+    // Hawkfeather Cap: also a second target.
+    if (rt.flags.has('hawkfeather')) {
+      const second = nearestMob(inst, tgt.x, tgt.y, rt.def.range, (o) => o === tgt);
+      if (second) fire(Math.atan2(second.y - p.y, second.x - p.x), second);
+    }
+  }
   gainResource(p, rt.def.gen + (rt.mods.gen ?? 0));
   emitCast(inst, p, rt, tgt.x, tgt.y);
 }
@@ -138,6 +141,14 @@ function sentry(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   return true;
 }
 
+/**
+ * Bolt-Thrower's Arbalest: pierce everything, burst for the bolt's damage (bible). Measured ×2.7 on the Sentry legendary-only
+ * kit: its +100–150 % roll on the thin Device bucket; pierce 1 / 2 / all and a 50 % burst moved it by ±5 % (RANGER-WAVE.md §6).
+ */
+export const ARBALEST_BURST = 1;
+/** Enemies an Arbalest bolt passes through before its final target. */
+export const ARBALEST_PIERCE = Infinity;
+
 /** One Sentry bolt (or a finale / salvo bolt) at `tgt`. */
 function sentryBolt(inst: Instance, p: Player, s: Summon, rt: SkillRuntime, tgt: Mob, coef = rt.def.coef) {
   const el = skillElement(rt);
@@ -151,7 +162,7 @@ function sentryBolt(inst: Instance, p: Player, s: Summon, rt: SkillRuntime, tgt:
   const gen = rv(rt, 'sentryGen');
   const arbalest = rt.flags.has('arbalest');
   const pierceOnce = rt.flags.has('sentryPierce');
-  let hitsLeft = arbalest ? Infinity : pierceOnce ? 2 : 1;
+  let hitsLeft = (arbalest ? 1 + ARBALEST_PIERCE : 1) + (pierceOnce ? 1 : 0);
   const hooks: ProjHooks = {
     post: (i, pr, m) => {
       rmob(m).sentryHits.set(s.id, i.t);
@@ -160,7 +171,7 @@ function sentryBolt(inst: Instance, p: Player, s: Summon, rt: SkillRuntime, tgt:
     },
     end: (i, pr) => {
       // Bolt-Thrower's Arbalest: bursts on its final target (radius 60).
-      if (arbalest) { i.emit({ e: 'aoe', v: 'mortar_impact', x: Math.round(pr.x), y: Math.round(pr.y), r: 60, d: 300, el: elIdx(el), s: s.id }, pr.x, pr.y, p.id); for (const o of i.queryMobs(pr.x, pr.y, 60)) if (!o.dead) deviceHit(i, p, o, { ...st, noProc: true }); }
+      if (arbalest) { i.emit({ e: 'aoe', v: 'mortar_impact', x: Math.round(pr.x), y: Math.round(pr.y), r: 60, d: 300, el: elIdx(el), s: s.id }, pr.x, pr.y, p.id); for (const o of i.queryMobs(pr.x, pr.y, 60)) if (!o.dead) deviceHit(i, p, o, { ...st, coef: st.coef * ARBALEST_BURST, noProc: true }); }
     },
   };
   spawnProj(inst, {
@@ -301,13 +312,13 @@ function multishot(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const t = multishotTarget(inst, p, rt.def.range);
   if (!t) return false;
   face(p, t.x);
+  noteSpend(inst, p, skillCost(p, rt));
+  if (noteCast(p, rt)) { farwatchShot(inst, p, rt, t.ang); emitCast(inst, p, rt, t.x, t.y); return true; } // Farwatch 6
   fireMultishot(inst, p, rt, p.x, p.y, t.ang, p.id);
   // Rolling Volley: 40 % of the arrows again 0.25 s later.
   const echo = rv(rt, 'multiEcho');
   if (echo > 0) inst.sched.schedule(inst.t + 250, () => { if (inst.playerById(p.id)) fireMultishot(inst, p, rt, p.x, p.y, t.ang, p.id, echo / 100, 0.4); });
   deviceCopies(inst, p, rt, t.x, t.y);
-  noteSpend(inst, p, skillCost(p, rt));
-  if (noteCast(p, rt)) farwatchShot(inst, p, rt, t.ang);
   emitCast(inst, p, rt, t.x, t.y);
   return true;
 }
@@ -446,10 +457,10 @@ function clusterArrow(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const bp = bestPoint(inst, p.x, p.y, rt.def.range, radius);
   if (!bp) return false;
   face(p, bp.x);
+  noteSpend(inst, p, skillCost(p, rt));
+  if (noteCast(p, rt)) { farwatchShot(inst, p, rt, Math.atan2(bp.y - p.y, bp.x - p.x)); emitCast(inst, p, rt, bp.x, bp.y, radius); return true; } // Farwatch 6
   lobCluster(inst, p, rt, p.x, p.y, bp.x, bp.y, p.id);
   deviceCopies(inst, p, rt, bp.x, bp.y);
-  noteSpend(inst, p, skillCost(p, rt));
-  if (noteCast(p, rt)) farwatchShot(inst, p, rt, Math.atan2(bp.y - p.y, bp.x - p.x));
   emitCast(inst, p, rt, bp.x, bp.y, radius);
   return true;
 }
@@ -529,8 +540,11 @@ function stormTick(inst: Instance, p: Player, rt: SkillRuntime, s: Storm, base: 
 /** Rainkeeper 6's free strike: one Overcast-style arrow of the latest Aerial Spender at 50 % damage. */
 function stormStrike(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number) {
   const st = strikeOf(p, rt, rt.def.coef * 0.5);
-  inst.emit({ e: 'aoe', v: 'overcast_heavy', x: Math.round(x), y: Math.round(y), r: 70, d: 300, el: elIdx(st.el), s: p.id }, x, y, p.id);
-  for (const m of inst.queryMobs(x, y, 70)) if (!m.dead) strikeMob(inst, p, m, st);
+  inst.emit({ e: 'aoe', v: 'overcast_heavy', x: Math.round(x), y: Math.round(y), r: 70, d: 300, el: elIdx(st.el), s: p.id, delay: FALL_LEAD }, x, y, p.id);
+  inst.sched.schedule(inst.t + FALL_LEAD, () => {
+    if (!inst.playerById(p.id)) return;
+    for (const m of inst.queryMobs(x, y, 70)) if (!m.dead) strikeMob(inst, p, m, st);
+  });
 }
 
 function stormEnd(inst: Instance, p: Player, rt: SkillRuntime, s: Storm) {

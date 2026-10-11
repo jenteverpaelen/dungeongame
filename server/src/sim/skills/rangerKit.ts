@@ -296,7 +296,7 @@ export function rangerTick(inst: Instance, p: Player, dtMs: number) {
   // Rainkeeper 4: while one of your Aerial or Ground effects is active.
   if (p.ctx.slots.some((rt) => rt?.flags.has('rainkeeperActive')) || p.ctx.primary.flags.has('rainkeeperActive')) {
     const active = inst.grounds.some((g) => g.owner === p && g.endT > inst.t) || p.summons.some((s) => !s.dead && (s.type === 'mortar' || s.type === 'flock'));
-    if (active) addBuff(p, { id: 'rainkeeper', ms: 400, cost: -30 }); else if (getBuff(p, 'rainkeeper')) removeBuff(p, 'rainkeeper');
+    if (active) addBuff(p, { id: 'rainkeeper', ms: 400, cost: -15 }); else if (getBuff(p, 'rainkeeper')) removeBuff(p, 'rainkeeper'); // Rainkeeper 4 (fitted 30 → 15 %)
   }
 }
 

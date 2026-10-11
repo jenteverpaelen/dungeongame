@@ -60,9 +60,9 @@ function skipstone(inst: Instance, p: Player, rt: SkillRuntime, tgt: Mob) {
   const skips = heavy ? 0 : (more ? 4 : 2) + rv(rt, 'skips') + rv(rt, 'morePierce');
   const falloff = Math.max(0, (more ? 30 : 20) - rv(rt, 'skipFalloff'));
   const farwatch = noteCast(p, rt);
-  launchSkip(inst, p, rt, p.x, p.y - 4, tgt, { hits: new Set(), left: skips, falloff, idx: 0, st, heavy }, null);
+  if (!farwatch) launchSkip(inst, p, rt, p.x, p.y - 4, tgt, { hits: new Set(), left: skips, falloff, idx: 0, st, heavy }, null);
   // Hawkfeather Cap: Primary skills also strike a second target.
-  if (rt.flags.has('hawkfeather')) {
+  if (!farwatch && rt.flags.has('hawkfeather')) {
     const second = nearestMob(inst, tgt.x, tgt.y, rt.def.range, (o) => o === tgt);
     if (second && Math.hypot(second.x - p.x, second.y - p.y) <= rt.def.range + 60) launchSkip(inst, p, rt, p.x, p.y - 4, second, { hits: new Set(), left: skips, falloff, idx: 0, st, heavy }, null);
   }
@@ -117,7 +117,12 @@ function onSkipHit(inst: Instance, p: Player, rt: SkillRuntime, m: Mob, ch: Skip
   const spl = rv(rt, 'splinters'); if (spl > 0) splinters(inst, p, m, spl, ch.st, ch.hits);
 }
 
-/** Farwatch 6: a shot that flies 900 units, pierces everything and releases your most recent Projectile Spender where it ends. */
+/**
+ * Farwatch 6: the 5th Projectile cast is a shot that flies 900 units, pierces everything (the cast's own damage) and
+ * releases your most recent Projectile Spender where it ends. Fitted [M]: the free cast deals FARWATCH_FREE of its damage
+ * (BUDGET.md R1: a 6-piece transform is worth at most ×1.10; RANGER-WAVE.md §4).
+ */
+export const FARWATCH_FREE = 0.5;
 export function farwatchShot(inst: Instance, p: Player, rt: SkillRuntime, ang: number) {
   const st: Strike = { ...strikeOf(p, rt), primary: false };
   spawnProj(inst, {
@@ -133,7 +138,7 @@ export function farwatchShot(inst: Instance, p: Player, rt: SkillRuntime, ang: n
 
 /** Registered by ranger.ts: cast a Projectile Spender for free from a point (Farwatch 6), at a damage scale (Siegebreaker 4). */
 export const freeCasts: { at: ((inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number, scale: number, src: number) => void) | null } = { at: null };
-function freeSpender(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number) { freeCasts.at?.(inst, p, rt, x, y, 1, p.id); }
+function freeSpender(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number) { freeCasts.at?.(inst, p, rt, x, y, FARWATCH_FREE, p.id); }
 
 // ─────────────────────────── R8 Spring Snare (device / trap) ───────────────────────────
 
@@ -286,7 +291,8 @@ function overcastVolley(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   for (let i = 0; i < n; i++) {
     const at = t0 + (dur * i) / Math.max(1, n - 1);
     const last = i === n - 1;
-    inst.sched.schedule(at, () => {
+    // The client draws each arrow falling for FALL_LEAD ms before it lands (aoe `delay`): announce it that early.
+    inst.sched.schedule(at - FALL_LEAD, () => {
       if (!inst.playerById(p.id)) return;
       if (follow > 0) { const t = bestPoint(inst, v.x, v.y, 240, radius); if (t) { const d = Math.hypot(t.x - v.x, t.y - v.y), step = Math.min(d, follow * dur / n / 1000); if (d > 1) { v.x += (t.x - v.x) / d * step; v.y += (t.y - v.y) / d * step; } } }
       const a = inst.rng.next() * Math.PI * 2, rr = Math.sqrt(inst.rng.next()) * radius;
@@ -309,9 +315,16 @@ function overcastVolley(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   return true;
 }
 
+/** Falling-arrow lead time for the client's streak (Overcast arrows, Rainkeeper strikes; the falcon uses 240 ms). */
+export const FALL_LEAD = 150;
+
 function overcastArrow(inst: Instance, p: Player, rt: SkillRuntime, v: Volley, x: number, y: number, coef: number, r: number, heavy: boolean) {
   const st = strikeOf(p, rt, coef);
-  inst.emit({ e: 'aoe', v: heavy ? 'overcast_heavy' : 'overcast_arrow', x: Math.round(x), y: Math.round(y), r, d: 300, el: elIdx(st.el), s: p.id }, x, y, p.id);
+  inst.emit({ e: 'aoe', v: heavy ? 'overcast_heavy' : 'overcast_arrow', x: Math.round(x), y: Math.round(y), r, d: 300, el: elIdx(st.el), s: p.id, delay: FALL_LEAD }, x, y, p.id);
+  inst.sched.schedule(inst.t + FALL_LEAD, () => { if (inst.playerById(p.id)) overcastLand(inst, p, rt, v, x, y, st, r); });
+}
+
+function overcastLand(inst: Instance, p: Player, rt: SkillRuntime, v: Volley, x: number, y: number, st: Strike, r: number) {
   const gather0 = rv(rt, 'volleyGather');
   const hood = rv(rt, 'overcastHood');
   for (const m of inst.queryMobs(x, y, r)) {
@@ -352,8 +365,8 @@ function quarryMark(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   }
   // Falcon Strike: a falcon stoops on the quarry for 500 % weapon damage (a Beast attack).
   if (rt.flags.has('markDive')) {
-    inst.emit({ e: 'aoe', v: 'falcon_dive', x: Math.round(q.x), y: Math.round(q.y), r: 60, d: 450, el: 0, s: p.id }, q.x, q.y, p.id);
-    beastHit(inst, p, q, strikeOf(p, rt, 5), null);
+    inst.emit({ e: 'aoe', v: 'falcon_dive', x: Math.round(q.x), y: Math.round(q.y), r: 60, d: 450, el: 0, s: p.id, delay: 240 }, q.x, q.y, p.id);
+    inst.sched.schedule(inst.t + 240, () => { if (inst.playerById(p.id) && !q.dead) beastHit(inst, p, q, strikeOf(p, rt, 5), null); });
   }
   huntingCall(inst, p, q);
   noteSpend(inst, p, skillCost(p, rt));

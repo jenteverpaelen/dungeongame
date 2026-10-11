@@ -144,7 +144,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'rain_of_vengeance', classId: 'ranger', name: 'Arrowfall', kind: 'cooldown', unlock: 9, element: 'physical', tags: ['aerial', 'area', 'ground'], category: 'Skyfall',
+    id: 'rain_of_vengeance', classId: 'ranger', parityReady: true, name: 'Arrowfall', kind: 'cooldown', unlock: 9, element: 'physical', tags: ['aerial', 'area', 'ground'], category: 'Skyfall',
     coef: 15, cost: 0, gen: 0, cooldown: 30, range: 380, radius: 240, duration: 5, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 5, within: 380 },
     desc: 'Call down a storm of arrows on a large area, dealing {coef} weapon damage over {duration} seconds.',
@@ -172,7 +172,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'companion', classId: 'ranger', name: 'Companion', kind: 'summon', unlock: 12, element: 'physical', tags: ['beast'], category: 'Beasts',
+    id: 'companion', classId: 'ranger', parityReady: true, name: 'Companion', kind: 'summon', unlock: 12, element: 'physical', tags: ['beast'], category: 'Beasts',
     coef: 1.5, cost: 0, gen: 0, cooldown: 0, range: 320, radius: 0, duration: 0, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'A loyal wolf fights at your side, biting enemies for {coef} weapon damage.',
@@ -316,7 +316,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'pitch_mortar', classId: 'ranger', name: 'Pitch Mortar', kind: 'summon', unlock: 40, element: 'fire', tags: ['device', 'area', 'ground', 'burn'], category: 'Devices',
+    id: 'pitch_mortar', classId: 'ranger', parityReady: true, name: 'Pitch Mortar', kind: 'summon', unlock: 40, element: 'fire', tags: ['device', 'area', 'ground', 'burn'], category: 'Devices',
     coef: 3.6, cost: 30, gen: 0, cooldown: 0, range: 500, radius: 100, duration: 20, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     // Bible: "+ 1.8 burn over 3 s" — the burning pitch (a data ground) deals the second number.
@@ -345,7 +345,7 @@ export const RANGER_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'murmuration', classId: 'ranger', name: 'Murmuration', kind: 'cooldown', unlock: 50, element: 'physical', tags: ['summon', 'beast', 'area'], category: 'Beasts',
+    id: 'murmuration', classId: 'ranger', parityReady: true, name: 'Murmuration', kind: 'cooldown', unlock: 50, element: 'physical', tags: ['summon', 'beast', 'area'], category: 'Beasts',
     coef: 2.0, cost: 0, gen: 0, cooldown: 50, range: 500, radius: 120, duration: 10, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 6, within: 450 },
     desc: 'Release a murmuration of birds that sweeps between the densest groups for {duration} seconds, dealing {coef} weapon damage per second to enemies inside it ({radius} units).',

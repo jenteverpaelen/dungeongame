@@ -175,12 +175,14 @@ const CLASS_LEGS: Record<ClassId, Partial<Record<Slot, string>>> = {
   // Warrior: the measured best Endless Storm 6 Whirlwind kit of the warrior parity audit (WARRIOR-PARITY.json, merged pool);
   // the old kit (Eternal Gyre, Bloodwake in the Cube) fed the retired 'Whirlwind applies Rend' 4-piece.
   warrior: { mainhand: 'ninefold_gale', waist: 'furycord_belt', wrists: 'wardkeepers_cuffs', neck: 'signal_horn_charm', ring1: 'ouroboros_loop', ring2: 'rally_knot' },
-  ranger: { mainhand: 'thunderhead', offhand: 'sappers_pack', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
+  // Ranger: the ranger parity audit's best Siegebreaker 6 Sentry kit (RANGER-PARITY.json, pool); its rings and one Cube
+  // pick keyed off Arrowfall / Quarry Mark (not on this bar), so those stay generic.
+  ranger: { mainhand: 'kennel_wood_bow', offhand: 'sappers_pack', wrists: 'wardkeepers_cuffs', waist: 'witching_cord', neck: 'roost_charm', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
   mage: { mainhand: 'cindervane', waist: 'witching_cord', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
 };
 const CLASS_CUBE: Record<ClassId, (string | null)[]> = {
   warrior: ['millwheel_edge', 'gale_stitched_legguards', 'seething_sigil'],
-  ranger: ['hunters_mark', 'gearwright_heart', null],
+  ranger: ['bolt_throwers_arbalest', 'gearwright_heart', 'signal_horn_charm'],
   mage: ['thousand_missiles', 'starfall_mantle', null],
 };
 
@@ -1613,7 +1615,7 @@ if (!only || only === 'powers') powersScenario();
 if (!only || only === 'spike') setSpikeScenario();
 if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
-  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (the warrior at L70: progress floor until the Torment re-fit) ==');
+  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (the warrior and the ranger at L70: progress floor until the Torment re-fit) ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     riftScenario(cls, 1, 0, false, 'glade');
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
@@ -1625,7 +1627,9 @@ if (!only || only === 'rift') {
     // the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts; here a progress floor guards
     // against further loss (30%; the seeded stream shifts with any content change — the previous, weaker kit measured
     // 2.7–44.5% across such shifts).
-    riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' ? 30 : undefined);
+    // Ranger wave: the same for the ranger (bible v2 kit ×11 against 8 sturdy targets [M], was ×387; 81.5% of Torment II
+    // in 12 minutes with the audit's best Siegebreaker 6 Sentry kit [M]).
+    riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' || cls === 'ranger' ? 30 : undefined);
   }
 }
 if (!only || only === 'skills') skillCoverage();

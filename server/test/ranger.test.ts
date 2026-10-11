@@ -361,7 +361,7 @@ test('sets: Siegebreaker 2 / 6 count Devices; Thicket Kin 4 damage reduction per
     const before = skillCost(k.p, slot(k, 'multishot'));
     castSkill(k.inst, k.p, slot(k, 'rain_of_vengeance')); k.tick(10);
     assert(getBuff(k.p, 'rainkeeper'), 'active while the storm lasts');
-    assert(Math.abs(skillCost(k.p, slot(k, 'multishot')) - before * 0.7) < 0.01, '30 % cheaper');
+    assert(Math.abs(skillCost(k.p, slot(k, 'multishot')) - before * 0.85) < 0.01, '15 % cheaper (fitted from 30)');
   } finally { k.inst.destroy(); }
 });
 

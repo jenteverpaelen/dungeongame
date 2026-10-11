@@ -117,8 +117,10 @@ export const RANGER_SETS: SetDef[] = [
     pieces: RANGER_SET_BASES.map((base, i) => ({ base, name: pieceNames('Farwatch')[i] })),
     bonuses: [
       { count: 2, text: 'Your Piercing projectiles pierce or skip one more time.', effects: [skillMods(tagged('piercing'), { vars: { morePierce: 1 } })] },
-      { count: 4, text: 'Your Projectile Spender skills cost 30% less and your Piercing skills deal 15% more damage. Enemies your Piercing projectiles pass through are spotted (marked) for 3 seconds, and your projectiles bend toward spotted enemies within 300 units.',
-        effects: [skillMods({ allOf: ['projectile', 'spender'] }, { cost: -30 }), skillMore(tagged('piercing'), 15), flags(tagged('piercing'), 'spotting'),
+      // Bible: 30% less. Measured (ranger parity harness): the cut alone was worth ×1.92 on Burst Arrow and ×1.42 on
+      // Multishot (a Hatred-limited Spender turns a cost cut into casts 1 : 1/(1−x)); 15% as the warrior's Cinder Oath 4.
+      { count: 4, text: 'Your Projectile Spender skills cost 15% less and your Piercing skills deal 15% more damage. Enemies your Piercing projectiles pass through are spotted (marked) for 3 seconds, and your projectiles bend toward spotted enemies within 300 units.',
+        effects: [skillMods({ allOf: ['projectile', 'spender'] }, { cost: -15 }), skillMore(tagged('piercing'), 15), flags(tagged('piercing'), 'spotting'),
           { kind: 'projectile', tags: tagged('projectile'), seekMarked: { turn: 3, range: 300 } }] },
       { count: 6, text: 'Every 5th Projectile cast is a farwatch shot that flies 900 units, pierces everything and, where it ends, releases a free cast of your most recent Projectile Spender. Your Projectile skills deal 35% more damage to enemies farther than 200 units.',
         effects: [flags(tagged('projectile'), 'farwatchShot'), skillMore(tagged('projectile'), 35, { targetFartherThan: 200 })] },
@@ -132,8 +134,9 @@ export const RANGER_SETS: SetDef[] = [
     bonuses: [
       { count: 2, text: 'Your Aerial skills’ areas are 30% larger, and your Aerial Cooldown skills’ cooldowns are 20% shorter.',
         effects: [skillMods(tagged('aerial'), { radius: 30 }), skillMods({ allOf: ['aerial', 'cooldown'] }, { cooldown: -20 })] },
-      // Bible: "your Spender skills cost 30% less"; a buff's cost factor applies to every skill's cost (Buff.cost).
-      { count: 4, text: 'While one of your Aerial or Ground effects is active, your skills cost 30% less and your Aerial skills deal 15% more damage; you take 20% less damage while standing in your ground effects.',
+      // Bible: "your Spender skills cost 30% less"; a buff's cost factor applies to every skill's cost (Buff.cost). Fitted
+      // 30 → 15% [M]: the cut measured ×1.57 on Overcast Volley (same rule as Farwatch 4).
+      { count: 4, text: 'While one of your Aerial or Ground effects is active, your skills cost 15% less and your Aerial skills deal 15% more damage; you take 20% less damage while standing in your ground effects.',
         effects: [flags(tagged('aerial', 'ground'), 'rainkeeperActive'), skillMore(tagged('aerial'), 15, { buff: 'rainkeeper' }), { kind: 'damageTaken', pct: -20, when: { inOwnGround: true } }] },
       { count: 6, text: 'Your longest-lasting Aerial effect becomes a storm that follows you and every 3 seconds drops a free strike of your most recent Aerial Spender (50% damage) on the densest group inside it. Your Aerial skills deal 35% more damage to enemies inside the storm.',
         effects: [flags(tagged('aerial'), 'rainStorm')] },
