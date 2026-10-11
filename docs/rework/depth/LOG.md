@@ -36,3 +36,9 @@
   non-binding, bible wants 2/2); `stat.perLegendary` + `noSetBonus` (Patchwork Signet); economy switch `SPEC_POINTS`
   (shipped separate from L2; bible preset L10 + cap 10; shared mode supported); `skillPrimary` command; `category`.
   Sim identical, item audit rows identical, powerTemplates 12, depthFoundation 16.
+- Step 6: Skills window (`client/src/ui/panels/skills.tsx`): paged list + category chips, three detail views (Runes &
+  tiers, Specialization tree, Casting), both point pools, primary switch, tags; no scroll region. Evidence:
+  `docs/rework/depth/shots` (gallery fixture 12/20 skills + real server), 1080p heights 778–882 px, 0 scrollers.
+- Step 7: parity harness `server/test/parity/harness.ts` (KitSpec data, runner, planner), report
+  `scripts/audit-parity.ts` → `PARITY.md` / `PARITY-MODEL.json` (15 s), gate `server/test/parity.test.ts` in verify
+  stage `depth` (asserts only `parityReady` skills; none yet). Today legendary-only / set = 18.6×–94.6×.
