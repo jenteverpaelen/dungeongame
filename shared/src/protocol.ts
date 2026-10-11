@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 22;
+export const PROTOCOL_VERSION = 23;
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
@@ -178,7 +178,8 @@ export interface Snapshot {
 }
 
 export type S2C =
-  | { t: 'auth'; op: AuthOp; ok: boolean; mode: AccountMode; err?: string; username?: string; token?: string; recoveryCodes?: string[]; characters?: AuthCharacter[] }
+  | { t: 'auth'; op: AuthOp; ok: boolean; mode: AccountMode; err?: string; username?: string; token?: string; recoveryCodes?: string[]; characters?: AuthCharacter[];
+      info?: AccountInfo; sessions?: AccountSession[]; events?: AccountActivity[]; data?: unknown }
   | { t: 'welcome'; you: number; char: CharacterSave; derived: DerivedStats; zone: ZoneInfo; time: number; world: WorldInfo }
   | { t: 'zone'; you: number; zone: ZoneInfo }
   | Snapshot
@@ -211,12 +212,21 @@ export type CmdOp = 'onboarding'
   | 'debug';
 
 /** Account operations, sent before `hello`. `status` is only ever a server notice. */
-export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 'recover' | 'password' | 'codes';
+export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 'recover' | 'password' | 'codes'
+  // Devices & activity, personal data (export, deletion with a grace period); all need a logged-in socket before `hello`.
+  | 'sessions' | 'revoke' | 'export' | 'deleteAccount' | 'cancelDeletion' | 'deleteCharacter' | 'restoreCharacter';
 export type AccountMode = 'off' | 'optional' | 'required';
-export interface AuthCharacter { name: string; classId: ClassId; level: number }
+/** `deleteAt`: the hero is scheduled for deletion at this time (epoch ms) and cannot be played until restored. */
+export interface AuthCharacter { name: string; classId: ClassId; level: number; deleteAt?: number }
+/** Account facts the dialog shows: codes left, the grace period and a pending account deletion. */
+export interface AccountInfo { recoveryLeft: number; graceDays: number; deletionAt?: number }
+export interface AccountSession { id: string; device: string; created: number; lastUsed: number; current: boolean }
+export interface AccountActivity { t: number; k: string; d?: string }
 
 export type C2S =
-  | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string }
+  | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string;
+      /** revoke: a session id or 'others'. deleteCharacter/restoreCharacter: the hero's name. deleteAccount: the username typed again. */
+      session?: string; character?: string; confirm?: string }
   | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.

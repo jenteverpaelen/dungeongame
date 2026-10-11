@@ -38,6 +38,11 @@ export interface AccountView {
   open: boolean;
   /** Hero the player chose from their account; the select screen copies it into the name and class fields. */
   picked: AuthCharacter | null;
+  /** Recovery codes left, grace period and a pending account deletion (from the last account reply). */
+  info?: import('@shared/protocol').AccountInfo | null;
+  /** Signed-in devices and recent security activity (loaded when the Devices tab opens). */
+  sessions?: import('@shared/protocol').AccountSession[];
+  events?: import('@shared/protocol').AccountActivity[];
 }
 
 export interface UIState {

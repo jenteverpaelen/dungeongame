@@ -48,7 +48,7 @@ test('the writer is inert when disabled, groups events into one file per UTC day
   const files = (await fs.readdir(path.join(dir, 'on'))).sort();
   assert.deepEqual(files, ['events-2026-10-10.jsonl', 'events-2026-10-11.jsonl']);
   const lines = (await fs.readFile(path.join(dir, 'on', files[1]), 'utf8')).trim().split('\n').map(l => JSON.parse(l));
-  assert.deepEqual(lines, [{ t: clock, e: 'level', c: 'hero', lvl: 2 }]);
+  assert.deepEqual(lines, [{ t: clock, s: 1, e: 'level', c: 'hero', lvl: 2 }]);
 
   const blocked = path.join(dir, 'file-not-folder');
   await fs.writeFile(blocked, 'x');

@@ -109,6 +109,15 @@ function requireSupportedVersion(save: CharacterSave): void {
   if (version > SAVE_VERSION) throw new UnsupportedSaveVersionError(`Save version ${version} requires a newer server`);
 }
 
+/** Privacy purge: permanently remove a character after every write queued before it (nothing can resurrect it). */
+export function eraseCharacter(id: string): Promise<number> {
+  return enqueue(id, async () => { failedWrites.delete(id); return store.erase(id); });
+}
+/** Ids of the stored characters (used to re-apply erasures after a restore). */
+export function listCharacters(): Promise<string[]> { return store.list(); }
+/** The stored bytes, unparsed (privacy checks read `lastSeen` without normalising or quarantining). */
+export function readCharacterBytes(id: string): Promise<Buffer | null> { return enqueue(id, () => store.read(id)); }
+
 /** Load a character or return null if it does not exist. A corrupt file is moved aside and reported. */
 export function loadCharacter(id: string): Promise<CharacterSave | null> {
   return enqueue(id, () => loadQueuedCharacter(id));

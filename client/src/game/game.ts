@@ -15,7 +15,10 @@ import { text } from '../i18n/messages';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
-import { installApi, session } from '../net/api';
+import { installApi, session, type AuthFields, type AuthResult } from '../net/api';
+
+/** Account requests that need this socket to be signed in (they re-resume a stored session first). */
+const SIGNED_IN_OPS = new Set<AuthOp>(['password', 'codes', 'sessions', 'revoke', 'export', 'deleteAccount', 'cancelDeletion', 'deleteCharacter', 'restoreCharacter']);
 import { Connection } from '../net/connection';
 import { clearToken, fetchAccountMode, loadToken, rememberUsername, saveToken } from '../net/account';
 import { Scene } from '../render/scene';
@@ -131,7 +134,7 @@ export class Game {
 
   // ─────────────────────────── Accounts (before `hello`) ───────────────────────────
 
-  private authRequest(conn: Connection, op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<Extract<S2C, { t: 'auth' }> | null> {
+  private authRequest(conn: Connection, op: Exclude<AuthOp, 'status'>, fields: AuthFields = {}): Promise<Extract<S2C, { t: 'auth' }> | null> {
     return new Promise((resolve) => {
       const done = (m: Extract<S2C, { t: 'auth' }>) => { window.clearTimeout(timer); resolve(m); };
       const timer = window.setTimeout(() => { if (this.authWaiter?.resolve === done) this.authWaiter = null; resolve(null); }, 15_000);
@@ -141,22 +144,22 @@ export class Game {
   }
 
   /** Account request from the select screen. The reply also updates `ui.account` (see the `auth` message case). */
-  async auth(op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<{ ok: boolean; err?: string }> {
+  async auth(op: Exclude<AuthOp, 'status'>, fields: AuthFields = {}): Promise<AuthResult> {
     if (ui.get().account.busy) return { ok: false, err: 'One moment, still working on your last request.' };
     const fail = (err: string) => { ui.set((s) => ({ account: { ...s.account, busy: false, error: err } })); return { ok: false, err }; };
     ui.set((s) => ({ account: { ...s.account, busy: true, error: null } }));
     const conn = await this.openConnection();
     if (!conn) return fail('Could not reach the game server');
-    // Changing a password or asking for codes needs a session on this very socket; a server restart or the login
-    // timeout may have ended it, so pick it up again from the stored token first.
-    if ((op === 'password' || op === 'codes') && !this.connAuthed) {
+    // Signed-in requests need a session on this very socket; a server restart or the login timeout may have ended
+    // it, so pick it up again from the stored token first.
+    if (SIGNED_IN_OPS.has(op) && !this.connAuthed) {
       await this.authRequest(conn, 'resume');
       if (!this.connAuthed) return fail('Your session ended. Please log in again.');
     }
     const reply = await this.authRequest(conn, op, fields);
     ui.set((s) => ({ account: { ...s.account, busy: false } }));
     if (!reply) return fail('The server did not answer. Please try again.');
-    return { ok: reply.ok, err: reply.err };
+    return { ok: reply.ok, err: reply.err, data: reply.data };
   }
 
   /** Resolves once the account mode is known and a stored session was tried; `start()` waits for it so a login
@@ -192,11 +195,16 @@ export class Game {
           if (!m.ok) return { account: { ...a, mode: m.mode, error: m.op === 'resume' ? null : m.err ?? 'That did not work. Please try again.',
             ...(m.op === 'resume' ? { username: null, characters: [] as typeof a.characters } : {}) } };
           const codes = m.recoveryCodes ?? a.codes;
+          const out = m.op === 'logout';
           return { account: { ...a, mode: m.mode, error: null, codes,
-            username: m.op === 'logout' ? null : m.username ?? a.username,
-            characters: m.op === 'logout' ? [] : m.characters ?? a.characters,
-            // The dialog stays open while recovery codes wait to be acknowledged; otherwise a login closes it.
-            open: m.op === 'logout' ? m.mode === 'required' : codes ? true : (m.op === 'password' || m.op === 'codes') ? a.open : false } };
+            username: out ? null : m.username ?? a.username,
+            characters: out ? [] : m.characters ?? a.characters,
+            info: out ? null : m.info ?? a.info ?? null,
+            sessions: out ? [] : m.sessions ?? a.sessions,
+            events: out ? [] : m.events ?? a.events,
+            // The dialog stays open while recovery codes wait to be acknowledged, and for every signed-in action;
+            // a login closes it — unless the account is waiting to be deleted, which the player must see.
+            open: out ? m.mode === 'required' : codes ? true : SIGNED_IN_OPS.has(m.op) ? a.open : !!m.info?.deletionAt } };
         });
         const w = this.authWaiter;
         if (w && m.op !== 'status' && w.op === m.op) { this.authWaiter = null; w.resolve(m); }

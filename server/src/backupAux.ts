@@ -39,14 +39,20 @@ async function sourceFiles(dataDir: string): Promise<string[]> {
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
   }
-  try {
-    await fs.stat(path.join(dataDir, 'social', 'ledger.json'));
-    out.push('social/ledger.json');
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  for (const rel of AUX_SINGLE_FILES) {
+    try {
+      await fs.stat(path.join(dataDir, ...rel.split('/')));
+      out.push(rel);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
   }
   return out;
 }
+/** Single files copied when present. The privacy ledger is included so a lost disk does not lose the erasure list
+ *  (restoring it never re-creates erased data: it only holds digests and pending requests). */
+const AUX_SINGLE_FILES = ['social/ledger.json', 'privacy/ledger.json'] as const;
+const AUX_GROUPS = ['accounts', 'social', 'privacy'];
 
 function parseManifest(value: unknown): AuxManifest {
   const m = value as Partial<AuxManifest> | null;
@@ -54,7 +60,7 @@ function parseManifest(value: unknown): AuxManifest {
   if (typeof m.createdAt !== 'string' || !Number.isFinite(Date.parse(m.createdAt)) || !Array.isArray(m.files)) throw new Error('Invalid aux manifest fields');
   const seen = new Set<string>();
   for (const f of m.files) {
-    const ok = !!f && typeof f.path === 'string' && (/^accounts\/[a-z0-9_]{3,20}\.json$/.test(f.path) || f.path === 'social/ledger.json')
+    const ok = !!f && typeof f.path === 'string' && (/^accounts\/[a-z0-9_]{3,20}\.json$/.test(f.path) || (AUX_SINGLE_FILES as readonly string[]).includes(f.path))
       && Number.isSafeInteger(f.bytes) && f.bytes >= 0 && typeof f.sha256 === 'string' && /^[a-f0-9]{64}$/.test(f.sha256);
     if (!ok || seen.has(f.path)) throw new Error('Invalid or duplicate aux backup entry');
     seen.add(f.path);
@@ -73,7 +79,7 @@ async function readVerified(directory: string, allowIncomplete = false): Promise
   const bytes = new Map<string, Buffer>();
   const present: string[] = [];
   for (const group of (await fs.readdir(base)).sort()) {
-    if (group !== 'accounts' && group !== 'social') throw new Error(`Unexpected aux entry: ${group}`);
+    if (!AUX_GROUPS.includes(group)) throw new Error(`Unexpected aux entry: ${group}`);
     await regular(path.join(base, group), true);
     for (const name of await fs.readdir(path.join(base, group))) present.push(`${group}/${name}`);
   }
@@ -139,7 +145,7 @@ export async function rotateAuxBackups(root: string, keepCount: number): Promise
       const current = await readVerified(entry.directory); // re-verified immediately before deletion
       if (JSON.stringify(current.manifest) !== JSON.stringify(entry.manifest)) throw new Error('changed');
       for (const f of entry.manifest.files) await fs.unlink(path.join(entry.directory, 'files', ...f.path.split('/')));
-      for (const group of ['accounts', 'social']) await fs.rmdir(path.join(entry.directory, 'files', group)).catch(() => undefined);
+      for (const group of AUX_GROUPS) await fs.rmdir(path.join(entry.directory, 'files', group)).catch(() => undefined);
       await fs.rmdir(path.join(entry.directory, 'files'));
       await fs.unlink(path.join(entry.directory, 'manifest.json'));
       await fs.rmdir(entry.directory);

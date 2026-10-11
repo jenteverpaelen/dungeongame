@@ -30,12 +30,16 @@ export function sendChat(text: string,ch?:import('@shared/social').ChatChannel,t
   chatSender(text,ch,to);
 }
 
+/** Fields an account request may carry (see C2S `auth` in shared/src/protocol.ts). */
+export interface AuthFields { username?: string; password?: string; newPassword?: string; code?: string; session?: string; character?: string; confirm?: string }
+export interface AuthResult { ok: boolean; err?: string; data?: unknown }
+
 /** Start the game with a character (class select screen). Installed by main.ts. */
 export const session = {
   interact: () => {},
   start: (_name: string, _classId: 'warrior' | 'ranger' | 'mage', _options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) => {},
-  /** Account request before `hello` (register, login, resume, recover, password, codes, logout). Installed by main.ts. */
-  auth: async (_op: Exclude<import('@shared/protocol').AuthOp, 'status'>, _fields?: { username?: string; password?: string; newPassword?: string; code?: string }): Promise<{ ok: boolean; err?: string }> => ({ ok: false, err: 'Not connected' }),
+  /** Account request before `hello` (login, register, recover, devices, export, deletion…). Installed by main.ts. */
+  auth: async (_op: Exclude<import('@shared/protocol').AuthOp, 'status'>, _fields?: AuthFields): Promise<AuthResult> => ({ ok: false, err: 'Not connected' }),
   /** Reads the server's account mode and resumes a remembered session. Installed by main.ts. */
   initAccount: async (): Promise<void> => {},
 };
