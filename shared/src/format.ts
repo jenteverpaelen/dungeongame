@@ -15,14 +15,22 @@ export function fmtCompact(n: number): string {
   return (neg ? '-' : '') + s.replace(/\.0+$/, '') + SUFFIXES[i];
 }
 
+// Number#toLocaleString(locale, options) is specified as new Intl.NumberFormat(locale, options).format(n): building the
+// formatter is the expensive part (about 1 ms on a 4×-throttled CPU), and the HUD formats several numbers ten times a
+// second, so the formatters are built once. Output is identical.
+const INT_FMT = new Intl.NumberFormat('en-US');
+const NUM_FMT = new Map<number, Intl.NumberFormat>();
+
 /** Full with thousands separators: 1234567 -> "1,234,567". */
 export function fmtInt(n: number): string {
-  return Math.round(n).toLocaleString('en-US');
+  return INT_FMT.format(Math.round(n));
 }
 
 /** Fixed decimals with separators: (1234.5, 1) -> "1,234.5". */
 export function fmtNum(n: number, decimals = 1): string {
-  return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  let f = NUM_FMT.get(decimals);
+  if (!f) { f = new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }); NUM_FMT.set(decimals, f); }
+  return f.format(n);
 }
 
 export function fmtPct(n: number, decimals = 1): string {

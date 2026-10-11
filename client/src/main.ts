@@ -19,11 +19,22 @@ import { Game } from './game/game';
 import { startPreviews } from './game/previews';
 import { cmd, session } from './net/api';
 import { initArt } from './render/art';
+import { bakeStats } from './render/art/player';
 import { App } from './ui/App';
 import { ui } from './ui/store';
 import { preferences } from './game/preferences';
-import { GraphicsController, resolutionFor } from './game/quality';
+import { GraphicsController, applyFirstRunGraphics, resolutionFor } from './game/quality';
 import { applyWeaponArtPreview } from './game/weaponArtPreview';
+
+/** The WebGL driver's renderer name (unmasked when the browser allows it). */
+function webglRendererName(app: Application): string {
+  try {
+    const gl = (app.renderer as unknown as { gl?: WebGLRenderingContext }).gl;
+    if (!gl) return '';
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    return String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? '');
+  } catch { return ''; }
+}
 
 async function boot() {
   await Promise.all([
@@ -47,6 +58,8 @@ async function boot() {
     powerPreference: 'high-performance',
   });
   document.getElementById('game')!.appendChild(app.canvas);
+  // First visit on a software rasteriser (blocklisted GPU): start on the Low preset (docs/rework/PERF.md §Low-end defaults).
+  applyFirstRunGraphics(preferences, webglRendererName(app));
   applyWeaponArtPreview(); // before the first view or icon: the weapon drawings are chosen once per page load
   initArt(app.renderer);
 
@@ -66,7 +79,8 @@ async function boot() {
   const auto = qs.get('autostart');
   if (auto) session.start(auto, (qs.get('class') as 'warrior' | 'ranger' | 'mage') ?? 'warrior');
 
-  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences, __graphics: graphics });
+  // __bakes: hero sheets still queued for baking (the client perf gate measures once they are done)
+  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences, __graphics: graphics, __bakes: bakeStats });
 }
 
 void boot();

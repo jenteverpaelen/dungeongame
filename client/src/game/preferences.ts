@@ -135,10 +135,13 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
 export class PreferenceStore {
   private state: PreferenceState;
   private listeners = new Set<() => void>();
+  /** No saved preferences were found at start-up (first visit, or storage cleared or unavailable). */
+  readonly firstRun: boolean;
   constructor(private storage?: StorageAccess) {
     let values = DEFAULT_PREFERENCES, retained = !!storage;
     let raw: string | null = null;
     try { raw = storage?.getItem(PREFERENCES_KEY) ?? null; } catch { retained = false; }
+    this.firstRun = !raw;
     if (raw) try {
       const parsed = JSON.parse(raw);
       if (parsed?.version === 1 && parsed.values && typeof parsed.values === 'object') values = normalize(parsed.values);
@@ -167,9 +170,20 @@ function browserStorage(): StorageAccess | undefined {
 export const preferences = new PreferenceStore(browserStorage());
 
 let motionQuery: MediaQueryList | null | undefined;
+/** Last value of the system query, kept current by its change event: reading MediaQueryList.matches evaluates the
+ *  query and can make the browser bring the document's style up to date first. The renderer asks hundreds of times per
+ *  frame (docs/rework/PERF.md). null: no change events in this browser, so the live value is read. */
+let motionMatches: boolean | null = null;
 export function prefersReducedMotion(): boolean {
-  if (motionQuery === undefined) { try { motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null; } catch { motionQuery = null; } }
-  return !!motionQuery?.matches;
+  if (motionQuery === undefined) {
+    try { motionQuery = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null; } catch { motionQuery = null; }
+    const q = motionQuery;
+    if (q && typeof q.addEventListener === 'function') {
+      motionMatches = q.matches;
+      q.addEventListener('change', (e) => { motionMatches = e.matches; });
+    }
+  }
+  return motionMatches ?? !!motionQuery?.matches;
 }
 /** Effective reduce-motion: the player's choice, or the operating system's when set to follow it. */
 export function motionReduced(prefs: Readonly<Preferences> = preferences.get().values, system = prefersReducedMotion()): boolean {

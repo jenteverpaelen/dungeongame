@@ -90,6 +90,10 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   const W = SIZE, C = W / 2;
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.clearRect(0, 0, W, W);
+  // The NPC letters' font, set outside save()/restore() so it persists: assigning ctx.font resolves the document's style
+  // (1.3 ms per paint during fights, ~15 ms on a 4× slower CPU), so it is assigned only when the context lacks it.
+  if (g.font !== fontSet.get(g)) { g.font = MM_FONT; fontSet.set(g, g.font); }
+  g.textAlign = 'center';
   g.save();
   g.beginPath(); g.arc(C, C, C, 0, 6.2832); g.clip();
   g.fillStyle = '#060504'; g.fillRect(0, 0, W, W);
@@ -122,8 +126,6 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   for (const o of q.objectives) { const x = px(o.x), y = py(o.y); if ((x - C) ** 2 + (y - C) ** 2 <= (C - 8) ** 2) g.drawImage(markCanvas(o.cat, '◆'), x - 9, y - 9, 18, 18); }
   if (q.point) { const [x, y] = clampTo(px(q.point.x), py(q.point.y)); g.drawImage(markCanvas(q.pointCat, '◆'), x - 13, y - 13, 26, 26); }
   const r2 = (C + 12) * (C + 12);
-  // Setting ctx.font forces a style resolution, so it is set once per font, not once per NPC.
-  g.font = 'bold 8px Arial'; g.textAlign = 'center';
   for (const n of baked.map.npcs) { const x = px(n.x), y = py(n.y); if ((x - C) ** 2 + (y - C) ** 2 <= r2) npcIcon(g, n.role, x, y); }
   for (const m of q.markers) { const x = px(m.x), y = py(m.y) - 12; if ((x - C) ** 2 + (y - C) ** 2 <= r2) g.drawImage(markCanvas(m.cat, m.glyph), x - 12, y - 12, 24, 24); }
   for (const p of baked.map.portals) { const [x, y, off] = clampTo(px(p.x), py(p.y)); if (!off) portalIcon(g, x, y, t); }
@@ -135,10 +137,12 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
     if (e.k === 'mob') (e.el && e.el > 0 ? specials : mobs).push(e);
     else specials.push(e);
   }
+  // the same strokes as dot(g, x, y, 3.2, '#d8453a') per monster, with the shared styles set once (crowds: dozens of dots)
+  g.fillStyle = '#d8453a'; g.strokeStyle = 'rgba(0,0,0,.85)'; g.lineWidth = 1.6;
   for (const e of mobs) {
     const x = px(e.x), y = py(e.y);
     if ((x - C) ** 2 + (y - C) ** 2 > C * C) continue;
-    dot(g, x, y, 3.2, '#d8453a');
+    g.beginPath(); g.arc(x, y, 3.2, 0, 6.2832); g.fill(); g.stroke();
   }
   for (const e of specials) {
     const [x, y, off] = clampTo(px(e.x), py(e.y));
@@ -172,6 +176,9 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
 }
 
 const vignettes = new WeakMap<CanvasRenderingContext2D, CanvasGradient>();
+const MM_FONT = 'bold 8px Arial';
+/** The font value each context reported after MM_FONT was assigned (the browser's serialisation of it). */
+const fontSet = new WeakMap<CanvasRenderingContext2D, string>();
 /** Quest marks are painted once per category and glyph (setting ctx.font per marker every frame forces style work). */
 const marks = new Map<string, HTMLCanvasElement>();
 function markCanvas(cat: MarkCat, glyph: string): HTMLCanvasElement {

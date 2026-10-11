@@ -49,6 +49,9 @@ const stages = [
   ['build', ['node_modules/vite/bin/vite.js', 'build', '--config', 'client/vite.config.ts']],
   // The built client through the real server and its security headers, in headless Chrome (after build).
   ['served-build', ['scripts/served-build-check.mjs']],
+  // Per-frame client work on the built client: recorded rift fight and town crowd replayed against scripts/perf/budgets.json,
+  // no repaint-every-frame CSS animations, an idle HUD that does not repaint (docs/rework/PERF.md §Gate).
+  ['client-perf', ['scripts/client-perf-check.mjs']],
 ];
 const results = [];
 let child;
