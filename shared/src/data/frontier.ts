@@ -51,7 +51,8 @@ function cairnspill() {
   z.portal(...P(90, 19), 'cinderwash_kilns', 'Cinderwash Kilns');
   z.pack('old_track', ...P(18.5, 42), ['vault_moth', 'siltusk', 'grave_bat', 'gloomshroom']);
   z.wreck(...P(14, 44)); z.landmark('Old Track', ...P(18, 46));
-  z.elite('grindstone', ...P(31.5, 25.5), 'siltusk', 'Grindstone', ['fast'], ['flint_beetle', 'vault_moth']);
+  z.elite('grindstone', ...P(31.5, 25.5), 'siltusk', 'Grindstone', ['fast'], ['flint_beetle', 'vault_moth'], { questTarget: true });
+  z.contact('stake_track', 'Crooked survey stake', ...P(22.5, 39.5), 'marker'); z.contact('stake_scar', 'Buried survey stake', ...P(26.5, 28.5), 'marker');
   z.landmark('Slide Scar', ...P(31, 31));
   z.cache('cache_ledge', ...P(11, 17), 'Hermit’s strongbox'); z.shrine('shrine_ledge', ...P(15.5, 19.5), 'keen'); z.decor('cairn', ...P(13, 15));
   z.landmark('Hermit’s Ledge', ...P(13, 22));
@@ -59,6 +60,12 @@ function cairnspill() {
   z.decor('logpile', ...P(86, 31)); z.decor('crates', ...P(91, 26)); z.landmark('Loading Yard', ...P(88, 32));
   for (const [x, y] of [P(10, 72), P(61, 33), P(82, 12)]) z.sound('wind', x, y);
   z.sound('water', ...P(54, 66)); z.emit('motes', ...P(47, 43), 6); z.emit('birds', ...P(30, 30), 4);
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('watchtower', ...P(5.5, 62)); z.structure('stonetower', ...P(9.5, 46.5), 1); z.structure('ruinhouse', ...P(34, 67.5));
+  z.structure('statue', ...P(41, 39.6)); z.structure('signaltower', ...P(68.6, 17.6));
+  z.resident('cs_mason', 'worker', 'Stone dresser', ...P(50.5, 46.5), 10); z.resident('cs_porter', 'porter', 'Haulier', ...P(16.5, 69.5), -15);
+  z.walker('cs_haul', 'carpenter', [P(18, 67), P(25, 62), P(31, 57), P(25, 62)], 45, 5); z.stores(...P(87, 31.5));
+  z.structure('house', ...P(6.5, 66)); z.resident('cs_cook', 'innkeeper', 'Camp cook', ...P(13.8, 73.8), 10);
   return z.build();
 }
 
@@ -103,7 +110,8 @@ function cinderwash() {
   z.contact('tally', 'Firing tally', ...P(21.5, 37.5), 'ledger');
   z.decor('crates', ...P(32, 33)); z.decor('barrels', ...P(22, 38)); z.decor('coalpile', ...P(34.5, 38.5)); z.light(...P(25, 33), 0xffc070, 150);
   z.landmark('Stores', ...P(28, 40.5));
-  z.elite('cinderhusk', ...P(49, 38.5), 'magma_brute', 'Cinderhusk', ['molten'], ['ember_imp', 'ash_wisp']);
+  z.elite('cinderhusk', ...P(49, 38.5), 'magma_brute', 'Cinderhusk', ['molten'], ['ember_imp', 'ash_wisp'], { questTarget: true });
+  z.contact('ember_niche', 'Firekeepers’ offering niche', ...P(38, 60), 'marker');
   z.landmark('Slag Heaps', ...P(48, 44));
   z.kilns = [{ x: Math.round(58 * S), y: Math.round(15 * S), w: 300, d: 220, h: 160 }, { x: Math.round(70 * S), y: Math.round(18 * S), w: 230, d: 180, h: 130 }];
   z.pack('stoker', ...P(64, 27.5), [{ type: 'cinder_cultist', dx: 0, dy: 0, tier: 2, name: 'The Unattended Flame', questTarget: true, affixes: ['faulted'] }, 'ember_imp', 'bonewalker', 'grave_bat']);
@@ -117,6 +125,12 @@ function cinderwash() {
   z.portal(...P(88.5, 16), 'kilnwatch_crown', 'Kilnwatch Crown');
   for (const [x, y] of [P(57, 62), P(64, 20), P(38, 57)]) z.sound('fire', x, y);
   z.sound('wind', ...P(10, 72)); z.sound('wind', ...P(28, 36));
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('kilnstack', ...P(67.5, 60)); z.structure('kilnstack', ...P(77.5, 18.5), 1); z.structure('ruinhouse', ...P(18.5, 31));
+  z.structure('watchtower', ...P(5.5, 62)); z.structure('statue', ...P(44.5, 52.5));
+  z.resident('cw_raker', 'worker', 'Ash raker', ...P(54.5, 61), 15); z.resident('cw_carrier', 'porter', 'Coal carrier', ...P(16, 70.5), -10);
+  z.walker('cw_runner', 'worker', [P(32, 60), P(38, 57), P(47, 59), P(38, 57)], 45, 5); z.stores(...P(60, 66.5));
+  z.structure('house', ...P(6.5, 66), 1); z.resident('cw_cook', 'innkeeper', 'Camp cook', ...P(13.5, 73.8), -15);
   return z.build();
 }
 
@@ -160,12 +174,19 @@ function kilnwatch() {
   z.pack('heart', ...P(62, 19.5), [{ type: 'kiln_heart', dx: 0, dy: 0, tier: 2, name: 'The Last Ember', questTarget: true, combat: 'furnace' }]);
   z.contact('seal', 'Cold draw seal', ...P(68.5, 15), 'mechanism');
   z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.landmark('Crown Furnace', ...P(62, 23));
-  z.elite('slagmaw', ...P(79, 45.5), 'magma_brute', 'Slagmaw', ['molten'], ['ember_imp', 'bonewalker', 'ash_wisp']);
+  z.elite('slagmaw', ...P(79, 45.5), 'magma_brute', 'Slagmaw', ['molten'], ['ember_imp', 'bonewalker', 'ash_wisp'], { questTarget: true });
+  z.contact('shift_board', 'Gantry shift board', ...P(37.5, 53.5), 'ledger'); z.contact('lost_tin', 'Dented sweet tin', ...P(76, 47), 'cart');
   z.kilnYard(...P(74, 41)); z.cache('cache_bellows', ...P(82, 41), 'Bellows-house strongbox'); z.landmark('Bellows House', ...P(78, 48.5));
   z.cache('cache_lookout', ...P(28.5, 19), 'Old watch cache'); z.decor('signalflag', ...P(32, 18)); z.landmark('Old Lookout', ...P(30, 23.5));
   z.portal(...P(85, 31), 'sablefen_causeway', 'Sablefen Causeway');
   for (const [x, y] of [P(62, 14), P(33, 56)]) z.sound('fire', x, y);
   z.sound('wind', ...P(10, 72)); z.sound('wind', ...P(84, 30));
+  // Second pass (LOG W4): big landmarks seen from afar, more people at work.
+  z.structure('beacontower', ...P(61, 26)); z.structure('watchtower', ...P(5.5, 62)); z.structure('stonetower', ...P(7.5, 30), 1);
+  z.structure('ruinhouse', ...P(25.5, 50.5)); z.structure('kilnstack', ...P(85.5, 40)); z.structure('statue', ...P(34.5, 17.5));
+  z.resident('kw_cook', 'innkeeper', 'Refuge cook', ...P(15.5, 70.5), -10);
+  z.walker('kw_watch', 'guard', [P(17, 66.5), P(22, 63), P(28, 59), P(22, 63)], 42, 6); z.stores(...P(7.5, 66));
+  z.structure('house', ...P(6.5, 66), 2); z.resident('kw_clerk', 'clerk', 'Watch clerk', ...P(8.5, 70), 20);
   return z.build();
 }
 

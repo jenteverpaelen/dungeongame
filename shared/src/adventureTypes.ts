@@ -22,6 +22,10 @@ export interface ZonePaint {
   residents: { id: string; look: string; name: string; x: number; y: number; facing?: number }[];
   walkers: { id: string; look: string; path: Point[]; speed: number; pause: number }[];
   critters: { kind: CritterKind; x: number; y: number; r: number; n: number }[];
+  /** Large authored landmarks (towers, windmills, kiln stacks…); the kit adds a matching solid base footprint. */
+  structures?: { kind: string; x: number; y: number; w: number; d: number; v?: number; flip?: boolean }[];
+  /** Named regions (plan metadata for maps, density probes and tools; never collision). */
+  areas?: { id: string; role: string; x: number; y: number; r: number }[];
 }
 /** Optional world objects used in person and validated by the server (docs/rework/worlds/DESIGN.md §1). */
 export interface ZonePoi { id: string; kind: 'shrine' | 'cache'; name: string; x: number; y: number; radius: number; shrine?: 'empowered' | 'frenzied' | 'keen' }

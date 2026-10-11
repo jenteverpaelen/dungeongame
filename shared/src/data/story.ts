@@ -8,6 +8,9 @@ export const CHAPTERS:readonly StoryChapter[]=[{id:'water_road',title:'story.wat
   {id:'ridge_signals',title:'story.ridgeSignals',act:'story.actThree'},{id:'hollowstar',title:'story.hollowstar',act:'story.actThree'}];
 export const LORE:readonly LoreEntry[]=[
   {id:'survey_journal',title:'world.lost_survey.lore.title',text:'world.lost_survey.lore',quest:'lost_survey',afterStep:2},
+  {id:'stake_notes',title:'world.true_measure.lore.title',text:'world.true_measure.lore',quest:'true_measure',afterStep:2},
+  {id:'shift_board',title:'world.missing_shift.lore.title',text:'world.missing_shift.lore',quest:'missing_shift',afterStep:1},
+  {id:'ledger_pages',title:'world.mera_ledger.lore.title',text:'world.mera_ledger.lore',quest:'mera_ledger',afterStep:2},
   {id:'convoy_manifest',title:'mid.salt_bound.manifest',text:'mid.lore.manifest',quest:'salt_bound',afterStep:1},
   {id:'salt_dispatch',title:'mid.sealed_brine.dispatch',text:'mid.lore.dispatch',quest:'sealed_brine',afterStep:3},
   {id:'water_archive',title:'mid.lockglass_heart.archive',text:'mid.lore.archive',quest:'lockglass_heart',afterStep:2},

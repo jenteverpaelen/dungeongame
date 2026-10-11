@@ -8,6 +8,7 @@ import { adventureStructures } from './adventure';
 import { flameSprite, glowSprite } from './fx';
 import { ellipse, hash, INK, line, poly, tone, type Paint } from './townKit';
 import { zoneArt, ZONE_FLAT, ZONE_TALL } from './zoneArt';
+import { rotorArt, structureArt } from './zoneStructures';
 import { ZoneGround, ZONE_PAL } from './zoneGround';
 import { prewarmMonsters } from './monsters';
 import { summonRigs } from './summons';
@@ -65,10 +66,28 @@ export function buildZone(map: MapData): MapLayers {
       made.root.onRender = () => { const t = performance.now() / 1000; flames.forEach((f, i) => { f.scale.y = 0.24 + Math.sin(t * 8 + i * 1.7) * 0.04; }); glow.alpha = 0.36 + Math.sin(t * 6.3 + x) * 0.05; };
     }
     if (kind === 'lamp' || kind === 'lamppost') { const g = glowSprite(0xffc878, 70, 0.5, true); g.position.set(0, -70); made.root.addChild(g); }
+    if (kind === 'brazier' || kind === 'walltorch') {
+      const top = kind === 'brazier' ? -46 : -80, f = flameSprite(0xef9b4c, kind === 'brazier' ? 20 : 14), g = glowSprite(0xffb060, kind === 'brazier' ? 110 : 90, 0.42, true);
+      f.position.set(0, top); g.position.set(0, top - 4); made.root.addChild(g, f);
+      made.root.onRender = () => { const t = performance.now() / 1000; f.scale.y = 0.22 + Math.sin(t * 9 + x) * 0.04; g.alpha = 0.38 + Math.sin(t * 6.1 + y) * 0.05; };
+    }
   };
   a.scenery.forEach((p, i) => add(p.k, p.x, p.y, p.s || 1, p.v, hash(Math.round(p.x), Math.round(p.y), 5) < 0.4 && p.k !== 'tent', `s${i}`));
   paint.decor.forEach((d, i) => { if (!ZONE_FLAT.has(d.kind)) add(d.kind, d.x, d.y, d.s ?? 1, d.v ?? 0, d.flip ?? false, `d${i}`); });
   const structure = new Set([...(a.kilns ?? []), ...(a.works ?? [])].map((k) => `${k.x},${k.y},${k.w},${k.d}`));
+  // Big landmarks (second pass): their solid base is a kit footprint; the art replaces the generic wall block.
+  for (const [i, st] of (paint.structures ?? []).entries()) {
+    const fx = Math.round(st.x - st.w / 2), fy = Math.round(st.y - st.d);
+    structure.add(`${fx},${fy},${st.w},${st.d}`);
+    const art = structureArt(st.kind, st.w, st.d, st.v ?? 0); if (!art) continue;
+    const root = new Container(), sp = new Sprite(texture(`st:${st.kind}:${st.w}:${st.d}:${st.v ?? 0}`, art));
+    sp.position.set(art.box.x0, art.box.y0); root.addChild(sp); root.position.set(st.x, st.y); if (st.flip) root.scale.x = -1;
+    if (art.rotor) {
+      const r = art.rotor, rotor = new Sprite(texture(`rotor:${r.kind}:${r.r}`, rotorArt(r.kind, r.r))); rotor.anchor.set(0.5); rotor.position.set(r.x, r.y); root.addChild(rotor);
+      const speed = r.kind === 'sails' ? 0.35 : -0.7; root.onRender = () => { rotor.rotation = (performance.now() / 1000) * speed; };
+    }
+    sorted.push({ view: root, y: st.y, bounds: { x0: st.x + art.box.x0, x1: st.x + art.box.x1, y0: st.y + art.box.y0, y1: st.y + art.box.y1 }, building: `fade:st${i}` });
+  }
   for (const b of a.geometry.buildings) {
     const xs = b.footprint.map((p) => p[0]), ys = b.footprint.map((p) => p[1]), x = Math.min(...xs), y = Math.min(...ys);
     if (structure.has(`${x},${y},${Math.max(...xs) - x},${Math.max(...ys) - y}`)) continue;

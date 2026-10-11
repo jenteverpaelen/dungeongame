@@ -55,7 +55,9 @@ export class Scene {
   private shakeDur = 1;
   private hitStopEnd = 0;
   private time = 0;
-  private props: { view: Container; x: number; y: number; building?: string; bounds?: { x0: number; y0: number; x1: number; y1: number } }[] = [];
+  /** `on`: currently a child of the sorted entity layer. Off-screen props are detached so per-frame depth sorting only
+   *  sees what can be drawn (zones hold thousands of props; docs/rework/worlds/LOG.md W4). */
+  private props: { view: Container; x: number; y: number; building?: string; bounds?: { x0: number; y0: number; x1: number; y1: number }; on: boolean }[] = [];
   statics: StaticView[] = [];
   private active = new Set<ClientEntity>();
   private looks = new Map<number, string>();
@@ -149,7 +151,7 @@ export class Scene {
     for (const p of layers.sorted) {
       p.view.zIndex = p.y;
       this.entities.addChild(p.view);
-      this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds, building:p.building });
+      this.props.push({ view: p.view, x: p.view.x, y: p.y, bounds: p.bounds, building:p.building, on: true });
       if(p.building&&p.bounds){const b=this.buildingBounds.get(p.building);this.buildingBounds.set(p.building,b?{x0:Math.min(b.x0,p.bounds.x0),y0:Math.min(b.y0,p.bounds.y0),x1:Math.max(b.x1,p.bounds.x1),y1:Math.max(b.y1,p.bounds.y1)}:{...p.bounds});}
     }
     for (const n of map.npcs) {
@@ -341,10 +343,11 @@ export class Scene {
       const a=this.roofAlpha.get(b.id)??1;this.roofAlpha.set(b.id,a+(target-a)*Math.min(1,dtMs/100));
     }
     for (const p of this.props) {
-      p.view.visible = p.bounds
+      const vis = p.bounds
         ? p.bounds.x1 > x0 && p.bounds.x0 < x1 && p.bounds.y1 > y0 && p.bounds.y0 < y1
         : p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
-      if(p.building?.startsWith('fade:')&&p.bounds&&p.view.visible&&me){
+      if (vis !== p.on) { if (vis) this.entities.addChild(p.view); else this.entities.removeChild(p.view); p.on = vis; }
+      if(p.building?.startsWith('fade:')&&p.bounds&&vis&&me){
         // tall scenery (trees, the harbour crane) ghosts while the hero stands behind its canopy
         const b=p.bounds,behind=me.y<p.y-4&&me.x>b.x0+12&&me.x<b.x1-12&&me.y-40>b.y0&&me.y-40<b.y1;
         const a=this.roofAlpha.get(p.building)??1,t=behind?.42:1;this.roofAlpha.set(p.building,a+(t-a)*Math.min(1,dtMs/100));

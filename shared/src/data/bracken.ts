@@ -42,7 +42,7 @@ z.road([P(66, 24), P(76, 22), P(85, 20), P(89, 12)], 150, 'dirt');
 // Maintenance camp: Orren's crew keeps a foothold above the flood.
 z.camp(...P(11, 71), { tents: 2 });
 z.portal(...P(6.5, 72.5), 'rillwake_crossing', 'Back to Rillwake Crossing');
-z.resident('br_foreman', 'worker', 'Sluice foreman', ...P(14.5, 67.5), -20);
+z.contact('foreman', 'Sluice foreman', ...P(14.5, 67.2), 'person');
 z.resident('br_guard', 'guard', 'Causeway watch', ...P(17.5, 70.5), 30);
 z.decor('noticeboard', ...P(8, 66.5)); z.decor('cart', ...P(5.5, 68.6));
 z.landmark('Maintenance Camp', ...P(10.5, 74));
@@ -73,7 +73,8 @@ z.landmark('Bank Path', ...P(19, 48));
 for (const [x, y] of [P(7, 28), P(12, 26.5), P(14.5, 32.5), P(8, 33.5)]) z.decor('deadtree', x, y, 1.1);
 z.cache('cache_orchard', ...P(9, 30.5), 'Drowned orchard crate'); z.shrine('shrine_orchard', ...P(13.5, 28.5), 'keen');
 z.landmark('Sunken Orchard', ...P(10.5, 34.5));
-z.elite('grindle', ...P(29.5, 23.5), 'siltusk', 'Old Grindle', ['fast'], ['grave_bat', 'reedclaw', 'bog_slime']);
+z.elite('grindle', ...P(29.5, 23.5), 'siltusk', 'Old Grindle', ['fast'], ['grave_bat', 'reedclaw', 'bog_slime'], { questTarget: true });
+z.contact('weir_tally', 'Silted weir tally board', ...P(53, 72), 'ledger');
 z.landmark('Far Bank', ...P(29, 28.5));
 
 // Pumpworks hatch yard and the reed bed; the stair road north to Cairnspill.
@@ -90,4 +91,10 @@ for (const [x, y] of [P(10, 70), P(63, 40), P(85, 20)]) z.sound('wind', x, y);
 z.emit('birds', ...P(56, 50), 4); z.emit('fireflies', ...P(10, 30), 10); z.emit('fog', ...P(42, 64), 3); z.emit('leaves', ...P(19, 44), 5);
 z.critters('frogs', ...P(52, 70), 120, 4); z.critters('birds', ...P(76, 62), 200, 5);
 
+// Second pass (LOG W4): big landmarks seen from afar, more people at work.
+z.structure('pumphouse', ...P(78.3, 38.9)); z.structure('watchtower', ...P(33, 51.5)); z.structure('waterwheel', ...P(46.2, 77));
+z.structure('ruinhouse', ...P(6.5, 24.5)); z.structure('stonetower', ...P(79.5, 12)); z.structure('dryingrack', ...P(79, 66.6));
+z.resident('br_porter', 'porter', 'Sluice porter', ...P(7.5, 69), 20); z.resident('br_smith', 'carpenter', 'Gate fitter', ...P(61.8, 47.6), -20);
+z.walker('br_patrol', 'guard', [P(56, 58), P(60.5, 51), P(63, 44.5), P(60.5, 51)], 45, 5); z.stores(...P(84, 46));
+z.structure('house', ...P(6, 64.5), 1); z.resident('br_cook', 'innkeeper', 'Camp cook', ...P(13.5, 73.5), 15);
 export const BRACKEN = z.build();

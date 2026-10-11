@@ -109,7 +109,10 @@ test('moth fan fixes its aim during windup, splits one damage budget, and solid 
 
 test('authored projectile cover catches thin walls and grazing barriers while allowing flight across water',()=>{
   const a=loadAdventure('reedvault_pumpworks',1).adventure!;
-  assert(adventureCover(a,380,1300,460,1300),'west solid wall');
+  // The solid comes from the zone data: the old fixed point was generated dressing in the valve gallery, which is now kept
+  // free of furniture for the combat probes (docs/rework/worlds/DECISIONS.md D-W07).
+  const wall=a.geometry.buildings[0].footprint,wx0=Math.min(...wall.map(p=>p[0])),wx1=Math.max(...wall.map(p=>p[0])),wy=(Math.min(...wall.map(p=>p[1]))+Math.max(...wall.map(p=>p[1])))/2;
+  assert(adventureCover(a,wx0-40,wy,wx1+40,wy),'solid authored base');
   assert(!adventureCover(a,1100,1400,1400,1400),'water between chambers');
   a.geometry.buildings.push({footprint:[[1199,1350],[1201,1350],[1201,1450],[1199,1450]]});
   assert(adventureCover(a,1190,1400,1210,1400),'2-unit wall crossed between projectile samples');

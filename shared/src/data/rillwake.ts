@@ -120,4 +120,14 @@ for (const [x, y] of [P(44, 40), P(43, 60), P(45, 20)]) { z.sound('water', x, y)
 for (const [x, y] of [P(20, 35), P(60, 25), P(80, 60)]) z.sound('wind', x, y);
 z.emit('birds', ...P(30, 40), 4); z.emit('leaves', ...P(57, 25), 6); z.emit('fireflies', ...P(9, 49), 10); z.emit('fireflies', ...P(82, 60), 8);
 
+// Second pass (LOG W4): big landmarks seen from afar, more people at work.
+z.structure('windmill', ...P(6.5, 60.5)); z.landmark('Old Windmill', ...P(6.5, 57));
+z.structure('watchtower', ...P(36.5, 40.5)); z.structure('ruinhouse', ...P(52.6, 44.6)); z.structure('stonetower', ...P(10, 28.5), 1);
+z.structure('boatwreck', ...P(46.5, 70.5)); z.structure('statue', ...P(89.5, 62.5));
+z.resident('rw_cook', 'innkeeper', 'Camp cook', ...P(15.5, 71.2), -10); z.resident('rw_guard', 'guard', 'Road watch', ...P(19.2, 66.8), 30);
+z.walker('rw_fisher2', 'fisher', [P(48.6, 63.6), P(50.5, 60.5), P(52, 53), P(50.5, 60.5)], 40, 6);
+z.walker('rw_scout', 'guard', [P(54, 47), P(58, 47), P(61.5, 44), P(58, 49.5)], 45, 4);
+z.stores(...P(10.5, 66.5)); z.fence([P(16.5, 74), P(19.5, 73.2), P(21.5, 71.5)]);
+z.structure('house', ...P(48.5, 60.6), 2); z.stores(...P(52.8, 66.5)); z.structure('dryingrack', ...P(55, 63.4), 2);
+z.resident('rw_net', 'carpenter', 'Net mender', ...P(53.5, 64.8), -20); z.decor('lamppost', ...P(49.5, 66.4)); z.light(...P(49.5, 65.6), 0xffc070, 180);
 export const RILLWAKE = z.build();

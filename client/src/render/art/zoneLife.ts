@@ -30,6 +30,15 @@ function quad(kind: 'hare' | 'deer' | 'rat'): Container {
   if (kind === 'rat') g.moveTo(-12 * s, -9 * s).quadraticCurveTo(-22 * s, -6 * s, -26 * s, -12 * s).stroke({ color: 0x8a7a72, width: 1.4 });
   const c = new Container(); c.addChild(g); return c;
 }
+/** A sitting frog (reed beds, fens): squats, throat pulses, hops away when the hero comes close. */
+function frog(): Container {
+  const g = new Graphics()
+    .ellipse(0, -5, 8, 5).fill(0x5a7a34).stroke({ color: 0x14100e, width: 1 })
+    .ellipse(-6, -2, 3.4, 2.4).fill(0x4a6a2c).stroke({ color: 0x14100e, width: 0.8 }).ellipse(6, -2, 3.4, 2.4).fill(0x4a6a2c).stroke({ color: 0x14100e, width: 0.8 })
+    .circle(-3, -9, 2.2).fill(0xd8d070).stroke({ color: 0x14100e, width: 0.8 }).circle(3, -9, 2.2).fill(0xd8d070).stroke({ color: 0x14100e, width: 0.8 })
+    .circle(-3, -9, 0.9).fill(0x14100e).circle(3, -9, 0.9).fill(0x14100e);
+  const c = new Container(); c.addChild(g); return c;
+}
 function fishArc(): Container { const g = new Graphics().ellipse(0, 0, 7, 3).fill(0xb8c8c8).stroke({ color: 0x1a2a2a, width: 1 }).poly([-7, 0, -11, -3, -11, 3]).fill(0xb8c8c8); const c = new Container(); c.addChild(g); return c; }
 function bat(): Container { const g = new Graphics().moveTo(-10, 0).quadraticCurveTo(-5, -6, 0, -1).quadraticCurveTo(5, -6, 10, 0).quadraticCurveTo(5, -2, 0, 2).quadraticCurveTo(-5, -2, -10, 0).fill(0x1a1618); const c = new Container(); c.addChild(g); return c; }
 
@@ -54,6 +63,7 @@ export class ZoneCritters {
         case 'rats': view = quad('rat'); break;
         case 'hares': view = quad('hare'); break;
         case 'deer': view = quad('deer'); break;
+        case 'frogs': view = frog(); break;
         default: view = bird(0x6a6a72); break;
       }
       view.position.set(x, y);
@@ -88,6 +98,13 @@ export class ZoneCritters {
         case 'fish': {
           const cyc = (time * 0.18 + c.phase) % 1, jumping = cyc < 0.12;
           c.view.visible = jumping; if (jumping) { const t = cyc / 0.12; c.view.position.set(c.hx + (t - 0.5) * 50, c.hy - Math.sin(t * Math.PI) * 34); c.view.rotation = (t - 0.5) * 1.6; }
+          break;
+        }
+        case 'frogs': {
+          if (near && c.state === 0) { c.state = 1; c.t = time; const a = Math.atan2(c.y - hy, c.x - hx); c.vx = Math.cos(a) * 160; c.vy = Math.sin(a) * 90; }
+          if (c.state === 1) { const t = (time - c.t) / 0.45; c.view.position.set(c.x + c.vx * Math.min(t, 1) * 0.45, c.y + c.vy * Math.min(t, 1) * 0.45 - Math.sin(Math.min(t, 1) * Math.PI) * 22); if (t >= 1) { c.state = 2; c.t = time; c.view.visible = false; } }
+          else if (c.state === 2) { c.view.visible = false; if (time - c.t > 15 && Math.hypot(c.hx - hx, c.hy - hy) > 500) { c.state = 0; c.view.visible = true; c.view.position.set(c.hx, c.hy); } }
+          else { c.view.position.set(c.x, c.y); c.view.scale.y = 1 + Math.max(0, Math.sin(time * 5 + c.phase)) * 0.08; }
           break;
         }
         case 'hares': case 'deer': case 'rats': {
