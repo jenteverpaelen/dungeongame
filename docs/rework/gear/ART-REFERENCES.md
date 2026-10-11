@@ -95,10 +95,10 @@ Earlier research still applies where cited: `REFERENCES-V2.md` (V1–V11, M1–M
 ### This repo (world identity that already exists)
 | # | Fact | Label / source |
 |---|---|---|
-| WR1 | Zone level bands and maker cultures: Rillwake mill (1–4), Bracken sluice (4–7), Reedvault Pumpworks (7–9), Cairnspill quarry (9–12), Cinderwash / Kilnwatch kilns (12–20), Sablefen ferriers (20–25), Saltwind salt pans (25–30), Lockglass cistern (30–35), Shiverline signal ridge (35–40), Beaconbreak ward (40–45), Hollowstar array (45–50); rifts and the fields scale to 70. | [M] `shared/src/data/zones.ts`, `docs/rework/worlds/DESIGN.md` §2 |
+| WR1 | Zone level bands and maker cultures: Rillwake mill (1–4), Bracken sluice (4–7), Reedvault Pumpworks (7–9), Cairnspill quarry (9–12), Cinderwash / Kilnwatch kilns (12–20), Sablefen ferriers (20–25), Saltwind salt pans (25–30), Lockglass cistern (30–35), Shiverline signal ridge (35–40), Beaconbreak ward (40–45), Hollowstar array (45–50); the Faultline (formerly rifts) and the fields scale to 70. | [M] `shared/src/data/zones.ts`, `docs/rework/worlds/DESIGN.md` §2 |
 | WR2 | Generations = item-name bands 1–12, 13–24, 25–36, 37–48, 49–60, 61–69, 70 (`baseTierIndex` + cap). | [M] `shared/src/items.ts`, `gearVisual.ts` |
 | WR3 | Look briefs to borrow colour from: Orren's flat cap with a red band, Sera's bright yellow oilskin and rope belt, Neris's salt-white apron and rake, Venn's brass buttons and iron poker, Kessa's soot and goggles, Tallis's signal flags and patched green cloak, Mera's crimson ward sash and fist-sized key ring, Eris's pale lilac shawl, copper earring and horn cups. | [M] `docs/rework/CAST.md` |
-| WR4 | Endgame landmarks already drawn in town: the Ancients' Cube (bronze faces `#B4783A/#E0AA5E/#7A4A22`, teal rune channels `#7FF2E0`, gold corner caps), the Rift Obelisk (dark slate `#3A3440`, rectangular rune slots, magenta runes `#FF4A9A`), the Waypoint ring (stone, pale blue runes). | [M] `client/src/render/art/npcs.ts` |
+| WR4 | Endgame landmarks already drawn in town: the Glass Reliquary (formerly the Cube: bronze faces `#B4783A/#E0AA5E/#7A4A22`, teal rune channels, gold corner caps) under the town's glass dome (`townHouses.ts dome`: teal-tinted glass lit from inside `#96FFEC`, meridian ribs, a white streak, a gold finial), the Faultstone obelisk (formerly Rift Obelisk: dark slate `#3A3440`, rectangular rune slots, magenta runes `#FF4A9A`), the Waypoint ring (stone, pale blue runes). Names from the owner's name register (`docs/rework/partials/NAME-REGISTER.md` B3, B4, 2026-10-11). | [M] `client/src/render/art/npcs.ts`, `townHouses.ts` |
 
 ## 2. Rules extracted (→ ART-DIRECTION.md)
 
@@ -113,6 +113,6 @@ Earlier research still applies where cited: `REFERENCES-V2.md` (V1–V11, M1–M
 | R7 | **Every weapon is a specific, nameable object** made by someone for something ("a millwright's riving knife", "a kiln poker with a crucible"). | ST1, MH3, D6 |
 | R8 | **Line hierarchy:** heavy ink outer contour, thin interior lines; interior detail in a darker tone of the material, highlights as light interior lines. | IL1, HK2, D7 |
 | R9 | **Ink only in the lines; colour only from materials.** Shade towards the game's cool plum, highlight towards its warm cream. | DD2, D8 |
-| R10 | **Asymmetry and wear for poor makers and early bands**; precision and symmetry are earned late (instrument makers, the Ancients). | DD1, HK1 (Old Nail), D4 |
-| R11 | **Construction logic:** every part is attached by something visible (peg, rivet, lashing, collar, socket). Floating parts need a stated cause (the rift splits matter, an orrery turns on bearings). | IL3, D3 |
+| R10 | **Asymmetry and wear for poor makers and early bands**; precision and symmetry are earned late (instrument makers, the Reliquary's dome-makers). | DD1, HK1 (Old Nail), D4 |
+| R11 | **Construction logic:** every part is attached by something visible (peg, rivet, lashing, collar, socket). Floating parts need a stated cause (the Faultline splits matter, an orrery turns on bearings). | IL3, D3 |
 | R12 | **Check at real sizes** (40 px bag cell, ~64 px card, hero at the default camera) and as a silhouette. | IL2, REFERENCES-V2 B2 |
