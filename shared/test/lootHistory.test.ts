@@ -16,10 +16,11 @@ test('a fallback boss Legendary ends the bad-luck streak', () => {
   assert.equal(result.pity, 0, 'The guaranteed last item is a success, not another miss');
 });
 
+// Seeds are RNG fixtures: the shared-items wave grew the base and affix pools (generation draws), so 27 → 6.
 test('misses after a natural boss success remain counted', () => {
-  const result = rollDrops(new Rng(27), context, 0);
-  assert.deepEqual(rarities(result), ['set', 'normal', 'normal', 'normal']);
-  assert.equal(rarities(result).length, plannedItems(27), 'a natural success: no fallback was appended');
+  const result = rollDrops(new Rng(6), context, 0);
+  assert.deepEqual(rarities(result), ['legendary', 'normal', 'normal', 'rare']);
+  assert.equal(rarities(result).length, plannedItems(6), 'a natural success: no fallback was appended');
   assert.equal(result.pity, 3, 'Do not reset every boss batch unconditionally');
 });
 

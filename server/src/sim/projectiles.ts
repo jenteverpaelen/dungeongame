@@ -3,7 +3,7 @@
 
 import { PLAYER_RADIUS, SKILLS, modVar, type Element } from '../shared';
 import { damagePlayer, gainResource, strikeMob } from './damage';
-import { chillMob, elIdx, freezeMob, inCone, shotBlocked, shotBlockedAt } from './effects';
+import { chillMob, elIdx, freezeMob, inCone, markMob, shotBlocked, shotBlockedAt } from './effects';
 import { nextId } from './ids';
 import type { Instance } from './instance';
 import type { ProjRule } from './powerRuntime';
@@ -41,7 +41,7 @@ export interface ProjSpec {
   ty?: number;
   sz?: number;
   /** A bounced projectile keeps its power rule, distance flown and remaining bounces. */
-  inherit?: { rule: ProjRule; flown: number; bounces: number };
+  inherit?: { rule: ProjRule; flown: number; bounces: number; returned?: boolean };
 }
 
 /** Merged power projectile rules for a strike id (canonical order: sums, first defined, any). */
@@ -55,6 +55,8 @@ function projRuleFor(p: Player, skill: string): ProjRule | null {
     if (out.bounceScale === 1) out.bounceScale = rule.bounceScale;
     out.retarget ||= rule.retarget;
     out.seekMarked ??= rule.seekMarked;
+    out.returns ||= rule.returns;
+    out.rangeRicochet ||= rule.rangeRicochet;
   }
   return out;
 }
@@ -82,8 +84,35 @@ function bounceProj(inst: Instance, pr: Proj, fx: number, fy: number, sx: number
     kind: pr.kind, v: pr.v, owner: pr.owner, mob: pr.mob, src: pr.owner?.id ?? pr.mob?.id ?? 0, x: fx, y: fy, angle: Math.atan2(vy, vx),
     speed: pr.speed, lifeMs: Math.max(1, pr.lifeMs), r: pr.r, el: pr.el, strike: st && rule.bounceScale !== 1 ? { ...st, coef: st.coef * rule.bounceScale } : st,
     dmg: pr.dmg, mobLevel: pr.mobLevel, pierce: pr.pierce, hits: pr.hits, bits: pr.bits, splash: pr.splash, seek: pr.seek, turn: pr.turn,
-    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1 },
+    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned },
   });
+}
+
+/** Returning projectile: from where it stopped back to its owner once, piercing, able to hit enemies again. */
+function returnProj(inst: Instance, pr: Proj) {
+  const p = pr.owner!, dx = p.x - pr.x, dy = p.y - pr.y, d = Math.hypot(dx, dy);
+  if (d < 20 || pr.speed <= 0) return;
+  const here = new Set(inst.queryMobs(pr.x, pr.y, pr.r + 30).map((m) => m.id)); // not the enemy it just hit again at once
+  spawnProj(inst, {
+    kind: pr.kind, v: pr.v, owner: p, src: p.id, x: pr.x, y: pr.y, angle: Math.atan2(dy, dx), speed: pr.speed,
+    lifeMs: Math.min(3000, d / pr.speed * 1000 + 50), r: pr.r, el: pr.el, strike: pr.strike, pierce: 1, hits: here, bits: pr.bits, splash: pr.splash,
+    inherit: { rule: pr.rule!, flown: pr.flown ?? 0, bounces: 0, returned: true },
+  });
+}
+
+/** Ricochet at maximum range toward the nearest enemy it has not hit (range rule; spends a bounce). False if none. */
+function rangeRicochet(inst: Instance, pr: Proj): boolean {
+  const t = inst.mobHash.nearest(pr.x, pr.y, 360, (o) => !o.dead && !(pr.hits && pr.hits.has(o.id))); // [M] the retarget radius
+  if (!t) return false;
+  endProj(inst, pr, false);
+  const rule = pr.rule!, st = pr.strike;
+  spawnProj(inst, {
+    kind: pr.kind, v: pr.v, owner: pr.owner, src: pr.owner?.id ?? 0, x: pr.x, y: pr.y, angle: Math.atan2(t.y - pr.y, t.x - pr.x),
+    speed: pr.speed, lifeMs: pr.life0 ?? 600, r: pr.r, el: pr.el, strike: st && rule.bounceScale !== 1 ? { ...st, coef: st.coef * rule.bounceScale } : st,
+    pierce: pr.pierce, hits: pr.hits, bits: pr.bits, splash: pr.splash, seek: pr.seek, turn: pr.turn,
+    inherit: { rule, flown: pr.flown ?? 0, bounces: (pr.bounces ?? 0) - 1, returned: pr.returned },
+  });
+  return true;
 }
 
 /** Strike scaled by distance flown (power projectile rule). */
@@ -112,8 +141,9 @@ export function spawnProj(inst: Instance, s: ProjSpec): Proj {
     strike: s.strike ?? null, dmg: s.dmg ?? 0, mobLevel: s.mobLevel ?? 1,
     pierce: s.pierce ?? 0, hits: s.hits ?? null, homing: s.homing ?? 0, turn: s.turn ?? 0, seek: !!s.seek,
     splash: s.splash ?? 0, pierced: 0, bits: s.bits ?? 0, tx: s.tx ?? 0, ty: s.ty ?? 0, dead: false, rule: undefined, flown: 0, bounces: 0,
+    returned: false, life0: lifeMs,
   };
-  if (rule) { pr.rule = rule; pr.flown = s.inherit?.flown ?? 0; pr.bounces = s.inherit?.bounces ?? rule.bounces; }
+  if (rule) { pr.rule = rule; pr.flown = s.inherit?.flown ?? 0; pr.bounces = s.inherit?.bounces ?? rule.bounces; pr.returned = !!s.inherit?.returned; }
   inst.projs.push(pr);
   const ev: { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number } = {
     e: 'proj', id: pr.id, s: s.src, v: s.v, x: Math.round(s.x), y: Math.round(s.y), vx: Math.round(vx), vy: Math.round(vy),
@@ -133,6 +163,7 @@ function endProj(inst: Instance, pr: Proj, hit: boolean, quiet = false) {
   const ev: { e: 'pend'; id: number; x: number; y: number; hit?: 1 } = { e: 'pend', id: pr.id, x: Math.round(pr.x), y: Math.round(pr.y) };
   if (hit) ev.hit = 1;
   inst.emit(ev, pr.x, pr.y, pr.owner?.id ?? 0);
+  if (hit && pr.rule?.returns && !pr.returned && pr.owner && !isLob(pr.kind)) returnProj(inst, pr);
 }
 
 const isLob = (k: ProjKind) => k === 'cluster';
@@ -191,7 +222,7 @@ export function updateProjectiles(inst: Instance, dtMs: number) {
         pr.x = pr.tx; pr.y = pr.ty;
         endProj(inst, pr, true);
         clusterExplode(inst, pr);
-      } else endProj(inst, pr, false, pr.homing === 0 && pr.turn === 0);
+      } else if (!(pr.rule?.rangeRicochet && pr.bounces && pr.bounces > 0 && rangeRicochet(inst, pr))) endProj(inst, pr, false, pr.homing === 0 && pr.turn === 0);
     }
   }
   let w = 0;
@@ -235,7 +266,7 @@ function onHit(inst: Instance, pr: Proj, p: Player, m: Mob) {
     case 'arrow': {
       const s = pr.bits & PB_DEVOUR && pr.pierced > 0 ? { ...st, mult: (st.mult ?? 1) * (1 + 0.7 * pr.pierced) } : st;
       strikeMob(inst, p, m, s);
-      if (pr.bits & PB_MARK) { m.markMs = 3000; m.markPct = modVar(p.ctx.modsOf('hungering_arrow').mods, 'markPct'); } // Hunter's Mark
+      if (pr.bits & PB_MARK) markMob(m, 3000, modVar(p.ctx.modsOf('hungering_arrow').mods, 'markPct'), inst, p); // Hunter's Mark
       const pierce = pr.pierce >= 1 || inst.rng.next() < pr.pierce;
       if (!pierce) { endProj(inst, pr, true); return; }
       pr.pierced++;

@@ -7,7 +7,7 @@ import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
-import { channelMoveFactor, debtRegenFactor, powerTick } from './powerActions';
+import { channelMsPct, debtRegenFactor, powerTick } from './powerActions';
 import { dropInactivePowerBuffs, elementStacks, firePowerProcs, updateOwnGround } from './powerRuntime';
 import { addBuff, elIdx, getBuff, refreshLive, removeBuff, tickBuffs } from './effects';
 import { nextId } from './ids';
@@ -49,7 +49,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     inQ: [], lastIn: { mx: 0, my: 0 }, ack: 0,
     faceLeft: false, moving: false, faceLockMs: 0,
     atkCdMs: 0, readyAt: new Map(), attackFlagMs: 0, castFlagMs: 0,
-    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false },
+    buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0 },
     summons: [], channel: null,
     deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500,
     sinceHitMs: 1e9, sinceHurtMs: 1e9,
@@ -97,8 +97,7 @@ export function refreshPlayerStats(inst: Instance, p: Player, keepFraction: bool
 
 export function processInputs(inst: Instance, p: Player) {
   const blocked = p.deadMs > 0 || p.frozenMs > 0 || p.stunMs > 0;
-  const chf = p.channel ? channelMoveFactor(p, p.channel.skill) : 1; // a channel's movement slow (skill var) and rule
-  const msPct = chf === 1 ? p.ctx.d.ms : (1 + p.ctx.d.ms / 100) * chf * 100 - 100;
+  const msPct = p.channel ? channelMsPct(p) : p.ctx.d.ms; // channel slows / rules / affix (shared with client prediction)
   const dashCd = p.ctx.dashCdMs;
   const x0 = p.mv.x, y0 = p.mv.y;
   let steps = 0;
@@ -154,6 +153,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   tickBuffs(p, dtMs);
   if (p.ctx.powers.watchGround || p.inOwnGround) updateOwnGround(inst, p);
   if (p.ctx.powers.ticks) powerTick(inst, p, dtMs);
+  if (p.live.cdrec) for (const [k, v] of p.readyAt) if (v > inst.t) p.readyAt.set(k, v - dtMs * p.live.cdrec / 100); // faster cooldown recovery
 
   // Element cycle (Ouroboros Loop): the boosted element rotates every periodMs.
   const cyc = p.ctx.powers.elementCycle;

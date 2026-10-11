@@ -1,6 +1,9 @@
 // The item card (Hearthfall's own layout, see docs/rework/TOOLTIP.md), the comparison row, a lightweight text
 // tooltip and the cursor-following tooltip layer that every panel hovers into.
 
+import { GRADE_LABEL } from '@shared/itemGrades';
+import { INSCRIPTIONS, activeInscription } from '@shared/data/inscriptions';
+import { setReduction, setThreshold } from '@shared/powerSources';
 import type { ComponentChildren, VNode } from 'preact';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { AFFIX_BY_STAT, GEMS, LEGENDARIES, SETS } from '@shared/data/items';
@@ -147,11 +150,12 @@ function DeltaBlock({ delta }: { delta: Delta }) {
 function AffixRow({ item, i, alt }: { item: Item; i: number; alt: boolean }) {
   const a = item.affixes[i];
   const ench = item.enchanted === i;
+  const kindled = item.kindledAffix === i;
   const s = scaledAffix(a, item);
   const frac = rollFraction(a);
   return (
-    <li class={cls('af', !a.primary && 'af-minor', ench && 'af-ench', alt && frac >= 0.98 && 'af-max')}>
-      {ench ? <IconStar4 class="af-star" size={11} /> : <span class="af-b" />}
+    <li class={cls('af', !a.primary && 'af-minor', ench && 'af-ench', kindled && 'af-kindled', alt && frac >= 0.98 && 'af-max')}>
+      {ench ? <IconStar4 class="af-star" size={11} /> : kindled ? <span class="af-ember" title="Kindled affix" /> : <span class="af-b" />}
       <span class="af-t">{emphasize(affixText(a, item))}</span>
       {alt && (
         <span class="af-rng">
@@ -239,6 +243,12 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
   const reqBad = !!char && item.reqLevel > char.level;
   const classBad = !!char && !canClassUse(char.classId, item);
   const rar = RARITY_LABEL[item.rarity];
+  const grade = item.ancient ? GRADE_LABEL[item.ancient] : '';
+  const ins = item.inscription && Object.hasOwn(INSCRIPTIONS, item.inscription) ? INSCRIPTIONS[item.inscription] : null;
+  const worn = !!char && Object.values(char.equipment).includes(item);
+  const insActive = !!ins && worn && activeInscription(char!.equipment)?.def.id === ins.id;
+  // Journeyman's Ring: set bonuses need fewer worn pieces (shared rule, powerSources.setThreshold).
+  const setRed = char ? setReduction(Object.fromEntries(Object.values(char.equipment).filter((e) => e?.legendary).map((e) => [e!.legendary!.power, 1]))) : null;
 
   return (
     <div class={cls('tt', rarityClass(item), item.ancient >= 1 && 'tt-apex', tag && 'tt-equipped')}>
@@ -251,6 +261,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
         <div class="tt-titles">
           <div class="tt-name">{item.name}{item.upgrade > 0 && <span class="nm-up">+{item.upgrade}</span>}</div>
           <div class="tt-type">
+            {grade && <span class={cls('tt-grade', item.ancient === 2 && 'fabled')}>{grade}</span>}
             {rar && <span class="tt-rar">{rar}</span>}
             {rar && <i class="tt-dot" />}
             <span class="tt-kind">{itemNoun(item)}</span>
@@ -280,6 +291,13 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
           </section>
         )}
 
+        {ins && (
+          <section class="tt-power tt-inscription">
+            <span class="pw-l">Inscription{worn && !insActive ? ' · inactive: another worn Inscription is active' : ''}</span>
+            <p><b>{ins.name}.</b> {ins.text}</p>
+          </section>
+        )}
+
         {setDef && (
           <section class="tt-set">
             <div class="set-name">
@@ -291,7 +309,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
             </ul>
             <ul class="set-bonus">
               {setDef.bonuses.map((b) => (
-                <li class={setCount >= b.count ? 'on' : 'off'} key={b.count}>
+                <li class={setCount >= setThreshold(b.count, setRed) ? 'on' : 'off'} key={b.count}>
                   <b class="sb-n">{b.count}</b><span>{b.text}</span>
                 </li>
               ))}

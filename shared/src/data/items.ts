@@ -10,7 +10,11 @@ import { SHARED_LEGENDARIES } from './powers/shared';
 
 // ─────────────────────────── Bases ───────────────────────────
 
-export interface WeaponBase { aps: number; dmgMult: number; twoHanded: boolean; ranged: boolean }
+export interface WeaponBase {
+  aps: number; dmgMult: number; twoHanded: boolean; ranged: boolean;
+  /** A two-handed ranged weapon that still takes no off-hand (staff, censer). */
+  noOffhand?: boolean;
+}
 
 export interface BaseItem {
   id: string;
@@ -69,7 +73,8 @@ export const BASES: Record<string, BaseItem> = {
   feet_greaves: { id: 'feet_greaves', kind: 'feet', noun: 'Sabatons', names: armorNames('Sabatons'), shape: 'greaves', armorMult: 0.65, affinity: ['warrior'], maxSockets: 0, material: 'plate' },
   // Jewelry
   neck_amulet: { id: 'neck_amulet', kind: 'neck', noun: 'Amulet', names: tiers(['Amulet', 'Pendant', 'Talisman', 'Periapt', 'Runic Amulet', 'Starforged Amulet']), shape: 'amulet', maxSockets: 1, material: 'jewel' },
-  ring: { id: 'ring', kind: 'ring', noun: 'Ring', names: tiers(['Ring', 'Band', 'Signet', 'Loop', 'Runic Ring', 'Starforged Ring']), shape: 'ring', maxSockets: 1, material: 'jewel' },
+  // Tiers 1 and 2 were "Band" and "Signet"; those are now nouns of their own bases (ITEMS-SHARED.md §3.2).
+  ring: { id: 'ring', kind: 'ring', noun: 'Ring', names: tiers(['Ring', 'Loop', 'Circle', 'Loop', 'Runic Ring', 'Starforged Ring']), shape: 'ring', maxSockets: 1, material: 'jewel' },
   // Warrior weapons
   sword: { id: 'sword', kind: 'weapon1h', noun: 'Sword', names: tiers(['Short Sword', 'Broad Sword', 'Long Sword', 'Falchion', 'Runic Blade', 'Starforged Blade']), shape: 'sword', weapon: { aps: 1.4, dmgMult: 1, twoHanded: false, ranged: false }, classes: ['warrior'], maxSockets: 1, material: 'metal' },
   axe: { id: 'axe', kind: 'weapon1h', noun: 'Axe', names: tiers(['Hand Axe', 'Hatchet', 'War Axe', 'Bearded Axe', 'Runic Axe', 'Starforged Axe']), shape: 'axe', weapon: { aps: 1.3, dmgMult: 1.06, twoHanded: false, ranged: false }, classes: ['warrior'], maxSockets: 1, material: 'metal' },
@@ -81,19 +86,62 @@ export const BASES: Record<string, BaseItem> = {
   crossbow: { id: 'crossbow', kind: 'weapon2h', noun: 'Crossbow', names: tiers(['Light Crossbow', 'Crossbow', 'Heavy Crossbow', 'Arbalest', 'Runic Crossbow', 'Starforged Arbalest']), shape: 'crossbow', weapon: { aps: 1.1, dmgMult: 1.6, twoHanded: true, ranged: true }, classes: ['ranger'], maxSockets: 1, material: 'wood' },
   handxbow: { id: 'handxbow', kind: 'weapon1h', noun: 'Hand Crossbow', names: tiers(['Hand Crossbow', 'Blade Crossbow', 'Bolt Pistol', 'Dart Thrower', 'Runic Repeater', 'Starforged Repeater']), shape: 'handxbow', weapon: { aps: 1.6, dmgMult: 0.9, twoHanded: false, ranged: true }, classes: ['ranger'], maxSockets: 1, material: 'wood' },
   // Mage weapons
-  staff: { id: 'staff', kind: 'weapon2h', noun: 'Staff', names: tiers(['Quarterstaff', 'Long Staff', 'War Staff', 'Elder Staff', 'Runic Staff', 'Starforged Staff']), shape: 'staff', weapon: { aps: 1.0, dmgMult: 1.75, twoHanded: true, ranged: true }, classes: ['mage'], maxSockets: 1, material: 'wood' },
+  staff: { id: 'staff', kind: 'weapon2h', noun: 'Staff', names: tiers(['Quarterstaff', 'Long Staff', 'War Staff', 'Elder Staff', 'Runic Staff', 'Starforged Staff']), shape: 'staff', weapon: { aps: 1.0, dmgMult: 1.75, twoHanded: true, ranged: true, noOffhand: true }, classes: ['mage'], maxSockets: 1, material: 'wood' },
   wand: { id: 'wand', kind: 'weapon1h', noun: 'Wand', names: tiers(['Wand', 'Bone Wand', 'Battle Wand', 'Grim Wand', 'Runic Wand', 'Starforged Wand']), shape: 'wand', weapon: { aps: 1.4, dmgMult: 1, twoHanded: false, ranged: true }, classes: ['mage'], maxSockets: 1, material: 'wood' },
   // Off-hands
   shield: { id: 'shield', kind: 'offhand', noun: 'Shield', names: tiers(['Buckler', 'Kite Shield', 'Tower Shield', 'Heater Shield', 'Runic Shield', 'Starforged Bulwark']), shape: 'shield', armorMult: 1.0, classes: ['warrior'], maxSockets: 0, material: 'metal' },
   quiver: { id: 'quiver', kind: 'offhand', noun: 'Quiver', names: tiers(['Quiver', 'Hunting Quiver', 'Battle Quiver', 'Bolt Case', 'Runic Quiver', 'Starforged Quiver']), shape: 'quiver', armorMult: 0.3, classes: ['ranger'], maxSockets: 0, material: 'leather' },
   orb: { id: 'orb', kind: 'offhand', noun: 'Orb', names: tiers(['Orb', 'Glass Orb', 'Arcane Sphere', 'Prism', 'Runic Orb', 'Starforged Orb']), shape: 'orb', armorMult: 0.3, classes: ['mage'], maxSockets: 0, material: 'arcane' },
+  // ── Shared-items wave bases (ITEMS-SHARED.md §3), appended; `shape` is an existing look until gear-visuals v2 draws them ──
+  legs_waders: { id: 'legs_waders', kind: 'legs', noun: 'Waders', names: armorNames('Waders'), shape: 'leather', armorMult: 0.78, affinity: ['ranger', 'mage'], maxSockets: 2, material: 'leather' },
+  head_coif: { id: 'head_coif', kind: 'head', noun: "Coif", names: armorNames("Coif"), shape: 'hood', armorMult: 0.7, affinity: ['warrior', 'ranger'], maxSockets: 1, material: 'mail' },
+  head_mask: { id: 'head_mask', kind: 'head', noun: "Mask", names: armorNames("Mask"), shape: 'cap', armorMult: 0.55, affinity: ['ranger'], maxSockets: 1, material: 'leather' },
+  head_widebrim: { id: 'head_widebrim', kind: 'head', noun: "Wide-Brim Hat", names: armorNames("Wide-Brim Hat"), shape: 'cap', armorMult: 0.5, affinity: ['ranger', 'mage'], maxSockets: 1, material: 'cloth' },
+  shoulders_furmantle: { id: 'shoulders_furmantle', kind: 'shoulders', noun: "Fur Mantle", names: armorNames("Fur Mantle"), shape: 'pads', armorMult: 0.6, affinity: ['ranger', 'warrior'], maxSockets: 0, material: 'leather' },
+  shoulders_capelet: { id: 'shoulders_capelet', kind: 'shoulders', noun: "Capelet", names: armorNames("Capelet"), shape: 'mantle', armorMult: 0.5, affinity: ['mage'], maxSockets: 0, material: 'cloth' },
+  chest_brigandine: { id: 'chest_brigandine', kind: 'chest', noun: "Brigandine", names: armorNames("Brigandine"), shape: 'leather', armorMult: 0.95, affinity: ['ranger', 'warrior'], maxSockets: 3, material: 'leather' },
+  chest_vestment: { id: 'chest_vestment', kind: 'chest', noun: "Vestment", names: armorNames("Vestment"), shape: 'robe', armorMult: 0.72, affinity: ['mage'], maxSockets: 3, material: 'cloth' },
+  chest_apron: { id: 'chest_apron', kind: 'chest', noun: "Smith's Apron", names: armorNames("Smith's Apron"), shape: 'leather', armorMult: 0.85, affinity: ['warrior'], maxSockets: 3, material: 'leather' },
+  hands_mitts: { id: 'hands_mitts', kind: 'hands', noun: "Mitts", names: armorNames("Mitts"), shape: 'wraps', armorMult: 0.45, affinity: ['mage'], maxSockets: 0, material: 'cloth' },
+  hands_fingerless: { id: 'hands_fingerless', kind: 'hands', noun: "Fingerless Gloves", names: armorNames("Fingerless Gloves"), shape: 'gloves', armorMult: 0.5, affinity: ['ranger'], maxSockets: 0, material: 'leather' },
+  wrists_cuffs: { id: 'wrists_cuffs', kind: 'wrists', noun: "Cuffs", names: armorNames("Cuffs"), shape: 'bracers', armorMult: 0.4, affinity: ['mage'], maxSockets: 0, material: 'cloth' },
+  wrists_vambraces: { id: 'wrists_vambraces', kind: 'wrists', noun: "Vambraces", names: armorNames("Vambraces"), shape: 'bracers', armorMult: 0.55, affinity: ['warrior'], maxSockets: 0, material: 'plate' },
+  wrists_wraps: { id: 'wrists_wraps', kind: 'wrists', noun: "Arm Wraps", names: armorNames("Arm Wraps"), shape: 'bracers', armorMult: 0.42, affinity: ['ranger'], maxSockets: 0, material: 'leather' },
+  waist_girdle: { id: 'waist_girdle', kind: 'waist', noun: "Girdle", names: armorNames("Girdle"), shape: 'belt', armorMult: 0.55, affinity: ['warrior'], maxSockets: 0, material: 'plate' },
+  waist_cord: { id: 'waist_cord', kind: 'waist', noun: "Charm Cord", names: armorNames("Charm Cord"), shape: 'sash', armorMult: 0.38, affinity: ['mage', 'ranger'], maxSockets: 0, material: 'cloth' },
+  legs_chaps: { id: 'legs_chaps', kind: 'legs', noun: "Chaps", names: armorNames("Chaps"), shape: 'leather', armorMult: 0.8, affinity: ['ranger'], maxSockets: 2, material: 'leather' },
+  legs_tassets: { id: 'legs_tassets', kind: 'legs', noun: "Tassets", names: armorNames("Tassets"), shape: 'plate', armorMult: 0.95, affinity: ['warrior'], maxSockets: 2, material: 'mail' },
+  feet_wraps: { id: 'feet_wraps', kind: 'feet', noun: "Foot Wraps", names: armorNames("Foot Wraps"), shape: 'shoes', armorMult: 0.4, affinity: ['mage'], maxSockets: 0, material: 'cloth' },
+  feet_sandals: { id: 'feet_sandals', kind: 'feet', noun: "Sandals", names: armorNames("Sandals"), shape: 'shoes', armorMult: 0.42, affinity: ['ranger', 'mage'], maxSockets: 0, material: 'leather' },
+  feet_clogs: { id: 'feet_clogs', kind: 'feet', noun: "Iron-Shod Clogs", names: armorNames("Iron-Shod Clogs"), shape: 'boots', armorMult: 0.6, affinity: ['warrior'], maxSockets: 0, material: 'metal' },
+  neck_torc: { id: 'neck_torc', kind: 'neck', noun: 'Torc', names: tiers(["Torc","Twisted Torc","Banded Torc","Gilded Torc","Runic Torc","Starforged Torc"]), shape: 'amulet', maxSockets: 1, material: 'jewel' },
+  neck_charm: { id: 'neck_charm', kind: 'neck', noun: 'Charm', names: tiers(["Charm","Carved Charm","Bone Charm","Warding Charm","Runic Charm","Starforged Charm"]), shape: 'amulet', maxSockets: 1, material: 'jewel' },
+  neck_locket: { id: 'neck_locket', kind: 'neck', noun: 'Locket', names: tiers(["Locket","Brass Locket","Silver Locket","Engraved Locket","Runic Locket","Starforged Locket"]), shape: 'amulet', maxSockets: 1, material: 'jewel' },
+  ring_band: { id: 'ring_band', kind: 'ring', noun: 'Band', names: tiers(["Plain Band","Wide Band","Banded Ring","Etched Band","Runic Band","Starforged Band"]), shape: 'ring', maxSockets: 1, material: 'jewel' },
+  ring_signet: { id: 'ring_signet', kind: 'ring', noun: 'Signet', names: tiers(["Seal","Signet","Crest Ring","House Signet","Runic Signet","Starforged Signet"]), shape: 'ring', maxSockets: 1, material: 'jewel' },
+  ring_coil: { id: 'ring_coil', kind: 'ring', noun: 'Coil', names: tiers(["Wire Coil","Copper Coil","Spiral","Double Coil","Runic Coil","Starforged Coil"]), shape: 'ring', maxSockets: 1, material: 'jewel' },
+  cleaver: { id: 'cleaver', kind: 'weapon1h', noun: "Cleaver", names: tiers(["Chopper","Cleaver","Butcher's Blade","Broad Cleaver","Runic Cleaver","Starforged Cleaver"]), shape: 'axe', weapon: { aps: 1.25, dmgMult: 1.1, twoHanded: false, ranged: false }, classes: ['warrior'], maxSockets: 1, material: 'metal' },
+  maul2h: { id: 'maul2h', kind: 'weapon2h', noun: "Maul", names: tiers(["Mallet","Maul","Great Maul","Kiln Hammer","Runic Maul","Starforged Maul"]), shape: 'axe2h', weapon: { aps: 1, dmgMult: 1.8, twoHanded: true, ranged: false }, classes: ['warrior'], maxSockets: 1, material: 'metal' },
+  polearm: { id: 'polearm', kind: 'weapon2h', noun: "Polearm", names: tiers(["Pike","Bill","Glaive","Halberd","Runic Glaive","Starforged Halberd"]), shape: 'axe2h', weapon: { aps: 1.1, dmgMult: 1.65, twoHanded: true, ranged: false }, classes: ['warrior'], maxSockets: 1, material: 'metal' },
+  sling: { id: 'sling', kind: 'weapon1h', noun: "Sling", names: tiers(["Sling","Leather Sling","Shot Sling","Staff-Sling","Runic Sling","Starforged Sling"]), shape: 'handxbow', weapon: { aps: 1.5, dmgMult: 0.85, twoHanded: false, ranged: true }, classes: ['ranger'], maxSockets: 1, material: 'leather' },
+  longbow: { id: 'longbow', kind: 'weapon2h', noun: "Longbow", names: tiers(["Self Bow","Long Bow","War Bow","Yew Longbow","Runic Longbow","Starforged Longbow"]), shape: 'bow', weapon: { aps: 1.2, dmgMult: 1.45, twoHanded: true, ranged: true }, classes: ['ranger'], maxSockets: 1, material: 'wood' },
+  rod: { id: 'rod', kind: 'weapon1h', noun: "Rod", names: tiers(["Rod","Iron Rod","Etched Rod","Lodestone Rod","Runic Rod","Starforged Rod"]), shape: 'wand', weapon: { aps: 1.2, dmgMult: 1.15, twoHanded: false, ranged: true }, classes: ['mage'], maxSockets: 1, material: 'metal' },
+  sceptre: { id: 'sceptre', kind: 'weapon1h', noun: "Sceptre", names: tiers(["Baton","Sceptre","Crowned Sceptre","Orb Sceptre","Runic Sceptre","Starforged Sceptre"]), shape: 'wand', weapon: { aps: 1.3, dmgMult: 1.08, twoHanded: false, ranged: true }, classes: ['mage'], maxSockets: 1, material: 'metal' },
+  censer: { id: 'censer', kind: 'weapon2h', noun: "Censer", names: tiers(["Censer","Chain Censer","Ember Censer","Lantern Censer","Runic Censer","Starforged Censer"]), shape: 'staff', weapon: { aps: 1.1, dmgMult: 1.65, twoHanded: true, ranged: true, noOffhand: true }, classes: ['mage'], maxSockets: 1, material: 'metal' },
+  warhorn: { id: 'warhorn', kind: 'offhand', noun: "Warhorn", names: tiers(["Horn","Cow Horn","War Horn","Brass Horn","Runic Horn","Starforged Horn"]), shape: 'quiver', armorMult: 0.4, classes: ['warrior'], maxSockets: 0, material: 'metal' },
+  trap_kit: { id: 'trap_kit', kind: 'offhand', noun: "Trap Kit", names: tiers(["Snare Bag","Trap Kit","Hook Pouch","Trapper's Kit","Runic Kit","Starforged Kit"]), shape: 'quiver', armorMult: 0.3, classes: ['ranger'], maxSockets: 0, material: 'leather' },
+  tome: { id: 'tome', kind: 'offhand', noun: "Tome", names: tiers(["Notebook","Tome","Ledger of Stars","Grimoire","Runic Tome","Starforged Tome"]), shape: 'orb', armorMult: 0.3, classes: ['mage'], maxSockets: 0, material: 'leather' },
 };
+
+/** A two-handed weapon blocks the off-hand unless it is ranged (bows and crossbows take a quiver); staff and censer block. */
+export const blocksOffhand = (b: BaseItem | undefined): boolean => !!b?.weapon?.twoHanded && (!b.weapon.ranged || !!b.weapon.noOffhand);
 
 export const ARMOR_KINDS: ItemKind[] = ['head', 'shoulders', 'chest', 'hands', 'wrists', 'waist', 'legs', 'feet'];
 
 // ─────────────────────────── Affixes ───────────────────────────
 
-export type AffixScale = 'stat' | 'pct' | 'flat' | 'res';
+/** fixed: the same range at every item level (flat resource per kill). */
+export type AffixScale = 'stat' | 'pct' | 'flat' | 'res' | 'fixed';
 
 export interface AffixDef {
   stat: StatId;
@@ -105,6 +153,8 @@ export interface AffixDef {
   label: (v: number, param?: string) => string;
   /** Exclusive group: an item can roll only one affix per group. */
   group?: string;
+  /** Weapons and off-hands: only ranged weapons and the quiver (projectile affixes). */
+  ranged?: true;
 }
 
 const ALL_ARMOR = (r: [number, number]) => Object.fromEntries(ARMOR_KINDS.map((k) => [k, r])) as Partial<Record<ItemKind, [number, number]>>;
@@ -150,7 +200,35 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'thorns', primary: false, ranges: { ...ALL_ARMOR([1500, 2500]), offhand: [1500, 2500] }, weight: 5, scale: 'flat', label: (v) => `Melee attackers take ${intFmt(v)} damage per hit` },
   { stat: 'lifePerKill', primary: false, ranges: { weapon1h: [5000, 8000], weapon2h: [6000, 10000], ...ALL_ARMOR([3000, 5000]) }, weight: 5, scale: 'flat', label: (v) => `+${intFmt(v)} Life after each Kill` },
   { stat: 'resourceRegen', primary: false, ranges: { head: [1, 2], neck: [1, 2], ring: [1, 2], offhand: [1, 2] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)} Resource Regeneration per Second` },
+  // ── Shared-items wave (ITEMS-SHARED.md §5): ranges and labels from the bible; weights [P] = the existing specialist
+  //    band: 3 for primaries (element damage, eliteDR) and 4 for secondaries (resourceRegen), FOUNDATION.md §12. Appended: AFFIXES order is part of the RNG contract.
+  { stat: 'dotDmg', primary: true, ranges: { neck: [15, 20], wrists: [15, 20], offhand: [15, 20] }, weight: 3, scale: 'pct', group: 'dot', label: (v) => `Damage-over-time effects you apply deal ${pctFmt(v)}% more damage` },
+  { stat: 'summonDmg', primary: true, ranges: { head: [10, 15], shoulders: [10, 15], neck: [10, 15], offhand: [10, 15] }, weight: 3, scale: 'pct', label: (v) => `Your summons deal ${pctFmt(v)}% increased damage` },
+  { stat: 'primaryDmg', primary: true, ranges: { weapon1h: [15, 20], weapon2h: [15, 20], hands: [15, 20], ring: [15, 20] }, weight: 3, scale: 'pct', label: (v) => `Your primary attack deals ${pctFmt(v)}% increased damage` },
+  { stat: 'spenderDmg', primary: true, ranges: { chest: [8, 12], legs: [8, 12], ring: [8, 12] }, weight: 3, scale: 'pct', label: (v) => `Resource-spending skills deal ${pctFmt(v)}% increased damage` },
+  { stat: 'cooldownDmg', primary: true, ranges: { head: [8, 12], shoulders: [8, 12], neck: [8, 12] }, weight: 3, scale: 'pct', label: (v) => `Skills with a cooldown deal ${pctFmt(v)}% increased damage` },
+  { stat: 'vsControlled', primary: true, ranges: { weapon1h: [5, 8], weapon2h: [5, 8], neck: [5, 8] }, weight: 3, scale: 'pct', label: (v) => `Damage against stunned, frozen or immobilised enemies increased by ${pctFmt(v)}%` },
+  { stat: 'areaRadius', primary: true, ranges: { head: [6, 10], shoulders: [6, 10], offhand: [6, 10] }, weight: 3, scale: 'pct', label: (v) => `Area skills have ${pctFmt(v)}% larger radius` },
+  { stat: 'channelCost', primary: true, ranges: { hands: [10, 15], waist: [10, 15], offhand: [10, 15] }, weight: 3, scale: 'pct', label: (v) => `Channelled skills cost ${pctFmt(v)}% less` },
+  { stat: 'ccDuration', primary: true, ranges: { hands: [8, 12], wrists: [8, 12], offhand: [8, 12] }, weight: 3, scale: 'pct', label: (v) => `Your stuns, freezes and immobilises last ${pctFmt(v)}% longer` },
+  { stat: 'summonDuration', primary: true, ranges: { waist: [10, 15], feet: [10, 15] }, weight: 3, scale: 'pct', label: (v) => `Your summons last ${pctFmt(v)}% longer` },
+  { stat: 'buffDuration', primary: true, ranges: { head: [10, 15], neck: [10, 15] }, weight: 3, scale: 'pct', label: (v) => `Your buffs last ${pctFmt(v)}% longer` },
+  { stat: 'resourceOnKill', primary: true, ranges: { weapon1h: [2, 4], weapon2h: [2, 4], head: [2, 4], ring: [2, 4] }, weight: 3, scale: 'fixed', label: (v) => `+${intFmt(v)} resource per kill` },
+  { stat: 'pierceChance', primary: true, ranges: { weapon1h: [8, 12], weapon2h: [8, 12], offhand: [8, 12], hands: [8, 12] }, weight: 3, scale: 'pct', ranged: true, label: (v) => `Projectiles have ${pctFmt(v)}% more chance to pierce` },
+  { stat: 'meleeDR', primary: true, ranges: { shoulders: [4, 6], chest: [4, 6], offhand: [4, 6] }, weight: 3, scale: 'pct', group: 'dr', label: (v) => `Reduces damage from melee attacks by ${pctFmt(v)}%` },
+  { stat: 'rangedDR', primary: true, ranges: { shoulders: [4, 6], chest: [4, 6], offhand: [4, 6] }, weight: 3, scale: 'pct', group: 'dr', label: (v) => `Reduces damage from ranged attacks by ${pctFmt(v)}%` },
+  { stat: 'dashCdr', primary: true, ranges: { feet: [8, 12] }, weight: 3, scale: 'pct', label: (v) => `Dash cooldown reduced by ${pctFmt(v)}%` },
+  { stat: 'ccReduction', primary: false, ranges: { head: [10, 20], shoulders: [10, 20], neck: [10, 20] }, weight: 4, scale: 'pct', label: (v) => `Reduces the duration of control effects on you by ${pctFmt(v)}%` },
+  { stat: 'globeHeal', primary: false, ranges: { waist: [15, 25], legs: [15, 25], ring: [15, 25] }, weight: 4, scale: 'pct', label: (v) => `Health globes heal ${pctFmt(v)}% more` },
+  { stat: 'globeChance', primary: false, ranges: { chest: [10, 20], legs: [10, 20], feet: [10, 20] }, weight: 4, scale: 'pct', label: (v) => `Elites have ${pctFmt(v)}% more chance to drop a health globe` },
+  { stat: 'moveWhileChannel', primary: false, ranges: { legs: [10, 15], feet: [10, 15] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)}% movement speed while channeling` },
+  { stat: 'lifeOnControl', primary: false, ranges: { hands: [2000, 3000], wrists: [2000, 3000] }, weight: 4, scale: 'flat', label: (v) => `Stunning, freezing or immobilising an enemy heals ${intFmt(v)} Life` },
+  { stat: 'chillOnHit', primary: false, ranges: { weapon1h: [5, 10], weapon2h: [5, 10], hands: [5, 10] }, weight: 4, scale: 'pct', label: (v) => `${pctFmt(v)}% chance on hit to chill enemies for 1 s` },
 ];
+
+/** Can this affix roll on this base? (kind range + the ranged-only rule). */
+export const affixFits = (a: AffixDef, base: BaseItem): boolean =>
+  !!a.ranges[base.kind] && (!a.ranged || (base.weapon ? base.weapon.ranged : base.kind !== 'offhand' || base.id === 'quiver'));
 
 export const AFFIX_BY_STAT: Record<string, AffixDef> = Object.fromEntries(AFFIXES.map((a) => [a.stat, a]));
 
@@ -162,6 +240,7 @@ export function affixScale(scale: AffixScale, ilvl: number): number {
     case 'flat': return Math.max(0.003, Math.pow(t, 2.4));
     case 'res': return Math.max(0.02, Math.pow(t, 1.6));
     case 'pct': return 0.35 + 0.65 * t;
+    case 'fixed': return 1;
   }
 }
 
@@ -180,6 +259,8 @@ export interface LegendaryDef {
   power: string;
   range: [number, number];
   cubeSlot: CubeSlot;
+  /** false: Kanai's Cube cannot extract it (its cost is the slot it occupies, ITEMS-SHARED.md §1.3). */
+  extractable?: false;
   flavor: string;
   colors: { primary: number; secondary: number; glow: number };
   /** What the power does (power templates). `{ roll }` amounts use the rolled value (Cube: the maximum). */
@@ -199,7 +280,7 @@ export interface SetDef {
 }
 
 /** Historical registry order (loot rolls pick from `Object.values`, so this order is part of the RNG contract). */
-const LEGACY_LEGENDARY_ORDER = [
+export const LEGACY_LEGENDARY_ORDER = [
   'faultcleaver', 'rainspindle', 'lanternroot', 'ninefold_gale', 'bloodwake', 'eternal_gyre', 'anvil_vambraces', 'last_light',
   'sappers_pack', 'gearwright_heart', 'thunderhead', 'hunters_mark', 'cindervane', 'void_heart', 'starfall_mantle', 'thousand_missiles',
   'ouroboros_loop', 'patient_thief', 'hellforge_talisman', 'witching_cord', 'stridewind', 'mountain_fists',
@@ -264,11 +345,15 @@ export const RARE_SUFFIX: Record<string, string[]> = {
 export const MAGIC_PREFIX: Partial<Record<StatId, string>> = {
   str: 'Mighty', dex: 'Nimble', int: 'Wise', vit: 'Hale', chc: 'Keen', chd: 'Brutal', ias: 'Swift', cdr: 'Timeless',
   armor: 'Sturdy', allRes: 'Warded', lifePct: 'Stout', area: 'Sweeping', weaponDmgPct: 'Vicious', ms: 'Fleet', elite: 'Slayer’s',
+  dotDmg: 'Festering', summonDmg: 'Shepherd’s', primaryDmg: 'Striking', spenderDmg: 'Spendthrift', cooldownDmg: 'Patient', vsControlled: 'Pinning',
+  areaRadius: 'Broad', channelCost: 'Humming', ccDuration: 'Binding', summonDuration: 'Lingering', buffDuration: 'Lingering', resourceOnKill: 'Reaping',
+  pierceChance: 'Piercing', meleeDR: 'Braced', rangedDR: 'Sheltered', dashCdr: 'Quick-footed',
 };
 export const MAGIC_SUFFIX: Partial<Record<StatId, string>> = {
   lifePerHit: 'of the Leech', lifeRegen: 'of Mending', goldFind: 'of Greed', xpPct: 'of Learning', pickup: 'of the Magpie',
   thorns: 'of Thorns', lifePerKill: 'of Feasting', rcr: 'of Thrift', eleFire: 'of Embers', eleCold: 'of Frost',
   eleLightning: 'of Storms', elePhysical: 'of Force', eleArcane: 'of the Arcane', skillDmg: 'of Mastery',
+  ccReduction: 'of Composure', globeHeal: 'of Plenty', globeChance: 'of the Larder', moveWhileChannel: 'of Drifting', lifeOnControl: 'of Mercy', chillOnHit: 'of Rime',
 };
 
 export const ELEMENT_STAT: Record<Element, StatId | null> = {

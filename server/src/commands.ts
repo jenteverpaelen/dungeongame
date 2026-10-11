@@ -25,7 +25,8 @@ import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '../../sh
 import { fail, ok, type CmdResult, type World } from './world';
 import { INVENTORY_SIZE, MAX_LEVEL } from '../../shared/src/constants';
 import { CLASSES } from '../../shared/src/data/classes';
-import { BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS, affixScale, type AffixDef } from '../../shared/src/data/items';
+import { AFFIX_BY_STAT, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS, type AffixDef } from '../../shared/src/data/items';
+import { canRekindle } from '../../shared/src/itemGrades';
 import { SKILLS, skillsForClass } from '../../shared/src/data/skills';
 import { buySkillNode, refundSkillNode } from '../../shared/src/specialization';
 import { Rng } from '../../shared/src/math';
@@ -37,7 +38,7 @@ import {
   extractCost, fuseCost, gemRemoveCost, maxSockets, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance,
   upgradeCost, type Cost, type CubeOp,
 } from '../../shared/src/cube';
-import { ANCIENT_MULT, generateItem } from '../../shared/src/items';
+import { baseArmor, generateItem, makeAffix, pickAffix, weaponAvgDamage } from '../../shared/src/items';
 import {
   DIFFICULTIES, PARAGON_CATEGORIES, PARAGON_STATS, addXp, paragonPoints, paragonSpent, xpToNext,
 } from '../../shared/src/progression';
@@ -255,24 +256,46 @@ const salvageAll: Handler = (s, a) => {
 
 // ─────────────────────────── Cube: enchant (Mystic) ───────────────────────────
 
-/** Roll one affix of `def` for an item, at the item's level and ancient scaling (mirrors shared items.ts). */
+/** Roll one affix of `def` for an item at its level and grade (legacy graded items keep the old ×1.3 ranges). */
 function rollEnchantAffix(rng: Rng, def: AffixDef, item: Item, classId: ClassId): AffixRoll {
-  const range = def.ranges[item.kind]!;
-  const sc = affixScale(def.scale, item.ilvl);
-  const am = item.ancient ? ANCIENT_MULT : 1;
-  let min = range[0] * sc * am, max = range[1] * sc * am;
-  if (def.scale !== 'pct') {
-    min = Math.max(1, Math.round(min));
-    max = Math.max(min, Math.round(max));
-  } else {
-    min = Math.round(min * 10) / 10;
-    max = Math.round(max * 10) / 10;
-  }
-  const v = item.ancient === 2 ? max : min + (max - min) * rng.next();
-  const roll: AffixRoll = { stat: def.stat, value: def.scale === 'pct' ? Math.round(v * 10) / 10 : Math.round(v), min, max, primary: def.primary };
-  if (def.stat === 'skillDmg') roll.param = rng.pick(skillsForClass(classId).filter((k) => k.kind !== 'primary')).id;
-  return roll;
+  return makeAffix(rng, def, item.kind, item.ilvl, item.ancient, classId, !!item.legacyGrade);
 }
+
+// ─────────────────────────── Mystic: rekindle (item grades, ITEMS-SHARED.md §7) ───────────────────────────
+
+/**
+ * One free rekindle for a legacy Kindled (old Ancient) item: every affix re-rolls at normal ranges (same stats and
+ * skill), one kindled affix is added, weapon damage and armour re-roll without the old ×1.3. Power, set, sockets, gems,
+ * upgrade tier and enchant slot stay.
+ */
+const rekindle: Handler = (s, a) => {
+  const save = s.save;
+  const loc = locate(save, str(a, 'itemId'));
+  if (!loc) return fail('Item not found');
+  const item = loc.item;
+  if (!canRekindle(item)) return fail('Only old Ancient items can be rekindled, once');
+  if (item.protected) return fail('This item is protected');
+  const base = BASES[item.base];
+  const rng = newRng();
+  item.affixes = item.affixes.map((r) => {
+    const def = AFFIX_BY_STAT[r.stat];
+    if (!def || !def.ranges[item.kind]) return r;
+    const next = makeAffix(rng, def, item.kind, item.ilvl, item.ancient, save.classId);
+    if (r.param !== undefined) next.param = r.param;
+    return next;
+  });
+  const taken = new Set(item.affixes.map((r) => r.stat)), groups = new Set(item.affixes.map((r) => AFFIX_BY_STAT[r.stat]?.group).filter((g): g is string => !!g));
+  const extra = pickAffix(rng, base, true, taken, groups);
+  if (extra) { item.affixes.push(makeAffix(rng, extra, item.kind, item.ilvl, item.ancient, save.classId)); item.kindledAffix = item.affixes.length - 1; }
+  const isLegend = item.rarity === 'legendary' || item.rarity === 'set';
+  if (item.weapon && base.weapon) {
+    const avg = weaponAvgDamage(item.ilvl, base) * (isLegend ? 1.1 : item.rarity === 'rare' ? 1.05 : 1);
+    item.weapon = { ...item.weapon, min: Math.max(1, Math.round(avg * 0.65 * rng.range(0.95, 1.05))), max: Math.max(2, Math.round(avg * 1.35 * rng.range(0.95, 1.05))) };
+  }
+  if (item.armor && base.armorMult) item.armor = Math.round(baseArmor(item.ilvl, base) * rng.range(0.9, 1.1));
+  delete item.legacyGrade;
+  return done(s, true, { item });
+};
 
 const enchantRoll: Handler = (s, a) => {
   const save = s.save;
@@ -396,6 +419,7 @@ const extract: Handler = (s, a) => {
   const item = loc.item;
   if (item.rarity !== 'legendary' || !item.legendary) return fail('Only Legendary items hold a power to extract');
   const power = item.legendary.power;
+  if (LEGENDARIES[power]?.extractable === false) return fail('This power cannot be extracted');
   if (save.cube.learned.includes(power)) return fail('You already know this power');
   const cost = extractCost();
   const why = lacking(save, cost);
@@ -791,7 +815,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   adventure: adventureCommand,
   quest: questCommand,
   equip, unequip, swapInv, destroy, itemProtect, stashDeposit, stashWithdraw,
-  salvage, salvageAll, enchantRoll, enchantPick, upgrade, transmute, extract, cubeEquip, reforge, socket,
+  salvage, salvageAll, enchantRoll, enchantPick, rekindle, upgrade, transmute, extract, cubeEquip, reforge, socket,
   insertGem, removeGem, fuseGem,
   skillSlot, skillRune, skillTier, skillReset, skillNode, skillPrimary, skillAutoCast, targetPriority, skillCast, skillAutoRule, passive,
   paragon, paragonReset,

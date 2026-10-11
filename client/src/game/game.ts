@@ -277,13 +277,18 @@ export class Game {
     if (def) pushNotice(zone.kind === 'rift' ? 'Nephalem Rift' : def.name, 'info');
   }
 
+  /** Sheet movement speed; a channel slow from the server (MeState.ms) overrides it while channelling. */
+  private sheetMs = 0;
+
   private applyDerived(d: DerivedStats) {
+    this.sheetMs = d.ms;
     this.predictor.msPct = d.ms;
     this.predictor.dashCd = d.dashCdMs ?? DASH.cooldownMs; // shared computeStats: dash templates (Stridewind …)
     this.scene.myAps = d.aps;
   }
 
   private onSnapshot(s: Snapshot) {
+    this.predictor.msPct = s.me.ms ?? this.sheetMs;
     const prev=this.observationPosition;
     if(prev&&!prev.dead&&!s.me.dead&&Math.hypot(s.me.x-prev.x,s.me.y-prev.y)>0.5)funnel.event('move');
     this.observationPosition={x:s.me.x,y:s.me.y,dead:s.me.dead};

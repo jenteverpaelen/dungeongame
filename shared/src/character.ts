@@ -5,7 +5,7 @@ import { SAVE_VERSION } from './saveVersion';
 import { collectItem, equippedLook, seedCollection } from './itemCollection';
 import {selectedTitle} from './community';
 import { CLASSES } from './data/classes';
-import { BASES } from './data/items';
+import { BASES, blocksOffhand } from './data/items';
 import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, runeUnlockLevel, skillsForClass, type SkillMods } from './data/skills';
 import { canClassUse, slotsForKind, starterItems } from './items';
 import { resetSkillNodes, savedNodeRanks } from './specialization';
@@ -102,14 +102,13 @@ export function equipItem(save: CharacterSave, itemId: string, prefer?: Slot): s
   const base = BASES[item.base];
   if (slot === 'mainhand' && base.weapon?.twoHanded) {
     const oh = save.equipment.offhand;
-    const allowsOffhand = base.weapon.ranged && item.base !== 'staff';
-    if (oh && !allowsOffhand) toInventory.push(oh);
+    if (oh && blocksOffhand(base)) toInventory.push(oh);
   }
   if (slot === 'offhand') {
     const mh = save.equipment.mainhand;
     if (mh) {
       const mb = BASES[mh.base];
-      if (mb.weapon?.twoHanded && (!mb.weapon.ranged || mh.base === 'staff')) return 'Your two-handed weapon prevents using an off-hand';
+      if (blocksOffhand(mb)) return 'Your two-handed weapon prevents using an off-hand';
     }
   }
 

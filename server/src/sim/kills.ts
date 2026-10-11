@@ -61,7 +61,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
       const pc = { skill, mob: m, el };
       if (eliteKill) firePowerProcs(inst, p, 'eliteKill', pc);
       firePowerProcs(inst, p, 'kill', pc);
-      if (p.ctx.powers.stacking.length) onKillStacking(inst, p, skill);
+      if (p.ctx.powers.stacking.length) onKillStacking(inst, p, skill, m);
     }
     touchChar(p);
   }

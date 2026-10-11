@@ -88,6 +88,8 @@ export interface MeState {
   y: number;
   dashMs: number;
   dashCd: number;
+  /** Movement speed % in effect when it differs from the sheet (channel slows / rules / moveWhileChannel); prediction uses it. */
+  ms?: number;
   hp: number;
   mhp: number;
   res: number;
@@ -112,7 +114,7 @@ export type GameEvent =
   | { e: 'cast'; s: number; sk: string; r?: string; x: number; y: number; tx: number; ty: number; rad?: number }
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
   | { e: 'pend'; id: number; x: number; y: number; hit?: 1 }
-  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number }
+  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1 }
   | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number; s?: number }
   | { e: 'beam'; v: string; x: number; y: number; tx: number; ty: number; el: number; d: number }
   | { e: 'level'; t: number; lv: number }
@@ -203,7 +205,7 @@ export type CmdOp = 'onboarding'
   | 'stashDeposit' | 'stashWithdraw'
   | 'adventure'
   | 'quest'
-  | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
+  | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'rekindle' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'

@@ -30,10 +30,12 @@ export interface Buff {
   sdmg?: number;
   dr?: number;
   cci?: boolean;
+  /** % faster cooldown recovery. */
+  cdrec?: number;
 }
 
 /** Live buff totals. `dr` (damage-taken factor) and `cci` (control immune) exist once a refresh ran. */
-export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean }
+export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean; cdrec?: number }
 
 /** Per-player state of the wave-2 power primitives (created on first use; never persisted). */
 export interface PowerState {
@@ -52,10 +54,14 @@ export interface PowerState {
   progress: Map<string, number>;
   /** Stacking buff id → time of the last gained stack. */
   gainT: Map<string, number>;
-  /** Some controlImmunity term holds this tick. */
-  ctrlImmune: boolean;
+  /** controlImmunity bits holding this tick (1 stun, 2 freeze, 4 pull). */
+  ctrlImmune: number;
   /** The last slot cast while a spendRefund rule applies to it: enemies its strikes hit inside the window. */
   cast: { skill: string; cost: number; pct: number; minHits: number; until: number; hits: Set<number> } | null;
+  /** Proc key → triggers counted (every-Nth procs). */
+  counts: Map<string, number>;
+  /** Distance to the nearest living enemy within the tracked noEnemyWithin radius (Infinity = none). */
+  nearDist: number;
 }
 
 export type DotKind = 'bleed' | 'burn' | 'poison';
@@ -205,7 +211,7 @@ export interface MobPowerStatus {
   /** Freeze build-up: [time, points] pairs inside the current window. */
   build: number[];
   /** Vulnerabilities scoped to one player's strikes (optionally only some skills, or all but some). */
-  vulns: { owner: number; scope: ReadonlySet<string> | null; except: boolean; pct: number; ms: number }[];
+  vulns: { owner: number; scope: ReadonlySet<string> | null; except: boolean; pct: number; ms: number; consume?: boolean }[];
 }
 
 // ─────────────────────────── Summons ───────────────────────────
@@ -312,6 +318,10 @@ export interface Proj {
   rule?: import('./powerRuntime').ProjRule;
   flown?: number;
   bounces?: number;
+  /** Already flying back to its owner (returning projectiles return once). */
+  returned?: boolean;
+  /** Life it was fired with (range ricochets). */
+  life0?: number;
 }
 
 export const PB_SPLIT = 1, PB_DEVOUR = 2, PB_MARK = 4, PB_FREEZE = 8, PB_CHILL = 16, PB_BATTERY = 32, PB_SENTRY4 = 64, PB_NOGRENADE = 128, PB_ROCKETS = 256;

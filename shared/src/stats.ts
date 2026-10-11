@@ -1,7 +1,7 @@
 // Character sheet computation (Diablo 3 formulas, simplified where noted).
 
 import { CLASSES } from './data/classes';
-import { BASES, GEMS, LEGENDARIES, SETS } from './data/items';
+import { BASES, GEMS, LEGENDARIES, SETS, blocksOffhand } from './data/items';
 import { upgradeMult } from './items';
 import { PARAGON_STATS } from './progression';
 import type { CharacterSave, DerivedStats, Element, Item, Slot, StatId } from './types';
@@ -9,7 +9,7 @@ import { ELEMENTS } from './types';
 import {activePassives,passiveValue,passivePowerSources} from './passives';
 import { DASH } from './constants';
 import { amount } from './powers';
-import { allPowerSources } from './powerSources';
+import { allPowerSources, setReduction, setThreshold } from './powerSources';
 import { combatInteger, boundedCombat } from './combatBounds';
 
 /** Life per point of Vitality: 10 until level 35, then rising to ~97 at 70 (D3 curve shape). */
@@ -64,10 +64,11 @@ export interface StatsOptions {
 }
 
 /** Inputs of per-legendary and no-set-bonus templates: equipped legendary items, and whether any set bonus is active. */
-export function powerCounts(equipment: Partial<Record<Slot, Item | null>>, sets: Readonly<Record<string, number>>): { legendaries: number; setBonus: boolean } {
+export function powerCounts(equipment: Partial<Record<Slot, Item | null>>, sets: Readonly<Record<string, number>>, powers: Readonly<Record<string, number>> = {}): { legendaries: number; setBonus: boolean } {
+  const red = setReduction(powers);
   return {
     legendaries: Object.values(equipment).filter((it) => it?.rarity === 'legendary').length,
-    setBonus: Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= b.count)),
+    setBonus: Object.entries(sets).some(([id, n]) => SETS[id]?.bonuses.some((b) => n >= setThreshold(b.count, red))),
   };
 }
 
@@ -88,8 +89,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     else delete equipment[opts.swap.slot];
     // A two-handed weapon (other than bows/crossbows with quivers) clears the off-hand.
     const mh = equipment.mainhand;
-    if (mh && BASES[mh.base].weapon?.twoHanded && !BASES[mh.base].weapon?.ranged && opts.swap.slot === 'mainhand') delete equipment.offhand;
-    if (mh && mh.base === 'staff' && opts.swap.slot === 'mainhand') delete equipment.offhand;
+    if (mh && blocksOffhand(BASES[mh.base]) && opts.swap.slot === 'mainhand') delete equipment.offhand;
   }
 
   const powers: Record<string, number> = {};
@@ -120,7 +120,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
 
   // Stat-style power templates (sets → legendaries → passives → nodes, shared/src/powerSources.ts) and the dash.
   let dashCdMs = DASH.cooldownMs;
-  const { legendaries: legendaryCount, setBonus: setBonusActive } = powerCounts(equipment, sets);
+  const { legendaries: legendaryCount, setBonus: setBonusActive } = powerCounts(equipment, sets, powers);
   for (const src of allPowerSources(save, powers, sets, passivePowerSources(save))) for (const e of src.effects) {
     if (e.kind === 'stat') {
       if (e.noSetBonus && setBonusActive) continue;
@@ -129,6 +129,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
       if (e.stat === 'cdr' || e.stat === 'rcr') mults[e.stat].push(v); else add(acc, e.stat, v);
     } else if (e.kind === 'dashCooldown') dashCdMs *= e.mult;
   }
+  if ((acc.dashCdr ?? 0) > 0) dashCdMs *= 1 - Math.min(75, acc.dashCdr) / 100; // affix: dash cooldown reduced
 
   const mainStatId = cls.mainStat;
   const attr = (k: 'str' | 'dex' | 'int' | 'vit') => cls.base[k] + cls.perLevel[k] * (level - 1) + (acc[k] ?? 0);
@@ -207,6 +208,28 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     armorDR, resDR,
     powers, sets,
     dashCdMs,
+    dotDmg: acc.dotDmg ?? 0,
+    summonDmg: acc.summonDmg ?? 0,
+    primaryDmg: acc.primaryDmg ?? 0,
+    spenderDmg: acc.spenderDmg ?? 0,
+    cooldownDmg: acc.cooldownDmg ?? 0,
+    vsControlled: acc.vsControlled ?? 0,
+    areaRadius: acc.areaRadius ?? 0,
+    channelCost: acc.channelCost ?? 0,
+    ccDuration: acc.ccDuration ?? 0,
+    summonDuration: acc.summonDuration ?? 0,
+    buffDuration: acc.buffDuration ?? 0,
+    resourceOnKill: acc.resourceOnKill ?? 0,
+    pierceChance: acc.pierceChance ?? 0,
+    meleeDR: acc.meleeDR ?? 0,
+    rangedDR: acc.rangedDR ?? 0,
+    dashCdr: acc.dashCdr ?? 0,
+    ccReduction: acc.ccReduction ?? 0,
+    globeHeal: acc.globeHeal ?? 0,
+    globeChance: acc.globeChance ?? 0,
+    moveWhileChannel: acc.moveWhileChannel ?? 0,
+    lifeOnControl: acc.lifeOnControl ?? 0,
+    chillOnHit: acc.chillOnHit ?? 0,
   };
 }
 
@@ -223,8 +246,10 @@ export function compareItem(save: CharacterSave, item: Item, slot: Slot) {
   };
 }
 
-export function setBonusesActive(setId: string, count: number) {
-  return SETS[setId].bonuses.filter((b) => b.count <= count);
+/** Bonuses of a set active at `count` worn pieces (under a set reduction from the active powers, if given). */
+export function setBonusesActive(setId: string, count: number, powers: Readonly<Record<string, number>> = {}) {
+  const red = setReduction(powers);
+  return SETS[setId].bonuses.filter((b) => setThreshold(b.count, red) <= count);
 }
 
 export const STAT_LABELS: Partial<Record<StatId, string>> = {

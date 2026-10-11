@@ -6,7 +6,8 @@ export const ELEMENTS: Element[] = ['physical', 'fire', 'cold', 'lightning', 'po
 
 /** Diablo 3 Loot 2.0 rarities. Ancient / Primal are a separate flag on legendary & set items. */
 export type Rarity = 'normal' | 'magic' | 'rare' | 'legendary' | 'set';
-export type AncientTier = 0 | 1 | 2; // 0 = none, 1 = Ancient, 2 = Primal Ancient
+/** Item grade (stored as `ancient`): 0 none, 1 Kindled, 2 Fabled (ITEMS-SHARED.md §7; shared/src/itemGrades.ts). */
+export type AncientTier = 0 | 1 | 2;
 
 export type Slot =
   | 'head' | 'shoulders' | 'chest' | 'hands' | 'wrists' | 'waist' | 'legs' | 'feet'
@@ -27,7 +28,9 @@ export type StatId =
   | 'elite' | 'eliteDR'
   | 'lifePct' | 'armor' | 'allRes' | 'lifePerHit' | 'lifeRegen' | 'lifePerKill'
   | 'ms' | 'pickup' | 'goldFind' | 'xpPct' | 'thorns' | 'maxResource' | 'resourceRegen'
-  | 'dmgPct' | 'flatMin' | 'flatMax' | 'weaponDmgPct' | 'sockets';
+  | 'dmgPct' | 'flatMin' | 'flatMax' | 'weaponDmgPct' | 'sockets'
+  // Shared-items wave affixes (docs/rework/depth/ITEMS-SHARED.md §5)
+  | 'dotDmg' | 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'vsControlled' | 'areaRadius' | 'channelCost' | 'ccDuration' | 'summonDuration' | 'buffDuration' | 'resourceOnKill' | 'pierceChance' | 'meleeDR' | 'rangedDR' | 'dashCdr' | 'ccReduction' | 'globeHeal' | 'globeChance' | 'moveWhileChannel' | 'lifeOnControl' | 'chillOnHit';
 
 /** Visual description of an item, used for paper-doll rendering on characters and for icons. */
 export interface ItemLook {
@@ -65,8 +68,12 @@ export interface Item {
   affixes: AffixRoll[];
   legendary?: { power: string; value: number; min: number; max: number };
   set?: string;
-  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. Generation / migration is not built yet. */
+  /** Fabled items (ITEMS-SHARED.md §7): id in shared/src/data/inscriptions.ts. */
   inscription?: string;
+  /** Kindled and Fabled items: index in `affixes` of the extra (kindled) affix. */
+  kindledAffix?: number;
+  /** Graded before grades existed (save < 16): stored values keep the old ×1.3 / maximum rolls. */
+  legacyGrade?: true;
   weapon?: { min: number; max: number; aps: number; element: Element };
   armor?: number;
   sockets: (GemSocket | null)[];
@@ -223,4 +230,28 @@ export interface DerivedStats {
   sets: Record<string, number>;
   /** Dash cooldown after power templates (shared so client prediction and server agree). */
   dashCdMs: number;
+  /** Shared-items wave affix totals (0 without the affix); the tag-keyed ones reach the simulation as power templates
+   *  (powerSources.affixPowerSources), the others through small hooks (see FOUNDATION.md §12). */
+  dotDmg: number;
+  summonDmg: number;
+  primaryDmg: number;
+  spenderDmg: number;
+  cooldownDmg: number;
+  vsControlled: number;
+  areaRadius: number;
+  channelCost: number;
+  ccDuration: number;
+  summonDuration: number;
+  buffDuration: number;
+  resourceOnKill: number;
+  pierceChance: number;
+  meleeDR: number;
+  rangedDR: number;
+  dashCdr: number;
+  ccReduction: number;
+  globeHeal: number;
+  globeChance: number;
+  moveWhileChannel: number;
+  lifeOnControl: number;
+  chillOnHit: number;
 }
