@@ -100,5 +100,10 @@ test('the Rift Guardian runs through the same toolkit with its original numbers'
     a.m.hp = a.m.mhp * 0.2; const speed = a.m.speed;
     a.run(1500);
     assert.equal(a.m.boss.enraged, true); assert.equal(a.m.speed, speed * 1.3); assert.equal(attackCooldownMul(a.m), 0.8);
+    // The toolkit must never add fields to monsters after creation: one key layout = one V8 hidden class for every
+    // monster (a lazily added `bh` / `summonedBy` slowed every later tick of the run, d22ee7d).
+    const fresh = Object.keys(createMob(a.inst, MONSTERS.bonewalker, 20, a.m.x, a.m.y));
+    assert.deepEqual(Object.keys(a.m), fresh, 'guardian keeps the monster layout after enrage and adds');
+    for (const q of adds) assert.deepEqual(Object.keys(q), fresh, 'summoned adds keep the monster layout');
   } finally { a.inst.destroy(); }
 });
