@@ -220,7 +220,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   // ─────────────────────────── M1 skills (bible M7–M12) ───────────────────────────
   {
     // Bible M7. Freeze build-up: each needle adds 100/6 points to the target inside a 2 s window (status freezeBuild).
-    id: 'rime_needles', classId: 'mage', name: 'Rime Needles', kind: 'primary', unlock: 16, element: 'cold', tags: ['projectile', 'chill'], category: 'Bolts',
+    id: 'rime_needles', classId: 'mage', parityReady: true, name: 'Rime Needles', kind: 'primary', unlock: 16, element: 'cold', tags: ['projectile', 'chill'], category: 'Bolts',
     coef: 0.9, cost: 0, gen: 0, cooldown: 0, range: 340, radius: 0, duration: 0.75, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire three needles of rime for {coef} weapon damage each as Cold, chilling enemies. Six needles in two seconds freeze an enemy for {duration} seconds.',
@@ -353,7 +353,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     id: 'stormglass_orb', classId: 'mage', name: 'Stormglass Orb', kind: 'spender', unlock: 40, element: 'lightning', tags: ['projectile', 'area'], category: 'Void and Storm',
     coef: 0.5, cost: 35, gen: 0, cooldown: 0, range: 440, radius: 160, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 2, within: 380 },
-    desc: 'Launch a slow orb of stormglass that zaps up to 3 nearby enemies every quarter second for {coef} weapon damage as {element}, then shatters for 300% weapon damage.',
+    // Measured (mage parity harness): one more orb (Glass Concord 2) doubled the skill (×2.1) and made the whole set ×3.1
+    // on it (BUDGET.md R3: at most ×2.5); additional orbs deal half damage, as Split's extra missiles deal less [M].
+    desc: 'Launch a slow orb of stormglass that zaps up to 3 nearby enemies every quarter second for {coef} weapon damage as {element}, then shatters for 300% weapon damage. Additional orbs deal half damage.',
     icon: { glyph: 'stormglass', color: 0x7fd3ff },
     runes: [
       { id: 'slow_thunder', name: 'Slow Thunder', unlock: 42, desc: 'The orb moves 50% slower and zaps 50% more often.', mods: { flags: ['orbSlow'] } },

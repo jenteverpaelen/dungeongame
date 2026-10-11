@@ -124,7 +124,7 @@ function rayTick(inst: Instance, p: Player, rt: SkillRuntime, ch: ChannelState, 
     inst.emit({ e: 'aoe', v: 'ray', x: Math.round(p.x), y: Math.round(p.y), r: Math.round(len), d: Math.round(s.ramp / RAY_FULL_MS * 100), el: elIdx(st.el), s: p.id, a: +b.a.toFixed(3) }, p.x, p.y, p.id);
     ms.ray = { a: b.a, len, t: inst.t };
     // Hollowstar Choir 6: the beam refracts through one of your Projectiles or Ground effects into 3 beams at 40 %.
-    if (rt.flags.has('beamRefract')) refract(inst, p, rt, s, ux, uy, len, scaled(st, b.k * 0.4), held, full);
+    if (rt.flags.has('beamRefract')) refract(inst, p, rt, s, ux, uy, len, scaled(st, b.k * modVar(rt.mods, 'refractPct') / 100), held, full);
   }
   s.held = held;
   s.lastTick = inst.t;
@@ -447,21 +447,22 @@ function stormglassOrb(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   face(p, p.x + Math.cos(ang) * 10);
   const n = 1 + Math.max(0, rt.mods.projectiles ?? 0); // Glass Concord 2 and other Projectile counts
   const tally = newTally();
-  fanAngles(n, 14 * DEG).forEach((off) => launchOrb(inst, p, rt, ang! + off, tally));
+  // Extra orbs fan out 25° [P] and deal half damage (skill text).
+  fanAngles(n, 25 * DEG).forEach((off, i) => launchOrb(inst, p, rt, ang! + off, tally, i === 0 ? 1 : 0.5));
   spenderCast(inst, p, rt, p.x + Math.cos(ang) * 220, p.y + Math.sin(ang) * 220);
   noteSpend(inst, p, skillCost(p, rt));
   emitCast(inst, p, rt, p.x + Math.cos(ang) * rt.def.range, p.y + Math.sin(ang) * rt.def.range);
   return true;
 }
 
-function launchOrb(inst: Instance, p: Player, rt: SkillRuntime, ang: number, tally: ReturnType<typeof newTally>) {
+function launchOrb(inst: Instance, p: Player, rt: SkillRuntime, ang: number, tally: ReturnType<typeof newTally>, scale = 1) {
   const slow = rt.flags.has('orbSlow'), bounce = rt.flags.has('orbBounce'), hail = rt.flags.has('orbFreeze');
   const speed = MAGE_FX.orbSpeed * (slow ? 0.5 : 1);
   const life = MAGE_FX.orbLifeMs + (bounce ? 1000 : 0); // Pinball: 1 s longer
   const every = 250 / (slow ? 1.5 : 1); // Slow Thunder: 50 % more often
   const reach = skillRadius(rt), targets = 3 + modVar(rt.mods, 'orbZaps') + modVar(rt.mods, 'chains');
   const forkEvery = modVar(rt.mods, 'orbFork'), gen = modVar(rt.mods, 'orbGen'), seek = modVar(rt.mods, 'orbSeek');
-  const st: Strike = strikeOf(p, rt);
+  const st: Strike = scaled(strikeOf(p, rt), scale);
   const budget = newBudget(p), zapped = new Set<Mob>(), ms = mstate(p);
   let zapMs = every, count = 0;
   const hook: ProjHook = {
@@ -500,7 +501,7 @@ function launchOrb(inst: Instance, p: Player, rt: SkillRuntime, ang: number, tal
       if (inst.playerById(p.id) !== p) return;
       const grow = Math.min(modVar(rt.mods, 'orbGrow'), 10 * zapped.size); // Charge Release (node)
       const r = 120 * (1 + grow / 100);
-      const dst: Strike = { ...strikeOf(p, rt, 3.0), noArea: true };
+      const dst: Strike = { ...strikeOf(p, rt, 3.0 * scale), noArea: true };
       for (const m of i.queryMobs(pr.x, pr.y, r)) {
         if (m.dead) continue;
         const res = mHit(i, p, m, dst, rt, tally);
@@ -552,7 +553,15 @@ function conduct(inst: Instance, p: Player, rt: SkillRuntime, pr: Proj, everyMs:
     const t = Math.max(0, Math.min(ms.ray.len, (pr.x - p.x) * ux + (pr.y - p.y) * uy));
     ends.push({ x: p.x + ux * t, y: p.y + uy * t });
   }
-  for (const o of ms.orbs) if (o !== pr && !o.dead && o.id > pr.id) ends.push({ x: o.x, y: o.y });
+  // A chain, not every pair: each orb arcs to its nearest newer orb (the newest closes the chain). Every pair was
+  // quadratic (13 orbs in flight under unlimited resource = 78 arcs every 0.25 s, measured in a rift), the chain is n − 1.
+  let link: Proj | null = null, best = 600;
+  for (const o of ms.orbs) {
+    if (o === pr || o.dead || o.id <= pr.id) continue;
+    const d = Math.hypot(o.x - pr.x, o.y - pr.y);
+    if (d <= best) { best = d; link = o; }
+  }
+  if (link) ends.push({ x: link.x, y: link.y });
   if (!ends.length) return;
   const st: Strike = { ...strikeOf(p, rt, 2.0 * everyMs / 1000), noArea: true };
   for (const e of ends) {
@@ -560,7 +569,10 @@ function conduct(inst: Instance, p: Player, rt: SkillRuntime, pr: Proj, everyMs:
     for (const m of inst.queryMobs((pr.x + e.x) / 2, (pr.y + e.y) / 2, Math.hypot(e.x - pr.x, e.y - pr.y) / 2 + 40)) {
       if (!m.dead && distToSegment(m.x, m.y, pr.x, pr.y, e.x, e.y) <= 30 + m.r) mHit(inst, p, m, st, rt);
     }
-    inst.emit({ e: 'beam', v: 'arc', x: Math.round(pr.x), y: Math.round(pr.y), tx: Math.round(e.x), ty: Math.round(e.y), el: elIdx('lightning'), d: Math.round(everyMs + 40) }, e.x, e.y, p.id);
+    // 'zap' (the orb's own light strike), not the chain 'arc': a stream of orbs on one line tethers every pair along the
+    // same path each step, and the heavier arc (60-unit end flash, three wide layers re-struck every 50 ms) summed to a
+    // white band in a real rift (shots/mage, MAGE-PILOT.md §5).
+    inst.emit({ e: 'beam', v: 'zap', x: Math.round(pr.x), y: Math.round(pr.y), tx: Math.round(e.x), ty: Math.round(e.y), el: elIdx('lightning'), d: Math.round(everyMs + 40) }, e.x, e.y, p.id);
   }
 }
 

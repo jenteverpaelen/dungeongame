@@ -74,8 +74,11 @@ export const MAGE_LEGENDARIES: LegendaryDef[] = [
   { id: 'glyphstone_orb', name: 'Glyphstone Orb', base: 'orb', classes: ['mage'], power: 'Your Buff skills’ damage bonuses are {v} points higher, and their rune effects trigger 50% more often.', range: [10, 15], cubeSlot: 'armor', flavor: 'The letters rearrange when nobody looks.', colors: ARCANE,
     effects: [skillMods(tagged('buff'), { vars: { weaponProc: 50 } }, { field: 'var:buffPoints' })] },
   // "While a Buff skill is active": Magic Weapon is the mage's one Buff skill.
-  { id: 'spellwrights_circlet', name: 'Spellwright’s Circlet', base: 'head_circlet', classes: ['mage'], power: 'While a Buff skill is active, your critical hits reduce your cooldowns by {v} seconds.', range: [0.1, 0.2], cubeSlot: 'armor', flavor: 'Ink stains on the inside.', colors: ARCANE,
-    effects: [proc('crit', { reduceCooldownsMs: { roll: 1000 }, when: { buff: 'magic_weapon' } })] },
+  // Fit [M] (MAGE-PILOT.md §4): the bible's per-crit 0.1–0.2 s without a limit measured ×1.6–3.2 on its own in mage
+  // legendary-only kits (every crit of every multi-hit skill; Orrery ×3.17) and sat in nearly every top kit. Gated like
+  // D3's Obsidian Ring of the Zodiac (once per cast) with a 0.5 s internal cooldown: ×1.03–1.28 measured.
+  { id: 'spellwrights_circlet', name: 'Spellwright’s Circlet', base: 'head_circlet', classes: ['mage'], power: 'While a Buff skill is active, your critical hits reduce your cooldowns by {v} seconds (once every 0.5 seconds).', range: [0.1, 0.2], cubeSlot: 'armor', flavor: 'Ink stains on the inside.', colors: ARCANE,
+    effects: [proc('crit', { reduceCooldownsMs: { roll: 1000 }, icdMs: 500, when: { buff: 'magic_weapon' } })] },
   { id: 'frostthread_gloves', name: 'Frostthread Gloves', base: 'hands_wraps', classes: ['mage'], power: 'Your Primary skills deal {v}% more damage to frozen enemies and re-freeze them for 0.25 seconds.', range: [25, 40], cubeSlot: 'armor', flavor: 'The thread was spun in February.', colors: FROST,
     effects: [skillMore(tagged('primary'), ROLL, { targetState: 'frozen' }), flags(tagged('primary'), 'refreeze')] },
   // [P] the bible gives no burst radius or chill duration: 100 units (Frost Nova's ring is 190) and 2 s (Frost Spit's chill [M]).
@@ -164,7 +167,7 @@ export const MAGE_SETS: SetDef[] = [
       { base: 'hands_wraps', name: 'Rimehand Wraps' }, { base: 'legs_cloth', name: 'Snowdrift Leggings' }, { base: 'feet_shoes', name: 'Frostprint Slippers' },
     ],
     bonuses: [
-      { count: 2, text: 'Your Chill and Ground skills’ cooldowns are 20% shorter and their areas 20% larger.', effects: [skillMods(tagged('chill', 'ground'), { cooldown: -20, radius: 20 })] },
+      { count: 2, text: 'Your Chill and Ground skills’ cooldowns are 15% shorter and their areas 15% larger.', effects: [skillMods(tagged('chill', 'ground'), { cooldown: -15, radius: 15 })] },
       { count: 4, text: 'Frozen enemies take 20% more damage from you, you take 20% less damage from Chilled enemies, and your Chills linger 1 second after a freeze ends.',
         effects: [conditional({ targetState: 'frozen' }, 'hit', 20), { kind: 'damageTaken', pct: -20, when: { targetState: 'chilled' } }, flags(ANY_SKILL, 'chillLinger')] },
       { count: 6, text: 'Enemies Chilled for 3 seconds straight freeze for 1 second (at most once every 6 seconds each), and frozen enemies you kill burst into 3 frost needles. All your skills deal 35% more damage to Chilled or frozen enemies.',
@@ -182,11 +185,16 @@ export const MAGE_SETS: SetDef[] = [
     ],
     bonuses: [
       { count: 2, text: 'Your Channel skills reach full power 50% faster and cost 15% less.', effects: [skillMods(tagged('channel'), { cost: -15, vars: { rampRate: 50 } })] },
-      { count: 4, text: 'While channelling you take 25% less damage, your Buff skills’ damage bonuses are doubled, your Spender skills cost 30% less, and your Channel skills deal 15% more damage.',
-        effects: [{ kind: 'damageTaken', pct: -25, when: { channeling: true } }, flags(tagged('buff'), 'buffDouble'), skillMods(tagged('spender'), { cost: -30 }), skillMore(tagged('channel'), 15)] },
+      // Bible: Spender skills cost 30% less. Measured (mage parity harness, Meteor with tier 3 and Starfall Mantle in the
+      // Cube): cost cuts add up (1 − 0.25 − 0.30 − 0.40 → 5% of the cost), the 4-piece made Hollowstar the best Meteor kit
+      // at ×106 against ×24 for legendary-only. 10% (the Fallen Star 2-piece's cut) fits.
+      { count: 4, text: 'While channelling you take 25% less damage, your Buff skills’ damage bonuses are doubled, your Spender skills cost 10% less, and your Channel skills deal 15% more damage.',
+        effects: [{ kind: 'damageTaken', pct: -25, when: { channeling: true } }, flags(tagged('buff'), 'buffDouble'), skillMods(tagged('spender'), { cost: -10 }), skillMore(tagged('channel'), 15)] },
       // "At full channel power": the ray holds the buff 'full_resonance' while it is at full resonance (class code).
-      { count: 6, text: 'When one of your Channel beams passes through one of your Projectiles or Ground effects, it refracts into 3 beams that deal 40% damage each. Your Channel and Arcane skills deal 35% more damage while a Channel skill is at full power.',
-        effects: [flags(tagged('channel'), 'beamRefract'), conditional({ buff: 'full_resonance' }, 'own', 35, tagged('channel', 'arcane'))] },
+      // Bible: 3 beams at 40%. Measured (Thrumming Ray, 3 seeds, mage items): the refraction alone was worth ×1.2–1.3, above
+      // BUDGET.md R1's ×1.10 for a 6-piece transform (one refracted beam always runs on through the struck enemy); 15%.
+      { count: 6, text: 'When one of your Channel beams passes through one of your Projectiles or Ground effects, it refracts into 3 beams that deal 15% damage each. Your Channel and Arcane skills deal 35% more damage while a Channel skill is at full power.',
+        effects: [skillMods(tagged('channel'), { flags: ['beamRefract'], vars: { refractPct: 15 } }), conditional({ buff: 'full_resonance' }, 'own', 35, tagged('channel', 'arcane'))] },
     ],
     colors: { primary: 0x3d3566, secondary: 0xc8b6ff, glow },
     parityLoadout: ['thrumming_ray', 'frost_nova', 'black_hole', 'magic_weapon'],

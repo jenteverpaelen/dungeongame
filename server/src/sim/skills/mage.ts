@@ -500,9 +500,10 @@ function hydraAi(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: number
     rt, summon: s, hydra: true, splash: splash ? 60 : frost ? 0 : 40, chillMs: frost ? 2000 : 0,
     ...(rt.flags.has('hydraChain') ? { chains: { n: 2 + modVar(rt.mods, 'chains'), range: 200, scale: 0.6 } } : {}),
   };
-  const n = 1 + Math.max(0, rt.mods.projectiles ?? 0); // Glass Concord 2 and other Projectile counts
-  fanAngles(n, 10 * DEG).forEach((off) => fireBolt(inst, p, rules, { ...base, coef: base.coef * 0.3 }, {
-    v: splash ? 'orb' : frost ? 'shard' : 'fireball', x: s.x + (s.aux - 1) * 10, y: s.y - 28, angle: a + off, speed: 600, lifeMs: 950, r: 12, homing: tgt.id, turn: 2.5,
+  // Glass Concord 2 and other Projectile counts: extra spit fans out 10° apart without homing (like extra missiles).
+  const n = 1 + Math.max(0, rt.mods.projectiles ?? 0);
+  fanAngles(n, 10 * DEG).forEach((off, i) => fireBolt(inst, p, rules, { ...base, coef: base.coef * 0.3 }, {
+    v: splash ? 'orb' : frost ? 'shard' : 'fireball', x: s.x + (s.aux - 1) * 10, y: s.y - 28, angle: a + off, speed: 600, lifeMs: 950, r: 12, homing: i === 0 ? tgt.id : 0, turn: i === 0 ? 2.5 : 0,
   }));
 }
 
