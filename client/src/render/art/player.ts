@@ -10,12 +10,13 @@
 
 import { Container, Graphics, Matrix, Sprite, Texture } from 'pixi.js';
 import { gearEffectLevel, preferences } from '../../game/preferences';
-import { gearProfile, type GearProfile } from '@shared/gearVisual';
+import { gearProfile, unpackGearFx, type GearProfile } from '@shared/gearVisual';
 import { LEGENDARIES } from '@shared/data/items';
-import { GEAR_TIER_COLORS } from '@shared/gearVisual';
 import { GearFx, dominantColor, profileMotif, type GearQuality } from './gearFx';
 import { backPieceFor, drawBackPiece, drawWing, shoulderScale, weaponScale } from './gearDecor';
-import { SET_STYLE, itemStyle } from './gearStyle';
+import { RARITY_LIGHT, SET_STYLE, TOP_COLORS, artLook, itemStyle } from './gearStyle';
+import { SHAPE_FAMILY } from './gearVisuals';
+import { weaponModel, type WFloat } from './weaponArt';
 import {
   F_CAST, F_CHANNEL, F_CHILL, F_DASH, F_DEAD, F_FROZEN, F_POISON, F_SHIELD, F_STUN, type LookSlot, type PlayerLook,
 } from '@shared/protocol';
@@ -89,42 +90,46 @@ function lookKey(look: PlayerLook): string {
   return parts.join('|');
 }
 
-/** The back piece a look earns (cloth cape / mantle, or motif wings) and its colours. */
+/** The back piece a look earns from its items (DESIGN-V2 §5): wings from a full 6-piece Set (the Set's transformation),
+ *  a mantle from 4 Set pieces, a cape from a legendary / Set / graded chest of the late generations. */
 function backOf(look: PlayerLook) {
   const hasFx = Object.values(look.slots).some((l) => typeof l?.fx === 'number');
   const p = hasFx ? gearProfile(look) : null;
-  const kind = p ? backPieceFor(p.rank, p.topSetCount, p.primals) : 'none';
   const chest = look.slots.chest;
   const cs = itemStyle(chest);
+  const chestCape = !!cs && ((cs.special && cs.gen >= 5) || cs.top >= 1);
+  const kind = p ? backPieceFor(p.topSetCount, chestCape) : 'none';
   const set = p?.topSet && p.topSetCount >= 4 ? SET_STYLE[p.topSet] : undefined;
   const motif = p ? profileMotif(look, p) : null;
   const accent = p ? dominantColor(look, p) : 0xffffff;
+  const fab = (p?.topMax ?? 0) >= 2;
   return {
-    kind, tier: p?.rank ?? 0, accent, motif: motif === 'primal' ? 'ember' as const : motif,
-    primary: chest?.primary ?? 0x6a4a3a, metal: cs?.metal ?? GEAR_TIER_COLORS[p?.rank ?? 0],
-    deep: p?.primals ? 0x6a1410 : set?.deep ?? 0x3a2a1c,
-    primal: (p?.primals ?? 0) > 0,
-    // a full Set keeps its wing silhouette even when Primal (recoloured crimson); Primal without a Set gets flame wings
-    wing: (set && p!.topSetCount >= 6 ? set.motif : p?.primals ? 'primal' : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
-    // Ancient heroes get amber-edged wings (the deep tone of the wing gradient)
-    ancient: (p?.ancients ?? 0) >= 2,
-    /** Wing drawing scale (span ≥ 2.2× body width at rank 8, ≥ 2.6× with a Primal; measured in LOG.md). */
-    wingK: !p ? 1.5 : p.primals ? 1.5 * 1.72 : p.rank >= 8 ? 1.5 * 1.32 : 1.5 * 1.08,
-    backK: !p ? 1 : 1 + 0.14 * Math.max(0, p.rank - 6),
+    kind, tier: cs?.orn ?? 0, accent, motif: motif === 'primal' ? 'star' as const : motif,
+    primary: chest?.primary ?? 0x6a4a3a, metal: cs?.orMetal ?? 0x8b8274,
+    deep: set?.deep ?? 0x3a2a1c,
+    primal: false,
+    wing: (set ? set.motif : 'light') as Parameters<typeof drawWing>[1],
+    // Kindled pieces under the Set edge the wings in ember, Fabled in starlight
+    ancient: (p?.topMax ?? 0) >= 1,
+    edge: fab ? TOP_COLORS[2] : TOP_COLORS[1],
+    /** Wing drawing scale: a full Set spreads 1.2× the base wing, each grade step adds 0.2 (span measured in LOG-V2). */
+    wingK: 1.5 * (1.2 + 0.2 * Math.min(2, p?.topMax ?? 0)),
+    backK: kind === 'mantle' ? 1.14 : 1,
   };
 }
 
 /** Every part a look needs (names must match the rig below). */
 export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSpec[] {
-  const sl = look.slots;
+  // armour is drawn in its generation's materials (artLook); held items keep their own art
+  const sl: PlayerLook['slots'] = Object.fromEntries(Object.entries(look.slots).map(([k, l]) => [k, artLook(l)]));
   const specs: PartSpec[] = [];
   const add = (name: string, draw: PartSpec['draw'], flash = true) => specs.push({ name, draw, flash });
   for (const deg of HEAD_VIEWS) add(`head@${deg}`, (c) => drawHeadView(c, body, sl.head, deg), HEAD_FLASH_VIEWS.includes(deg));
   for (const deg of LEG_VIEWS) add(`leg@${deg}`, (c) => drawLegView(c, body, sl.legs, sl.feet, deg));
   add('torso', (c) => drawTorsoBase(c, body, sl.chest, sl.waist));
   const neck = look.jw?.neck;
-  const neckLeg = neck ? (neck >>> 14) & 31 : 0;
-  const neckColor = neckLeg ? Object.values(LEGENDARIES)[neckLeg - 1].colors.glow : GEAR_TIER_COLORS[(neck ?? 0) & 15];
+  const nfx = neck !== undefined ? unpackGearFx(neck) : null;
+  const neckColor = !nfx ? 0x8b8274 : nfx.top >= 1 ? TOP_COLORS[Math.min(3, nfx.top)] : nfx.legendary && LEGENDARIES[nfx.legendary] ? LEGENDARIES[nfx.legendary].colors.glow : RARITY_LIGHT[nfx.rarity] || 0x8b8274;
   add('torsoF', (c) => drawTorsoFront(c, body, sl.chest, neck, neckColor));
   add('torsoB', (c) => drawTorsoBack(c, body, sl.chest));
   if (sl.waist) add('belt', (c) => drawBeltFront(c, sl.waist!, sl.chest?.shape === 'robe'));
@@ -137,12 +142,21 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
   }
   // presence by rank (spectacle pass): baked at their final size so they stay crisp
   if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier, back.backK));
-  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.primal ? back.deep : back.ancient ? 0xb8661a : back.deep, back.wingK));
+  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.ancient ? mix(back.deep, back.edge, 0.55) : back.deep, back.wingK));
   const probe = new Graphics();
   if (drawHairTail(probe.context, body, sl.head)) add('tail', (c) => { drawHairTail(c, body, sl.head); });
   if (drawHairCurtain(probe.context, body, sl.head)) add('curtain', (c) => { drawHairCurtain(c, body, sl.head); });
   probe.destroy();
-  if (sl.mainhand) add('weapon', (c) => drawWeapon(c, sl.mainhand!, true));
+  if (sl.mainhand) {
+    add('weapon', (c) => drawWeapon(c, sl.mainhand!, true));
+    // V2 held items: the light layer (additive, pulsing) and the floating pieces are parts of their own
+    const ws = itemStyle(sl.mainhand), fam = SHAPE_FAMILY[sl.mainhand.shape];
+    if (ws && fam) {
+      const m = weaponModel(sl.mainhand, ws, fam.family, true);
+      if (m.lit) specs.push({ name: 'weaponL', draw: (c) => m.draw(c, 'light') });
+      m.floats.forEach((f, i) => specs.push({ name: `wf${i}`, draw: (c) => f.draw(c), flash: true }));
+    }
+  }
   const off = sl.offhand;
   if (off) {
     if (off.shape === 'quiver') add('quiver', (c) => drawQuiver(c, off));
@@ -423,6 +437,8 @@ export class PlayerArt implements PlayerView {
   private gearQ: GearQuality = 'full';
   private isLocal = false;
   private padK = 1;
+  /** Off-hand size (shield / orb / quiver) from the item's generation (DESIGN-V2 §3). */
+  private offK = 1;
   private wpnK = 1;
   private wingFlap = 0;
   /** Presence by gear rank (spectacle pass): wing span, cloth back-piece size, weapon-trail brightness. */
@@ -471,6 +487,10 @@ export class PlayerArt implements PlayerView {
   private lastHeadView = '';
   private trailColor = 0xfff4dc;
   private trailAdd = false;
+  /** V2 weapon light layer and floating pieces (weaponArt.ts). */
+  private wLight: Sprite | Graphics | null = null;
+  private wFloats: { f: WFloat; s: Sprite | Graphics; g: Sprite | null }[] = [];
+  private wTemper = 0;
   private sx = 0; private sy = 0;      // last state position (for target directions)
 
   // per-frame scratch
@@ -520,13 +540,16 @@ export class PlayerArt implements PlayerView {
     const npcHeld = !!sl.offhand && NPC_OFFHAND.has(sl.offhand.shape);
     this.kit = { wk, shield: sl.offhand?.shape === 'shield' || (!!sl.offhand && !npcHeld && !['quiver', 'orb'].includes(sl.offhand.shape)), orb: sl.offhand?.shape === 'orb' || npcHeld, shape: sl.mainhand?.shape ?? '' };
     this.padK = shoulderScale(sl.shoulders);
+    this.offK = itemStyle(sl.offhand)?.scale ?? 1;
     this.wpnK = weaponScale(sl.mainhand);
     { const r = reachOf(sl.mainhand?.shape); this.reach = { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
     const glow = sl.mainhand?.glow ?? 0;
     const wst = itemStyle(sl.mainhand);
-    this.trailColor = wst && wst.tier >= 6 ? light(wst.accent, 0.12) : glow ? light(glow, 0.25) : 0xfff4dc;
-    this.trailAdd = !!glow || (!!wst && wst.tier >= 6);
-    this.trailBoost = !wst ? 1 : wst.tier >= 8 ? 1.6 : wst.tier >= 6 ? 1.35 : 1;
+    // the swing trail carries the weapon's light (prestige lives in the attack in small sprites, REFERENCES-V2 V7)
+    const wLit = !!wst && !!wst.light && (wst.special || wst.gen >= 3 || wst.top >= 1);
+    this.trailColor = wst ? (wLit ? light(wst.light, 0.12) : wst.light ? light(wst.light, 0.35) : 0xfff4dc) : glow ? light(glow, 0.25) : 0xfff4dc;
+    this.trailAdd = wst ? wLit : !!glow;
+    this.trailBoost = !wst ? 1 : 1 + (wLit ? 0.06 * wst.gen : 0) + (wst.special ? 0.2 : 0) + wst.top * 0.15 + wst.temper * 0.05;
     { const pr = Object.values(sl).some((l) => typeof l?.fx === 'number') ? gearProfile(this.look) : null;
       void pr; this.wingK = 1; this.backK = 1; }
 
@@ -553,6 +576,24 @@ export class PlayerArt implements PlayerView {
     mk('armR', 'arm'); mk('armL', 'arm'); mk('handR', 'hand'); mk('handL', 'hand');
     if (sheet.has('pad')) { mk('padR', 'pad'); mk('padL', 'pad'); }
     if (sheet.has('weapon')) mk('weapon', 'weapon');
+    // V2 held items: additive light layer + floating pieces (weaponArt.ts), each with a soft glow
+    this.wFloats = [];
+    this.wLight = null;
+    // the light layer joins the additive group drawn last (one batch per hero instead of splitting the body batch)
+    if (sheet.has('weaponL')) { const l = sheet.make('weaponL', 'n'); l.blendMode = 'add'; this.fxAdd.addChild(l); this.wLight = l; }
+    if (wst && sl.mainhand && SHAPE_FAMILY[sl.mainhand.shape]) {
+      const fl = weaponModel(sl.mainhand, wst, SHAPE_FAMILY[sl.mainhand.shape].family, true).floats;
+      let glows = 0;
+      fl.forEach((f, i) => {
+        if (!sheet.has(`wf${i}`)) return;
+        const s = mk(`wf${i}`, `wf${i}`);
+        // at most three soft glows per weapon (crowd budget); the pieces themselves carry their light
+        const g = f.glow && glows++ < 3 ? glowSprite(f.glow, f.glowR * 2.2, 0, true) : null;
+        if (g) this.fxAdd.addChild(g);
+        this.wFloats.push({ f, s, g });
+      });
+    }
+    this.wTemper = wst?.temper ?? 0;
     if (sheet.has('shield')) mk('shield', 'shield');
     if (sheet.has('orb')) mk('orb', 'orb');
     // bow string (4 stretched white quads) + nocked arrow
@@ -661,19 +702,20 @@ export class PlayerArt implements PlayerView {
       const SLOTS: [LookSlot, number, number][] = [['head', 46, 40], ['chest', 36, 36], ['shoulders', 34, 22], ['hands', 22, 18], ['waist', 32, 14], ['legs', 26, 18], ['feet', 26, 12], ['offhand', 30, 30]];
       for (const [slot, w, h] of SLOTS) {
         const st = itemStyle(sl[slot]);
-        if (!st || st.tier < 6) continue;
-        const g = glowSprite(st.accent, Math.max(w, h) * (1.5 + (st.tier - 6) * 0.12), 0.3, true);
+        if (!st || !(st.special || st.top >= 1)) continue;
+        const col = st.top >= 1 ? st.edgeLight : st.accent;
+        const g = glowSprite(col, Math.max(w, h) * (1.5 + Math.max(0, st.gen - 4) * 0.06 + st.top * 0.1), 0.3, true);
         g.scale.y *= h / w;
         this.glowBack.addChild(g);
-        this.glows.push({ sprite: g, base: q === 'full' ? 0.32 + (st.tier - 6) * 0.06 : 0.3, phase: Math.random() * TAU, slot });
+        this.glows.push({ sprite: g, base: q === 'full' ? 0.3 + (st.gen >= 6 ? 0.06 : 0) + st.top * 0.08 : 0.3, phase: Math.random() * TAU, slot });
       }
       const w = itemStyle(sl.mainhand);
       this.weaponGlow = null; this.tipSpark = null;
-      if (w && w.tier >= 6) {
-        const ws = glowSprite(w.accent, 30, 0.5, true);
+      if (w && w.light && (w.special || w.gen >= 5 || w.top >= 1)) {
+        const ws = glowSprite(w.light, 30, 0.5, true);
         ws.blendMode = 'normal'; ws.zIndex = 0;
         this.weaponGlow = ws; this.body.addChild(ws);
-        if (q === 'full') { const tip = sparkleSprite(light(w.accent, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
+        if (q === 'full' && (w.special || w.top >= 1)) { const tip = sparkleSprite(light(w.edgeLight || w.light, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
       }
     }
     this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR, this.mode === 'scene');
@@ -681,6 +723,44 @@ export class PlayerArt implements PlayerView {
   }
 
   private npcLook(): boolean { return !!(this.look as NpcBodyLook).npc; }
+
+  /** The weapon's light layer (same transform as the weapon, additive, pulsing with enhancement) and its floating
+   *  pieces (hover / orbit in the weapon frame). 'off' keeps the floats at rest and hides the light layer. */
+  private placeWeaponFx(wpn: Sprite, bow: boolean, t: number): void {
+    if (!this.wLight && !this.wFloats.length) return;
+    const q = this.gearQ, moving = q === 'full', rich = moving && (this.gear?.rich ?? true);
+    let a: number, b: number, c: number, d: number;
+    if (bow) { const m = this.bowM; a = m.a; b = m.b; c = m.c; d = m.d; }
+    else { const r = wpn.rotation, sx = wpn.scale.x, sy = wpn.scale.y, cs = Math.cos(r), sn = Math.sin(r); a = cs * sx; b = sn * sx; c = -sn * sy; d = cs * sy; }
+    const tx = bow ? this.bowM.tx : wpn.x, ty = bow ? this.bowM.ty : wpn.y;
+    const pulse = moving ? 0.62 + 0.22 * Math.sin(t * (2.2 + this.wTemper * 0.8)) + this.wTemper * 0.08 : 0.7;
+    if (this.wLight) {
+      const L = this.wLight as Sprite;
+      L.visible = wpn.visible && q !== 'off' && !this.flashing;
+      if (bow) L.setFromMatrix(this.bowM);
+      else { L.position.copyFrom(wpn.position); L.rotation = wpn.rotation; L.scale.copyFrom(wpn.scale); L.skew.set(0, 0); }
+      // drawn with the additive group: dimmed while the weapon is behind the body
+      const behind = !!this.parts.torso && wpn.zIndex < this.parts.torso.zIndex;
+      L.alpha = clamp(pulse, 0, 1) * (behind ? 0.35 : 1);
+    }
+    const rot = bow ? Math.atan2(b, a) : wpn.rotation, k = Math.hypot(a, b);
+    for (const { f, s, g } of this.wFloats) {
+      const vis = wpn.visible && (!f.deco || rich);
+      s.visible = vis;
+      if (g) g.visible = vis && rich;
+      if (!vis) continue;
+      const ang = f.phase + (moving ? t * f.spin : 0);
+      let lx = f.x, ly = f.y, sa = 0;
+      if (f.orbit) { sa = Math.sin(ang); lx += Math.cos(ang) * f.orbit; ly += sa * f.orbit * 0.4; }
+      if (moving && f.bob) ly += Math.sin(t * 2.1 + f.phase * 1.7) * f.bob;
+      const x = a * lx + c * ly + tx, y = b * lx + d * ly + ty;
+      s.position.set(x, y);
+      s.rotation = rot + (!f.orbit && f.spin && moving ? t * f.spin : 0);
+      s.scale.set(k, k);
+      s.zIndex = wpn.zIndex + (sa < 0 ? -0.01 : 0.003);
+      if (g && rich) { g.position.set(x, y); g.alpha = 0.32 + 0.18 * Math.sin(t * 3 + f.phase); }
+    }
+  }
 
   /** Rank-up / first full Set moment (~1.5 s): rings, a column of light, a fountain of the hero's motif, wings flare.
    *  Survives the look rebuild that the same equip triggers (the start time lives on the view). */
@@ -1180,7 +1260,7 @@ export class PlayerArt implements PlayerView {
       this.pt(-7.6, -24 + drop, 1.4, this.tmp);
       n.quiver.position.set(this.tmp.x, this.tmp.y);
       n.quiver.rotation = -0.42 * side;
-      n.quiver.scale.set(side * (0.75 + 0.25 * Math.abs(sB)), 1);
+      n.quiver.scale.set(side * (0.75 + 0.25 * Math.abs(sB)) * this.offK, this.offK);
       n.quiver.zIndex = this.tmp.d > 0 ? 0.7 : -7 + this.tmp.d * 0.1;
     }
 
@@ -1231,6 +1311,7 @@ export class PlayerArt implements PlayerView {
         this.weaponGlow.zIndex = wpn.zIndex - 0.005;
       }
       if (this.tipSpark) { this.tipSpark.position.set(this.wTip.x, this.wTip.y); }
+      this.placeWeaponFx(wpn as Sprite, wk === 'bow', t);
     }
     // shield / orb on the left hand
     if (n.shield) {
@@ -1245,7 +1326,8 @@ export class PlayerArt implements PlayerView {
       const ul = Math.hypot(ux, uy);
       const um = Math.max(0.42, ul) / (ul || 1);
       const cxp = hL.x + 1.2 * side, cyp = hL.y - 1.5;
-      sh.setFromMatrix(new Matrix(ux * um * 0.92, uy * um * 0.92, 0, 0.92, cxp, cyp));
+      const sk = 0.92 * this.offK;
+      sh.setFromMatrix(new Matrix(ux * um * sk, uy * um * sk, 0, sk, cxp, cyp));
       sh.zIndex = hL.d + 0.4;
       n.handL.zIndex = sh.zIndex - 0.02;
       n.armL.zIndex = Math.min(n.armL.zIndex, sh.zIndex - 0.03);
@@ -1258,7 +1340,8 @@ export class PlayerArt implements PlayerView {
         n.orb.zIndex = hL.d - 0.05;
       } else {
         const bob = Math.sin(t * 2.4) * 1.6;
-        n.orb.position.set(hL.x + 3 * side, hL.y - 8 + bob);
+        n.orb.position.set(hL.x + 3 * side, hL.y - 8 * this.offK + bob);
+        n.orb.scale.set(this.offK);
         n.orb.zIndex = hL.d + 0.3;
       }
     }

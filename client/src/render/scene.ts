@@ -493,9 +493,9 @@ export class Scene {
   }
 }
 
-/** What a player's nameplate shows besides level: title, gear rank and a completed Set (rebuilt when it changes). */
+/** What a player's nameplate shows besides level: title and a completed Set (rebuilt when it changes). */
 function plateKey(look: PlayerLook | undefined): string {
   if (!look) return '';
   const p = gearProfile(look);
-  return `${look.title ?? ''}|${p.rank}|${p.topSetCount >= 6 ? p.topSet : ''}`;
+  return `${look.title ?? ''}|${p.topSetCount >= 6 ? p.topSet : ''}`;
 }

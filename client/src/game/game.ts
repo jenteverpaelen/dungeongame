@@ -10,7 +10,7 @@ import { CLIENT_OUTDATED_MESSAGE, F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION,
 import type { CharacterSave, ClassId, DerivedStats } from '@shared/types';
 import { playerLook } from '@shared/character';
 import { SETS } from '@shared/data/items';
-import { GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { gearProfile, litLook, lookFx, lookStage } from '@shared/gearVisual';
 import { text } from '../i18n/messages';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
@@ -360,25 +360,27 @@ export class Game {
     this.scene.vfx.handle(ev);
   }
 
-  /** Highest gear rank and the Sets completed this session, per character (celebrate the first time only). */
-  private gearBest = new Map<string, { rank: number; sets: Set<string> }>();
+  /** The best weapon look worn and the Sets completed this session, per character (celebrate the first time only). */
+  private gearBest = new Map<string, { weapon: number; sets: Set<string> }>();
 
-  /** An equip that raises the gear rank (or completes a Set for the first time) gets its moment: a notice, a chime
-   *  and a burst on the hero (docs/rework/gear/DESIGN.md §2). */
+  /** Item moments (docs/rework/gear/DESIGN-V2.md §5): equipping a weapon whose look passes the session's best and carries
+   *  light of its own, or completing a Set for the first time, gets a chime and a burst on the hero (a notice for Sets). */
   private gearMoment(prev: CharacterSave | null, next: CharacterSave) {
-    const now = gearProfile(playerLook(next));
+    const look = playerLook(next);
+    const now = gearProfile(look);
+    const w = lookFx(look.slots.mainhand);
+    const stage = w ? lookStage(w) : 0;
     let best = this.gearBest.get(next.id);
     if (!best || !prev || prev.id !== next.id) {
-      if (!best) { best = { rank: now.rank, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
+      if (!best) { best = { weapon: stage, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
       return;
     }
     const setDone = now.topSetCount >= 6 && !!now.topSet && !best.sets.has(now.topSet);
-    const rankUp = now.rank > best.rank;
-    if (!rankUp && !setDone) return;
-    if (rankUp) best.rank = now.rank;
+    const weaponUp = !!w && stage > best.weapon && litLook(w);
+    if (w) best.weapon = Math.max(best.weapon, stage);
+    if (!weaponUp && !setDone) return;
     if (setDone) best.sets.add(now.topSet!);
-    const big = setDone || now.rank >= 8;
-    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'level');
+    const big = setDone || (!!w && (w.top >= 1 || ((w.rarity === 'legendary' || w.rarity === 'set') && w.gen >= 6)));
     if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'level');
     sfx.play(big ? 'gear_rank_big' : 'gear_rank');
     const view = this.world.entities.get(this.world.myId)?.view as (PlayerView & { celebrateGear?(big: boolean): void }) | null | undefined;
