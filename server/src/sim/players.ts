@@ -2,6 +2,7 @@
 // death & respawn, XP / level-ups and stat refreshes.
 
 import { recordIntro } from '../../../shared/src/onboarding';
+import { benchTick } from './bench';
 import type { PlayerLink } from '../contracts';
 import {
   CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
@@ -57,7 +58,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     lastEle: {}, ouroIdx: 0, ouroMs: 4000, noticeFullAt: -1e9,
     critHealMs: 0, critHealCount: 0, dealt: 0, kills: 0,
     ffTile: -1, ffT: -1e9, ff: null, ffX0: 0, ffY0: 0,
-    lastVortexT: -1e9, respawnTick: -1, taken: 0, pw: undefined, acting: undefined,
+    lastVortexT: -1e9, respawnTick: -1, taken: 0, pw: undefined, acting: undefined, bench: null,
   };
   return p;
 }
@@ -144,6 +145,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
     return;
   }
   const dt = dtMs / 1000;
+  if (p.bench) benchTick(inst, p, dtMs);
   if (p.invulnMs > 0) p.invulnMs -= dtMs;
   if (p.stunMs > 0) p.stunMs -= dtMs;
   if (p.frozenMs > 0) p.frozenMs -= dtMs;

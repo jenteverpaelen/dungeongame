@@ -12,6 +12,7 @@ import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './po
 import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor, type HitTerm } from './powerRuntime';
 import { consumeVulns, scopedVulnerability, weakenFactor } from './status';
 import { killPlayer } from './players';
+import { benchHit } from './bench';
 import type { Dot, DotKind, Mob, Player, SkillRuntime, Strike } from './types';
 
 export interface HitResult { amount: number; crit: boolean; killed: boolean }
@@ -100,6 +101,7 @@ export function hurtMob(inst: Instance, m: Mob, amount: number, el: Element, att
   if (attacker) { attacker.dealt = boundedCombat(attacker.dealt+a); attacker.sinceHitMs = 0; }
   if (inst.dmgBySkill) inst.dmgBySkill.set(skill, boundedCombat((inst.dmgBySkill.get(skill) ?? 0) + a));
   if (m.dummy) {
+    if (attacker?.bench) benchHit(inst, attacker, skill, a, crit, dot); // build tools T3
     m.hp = Math.max(1, m.hp - a);
     emitDmg(inst, m, a, el, crit, dot, src, false, attacker);
     return false;

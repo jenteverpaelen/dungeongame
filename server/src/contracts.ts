@@ -67,6 +67,8 @@ export interface InstanceApi {
   requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;
   /** Build tools: the exact damage sheet of the player's skills (server/src/sim/breakdown.ts); null = not ready. */
   buildSheet?(link: PlayerLink, skills?: readonly string[]): import('../../shared/src/buildSheet').BuildSheet | null;
+  /** Build tools: the training-dummy test (server/src/sim/bench.ts). */
+  bench?(link: PlayerLink, action: string, seconds: number): { ok: true; view: import('../../shared/src/buildSheet').BenchView | null } | { ok: false; err: string };
   activateDungeon?(link: PlayerLink, target: string): string | null;
   activateFieldEvent?(link: PlayerLink, target: string): string | null;
   dungeonState?(): DungeonState | null;

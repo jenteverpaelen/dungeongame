@@ -10,8 +10,11 @@ import type { ClassId } from '../../shared/src/types';
 import type { PowerEffect } from '../../shared/src/powers';
 import type { PowerSource } from '../../shared/src/powerSources';
 import { buildSheet, skillSheet } from '../src/sim/breakdown';
-import { expectedDamage } from '../src/sim/damage';
-import { addBuff } from '../src/sim/effects';
+import { expectedDamage, makeDot, strikeMob } from '../src/sim/damage';
+import { addBuff, addOwnedDot } from '../src/sim/effects';
+import { benchCommand, benchView, newBench } from '../src/sim/bench';
+import { createMob, DUMMY_DEF, updateMonsters } from '../src/sim/monsters';
+import { playerTick } from '../src/sim/players';
 import { Instance } from '../src/sim/instance';
 import { buildCtx, skillCooldownMs, skillCost, skillRadius } from '../src/sim/playerctx';
 import { strikeOf } from '../src/sim/skills/common';
@@ -101,4 +104,32 @@ test('sheet: every skill of every class — perHit is the combat code’s expect
       }
     } finally { inst.destroy(); }
   }
+});
+
+test('bench: per-skill split sums to the total, starts at the first hit, ends at its length; start needs town and a dummy', () => {
+  const { inst, p } = world('warrior', [], { slots: ['rend', null, null, null] });
+  try {
+    assert.deepEqual(benchCommand(inst, p, 'start', 60), { ok: false, err: 'The training dummies are in Hearthmere' });
+    const dummy = createMob(inst, DUMMY_DEF, 70, p.x + 60, p.y, { dummy: true });
+    p.bench = newBench(30_000);
+    assert.equal(benchView(p)!.state, 'armed');
+    for (let i = 0; i < 20; i++) { inst.t += 50; playerTick(inst, p, 50); }
+    assert.equal(benchView(p)!.elapsedS, 0, 'the clock waits for the first hit');
+    strikeMob(inst, p, dummy, { skill: 'cleave', coef: 1, el: 'physical', pct: 0 });
+    strikeMob(inst, p, dummy, { skill: 'rend', coef: 2, el: 'physical', pct: 0 });
+    addOwnedDot(p, dummy, makeDot(inst, p, { skill: 'rend', coef: 1, el: 'physical', pct: 0 }, 'bleed', 4000, 500));
+    for (let i = 0; i < 40; i++) { inst.t += 50; playerTick(inst, p, 50); updateMonsters(inst, 50); }
+    const v = benchView(p)!;
+    assert.equal(v.state, 'running');
+    assert.equal(v.skills.reduce((n, s) => n + s.total, 0), v.total, 'the split sums to the total');
+    assert.deepEqual(v.skills.map((s) => s.id).sort(), ['cleave', 'rend']);
+    assert(v.dotShare > 0 && v.hits === 2, 'two hits plus bleed ticks');
+    assert(dummy.hp >= 1 && !dummy.dead, 'dummies never die');
+    for (let i = 0; i < 30 * 20; i++) { inst.t += 50; playerTick(inst, p, 50); }
+    assert.equal(benchView(p)!.state, 'done'); assert.equal(benchView(p)!.elapsedS, 30);
+    const frozen = benchView(p)!.total;
+    strikeMob(inst, p, dummy, { skill: 'cleave', coef: 1, el: 'physical', pct: 0 });
+    assert.equal(benchView(p)!.total, frozen, 'a finished test records nothing more');
+    assert.deepEqual(benchCommand(inst, p, 'reset', 0), { ok: true, view: null });
+  } finally { inst.destroy(); }
 });

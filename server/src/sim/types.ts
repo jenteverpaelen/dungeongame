@@ -468,6 +468,8 @@ export interface Player extends Hashed {
   pw?: PowerState;
   /** The skill (or proc strike / ground id) whose cast, tick or hit is running: statuses it applies report it. */
   acting?: string;
+  /** Build tools T3: the training-dummy test of this player (server/src/sim/bench.ts), null = none. */
+  bench: import('./bench').BenchRun | null;
   kind: 'player';
   id: number;
   link: PlayerLink;

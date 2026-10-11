@@ -51,6 +51,20 @@ export interface SkillSheet {
   conds: SheetCond[];
 }
 
+/** A training-dummy test (build tools T3, server/src/sim/bench.ts): what the player dealt to the dummies, per strike id. */
+export interface BenchView {
+  state: 'armed' | 'running' | 'done';
+  lengthS: number; elapsedS: number;
+  total: number; dps: number; hits: number; critRate: number;
+  /** Share of the total dealt by damage over time (%). */
+  dotShare: number;
+  /** Per strike id (skills, sub-strikes, procs, grounds), largest first; sums to `total`. */
+  skills: { id: string; total: number; dps: number }[];
+  /** Time below the cheapest bar skill's cost (%). */
+  starvedPct: number;
+  buffs: { id: string; uptimePct: number }[];
+}
+
 export interface BuildSheet {
   skills: SkillSheet[];
   /** Server time of the computation (the client shows when the numbers were taken). */

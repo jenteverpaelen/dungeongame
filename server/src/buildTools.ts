@@ -19,6 +19,16 @@ function withinBudget(s: Session, now: number): boolean {
   return true;
 }
 
+/** `bench { action: start | stop | reset | status, seconds? }`: the training-dummy test, not persisted. */
+export function benchToolCommand(s: Session, a: Args): CmdResult {
+  const inst = s.rec?.inst;
+  if (!inst?.bench) return fail('Enter the world first');
+  const action = typeof a.action === 'string' ? a.action : 'status';
+  const seconds = typeof a.seconds === 'number' ? a.seconds : 60;
+  const r = inst.bench(s, action, seconds);
+  return r.ok ? ok(r.view) : fail(r.err);
+}
+
 /** `buildSheet { skills? }`: exact numbers of the bar skills (or the listed ones), not persisted. */
 export function buildSheetCommand(s: Session, a: Args): CmdResult {
   const inst = s.rec?.inst;
