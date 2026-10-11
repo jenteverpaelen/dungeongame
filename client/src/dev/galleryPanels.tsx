@@ -21,7 +21,7 @@ import '../ui/styles/tokens.css';
 import { render } from 'preact';
 import { useState } from 'preact/hooks';
 import { BASES, GEM_IDS, affixScale } from '@shared/data/items';
-import { buySkillTier, createCharacter, equipItem, resetSkillPoints, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
+import { buySkillTier, createCharacter, equipItem, resetSkillPoints, setPrimarySkill, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
 import { addCubeXp, canAfford, enchantCost, enchantPool, extractCost, fuseCost, gemRemoveCost, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost, FORTUNE_PER_FAIL } from '@shared/cube';
 import { generateItem, type GenOptions } from '@shared/items';
 import { Rng } from '@shared/math';
@@ -29,6 +29,8 @@ import { PARAGON_STATS, addXp, paragonPoints, paragonSpent, paragonXpToNext, xpT
 import { computeStats } from '@shared/stats';
 import {setPassive} from '@shared/passives';
 import { buySkillNode, refundSkillNode } from '@shared/specialization';
+import { installFixtureNodes, installFixturePassives, installFixtureSkills } from '../../../shared/test/fixtures/depthContent';
+import { skillsUI, type SkillsFilter, type SkillsTab } from '../ui/panels/skills';
 import { economySnapshot, recordEconomy } from '@shared/economy';
 import { INVENTORY_SIZE } from '@shared/constants';
 import type { CmdOp } from '@shared/protocol';
@@ -65,6 +67,10 @@ if (qs.has('still')) {
   document.head.appendChild(st);
 }
 const classId = (qs.get('class') as ClassId) || 'warrior';
+// Depth-foundation presentation fixture (docs/rework/depth): &depth=12|20 adds placeholder skills (five runes each),
+// placeholder specialization trees (Whirlwind, Meteor) and template passives — gallery only, never shipped data.
+// &sel=<skill> &tab=runes|tree|cast &page=<n> &filter=<kind> &passive=<slot> preset the Skills window.
+if (qs.has('depth')) { installFixtureSkills(Number(qs.get('depth')) || 12); installFixtureNodes(); installFixturePassives(Number(qs.get('depth')) >= 20 ? 18 : 14); }
 const rng = new Rng(20260);
 
 // ───────────────────────────── mock data ─────────────────────────────
@@ -172,6 +178,15 @@ function makeCharacter(): CharacterSave {
 }
 
 let char = makeCharacter();
+if (qs.has('depth')) {
+  if (classId === 'warrior') char.skills.nodes = { whirlwind: { fx_gale: 3, fx_reach: 2, fx_thrift: 2, fx_devils: 1 } };
+  if (classId === 'mage') char.skills.nodes = { meteor: { fx_mass: 2, fx_crater: 1 } };
+  char.passives = { revision: 1, slots: [`${classId}_reserve`, `fx_${classId}_${{ warrior: 'vortex', ranger: 'kennel', mage: 'glacier' }[classId]}`, null, null] };
+}
+skillsUI.set({
+  selected: qs.get('sel'), tab: (qs.get('tab') as SkillsTab | null) ?? 'runes', page: Number(qs.get('page') ?? 0), filter: (qs.get('filter') as SkillsFilter | null) ?? 'all',
+  mode: qs.has('passive') ? { kind: 'passive', slot: Number(qs.get('passive')) } : { kind: 'skill' },
+});
 if(qs.get('s')==='delivery')char.inventory[31]={...structuredClone(char.inventory[6]!),id:'delivery-protected',protected:true};
 
 function enchantOptions(item: Item, idx: number): AffixRoll[] {
@@ -304,6 +319,7 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
     case 'skillRune': { const e = setSkillRune(char, a.skill as string, (a.rune as string | null) ?? null); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillTier': { const e = buySkillTier(char, a.skill as string); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillReset': { const r = resetSkillPoints(char, (a.skill as string | undefined) ?? undefined); if (!r.tierPoints && !r.nodePoints) return fail('Nothing to refund'); sync(); return { ok: true, data: r }; }
+    case 'skillPrimary': { const e = setPrimarySkill(char, a.skill); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillNode': { const e = a.delta === -1 ? refundSkillNode(char, a.skill, a.node) : buySkillNode(char, a.skill, a.node); if (e) return fail(e); sync(); return { ok: true }; }
     case 'passive': {const err=setPassive(char,a.slot,a.passive);if(err)return fail(err);sync();return {ok:true};}
     case 'paragon': {
