@@ -21,13 +21,14 @@ import '../ui/styles/tokens.css';
 import { render } from 'preact';
 import { useState } from 'preact/hooks';
 import { BASES, GEM_IDS, affixScale } from '@shared/data/items';
-import { buySkillTier, createCharacter, equipItem, resetSkillTiers, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
+import { buySkillTier, createCharacter, equipItem, resetSkillPoints, setSkillRune, setSkillSlot, skillPointsSpent, unequipItem } from '@shared/character';
 import { addCubeXp, canAfford, enchantCost, enchantPool, extractCost, fuseCost, gemRemoveCost, pay, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost, FORTUNE_PER_FAIL } from '@shared/cube';
 import { generateItem, type GenOptions } from '@shared/items';
 import { Rng } from '@shared/math';
 import { PARAGON_STATS, addXp, paragonPoints, paragonSpent, paragonXpToNext, xpToNext } from '@shared/progression';
 import { computeStats } from '@shared/stats';
 import {setPassive} from '@shared/passives';
+import { buySkillNode, refundSkillNode } from '@shared/specialization';
 import { economySnapshot, recordEconomy } from '@shared/economy';
 import { INVENTORY_SIZE } from '@shared/constants';
 import type { CmdOp } from '@shared/protocol';
@@ -302,7 +303,8 @@ async function mock(op: CmdOp, a: Record<string, unknown> = {}): Promise<CmdResu
     case 'skillSlot': { const e = setSkillSlot(char, a.slot as number, (a.skill as string | null) ?? null); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillRune': { const e = setSkillRune(char, a.skill as string, (a.rune as string | null) ?? null); if (e) return fail(e); sync(); return { ok: true }; }
     case 'skillTier': { const e = buySkillTier(char, a.skill as string); if (e) return fail(e); sync(); return { ok: true }; }
-    case 'skillReset': { resetSkillTiers(char); sync(); return { ok: true }; }
+    case 'skillReset': { const r = resetSkillPoints(char, (a.skill as string | undefined) ?? undefined); if (!r.tierPoints && !r.nodePoints) return fail('Nothing to refund'); sync(); return { ok: true, data: r }; }
+    case 'skillNode': { const e = a.delta === -1 ? refundSkillNode(char, a.skill, a.node) : buySkillNode(char, a.skill, a.node); if (e) return fail(e); sync(); return { ok: true }; }
     case 'passive': {const err=setPassive(char,a.slot,a.passive);if(err)return fail(err);sync();return {ok:true};}
     case 'paragon': {
       const def = PARAGON_STATS.find((d) => d.id === a.stat); if (!def) return fail('Unknown stat');

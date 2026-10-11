@@ -107,6 +107,8 @@ export interface SkillLoadout {
   runes: Record<string, string | null>;
   /** Purchased upgrade tiers (0..3) per skill id. */
   tiers: Record<string, number>;
+  /** Specialization ranks: skill id -> node id -> rank (save v15; normalised by shared/src/specialization.ts). */
+  nodes?: Record<string, Record<string, number>>;
   /** Primary (auto-attack) skill id. */
   primary: string;
 }

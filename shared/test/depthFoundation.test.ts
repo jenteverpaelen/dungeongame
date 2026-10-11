@@ -3,8 +3,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { CONTENT_DATA, validateContent, type ContentData } from '../src/contentValidation';
-import { createCharacter, setSkillRune } from '../src/character';
-import { MAX_RUNES, SKILLS, runeUnlockLevel, skillsForClass } from '../src/data/skills';
+import { createCharacter, loadoutMods, resetSkillPoints, setSkillRune } from '../src/character';
+import { MAX_RUNES, SKILLS, collectSkillMods, describeNode, runeUnlockLevel, skillsForClass } from '../src/data/skills';
+import { MAX_LEVEL } from '../src/constants';
+import {
+  NODE_RANK_COST, TREE_RANKS_TARGET, buySkillNode, nodeBuyError, normalizeSkillNodes, refundSkillNode, resetSkillNodes,
+  specPointsAvailable, specPointsForLevel, specPointsSpent, treeTotalRanks,
+} from '../src/specialization';
+import { FIXTURE_NODES, installFixtureNodes } from './fixtures/depthContent';
 
 function fixture(): ContentData {
   const { affixes, ...clonable } = CONTENT_DATA;
@@ -50,4 +56,129 @@ test('rune selection honours each rune’s own unlock level on the authoritative
   assert.match(setSkillRune(save, 'meteor', meteor.runes[1].id) ?? '', new RegExp(`level ${levels[1]}`));
   save.level = levels[1];
   assert.equal(setSkillRune(save, 'meteor', meteor.runes[1].id), null);
+});
+
+// ─────────────────────────── Specialization nodes ───────────────────────────
+
+test('shipped data has no specialization nodes yet (content comes later); fixture trees validate', () => {
+  for (const s of Object.values(SKILLS)) assert.equal(s.nodes, undefined, `${s.id} ships nodes`);
+  const data = fixture();
+  for (const [id, nodes] of Object.entries(FIXTURE_NODES)) data.skills[id].nodes = structuredClone(nodes);
+  assert.deepEqual(validateContent(data), []);
+});
+
+test('node validation rejects bad ranks, prerequisites, cycles, layout and placeholders', () => {
+  type Nodes = NonNullable<ContentData['skills'][string]['nodes']>;
+  const cases: [string, (n: Nodes) => void][] = [
+    ['skills.whirlwind.nodes.fx_gale.ranks', n => { n[0].ranks.pop(); }],
+    ['skills.whirlwind.nodes.fx_gale.maxRank', n => { n[0].maxRank = 4; n[0].ranks.push({ dmg: 1 }); }],
+    ['skills.whirlwind.nodes.fx_reach.requires', n => { n[1].requires = [{ node: 'missing', rank: 1 }]; }],
+    ['skills.whirlwind.nodes.fx_reach.requires', n => { n[1].requires = [{ node: 'fx_gale', rank: 4 }]; }],
+    ['skills.whirlwind.nodes.fx_gale.requires', n => { n[0].requires = [{ node: 'fx_eye', rank: 1 }]; }],
+    ['skills.whirlwind.nodes.fx_reach.pos', n => { n[1].pos = { ...n[0].pos }; }],
+    ['skills.whirlwind.nodes.fx_reach.pos', n => { n[1].pos = { col: 3, row: 0 }; }],
+    ['skills.whirlwind.nodes.fx_gale.text', n => { n[0].text = 'Costs {cost}% less.'; }],
+    ['skills.whirlwind.nodes.fx_gale.text', n => { n[0].text = 'Unknown {thing}.'; }],
+    ['skills.whirlwind.nodes.fx_devils.unlock', n => { n[3].unlock = 1; }],
+    ['skills.whirlwind.nodes.fx_gale.ranks[1].dmg', n => { n[0].ranks[1].dmg = NaN; }],
+  ];
+  for (const [path, mutate] of cases) {
+    const data = fixture();
+    data.skills.whirlwind.nodes = structuredClone(FIXTURE_NODES.whirlwind);
+    mutate(data.skills.whirlwind.nodes);
+    expectPath(validateContent(data), path);
+  }
+});
+
+test('point economy: one specialization point per level after the first, derived from the level', () => {
+  assert.equal(specPointsForLevel(1), 0);
+  assert.equal(specPointsForLevel(2), 1);
+  assert.equal(specPointsForLevel(MAX_LEVEL), 69);
+  assert.equal(NODE_RANK_COST, 1);
+  // 69 points against 14..17-rank trees: 4.1..4.9 full trees, i.e. one bar (primary + four slots), never a class.
+  assert(specPointsForLevel(MAX_LEVEL) / TREE_RANKS_TARGET.max >= 4 && specPointsForLevel(MAX_LEVEL) / TREE_RANKS_TARGET.min <= 5);
+  for (const id of Object.keys(FIXTURE_NODES)) {
+    const total = FIXTURE_NODES[id].reduce((n, x) => n + x.maxRank, 0);
+    assert(total >= TREE_RANKS_TARGET.min && total <= TREE_RANKS_TARGET.max, `${id} fixture tree ${total}`);
+  }
+});
+
+test('shipped trees respect the economy target per class (no-op until a class ships trees)', () => {
+  for (const classId of ['warrior', 'ranger', 'mage'] as const) {
+    const trees = skillsForClass(classId).filter(s => s.nodes?.length);
+    if (!trees.length) continue;
+    const avg = trees.reduce((n, s) => n + treeTotalRanks(s), 0) / trees.length;
+    assert(avg >= TREE_RANKS_TARGET.min && avg <= TREE_RANKS_TARGET.max, `${classId} average tree ${avg} ranks`);
+    assert(trees.length * avg > specPointsForLevel(MAX_LEVEL), `${classId}: every tree must not be affordable at level 70`);
+  }
+});
+
+test('buying and refunding ranks follows level, prerequisites, budget and dependants', () => {
+  const undo = installFixtureNodes();
+  try {
+    const save = createCharacter('NodeRules', 'warrior', 7);
+    save.level = 10;
+    assert.match(nodeBuyError(save, 'whirlwind', 'fx_reach') ?? '', /Requires Placeholder Gale rank 1/);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_gale'), null);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach'), null);
+    assert.equal(buySkillNode(save, 'whirlwind', 'fx_reach'), null);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_reach') ?? '', /highest rank/);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_devils') ?? '', /unlocks at level 20/);
+    assert.match(refundSkillNode(save, 'whirlwind', 'fx_gale') ?? '', /needs Placeholder Gale rank 1/);
+    assert.equal(specPointsSpent(save), 3); assert.equal(specPointsAvailable(save), 9 - 3);
+    for (const bad of [['meteor', 'fx_mass'], ['whirlwind', 'missing'], ['__proto__', 'x'], [7, 'fx_gale'], ['whirlwind', null]] as const)
+      assert(nodeBuyError(save, bad[0], bad[1]), `${String(bad[0])}/${String(bad[1])} must be rejected`);
+    save.level = 3;
+    const before = structuredClone(save.skills.nodes);
+    assert.match(buySkillNode(save, 'whirlwind', 'fx_thrift') ?? '', /No specialization points left/);
+    assert.deepEqual(save.skills.nodes, before, 'a rejected purchase changes nothing');
+    assert.equal(refundSkillNode(save, 'whirlwind', 'fx_reach'), null);
+    assert.equal(save.skills.nodes!.whirlwind.fx_reach, 1);
+    assert.equal(resetSkillNodes(save, 'whirlwind'), 2);
+    assert.deepEqual(save.skills.nodes, {});
+  } finally { undo(); }
+});
+
+test('node ranks reach skill modifiers through the same path as runes and tiers; text shows cumulative values', () => {
+  const undo = installFixtureNodes();
+  try {
+    const save = createCharacter('NodeMods', 'warrior', 7);
+    save.level = 70; save.skills.tiers.whirlwind = 3; save.skills.runes.whirlwind = 'volcanic_eruption';
+    const plain = loadoutMods(save, 'whirlwind');
+    for (const n of ['fx_gale', 'fx_gale', 'fx_thrift', 'fx_edge', 'fx_edge']) assert.equal(buySkillNode(save, 'whirlwind', n), null);
+    const m = loadoutMods(save, 'whirlwind');
+    assert.equal(m.dmg, (plain.dmg ?? 0) + 20);
+    assert.equal(m.cost, (plain.cost ?? 0) - 5);
+    assert.equal(m.vars?.fxEdge, 2);
+    assert.equal(m.element, 'fire', 'rune conversion kept');
+    assert.equal(collectSkillMods(SKILLS.whirlwind, null, 0, { fx_gale: 9 }).dmg, 30, 'ranks clamp to maxRank');
+    assert.equal(describeNode(FIXTURE_NODES.whirlwind[0], 2), 'Whirlwind deals 20% more damage.');
+    assert.equal(describeNode(FIXTURE_NODES.whirlwind[2], 3), 'Whirlwind costs 15% less Fury.');
+    const freed = resetSkillPoints(save);
+    assert.deepEqual(freed, { tierPoints: 12, nodePoints: 5 });
+    assert.deepEqual(save.skills.nodes, {}); assert.deepEqual(save.skills.tiers, {});
+  } finally { undo(); }
+});
+
+test('save normalisation keeps legal trees and clears illegal ones (free respec, nothing lost)', () => {
+  const undo = installFixtureNodes();
+  try {
+    const save = createCharacter('NodeSave', 'warrior', 7);
+    save.level = 40;
+    save.skills.nodes = { whirlwind: { fx_gale: 3, fx_reach: 2 } };
+    normalizeSkillNodes(save);
+    assert.deepEqual(save.skills.nodes, { whirlwind: { fx_gale: 3, fx_reach: 2 } });
+    for (const bad of [{ whirlwind: { fx_reach: 1 } }, { whirlwind: { fx_gale: 4 } }, { whirlwind: { gone: 1 } }, { meteor: { fx_mass: 1 } },
+      { removed_skill: { a: 1 } }, { whirlwind: { fx_gale: 1.5 } }, { whirlwind: [] }, { whirlwind: { fx_gale: -1 } }]) {
+      (save.skills as { nodes?: unknown }).nodes = structuredClone(bad);
+      normalizeSkillNodes(save);
+      assert.deepEqual(save.skills.nodes, {}, JSON.stringify(bad));
+    }
+    save.skills.nodes = { whirlwind: { fx_gale: 3, fx_reach: 2 } }; save.level = 4;
+    normalizeSkillNodes(save);
+    assert.deepEqual(save.skills.nodes, {}, 'over budget for the level clears every tree');
+    for (const raw of [undefined, null, 5, 'x', []]) {
+      (save.skills as { nodes?: unknown }).nodes = raw; normalizeSkillNodes(save); assert.deepEqual(save.skills.nodes, {});
+    }
+  } finally { undo(); }
 });

@@ -2,7 +2,8 @@
 // mage, each in file order), plus the helpers every consumer uses. Import from 'shared/src/data/skills'.
 
 import type { ClassId } from '../../types';
-import type { SkillDef, SkillMods } from './types';
+import type { NodeDef, SkillDef, SkillMods } from './types';
+import { NUMERIC_MOD_KEYS } from './types';
 import { WARRIOR_SKILLS } from './warrior';
 import { RANGER_SKILLS } from './ranger';
 import { MAGE_SKILLS } from './mage';
@@ -22,30 +23,65 @@ export function runeUnlockLevel(skill: SkillDef, runeIndex: number): number {
   return Math.max(skill.unlock, skill.runes[runeIndex]?.unlock ?? Infinity);
 }
 
-/** Merge rune + purchased tiers into a single mods object (legendary/set mods are merged by the server). */
-export function collectSkillMods(skill: SkillDef, runeId: string | null | undefined, tiers: number): SkillMods {
+/** Add `m` into `out` in place: numbers and vars are summed, the element is replaced, flags are appended. */
+function addMods(out: SkillMods, m: SkillMods) {
+  for (const k of NUMERIC_MOD_KEYS) {
+    if (m[k] !== undefined) out[k] = (out[k] ?? 0) + (m[k] as number);
+  }
+  if (m.element) out.element = m.element;
+  if (m.flags) out.flags!.push(...m.flags);
+  if (m.vars) {
+    const v = (out.vars = { ...(out.vars ?? {}) });
+    for (const [k, n] of Object.entries(m.vars)) v[k] = (v[k] ?? 0) + n;
+  }
+}
+
+/** Saved specialization ranks of one skill: nodeId -> rank (absent = 0). */
+export type NodeRanks = Record<string, number>;
+
+/**
+ * Merge rune + purchased tiers + specialization ranks into one mods object (legendary/set/passive mods are merged
+ * by the server). Unknown nodes are ignored and ranks are clamped to each node's maxRank.
+ */
+export function collectSkillMods(skill: SkillDef, runeId: string | null | undefined, tiers: number, nodes?: NodeRanks | null): SkillMods {
   const out: SkillMods = { flags: [] };
-  const add = (m: SkillMods) => {
-    for (const k of ['dmg', 'radius', 'cost', 'cooldown', 'duration', 'projectiles', 'pierce', 'gen', 'maxSummons'] as const) {
-      if (m[k] !== undefined) out[k] = (out[k] ?? 0) + (m[k] as number);
-    }
-    if (m.element) out.element = m.element;
-    if (m.flags) out.flags!.push(...m.flags);
-  };
   const rune = skill.runes.find((r) => r.id === runeId);
-  if (rune) add(rune.mods);
-  for (let i = 0; i < Math.min(tiers, skill.tiers.length); i++) add(skill.tiers[i].mods);
+  if (rune) addMods(out, rune.mods);
+  for (let i = 0; i < Math.min(tiers, skill.tiers.length); i++) addMods(out, skill.tiers[i].mods);
+  if (nodes) for (const node of skill.nodes ?? []) {
+    const rank = Math.min(node.maxRank, node.ranks.length, Math.max(0, Math.floor(nodes[node.id] ?? 0)));
+    for (let r = 0; r < rank; r++) addMods(out, node.ranks[r]);
+  }
   return out;
 }
 
 export function mergeMods(a: SkillMods, b: SkillMods): SkillMods {
   const out: SkillMods = { ...a, flags: [...(a.flags ?? [])] };
-  for (const k of ['dmg', 'radius', 'cost', 'cooldown', 'duration', 'projectiles', 'pierce', 'gen', 'maxSummons'] as const) {
-    if (b[k] !== undefined) out[k] = (out[k] ?? 0) + (b[k] as number);
-  }
-  if (b.element) out.element = b.element;
-  if (b.flags) out.flags!.push(...b.flags);
+  addMods(out, b);
   return out;
+}
+
+/** A named behaviour parameter (SkillMods.vars), 0 when absent. */
+export function modVar(m: SkillMods, name: string): number {
+  return m.vars?.[name] ?? 0;
+}
+
+/** Cumulative modifiers of `node` at `rank` (0 = nothing). */
+export function nodeModsAt(node: NodeDef, rank: number): SkillMods {
+  const out: SkillMods = { flags: [] };
+  for (let r = 0; r < Math.min(rank, node.ranks.length); r++) addMods(out, node.ranks[r]);
+  return out;
+}
+
+/** Placeholders a node text may use (validated by contentValidation). */
+export const NODE_PLACEHOLDER = /\{(var:[A-Za-z0-9_]+|dmg|radius|cost|cooldown|duration|projectiles|pierce|gen|maxSummons)\}/g;
+
+/** Node text at `rank` (rank 0 previews rank 1). Numbers are shown as absolute values ("40" for cost -40). */
+export function describeNode(node: NodeDef, rank: number): string {
+  const m = nodeModsAt(node, Math.max(1, Math.min(rank, node.maxRank)));
+  const num = (v: number | undefined) => { const a = Math.abs(v ?? 0); return String(Math.round(a * 10) / 10); };
+  return node.text.replace(NODE_PLACEHOLDER, (_, key: string) =>
+    key.startsWith('var:') ? num(m.vars?.[key.slice(4)]) : num(m[key as (typeof NUMERIC_MOD_KEYS)[number]]));
 }
 
 /** The same bonuses are applied by the server and shown in skill summaries. */

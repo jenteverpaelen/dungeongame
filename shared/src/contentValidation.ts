@@ -2,7 +2,7 @@ import { MAX_LEVEL } from './constants';
 import { CLASSES } from './data/classes';
 import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS } from './data/items';
 import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
-import { MAX_RUNES, SKILLS, TIER_COSTS, describeSkill } from './data/skills';
+import { MAX_NODES, MAX_NODE_RANK, MAX_RUNES, NODE_GRID, NODE_PLACEHOLDER, SKILLS, TIER_COSTS, describeNode, describeSkill, nodeModsAt, type SkillDef, type SkillMods } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
 
 /** Typed registries remain the source of truth; this checks semantic relationships. */
@@ -94,6 +94,7 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     for (const [i,tier] of s.tiers.entries()) for (const [key,value] of Object.entries(tier.mods))
       if (typeof value === 'number') check(Number.isFinite(value),`${at}.tiers[${i}].mods.${key}`,'expected finite modifier');
     check(!/\{[^}]+\}/.test(describeSkill(s)),`${at}.desc`,'unresolved description placeholder');
+    validateNodes(s, at, check, number);
   }
   for (const base of Object.values(data.bases)) {
     const at = `bases.${base.id}`;
@@ -185,4 +186,59 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
     } else check(m.attack.flightMs===undefined,`${at}.attack.flightMs`,'only lob attacks have a flight delay');
   }
   return errors;
+}
+
+type Check = (ok: boolean, at: string, message: string) => void;
+type NumberCheck = (value: number, at: string, min?: number, integer?: boolean) => void;
+
+function finiteMods(m: SkillMods, at: string, check: Check) {
+  for (const [key, value] of Object.entries(m)) if (typeof value === 'number') check(Number.isFinite(value), `${at}.${key}`, 'expected finite modifier');
+  for (const [key, value] of Object.entries(m.vars ?? {})) check(Number.isFinite(value), `${at}.vars.${key}`, 'expected finite modifier');
+}
+
+/** Specialization trees: limits, ranks, prerequisites (no cycles), layout and text placeholders. */
+function validateNodes(s: SkillDef, at: string, check: Check, number: NumberCheck) {
+  const nodes = s.nodes ?? [];
+  check(nodes.length <= MAX_NODES, `${at}.nodes`, `at most ${MAX_NODES} nodes per skill`);
+  const ids = nodes.map((n) => n.id);
+  check(new Set(ids).size === ids.length && ids.every((id) => typeof id === 'string' && id.trim().length > 0), `${at}.nodes`, 'duplicate or empty node ID');
+  const cells = new Set<string>();
+  for (const node of nodes) {
+    const nat = `${at}.nodes.${node.id}`;
+    number(node.maxRank, `${nat}.maxRank`, 1, true);
+    check(node.maxRank <= MAX_NODE_RANK, `${nat}.maxRank`, `at most ${MAX_NODE_RANK} ranks`);
+    check(Array.isArray(node.ranks) && node.ranks.length === node.maxRank, `${nat}.ranks`, 'one modifier entry per rank');
+    node.ranks?.forEach((m, i) => finiteMods(m, `${nat}.ranks[${i}]`, check));
+    if (node.unlock !== undefined) {
+      number(node.unlock, `${nat}.unlock`, 1, true);
+      check(node.unlock >= s.unlock && node.unlock <= MAX_LEVEL, `${nat}.unlock`, 'must lie between the skill unlock and the level cap');
+    }
+    const p = node.pos;
+    check(!!p && Number.isInteger(p.col) && Number.isInteger(p.row) && p.col >= 0 && p.row >= 0 && p.col < NODE_GRID.cols && p.row < NODE_GRID.rows,
+      `${nat}.pos`, `must be a cell of the ${NODE_GRID.cols} × ${NODE_GRID.rows} tree grid`);
+    if (p) { check(!cells.has(`${p.col},${p.row}`), `${nat}.pos`, 'two nodes share a cell'); cells.add(`${p.col},${p.row}`); }
+    for (const req of node.requires ?? []) {
+      const other = nodes.find((n) => n.id === req.node);
+      check(!!other && other !== node, `${nat}.requires`, `unknown or self prerequisite ${req.node}`);
+      if (other) check(Number.isInteger(req.rank) && req.rank >= 1 && req.rank <= other.maxRank, `${nat}.requires`, `rank must be 1..${other.maxRank}`);
+    }
+    const text = describeNode(node, node.maxRank), top = nodeModsAt(node, node.maxRank);
+    check(!/\{[^}]+\}/.test(text), `${nat}.text`, 'unresolved placeholder');
+    for (const m of node.text.matchAll(new RegExp(NODE_PLACEHOLDER.source, 'g'))) {
+      const key = m[1];
+      const present = key.startsWith('var:') ? top.vars?.[key.slice(4)] !== undefined : (top as Record<string, unknown>)[key] !== undefined;
+      check(present, `${nat}.text`, `placeholder {${key}} has no value in the node's ranks`);
+    }
+  }
+  // Prerequisite cycles would make a node unbuyable.
+  const visiting = new Set<string>(), done = new Set<string>();
+  const visit = (id: string): boolean => {
+    if (done.has(id)) return true;
+    if (visiting.has(id)) return false;
+    visiting.add(id);
+    const ok = (nodes.find((n) => n.id === id)?.requires ?? []).every((r) => visit(r.node));
+    visiting.delete(id); done.add(id);
+    return ok;
+  };
+  for (const node of nodes) check(visit(node.id), `${at}.nodes.${node.id}.requires`, 'prerequisite cycle');
 }

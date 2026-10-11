@@ -230,7 +230,7 @@ export function BottomBar() {
         <div class="st-desc">Auto-cast priority {priority}. Choose skills with {keys.skills}.</div>
       </div>
     ), cost: 0 };
-    const mods = collectSkillMods(skill, skills.runes[skill.id], skills.tiers[skill.id] ?? 0);
+    const mods = collectSkillMods(skill, skills.runes[skill.id], skills.tiers[skill.id] ?? 0, skills.nodes?.[skill.id]);
     const cost = Math.round(skill.cost * (1 + (mods.cost ?? 0) / 100) * (1 - rcr / 100));
     return {
       skill,
