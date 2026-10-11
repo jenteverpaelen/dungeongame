@@ -2,7 +2,7 @@
 // flame, swoosh arc). Canvas-backed, so the frames work in every Pixi renderer (the class-select previews
 // run their own Application) and every view reuses the same texture source.
 
-import { CanvasSource, Rectangle, Sprite, Texture, type Renderer } from 'pixi.js';
+import { BufferImageSource, CanvasSource, Rectangle, Sprite, Texture, type Renderer } from 'pixi.js';
 
 let rendererRef: Renderer | null = null;
 
@@ -27,6 +27,72 @@ export interface FxFrames {
 }
 
 let frames: FxFrames | null = null;
+let fxCanvas: HTMLCanvasElement | null = null;
+let fxSource: CanvasSource | null = null;
+
+// ───────────────────────── additive light without its own batch ─────────────────────────
+// Pixi blends premultiplied colour: 'normal' is src + dst·(1 − src.a) and 'add' is src + dst. A texture holding the
+// premultiplied colour of a glow with alpha 0 therefore adds light under 'normal' blending exactly as the glow does under
+// 'add' (on the opaque game canvas, whose alpha stays 1 either way), and it batches with the normal sprites around it,
+// where every switch to 'add' and back ends a batch (docs/rework/PERF.md §4, B1). Only for sprites drawn straight to
+// the game canvas: inside a transparent render texture (cacheAsTexture) the two differ where the glow covers nothing.
+
+let premultipliedFx: Uint8Array | null | undefined;
+/** The fx sheet's texels exactly as the GPU holds them (premultiplied on upload), read back once through WebGL. */
+function fxTexels(): Uint8Array | null {
+  if (premultipliedFx !== undefined) return premultipliedFx;
+  premultipliedFx = null;
+  const cv = fxCanvas;
+  if (!cv || typeof document === 'undefined') return null;
+  try {
+    const gl = document.createElement('canvas').getContext('webgl');
+    if (!gl) return null;
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
+      const out = new Uint8Array(cv.width * cv.height * 4);
+      gl.readPixels(0, 0, cv.width, cv.height, gl.RGBA, gl.UNSIGNED_BYTE, out);
+      premultipliedFx = out;
+    }
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+  } catch { premultipliedFx = null; }
+  return premultipliedFx;
+}
+
+const additiveTextures = new Map<Texture, Texture | null>();
+/** The alpha-0 premultiplied twin of an fx-sheet texture (null when it cannot be made: then keep 'add'). */
+function additiveTwin(tex: Texture): Texture | null {
+  const known = additiveTextures.get(tex);
+  if (known !== undefined) return known;
+  let twin: Texture | null = null;
+  const px = tex.source === fxSource ? fxTexels() : null;
+  if (px && fxCanvas) {
+    const { x, y, width: w, height: h } = tex.frame, W = fxCanvas.width;
+    const data = new Uint8Array(w * h * 4);
+    for (let row = 0; row < h; row++) for (let col = 0; col < w; col++) {
+      const i = ((y + row) * W + x + col) * 4, o = (row * w + col) * 4;
+      data[o] = px[i]; data[o + 1] = px[i + 1]; data[o + 2] = px[i + 2]; data[o + 3] = 0;
+    }
+    twin = new Texture({ source: new BufferImageSource({ resource: data, width: w, height: h, format: 'rgba8unorm', alphaMode: 'premultiplied-alpha', scaleMode: 'linear' }) });
+  }
+  additiveTextures.set(tex, twin);
+  // the original stays reachable from the twin, so look checks can swap it back and compare pixels
+  if (twin) Object.assign(twin, { additiveOf: tex });
+  return twin;
+}
+
+/** Make an additive fx sprite batch with normal sprites, same pixels (see above). Returns the sprite. */
+export function additiveAsNormal<S extends Sprite>(s: S): S {
+  if (s.blendMode !== 'add') return s;
+  const twin = additiveTwin(s.texture);
+  if (twin) { s.texture = twin; s.blendMode = 'normal'; }
+  return s;
+}
 
 function radial(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, stops: [number, string][]): void {
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
@@ -160,6 +226,7 @@ export function fx(): FxFrames {
   R.rays = new Rectangle(320, 256, 128, 128);
 
   const source = new CanvasSource({ resource: cv, scaleMode: 'linear' });
+  fxCanvas = cv; fxSource = source;
   const f = (r: Rectangle) => new Texture({ source, frame: r });
   frames = {
     shadow: f(R.shadow), glow: f(R.glow), glowSoft: f(R.glowSoft), sparkle: f(R.sparkle), ring: f(R.ring),

@@ -1,0 +1,7 @@
+{
+  "note": "Per-frame budgets for the client performance gate (docs/rework/PERF.md §6). Measured 2026-10-11 on the built client, after bakes: reference fight 36 draw calls / 60 binds / 0 texture uploads / 189 KB / 905 visible / 486 renderables / 0.57 DOM paints; town crowd 272 / 505-544 / 0 / 426 KB / 2466 / 1950 / 0.01. Limits are those plus about 20-35 % headroom for new art; raise one only with the reason and the new measurement in PERF.md.",
+  "compositedProperties": ["transform", "opacity", "translate", "rotate", "scale"],
+  "idleTown": { "domPaintsPerFrame": 0.1 },
+  "rift": { "drawCalls": 50, "textureBinds": 80, "textureUploads": 0.5, "bufferKB": 240, "visible": 1100, "renderables": 600, "domPaintsPerFrame": 1.0 },
+  "town": { "drawCalls": 330, "textureBinds": 660, "textureUploads": 0.5, "bufferKB": 540, "visible": 3000, "renderables": 2400, "domPaintsPerFrame": 0.5 }
+}

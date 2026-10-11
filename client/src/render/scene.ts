@@ -34,6 +34,7 @@ import { motionReduced, preferences } from '../game/preferences';
 import { QuestGuide } from './questGuide';
 import { BarkBubbles, type Speaker } from './barks';
 import { BARKS } from '@shared/data/barks';
+import { lazyDepthSort } from './depthSort';
 
 /** Reference world height at 100% camera scale; owner default is now 75%. */
 const VIEW_HEIGHT = 620;
@@ -43,14 +44,18 @@ interface StaticView { view: EntityView; x: number; y: number; role?: NpcRole; n
 export interface LocalPlayerState { x: number; y: number; vx: number; vy: number; facingLeft: boolean; moving: boolean; dashing: boolean }
 
 export class Scene {
-  readonly root = new Container();
-  readonly ground = new Container();
-  readonly decals = new Container();
-  readonly groundFx = new Container();
+  // Render groups (docs/rework/PERF.md §Renderer). The camera root is one, so moving or zooming it is a single matrix
+  // instead of recomputing every descendant's transform. Each layer is one too: Pixi rebuilds the draw instructions of a
+  // whole group when anything in it is added, removed, shown, hidden or re-ordered, which effects and particles do every
+  // frame; isolated, the static ground and the entity layer keep their instructions while the effect layers churn.
+  readonly root = new Container({ isRenderGroup: true });
+  readonly ground = new Container({ isRenderGroup: true });
+  readonly decals = new Container({ isRenderGroup: true });
+  readonly groundFx = new Container({ isRenderGroup: true });
   private readonly gearUnder = new Container({ label: 'gear-underlay' });
-  readonly entities = new Container();
-  readonly aboveFx = new Container();
-  readonly text = new Container();
+  readonly entities = new Container({ isRenderGroup: true });
+  readonly aboveFx = new Container({ isRenderGroup: true });
+  readonly text = new Container({ isRenderGroup: true });
   readonly vfx: Vfx;
 
   cam = { x: 0, y: 0, zoom: 1 };
@@ -96,7 +101,7 @@ export class Scene {
 
   constructor(private app: Application, private world: ClientWorld) {
     window.addEventListener('wheel', this.onWheel, { passive: false, capture: true });
-    this.entities.sortableChildren = true;
+    lazyDepthSort(this.entities); // y-sorted: positions change every frame, the draw order far less often
     this.root.addChild(this.ground, this.decals, this.groundFx, this.entities, this.aboveFx, this.text);
     this.text.addChild(this.barks.root);
     app.stage.addChild(this.root);
@@ -253,6 +258,9 @@ export class Scene {
     e.view = this.createView(e.desc);
     if (e.kind === 'player' && e.desc.look) this.looks.set(e.id, JSON.stringify(e.desc.look));
     if (e.kind === 'player') (e.view as PlayerView & { setIsLocal?(v: boolean): void }).setIsLocal?.(e.id === this.world.myId);
+    // A hero rig shows and hides gear particles, impacts and blinking eyes every few frames: its own render group keeps
+    // that from rebuilding the instructions of every other entity on screen.
+    if (e.kind === 'player') e.view.root.isRenderGroup = true;
     this.entities.addChild(e.view.root);
     if (e.kind === 'player' || e.kind === 'mob') {
       e.nameplate = this.vfx.createNameplate(e.desc, e.id === this.world.myId);
@@ -453,9 +461,10 @@ export class Scene {
       if(cachePose&&pose) {
         if(!v.root.isCachedAsTexture)v.root.cacheAsTexture({resolution:2,antialias:true});
         pose.elapsed+=viewDt;const slot=Math.floor((now+e.id*13)/(1000/24));
-        if(slot!==pose.slot){v.update(pose.elapsed,st);pose.elapsed=0;pose.slot=slot;v.root.updateCacheTexture();}
+        // between slots the rig is not updated; a replaced or destroyed sheet must still be swapped in before rendering
+        if(slot!==pose.slot||(v as {stale?:boolean}).stale){v.update(pose.elapsed,st);pose.elapsed=0;pose.slot=slot;v.root.updateCacheTexture();}
       } else {
-        if(v.root.isCachedAsTexture)v.root.cacheAsTexture(false);
+        if(v.root.isCachedAsTexture){v.root.cacheAsTexture(false);if(e.kind==='player')v.root.isRenderGroup=true;}
         v.update(viewDt+(pose?.elapsed??0),st);if(pose)pose.elapsed=0;
       }
       if (e.kind === 'mob' && !e.dying) {
