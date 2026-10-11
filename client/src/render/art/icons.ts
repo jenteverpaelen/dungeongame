@@ -16,6 +16,7 @@ import { rgba } from './util';
 import { lookFx } from '@shared/gearVisual';
 import { SET_STYLE, TOP_COLORS, TOP_CORE, armourSeriesOn, artKey, artLook, itemStyle } from './gearStyle';
 import { iconDecor, jewelIcon } from './series/armour';
+import { gloveIconExtra, legsIconExtra, shoulderIconExtra } from './armourBases';
 import { SHAPE_FAMILY, heldShape } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
 import { drawHeldV2 } from './gear';
@@ -91,6 +92,7 @@ function gloveIcon(c: Ctx, l: ItemLook): void {
   if (wraps) { for (const y of [-2, 3, 8]) crease(c, [-9, y + 1, 9, y - 1], 1.6, s, 1); line(c, (k) => k.moveTo(9, 6).quadraticCurveTo(15, 12, 12, 20), 1.6, s, 1.2, false); }
   else stitch(c, [-7, 7, 7, 7], light(p, 0.4), 1.4, 1.2);
   if (l.glow) gem(c, 0, 1, 2.2, light(l.glow, 0.2), 1.1);
+  gloveIconExtra(c, l);
 }
 
 function shoulderIcon(c: Ctx, l: ItemLook): void {
@@ -126,6 +128,7 @@ function shoulderIcon(c: Ctx, l: ItemLook): void {
     }
   }
   if (l.glow) gem(c, 0, l.shape === 'mantle' ? 1 : -2, 2.2, light(l.glow, 0.2), 1.1);
+  shoulderIconExtra(c, l);
   // the same tier ornaments as on the hero (raised plates, motif spikes, studs, filigree), at icon scale
   c.save?.(); c.translate(-1.1, 1.1); c.scale(1.9, 1.9); decorShoulder(c, l, false); c.restore?.();
 }
@@ -146,6 +149,7 @@ function legsIcon(c: Ctx, l: ItemLook): void {
     crease(c, [-5, -8, -4, 10], 1, OUT, 0.25); crease(c, [5, -8, 4, 10], 1, OUT, 0.25);
   }
   c.poly(pts, true); outline(c, OW);
+  legsIconExtra(c, l);
   if (l.glow) gem(c, 0, -13, 2, light(l.glow, 0.2), 1);
 }
 

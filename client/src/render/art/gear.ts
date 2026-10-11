@@ -16,6 +16,8 @@ import { decorHand, decorShoulder } from './gearDecor';
 import { localXf } from './weaponArt';
 import { weaponDrawing, type WLayer } from './weaponDrawing';
 import { heldShape } from './gearVisuals';
+import { artKey } from './gearStyle';
+import { footIconExtra, handExtra, headIconExtra, jewelExtra, shoulderExtra, torsoIconExtra } from './armourBases';
 
 export interface Body {
   cls: ClassId;
@@ -103,6 +105,7 @@ export function drawLeg(c: Ctx, b: Body, legs: ItemLook | undefined, feet: ItemL
   } else {
     blob(c, [-3.8, 8, 0, 7.2, 4.6, 8, 7.4, 9.8, 7.4, 12.2, -3.8, 12.2], fp, { hl: 0.2 });
   }
+  if (feet) footIconExtra(c, feet, 0xd9a07a);
 }
 
 // ═══════════════════════════════ TORSO ═══════════════════════════════
@@ -198,6 +201,7 @@ export function drawTorso(c: Ctx, b: Body, chest: ItemLook | undefined, waist: I
     }
   }
 
+  if (chest) torsoIconExtra(c, chest);
   // waist
   if (waist) drawWaist(c, waist, shape === 'robe' ? -5 : -4.4);
 }
@@ -274,7 +278,9 @@ export function drawArm(c: Ctx, b: Body, chest: ItemLook | undefined, isBack: bo
 
 /** Hand (centre at origin). Gloves change the silhouette: gauntlets are chunky, wraps trail a strip. */
 export function drawHand(c: Ctx, b: Body, hands: ItemLook | undefined, isBack: boolean): void {
-  drawHandBase(c, b, hands, isBack);
+  const k = hands ? artKey(hands) : undefined;
+  if (k === 'mitts') handExtra(c, b, hands!, isBack);
+  else { drawHandBase(c, b, hands, isBack); if (k === 'fingerless') handExtra(c, b, hands!, isBack); }
   if (hands && !isBack) decorHand(c, hands);
 }
 
@@ -306,6 +312,7 @@ function drawHandBase(c: Ctx, b: Body, hands: ItemLook | undefined, isBack: bool
 
 export function drawShoulder(c: Ctx, l: ItemLook, isBack: boolean): void {
   drawShoulderBase(c, l, isBack);
+  shoulderExtra(c, l, isBack);
   decorShoulder(c, l, isBack);
 }
 
@@ -544,6 +551,7 @@ export function drawHead(c: Ctx, b: Body, head: ItemLook | undefined, icon = fal
     default:
       hairFront(c, b, true);
   }
+  if (head && icon) headIconExtra(c, head);
 }
 
 /** Eyes (separate part so they can blink). Origin at the neck like the head. */
@@ -915,6 +923,7 @@ export function drawOrb(c: Ctx, l: ItemLook, floats = true): void {
 // ═══════════════════════════════ ICON-ONLY PIECES ═══════════════════════════════
 
 export function drawBracers(c: Ctx, l: ItemLook): void {
+  if (jewelExtra(c, l, 'wrists')) return;
   const p = l.primary, s = trim(l);
   for (const dx of [-7, 7]) {
     poly(c, [dx - 6, -9, dx + 6, -9, dx + 5, 9, dx - 5, 9], p, { hl: 0.3 });
@@ -926,6 +935,7 @@ export function drawBracers(c: Ctx, l: ItemLook): void {
 }
 
 export function drawAmulet(c: Ctx, l: ItemLook): void {
+  if (jewelExtra(c, l, 'neck')) return;
   const p = l.primary, s = trim(l);
   line(c, (k) => k.moveTo(-11, -14).quadraticCurveTo(-10, 2, 0, 4).quadraticCurveTo(10, 2, 11, -14), 1.6, p, 1.4, false);
   for (let i = 0; i < 9; i++) {
@@ -938,6 +948,7 @@ export function drawAmulet(c: Ctx, l: ItemLook): void {
 }
 
 export function drawRing(c: Ctx, l: ItemLook): void {
+  if (jewelExtra(c, l, 'ring')) return;
   const p = l.primary, s = trim(l);
   line(c, (k) => k.ellipse(0, 3, 9.4, 9.4), 3.6, p, OW);
   crease(c, arcPts(0, 3, 9.4, 9.4, Math.PI * 1.1, Math.PI * 1.5, 8), 1.4, 0xffffff, 0.6);
