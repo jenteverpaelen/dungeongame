@@ -18,7 +18,8 @@ import { SET_STYLE, TOP_COLORS, TOP_CORE, artLook, itemStyle } from './gearStyle
 import { SHAPE_FAMILY } from './gearVisuals';
 import { decorShoulder } from './gearDecor';
 import { drawHeldV2 } from './gear';
-import type { WLayer } from './weaponArt';
+import type { WLayer } from './weaponDrawing';
+import { weaponDrawing } from './weaponDrawing';
 
 const MANNEQUIN: Body = { cls: 'warrior', skin: 0x2b2220, hair: 0, hairStyle: 'none', eyes: 0 };
 
@@ -217,11 +218,14 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   };
   const raw = grab(g);
   ctx.destroy();
-  // the light layer of held items (lit channels, cores, top-tier edges), composited with a glow
+  // the light layer of held items (lit channels, cores, top-tier edges), composited with a glow in the drawing's own
+  // light colour (a series weapon glows in its ember / lamp / signal / rune / relic colour, ART-DIRECTION §1.4, §7)
   const st = itemStyle(look);
   const held = !!st && !!SHAPE_FAMILY[look.shape] && (kind === 'weapon1h' || kind === 'weapon2h' || kind === 'offhand');
+  const wd = held ? weaponDrawing(look, false) : null;
+  const glowColor = wd?.present.light || st?.light || st?.edgeLight || 0;
   let glowCv: HTMLCanvasElement | null = null;
-  if (held && st && (st.light || st.edgeLight)) {
+  if (held && st && wd?.lit) {
     const lctx = new GraphicsContext();
     drawIcon(lctx, look, kind, 'light');
     glowCv = grab(new Graphics(lctx));
@@ -230,8 +234,9 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   const out = document.createElement('canvas');
   out.width = size; out.height = size;
   const c2 = out.getContext('2d')!;
-  // backdrop light: legendary / Set / top tier, and the late generations of lit items (none on early or plain gear)
-  const halo = st ? (st.special || st.top ? st.edgeLight || st.light : st.gen >= 5 ? st.light : 0) : look.glow;
+  // backdrop light: legendary / Set / graded pieces only (ART-DIRECTION rule A4: no halo for ordinary lit items, which
+  // made every late icon converge on the same yellow backdrop)
+  const halo = st ? (st.special || st.top ? st.edgeLight || st.light : 0) : look.glow;
   if (halo) {
     const a = st ? Math.min(0.5, 0.14 + st.lightK * 0.2) : 0.42;
     const gr = c2.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size * 0.5);
@@ -241,6 +246,13 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   }
   c2.imageSmoothingEnabled = true;
   c2.imageSmoothingQuality = 'high';
+  // rim light: the drawing's own light baked round its silhouette (series art; ART-DIRECTION §1.4b)
+  const rim = held && wd?.lit ? wd.present.rim ?? 0 : 0;
+  if (rim > 0 && glowColor) {
+    c2.shadowColor = rgba(glowColor, 0.5 + 0.45 * rim); c2.shadowBlur = size * (0.035 + 0.06 * rim);
+    for (let i = 0; i < (rim > 0.6 ? 2 : 1); i++) c2.drawImage(raw, 0, 0, size, size);
+    c2.shadowBlur = 0; c2.shadowColor = 'transparent';
+  }
   c2.shadowColor = 'rgba(0,0,0,0.55)';
   c2.shadowBlur = size / 22;
   c2.shadowOffsetY = size / 40;
@@ -248,9 +260,10 @@ function renderIcon(look: ItemLook, kind: ItemKind, size: number): HTMLCanvasEle
   c2.shadowColor = 'transparent'; c2.shadowOffsetY = 0;
   if (glowCv && st) {
     c2.globalCompositeOperation = 'lighter';
-    c2.shadowColor = rgba(st.light || st.edgeLight, 0.95);
-    c2.shadowBlur = (size / 16) * Math.min(1.5, 0.6 + st.lightK * 0.6);
-    c2.globalAlpha = Math.min(0.9, 0.4 + st.lightK * 0.3);
+    c2.shadowColor = rgba(glowColor, 0.95);
+    const lk = rim > 0 ? Math.min(1.6, wd!.present.strength) : st.lightK;
+    c2.shadowBlur = (size / 16) * Math.min(1.5, 0.6 + lk * 0.6);
+    c2.globalAlpha = Math.min(0.95, 0.4 + lk * 0.35);
     c2.drawImage(glowCv, 0, 0, size, size);
     c2.shadowBlur = 0; c2.shadowColor = 'transparent';
     c2.globalAlpha = 1;

@@ -28,11 +28,14 @@ import { SHOWCASE_STAGES, showcaseEquipment, type ShowcaseStage } from '@shared/
 import { gearFxStats } from '../render/art/gearFx';
 import { SET_STYLE, setSizeCap } from '../render/art/gearStyle';
 import { preferences } from '../game/preferences';
+import { applyWeaponArtPreview } from '../game/weaponArtPreview';
 import { Vfx } from '../render/vfx';
 
 const qs = new URLSearchParams(location.search);
 // ?q=full|reduced|off: gear-effect level for the gallery heroes (they count as other players)
 { const q = qs.get('q'); if (q === 'full' || q === 'reduced' || q === 'off') preferences.set({ otherGearEffects: q, gearEffects: q }); }
+// ?preset=low|medium|high: the Graphics preset (effects density) for budget A/B runs
+{ const g = qs.get('preset'); if (g === 'low' || g === 'medium' || g === 'high') preferences.set({ graphicsPreset: g }); }
 // ?cap=1.5|1.8|2.1: show another one-hander size cap (owner decision 1, DESIGN-V2 §2.6)
 { const c = qs.get('cap'); if (c) setSizeCap(Number(c)); }
 // baked pages are only retained for the sheet viewer (keeping every page alive would leak in ?view=stress)
@@ -45,6 +48,7 @@ const app = new Application();
 await app.init({ resizeTo: window, antialias: true, background: 0x2b2722, preference: 'webgl', resolution: 1 });
 document.getElementById('stage')!.appendChild(app.canvas);
 await document.fonts.load('700 14px "Alegreya Sans"').catch(() => undefined);
+applyWeaponArtPreview(); // ?weaponArt=series: the gallery (and its perf view) with the series art
 initArt(app.renderer);
 
 const world = new Container();
