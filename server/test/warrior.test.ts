@@ -10,6 +10,8 @@ import { ZONES } from '../../shared/src/data/zones';
 import { computeStats } from '../../shared/src/stats';
 import { treeTotalRanks } from '../../shared/src/specialization';
 import { validateContent } from '../../shared/src/contentValidation';
+import { generateItem } from '../../shared/src/items';
+import { Rng } from '../../shared/src/math';
 import type { CharacterSave, DerivedStats } from '../../shared/src/types';
 import type { PlayerLink } from '../src/contracts';
 import { Instance } from '../src/sim/instance';
@@ -383,7 +385,7 @@ test('warrior legendaries: Stonecount stacks per stunned enemy, Red Ledger refun
   const g = fixture({ slots: ['rend', null, null, null] });
   try {
     g.setPowers({ red_ledger: 4 });
-    assert.equal(g.p.ctx.modsOf('rend').mods.cost, -30);
+    assert.equal(g.p.ctx.modsOf('rend').mods.cost, -15); // fitted from the bible's 30 (WARRIOR-PILOT.md §4)
     castSkill(g.inst, g.p, g.p.ctx.slotted('rend')!);
     g.p.res = 0;
     const m = g.posts[0]; m.hp = 1; g.tick(12);
@@ -481,4 +483,16 @@ test('wave-2 passives and set bonuses: Bellwether on stuns, Fault Warden 6 fault
     assert.equal(ownMultiplier(p, 'cleave') / before, 1.25, 'Primary +25% while a Buff skill is active');
     assert.equal(getBuff(p, 'battle_rage')?.ias, 5, 'Hearthbanner 2: +5% attack speed per active Buff');
   } finally { h.inst.destroy(); }
+});
+
+test('every warrior legendary and set piece drops through the normal item generator', () => {
+  const rng = new Rng(4242), seenL = new Set<string>(), seenS = new Set<string>();
+  for (let i = 0; i < 6000; i++) {
+    const l = generateItem(rng, { ilvl: 70, classId: 'warrior', rarity: 'legendary', smartChance: 1 });
+    if (l.legendary) seenL.add(l.legendary.power);
+    const s = generateItem(rng, { ilvl: 70, classId: 'warrior', rarity: 'set', smartChance: 1 });
+    if (s.set) seenS.add(`${s.set}:${s.base}`);
+  }
+  for (const l of Object.values(LEGENDARIES).filter((x) => x.classes?.includes('warrior'))) assert(seenL.has(l.id), `${l.id} drops`);
+  for (const set of Object.values(SETS).filter((x) => x.classId === 'warrior')) for (const p of set.pieces) assert(seenS.has(`${set.id}:${p.base}`), `${set.id} ${p.base} drops`);
 });

@@ -19,7 +19,7 @@ import type { ChannelState, Mob, Player, SkillRuntime, Strike } from '../types';
 import { DEG, emitCast, face, strikeOf, type SkillBehaviour } from './common';
 import { channelCommon, drillFury, drumbeat, thresher } from './warrior';
 import {
-  addCarriedDot, chExtra, deepEarth, hearthIas, hearthPrimary, mstate, nearestMob, noteSpend, reduceCooldowns, shareDot, syncWarhorn, wHit, wPull,
+  addCarriedDot, chExtra, deepEarth, hitBase, hearthIas, hearthPrimary, mstate, nearestMob, noteSpend, reduceCooldowns, shareDot, syncWarhorn, wHit, wPull,
   wPush, wStun, wstate, type Standard,
 } from './warriorKit';
 
@@ -359,7 +359,7 @@ function ironploughTick(inst: Instance, p: Player, rt: SkillRuntime, ch: Channel
     for (const m of targets) {
       const r = wHit(inst, p, m, st, rt);
       if (r.killed || m.dead) continue;
-      if (burn && r.amount > 0) addCarriedDot(m, shareDot(p, 'ironplough', 'burn', 'fire', r.amount * 0.5, 2000)); // Smouldering Share
+      if (burn && r.amount > 0) addCarriedDot(m, shareDot(p, 'ironplough', 'burn', 'fire', hitBase(p, m, 'ironplough', r.amount) * 0.5, 2000)); // Smouldering Share
       const d = Math.hypot(m.x - p.x, m.y - p.y);
       if (hold) { if (d > len * 0.6) wPull(inst, p, m, p.x + ux * len * 0.7, p.y + uy * len * 0.7, 24, rt, ex); } // Deep Furrow
       else {

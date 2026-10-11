@@ -70,7 +70,7 @@ export interface KitSpec {
   runes?: Record<string, string>;
 }
 /** Run-time variants (see the header). */
-export interface RunOptions { seeds?: number[]; dash?: boolean; lifePct?: number }
+export interface RunOptions { seeds?: number[]; dash?: boolean; lifePct?: number; /** Collects damage per strike id (diagnostics). */ breakdown?: Map<string, number> }
 
 export interface ParityProfile { classId: ClassId; set: string; skills: string[]; slots: string[] }
 
@@ -169,13 +169,16 @@ function meanRolls(item: Item): Item {
 
 /** Build the character a KitSpec describes, for one seed (rare affixes come from the seed). */
 export function kitSave(spec: KitSpec, seed: number): CharacterSave {
-  const rng = new Rng(seed);
   const save = createCharacter(`Parity${spec.classId}`, spec.classId, seed);
   save.level = 70; save.difficulty = PARITY_DIFFICULTY; save.equipment = {}; save.inventory.fill(null);
+  // One RNG stream per slot: changing one slot's item never reshuffles the random affixes of the others (kit
+  // comparisons then measure the items, not affix luck).
+  let rng = new Rng(seed);
   const gen = (o: Omit<GenOptions, 'ilvl' | 'classId'>) => meanRolls(generateItem(rng, { ilvl: 70, classId: spec.classId, smartChance: 1, ancientAllowed: false, ...o }));
-  for (const slot of [...ARMOR_SLOTS, ...OTHER_SLOTS, 'mainhand', 'offhand'] as Slot[]) {
+  for (const [i, slot] of ([...ARMOR_SLOTS, ...OTHER_SLOTS, 'mainhand', 'offhand'] as Slot[]).entries()) {
     const it = spec.equipment[slot];
     if (!it) continue;
+    rng = new Rng(seed * 64 + i);
     save.equipment[slot] = 'set' in it ? gen({ rarity: 'set', set: it.set, base: it.base })
       : 'legendary' in it ? gen({ rarity: 'legendary', legendary: it.legendary }) : gen({ rarity: 'rare', base: it.rare });
   }
@@ -197,6 +200,7 @@ export function runEncounter(save: CharacterSave, encounter: number, seed: numbe
   const inst = new Instance({ zoneId: 'whispering_glade', key: 'parity', channel: 0, seed: 41, theme: 'glade', level: 70, difficulty: PARITY_DIFFICULTY });
   try {
     inst.spawner.tick = () => {};
+    if (opts.breakdown) inst.dmgBySkill = opts.breakdown;
     for (const m of [...inst.mobs]) inst.removeEntity(m.id);
     const s = { save, derived: computeStats(save), sessionId: save.id, send() {}, sendRaw() {}, markDirty() {}, changed(refresh: boolean) { s.derived = computeStats(save); if (refresh) inst.refreshPlayer(s); }, rec: { inst } } as unknown as Session;
     let center: { x: number; y: number } | undefined;

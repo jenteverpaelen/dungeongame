@@ -401,7 +401,8 @@ function fieldScenario(cls: ClassId, level: number, endgame: boolean) {
   return { link, kpm };
 }
 
-function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen') {
+/** `refitFloor`: the class is on the depth budget before the Torment re-fit — only a progress floor is checked. */
+function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen', refitFloor?: number) {
   let completed = 0;
   const inst = newRift(level, difficulty, theme, () => completed++);
   const save = makeChar(cls, level, { endgame });
@@ -434,6 +435,12 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   console.log(`${label}: ${mobs0} monsters placed, progress ${fmt(maxProg)}%, guardian at ${guardianAt >= 0 ? dur(guardianAt) : '—'}, done at ${doneAt >= 0 ? dur(doneAt) : '—'}, kills ${p.kills} (${fmt(kpm)}/min), deaths ${save.stats.deaths}, level ${level}→${save.level}, tick avg ${fmt(ms / ticks, 3)}ms`);
   console.log(`   ${ttkLine(link)}  boss TTK ${link.ttk[4] ? fmt(link.ttk[4][0] / 1000) + 's' : '—'}`);
   if (process.env.SIM_DEBUG) console.log('   ', JSON.stringify(Object.fromEntries(Object.entries(link.evV).filter(([k]) => /^(cast|dmgsrc|aoe|tele):/.test(k)))), 'dealt', Math.round(p.dealt).toExponential(2), 'sheet', Math.round(p.ctx.d.sheetDps).toExponential(2));
+  if (refitFloor !== undefined) {
+    check(maxProg >= refitFloor, `${label}: progress ≥ ${refitFloor}% in 12 minutes before the Torment re-fit (${fmt(maxProg)})`);
+    summary.push(`${label.padEnd(44)} ${fmt(kpm).padStart(6)} kills/min   rift ${doneAt >= 0 ? dur(doneAt) : `DNF ${fmt(maxProg)}%`} (depth budget; Torment re-fit pending), deaths ${save.stats.deaths}`);
+    inst.destroy();
+    return { link, doneAt };
+  }
   check(maxProg >= 100, `${label}: progress reached 100 (${fmt(maxProg)})`);
   check(guardianAt >= 0, `${label}: guardian spawned`);
   check(doneAt >= 0 && rs.phase === 'done' && completed === 1, `${label}: rift completed + onRiftComplete`);
@@ -542,7 +549,9 @@ function signatureBuilds() {
       check(link.n('aoe:whirl') > 10, `warrior: whirlwind damage ticks (${link.n('aoe:whirl')})`);
       check(link.sawSummon('dust_devil') && link.n('dmgsrc:summon:dust_devil') > 0, 'warrior: dust devils (set 2pc / Ninefold) spawn and hit');
       check(inst.mobs.length === 0 || true, 'warrior: ok');
-      check(p.ctx.modsOf('whirlwind').flags.has('whirlRend'), 'warrior: 4pc rend flag');
+      // Endless Storm 4 (WARRIOR.md v2): Channel hits bleed (it was "Whirlwind applies Rend's bleed").
+      check(p.ctx.modsOf('whirlwind').flags.has('stormBleed'), 'warrior: 4pc channel bleed flag');
+      check(link.n('dmgsrc:summon:dust_devil') > 0 || link.sawSummon('dust_devil'), 'warrior: 6pc wisps / dust devils');
     }
     if (cls === 'ranger') {
       check(maxSentries >= 4, `ranger: sentries placed (max ${maxSentries})`);
@@ -1508,13 +1517,18 @@ if (!only || only === 'powers') powersScenario();
 if (!only || only === 'spike') setSpikeScenario();
 if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
-  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion ==');
+  console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (the warrior at L70: progress floor until the Torment re-fit) ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
     riftScenario(cls, 1, 0, false, 'glade');
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
     riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
-    riftScenario(cls, 70, 5, true, 'ashen');
+    // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×10 over rares against 8 sturdy
+    // targets [M] (its old sets ×255; ranger ×279 and mage ×142 are still on their old sets), so it no longer clears
+    // Torment II in 12 minutes (44.5% [M]; Master: guardian at 9:36 [M]) until the Torment ladder is re-fitted
+    // (`sim.ts fit`) once every class is on the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts;
+    // here a progress floor guards against further loss (30%, about two thirds of the measured 44.5%).
+    riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' ? 30 : undefined);
   }
 }
 if (!only || only === 'skills') skillCoverage();

@@ -12,6 +12,8 @@ import { WARRIOR_SET_BASES } from './common';
 /** "While a Buff skill is active": any of the warrior's Buff skills' buffs (compound condition, engine wave 2). */
 export const WARRIOR_BUFF_ACTIVE: Condition = { any: [{ buff: 'battle_rage' }, { buff: 'muster_standard' }, { buff: 'kilnheart' }] };
 const BUFF_UP = WARRIOR_BUFF_ACTIVE;
+/** Every warrior skill (each carries an element tag). */
+const ANY_SKILL = tagged('physical', 'fire', 'cold', 'lightning', 'arcane');
 
 export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
   { id: 'faultcleaver', name: 'Faultcleaver', base: 'axe2h', classes: ['warrior'], power: 'Quakeline deals {v}% increased damage and costs 40% less Fury.', range: [150, 200], cubeSlot: 'weapon', flavor: 'Its edge follows the seams beneath the earth.', colors: { primary: 0x5b5045, secondary: 0xdb9860, glow: 0xffb369 },
@@ -48,8 +50,10 @@ export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
     effects: [flags(tagged('channel'), 'galeStitch'), skillMore(tagged('channel'), ROLL, { buffStacks: 'gale_stitched', max: 5 })] },
   { id: 'tanners_pauldrons', name: "Tanner's Pauldrons", base: 'shoulders_spiked', classes: ['warrior'], power: 'Bleeding enemies take {v}% more damage from you.', range: [15, 25], cubeSlot: 'armor', flavor: 'Cured in a vat nobody will describe.', colors: { primary: 0x6b2a1e, secondary: 0x2a0d0b, glow: 0xff3b3b },
     effects: [conditional({ targetState: 'bleeding' }, 'hit', ROLL)] },
-  { id: 'red_ledger', name: 'Red Ledger', base: 'neck_amulet', classes: ['warrior'], power: 'Your Bleed skills cost 30% less, and each Bleeding enemy that dies restores {v} Fury.', range: [3, 5], cubeSlot: 'jewelry', flavor: 'Every debt is written in the same ink.', colors: { primary: 0x8b1e1e, secondary: 0x2a0d0b, glow: 0xff5a5a },
-    effects: [skillMods(tagged('bleed'), { cost: -30 }), skillMods(tagged('bleed'), {}, { field: 'var:redLedger' })] },
+  { id: 'red_ledger', name: 'Red Ledger', base: 'neck_amulet', classes: ['warrior'], power: 'Your Bleed skills cost 15% less, and each Bleeding enemy that dies restores {v} Fury.', range: [3, 5], cubeSlot: 'jewelry', flavor: 'Every debt is written in the same ink.', colors: { primary: 0x8b1e1e, secondary: 0x2a0d0b, glow: 0xff5a5a },
+    // Bible: 30% less. Measured (warrior parity harness, Sawtooth Hatchet + Cinder Oath 6): the cut alone was worth ×1.89,
+    // because cost cuts add up on a Fury-limited Spender (with Cinder Oath 4: 1 / (1 − 0.45)); 15% as Cinder Oath 4.
+    effects: [skillMods(tagged('bleed'), { cost: -15 }), skillMods(tagged('bleed'), {}, { field: 'var:redLedger' })] },
   { id: 'fissure_lined_breastplate', name: 'Fissure-Lined Breastplate', base: 'chest_plate', classes: ['warrior'], power: 'Your Spender skills deal {v}% more damage to Stunned enemies.', range: [30, 45], cubeSlot: 'armor', flavor: 'Cracked on purpose.', colors: { primary: 0x6e5a48, secondary: 0x3a2f25, glow: 0xffc06b },
     effects: [skillMore(tagged('spender'), ROLL, { targetState: 'stunned' })] },
   { id: 'tremor_signet', name: 'Tremor Signet', base: 'ring', classes: ['warrior'], power: 'Each enemy you Displace reduces your Cooldown skills’ cooldowns by {v} seconds (at most 1.5 seconds per cast).', range: [0.2, 0.3], cubeSlot: 'jewelry', flavor: 'Hold it to your ear and the hills answer.', colors: { primary: 0x726549, secondary: 0x3a2f25, glow: 0xffd27f },
@@ -113,8 +117,10 @@ export const WARRIOR_SETS: SetDef[] = [
     pieces: WARRIOR_SET_BASES.map((base, i) => ({ base, name: `Cinder Oath ${['Crown', 'Mantle', 'Vest', 'Grips', 'Legwraps', 'Treads'][i]}` })),
     bonuses: [
       { count: 2, text: 'Your Bleed and Burn skills’ areas are 20% larger.', effects: [skillMods(tagged('bleed', 'burn'), { radius: 20 })] },
-      { count: 4, text: 'Your Primary hits extend Bleeds and Burns on the target by 0.5 seconds (up to 10 seconds left), your Primary skills deal 20% more damage to Bleeding enemies, and your Bleed and Burn skills cost 30% less.',
-        effects: [flags(tagged('primary'), 'cinderExtend'), skillMore(tagged('primary'), 20, { targetState: 'bleeding' }), skillMods(tagged('bleed', 'burn'), { cost: -30 })] },
+      // Bible: 30% less. Measured (warrior parity harness): a Fury-limited Spender turns a cost cut into casts 1:1/(1−x),
+      // so 30% was worth ×2.2 on Sawtooth Hatchet against the model's ×1.25; 15% fits the model's value.
+      { count: 4, text: 'Your Primary hits extend Bleeds and Burns on the target by 0.5 seconds (up to 10 seconds left), your Primary skills deal 20% more damage to Bleeding enemies, and your Bleed and Burn skills cost 15% less.',
+        effects: [flags(tagged('primary'), 'cinderExtend'), skillMore(tagged('primary'), 20, { targetState: 'bleeding' }), skillMods(tagged('bleed', 'burn'), { cost: -15 })] },
       { count: 6, text: 'Your Bleed, Burn and Primary skills deal 25% increased damage.', effects: [ownMult(tagged('bleed', 'burn', 'primary'), 1.25)] },
     ],
     colors: { primary: 0x773e35, secondary: 0xc6b88c, glow },
@@ -128,7 +134,8 @@ export const WARRIOR_SETS: SetDef[] = [
       { count: 4, text: 'Your Spender hits on Stunned enemies trigger an aftershock for 50% of the hit 1 second later, your Stun skills deal 15% more damage, and you take 20% less damage from Stunned enemies.',
         effects: [flags(tagged('spender'), 'faultAftershock'), skillMore(tagged('stun'), 15), { kind: 'damageTaken', pct: -20, when: { targetState: 'stunned' } }] },
       { count: 6, text: 'Stunning an enemy raises a fault line under it for 3 seconds that re-stuns enemies crossing it (once per 3 seconds each). All your skills deal 35% more damage to Stunned enemies.',
-        effects: [proc('applyStatus', { status: ['stun'], ground: { def: 'fault_line' } }), conditional({ targetState: 'stunned' }, 'hit', 35)] },
+        // Class code (warriorKit.wStun) raises the line for stuns your skills apply; the line's own stuns do not raise more.
+        effects: [flags(ANY_SKILL, 'faultLines'), conditional({ targetState: 'stunned' }, 'hit', 35)] },
     ],
     colors: { primary: 0x726549, secondary: 0xc6b88c, glow },
     parityLoadout: ['cairnfall', 'ironplough', 'ground_stomp', 'battle_rage'],
@@ -148,7 +155,8 @@ export const WARRIOR_SETS: SetDef[] = [
       { count: 4, text: 'Enemies you Displace into a wall or another enemy are Stunned for 1 second, and your Displace skills deal 35% more damage to enemies Displaced in the last 2 seconds.',
         effects: [flags(tagged('displace'), 'furrowStun', 'furrowVuln')] },
       { count: 6, text: 'Displaced enemies leave a 3 second furrow that strikes enemies crossing it for 50% weapon damage and pulls them toward you; ramp-up effects are kept for 2 seconds after a channel ends. Your Displace skills deal 25% increased damage.',
-        effects: [proc('applyStatus', { status: ['knockback', 'pull'], ground: { def: 'furrow' } }), flags(tagged('channel'), 'furrowKeepRamp'), ownMult(tagged('displace'), 1.25)] },
+        // Class code (warriorKit.wPush / wPull) lays the furrow for your Displace effects; the furrow's own pull does not lay more.
+        effects: [flags(tagged('displace'), 'furrowGround'), flags(tagged('channel'), 'furrowKeepRamp'), ownMult(tagged('displace'), 1.25)] },
     ],
     colors: { primary: 0x5e4a33, secondary: 0x9aa1a6, glow },
     parityLoadout: ['ironplough', 'sawtooth_hatchet', 'ground_stomp', 'battle_rage'],
@@ -165,7 +173,9 @@ export const WARRIOR_SETS: SetDef[] = [
         effects: [skillMods(tagged('buff'), { cooldown: -25 }), flags(tagged('buff'), 'hearthIas')] },
       { count: 4, text: 'While a Buff skill is active you take 20% less damage, and your Primary skills generate 3 more Fury and deal 25% more damage.',
         effects: [{ kind: 'damageTaken', pct: -20, when: BUFF_UP }, flags(tagged('primary'), 'hearthGen'), skillMore(tagged('primary'), 25, BUFF_UP)] },
-      { count: 6, text: 'Your Ground Buff skills follow you. While a Buff skill is active, every third Primary hit releases a shockwave (140 units, 100% weapon damage), and your Primary and Burn skills deal 25% more damage.',
+      // Bible: a 100% shockwave; measured on Cleave that transform alone was worth ×1.2, above BUDGET.md R1's ×1.10 for a
+      // 6-piece transform, so it is 50%.
+      { count: 6, text: 'Your Ground Buff skills follow you. While a Buff skill is active, every third Primary hit releases a shockwave (140 units, 50% weapon damage), and your Primary and Burn skills deal 25% more damage.',
         effects: [flags(tagged('buff'), 'hearthFollow'), flags(tagged('primary'), 'hearthShock'), skillMore(tagged('primary', 'burn'), 25, BUFF_UP)] },
     ],
     colors: { primary: 0x8c2f24, secondary: 0xd8b45a, glow },

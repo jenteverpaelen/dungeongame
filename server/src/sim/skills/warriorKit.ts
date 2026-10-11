@@ -8,8 +8,8 @@
 // data-driven grounds, compound conditions, statuses) are NOT re-implemented here; see docs/rework/depth/WARRIOR-PILOT.md.
 
 import { matchesTags, modVar, skillBuffBonuses, skillTags, type SkillTag } from '../../shared';
-import { dotStrike, gainResource, healPlayer, hurtMob, makeDot, strikeMob, type HitResult } from '../damage';
-import { addBuff, addOwnedDot, ccFactor, chillMob, dragMob, elIdx, getBuff, knockbackMob, refreshLive, stunMob } from '../effects';
+import { dotStrike, gainResource, healPlayer, hurtMob, isEliteTier, makeDot, strikeMob, vulnerability, type HitResult } from '../damage';
+import { addBuff, addOwnedDot, ccFactor, chillMob, dragMob, elIdx, getBuff, knockbackMob, refreshLive, stunMob, ticksAhead } from '../effects';
 import { placeGround } from '../groundFx';
 import type { Instance } from '../instance';
 import { skillElement, skillMult, skillPct } from '../playerctx';
@@ -165,8 +165,8 @@ export function nearestMob(inst: Instance, x: number, y: number, r: number, not?
 
 // ─────────────────────────── Damage over time ───────────────────────────
 
-/** Remaining damage of a dot. */
-export const dotLeft = (d: Dot): number => d.perTick * Math.max(0, Math.ceil(d.leftMs / d.tickMs));
+/** Remaining damage of a dot (the ticks it will really still deal). */
+export const dotLeft = (d: Dot): number => d.perTick * ticksAhead(d);
 
 /**
  * Add a dot whose damage accumulates with the same-key dot instead of replacing it: the remaining damage is carried
@@ -176,12 +176,23 @@ export const dotLeft = (d: Dot): number => d.perTick * Math.max(0, Math.ceil(d.l
 export function addCarriedDot(m: Mob, dot: Dot, carryPct = 100) {
   const i = m.dots.findIndex((d) => d.kind === dot.kind && d.owner === dot.owner && d.skill === dot.skill);
   if (i >= 0) {
-    const ticks = Math.max(1, Math.round(dot.durMs / dot.tickMs));
-    const carried = dotLeft(m.dots[i]) * carryPct / 100;
-    m.dots[i] = { ...dot, perTick: dot.perTick + carried / ticks, nextMs: Math.min(dot.nextMs, m.dots[i].nextMs) };
+    // Conserve damage exactly: the new share plus the carried remainder, over the ticks the merged dot will deal.
+    const total = dotLeft(dot) + dotLeft(m.dots[i]) * carryPct / 100;
+    const next = { ...dot, nextMs: Math.min(dot.nextMs, m.dots[i].nextMs) };
+    next.perTick = total / Math.max(1, ticksAhead(next));
+    m.dots[i] = next;
     return;
   }
   if (m.dots.length < 8) m.dots.push(dot);
+}
+
+/**
+ * A hit's amount without the target-dependent factors (vulnerability, elite bonus): dot ticks re-apply them live
+ * (dotStrike), so a "% of the hit" dot built from the raw amount would count them twice.
+ */
+export function hitBase(p: Player, m: Mob, skill: string, amount: number): number {
+  const v = vulnerability(p, m, skill) * (isEliteTier(m.tier) ? 1 + p.ctx.d.elite / 100 : 1);
+  return v > 0 ? amount / v : amount;
 }
 
 /** A dot dealing `total` damage (already computed, e.g. a share of a hit) over `ms`. */
@@ -242,7 +253,7 @@ export function wHit(inst: Instance, p: Player, m: Mob, st: Strike, rt: SkillRun
   }
   if (r.killed || m.dead) return r;
   // Endless Storm 4: Channel hits bleed for 30 % of the hit over 3 s (shares accumulate).
-  if (rt.flags.has('stormBleed') && r.amount > 0) addCarriedDot(m, shareDot(p, `${rt.def.id}`, 'bleed', 'physical', r.amount * 0.3, 3000));
+  if (rt.flags.has('stormBleed') && r.amount > 0) addCarriedDot(m, shareDot(p, `${rt.def.id}`, 'bleed', 'physical', hitBase(p, m, s.skill, r.amount) * 0.3, 3000));
   if (s.primary) {
     if (rt.flags.has('ashgripExtend')) extendDots(p, m, 500, false, null);
     if (rt.flags.has('cinderExtend')) extendDots(p, m, 500, true, 10_000);
@@ -286,6 +297,8 @@ export function wStun(inst: Instance, p: Player, m: Mob, ms: number, rt: SkillRu
   const already = m.stunMs > 0;
   if (already && rt?.flags.has('belfry')) d += 1000;
   stunMob(m, d, inst, p);
+  // Fault Warden 6: a fault line under each enemy your skills newly stun (data ground 'fault_line').
+  if (!already && rt?.flags.has('faultLines')) placeGround(inst, p, 'fault_line', m.x, m.y, Math.atan2(m.y - p.y, m.x - p.x) + Math.PI / 2);
   if (!already) {
     const max = p.ctx.power('stonecount_gauntlets');
     if (max > 0) {
@@ -314,8 +327,10 @@ function signet(inst: Instance, p: Player, m: Mob, ch: ChannelExtra | null) {
   reduceCooldowns(inst, p, s * 1000, 'cooldown');
 }
 
-function displaced(inst: Instance, p: Player, m: Mob, ch: ChannelExtra | null) {
+function displaced(inst: Instance, p: Player, m: Mob, ch: ChannelExtra | null, rt: SkillRuntime | null) {
   const ms = mstate(m);
+  // Furrowmark 6: a furrow behind each enemy your Displace effects move (at most one per enemy per second).
+  if (rt?.flags.has('furrowGround') && inst.t - ms.displacedT >= 1000) placeGround(inst, p, 'furrow', m.x, m.y, Math.atan2(m.y - p.y, m.x - p.x) + Math.PI / 2);
   ms.displacedT = inst.t; ms.displacedBy = p.id;
   signet(inst, p, m, ch);
 }
@@ -331,7 +346,7 @@ export function wPush(inst: Instance, p: Player, m: Mob, dx: number, dy: number,
   if (m.dead || ccFactor(m) <= 0) return null;
   const d = dist * pushScale(rt);
   knockbackMob(m, dx, dy, d, inst, p);
-  displaced(inst, p, m, ch);
+  displaced(inst, p, m, ch, rt);
   const l = Math.hypot(dx, dy) || 1, f = ccFactor(m), ux = dx / l, uy = dy / l;
   const ex = m.x + ux * d * f, ey = m.y + uy * d * f;
   let into: Mob | null = null;
@@ -349,7 +364,7 @@ export function wPush(inst: Instance, p: Player, m: Mob, dx: number, dy: number,
 export function wPull(inst: Instance, p: Player, m: Mob, tx: number, ty: number, step: number, rt: SkillRuntime | null, ch: ChannelExtra | null = null) {
   if (m.dead || step <= 0) return;
   dragMob(inst, m, tx, ty, step * pushScale(rt), p);
-  displaced(inst, p, m, ch);
+  displaced(inst, p, m, ch, rt);
 }
 
 // ─────────────────────────── Fury, buffs and loops ───────────────────────────
@@ -389,13 +404,13 @@ export const hearthIas = (rt: SkillRuntime | null) => (rt?.flags.has('hearthIas'
 
 /**
  * Hearthbanner 4 / 6 on a Primary swing while a Buff skill is active: +3 Fury, and every third swing a shockwave
- * (140 units, 100 % weapon damage) at (x, y). Returns the extra Fury.
+ * (140 units, 50 % weapon damage) at (x, y). Returns the extra Fury.
  */
 export function hearthPrimary(inst: Instance, p: Player, rt: SkillRuntime, x: number, y: number): number {
   if (!buffUp(p)) return 0;
   if (rt.flags.has('hearthShock') && ++wstate(p).hearthHits >= 3) {
     wstate(p).hearthHits = 0;
-    const st: Strike = { skill: rt.def.id, coef: 1.0, el: skillElement(rt), pct: skillPct(p, rt), mult: skillMult(p, rt.def.id), primary: true, noArea: true };
+    const st: Strike = { skill: rt.def.id, coef: 0.5, el: skillElement(rt), pct: skillPct(p, rt), mult: skillMult(p, rt.def.id), primary: true, noArea: true };
     for (const m of inst.queryMobs(x, y, 140)) if (!m.dead) wHit(inst, p, m, st, rt);
     inst.emit({ e: 'aoe', v: 'hearth_shock', x: Math.round(x), y: Math.round(y), r: 140, d: 420, el: elIdx(st.el), s: p.id }, x, y, p.id);
   }

@@ -542,3 +542,16 @@ Search, stub-level, following the BUDGET.md §4 method:
 * Knockback collision damage, directional DR, proximity vulnerability auras.
 * `setReduce` (Journeyman's Ring).
 * Item generation and migration for Kindled / Fabled.
+
+### 11.14 Pilot additions (warrior pilot, `WARRIOR-PILOT.md` §3)
+
+* `RuneDef.effects`: power templates active while the rune is equipped (source kind `rune`, after nodes).
+* `SkillDef.vars`: base named parameters, merged before runes (e.g. `channelMovePct`).
+* Proc `when`: a `Condition` gate on any proc.
+* `Buff.cost`: resource-cost factor while the buff lasts (`skillCost` reads `LiveMods.cost`).
+* Client prediction of channel slows: `MeState.mvf` + `channelMsPct` (shared formula). The carried Muster Standard is
+  drawn from its own `standard_carry` events (class code); there is no generic client view of a following ground.
+* Grounds placed while grounds update start next tick (no proc chains inside one tick).
+* Dot carry-over is exact: `effects.ticksAhead(dot)` counts the ticks a dot will still deal.
+* Still not built: ricochet, recast elsewhere, generic consumable marks (the warrior's Ringing Ears and the returning
+  hatchet are class code), directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.

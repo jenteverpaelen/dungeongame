@@ -196,8 +196,9 @@ const wisps = new WeakMap<Summon, { coef: number; ang: number; skill: string }>(
 function spawnWisp(inst: Instance, p: Player, rt: SkillRuntime) {
   const ang = inst.rng.next() * Math.PI * 2;
   const s = spawnSummon(inst, p, 'dust_devil', rt.def.id, p.x + Math.cos(ang) * 110, p.y + Math.sin(ang) * 110, 3000);
-  // "Wisps deal 25 % of your channel's damage": a quarter of the channel's per-second coefficient, per second.
-  wisps.set(s, { coef: rt.def.coef * 0.25, ang, skill: rt.def.id });
+  // "Wisps deal 25 % of your channel's damage": the three wisps alive at a time (one per second, 3 s each) together
+  // strike for a quarter of the channel's per-second coefficient.
+  wisps.set(s, { coef: rt.def.coef * 0.25 / 3, ang, skill: rt.def.id });
 }
 
 /** Dust Devil: wanders through nearby enemies for its life, ticking every 0.25 s (wisps circle their owner instead). */

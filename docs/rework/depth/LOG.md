@@ -86,3 +86,19 @@
     new 1.07 / 1.27 / 1.39 ms; T3 rift 0.090 / 0.124 / 0.097 vs 0.094 / 0.116 / 0.107 ms.
   - An earlier single run under heavy machine load showed 3.2 ms (perf threshold), a load artefact.
   - Tests: `server/test/engineWave2.test.ts` (15). Test change: Cleave's tag set now includes `strike` (alias).
+
+## Warrior pilot (2026-10-11, branch `claude/warrior`)
+
+- Content: 12 skills, 60 runes, 68 / 72 nodes, 11 passives (5 of 8 new), 5 sets (3 redesigned, 2 new), 31 / 34 warrior
+  legendaries, 7 data grounds; NAMES.md renames (Seismic Slam → Quakeline, ids unchanged); `SPEC_POINTS` = separate,
+  1 / level from 21, cap 10. Details, blocked list and deviations: `WARRIOR-PILOT.md`.
+- Narrow generic additions (tests in `server/test/warrior.test.ts` / `powerTemplates.test.ts`): `RuneDef.effects`,
+  `SkillDef.vars`, proc `when`, `Buff.cost`, `MeState.mvf` + shared `channelMsPct` (client prediction of channel slows),
+  grounds placed during the grounds update start next tick, exact dot carry-over (`effects.ticksAhead`), harness RNG per
+  equipment slot.
+- Parity: `WARRIOR-PARITY.md` (D1–D6 measured, with and without shared legendaries); verify gates D3 / D4 for the four
+  parity-ready warrior skills. Fits from measurements: Cinder Oath 4 and Red Ledger cost cuts 30 → 15 %, Hearthbanner 6
+  shockwave 100 → 50 %, Endless Storm 6 wisps 25 % in total.
+- `server/test/sim.ts`: warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9
+  risk 1; measured 44.5 %); Endless Storm 4 flag check updated. Ranger byte-identical vs f3019b1 with the warrior out of
+  the class loops; mage identical up to its first cross-class legendary drop (bigger shared drop pool).

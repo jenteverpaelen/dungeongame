@@ -21,7 +21,7 @@ export const WARRIOR_FX = { hatchetSpeed: 760 } as const;
 /** Order matters: it is the registry order (skill pickers, affix rolls), so append new skills at the end. */
 export const WARRIOR_SKILLS: SkillDef[] = [
   {
-    id: 'cleave', classId: 'warrior', name: 'Cleave', kind: 'primary', unlock: 1, element: 'physical', tags: ['strike', 'area'], category: 'Strikes',
+    id: 'cleave', classId: 'warrior', parityReady: true, name: 'Cleave', kind: 'primary', unlock: 1, element: 'physical', tags: ['strike', 'area'], category: 'Strikes',
     coef: 1.6, cost: 0, gen: 5, cooldown: 0, range: 86, radius: 110, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Swing in a wide arc, dealing {coef} weapon damage to all enemies caught in the swing. Generates {gen} Fury per swing.',
@@ -115,7 +115,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'ground_stomp', classId: 'warrior', name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['area', 'stun'], category: 'Earthshaker',
+    id: 'ground_stomp', classId: 'warrior', parityReady: true, name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['area', 'stun'], category: 'Earthshaker',
     coef: 2.4, cost: 0, gen: 15, cooldown: 12, range: 170, radius: 170, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 170 },
     desc: 'Smash the ground, dealing {coef} weapon damage and stunning nearby enemies for {duration} seconds. Generates {gen} Fury.',
@@ -150,7 +150,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'seismic_slam', classId: 'warrior', name: 'Quakeline', kind: 'spender', unlock: 9, element: 'physical', tags: ['area', 'displace'], category: 'Earthshaker',
+    id: 'seismic_slam', classId: 'warrior', parityReady: true, name: 'Quakeline', kind: 'spender', unlock: 9, element: 'physical', tags: ['area', 'displace'], category: 'Earthshaker',
     coef: 7.55, cost: 30, gen: 0, cooldown: 0, range: 336, radius: 60, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 304 },
     desc: 'Send a fissure through the earth, dealing {coef} weapon damage to all enemies in a 60° cone.',
@@ -219,7 +219,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   // ─────────────────────────── M1 skills (bible W7–W12) ───────────────────────────
   {
-    id: 'tolling_blow', classId: 'warrior', name: 'Tolling Blow', kind: 'primary', unlock: 16, element: 'physical', tags: ['strike', 'stun'], category: 'Strikes',
+    id: 'tolling_blow', classId: 'warrior', parityReady: true, name: 'Tolling Blow', kind: 'primary', unlock: 16, element: 'physical', tags: ['strike', 'stun'], category: 'Strikes',
     coef: 2.0, cost: 0, gen: 6, cooldown: 0, range: 86, radius: 70, duration: 0.75, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Strike an enemy for {coef} weapon damage. Every third blow tolls, dealing 100% weapon damage and stunning enemies within {radius} units for {duration} seconds. Generates {gen} Fury.',

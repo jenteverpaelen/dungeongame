@@ -676,8 +676,9 @@ function classLegendaries(save: CharacterSave, rng: Rng, onlyClassSpecific: bool
     .map((l) => generateItem(rng, { ilvl: 70, classId: save.classId, rarity: 'legendary', legendary: l.id, smartChance: 1 }));
 }
 
-function classSet(save: CharacterSave, rng: Rng): Item[] {
-  const set = Object.values(SETS).find((x) => x.classId === save.classId);
+function classSet(save: CharacterSave, rng: Rng, id: string | null = null): Item[] {
+  // Debug: a named set of the class (`id`), else the class's first set.
+  const set = Object.values(SETS).find((x) => x.classId === save.classId && (!id || x.id === id));
   if (!set) return [];
   return set.pieces.map((p) => generateItem(rng, { ilvl: 70, classId: save.classId, rarity: 'set', set: set.id, base: p.base, smartChance: 1 }));
 }
@@ -754,7 +755,12 @@ const debug: Handler = (s, a) => {
     }
     case 'set': {
       const rng = newRng();
-      const items = [...classSet(save, rng), ...classLegendaries(save, rng, true)];
+      const setId = optStr(a, 'id');
+      if (setId && !Object.values(SETS).some((x) => x.classId === save.classId && x.id === setId)) return fail('Unknown set for this class');
+      // A named set: its pieces only. Without one: the first set plus the class legendaries not already carried or worn
+      // (the warrior has 31; granting them twice would fill the 60-slot bag).
+      const held = new Set([...save.inventory, ...Object.values(save.equipment)].map((it) => it?.legendary?.power).filter(Boolean));
+      const items = setId ? classSet(save, rng, setId) : [...classSet(save, rng), ...classLegendaries(save, rng, true).filter((it) => !held.has(it.legendary?.power))];
       const added = giveItems(save, items);
       if (!added) return fail('Your inventory is full');
       return done(s, false, { added, skipped: items.length - added });
