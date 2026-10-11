@@ -240,6 +240,12 @@ export function motifColor(m: Motif | null, fallback: number): number {
     case 'leaf': return 0xb6ff8f;
     case 'shadow': return 0xffd27f;
     case 'gold': return 0xffe08a;
+    // class-wave set motifs (ITEMS-SHARED.md section 6 main colours, lifted to read as light)
+    case 'banner': return 0xf0cf7a;
+    case 'furrow': return 0xc8ced2;
+    case 'antler': return 0xd8c49a;
+    case 'knot': return 0xc0c8cc;
+    case 'chime': return 0xdccfff;
     default: return fallback;
   }
 }
