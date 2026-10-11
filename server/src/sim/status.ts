@@ -16,7 +16,7 @@ export const FREEZE_BUILD_FULL = 100;
 const DOT_TICK_MS = 500;
 
 export function mobStatus(m: Mob): MobPowerStatus {
-  return (m.ps ??= { weakenMs: 0, weakenPct: 0, tauntMs: 0, tauntTo: null, build: [], vulns: [] });
+  return (m.ps ??= { weakenMs: 0, weakenPct: 0, slowMs: 0, slowPct: 0, tauntMs: 0, tauntTo: null, build: [], vulns: [] });
 }
 
 /** What a taunt points at: a player (the monster fights them), a summon (until it dies), a ground (until it ends) or a point. */
@@ -28,6 +28,13 @@ export type TauntRef = { x: number; y: number; dead?: boolean; endT?: number; ki
  * `exceptSource` vulnerabilities.
  */
 export function applyStatus(inst: Instance, p: Player, m: Mob, s: RStatus, fromX: number, fromY: number, source: string, ref: TauntRef | null = null) {
+  // The applying skill for applyStatus procs is the status source (a skill, proc strike or ground id).
+  const prev = p.acting;
+  p.acting = source;
+  try { applyStatusAs(inst, p, m, s, fromX, fromY, source, ref); } finally { p.acting = prev; }
+}
+
+function applyStatusAs(inst: Instance, p: Player, m: Mob, s: RStatus, fromX: number, fromY: number, source: string, ref: TauntRef | null) {
   if (m.dead) return;
   const pct = typeof s.pct === 'number' ? s.pct : 0;
   const ms = s.ms ?? 0;
@@ -37,6 +44,22 @@ export function applyStatus(inst: Instance, p: Player, m: Mob, s: RStatus, fromX
     case 'chill': chillMob(m, ms, inst, p); return;
     case 'knockback': knockbackMob(m, m.x - fromX, m.y - fromY, s.dist ?? 0, inst, p); return;
     case 'pull': dragMob(inst, m, fromX, fromY, s.dist ?? 0, p); return;
+    case 'slow': {
+      // Movement only (chill also slows attacks); bosses, goblins and dummies ignore it like chill.
+      if (m.dummy || m.tier === 4 || m.tier === 5) return;
+      const ps = mobStatus(m), sp = Math.min(90, Math.max(0, pct));
+      if (sp > ps.slowPct || ps.slowMs <= 0) { ps.slowPct = sp; ps.slowMs = ms; }
+      else if (sp === ps.slowPct) ps.slowMs = Math.max(ps.slowMs, ms);
+      break;
+    }
+    case 'carriedDot': {
+      // A copy of the dot a ground carries (`ref.dot`, set by placeGround with carryDot), at pct % strength.
+      const carried = (ref as { fx?: { dot?: import('./types').Dot } } | null)?.fx?.dot;
+      if (!carried) return;
+      const k = (typeof s.pct === 'number' ? s.pct : 100) / 100;
+      addOwnedDot(p, m, { ...carried, perTick: carried.perTick * k, leftMs: carried.durMs, nextMs: carried.tickMs });
+      break;
+    }
     case 'weaken': {
       if (m.dummy) return;
       const ps = mobStatus(m);
@@ -97,7 +120,7 @@ export function onStatusApplied(inst: Instance, by: Player, m: Mob, kind: Status
     const o = inst.mobHash.nearest(m.x, m.y, spread, (x) => !x.dead && x !== m);
     if (o) { o.markMs = Math.max(o.markMs, m.markMs); if (m.markPct > o.markPct) o.markPct = m.markPct; }
   }
-  firePowerProcs(inst, by, 'applyStatus', { status: kind, mob: m });
+  firePowerProcs(inst, by, 'applyStatus', { status: kind, mob: m, ...(by.acting ? { skill: by.acting } : {}) });
 }
 
 /** After a hit by player `p` with strike `skill`: consumable vulnerabilities that applied to it are used up. */
@@ -115,6 +138,7 @@ export function consumeVulns(m: Mob, p: Player, skill: string) {
 export function tickMobStatus(m: Mob, dtMs: number) {
   const ps = m.ps!;
   if (ps.weakenMs > 0) { ps.weakenMs -= dtMs; if (ps.weakenMs <= 0) ps.weakenPct = 0; }
+  if (ps.slowMs > 0) { ps.slowMs -= dtMs; if (ps.slowMs <= 0) ps.slowPct = 0; }
   if (ps.tauntMs > 0) {
     ps.tauntMs -= dtMs;
     const to = ps.tauntTo;

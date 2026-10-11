@@ -33,7 +33,7 @@ export type RCondition =
 export interface OwnTerm { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
 export interface HitTerm { kind: 'stacks' | 'cycle' | 'cond'; skills: ReadonlySet<string> | null; when?: RCondition; pct: number }
 export interface VulnTerm { when: RCondition; skills: ReadonlySet<string> | null; pct: number }
-export type Buff = { id: string; ms: number; dmg?: number; chc?: number; chd?: number; ias?: number; sdmg?: number; dr?: number; cci?: boolean; cdrec?: number };
+export type Buff = { id: string; ms: number; dmg?: number; chc?: number; chd?: number; ias?: number; sdmg?: number; dr?: number; cci?: boolean; cdrec?: number; mv?: number };
 /** A status with its vulnerability scope resolved. */
 export type RStatus = StatusSpec & { at?: 'target' | 'self'; scope: ReadonlySet<string> | null };
 export interface ProcRuntime {
@@ -45,12 +45,15 @@ export interface ProcRuntime {
   reset?: readonly string[];
   strike?: { id: string; coef: number; radius: number; el?: Element; at: 'target' | 'self'; visual?: string };
   summon?: { type: string; skill: string; lifeMs: number; at: 'target' | 'self'; max?: number };
-  ground?: { def: string; at: 'target' | 'self'; scale: number };
+  ground?: { def: string; at: 'target' | 'self'; scale: number; carryDot?: boolean };
+  lifePct?: number;
+  castSkill?: { ids: ReadonlySet<string> | null; pick: 'longestCooldown' | 'first' };
   applyStatus?: RStatus;
   clear?: { range: number; half: number };
 }
 /** Context of a trigger: the strike / skill, the enemy, the status applied, the damage taken. */
-export interface ProcContext { skill?: string; mob?: Mob | null; status?: StatusKind; amount?: number; el?: Element }
+/** Context of a trigger: the strike / skill, the enemy, the status applied, the damage taken, Life before the hit. */
+export interface ProcContext { skill?: string; mob?: Mob | null; status?: StatusKind; amount?: number; el?: Element; hpBefore?: number }
 
 export interface DefenseRuntime {
   /** Product of unconditional damage-taken factors (per-legendary and no-set terms folded in at build). */
@@ -58,7 +61,7 @@ export interface DefenseRuntime {
   /** Conditional factors; target conditions are tested against the attacking monster. */
   takenTerms: { when: RCondition; pct: number }[];
   firstHit: { pct: number; windowMs: number; reset: readonly StatusKind[] | null }[];
-  cheat: { lifePct: number; cooldownMs: number; invulnMs: number; when: RCondition | null; reset: readonly string[] | null; buff: Buff | null }[];
+  cheat: { lifePct: number; cooldownMs: number; invulnMs: number; when: RCondition | null; reset: readonly string[] | null; buff: Buff | null; rearm: readonly string[] | null }[];
   /** controlImmunity terms (when null = always; bits 1 stun, 2 freeze, 4 pull). */
   immune: { when: RCondition | null; bits: number }[];
 }
@@ -67,8 +70,8 @@ export interface ProjRule {
   seekMarked: { turn: number; range: number } | null; returns: boolean; rangeRicochet: boolean;
 }
 export interface StackRule {
-  buff: string; source: 'distance' | 'kills'; per: number; max: number; decayMs: number; decay: 'all' | 'one';
-  skills: ReadonlySet<string> | null; sdmg: number; sias: number; onMax: { buff: Buff | null; reset: boolean } | null;
+  buff: string; source: 'distance' | 'kills' | 'channel'; per: number; max: number; decayMs: number; decay: 'all' | 'one';
+  skills: ReadonlySet<string> | null; sdmg: number; sias: number; smv: number; onMax: { buff: Buff | null; reset: boolean } | null;
   /** kills: target condition on the killed enemy. */
   when: RCondition | null;
 }
@@ -103,7 +106,7 @@ export interface PowerRuntime {
   defense: DefenseRuntime | null;
   /** Projectile rules per strike id (null key = every projectile). */
   projRules: { skills: ReadonlySet<string> | null; rule: ProjRule }[];
-  dotRules: { kind: 'bleed' | 'burn' | 'poison'; skills: ReadonlySet<string> | null; stacks: number; strength: number; carry: number }[];
+  dotRules: { kind: 'bleed' | 'burn' | 'poison'; skills: ReadonlySet<string> | null; stacks: number; strength: number; carry: number; also?: 'bleed' | 'burn' | 'poison'; el?: Element }[];
   stacking: StackRule[];
   debt: { skills: ReadonlySet<string> | null; max: number; regenPct: number }[];
   deflect: { range: number; half: number; when: RCondition | null }[];
@@ -126,6 +129,8 @@ export interface PowerRuntime {
     aliases: Partial<Record<TargetState, TargetState[]>>;
     /** markSpread range (0 = off). */
     markSpread: number;
+    /** Resource never decays (rule noDecay). */
+    noDecay: boolean;
   };
   /** Largest noEnemyWithin radius in use (0 = not tracked). */
   nearRange: number;
@@ -258,6 +263,8 @@ function grantBuff(g: BuffGrant, roll: number): Buff {
   if (g.dr !== undefined) b.dr = amount(g.dr, roll);
   if (g.ccImmune) b.cci = true;
   if (g.cdRecovery !== undefined) b.cdrec = amount(g.cdRecovery, roll);
+  if (g.moveSpeed !== undefined) b.mv = amount(g.moveSpeed, roll);
+  if (g.stackMoveSpeed !== undefined) b.mv = amount(g.stackMoveSpeed, roll);
   return b;
 }
 
@@ -288,7 +295,7 @@ const ownFactor = (pct: number) => 1 + pct / 100;
 function procRuntime(e: Extract<PowerEffect, { kind: 'proc' }>, roll: number, key: string, index: TagIndex): ProcRuntime {
   const pr: ProcRuntime = { chance: e.chance, reduceMs: amount(e.reduceCooldownsMs, roll), resource: amount(e.resource, roll), buff: e.buff ? grantBuff(e.buff, roll) : null };
   // Wave-2 fields are only set when authored, so a legacy proc is the same object shape as before.
-  if (e.icdMs || e.skills || e.tags || e.status || e.minHitPct || e.buff?.maxStacks || e.resetCooldowns || e.strike || e.summon || e.ground || e.applyStatus || e.clearProjectiles || e.every || e.repeat || e.when) pr.key = key;
+  if (e.icdMs || e.skills || e.tags || e.status || e.minHitPct || e.buff?.maxStacks || e.resetCooldowns || e.strike || e.summon || e.ground || e.applyStatus || e.clearProjectiles || e.every || e.repeat || e.when || e.lifePct !== undefined || e.castSkill) pr.key = key;
   if (e.when) pr.when = resolveCondition(e.when, index);
   if (e.every && e.every > 1) pr.every = e.every;
   if (e.repeat) pr.repeat = true;
@@ -300,7 +307,9 @@ function procRuntime(e: Extract<PowerEffect, { kind: 'proc' }>, roll: number, ke
   if (e.resetCooldowns) pr.reset = e.resetCooldowns;
   if (e.strike) pr.strike = { id: e.strike.id, coef: amount(e.strike.coef, roll), radius: e.strike.radius ?? 0, el: e.strike.element, at: e.strike.at ?? 'target', visual: e.strike.visual };
   if (e.summon) pr.summon = { ...e.summon, at: e.summon.at ?? 'target' };
-  if (e.ground) pr.ground = { def: e.ground.def, at: e.ground.at ?? 'target', scale: e.ground.scale === undefined ? 1 : amount(e.ground.scale, roll) };
+  if (e.ground) pr.ground = { def: e.ground.def, at: e.ground.at ?? 'target', scale: e.ground.scale === undefined ? 1 : amount(e.ground.scale, roll), ...(e.ground.carryDot ? { carryDot: true } : {}) };
+  if (e.lifePct !== undefined) pr.lifePct = e.lifePct;
+  if (e.castSkill) pr.castSkill = { ids: e.castSkill.skills || e.castSkill.tags ? new Set(resolveTargets(e.castSkill, index) ?? []) : null, pick: e.castSkill.pick ?? 'first' };
   if (e.applyStatus) {
     const s = resolveStatus(e.applyStatus, index);
     if (s.pct !== undefined) s.pct = amount(s.pct, roll);
@@ -321,7 +330,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
     mods: new Map(), ownStatic: new Map(), ownTerms: [], hitTerms: [], stunFactor: 1, frozenFactor: 1, vulnTerms: [],
     procs: {}, elementStacks: null, elementCycle: null, grants: { ids: new Set(), prefixes: [] }, watchGround: false,
     index, defense: null, projRules: [], dotRules: [], stacking: [], debt: [], deflect: [], statusWatch: false, tracksStill: false, ticks: false,
-    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0 },
+    rules: { charges: new Map(), channelMove: [], buffUpkeep: [], spendRefund: [], groundsFollow: 0, aliases: {}, markSpread: 0, noDecay: false },
     nearRange: 0,
   };
   // State aliases first: an aliased stunned / frozen condition can no longer be folded into stunMult / frozenMult.
@@ -403,7 +412,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
       }
       case 'cheatDeath':
         defenseOf(rt).cheat.push({ lifePct: e.lifePct, cooldownMs: e.cooldownMs, invulnMs: e.invulnMs ?? 0, when: e.when ? resolveCondition(e.when, index) : null,
-          reset: e.resetCooldowns ?? null, buff: e.buff ? grantBuff(e.buff, src.roll) : null });
+          reset: e.resetCooldowns ?? null, buff: e.buff ? grantBuff(e.buff, src.roll) : null, rearm: e.rearmOnCast ?? null });
         break;
       case 'controlImmunity':
         defenseOf(rt).immune.push({ when: e.when ? resolveCondition(e.when, index) : null,
@@ -422,12 +431,12 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
         break;
       case 'dot':
         rt.dotRules.push({ kind: e.dot, skills: asSet(resolveTargets(e, index)), stacks: Math.max(1, e.stacks ?? 1), strength: (e.strengthPct ?? 100) / 100,
-          carry: e.carryPct === undefined ? 0 : amount(e.carryPct, src.roll) });
+          carry: e.carryPct === undefined ? 0 : amount(e.carryPct, src.roll), ...(e.alsoKind ? { also: e.alsoKind } : {}), ...(e.element ? { el: e.element } : {}) });
         break;
       case 'stacking':
         rt.stacking.push({ buff: e.buff, source: e.source, per: e.per, max: e.max, decayMs: e.decayMs, decay: e.decay ?? 'all',
           skills: asSet(resolveTargets(e, index)), sdmg: e.stackDmg === undefined ? 0 : amount(e.stackDmg, src.roll),
-          sias: e.stackIas === undefined ? 0 : amount(e.stackIas, src.roll),
+          sias: e.stackIas === undefined ? 0 : amount(e.stackIas, src.roll), smv: e.stackMoveSpeed === undefined ? 0 : amount(e.stackMoveSpeed, src.roll),
           onMax: e.onMax ? { buff: e.onMax.buff ? grantBuff(e.onMax.buff, src.roll) : null, reset: !!e.onMax.reset } : null,
           when: e.when ? resolveCondition(e.when, index) : null });
         rt.ticks = true;
@@ -445,6 +454,7 @@ export function buildPowerRuntime(sources: readonly PowerSource[], index: TagInd
           case 'groundsFollow': if (!rt.rules.groundsFollow) rt.rules.groundsFollow = r.scale; break;
           case 'countsAs': break; // pre-pass above
           case 'markSpread': rt.rules.markSpread = Math.max(rt.rules.markSpread, r.range); rt.statusWatch = true; break;
+          case 'noDecay': rt.rules.noDecay = true; break;
         }
         break;
       }
@@ -471,8 +481,9 @@ function stateHolds(m: Mob, s: TargetState): boolean {
     case 'stunned': return m.stunMs > 0;
     case 'frozen': return m.freezeMs > 0;
     case 'chilled': return m.chillMs > 0;
-    case 'bleeding': return m.dots.some((d) => d.kind === 'bleed');
-    case 'burning': return m.dots.some((d) => d.kind === 'burn');
+    case 'bleeding': return m.dots.some((d) => d.kind === 'bleed' || d.also === 'bleed');
+    case 'burning': return m.dots.some((d) => d.kind === 'burn' || d.also === 'burn');
+    case 'slowed': return m.chillMs > 0 || (!!m.ps && m.ps.slowMs > 0);
     case 'immobilised': return m.stunMs > 0 || m.freezeMs > 0;
     case 'inBlackHole': return m.inHoleMs > 0;
     case 'marked': return m.markMs > 0;
@@ -507,6 +518,13 @@ export function conditionCount(p: Player, w: RCondition, el: Element | undefined
   if ('standingStillMs' in w) return !p.moving && (p.pw?.stillMs ?? 0) >= w.standingStillMs ? 1 : 0;
   if ('inDebt' in w) return p.res < 0 ? 1 : 0;
   if ('noEnemyWithin' in w) return (p.pw?.nearDist ?? Infinity) > w.noEnemyWithin ? 1 : 0;
+  if ('targetInFront' in w || 'targetBehind' in w) {
+    if (!m) return 0;
+    const face = Math.atan2(p.mv.faceY, p.mv.faceX), to = Math.atan2(m.y - p.y, m.x - p.x);
+    let d = Math.abs(to - face) % (Math.PI * 2);
+    if (d > Math.PI) d = Math.PI * 2 - d;
+    return 'targetInFront' in w ? (d <= w.targetInFront * Math.PI / 180 ? 1 : 0) : (Math.PI - d <= w.targetBehind * Math.PI / 180 ? 1 : 0);
+  }
   return 0;
 }
 
@@ -581,6 +599,7 @@ export function firePowerProcs(inst: Instance, p: Player, on: ProcTrigger, c?: P
       if (pr.skills && (!c?.skill || !pr.skills.has(c.skill))) continue;
       if (pr.status && (!c?.status || !pr.status.includes(c.status))) continue;
       if (pr.minHitPct && !(c?.amount !== undefined && c.amount >= p.mhp * pr.minHitPct / 100)) continue;
+      if (pr.lifePct !== undefined) { const th = p.mhp * pr.lifePct / 100; if (!(c?.hpBefore !== undefined && c.hpBefore >= th && p.hp < th && p.hp > 0)) continue; }
       if (pr.icdMs && (p.pw?.icd.get(pr.key) ?? -Infinity) > inst.t) continue;
       if (pr.when && !conditionCount(p, pr.when, c?.el, c?.mob ?? null)) continue;
       if (pr.every) {
@@ -596,7 +615,7 @@ export function firePowerProcs(inst: Instance, p: Player, on: ProcTrigger, c?: P
     if (pr.buff) { if (pr.buffMax) stackBuff(p, pr.buff, pr.buffMax); else addBuff(p, { ...pr.buff }); }
     if (pr.reset) for (const id of pr.reset) p.readyAt.delete(id);
     if (pr.repeat && c?.mob && !c.mob.dead) repeatAttack(inst, p, c.mob); // at this depth: its hits behave like the attack's
-    if (pr.strike || pr.summon || pr.ground || pr.applyStatus || pr.clear) {
+    if (pr.strike || pr.summon || pr.ground || pr.applyStatus || pr.clear || pr.castSkill) {
       procDepth++;
       try { runProcActions(inst, p, pr, c); } finally { procDepth--; }
     }

@@ -32,12 +32,14 @@ export interface Buff {
   cci?: boolean;
   /** % faster cooldown recovery. */
   cdrec?: number;
+  /** Movement speed % (× stacks). */
+  mv?: number;
   /** Resource costs change by this % while the buff lasts (Kilnheart: -50). Multiplies with other buffs. */
   cost?: number;
 }
 
 /** Live buff totals. `dr` (damage-taken factor) and `cci` (control immune) exist once a refresh ran. */
-export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean; cdrec?: number; /** resource-cost factor from buffs */ cost?: number }
+export interface LiveMods { dmg: number; chc: number; chd: number; ias: number; dr?: number; cci?: boolean; cdrec?: number; /** resource-cost factor from buffs */ cost?: number; mv?: number }
 
 /** Per-player state of the wave-2 power primitives (created on first use; never persisted). */
 export interface PowerState {
@@ -84,6 +86,8 @@ export interface Dot {
   spread?: boolean;
   /** Original duration and per-tick damage, for re-applying (spread). */
   durMs: number;
+  /** Also counts as this kind (dot rule alsoKind, e.g. Bleeds that also Burn). */
+  also?: DotKind;
 }
 
 // ─────────────────────────── Monsters ───────────────────────────
@@ -227,6 +231,9 @@ export interface MobPowerStatus {
   /** Outgoing damage × (1 − weakenPct / 100) while weakenMs > 0. */
   weakenMs: number;
   weakenPct: number;
+  /** Movement × (1 − slowPct / 100) while slowMs > 0 (the strongest active slow). */
+  slowMs: number;
+  slowPct: number;
   /** Walks toward `tauntTo` (a summon, ground or fixed point) instead of fighting while tauntMs > 0. */
   tauntMs: number;
   tauntTo: { x: number; y: number; dead?: boolean; endT?: number; kind?: string; id?: number } | null;
@@ -458,6 +465,8 @@ export interface Player extends Hashed {
   inOwnGround?: boolean;
   /** Wave-2 power state (internal cooldowns, first-hit / cheat-death timers, stacking progress). */
   pw?: PowerState;
+  /** The skill (or proc strike / ground id) whose cast, tick or hit is running: statuses it applies report it. */
+  acting?: string;
   kind: 'player';
   id: number;
   link: PlayerLink;

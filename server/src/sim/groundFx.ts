@@ -12,11 +12,13 @@ import type { Instance } from './instance';
 import { strikeFor } from './powerActions';
 import { resolveStatus, type RStatus } from './powerRuntime';
 import { applyStatus } from './status';
-import type { Ground, Mob, Player } from './types';
+import type { Dot, Ground, Mob, Player } from './types';
 import type { StatusSpec } from '../../../shared/src/powers';
 
 export interface GroundFx {
   def: GroundDef;
+  /** carriedDot statuses apply a copy of this (proc ground `carryDot`: your strongest dot on the trigger's enemy). */
+  dot?: Dot;
   /** Multiplier on every coefficient (proc `ground.scale`). */
   scale: number;
   /** Expected damage of 1.0 weapon-damage coefficient for this ground, fixed at placement. */
@@ -38,7 +40,7 @@ export interface GroundFx {
  * Place a ground from its definition at (x, y) facing `angle` (line grounds extend along it). Returns null for an
  * unknown id. Grounds over this owner's `maxPerOwner` remove the oldest first.
  */
-export function placeGround(inst: Instance, p: Player, defId: string, x: number, y: number, angle: number, scale = 1): Ground | null {
+export function placeGround(inst: Instance, p: Player, defId: string, x: number, y: number, angle: number, scale = 1, carried?: Dot): Ground | null {
   const def = GROUND_DEFS[defId];
   if (!def) return null;
   if (def.maxPerOwner) {
@@ -57,6 +59,7 @@ export function placeGround(inst: Instance, p: Player, defId: string, x: number,
     ax: x, ay: y, bx: x + Math.cos(angle) * len, by: y + Math.sin(angle) * len, offX: x - p.x, offY: y - p.y,
     wasInside: new Set(), entered: new Map(), insideMs: new Map(), done: new Set(), status: new Map(),
   };
+  if (carried) g.fx!.dot = carried;
   addGround(inst, g);
   if (def.visual) inst.emit({ e: 'aoe', v: def.visual, x: Math.round(g.x), y: Math.round(g.y), r: Math.round(g.r), d: def.durationMs, el: elIdx(el), s: p.id,
     ...(len ? { a: Math.round(angle * 1000) / 1000 } : {}), ...(g.follow || g.stick ? { f: 1 as const } : {}) }, x, y, p.id);

@@ -70,6 +70,7 @@ export function endChannel(inst: Instance, p: Player) {
 /** Generic channel upkeep (resource drain, grace without enemies), then the skill's own tick. */
 export function channelTick(inst: Instance, p: Player, dtMs: number) {
   const ch = p.channel!;
+  p.acting = ch.skill; // statuses the channel applies report it (applyStatus procs filtered by skill)
   const rt = p.ctx.slotted(ch.skill);
   if (!rt) { p.channel = null; return; }
   p.res -= skillCost(p, rt) * (dtMs / 1000);

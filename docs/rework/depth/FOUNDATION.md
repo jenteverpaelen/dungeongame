@@ -775,3 +775,127 @@ Other base changes:
 * SAVE_VERSION is now 16; renumber if the completion agent also bumps.
 * Tag grants still do not show in the Skills window.
 * Negative resource still has no HUD test.
+
+## 13. Engine wave 3 — the primitives the warrior pilot was blocked on (data formats)
+
+Each one is a no-op without content: no RNG draw, no float change. Sim output is byte-identical to the wave-3 baseline
+(timing lines excluded). Tests: `server/test/engineWave3.test.ts` (verify stage `depth`). Numbers in the tests are
+placeholders.
+
+### 13.1 Slow of chosen strength
+
+* **Status `{ kind: 'slow', pct, ms }`.** Movement only: chill also slows attacks, a slow does not.
+  * Allowed in procs, grounds (`tick` / `onEnter` / `insideFor`) and `applyStatus` from class code
+    (`server/src/sim/status.ts`).
+  * The strongest slow wins; an equal one refreshes the duration.
+  * Capped at 90 % (validation rejects more).
+  * Bosses (tier 4), goblins (tier 5) and dummies ignore it, as they ignore chill.
+* **State.** `MobPowerStatus.slowMs / slowPct`. Monster `step()` multiplies speed by `1 − slowPct / 100`.
+* **Condition.** Target state `slowed` holds while chilled or slowed.
+* **Display.** No new client flag. Content that needs a visual uses its own ground / aoe visual.
+
+### 13.2 Directional damage taken
+
+* **Conditions `{ targetInFront: deg }` and `{ targetBehind: deg }`.** Half angles in (0, 180], measured from your
+  facing (`p.mv.faceX / faceY`).
+  * On `damageTaken` they test the attacker.
+  * On hit terms they test the enemy hit.
+  * A hazard (no attacker) never counts.
+  * They are target conditions (`isTargetCondition`), so stacking / kill filters may use them.
+* **Example** (Furrowmark 4):
+  `{ kind: 'damageTaken', pct: -30, when: { all: [{ channeling: true }, { targetInFront: 90 }] } }`.
+
+### 13.3 Triggers `lifeBelow` and `dashEnd`
+
+* **`{ on: 'lifeBelow', lifePct: N }`.** Fires when one hit takes you from at least N % Life to below it, and you
+  survive.
+  * Fired in `damagePlayer` after the damage.
+  * It fires again only after you were healed back to N % or more.
+  * `lifePct` lies in (0, 100) and is required. No skill / tag filter (there is no strike).
+* **`{ on: 'dashEnd' }`.** Fires the tick a dash (the Movement skill) ends, from both input paths of
+  `processInputs`.
+  * `at: 'self'` actions happen at the landing point.
+  * No skill / tag filter.
+
+### 13.4 Proc action `castSkill`
+
+* **Format.** `castSkill: { skills?, tags?, pick?: 'longestCooldown' | 'first' }`. It casts one ready bar skill that
+  matches, for free.
+  * No resource is charged.
+  * Its cooldown starts (`skillCooldownMs`).
+  * Channels are never cast.
+  * `longestCooldown` takes the longest base cooldown; `first` takes the first slot.
+* **Context.** The cast runs with `p.acting` = that skill, so its own hits, statuses and procs attribute to it.
+* **Example** (Slagforged Helm):
+  `{ on: 'lifeBelow', lifePct: 35, castSkill: { tags: { anyOf: ['buff'] }, pick: 'longestCooldown' } }`.
+
+### 13.5 Dual dots, strongest dot, grounds that carry a dot
+
+* **Dot rule `alsoKind` / `element`.** `{ kind: 'dot', dot: 'bleed', alsoKind: 'burn', element: 'fire' }` means your
+  Bleeds also count as Burns.
+  * `Dot.also` makes target states `bleeding` / `burning` and the client status flags see both.
+  * `element` sets the dot's damage element.
+  * `alsoKind` must differ from `dot`.
+  * Class code that calls `hasDot(m, 'burn')` does not see `also`. Use conditions, or check `d.also`.
+* **`strongestDot(p, m)`.** Your dot on `m` with the highest damage per second (`perTick / tickMs`), returned as a
+  copy (`powerActions.ts`).
+* **Ground `carryDot`.** Proc ground `{ def, at, carryDot: true }` stores the strongest dot of the proc's enemy (for
+  example the killed one) on the ground (`GroundFx.dot`).
+  * The ground's status `{ kind: 'carriedDot', pct }` gives each enemy it reaches a fresh copy at `pct` % strength
+    (default 100) through `addOwnedDot`, so dot rules apply.
+  * Without a carried dot it does nothing.
+  * `carriedDot` is rejected outside grounds.
+  * A status with `origin: 'owner'` is applied from the player, not the ground, so `carriedDot` must not set it.
+
+### 13.6 applyStatus procs filtered by the applying skill
+
+* **`Player.acting`.** Holds the skill (or proc strike / ground id) whose code is running. It is set by:
+  * the brain around `castSkill`;
+  * `channelTick`;
+  * `strikeMob`;
+  * `castSkill` actions;
+  * `applyStatus`, which uses its `source`.
+* **Filter.** `{ on: 'applyStatus', status: ['stun'], skills: ['ground_stomp'] }` now validates and filters by that
+  skill. Tags work the same way.
+* **Still rejected.** `dash`, `dashEnd`, `takeDamage` and `lifeBelow` still reject skill / tag filters.
+
+### 13.7 Cheat death once per cast
+
+* **`cheatDeath.rearmOnCast: string[]`.** Casting one of these skills (brain cast) re-arms that cheat-death entry.
+* **"Once per standard".** Combine it with `cooldownMs: Infinity`.
+* **`lifePct: 0`.** Leaves you at 1 Life (the text says "1 Life").
+* **Example** (Last Rampart):
+  `{ kind: 'cheatDeath', lifePct: 0, cooldownMs: Infinity, invulnMs: 2000, rearmOnCast: ['muster_standard'],
+  when: { buff: 'muster_standard' } }`.
+
+### 13.8 Rule `noDecay`, stat `maxResource`, `vars.genPct`
+
+* **Rule `noDecay`.** `{ kind: 'rule', rule: { id: 'noDecay' } }`: your resource does not decay out of combat
+  (Fury). It takes no skill / tag targets.
+* **Stat `maxResource`.** Flat points; the text drops the "%".
+* **`vars.genPct`.** An additive % on the resource a skill generates, read by the helper `skillGain(p, rt, amount)` in
+  `damage.ts`.
+  * Without the var it is exactly `gainResource`.
+  * The warrior generators use it. Ranger / mage generators adopt it by replacing `gainResource(p, …)` with
+    `skillGain(p, rt, …)`.
+  * Example: `{ kind: 'skillMods', tags: { anyOf: ['primary'] }, mods: { vars: { genPct: -15 } } }`.
+
+### 13.9 Channel-fed stacks, buff movement speed
+
+* **Stacking `source: 'channel'`.** Progress is milliseconds of channelling (any channel). `per: 1000` means one stack
+  per second.
+  * While channelling, the buff does not decay (`decay: 'all'` keeps `ms` at `decayMs`).
+  * After the channel it lasts `decayMs`.
+  * No skill / tag / when filter.
+* **Buff movement speed.** `stackMoveSpeed` (per stack) on stacking, and `moveSpeed` / `stackMoveSpeed` on
+  `BuffGrant`. They are summed into `live.mv`.
+* **`movePct(p)`.** Sheet movement speed + `live.mv`, or `channelMsPct` while channelling. The server uses it in
+  `processInputs`; `MeState.ms` sends it whenever it differs from the sheet, so client prediction matches.
+* **Example** (Spinning Top):
+  `{ kind: 'stacking', buff: 'spinning_top', source: 'channel', per: 1000, max: 5, decayMs: 1000, stackDmg: 4,
+  stackMoveSpeed: 3 }`.
+
+### 13.10 Set reduction in the runtime
+
+* The test (5 pieces + Journeyman's Ring give the same 6-piece power as 6 pieces, and 5 pieces alone do not) runs
+  through `buildCtx`, which is the live power runtime.
