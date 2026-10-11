@@ -1,7 +1,14 @@
 # Warrior — content bible (M1: 12 skills, 5 runes, 6 nodes, 14 passives, 5 sets, 34 legendaries)
 
+> **v2 (2026-10-11).** Builds are no longer authored.
+> * §2 is an internal test-fixture list.
+> * §7 sets and §8 legendaries key off tags (`ITEMS-SHARED.md` §1); named-skill signatures are the minority.
+> * Shipping text describes mechanics only (`ITEMS-SHARED.md` §0).
+> * Skill and rune names here are working names and ids; shipping display names are in `NAMES.md`.
+> * Tags of every skill and the runes that change them: `ITEMS-SHARED.md` §1.2.
+
 Design document for the class agent. Approved plan: `docs/rework/ITEMS-AND-SKILLS-PLAN.md`. Shared conventions, legendary
-template kinds, item bases and affixes: `ITEMS-SHARED.md`. Parity arithmetic for every archetype below: `BUDGET.md`.
+template kinds, item bases and affixes: `ITEMS-SHARED.md`. Parity and diversity arithmetic: `BUDGET.md`; build tools: `BUILD-TOOLS.md`; names: `NAMES.md`.
 Reference patterns: `REFERENCES.md`.
 
 **Labels.** **[M]** measured/read in this repo · **[P]** proposal (number or rule to be confirmed by the parity/TTK
@@ -31,45 +38,26 @@ categories (a `category` field on `SkillDef` [P], the D3 class pages group skill
 
 Tolling Blow is a second primary: the existing `save.skills.primary` already lets a character pick its primary [M].
 
-## 2. Build archetypes
+## 2. Internal test fixtures (never shipped)
 
-Six archetypes cover the four requested playstyles (melee channel, slam/stun, bleed, buff/shout) plus two that did not
-exist: a front-cone channel (Ploughline) and a ranged-bleed thrower that is legendary-native (no set). Every archetype
-lists 3–5 *relevant* legendaries; the parity numbers are in `BUDGET.md` §4.
+These labels exist **only for the parity harness**. No item, set, skill text, tooltip or UI may use them or describe
+"a build" (`ITEMS-SHARED.md` §0 rule 1).
 
-| # | Archetype | Playstyle | Core skills (primary in italics) | Set | Relevant legendaries | Passives |
-|---|---|---|---|---|---|---|
-| W-A | **Gyre** | melee channel | Whirlwind, Rend, Battle Rage, Muster Standard, *Cleave* | Endless Storm | Ninefold Gale (2H), Gale-Stitched Legguards (legs), Girdle of the Eternal Gyre (belt), Tanner's Pauldrons (shoulders), Brass Warhorn Helm (head) | Turning Edge, Spinning Top, Iron Discipline, Open Veins |
-| W-B | **Faultline** | slam/stun | Seismic Slam, Ground Stomp, Cairnfall, Battle Rage, *Tolling Blow* | Fault Warden | Faultcleaver (2H), Fissure-Lined Breastplate (chest), Quakestep Sabatons (feet), Vambraces of the Anvil (bracers), Stonecount Gauntlets (hands) | Fault Reader, Bellwether, Deep Earth, Measured Recovery |
-| W-C | **Cinderblood** | bleed (fire-bleed) | Rend, Sawtooth Hatchet, Battle Rage, Ground Stomp, *Cleave (Hemorrhage Arc)* | Cinder Oath | Bloodwake (1H), Ashgrip Gauntlets (hands), Tanner's Pauldrons (shoulders), Red Ledger (amulet), Grinning Saw (1H, Cube) | Open Veins, Grudge Holder, Banked Fury, Rooted Heart |
-| W-D | **Warcaller** | buff/shout | Battle Rage, Muster Standard, Kilnheart, Ground Stomp, *Tolling Blow* | Hearthbanner (new) | Bellwright's Maul (mace), Ward Pennant Shield, Quartermaster's Cuirass (chest), Brass Warhorn Helm (head), Seething Sigil (amulet) | War Drummer, Bellwether, Second Wind, Measured Recovery |
-| W-E | **Ploughline** | front-cone channel, crowd push | Ironplough, Ground Stomp, Battle Rage, Muster Standard, *Tolling Blow* | Furrowmark (new) | Coulter Blade (2H), Yoke Greaves (legs), Ox-Harness Belt, Quakestep Sabatons (feet), Vambraces of the Anvil (bracers) | Spinning Top, Iron Discipline, Bellwether, Iron Poise |
-| W-F | **Hatchetwind** | ranged bleed, legendary-native | Sawtooth Hatchet, Rend (Gash Sense), Cairnfall, Battle Rage, *Cleave* | none (Patchwork Signet) | Grinning Saw (1H), Woodcutter's Grips (hands), Sawyer's Ring, Tanner's Pauldrons (shoulders), Bloodwake (Cube) | Open Veins, Grudge Holder, Iron Discipline |
+v2 replaces the v1 hand-picked kits with a search: for every main skill, `budget-model.mjs` picks the best support skill
+and the best kit from the whole item pool, over every set configuration (`BUDGET.md` §4). The six labels stay as named
+regression cases so results can be compared across versions. The playstyles the brief asked for are all still covered.
 
-How each plays (one paragraph each):
+| Label (internal) | Main skill | Support found by the search | Best configuration found (paper) | Playstyle covered |
+|---|---|---|---|---|
+| Gyre | Whirlwind | Cairnfall | Endless Storm 5 + Journeyman's Ring | melee channel |
+| Faultline | Cairnfall | Ironplough | Fault Warden 4 + 2 legendaries | slam / stun |
+| Cinderblood | Rend | Ironplough | no set (best hybrid: Cinder Oath 3 + ring) | bleed |
+| Warcaller | Tolling Blow | Sawtooth Hatchet | Fault Warden 3 + ring (4-piece bonus) | primary under buffs |
+| Ploughline | Ironplough | Sawtooth Hatchet | no set (best hybrid: Endless Storm 3 + ring) | front-cone channel |
+| Hatchetwind | Sawtooth Hatchet | Ironplough | no set | ranged bleed, legendary-only |
 
-* **Gyre.** Rend opens a pack, Whirlwind spins through it; Muster Standard (rune *Marching Orders*) keeps attack speed and
-  Fury flowing, Battle Rage keeps crit up. Set kit: the Storm makes Whirlwind apply Rend's bleed and ties the Dust Devils
-  to you. Legendary kit: Gale-Stitched Legguards (stacking *more* while spinning), Tanner's Pauldrons (bleeding enemies
-  take more from everything) and the Warhorn fill the six armour slots the set would occupy.
-* **Faultline.** Tolling Blow's tolls and Ground Stomp stun, Seismic Slam and Cairnfall cash the stun in (Anvil
-  Vambraces, Jarring Slam, the new vs-stunned nodes). Set kit: Fault Warden's fault lines re-stun and its 6-piece is a
-  vs-stunned multiplier. Legendary kit: Fissure-Lined Breastplate (vs-stunned *more*), Quakestep Sabatons (a stomp on
-  every dash) and Stonecount Gauntlets.
-* **Cinderblood.** Cleave with *Hemorrhage Arc* and Sawtooth Hatchet seed bleeds; Rend is the big bleed; *Open Veins*
-  lets bleeds stack. Set kit: Cinder Oath turns bleeds into burning bleeds that leave cinder pools on death. Legendary kit:
-  Ashgrip Gauntlets (Cleave *more* vs bleeding, extends bleeds) and Tanner's Pauldrons.
-* **Warcaller.** The damage is in the primary (Tolling Blow) under stacked buffs: Battle Rage, the Standard and the
-  Kilnheart window; War Drummer rewards having two up. Set kit: Hearthbanner's Standard walks with you and every third
-  blow shouts. Legendary kit: Bellwright's Maul (tolls every 2nd blow), the Pennant Shield and the Cuirass (two Standards).
-* **Ploughline.** Ironplough pushes a pack ahead of you in a 90° cone, ramping up to double damage; Ground Stomp and
-  Tolling Blow lock the pile. Set kit: Furrowmark stuns enemies shoved into each other and leaves an erupting furrow.
-  Furrowmark covers belt and bracers instead of legs and feet, so a hybrid keeps the leg and boot legendaries — a
-  deliberate slot puzzle (`ITEMS-SHARED.md` §4).
-* **Hatchetwind.** A thrower who never closes in: Sawtooth Hatchet out and back through a line, Rend cast at range
-  (*Gash Sense*), Cairnfall for packs that do reach you. No set exists for it on purpose; the shared **Patchwork Signet**
-  (bonus per legendary while no set bonus is active, `ITEMS-SHARED.md` §2) is its "set". It is the template for "a full
-  set of relevant legendaries" that the owner asked to be competitive.
+The other main skills (Cleave, Ground Stomp, Seismic Slam) are in the same search. Their best kits used Hearthbanner
+3 + ring, Fault Warden 4 + 2, and no set (best hybrid Furrowmark 3 + ring).
 
 ## 3. New skills (6)
 
@@ -204,7 +192,7 @@ Fury (Ground Stomp), buff 20 Fury (Battle Rage). Every new number below is place
 
 | Rune (unlock) | Effect | Mods |
 |---|---|---|
-| **Landslide** (42) | Cairns fall in a line toward the densest pack (to range 300) instead of a ring. | `flag:cairnLine` |
+| **Scree Line** (42) | Cairns fall in a line toward the densest pack (to range 300) instead of a ring. | `flag:cairnLine` |
 | **Waymarker** (45) | Cairns stay 6 s; every 2 s each one stuns enemies touching it (radius 50) for 1 s and deals 50% damage. | `flag:cairnStay` |
 | **Kiln Stones** (49) | Fire damage; each impact leaves molten ground for 2 s. | `{element:'fire'}`, `flag:cairnMolten` (reuse Meteor's molten ground [M]) |
 | **Debt of Stone** (54) | Eight cairns instead of five; cooldown +50%. | `{cooldown:+50}`, `flag:cairnMore` |
@@ -304,7 +292,7 @@ Values are r1 / r2 / r3. "(plain)" is the single plain-number node allowed per s
 |---|---|---|
 | N1 Long Fissure *(plain)* | Cone length +8 / 16 / 24%. | `{radius}` |
 | N2 Tremor Feed | Refunds 3 / 6 / 9 Fury when it hits 4+ enemies. | `slamRefund(r)` |
-| N3 Upheaval | Enemies in the far 30% of the cone are stunned 0.4 / 0.6 / 0.8 s. | `slamTipStun(r)` |
+| N3 Heave | Enemies in the far 30% of the cone are stunned 0.4 / 0.6 / 0.8 s. | `slamTipStun(r)` |
 | N4 Splayed Fault | Cone angle +10 / 20 / 30° but length −10%. | `slamWide(r)` |
 | N5 Bedrock Pace | Each slam within 2 s of the last costs 3 / 6 / 9 less Fury (stacks 3). | `slamChain(r)` |
 | N6 Open Crack | The cone leaves a crack for 1 / 1.5 / 2 s; enemies entering it take 40% of the slam once. | `slamCrack(r)` [NEW-BEHAVIOUR] ground kind `crack` |
@@ -383,124 +371,121 @@ Values are r1 / r2 / r3. "(plain)" is the single plain-number node allowed per s
 
 Existing [M] (kept unchanged, `shared/src/passives.ts`): Turning Edge (Whirlwind damage, L10), Fault Reader (Seismic Slam
 damage, L10), Banked Fury (resource regeneration, L20), Measured Recovery (cooldown reduction, L30), Rooted Heart (Life,
-L40), Iron Poise (Armor, L50). Passive slots stay at 4 (levels 10/20/30/70 [M]). New passives are rules, not stats
-(the D3 Barbarian page lists 19 passives from L10 to L68, mostly conditional triggers — `REFERENCES.md` §1):
+L40), Iron Poise (Armor, L50). Passive slots stay at 4 (levels 10/20/30/70 [M]).
 
-| Passive (unlock) | Effect | Archetypes | Template / behaviour |
-|---|---|---|---|
-| **Bellwether** (14) | Stunning an enemy grants 2 Fury (max 10 per second) and +4% attack speed for 4 s (max 5 stacks). | Faultline, Warcaller, Ploughline | onEvent(stun) → resource + stacking buff [NEW-BEHAVIOUR] stun event hook |
-| **Open Veins** (18) | Bleeds no longer refresh: each new application adds a separate instance (max 3 per enemy per skill), each at 70% strength. | Cinderblood, Hatchetwind, Gyre | [NEW-BEHAVIOUR] dot stacking in `addDot` |
-| **Spinning Top** (24) | While channeling, each second adds +4% damage (max 5) and +3% movement speed; stacks last 1 s after the channel. | Gyre, Ploughline | channel-time buff |
-| **War Drummer** (28) | Battle Rage, Muster Standard and Kilnheart last 30% longer; while two of them are active, your primary attack deals 25% increased damage. | Warcaller | duration mod + conditional skill bonus |
-| **Grudge Holder** (36) | The first elite that damages you every 10 s is marked for 6 s and takes 15% more damage from you. | all (bosses) | uses the existing mark fields (`markMs/markPct` [M]) |
-| **Deep Earth** (45) | Ground Stomp, Seismic Slam, Cairnfall and Tolling Blow's tolls leave tremor ground for 2 s that slows enemies 30%; you deal 10% more damage to slowed enemies. | Faultline | [NEW-BEHAVIOUR] ground kind `tremor` + vs-chilled bonus |
-| **Second Wind** (55) | Once every 90 s, fatal damage instead leaves you at 40% Life and resets Ground Stomp and Cairnfall. | defensive, all | [NEW-BEHAVIOUR] cheat-death hook (shared with Last Rampart) |
-| **Iron Discipline** (64) | Fury no longer decays and maximum Fury +20; Fury generated by primary attacks −15%. | Gyre, Ploughline, Hatchetwind | resource rule change |
+New passives are rules, not stats, and v2 keys them to tags instead of skill names. The D3 Barbarian page lists 19
+passives from L10 to L68, mostly conditional triggers (`REFERENCES.md` §1).
 
-## 7. Sets: three redesigned, two new
+| Passive (unlock) | Effect (shipping text) | Template / behaviour |
+|---|---|---|
+| **Bellwether** (14) | Stunning an enemy grants 2 Fury (max 10 per second) and 4% attack speed for 4 s (max 5 stacks). | onEvent(stun) → resource + stacking buff [NEW-BEHAVIOUR] stun event hook |
+| **Open Veins** (18) | Your Bleeds no longer refresh: each new application adds a separate instance (max 3 per enemy per skill), each at 70% strength. | [NEW-BEHAVIOUR] dot stacking in `addDot` |
+| **Spinning Top** (24) | While channelling, each second adds 4% damage (max 5 stacks) and 3% movement speed; stacks last 1 s after the channel. | channel-time buff |
+| **War Drummer** (28) | Your Buff skills last 30% longer; while two Buff skills are active, your Primary skills deal 25% increased damage. | duration mod + conditional skill bonus |
+| **Grudge Holder** (36) | The first elite that damages you every 10 s is Marked for 6 s and takes 15% more damage from you. | existing mark fields (`markMs/markPct` [M]) |
+| **Deep Earth** (45) | Your Stun skills leave tremor ground for 2 s that slows enemies by 30%; you deal 10% more damage to slowed enemies. | [NEW-BEHAVIOUR] ground kind `tremor` |
+| **Second Wind** (55) | Once every 90 s, fatal damage instead leaves you at 40% Life and resets the cooldowns of your Stun skills. | [NEW-BEHAVIOUR] cheat-death hook |
+| **Iron Discipline** (64) | Fury no longer decays and maximum Fury +20; Fury generated by Primary skills −15%. | resource rule change |
 
-Rule [P] (`BUDGET.md` §3): the whole set (2+4+6, including the damage value of its transforms) may multiply a skill by at
-most **×2.5** against the same character in six rares; the 6-piece is a **transform** (damage value ≤ ×1.10) plus an
-own-bucket multiplier of **×1.25** (unconditional) or **×1.35 while a condition holds**, hard cap ×1.3 effective. The 2- and
-4-piece carry most of the value (≈×1.5–1.7 together) so a 4-piece hybrid stays competitive.
-Today's 6-pieces are ×51 (Endless Storm), ×127 (Cinder Oath) and ×22 (Fault Warden) [M, `playerctx.ts` / P11 report].
-Standard warrior footprint [M]: horned helm, spiked mantle, breastplate, gauntlets, legplates, sabatons.
+## 7. Sets: building blocks keyed on tags
 
-### Raiment of the Endless Storm (redesign) — motif *wind* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Whirlwind gains Dust Devils. | Whirlwind gains Dust Devils (frees the rune slot) and costs 25% less Fury. | `flag:dustDevils`, `{cost:-25}` |
-| 4 | 50% less damage while whirling; Whirlwind applies Rend's bleed at +200%. | 40% less damage while whirling; Whirlwind applies Rend's bleed (your Rend rune and nodes apply, no +200%). | `stormDR` → 0.6, `whirlRend` without the ×3 |
-| 6 | Whirlwind, Dust Devils and the bleeds deal +5,000% (×51). | **Transform:** Dust Devils no longer wander; they orbit at the edge of your Whirlwind and pull enemies 15 units inward per tick. Whirlwind, Dust Devils and all your bleeds deal **×1.25** (own bucket). | `devilOrbit` [NEW-BEHAVIOUR], `multiplier:1.25` on whirlwind, dust_devil, rend |
+Structure decision, the set-reduction ring and the evidence: `ITEMS-SHARED.md` §4 and `REFERENCES.md` §7.
+* **Rule [P]:** the 6-piece is a **transform** (damage value ≤ ×1.10) plus an own-bucket multiplier of **×1.25**, or
+  **×1.35 while a condition holds**; hard cap ×1.3 effective.
+* The 2- and 4-piece carry most of the value. A whole set is at most ×2.5 per skill.
+* Values are the ones the diversity model uses (`budget-model.mjs`).
+* Today's 6-pieces are ×51 (Endless Storm), ×127 (Cinder Oath) and ×22 (Fault Warden) [M].
+* Standard warrior footprint [M]: horned helm, spiked mantle, breastplate, gauntlets, legplates, sabatons.
+* Texts below are shipping text: mechanics only.
 
-### Fault Warden (redesign) — motif *stone* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Seismic Slam and Ground Stomp +40% radius. | Seismic Slam, Ground Stomp and Cairnfall +30% radius; Ground Stomp cooldown −20%. | `{radius:+30}`, `{cooldown:-20}` |
-| 4 | Ground Stomp cooldown −30%. | Seismic Slam hits on stunned enemies trigger an aftershock for 50% of the hit 1 s later; you take 20% less damage from stunned enemies. | `slamStunAftershock` [NEW-BEHAVIOUR], `stunnedDR` |
-| 6 | Both deal +2,100% (×22). | **Transform:** Seismic Slam raises a fault line along its cone for 3 s; enemies crossing it are stunned 1 s (once per 3 s each). Seismic Slam, Ground Stomp and Cairnfall deal **×1.35 to stunned enemies** (own bucket, conditional). | ground `faultline` [NEW-BEHAVIOUR], conditional multiplier |
-
-### Cinder Oath (redesign) — motif *ember* (unchanged)
-| Pieces | Today [M] | Redesign [P] | Data |
-|---|---|---|---|
-| 2 | Cleave and Rend reach 40% further. | Cleave and Rend +30% radius; Rend's bleed deals Fire damage (it still counts as a bleed). | `{radius:+30}`, `{element:'fire'}` on Rend |
-| 4 | Rend costs 40% less Fury. | Rend costs 40% less Fury; Cleave hits extend your bleeds on the target by 0.5 s (max 10 s total) and Cleave deals 20% more damage to bleeding enemies. | `{cost:-40}`, `cleaveExtendBleed`, conditional multiplier on Cleave |
-| 6 | Cleave and Rend deal +12,600% (×127). | **Transform:** enemies that die while bleeding burst into a cinder pool (radius 80, 2 s) that applies your Rend bleed at 50% strength to enemies inside. Cleave, Rend and Sawtooth Hatchet deal **×1.25**. | ground `cinder` [NEW-BEHAVIOUR], `multiplier:1.25` |
-
-### Hearthbanner (new) — motif *banner* (new)
-Footprint: standard warrior. Colours primary 0x8c2f24 (madder red), secondary 0xd8b45a (brass), glow 0x3cff6e (every set
-glows 0x3cff6e today [M]). Pieces: Hearthbanner Crest (horned helm), Pennant Spaulders (spiked mantle), Banner-Bearer's
-Plate (breastplate), Haft Grips (gauntlets), Muster Legplates, March Sabatons.
+### Raiment of the Endless Storm — keys off **Channel** — motif *wind*
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | Muster Standard cooldown −30%; Battle Rage also grants +10% attack speed. | `{cooldown:-30}` on Standard, `rageIas` |
-| 4 | Inside your Standard you take 25% less damage, and your primary attack generates +3 Fury and deals 25% more damage. | `standardDR`, `standardGen`, conditional multiplier 1.25 on the primary |
-| 6 | **Transform:** your Standard follows you (as *Marching Orders* without the radius penalty); every 3rd primary attack inside it releases a war-cry shockwave (radius 140, 100% weapon damage). Primary attacks, shockwaves and Kilnheart's ignites deal **×1.25** while Battle Rage is active (≈95% uptime). | `standardCarry`, `warcryShock` [NEW-BEHAVIOUR], conditional multiplier |
+| 2 | Your Channel skills cost 25% less and you move 15% faster while channelling. | `{cost:-25}` on Channel, move factor |
+| 4 | While channelling you take 40% less damage, and your Channel hits make enemies Bleed for 30% of the hit over 3 s. | `channelDR`, channel bleed [NEW-BEHAVIOUR] |
+| 6 | **Transform:** while you channel, a wind wisp spawns every second and orbits you, pulling enemies inward (wisps deal 25% of your channel's damage). Your Channel skills and wisps deal **×1.25**. | wisps (the Dust Devil summon, now channel-driven) [NEW-BEHAVIOUR], `multiplier:1.25` on Channel |
 
-### Furrowmark (new) — motif *furrow* (new)
-Footprint **head, shoulders, chest, hands, belt, bracers** (legs and feet stay free for legendaries — the slot puzzle in
-`ITEMS-SHARED.md` §4). Colours primary 0x5e4a33 (loam), secondary 0x9aa1a6 (iron), glow 0x3cff6e. Pieces: Furrowmark Helm
-(helm), Share-Plate Spaulders (plate spaulders), Ploughman's Hauberk (hauberk), Haft Gauntlets, Harness Belt, Yoke-Ring
-Bracers.
+### Fault Warden — keys off **Stun** — motif *stone*
 | Pieces | Bonus [P] | Data |
 |---|---|---|
-| 2 | Ironplough's cone +25% wider; it costs 20% less Fury. | `{radius:+25, cost:-20}` |
-| 4 | Enemies pushed by Ironplough into a wall or another enemy are stunned 1 s and take 20% more damage from Ironplough while stunned; while channeling you take 30% less damage from the front. | `ploughWallStun` [NEW-BEHAVIOUR], conditional multiplier, `ploughGuard` |
-| 6 | **Transform:** Ironplough leaves a 3 s furrow behind you; enemies crossing it are struck for 50% weapon damage and knocked into your path (once per second each); ramp is kept 2 s after the channel stops. Ironplough and furrows deal **×1.25**. | ground `furrow` [NEW-BEHAVIOUR], `multiplier:1.25` |
+| 2 | Your Stun skills' areas are 25% larger and their cooldowns 15% shorter. | Stun-tag mods |
+| 4 | Your Spender hits on Stunned enemies trigger an aftershock for 50% of the hit 1 s later; your Stun skills deal 15% more damage; you take 20% less damage from Stunned enemies. | aftershock [NEW-BEHAVIOUR], `stunnedDR` |
+| 6 | **Transform:** stunning an enemy raises a fault line under it for 3 s that re-stuns enemies crossing it (once per 3 s each). All your skills deal **×1.35 to Stunned enemies**. | ground `faultline` [NEW-BEHAVIOUR], conditional multiplier |
 
-## 8. Legendaries (6 existing + 28 new = 34)
+### Cinder Oath — keys off **Bleed, Burn, Primary** — motif *ember*
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Bleeds also Burn (they deal Fire damage and count as both); your Bleed and Burn skills' areas are 20% larger. | tag grant Bleed→Burn, `{radius:+20}` |
+| 4 | Your Primary hits extend Bleeds and Burns on the target by 0.5 s (max 10 s); your Primary skills deal 20% more damage to Bleeding or Burning enemies; your Bleed and Burn skills cost 30% less. | dot extension, conditional multiplier, `{cost:-30}` |
+| 6 | **Transform:** enemies that die while Bleeding or Burning burst into a cinder pool (radius 80, 2 s) that applies your strongest damage-over-time at 50%. Your Bleed, Burn and Primary skills deal **×1.25**. | ground `cinder` [NEW-BEHAVIOUR], `multiplier:1.25` |
 
-Template kinds and the Cube rule (extracted powers roll at maximum, one weapon / armor / jewelry power [M]) are defined in
-`ITEMS-SHARED.md` §1. Magnitude anchors [M]: skill-signature weapons +150–200% increased damage (Faultcleaver, Bloodwake,
-Ninefold Gale); vulnerability powers 25–30% (Anvil Vambraces); cost/cooldown 30–50% (Eternal Gyre 40–50); off-hand
-signature 200–250% (Bulwark of the Last Light). New **skillMore** powers (an own-bucket ×, the template that lets a
-legendary kit stack multiplicatively like a set) are 25–40% [P], set in `BUDGET.md` §3. FP = in the standard set
-footprint (blocked for a set kit except through the Cube).
+### Hearthbanner — keys off **Buff, Primary** — motif *banner* (new)
+Colours primary 0x8c2f24, secondary 0xd8b45a, glow 0x3cff6e (every set glows 0x3cff6e [M]). Pieces: Hearthbanner Crest,
+Pennant Spaulders, Banner-Bearer's Plate, Haft Grips, Muster Legplates, March Sabatons (standard footprint).
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Buff skills' cooldowns are 25% shorter, and each active Buff grants 5% attack speed. | Buff-tag mods, buff ias |
+| 4 | While a Buff skill is active you take 20% less damage, and your Primary skills generate 3 more Fury and deal 25% more damage. | conditional multiplier |
+| 6 | **Transform:** your Ground buffs follow you; every 3rd Primary hit while a Buff is active releases a shockwave (radius 140, 100% weapon damage). Primary skills, shockwaves and Burns deal **×1.25 while a Buff skill is active**. | `groundFollow`, `warcryShock` [NEW-BEHAVIOUR], conditional multiplier |
 
-| Legendary | Base (slot) | Power (`{v}` = rolled) | Range | Template | Cube | Archetype |
+### Furrowmark — keys off **Displace, Channel** — motif *furrow* (new)
+Footprint **head, shoulders, chest, hands, belt, bracers** (legs and feet stay free). Colours primary 0x5e4a33, secondary
+0x9aa1a6, glow 0x3cff6e. Pieces: Furrowmark Helm, Share-Plate Spaulders, Ploughman's Hauberk, Haft Gauntlets, Harness
+Belt, Yoke-Ring Bracers.
+| Pieces | Bonus [P] | Data |
+|---|---|---|
+| 2 | Your Displace effects move enemies 50% farther; your Channel and Displace skills cost 15% less. | displace distance, `{cost:-15}` |
+| 4 | Enemies you Displace into a wall or another enemy are Stunned for 1 s; your Displace skills deal 35% more damage to enemies Displaced in the last 2 s; you take 30% less damage from enemies in front of you while channelling. | collision stun [NEW-BEHAVIOUR], conditional multiplier, directional DR |
+| 6 | **Transform:** Displaced enemies leave a 3 s furrow that strikes enemies crossing it for 50% weapon damage and pushes them toward you; ramp-up effects are kept for 2 s after a channel ends. Your Displace skills deal **×1.25**. | ground `furrow` [NEW-BEHAVIOUR], `multiplier:1.25` |
+
+## 8. Legendaries (6 existing + 28 new = 34; 12 named, 22 tag-keyed)
+
+Template kinds, selectors and the Cube rule: `ITEMS-SHARED.md` §1.3.
+* **Named** = the chase layer (one signature per skill, mostly weapons).
+* **Tag** = keyed on tags or a mechanic. 21 of the 28 new items are tag-keyed (75%).
+* Magnitude anchors [M]: named weapon signatures +150–200% (Faultcleaver, Bloodwake, The Ninefold Gale); vulnerability
+  25–30% (Vambraces of the Anvil); cost 40–50% (Girdle of the Eternal Gyre); off-hand named 200–250% (Bulwark of the Last
+  Light).
+* New tag additives are 60–90% and new skillMore 25–40% [P], both checked by the diversity search (`BUDGET.md` §4).
+* FP = in the standard set footprint.
+* Coverage: every warrior main skill is touched by its named signature plus 4–9 tag-keyed legendaries.
+
+| Legendary | Layer | Base (slot) | Power (shipping text; `{v}` = rolled) | Range | Template | Cube |
 |---|---|---|---|---|---|---|
-| Faultcleaver [M] | Great Axe (2H) | Seismic Slam deals {v}% increased damage and costs 40% less Fury. | 150–200 | skillDamage + skillMods | weapon | Faultline |
-| The Ninefold Gale [M → P] | Great Axe (2H) | Whirlwind always spawns Dust Devils, and **Whirlwind and** Dust Devils deal {v}% increased damage. *Changed* [P]: today the roll applies to Dust Devils only; without a Whirlwind-damage signature the Gyre archetype's kit factor is half the class's (`BUDGET.md` §6). | 150–200 | skillFlag + skillDamage | weapon | Gyre |
-| Bloodwake [M] | Sword (1H) | Rend's bleed deals {v}% increased damage. | 150–200 | skillDamage | weapon | Cinderblood, Hatchetwind |
-| Girdle of the Eternal Gyre [M] | Belt | Whirlwind costs {v}% less Fury; 20% less damage taken while whirling. | 40–50 | skillMods | armor | Gyre |
-| Vambraces of the Anvil [M] | Bracers | Stunned enemies take {v}% increased damage from you. | 25–30 | vulnerability | armor | Faultline, Ploughline, Warcaller |
-| Bulwark of the Last Light [M] | Shield | Ground Stomp pulls in distant enemies and deals {v}% increased damage. | 200–250 | skillFlag + skillDamage | armor | Faultline, Warcaller |
-| **Millwheel Edge** | Sword (1H) | Cleave hits all around you (360°) and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Cinderblood, Gyre |
-| **Ashgrip Gauntlets** | Gauntlets (FP) | Cleave deals {v}% more damage to bleeding enemies and extends their bleeds by 0.5 s. | 25–40 | skillMore (cond.) | armor | Cinderblood |
-| **Thresher's Knot** | Ring | Each enemy Cleave hits beyond the first reduces Ground Stomp and Cairnfall cooldowns by {v} s. | 0.05–0.1 | cooldown | jewelry | Faultline, Cinderblood |
-| **Gale-Stitched Legguards** | Legplates (FP) | Each second spent whirling adds a stack (max 5); each stack makes Whirlwind deal {v}% more damage. | 6–8 | skillMore (stacking) | armor | Gyre |
-| **Tanner's Pauldrons** | Spiked Mantle (FP) | Rend +30% radius; enemies bleeding from any of your skills take {v}% increased damage from you. | 15–25 | vulnerability (bleeding) | armor | Gyre, Cinderblood, Hatchetwind |
-| **Red Ledger** | Amulet | Rend costs 40% less Fury and each bleeding enemy that dies restores {v} Fury. | 3–5 | resource | jewelry | Cinderblood, Hatchetwind |
-| **Quakestep Sabatons** | Sabatons (FP) | Each Dash ends with a free Ground Stomp (no cooldown cost) at {v}% damage. | 60–80 | proc | armor | Faultline, Ploughline |
-| **Fissure-Lined Breastplate** | Breastplate (FP) | Seismic Slam continues 30% further through enemies it kills and deals {v}% more damage to stunned enemies. | 30–45 | skillMore (cond.) | armor | Faultline |
-| **Tremor Signet** | Ring | Seismic Slam reduces Ground Stomp's cooldown by {v} s per enemy hit (max 2 s per cast). | 0.2–0.3 | cooldown | jewelry | Faultline |
-| **Brass Warhorn Helm** | Horned Helm (FP) | Battle Rage also grants {v}% attack speed; its critical hits generate 2 Fury. | 8–12 | buff | armor | Gyre, Warcaller |
-| **Furycord Belt** | Belt | While Battle Rage is active, Fury costs are {v}% lower. | 15–20 | resource | armor | Gyre, Cinderblood |
-| **Seething Sigil** | Amulet | Battle Rage's damage bonus is {v} points higher while you are above 50 Fury. | 10–15 | buff | jewelry | Warcaller |
-| **Bellwright's Maul** | Mace (1H) | Tolling Blow tolls every 2nd blow and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Warcaller, Faultline |
-| **Belfry Pauldrons** | Plate Spaulders (FP) | Toll shockwaves are {v}% larger and stun already-stunned enemies 1 s longer. | 30–40 | skillMods | armor | Faultline, Warcaller |
-| **Grinning Saw** | Axe (1H) | Sawtooth Hatchet returns twice (three passes) and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Hatchetwind, Cinderblood |
-| **Woodcutter's Grips** | Gauntlets (FP) | Sawtooth Hatchet costs no Fury when it hits 4+ enemies and deals {v}% more damage to bleeding enemies. | 25–35 | skillMore (cond.) | armor | Hatchetwind |
-| **Sawyer's Ring** | Ring | Enemies killed by Sawtooth Hatchet's bleed throw a free hatchet at the nearest enemy for {v}% damage. | 60–80 | proc | jewelry | Hatchetwind |
-| **Ward Pennant Shield** | Shield | Your Standard is 30% larger, and you and allies inside deal {v}% increased damage. | 10–15 | buff (generic) | armor | Warcaller, Ploughline |
-| **Quartermaster's Cuirass** | Breastplate (FP) | You may plant two Standards; while you stand in one, your primary attack deals {v}% more damage. | 25–35 | skillMore (cond.) | armor | Warcaller |
-| **Rally Knot** | Ring | Planting your Standard grants {v} Fury and reduces all cooldowns by 2 s. | 20–30 | resource | jewelry | Warcaller |
-| **Coulter Blade** | Greatsword (2H) | Ironplough reaches full ramp twice as fast and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Ploughline |
-| **Yoke Greaves** | Legplates (FP) | Ironplough's cone is 40% wider and pushed enemies take {v}% more damage from Ironplough for 2 s. | 25–35 | skillMore (cond.) | armor | Ploughline |
-| **Ox-Harness Belt** | Belt | While channeling Ironplough you take {v}% less damage and cannot be knocked back. | 15–20 | defensive | armor | Ploughline |
-| **Cairnwright's Hammer** | Mace (1H) | Cairnfall drops 3 more cairns and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon | Faultline, Hatchetwind |
-| **Stonecount Gauntlets** | Gauntlets (FP) | Each enemy stunned by Cairnfall increases your damage by 2% for 8 s (max {v}%). | 20–30 | buff (generic) | armor | Faultline |
-| **Kilnmaw** | Maul (2H, new base) | Kilnheart lasts 5 s longer and its ignites deal {v}% increased damage. | 150–200 | skillDamage + skillMods | weapon | Warcaller |
-| **Slagforged Helm** | Helm (FP) | Kilnheart's cooldown is {v}% shorter, and it activates by itself when you fall below 35% Life. | 25–35 | skillMods | armor | Warcaller |
-| **Coalheart Locket** | Amulet | While Kilnheart is active your Fire damage is increased by {v}%. | 30–40 | element | jewelry | Warcaller, Cinderblood |
-
-**Coverage (≥3 relevant per skill):** Cleave — Millwheel Edge, Ashgrip Gauntlets, Thresher's Knot · Whirlwind — The Ninefold
-Gale, Girdle of the Eternal Gyre, Gale-Stitched Legguards · Rend — Bloodwake, Tanner's Pauldrons, Red Ledger · Ground Stomp — Bulwark of the Last
-Light, Vambraces of the Anvil, Quakestep Sabatons · Seismic Slam — Faultcleaver, Fissure-Lined Breastplate, Tremor Signet ·
-Battle Rage — Brass Warhorn Helm, Furycord Belt, Seething Sigil · Tolling Blow — Bellwright's Maul, Belfry Pauldrons,
-Vambraces of the Anvil · Sawtooth Hatchet — Grinning Saw, Woodcutter's Grips, Sawyer's Ring · Muster Standard — Ward Pennant
-Shield, Quartermaster's Cuirass, Rally Knot · Ironplough — Coulter Blade, Yoke Greaves, Ox-Harness Belt · Cairnfall —
-Cairnwright's Hammer, Stonecount Gauntlets, Vambraces of the Anvil · Kilnheart — Kilnmaw, Slagforged Helm, Coalheart Locket.
+| Faultcleaver [M] | Named | Great Axe (2H) | Seismic Slam deals {v}% increased damage and costs 40% less Fury. | 150–200 | skillDamage + skillMods | weapon |
+| The Ninefold Gale [M; changed, approved] | Named | Great Axe (2H) | Whirlwind always spawns Dust Devils, and Whirlwind and Dust Devils deal {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| Bloodwake [M] | Named | Sword (1H) | Rend's bleed deals {v}% increased damage. | 150–200 | skillDamage | weapon |
+| Girdle of the Eternal Gyre [M] | Named | Belt | Whirlwind costs {v}% less Fury; 20% less damage taken while whirling. | 40–50 | skillMods | armor |
+| Vambraces of the Anvil [M] | Tag (Stun) | Bracers | Stunned enemies take {v}% increased damage from you. | 25–30 | vulnerability | armor |
+| Bulwark of the Last Light [M] | Named | Shield | Ground Stomp pulls in distant enemies and deals {v}% increased damage. | 200–250 | skillFlag + skillDamage | armor |
+| **Millwheel Edge** | Named | Sword (1H) | Cleave hits all around you (360°) and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Bellwright's Maul** | Named | Mace (1H) | Tolling Blow tolls every 2nd blow and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Grinning Saw** | Named | Axe (1H) | Sawtooth Hatchet returns twice (three passes) and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Quartermaster's Cuirass** | Named | Breastplate (FP) | You may plant two Muster Standards; while you stand in one, your Primary skills deal {v}% more damage. | 20–30 | skillMods + skillMore (cond.) | armor |
+| **Coulter Blade** | Named | Greatsword (2H) | Ironplough reaches full ramp twice as fast and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Cairnwright's Hammer** | Named | Mace (1H) | Cairnfall drops 3 more cairns and deals {v}% increased damage. | 150–200 | skillFlag + skillDamage | weapon |
+| **Kilnmaw** | Named | Maul (2H, new base) | Kilnheart lasts 5 s longer, and your Burn effects deal {v}% increased damage. | 150–200 | skillMods + skillDamage (Burn) | weapon |
+| **Ashgrip Gauntlets** | Tag (Primary, Bleed) | Gauntlets (FP) | Your Primary skills deal {v}% more damage to Bleeding enemies and extend their Bleeds by 0.5 s. | 25–40 | skillMore (cond.) | armor |
+| **Thresher's Knot** | Tag (Primary → Stun) | Ring | Each enemy a Primary skill hits beyond the first reduces your Stun skills' cooldowns by {v} s. | 0.05–0.1 | cooldown | jewelry |
+| **Gale-Stitched Legguards** | Tag (Channel) | Legplates (FP) | Each second you channel adds a stack (max 5); each stack makes your Channel skills deal {v}% more damage. | 6–8 | skillMore (stacking) | armor |
+| **Tanner's Pauldrons** | Tag (Bleed) | Spiked Mantle (FP) | Bleeding enemies take {v}% more damage from you. | 15–25 | vulnerability (bleeding) | armor |
+| **Red Ledger** | Tag (Bleed) | Amulet | Your Bleed skills cost 30% less, and each Bleeding enemy that dies restores {v} Fury. | 3–5 | resource | jewelry |
+| **Quakestep Sabatons** | Tag (Movement) | Sabatons (FP) | When a Movement skill ends, a tremor stuns enemies within 120 units for 1 s and deals {v}% weapon damage (once per 3 s). | 60–80 | proc | armor |
+| **Fissure-Lined Breastplate** | Tag (Spender, Stun) | Breastplate (FP) | Your Spender skills deal {v}% more damage to Stunned enemies. | 30–45 | skillMore (cond.) | armor |
+| **Tremor Signet** | Tag (Displace → Cooldown) | Ring | Each enemy you Displace reduces your Cooldown skills' cooldowns by {v} s (max 1.5 s per cast). | 0.2–0.3 | cooldown | jewelry |
+| **Brass Warhorn Helm** | Tag (Buff → Primary, Strike) | Horned Helm (FP) | While a Buff skill is active, your Primary and Strike skills attack {v}% faster. | 8–12 | buff | armor |
+| **Furycord Belt** | Tag (Buff → Spender) | Belt | While a Buff skill is active, your Spender skills deal {v}% increased damage. | 60–90 | skillDamage (cond.) | armor |
+| **Seething Sigil** | Tag (Buff) | Amulet | While you are above 50 Fury, your Buff skills' damage bonuses are {v} points higher. | 10–15 | buff | jewelry |
+| **Belfry Pauldrons** | Tag (Stun) | Plate Spaulders (FP) | Your Stun skills' areas are {v}% larger, and they stun already-stunned enemies 1 s longer. | 30–40 | skillMods | armor |
+| **Woodcutter's Grips** | Tag (Bleed) | Gauntlets (FP) | Your Bleed skills deal {v}% more damage to enemies already Bleeding, and cost no Fury when they hit 4+ enemies. | 25–35 | skillMore (cond.) | armor |
+| **Sawyer's Ring** | Tag (Bleed) | Ring | Enemies killed by your Bleeds fling a shard at the nearest enemy for {v}% weapon damage that applies a Bleed. | 60–80 | proc | jewelry |
+| **Ward Pennant Shield** | Tag (Ground) | Shield | Your Ground effects are 30% larger, and you and allies inside them deal {v}% increased damage. | 15–20 | buff (generic) | armor |
+| **Rally Knot** | Tag (Buff) | Ring | Casting a Buff skill grants {v} Fury and reduces your other cooldowns by 2 s. | 20–30 | resource | jewelry |
+| **Yoke Greaves** | Tag (Displace) | Legplates (FP) | Enemies you Displace take {v}% more damage from you for 2 s. | 25–35 | vulnerability (displaced) | armor |
+| **Ox-Harness Belt** | Tag (Channel) | Belt | While channelling you take {v}% less damage. | 15–20 | defensive | armor |
+| **Stonecount Gauntlets** | Tag (Stun) | Gauntlets (FP) | Each enemy you Stun increases your damage by 1% for 8 s (max {v}%). | 15–25 | buff (generic) | armor |
+| **Slagforged Helm** | Tag (Buff) | Helm (FP) | Your Buff skills' cooldowns are {v}% shorter; when you fall below 35% Life, your Buff skill with the longest cooldown activates. | 20–30 | skillMods + proc | armor |
+| **Coalheart Locket** | Tag (Buff → Burn) | Amulet | While a Buff skill is active, your Burn effects deal {v}% more damage. | 30–40 | skillMore (cond.) | jewelry |
 
 Flavour lines (original, tone of the existing ones [M]): Millwheel Edge "It turns whether or not there is grain." ·
 Ashgrip Gauntlets "Warm to the touch, always." · Thresher's Knot "Tied by a farmhand who never missed a harvest." ·
@@ -519,16 +504,30 @@ stands." · Stonecount Gauntlets "One for each that fell." · Kilnmaw "Kessa apo
 
 ## 9. [NEW-BEHAVIOUR] summary for the Warrior
 
-1. Cast functions for the six new skills (`tollingBlow`, `sawtoothHatchet` + returning projectile kind, `musterStandard`
-   + ground kind `standard` with a party buff tick, `ironplough` channel with ramp + movement factor, `cairnfall`
-   scheduled impacts, `kilnheart` buff with a cost multiplier and on-hit ignite).
-2. Player-side: damage-reduction buff field (Watch Bell, Braced Swing, Iron Root, Slag Skin, standard/stunned/front DR),
-   control-immunity window (Iron Root), cheat-death hook (Last Rampart, Second Wind), movement factor while channeling.
-3. Monster-side: taunt to an entity (Taunting Colours), outgoing-damage debuff (Concussion), stun event hook for passives
-   (Bellwether), dot stacking (Open Veins), dot carry-over (Rollover), bleed-tagged vulnerability (Rusted Edge, Tanner's).
-4. Grounds: `crack`, `tremor`, `faultline` (stun on cross), `cinder` (applies bleed), `furrow` (strike + knockback).
-5. Target-conditional skill bonuses (vs >90% Life, vs stunned, vs bleeding, vs pushed) and conditional own-bucket
-   multipliers for set 6-pieces (vs stunned, while Battle Rage) — one generic "conditional multiplier" in the power
-   template library covers all of them (`ITEMS-SHARED.md` §1).
-6. Devil orbit + pull (Endless Storm 6), knockback-into-enemy/wall detection (Ox Strength, Furrowmark 4), hostile
-   projectile deletion in a cone (Breakwater), war-cry shockwave counter (Hearthbanner 6), Dash-end stomp proc (Quakestep).
+1. **Six new skills:** `tollingBlow`; `sawtoothHatchet` + a returning projectile kind; `musterStandard` + ground kind
+   `standard` with a party buff tick; `ironplough` channel with ramp + movement factor; `cairnfall` scheduled impacts;
+   `kilnheart` buff with a cost multiplier and on-hit ignite.
+2. **Tags (shared with all classes):** a `tags` field on skills and runes, tag resolution per character (current rune
+   included), the tag line in tooltips, and selectors in every power template (`ITEMS-SHARED.md` §1). One generic
+   conditional multiplier (target state / player state).
+3. **Player side:**
+   * a damage-reduction buff field (Watch Bell, Braced Swing, Iron Root, Slag Skin, standard/stunned/front/channel DR);
+   * a control-immunity window (Iron Root);
+   * cheat death (Last Rampart, Second Wind);
+   * a movement factor while channelling;
+   * a Movement-end hook (Quakestep Sabatons).
+4. **Monster side:**
+   * taunt to an entity (Taunting Colours);
+   * an outgoing-damage debuff (Concussion);
+   * a stun event hook (Bellwether, Stonecount);
+   * dot stacking (Open Veins) and dot carry-over (Rollover);
+   * Bleed-and-Burn dual tagging (Cinder Oath 2);
+   * dot extension on Primary hits (Cinder Oath 4).
+5. **Grounds:** `crack`, `tremor`, `faultline` (stun on cross), `cinder` (applies the strongest dot), `furrow` (strike +
+   push), and Ground buffs that follow the player (Hearthbanner 6).
+6. **Set transforms:**
+   * channel-driven orbiting wind wisps (Endless Storm 6);
+   * collision stun when Displaced into walls or enemies (Furrowmark 4);
+   * war-cry shockwave counter (Hearthbanner 6);
+   * aftershock on Spender hits vs stunned (Fault Warden 4).
+7. **Procs:** a Bleed kill shard (Sawyer's Ring); the low-Life Buff trigger (Slagforged Helm).
