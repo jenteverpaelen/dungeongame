@@ -1,10 +1,10 @@
 // Weapon series (docs/rework/gear/ART-DIRECTION.md): one maker per level band, each with its own silhouette language,
 // palette and motif; rarity adds craftsmanship inside a series; legendaries are bespoke one-offs; Kindled / Fabled are
-// small grade accents. NOT wired into the game: the gear rig's interface (weaponDrawing.ts, DESIGN-V2 §11) reaches this
-// art through drawing.ts (adapter) and register.ts (registration, called only by the series gallery).
+// small grade accents. The gear rig's interface (weaponDrawing.ts, DESIGN-V2 §11) reaches this art through drawing.ts
+// (adapter) and register.ts (registration, called at client start by game/weaponArtPreview.ts — the default art).
 //
 //   seriesModel({ family, gen, rarity, legendary?, grade?, seed?, rig?, accent? }) → SeriesModel | null
-//     family  — gearVisuals.ts WeaponFamily (13 families; the sample implements blade, axe, bow, staff, wand)
+//     family  — gearVisuals.ts WeaponFamily (all 13 held families are drawn for every series)
 //     gen     — generation 0..6 (gearVisual.ts name bands); selects the series
 //     rarity  — craftsmanship (normal 0 / magic 1 / rare 2); legendary → bespoke drawing when one exists
 //     grade   — 0 none / 1 Kindled / 2 Fabled (accents at the drawing's anchor)

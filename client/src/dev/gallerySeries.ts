@@ -1,8 +1,9 @@
-// Weapon series gallery (dev only): http://localhost:5291/gallery-series.html?view=sheet|zoom|rarity|hero|metrics
-// The checkpoint sample sheet of docs/rework/gear/ART-DIRECTION.md: the new series drawings (client/src/render/art/series)
-// next to the CURRENT parametric art for the same items, at the bag cell (40 px), the item card (~64 px) and hero scale
-// (default game camera). The series art is NOT wired into the game; heroes here get it as an overlay that copies the
-// rig's weapon transform every frame (gallery only).
+// Weapon series gallery (dev only): http://localhost:5291/gallery-series.html?view=sheet|zoom|rarity|hero|rig|rig-hero|
+// metrics|extents|floats. The sheets of docs/rework/gear/ART-DIRECTION.md: the series drawings (client/src/render/art/series)
+// next to the PREVIOUS parametric art ("CURRENT" on the sheets) at the bag cell (40 px), the item card (~64 px) and hero
+// scale (default game camera). This page does not apply the game's Weapon art setting: view=hero overlays the series on
+// heroes drawn with the previous art (copying the rig's weapon transform every frame); the rig views register the series
+// with the real gear rig, as the game does by default since 2026-10-11.
 
 import '@fontsource/alegreya-sans/700.css';
 import { Application, Container, Graphics, GraphicsContext, Rectangle, Text } from 'pixi.js';
@@ -36,14 +37,29 @@ initArt(app.renderer);
 
 // ─────────────────────────── items ───────────────────────────
 
-const FAMS: { fam: WeaponFamily; base: string; cls: ClassId; label: string }[] = [
+type Fam = { fam: WeaponFamily; base: string; cls: ClassId; label: string };
+const CORE: Fam[] = [
   { fam: 'blade', base: 'sword', cls: 'warrior', label: 'Sword' },
   { fam: 'axe', base: 'axe', cls: 'warrior', label: 'Axe' },
   { fam: 'bow', base: 'bow', cls: 'ranger', label: 'Bow' },
   { fam: 'staff', base: 'staff', cls: 'mage', label: 'Staff' },
   { fam: 'wand', base: 'wand', cls: 'mage', label: 'Wand' },
 ];
+/** The other held families (rollout 2026-10-11). */
+const MORE: Fam[] = [
+  { fam: 'greatblade', base: 'sword2h', cls: 'warrior', label: 'Greatsword' },
+  { fam: 'greataxe', base: 'axe2h', cls: 'warrior', label: 'Great Axe' },
+  { fam: 'mace', base: 'mace', cls: 'warrior', label: 'Mace' },
+  { fam: 'crossbow', base: 'crossbow', cls: 'ranger', label: 'Crossbow' },
+  { fam: 'handxbow', base: 'handxbow', cls: 'ranger', label: 'Hand Crossbow' },
+  { fam: 'shield', base: 'shield', cls: 'warrior', label: 'Shield' },
+  { fam: 'quiver', base: 'quiver', cls: 'ranger', label: 'Quiver' },
+  { fam: 'orb', base: 'orb', cls: 'mage', label: 'Orb' },
+];
+/** &famset=more | all (default core: the first sample's five families). */
+const FAMS: Fam[] = qs.get('famset') === 'more' ? MORE : qs.get('famset') === 'all' ? [...CORE, ...MORE] : CORE;
 const GEN_ILVL = [1, 13, 25, 37, 49, 61, 70];
+const MAIN_OF: Record<ClassId, string> = { warrior: 'sword', ranger: 'bow', mage: 'wand' };
 /** The rarity a levelling hero typically wears per band (the same sweep as the existing weapon board). */
 const LEVEL_RARITY: Rarity[] = ['normal', 'magic', 'magic', 'rare', 'rare', 'rare', 'rare'];
 const rarityFor = (gen: number): Rarity => { const r = qs.get('rar'); return r === 'normal' || r === 'magic' || r === 'rare' ? r : LEVEL_RARITY[gen]; };
@@ -66,7 +82,8 @@ function seriesIcon(spec: SeriesSpec, size: number, mode: 'color' | 'silhouette'
   if (!m || !renderer) return '';
   const build = (layer: 'base' | 'light') => {
     const c = new GraphicsContext();
-    c.rotate(Math.PI / 4);
+    // the same poses as icons.ts: weapons on the 45° diagonal, shields and orbs upright, quivers leaning
+    c.rotate(spec.family === 'shield' || spec.family === 'orb' ? 0 : spec.family === 'quiver' ? 0.5 : Math.PI / 4);
     m.draw(c, layer);
     if (layer === 'base') for (const f of m.floats) { c.save(); localXf(c, f.x + Math.cos(f.phase) * f.orbit, f.y + Math.sin(f.phase) * f.orbit * 0.4); f.draw(c); c.restore(); }
     return c;
@@ -171,6 +188,20 @@ function zoomView(): void {
   const px = Number(qs.get('px') ?? 120);
   // &only=<gen>: one series, columns = normal / magic / rare (close-up review)
   const only = qs.get('only');
+  if (only !== null && qs.get('flip') === '1') {
+    // &flip=1: families as columns, normal / magic / rare as rows (one series on one screen)
+    const s = SERIES[Number(only)];
+    const fs = FAMS.filter((ff) => !qs.get('fams') || qs.get('fams')!.split(',').includes(ff.fam));
+    const grid = el('div', `display:grid;grid-template-columns:60px repeat(${fs.length}, ${px + 10}px);gap:8px;padding:10px 14px;align-items:center`);
+    sheet.appendChild(grid);
+    grid.appendChild(el('div', 'font-weight:700;font-size:14px;color:#f0dfb4', `${s.name}<div class=lbl>L${s.levels}</div>`));
+    for (const f of fs) grid.appendChild(el('div', 'text-align:center;font-weight:700;color:#c9b98f', f.label));
+    for (const r of ['normal', 'magic', 'rare'] as Rarity[]) {
+      grid.appendChild(el('div', 'font-weight:700;color:#c9b98f', r));
+      for (const f of fs) grid.appendChild(iconCell(seriesIcon({ family: f.fam, gen: s.gen, rarity: r, seed: 3 }, px), px, RC[r], 8));
+    }
+    return;
+  }
   const cols = only !== null ? (['normal', 'magic', 'rare'] as Rarity[]).map((r) => ({ s: SERIES[Number(only)], r })) : SERIES.map((s) => ({ s, r: rarityFor(s.gen) }));
   const wrap = el('div', `display:grid;grid-template-columns:70px repeat(${cols.length}, ${px + 10}px);gap:8px;padding:10px 14px;align-items:center`);
   sheet.appendChild(wrap);
@@ -310,8 +341,8 @@ function heroView(): void {
         const save = createCharacter('Board', f.cls, 7);
         const look = playerLook(save);
         const it = side === 0 ? currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar) : currentItem(f.base, f.cls, GEN_ILVL[s.gen], 'normal');
-        look.slots.mainhand = gearLook(it);
-        delete look.slots.offhand;
+        if (BASES[f.base].kind === 'offhand') { look.slots.offhand = gearLook(it); look.slots.mainhand = gearLook(currentItem(MAIN_OF[f.cls], f.cls, GEN_ILVL[s.gen], rar)); }
+        else { look.slots.mainhand = gearLook(it); delete look.slots.offhand; }
         const v = createPlayerView(look);
         const x = gx + ci * colW + side * 68;
         v.root.position.set(x / z, y / z);
@@ -376,9 +407,10 @@ async function metricsView(): Promise<void> {
  *  canonical reach (gearVisuals.ts SHAPE_FAMILY: sword 31, axe 27, bow ±21 string, staff 50, wand 20). */
 function extentsView(): void {
   showSheet();
-  const CANON: Record<string, number> = { blade: 31, axe: 27, bow: 21, staff: 50, wand: 20 };
+  // canonical tips from gearVisuals.ts SHAPE_FAMILY (bow: the rig's string half-length 21); off-hands have none
+  const CANON: Record<string, number> = { blade: 31, greatblade: 48, axe: 27, greataxe: 50, mace: 27, bow: 21, crossbow: 30, handxbow: 17, staff: 50, wand: 20 };
   const out: Record<string, number> = {};
-  let html = '<div style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">Drawn tip (−y, units) of each rare drawing, floats at rest, vs canonical reach</div><table style="font:12px monospace">';
+  let html = '<div style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">Drawn tip (−y, units) of each rare drawing, floats at rest, vs canonical reach (off-hands: width × height)</div><table style="font:12px monospace">';
   html += `<tr><td></td>${SERIES.map((s) => `<td style="padding:2px 10px">${s.name}</td>`).join('')}<td>canon</td></tr>`;
   for (const f of FAMS) {
     html += `<tr><td style="color:#c9b98f">${f.label}</td>`;
@@ -390,13 +422,44 @@ function extentsView(): void {
       const g = new Graphics(c); const b = g.getLocalBounds(); g.destroy(); c.destroy();
       const tip = f.fam === 'bow' ? Math.max(-b.minY, b.maxY) : -b.minY;
       out[`${f.fam}-G${s.gen}`] = +tip.toFixed(1);
-      const over = tip / CANON[f.fam] - 1;
+      const canon = CANON[f.fam];
+      if (!canon) { html += `<td style="padding:2px 10px">${(b.maxX - b.minX).toFixed(1)} × ${(b.maxY - b.minY).toFixed(1)}</td>`; continue; }
+      const over = tip / canon - 1;
       html += `<td style="padding:2px 10px;color:${over > 0.2 ? '#ff8a6a' : '#d8c79c'}">${tip.toFixed(1)} (${over >= 0 ? '+' : ''}${(over * 100).toFixed(0)}%)</td>`;
     }
-    html += `<td>${CANON[f.fam]}</td></tr>`;
+    html += `<td>${CANON[f.fam] ?? 'w × h'}</td></tr>`;
   }
   sheet.innerHTML = html + '</table></div>';
   (window as unknown as { __extents: unknown }).__extents = out;
+}
+
+/** ?view=floats: [M] floating pieces per drawing (structural / decorative / with a glow sprite) for the crowd budget:
+ *  every family x series at rare and at rare + Fabled grade (the most a non-legendary carries). */
+function floatsView(): void {
+  showSheet();
+  const fams = [...CORE, ...MORE];
+  const out: Record<string, [number, number, number]> = {};
+  let html = '<div style="padding:14px"><div style="font-weight:700;font-size:15px;margin-bottom:6px">Floats per held item: structural / decorative / glow (rare · rare+Fabled)</div><table style="font:12px monospace">';
+  html += `<tr><td></td>${SERIES.map((s) => `<td style="padding:2px 10px">${s.name}</td>`).join('')}</tr>`;
+  let maxDeco = 0, maxAll = 0;
+  for (const f of fams) {
+    html += `<tr><td style="color:#c9b98f">${f.label}</td>`;
+    for (const s of SERIES) {
+      const cell: string[] = [];
+      for (const grade of [0, 2] as const) {
+        const m = seriesModel({ family: f.fam, gen: s.gen, rarity: 'rare', seed: 3, grade });
+        if (!m) { cell.push('—'); continue; }
+        const deco = m.floats.filter((x) => x.deco).length, glow = m.floats.filter((x) => x.glow).length, st = m.floats.length - deco;
+        out[`${f.fam}-G${s.gen}-${grade}`] = [st, deco, glow];
+        maxDeco = Math.max(maxDeco, deco); maxAll = Math.max(maxAll, m.floats.length);
+        cell.push(`${st}/${deco}/${glow}`);
+      }
+      html += `<td style="padding:2px 10px">${cell.join(' · ')}</td>`;
+    }
+    html += '</tr>';
+  }
+  sheet.innerHTML = html + `</table><div class=lbl>max decorative ${maxDeco}, max total ${maxAll}</div></div>`;
+  (window as unknown as { __floats: unknown }).__floats = { out, maxDeco, maxAll };
 }
 
 /** ?view=rig: the series drawings registered with the real gear rig (weaponDrawing.ts) and rendered by the game's own
@@ -439,8 +502,9 @@ function rigHeroView(): void {
     cols.forEach((s, ci) => {
       const rar = rarityFor(s.gen);
       const look = playerLook(createCharacter('Board', f.cls, 7));
-      look.slots.mainhand = gearLook(currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar, 11));
-      delete look.slots.offhand;
+      const it = currentItem(f.base, f.cls, GEN_ILVL[s.gen], rar, 11);
+      if (BASES[f.base].kind === 'offhand') { look.slots.offhand = gearLook(it); look.slots.mainhand = gearLook(currentItem(MAIN_OF[f.cls], f.cls, GEN_ILVL[s.gen], rar, 11)); }
+      else { look.slots.mainhand = gearLook(it); delete look.slots.offhand; }
       const v = createPlayerView(look);
       const x = gx + ci * colW + 34;
       v.root.position.set(x / z, y / z);
@@ -463,6 +527,7 @@ switch (VIEW) {
   case 'hero': heroView(); break;
   case 'metrics': await metricsView(); break;
   case 'extents': extentsView(); break;
+  case 'floats': floatsView(); break;
   default: sheetView();
 }
 

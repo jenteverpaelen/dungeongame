@@ -209,6 +209,172 @@ function fxWand(k: K): void {
   glints(k, [[5.6, -17.4], [-3.2, 6.2]]);
 }
 void jit;
+
+// ═══════════════ the other held families (rollout 2026-10-11) ═══════════════
+
+// ── greatsword: a beacon blade — a broad parallel blade with a clipped point; a shuttered signal lamp set in the
+//    ricasso (shutters closed → half → open with craft, as on the beacon mast); a guard bar with ward-stepped ends flying
+//    a pennant at each end (a signal pair); the pommel is the bit of a great key ──
+function greatsword(k: K): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL;
+  k.anchor = { x: 0, y: -5.8, r: 3.0 };
+  const blade = [-4.0, -17.6, 4.0, -17.6, 4.0, -44.6, 0.6, -50.4, -4.0, -46.8];
+  bevel(k, blade, [-4.0, -17.6, 0, -17.6, 0, -49.8, -4.0, -46.8], STEEL, { ridge: [0, -18.4, 0, -49.0], edge: [-3.3, -18.4, -3.3, -46.4, 0.2, -49.6], edgeCol: EDGE });
+  frost(k, -2.4, -24, -42, 1);
+  if (q >= 1) wardMark(k, 1.8, -24.6, 1.8, STEEL);
+  slab(k, [-4.8, -7.6, 4.8, -7.6, 4.8, -17.8, -4.8, -17.8], q >= 1 ? CRIMSON : shade(STEEL, 0.25), { line: 0.9, hi: [[-4.1, -8.4, -4.1, -17.0]] });
+  for (const y of [-8.0, -17.4]) slab(k, [-5.4, y - 0.8, 5.4, y - 0.8, 5.4, y + 0.8, -5.4, y + 0.8], metal, { line: 0.7 });
+  const win = [-2.8, -16.2, 2.8, -16.2, 2.8, -9.2, -2.8, -9.2];
+  glowPoly(k, win, LAMP, q >= 1, 0x241a18);
+  if (q >= 1) glowSpot(k, 0, -12.7, q === 2 ? 1.8 : 1.1, LAMP, true);
+  if (k.pass === 'paint') {
+    const open = q === 0 ? 0 : q === 1 ? 0.5 : 1;
+    for (let i = 0; i < 5; i++) { const y = -16.0 + i * 1.4; if (open < 1) k.c.rect(-2.8, y, 5.6, 1.2 * (1 - open)).fill(shade(STEEL, 0.4)); k.c.moveTo(-2.8, y).lineTo(2.8, y).stroke({ width: 0.35, color: OUT, alpha: 0.7 }); }
+    k.c.poly(win, true).stroke({ width: 0.7, color: OUT });
+  }
+  slab(k, [-10.6, -4.6, 10.6, -4.6, 10.6, -6.2, 9.2, -6.2, 9.2, -7.0, -9.2, -7.0, -9.2, -6.2, -10.6, -6.2], metal, { hi: [[-10.0, -5.8, 10.0, -5.8]] });
+  pennant(k, -10.0, -4.8, 8.6, 2.6, 2.2, q === 0 ? FADED : CRIMSON, q === 0 ? mix(ENAMEL, FADED, 0.4) : ENAMEL, 0.7);
+  if (q >= 1) pennant(k, 10.0, -4.8, 8.6, 2.6, 0.94, q === 2 ? NAVY : ENAMEL, q === 2 ? ENAMEL : CRIMSON, 0.7);
+  slab(k, [-1.9, -4.6, 1.9, -4.6, 1.9, 10.0, -1.9, 10.0], OAK, { line: 0.8 });
+  lash(k, 0, -4.4, 2.0, 3.8, NAVY, { gap: 1.1, slant: 0.6, bulge: 0.2 });
+  slab(k, [-2.4, 2.4, 2.4, 2.4, 2.4, 4.0, -2.4, 4.0], metal, { line: 0.6 });
+  lash(k, 0, 4.4, 9.6, 3.8, NAVY, { gap: 1.1, slant: 0.6, bulge: 0.2 });
+  slab(k, [-1.4, 10.0, 1.4, 10.0, 1.4, 15.6, -1.4, 15.6], metal, { line: 0.7 });
+  slab(k, [1.4, 11.2, 5.6, 11.2, 5.6, 12.6, 4.2, 12.6, 4.2, 13.8, 5.6, 13.8, 5.6, 15.6, 1.4, 15.6], metal, { line: 0.7, hi: [[1.8, 11.8, 5.0, 11.8]] });
+  stone(k, 0, 3.2, 0.9, BRASS);
+}
+
+// ── great axe: the beacon halberd — a squared bit, a spear point, a key-bit hook behind, a signal pennant ──
+function greataxe(k: K): void {
+  const q = k.q;
+  pole(k, [0, 11.6, 0, -46], 3.2, OAK);
+  for (const y of [8.6, -14, -26]) ring(k, 0, y, 2.1, 0.7, 0.9, q >= 1 ? BRASS : STEEL);
+  if (q >= 1) slab(k, [-1.7, -2.0, 1.7, -2.0, 1.7, 1.6, -1.7, 1.6], CRIMSON, { line: 0.6, flat: true, inner: true });
+  bevel(k, [-1.8, -46, 1.8, -46, 1.9, -49.4, 0, -55.0, -1.9, -49.4], [-1.8, -46, 0, -46, 0, -55.0, -1.9, -49.4], STEEL, { edge: [-1.3, -49.2, -0.1, -54.0], edgeCol: EDGE });
+  const blade = [1.8, -45.0, 13.4, -47.6, 15.2, -46.6, 15.2, -28.6, 13.4, -27.4, 1.8, -31.0];
+  bevel(k, blade, [1.8, -45.0, 13.4, -47.6, 14.0, -47.2, 12.2, -38.2, 1.8, -38.2], STEEL, { edge: [14.4, -45.8, 14.4, -29.4], edgeCol: EDGE, ridge: [3.4, -38.2, 12.0, -38.2] });
+  if (k.pass === 'paint') for (const [x, y] of [[4.2, -43.6], [6.6, -44.4], [9.0, -45.2]]) k.c.rect(x, y, 1.3, 1.5).fill(shade(STEEL, 0.5));
+  frost(k, 9.4, -30.6, -44, -1);
+  slab(k, [-1.6, -43.6, -8.2, -43.6, -8.2, -40.4, -5.8, -40.4, -5.8, -38.0, -8.2, -38.0, -8.2, -34.8, -1.6, -34.8], STEEL, { hi: [[-7.6, -43.0, -2.2, -43.0]] });
+  slab(k, [-2.2, -47.0, 2.2, -47.0, 2.2, -29.8, -2.2, -29.8], q >= 1 ? BRASS : shade(STEEL, 0.1), { hi: [[-1.6, -46.2, -1.6, -30.6]] });
+  if (q >= 1) wardMark(k, 8.6, -32.6, 1.6, STEEL);
+  // the beacon: a small shuttered lantern hanging from the fluke on a short chain, lit with craft
+  {
+    const metal = q >= 1 ? BRASS : STEEL, lx = -7.0, ly = -34.8;
+    pole(k, [lx, ly, lx, ly + 2.4], 0.5, metal, { flat: true });
+    ring(k, lx, ly + 2.9, 0.8, 0.8, 0.6, metal);
+    slab(k, [lx - 3.0, ly + 5.6, lx + 3.0, ly + 5.6, lx, ly + 3.4], q >= 1 ? CRIMSON : shade(STEEL, 0.25), { line: 0.7 });
+    slab(k, [lx - 2.6, ly + 5.6, lx + 2.6, ly + 5.6, lx + 2.6, ly + 12.0, lx - 2.6, ly + 12.0], 0x3a2c22, { line: 0.8 });
+    glowPoly(k, [lx - 1.8, ly + 6.4, lx + 1.8, ly + 6.4, lx + 1.8, ly + 11.2, lx - 1.8, ly + 11.2], LAMP, q >= 1, 0x241a18);
+    for (const x of [lx - 2.6, lx + 2.6]) pole(k, [x, ly + 5.6, x, ly + 12.0], 0.8, metal);
+    slab(k, [lx - 3.0, ly + 12.0, lx + 3.0, ly + 12.0, lx + 2.4, ly + 13.4, lx - 2.4, ly + 13.4], metal, { line: 0.7 });
+    if (q >= 1) glowSpot(k, lx, ly + 8.8, q === 2 ? 1.5 : 1.0, LAMP, true);
+  }
+  stone(k, 0, -38.4, 1.1, BRASS);
+  k.anchor = { x: 0, y: -29.6, r: 2.6 };
+}
+
+// ── mace: the ward lock — a brass padlock for a head, its shackle a loop, a keyhole in an enamel plate ──
+function mace(k: K): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL, d = 2.4;
+  pole(k, [0, 6.6, 0, -16 + d], 2.8, OAK);
+  for (const y of [4.4, -2.6]) ring(k, 0, y, 1.9, 0.6, 0.9, metal);
+  ring(k, 0, -28.6 + d, 4.4, 5.6, 2.0, STEEL, { a0: Math.PI, a1: Math.PI * 2 });
+  for (const s of [-1, 1]) pole(k, [s * 4.4, -28.6 + d, s * 4.4, -25.8 + d], 2.0, STEEL);
+  slab(k, [-6.6, -26.4 + d, 6.6, -26.4 + d, 7.4, -24.4 + d, 7.4, -16.6 + d, 6.0, -15.0 + d, -6.0, -15.0 + d, -7.4, -16.6 + d, -7.4, -24.4 + d], metal, { hi: [[-6.0, -25.2 + d, 5.6, -25.2 + d]] });
+  slab(k, [-4.4, -24.2 + d, 4.4, -24.2 + d, 4.4, -17.2 + d, -4.4, -17.2 + d], q >= 1 ? CRIMSON : shade(STEEL, 0.2), { line: 0.7 });
+  if (k.pass === 'paint') { k.c.circle(0, -21.8 + d, 1.2).fill(0x1b1410); k.c.poly([-0.6, -21.4 + d, 0.6, -21.4 + d, 1.0, -18.8 + d, -1.0, -18.8 + d], true).fill(0x1b1410); }
+  for (const [x, y] of [[-6.2, -25.2], [6.2, -25.2], [-6.2, -16.2], [6.2, -16.2]]) disc(k, x, y + d, 0.7, 0.7, metal, { line: 0.5, inner: true });
+  frost(k, -5.8, -17.6 + d, -24 + d, 1);
+  if (q >= 1) wardMark(k, 4.8, -16.0 + d, 1.0, metal);
+  k.anchor = { x: 0, y: -15.0 + d, r: 2.4 };
+  stone(k, 5.8, -20.8 + d, 0.8, BRASS);
+}
+
+// ── crossbow: the signal crossbow — an oak stock in brass, a flat angled prod banded in enamel, pennants at the tips ──
+function xbow(k: K, hand: boolean): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL, pw = hand ? 9.6 : 13.0, py = hand ? -9 : -16, sy1 = hand ? -12.4 : -24, sy0 = hand ? 3 : 8;
+  if (hand) slab(k, [-1.9, 5.0, 2.6, 5.0, 3.6, 1.0, 2.0, -2.0, 1.9, sy1, -1.9, sy1, -1.9, -2.0], OAK, { hi: [[-1.2, sy1 + 1, -1.2, -2.6]] });
+  else slab(k, [-2.6, sy0, -1.2, sy0, -1.2, sy0 - 1.4, 1.2, sy0 - 1.4, 1.2, sy0, 2.6, sy0, 2.6, sy0 - 4, 2.2, sy1, -2.2, sy1, -2.6, sy0 - 4], OAK, { hi: [[-2.0, sy1 + 1, -2.0, sy0 - 4]] });
+  for (const y of [sy1 + 1.4, py + 6.6]) slab(k, [-2.6, y - 0.8, 2.6, y - 0.8, 2.6, y + 0.8, -2.6, y + 0.8], metal, { line: 0.6 });
+  pole(k, [0, py + 7, 0, sy1 - 3.6], 1.0, shade(OAK, 0.2), { flat: true });
+  slab(k, [-1.2, sy1 - 3.6, 0, sy1 - 7.0, 1.2, sy1 - 3.6], STEEL, { line: 0.7 });
+  // a flat prod in two straight segments a side
+  for (const s of [-1, 1]) {
+    const pts = [s * 1.6, py - 1.6, s * pw * 0.55, py - 2.6, s * pw, py + 3.4];
+    pole(k, pts, hand ? 2.0 : 2.6, STEEL);
+    if (k.pass === 'paint') { k.c.circle((pts[0] + pts[2]) / 2, (pts[1] + pts[3]) / 2, hand ? 1.1 : 1.4).fill(q >= 1 ? CRIMSON : shade(OAK, 0.3)); k.c.circle((pts[2] + pts[4]) / 2, (pts[3] + pts[5]) / 2, hand ? 1.1 : 1.4).fill(q >= 1 ? ENAMEL : shade(OAK, 0.3)); }
+    if (q >= 1) pennant(k, s * pw, py + 3.4, hand ? 5.0 : 6.4, 2.0, s > 0 ? 0.2 : Math.PI - 0.2, CRIMSON, ENAMEL, 0.5);
+  }
+  slab(k, [-2.2, py - 3.4, 2.2, py - 3.4, 2.2, py + 0.4, -2.2, py + 0.4], metal, { line: 0.7 });
+  pole(k, [-pw + 0.6, py + 3.2, 0, py + 7.2, pw - 0.6, py + 3.2], 0.6, 0xece6d8, { flat: true });
+  pole(k, hand ? [1.0, -1.4, 2.6, 2.6] : [0.6, -2.4, 0.8, 4.6], 0.9, metal);
+  if (q === 2) wardMark(k, 0, hand ? -5.6 : -8.0, 1.2, OAK);
+  k.anchor = { x: 0, y: py - 1.6, r: 2.4 };
+  stone(k, 0, py - 1.6, 0.9, BRASS);
+}
+const crossbow = (k: K) => xbow(k, false), handxbow = (k: K) => xbow(k, true);
+
+// ── shield: the ward door — a tall board quartered in crimson and white enamel, brass studs, a keyhole escutcheon ──
+function shield(k: K): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL;
+  const out = [-10.4, -15.0, 10.4, -15.0, 10.0, 14.4, 0, 17.0, -10.0, 14.4];
+  slab(k, out, q >= 1 ? ENAMEL : mix(ENAMEL, FADED, 0.35), { hi: [[-9.4, -13.8, -9.0, 13.0]] });
+  if (k.pass === 'paint') {
+    k.c.poly([-10.2, -14.6, 0, -14.6, 0, 0.8, -10.1, 0.8], true).fill(q >= 1 ? CRIMSON : FADED);
+    k.c.poly([0, 0.8, 10.1, 0.8, 9.9, 14.2, 0, 16.6], true).fill(q >= 1 ? CRIMSON : FADED);
+    k.c.poly(out, true).stroke({ width: 0.9, color: OUT, join: 'round' });
+  }
+  ring(k, 0, 1, 10.6, 16.0, 1.6, metal, { a0: -Math.PI, a1: 0, inner: true });
+  for (const [x, y] of [[-8.4, -12.8], [8.4, -12.8], [-8.2, 12.4], [8.2, 12.4], [-8.6, 0], [8.6, 0]]) disc(k, x, y, 0.85, 0.85, metal, { line: 0.5 });
+  slab(k, [-2.6, -3.0, 2.6, -3.0, 2.6, 4.6, 0, 6.2, -2.6, 4.6], metal, { hi: [[-2.0, -2.4, -2.0, 4.0]] });
+  if (k.pass === 'paint') { k.c.circle(0, -0.4, 1.0).fill(0x1b1410); k.c.poly([-0.5, 0, 0.5, 0, 0.8, 2.6, -0.8, 2.6], true).fill(0x1b1410); }
+  frost(k, 6.0, 12, 3, -1);
+  if (q >= 1) wardMark(k, -5.4, 7.4, 2.0, ENAMEL);
+  k.anchor = { x: 0, y: -3.0, r: 3 };
+  stone(k, 0, 9.0, 1.0, BRASS);
+}
+
+// ── quiver: a signal-flag case — a banded cylinder, two flag poles standing among the arrows ──
+function quiver(k: K): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL;
+  for (let i = 0; i < 2; i++) { const x = -2.6 + i * 2.6, y = -16.4 - i * 1.6; pole(k, [x * 0.6, -8, x, y + 2], 0.9, OAK, { flat: true }); slab(k, [x - 1.8, y + 4, x, y - 2.6, x + 1.8, y + 4, x, y + 2.4], ENAMEL, { line: 0.7 }); }
+  pole(k, [2.8, -9, 3.6, -21], 0.8, OAK);
+  pennant(k, 3.6, -20.6, 6.6, 2.4, -0.15, q >= 1 ? CRIMSON : FADED, ENAMEL, 0.5);
+  slab(k, [-4.8, -10, 4.8, -10, 4.8, 12.4, -4.8, 12.4], q >= 1 ? CRIMSON : FADED, { hi: [[-4.0, -9, -4.0, 11.4]] });
+  if (k.pass === 'paint') for (const y of [-3.6, 4.6]) k.c.rect(-4.8, y - 1.6, 9.6, 3.2).fill(ENAMEL);
+  for (const y of [-10.4, 12.0]) slab(k, [-5.2, y - 1.0, 5.2, y - 1.0, 5.2, y + 1.0, -5.2, y + 1.0], metal, { line: 0.7 });
+  if (q >= 1) wardMark(k, -2.0, 1.0, 1.4, CRIMSON);
+  k.anchor = { x: 0, y: -9.4, r: 2.4 };
+  stone(k, 2.2, 1.0, 0.8, BRASS);
+}
+
+// ── orb: a ward lantern — a brass hand lantern, glass on four sides, a crimson cap, the flame inside ──
+function orb(k: K): void {
+  const q = k.q, metal = q >= 1 ? BRASS : STEEL;
+  ring(k, 0, -11.6, 2.2, 2.2, 1.1, metal);
+  slab(k, [-6.0, -7.8, 6.0, -7.8, 0, -11.0], q >= 1 ? CRIMSON : shade(STEEL, 0.25), { hi: [[-4.4, -8.4, -0.6, -10.4]] });
+  slab(k, [-5.2, -7.8, 5.2, -7.8, 5.2, 6.4, -5.2, 6.4], 0x3a2c22, { line: 0.9 });
+  const win = [-4.0, -6.6, 4.0, -6.6, 4.0, 5.2, -4.0, 5.2];
+  if (k.pass === 'paint') k.c.poly(win, true).fill(q >= 1 ? light(LAMP, 0.25) : 0x2a2018);
+  for (const x of [-5.2, 0, 5.2]) pole(k, [x, -7.8, x, 6.4], 1.0, metal, { inner: x === 0 });
+  slab(k, [-6.0, 6.2, 6.0, 6.2, 5.2, 8.4, -5.2, 8.4], metal, { hi: [[-5.4, 6.8, 5.0, 6.8]] });
+  if (q >= 1) glowSpot(k, 0, -0.6, q === 2 ? 2.4 : 1.5, LAMP, true);
+  frost(k, -3.4, 4.6, -4, 1);
+  k.anchor = { x: 0, y: -7.8, r: 2.4 };
+  stone(k, 3.6, 7.3, 0.7, BRASS);
+}
+
+// ── effects for the rollout families (lamp light, glints) ──
+function fxGreatsword(k: K): void { const n = 3 + fxCount(k, 2, 5); rays(k, 0, -12.7, n, 8 + 6 * bloom(k), -Math.PI, Math.PI * (1 - 2 / n), LAMP, 0.8); glowLine(k, [-3.3, -18.4, -3.3, -46.4, 0.2, -49.6], 0.4 + 0.3 * bloom(k), LAMP, true, STEEL); glints(k, [[0.6, -52], [-5.6, -30], [5.6, -40]]); }
+function fxGreataxe(k: K): void { const n = 3 + fxCount(k, 2, 5); rays(k, -7.0, -26.0, n, 6 + 4 * bloom(k), -Math.PI, Math.PI * (1 - 2 / n), LAMP, 0.7); glowLine(k, [14.4, -45.8, 14.4, -29.4], 0.5 + 0.3 * bloom(k), LAMP, true, STEEL); glints(k, [[0, -56.4], [16.6, -47.6], [-10.6, -20]]); }
+function fxMace(k: K): void { glowSpot(k, 0, -18.6, 1.2 + bloom(k), LAMP, true); rays(k, 0, -18.6, 2 + fxCount(k, 2, 4), 7 + 5 * bloom(k), -Math.PI, 0, LAMP, 0.7); glints(k, [[0, -32.6], [-8.4, -23.6], [8.4, -13.6]]); }
+function fxXbow(k: K): void { glowSpot(k, 0, -17.6, 1.0 + 0.5 * bloom(k), LAMP, true); glints(k, [[14.4, -12], [-14.4, -12], [0, -29]]); }
+function fxHand(k: K): void { glowSpot(k, 0, -11.6, 0.9, LAMP, true); glints(k, [[10.8, -7], [-10.8, -7]], 1.2, 2); }
+function fxShield(k: K): void { glowSpot(k, 0, 0.8, 1.4 + bloom(k), LAMP, true); rays(k, 0, 0.8, 3 + fxCount(k, 3, 5), 9 + 6 * bloom(k), -Math.PI * 0.9, -Math.PI * 0.1, LAMP, 0.8); glints(k, [[-8.4, -12.8], [8.2, 12.4], [11.4, -4]]); }
+function fxQuiver(k: K): void { glints(k, [[4.6, -22.6], [-3.0, -20], [5.6, 4]], 1.6, 3); }
+function fxOrb(k: K): void { const n = 4 + fxCount(k, 3, 6); rays(k, 0, -0.6, n, 10 + 7 * bloom(k), -Math.PI, Math.PI * (1 - 2 / n), LAMP, 0.9); haze(k, 0, -0.6, 9, 9, LAMP, 0.14); glints(k, [[-7.4, -9], [7.0, 5], [0, -15]]); }
+
 export const WARDEN: SeriesInfo = {
   id: 'warden', gen: 3, name: 'Warden', maker: 'the Shiverline signallers and the Beaconbreak ward', zones: 'Shiverline Escarpment, Beaconbreak Ward', levels: '37–48',
   shape: 'tall, upright and rectilinear; crisp key-ward steps; swallowtail pennants flying off one side',
@@ -216,5 +382,9 @@ export const WARDEN: SeriesInfo = {
   motif: 'key-ward steps and a swallowtail pennant at the junction; the stamped ward',
   late: 'a beacon lamp whose shutters open with craft; frost-etched steel; signal flags',
   effects: 'lamp rays and a beacon flicker, lamp-lit edges, frost and lamp glints; spark impacts',
-  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
+  draw: {
+    blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand),
+    greatblade: withFx(greatsword, fxGreatsword), greataxe: withFx(greataxe, fxGreataxe), mace: withFx(mace, fxMace), crossbow: withFx(crossbow, fxXbow),
+    handxbow: withFx(handxbow, fxHand), shield: withFx(shield, fxShield), quiver: withFx(quiver, fxQuiver), orb: withFx(orb, fxOrb),
+  },
 };

@@ -20,7 +20,15 @@ const SHOTS = [
   ['rig-hero-levelling', 'gallery-series.html?view=rig-hero'],
   // measurements
   ['metrics', 'gallery-series.html?view=metrics'],
-  ['extents', 'gallery-series.html?view=extents'],
+  ['extents', 'gallery-series.html?view=extents&famset=all'],
+  ['floats', 'gallery-series.html?view=floats'],
+  // the rollout: the other eight held families, all seven series (2026-10-11)
+  ['zoom-more-levelling', 'gallery-series.html?view=zoom&famset=more&px=112'],
+  ['zoom-more-rare', 'gallery-series.html?view=zoom&famset=more&rar=rare&px=112'],
+  ...['millwright', 'kilnfolk', 'brinekeeper', 'warden', 'array', 'faultstone', 'reliquary'].map((n, g) => [`family-${n}`, `gallery-series.html?view=zoom&only=${g}&px=118&famset=all&flip=1`]),
+  ['rig-icons-more', 'gallery-series.html?view=rig&rar=rare&famset=more'],
+  ['rig-hero-more-a', 'gallery-series.html?view=rig-hero&rar=rare&famset=more&fams=greatblade,greataxe,mace,crossbow'],
+  ['rig-hero-more-b', 'gallery-series.html?view=rig-hero&rar=rare&famset=more&fams=handxbow,shield,quiver,orb'],
 ];
 
 export default async function (api) {

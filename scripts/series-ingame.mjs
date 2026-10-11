@@ -2,12 +2,13 @@
 // ENABLE_DEBUG=1 and WS_ALLOWED_ORIGINS for the client origin:
 //   node scripts/shoot.mjs scripts/series-ingame.mjs --base=http://localhost:5291 --out=docs/rework/gear/shots-art --prefix=game- --jpeg
 // ART=series|current (the ?weaponArt= switch), VET / NEWBIE classes, STAGE the veteran's showcase stage (primal = Fabled
-// main hand), WEAPON=rare swaps the veteran's weapon for an item-level-70 rare of a sampled family, LEG=<id> equips that
-// class legendary, FIGHT=0 skips the Faultline part.
+// main hand), WEAPON=rare swaps the veteran's weapon for an item-level-70 rare of a sampled family (WBASES=sword2h,mace,…
+// picks the bases, OFF=1 adds a rare off-hand), LEG=<id> equips that class legendary, FIGHT=0 skips the Faultline part,
+// TAG=… names the shots.
 export default async function (api) {
   const art = process.env.ART ?? 'series', q = `&weaponArt=${art}`;
   const vet = process.env.VET ?? 'mage', newbie = process.env.NEWBIE ?? 'warrior', stage = process.env.STAGE ?? 'primal';
-  const tag = `${art}-${vet}-${process.env.WEAPON ?? process.env.LEG ?? stage}`;
+  const tag = process.env.TAG ?? `${art}-${vet}-${process.env.WEAPON ?? process.env.LEG ?? stage}`;
   const two = await api.newClient();
   await two.open({ name: 'Fresh' + Math.floor(Math.random() * 1e5), cls: newbie, query: q });
   await api.open({ name: 'Elder' + Math.floor(Math.random() * 1e5), cls: vet, query: q });
@@ -27,7 +28,10 @@ export default async function (api) {
   if (process.env.WEAPON === 'rare') {
     await api.debug('rares', { n: 40 });
     await api.settle(300);
-    await equip("['sword', 'axe', 'bow', 'staff', 'wand'].includes(i.base) && i.rarity === 'rare' && !globalThis.__eq && (globalThis.__eq = 1)");
+    const bases = (process.env.WBASES ?? 'sword,axe,bow,staff,wand').split(',');
+    await equip(`${JSON.stringify(bases)}.includes(i.base) && i.rarity === 'rare' && !globalThis.__eq && (globalThis.__eq = 1)`);
+    // OFF=1: also an item-level-70 rare off-hand (shield / quiver / orb, whichever the class rolled)
+    if (process.env.OFF) await equip("['shield', 'quiver', 'orb'].includes(i.base) && i.rarity === 'rare' && !globalThis.__eo && (globalThis.__eo = 1)");
   }
   if (process.env.LEG) {
     await api.debug('legendaries');
@@ -35,8 +39,8 @@ export default async function (api) {
     await equip(`i.legendary && i.legendary.power === ${JSON.stringify(process.env.LEG)}`);
   }
   await api.settle(1200);
-  const weapon = await api.eval("(() => { const w = __ui.get().char.equipment?.mainhand; return w && { base: w.base, rarity: w.rarity, ilvl: w.ilvl, ancient: w.ancient, upgrade: w.upgrade, legendary: w.legendary?.power }; })()");
-  console.log('veteran weapon', JSON.stringify(weapon));
+  const weapon = await api.eval("(() => { const e = __ui.get().char.equipment || {}; return ['mainhand', 'offhand'].map((s) => { const w = e[s]; return w && { slot: s, base: w.base, rarity: w.rarity, ilvl: w.ilvl, ancient: w.ancient, upgrade: w.upgrade, legendary: w.legendary?.power }; }); })()");
+  console.log('veteran held items', JSON.stringify(weapon));
   // both step off the waypoint onto the open cobbles south of it, the newcomer beside the veteran
   await api.walk(0.25, 1, 430);
   await two.walk(-0.45, 1, 470);

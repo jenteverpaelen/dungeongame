@@ -1,5 +1,5 @@
-// Weapon art preview switch (docs/rework/gear/ART-DIRECTION.md §7): Settings → Display → Weapon art, or the page
-// address `?weaponArt=series` / `?weaponArt=current` for one page load. Applied once at start, before anything is
+// Weapon art switch (docs/rework/gear/ART-DIRECTION.md §11): Settings → Display → Weapon art (Maker series by default,
+// Previous art), or the page address `?weaponArt=series` / `?weaponArt=current` for one page load. Applied once at start, before anything is
 // drawn or baked, so icons, the hero, ground loot and the item card all agree; changing the setting asks for a reload.
 // Families without a series drawing (and legendaries the series do not draw) keep the current art. No save, protocol
 // or server change: it is a local display choice.

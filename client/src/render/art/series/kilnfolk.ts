@@ -199,6 +199,159 @@ function fxWand(k: K): void {
   embers(k, [[3.6, -20], [-2.0, -19]], 1.2, 2);
 }
 
+
+// ═══════════════ the other held families (rollout 2026-10-11) ═══════════════
+
+// ── greatsword: a stoker's slice — the long flat bar a firekeeper drives into the firebox to break clinker [K], ground
+//    to an edge; its chisel end keeps the fire's heat (soot-dark → dull red → orange with craft); a clay-sleeved iron
+//    grip that ends in a ring, as fire irons are hung ──
+const GS_HOT = [-3.7, -41.4, 3.7, -41.4, 3.7, -44.2, -3.7, -48.8];
+const GS_WARM = [-3.7, -35.0, 3.7, -35.0, 3.7, -41.4, -3.7, -41.4];
+function greatsword(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON;
+  k.anchor = { x: 0.2, y: -7.6, r: 3.4 };
+  const blade = [-3.7, -9.4, 3.7, -9.4, 3.7, -44.2, -3.7, -48.8];
+  slab(k, blade, IRON, { hi: [[-3.0, -10.4, -3.0, -47.2]] });
+  if (k.pass === 'paint') {
+    k.c.poly([-3.7, -9.4, -2.3, -9.4, -2.3, -47.9, -3.7, -48.8], true).fill(EDGE);
+    if (q >= 1) { k.c.poly(GS_WARM, true).fill(mix(IRON, 0x8a2a18, q === 2 ? 0.7 : 0.45)); k.c.poly(GS_HOT, true).fill(q === 2 ? 0xf07a30 : 0xb8401e); }
+    else k.c.poly(GS_HOT, true).fill(shade(IRON, 0.25));
+    detail(k, [3.0, -10.4, 3.0, -43.6], shade(IRON, 0.4), 0.6);
+    for (const y of [-15.0, -23.0, -30.0]) detail(k, [-1.0, y, 1.8, y - 1.0], shade(IRON, 0.35), 0.5);
+    if (q === 2) detail(k, [-3.3, -48.2, 3.4, -44.1], light(EMBER, 0.6), 0.8);
+    k.c.poly(blade, true).stroke({ width: 0.95, color: OUT, join: 'round' });
+  }
+  if (q >= 1) coneMark(k, 0.8, -13.0, 1.6, IRON);
+  collar(k, -6.4, 6.8, -7.6, 4.0, glaze, q === 0 ? 3 : 4);
+  slab(k, [-1.6, -5.6, 1.6, -5.6, 1.6, 9.4, -1.6, 9.4], IRON, { line: 0.8 });
+  slab(k, [-2.4, -5.0, 2.6, -5.0, 2.8, 4.6, -2.6, 4.6], TERRA, { smooth: true, hi: [[-1.8, -4.2, -1.9, 3.8]] });
+  if (k.pass === 'paint') for (const y of [-2.4, 0.4, 3.0]) detail(k, [-2.4, y, 2.6, y + 0.4], shade(TERRA, 0.4), 0.6);
+  ring(k, 0, 12.8, 3.4, 3.4, 1.6, IRON);
+  glazeEye(k, 0.2, -7.6, 1.4);
+}
+
+// ── great axe: a stoker's spade — the coal spade of the firebox with its blade ground sharp, on a long ash haft through
+//    a clay-collared socket (a spade-headed polearm, as the monk's spade is [K]); the edge keeps the fire's heat ──
+function greataxe(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON;
+  pole(k, [0, 11.6, 0, -26], 3.4, ASH);
+  for (const y of [8.0, 0.6, -8.0]) ring(k, 0, y, 2.1, 0.7, 0.9, SOOT, { inner: true });
+  const blade = [-6.2, -28.4, 6.2, -28.4, 7.6, -45.4, 5.6, -48.0, -5.6, -48.0, -7.6, -45.4];
+  slab(k, blade, IRON, { hi: [[-5.6, -29.4, -6.8, -44.8]] });
+  if (k.pass === 'paint') {
+    k.c.poly([-7.6, -45.4, -5.6, -48.0, 5.6, -48.0, 7.6, -45.4, 6.0, -44.6, -6.0, -44.6], true).fill(q >= 1 ? mix(EDGE, 0xf07a30, q === 2 ? 0.55 : 0.25) : EDGE);
+    detail(k, [-5.6, -29.2, -6.8, -44.6], shade(IRON, 0.45), 0.8); detail(k, [5.6, -29.2, 6.8, -44.6], shade(IRON, 0.45), 0.8);
+    for (const s of [-1, 1]) { k.c.rect(s * 2.0 - 0.8, -36.0, 1.6, 7.6).fill(shade(IRON, 0.2)); k.c.circle(s * 2.0, -34.6, 0.6).fill(EDGE); }
+    k.c.poly([-6.2, -28.4, 6.2, -28.4, 6.5, -32.0, -6.5, -32.0], true).fill({ color: SOOT, alpha: 0.5 });
+    k.c.poly(blade, true).stroke({ width: 0.95, color: OUT, join: 'round' });
+  }
+  if (q >= 1) coneMark(k, 3.6, -40.6, 1.6, IRON);
+  collar(k, -3.8, 4.0, -26.2, 4.6, glaze, q === 0 ? 2 : 3);
+  k.anchor = { x: 0.1, y: -26.2, r: 2.8 };
+  glazeEye(k, 0.1, -26.2, 1.3);
+}
+
+// ── mace: a firebrick maul — a kiln brick bound in iron straps on an iron haft, glaze running off its top ──
+function mace(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON;
+  pole(k, [0.2, 6.6, 0.1, -17], 2.4, IRON);
+  pole(k, [0.2, 6.6, 0.2, 0], 3.2, ASH);
+  const top = -29.0, bot = -16.6;
+  slab(k, [-7.2, top, 7.6, top, 7.8, bot, -7.4, bot], TERRA, { hi: [[-6.4, top + 1, 6.6, top + 1]] });
+  if (k.pass === 'paint') { k.c.poly([-7.0, top + 0.3, 7.4, top + 0.3, 7.6, top + 3.4, -7.2, top + 3.4], true).fill(glaze); for (const [x0, y0] of [[-4, -22], [2, -20], [4.6, -24.6]]) detail(k, [x0, y0, x0 + 1.4, y0 - 1.0, x0 + 2.6, y0 - 0.4], shade(TERRA, 0.5), 0.6); }
+  drips(k, [-5.0, -1.6, 2.2, 5.6], top + 3.2, [2.4, 3.6, 1.8, 3.0], glaze, 0.75, true);
+  for (const x of [-7.4, 7.6]) slab(k, [x - 1.0, top - 0.6, x + 1.0, top - 0.6, x + 1.0, bot + 0.6, x - 1.0, bot + 0.6], IRON, { line: 0.7 });
+  slab(k, [-2.2, bot + 0.2, 2.4, bot + 0.2, 2.2, bot + 2.4, -2.0, bot + 2.4], SOOT, { line: 0.7 });
+  if (q >= 1) coneMark(k, 0.2, -21.0, 1.5, TERRA);
+  k.anchor = { x: 0.2, y: bot + 1.4, r: 2.4 };
+  glazeEye(k, 4.0, -19.4, 1.2);
+}
+
+// ── crossbow: smoked ash, an iron prod, the fore-end sleeved in glazed clay ──
+function xbow(k: K, hand: boolean): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON, pw = hand ? 9.4 : 12.8, py = hand ? -9 : -16, sy1 = hand ? -12.4 : -24, sy0 = hand ? 3 : 8;
+  if (hand) slab(k, [-1.9, 5.0, 2.8, 5.0, 3.8, 1.0, 2.2, -2.0, 2.0, sy1, -2.0, sy1, -1.9, -2.0], ASH, { hi: [[-1.2, sy1 + 1, -1.2, -2.6]] });
+  else slab(k, [-2.6, sy0, 2.6, sy0, 2.8, sy0 - 4, 2.3, sy1, -2.3, sy1, -2.8, sy0 - 4], ASH, { hi: [[-2.0, sy1 + 1, -2.2, sy0 - 4]] });
+  // the clay sleeve on the fore-end, glaze-dipped
+  const s0 = py - 1.0, s1 = sy1 + 1.0;
+  slab(k, [-3.0, s0, 3.0, s0, 3.4, (s0 + s1) / 2, 3.0, s1, -3.0, s1, -3.4, (s0 + s1) / 2], TERRA, { smooth: true, hi: [[-2.2, s0 - 0.8, -2.4, s1 + 0.8]] });
+  if (k.pass === 'paint') k.c.poly([-3.1, s1 + 0.2, 3.1, s1 + 0.2, 3.3, s1 + (s0 - s1) * 0.45, -3.3, s1 + (s0 - s1) * 0.45], true).fill(glaze);
+  drips(k, [-1.6, 1.4], s1 + (s0 - s1) * 0.43, [1.6, 2.4], glaze, 0.55, true);
+  pole(k, [0, py + 7, 0, sy1 - 3.6], 1.1, SOOT, { flat: true });
+  slab(k, [-1.3, sy1 - 3.6, 0, sy1 - 7.0, 1.3, sy1 - 3.6], EDGE, { line: 0.7 });
+  const arc = qpts(-pw, py + 4, 0, py - 8, pw, py + 4, 14);
+  pole(k, arc, hand ? 2.2 : 2.8, IRON);
+  for (const s of [-1, 1]) disc(k, s * pw, py + 4, 1.4, 1.4, CLAY, { line: 0.7 });
+  pole(k, [-pw + 0.6, py + 3.8, 0, py + 7.2, pw - 0.6, py + 3.8], 0.6, 0xd8cfc0, { flat: true });
+  pole(k, hand ? [1.0, -1.4, 2.8, 2.8] : [0.6, -2.4, 0.8, 4.6], 0.9, IRON);
+  if (q >= 1) coneMark(k, 0.2, (s0 + s1) / 2 + 1.6, 1.2, TERRA);
+  k.anchor = { x: 0, y: py + 1, r: 2.4 };
+  glazeEye(k, 0, py - 0.4, 1.1);
+}
+const crossbow = (k: K) => xbow(k, false), handxbow = (k: K) => xbow(k, true);
+
+const SH_CRACK = [8.2, -1.0, 6.0, 1.6, 6.6, 4.2, 4.2, 6.8, 4.8, 9.6, 3.4, 12.0];
+const ORB_CRACK = [5.6, -0.6, 4.0, 2.2, 4.4, 4.0, 2.4, 5.6, 2.8, 7.2];
+
+// ── shield: a saggar lid — a fired-clay disc with a thumb-pressed rim, dipped half in glaze, bound in iron ──
+function shield(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON, R = 12.6;
+  disc(k, 0, 0.8, R, R + 0.6, TERRA, { line: 0.9 });
+  if (k.pass === 'paint') {
+    k.c.moveTo(-R + 0.4, -1).quadraticCurveTo(0, -3.6, R - 0.4, -1).arc(0, 0.8, R - 0.3, -0.14, Math.PI + 0.14, true).closePath().fill(glaze);
+    k.c.ellipse(-4.0, -6.4, 3.8, 2.2).fill({ color: light(glaze, 0.4), alpha: 0.6 });
+    for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2; k.c.circle(Math.cos(a) * (R - 1.2), 0.8 + Math.sin(a) * (R - 0.8), 0.7).fill(shade(TERRA, 0.35)); }
+  }
+  drips(k, [-8.4, -4.6, -0.8, 3.2, 7.2], -1.6, [2.4, 3.8, 2.0, 3.2, 2.6], glaze, 0.75, true);
+  ring(k, 0, 0.8, R + 0.3, R + 0.9, 1.4, IRON);
+  // the crack runs down one side of the lid from the rim (never a level line under the knob: that read as a face)
+  detail(k, SH_CRACK, shade(TERRA, 0.5), 0.6);
+  disc(k, 0, 1.4, 2.8, 2.8, IRON, { line: 0.8 });
+  if (q >= 1) coneMark(k, -5.6, 7.0, 1.6, IRON);
+  k.anchor = { x: 0, y: 1.4, r: 3.2 };
+  glazeEye(k, 0, 1.4, 1.3);
+}
+
+// ── quiver: a tall glazed jar — a narrow neck, a belly, glaze running down from the rim ──
+function quiver(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON;
+  for (let i = 0; i < 3; i++) {
+    const x = -2.4 + i * 2.4, y = -17.0 - (i % 2) * 1.8;
+    pole(k, [x * 0.5, -9, x, y + 2], 0.9, ASH, { flat: true });
+    slab(k, [x - 1.8, y + 4, x, y - 2.6, x + 1.8, y + 4, x, y + 2.4], q === 2 ? EMBER : 0xd8cfc0, { line: 0.7 });
+  }
+  const jar = [-3.0, -10.4, 3.0, -10.4, 3.2, -7.6, 6.0, -1.0, 6.0, 7.4, 3.6, 12.6, -3.6, 12.6, -6.0, 7.4, -6.0, -1.0, -3.2, -7.6];
+  slab(k, jar, TERRA, { smooth: true, hi: [[-4.6, -1, -4.4, 8]] });
+  if (k.pass === 'paint') k.c.poly([-3.1, -10.2, 3.1, -10.2, 3.4, -7.4, 5.0, -3.6, -5.0, -3.6, -3.4, -7.4], true).fill(glaze);
+  drips(k, [-4.0, -1.2, 1.8, 4.2], -3.8, [2.6, 4.2, 2.0, 3.0], glaze, 0.7, true);
+  ring(k, 0, -10.4, 3.4, 0.9, 1.2, glaze);
+  if (q >= 1) coneMark(k, 0.8, 6.4, 1.4, TERRA);
+  k.anchor = { x: 0, y: -8.6, r: 2.6 };
+  glazeEye(k, -2.6, 3.0, 1.1);
+}
+
+// ── orb: a stoneware sphere glaze-capped, its crackle glaze glowing like coals underneath ──
+function orb(k: K): void {
+  const q = k.q, glaze = q === 0 ? TENMOKU : CELADON, R = 8.2;
+  disc(k, 0, 0, R, R, TERRA, { line: 0.9 });
+  if (k.pass === 'paint') { k.c.moveTo(-R + 0.3, -1.4).quadraticCurveTo(0, -3.4, R - 0.3, -1.4).arc(0, 0, R - 0.3, -0.17, Math.PI + 0.17, true).closePath().fill(glaze); k.c.ellipse(-2.8, -4.4, 2.6, 1.4).fill({ color: light(glaze, 0.5), alpha: 0.6 }); }
+  drips(k, [-4.6, -1.0, 2.6, 5.4], -2.0, [2.2, 3.4, 1.8, 2.6], glaze, 0.65, true);
+  detail(k, ORB_CRACK, shade(TERRA, 0.5), 0.55);
+  if (q >= 1) coneMark(k, -1.2, 6.0, 1.2, TERRA);
+  k.anchor = { x: 0, y: -R + 1.2, r: 2.2 };
+  glazeEye(k, -5.0, 2.4, 1.1);
+}
+
+// ── effects for the rollout families (the same ember language) ──
+function fxGreatsword(k: K): void { if (k.pass === 'light') { k.lit = true; k.litCol = k.litCol || EMBER; const b = bloom(k); k.c.poly(GS_HOT, true).fill({ color: EMBER, alpha: 0.5 + 0.25 * b }); k.c.poly(GS_WARM, true).fill({ color: EMBER, alpha: 0.16 + 0.1 * b }); } haze(k, 0, -45.0, 5.0, 4.6, EMBER, 0.12); embers(k, [[3.0, -51], [-4.4, -47], [5.4, -40]], 2, 4); }
+function fxGreataxe(k: K): void { glowLine(k, [-7.2, -45.8, -5.4, -47.6, 5.4, -47.6, 7.2, -45.8], 0.5 + 0.35 * bloom(k), EMBER, true, IRON); haze(k, 0, -48.0, 7.0, 3.6, EMBER, 0.1); embers(k, [[0, -52], [8.6, -48], [-8.0, -47]], 2, 4); }
+function fxMace(k: K): void { glowLine(k, [-4, -22, -2.6, -23, -1.4, -22.4], 0.4, EMBER, true, TERRA); glowLine(k, [2, -20, 3.4, -21, 4.6, -20.4], 0.4, EMBER, true, TERRA); haze(k, 0.2, -23, 7, 5, EMBER, 0.1); embers(k, [[9.4, -26], [-9.0, -24], [0, -32]], 2, 4); }
+function fxXbow(k: K): void { glowLine(k, [-1.8, -20.6, -0.4, -19.6, 0.6, -20.8, 1.8, -19.8], 0.35, EMBER, true, TERRA); embers(k, [[14.4, -12], [-14.0, -12], [0, -31]], 1.6, 3); }
+function fxHand(k: K): void { glowLine(k, [-1.4, -13.2, -0.2, -12.4, 1.2, -13.2], 0.3, EMBER, true, TERRA); embers(k, [[11.2, -7], [-10.8, -7]], 1.2, 2); }
+function fxShield(k: K): void { glowLine(k, SH_CRACK, 0.45 + 0.3 * bloom(k), EMBER, true, TERRA); glowLine(k, [6.6, 4.2, 9.4, 6.0], 0.35, EMBER, true, TERRA); embers(k, [[13.6, -6], [-13.4, 4], [9.6, 12]], 2, 4); }
+function fxQuiver(k: K): void { haze(k, 0, -18, 5, 4, EMBER, 0.1); embers(k, [[2.6, -22], [-3.0, -24], [0.2, -26]], 2, 4); }
+function fxOrb(k: K): void { glowLine(k, ORB_CRACK, 0.5 + 0.3 * bloom(k), EMBER, true, TERRA); glowLine(k, [4.0, 2.2, 1.6, 3.0], 0.4, EMBER, true, TERRA); haze(k, 0, 0, 9.6, 9.6, EMBER, 0.09); embers(k, [[7.6, -7], [-8.0, -5], [0, -11]], 2, 4); }
+
 export const KILNFOLK: SeriesInfo = {
   id: 'kilnfolk', gen: 1, name: 'Kilnfolk', maker: 'the firekeepers of Cinderwash and the Kilnwatch', zones: 'Cinderwash Kilns, Kilnwatch Crown (Sablefen road)', levels: '13–24',
   shape: 'round and heavy: collars, bellies, thumb-pressed rims, blunt tips; glaze drips break the lower edges',
@@ -206,5 +359,9 @@ export const KILNFOLK: SeriesInfo = {
   motif: 'the glazed collar with drips at the junction; the stamped kiln cone',
   late: 'clay-quenched temper lines, a celadon window in the axe, a crucible that keeps an ember, a cone that slumps',
   effects: 'embers drifting off hot iron, the quench line and glaze crazing glowing, heat haze over the crucible; ember impacts',
-  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
+  draw: {
+    blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand),
+    greatblade: withFx(greatsword, fxGreatsword), greataxe: withFx(greataxe, fxGreataxe), mace: withFx(mace, fxMace), crossbow: withFx(crossbow, fxXbow),
+    handxbow: withFx(handxbow, fxHand), shield: withFx(shield, fxShield), quiver: withFx(quiver, fxQuiver), orb: withFx(orb, fxOrb),
+  },
 };

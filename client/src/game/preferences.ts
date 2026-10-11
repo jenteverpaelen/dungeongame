@@ -46,8 +46,8 @@ export interface Preferences {
   colorVision: ColorVision;
   /** A small shape on every item slot (◆ magic, ▲ rare, ★ legendary, ⬢ set) so rarity never relies on colour. */
   rarityShapes: boolean;
-  /** Weapon art preview (docs/rework/gear/ART-DIRECTION.md): the current drawings or the new maker series. Local only,
-   *  applied when the page loads; `?weaponArt=series|current` overrides it for one page load. */
+  /** Weapon art (docs/rework/gear/ART-DIRECTION.md): the maker series (default since every held family is drawn) or the
+   *  previous drawings. Local only, applied when the page loads; `?weaponArt=series|current` overrides it once. */
   weaponArt: WeaponArt;
 }
 
@@ -97,7 +97,7 @@ export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
   contextualHints: true, manualSkills: false,
   gearEffects: 'full', otherGearEffects: 'full',
   graphicsPreset: 'high', ...GRAPHICS_PRESETS.high, maxFps: 0, backgroundFps: 0, lowSpecHint: true,
-  motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'current',
+  motion: 'system', colorVision: 'default', rarityShapes: true, weaponArt: 'series',
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
 interface StorageAccess { getItem(key: string): string | null; setItem(key: string, value: string): void }

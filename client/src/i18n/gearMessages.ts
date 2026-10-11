@@ -15,8 +15,8 @@ export const GEAR_MESSAGES = {
   'gear.setComplete': 'Set complete: {set}',
   'gear.artHeading': 'Weapon art',
   'gear.art': 'Weapon art',
-  'gear.art.current': 'Current',
-  'gear.art.series': 'New series (preview)',
-  'gear.artNote': 'A preview of the new weapon art: swords, axes, bows, staves and wands drawn as the work of the makers of each level band. Other weapons keep the current art. Takes effect when the page reloads.',
+  'gear.art.current': 'Previous art',
+  'gear.art.series': 'Maker series',
+  'gear.artNote': 'Every weapon and off-hand is drawn as the work of the makers of its level band, with the light and effects of that band. Previous art switches back to the earlier drawings. Takes effect when the page reloads.',
   'gear.artUrl': 'Set by the page address for this visit.',
 } as const;

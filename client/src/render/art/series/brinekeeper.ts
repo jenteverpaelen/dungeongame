@@ -4,7 +4,7 @@
 // and Lockglass's green glass. Shape language: long, lean and tapering, whip curves, wrapped in black whippings; the
 // accents are hard little cubes (rule A1). No light yet (R6). Maker's mark: a stamped salt cube.
 import type { SeriesInfo } from './index';
-import { accentOf, bloom, cube, detail, disc, fxCount, glowLine, glowSpot, haze, jit, lash, mote, pole, qpts, ribbon, ring, slab, bevel, withFx, type K } from './kit';
+import { accentOf, arcAt, bloom, cube, detail, disc, fxCount, glowLine, glowSpot, haze, jit, lash, mote, pole, qpts, ribbon, ring, slab, bevel, withFx, type K } from './kit';
 import { light, mix, shade } from '../util';
 import { localXf } from '../weaponArt';
 import { OUT } from '../draw';
@@ -196,6 +196,160 @@ function fxWand(k: K): void {
   glitter(k, [[2.2, -22], [-3.4, -19], [0.4, -24.6]]);
 }
 
+
+// ═══════════════ the other held families (rollout 2026-10-11) ═══════════════
+
+// ── greatsword: a tooth sword — a broad driftwood blade edged on both sides with salt-crystal teeth lashed on in
+//    tarred whipping (after the Pacific swords of wood edged with lashed shark teeth [K]); no guard, a long whipped grip;
+//    the teeth turn to sea-glass with craft ──
+let gsTeeth: [number, number][] = [];
+function greatsword(k: K): void {
+  const q = k.q;
+  k.anchor = { x: 0, y: -8.6, r: 2.8 };
+  const blade = [-3.2, -8.0, 3.2, -8.0, 3.8, -20, 3.6, -36, 2.0, -46.4, 0, -49.6, -2.0, -46.4, -3.6, -36, -3.8, -20];
+  slab(k, blade, DRIFT, { smooth: true, hi: [[-2.6, -9.4, -3.0, -34.0]] });
+  detail(k, [0.4, -9.6, 0.6, -24, 0.2, -40, -0.2, -46.6], shade(DRIFT, 0.35), 0.6);
+  detail(k, [-1.4, -14, -1.2, -28], shade(DRIFT, 0.3), 0.45);
+  gsTeeth = [];
+  for (let i = 0; i < 7; i++) {
+    const y = -12.6 - i * 5.0, w = i < 5 ? 3.8 : 3.8 - (i - 4) * 1.0;
+    for (const s of [-1, 1]) {
+      const x = s * (w + 1.2);
+      const col = q === 0 ? SALT : i % 3 === 1 ? mix(SALT, BRINE, 0.6) : GLASS;
+      // set point-out (turned 45°) so each crystal reads as a tooth
+      cube(k, x, y, 1.75, col, { rot: 0.785 + jit(k.seed, i * 2 + (s > 0 ? 1 : 0), 0.12), line: 0.6 });
+      gsTeeth.push([x, y]);
+    }
+  }
+  for (const y of [-15.1, -30.1]) whip(k, 0, y - 1.0, y + 1.0, 7.6);
+  if (q >= 1) saltMark(k, 0, -11.0, 1.4, DRIFT);
+  slab(k, [-1.8, -8.0, 1.8, -8.0, 1.7, 10.0, -1.7, 10.0], DRIFT, { hi: [[-1.1, -7.2, -1.0, 9.2]] });
+  for (const [a, b] of [[-7.6, -5.4], [0.2, 2.4], [7.6, 9.8]] as const) whip(k, 0, a, b, 4.0);
+  if (q >= 1) lash(k, 0, -4.4, -0.4, 3.8, OILSKIN, { gap: 1.5, slant: 0.2, bulge: 0.15 });
+  salt(k, 0, 12.6, q === 0 ? 2.1 : 2.6, q === 0 ? 2 : q === 1 ? 3 : 5, 0, true);
+}
+
+// ── great axe: a salter's axe — a long-bearded blade, a toothed pan rake on its back, a tarred haft ──
+function greataxe(k: K): void {
+  const q = k.q;
+  pole(k, [0.0, 11.6, 0.2, -48], 3.0, TAR);
+  if (k.pass === 'paint') detail(k, [-0.6, 10, -0.4, -44], light(TAR, 0.35), 0.5);
+  lash(k, 0.05, 2.0, 9.6, 3.4, OILSKIN, { gap: 1.8, slant: 0.4, bulge: 0.15 });
+  const blade = [1.6, -46.4, 7.4, -47.6, 11.6, -45.4, 12.6, -38.0, 12.2, -28.4, 10.4, -20.0, 7.0, -18.6, 7.8, -23.4, 6.6, -29.4, 1.6, -33.4];
+  bevel(k, blade, [1.6, -46.4, 7.4, -47.6, 9.8, -46.0, 9.4, -37.6, 7.4, -30.6, 1.6, -33.8], STEEL, { edge: [11.6, -44.4, 11.4, -28.6, 9.4, -20.8], edgeCol: EDGE });
+  if (q === 0 && k.pass === 'paint') for (const [x, y, s] of [[4.8, -38, 1.0], [3.6, -42, 0.7], [8.0, -25, 0.8]]) k.c.rect(x - s / 2, y - s / 2, s, s).fill(SALT);
+  // the rake: a bar with teeth, brass on magic+
+  const metal = q >= 1 ? BRASS : STEEL;
+  slab(k, [-1.4, -44.6, -9.6, -44.6, -9.6, -41.8, -1.4, -41.8], metal, { hi: [[-9.0, -44.0, -2.0, -44.0]] });
+  for (let i = 0; i < 4; i++) { const x = -3.2 - i * 2.0; slab(k, [x - 0.5, -41.8, x + 0.5, -41.8, x + 0.3, -37.6, x - 0.3, -37.6], metal, { line: 0.6 }); }
+  slab(k, [-1.8, -49.0, 2.0, -49.0, 2.0, -32.6, -1.8, -32.6], TAR, { hi: [[-1.2, -48.2, -1.2, -33.4]] });
+  whip(k, 0.1, -49.6, -47.0, 3.8); whip(k, 0.1, -35.0, -32.4, 3.8);
+  if (q >= 1) saltMark(k, 6.0, -36, 1.4, STEEL);
+  if (q >= 1) salt(k, 0.2, -51.0, 1.3, q === 2 ? 4 : 2, 0, true);
+  k.anchor = { x: 0.1, y: -32.4, r: 2.4 };
+}
+
+// ── mace: a fish priest — the fisher's short club, a driftwood head weighted with salt and bound in tar ──
+function mace(k: K): void {
+  const q = k.q;
+  slab(k, [-1.4, 6.6, 1.8, 6.6, 2.4, -9.4, 4.2, -17.6, 4.6, -24.6, 2.6, -27.4, -2.2, -27.4, -4.2, -24.6, -3.8, -17.6, -2.0, -9.4], DRIFT, { smooth: true, hi: [[-2.6, -24, -1.2, -8]] });
+  if (k.pass === 'paint') detail(k, [0.6, 4, 1.2, -12, 1.6, -24], shade(DRIFT, 0.35), 0.5);
+  for (const [a, b] of [[-13.6, -11.4], [-22.6, -19.8]] as const) whip(k, 0.2, a, b, 8.2);
+  whip(k, 0.2, 2.4, 5.6, 3.6);
+  if (q >= 1) lash(k, 0.2, -2.6, 1.6, 3.4, OILSKIN, { gap: 1.4, slant: 0.4, bulge: 0.15 });
+  if (q === 0 && k.pass === 'paint') for (const [x, y, s] of [[-2.6, -18, 1.0], [2.6, -20, 0.8]]) k.c.rect(x - s / 2, y - s / 2, s, s).fill(SALT);
+  salt(k, 0.2, -28.8, q === 0 ? 1.6 : 2.0, q === 0 ? 2 : q === 1 ? 4 : 6, 0.3, true);
+  if (q >= 1) saltMark(k, 0.2, -17.0, 1.3, DRIFT);
+  k.anchor = { x: 0.2, y: -12.0, r: 2.4 };
+}
+
+// ── crossbow: driftwood whipped in tar, a prod of bound reeds, oilskin at the fore-end, glass beads at the tips ──
+function xbow(k: K, hand: boolean): void {
+  const q = k.q, pw = hand ? 9.6 : 13.0, py = hand ? -9 : -16, sy1 = hand ? -12.4 : -24, sy0 = hand ? 3 : 8;
+  if (hand) slab(k, [-1.8, 4.8, 2.6, 4.8, 3.6, 0.8, 2.0, -2.0, 1.8, sy1, -1.8, sy1, -1.8, -2.0], DRIFT, { hi: [[-1.2, sy1 + 1, -1.2, -2.6]] });
+  else slab(k, [-2.4, sy0, 2.4, sy0, 2.6, sy0 - 4, 2.0, sy1, -2.0, sy1, -2.6, sy0 - 4], DRIFT, { hi: [[-1.8, sy1 + 1, -2.0, sy0 - 4]] });
+  whip(k, 0, sy0 - 3.6, sy0 - 1.6, 4.4); whip(k, 0, sy1 + 1, sy1 + 3, 3.8);
+  lash(k, 0, py - 1, py + 4, 4.2, OILSKIN, { gap: 1.6, slant: 0.5, bulge: 0.2 });
+  pole(k, [0, py + 7, 0, sy1 - 3.6], 1.0, DRIFT, { flat: true });
+  slab(k, [-1.2, sy1 - 3.6, 0, sy1 - 6.8, 1.2, sy1 - 3.6], STEEL, { line: 0.7 });
+  // reed prod: three bound reeds
+  for (const [dy, col] of [[0.0, DRIFT], [-1.1, light(DRIFT, 0.3)], [1.1, shade(DRIFT, 0.3)]] as const) pole(k, qpts(-pw, py + 4 + dy, 0, py - 8 + dy, pw, py + 4 + dy, 14), hand ? 1.0 : 1.3, col, { inner: dy !== 0 });
+  for (const t of [0.22, 0.78]) { const x = -pw + 2 * pw * t, y = py + 4 - 12 * 4 * t * (1 - t) * 0.5; whip(k, x, y - 1.4, y + 1.4, 2.6); }
+  pole(k, [-pw + 0.6, py + 3.8, 0, py + 7.2, pw - 0.6, py + 3.8], 0.6, mix(ROPE, 0x000000, 0.15), { flat: true });
+  if (q >= 1) for (const s of [-1, 1]) disc(k, s * pw, py + 4, 1.3, 1.3, GLASS, { line: 0.7 });
+  pole(k, hand ? [1.0, -1.4, 2.6, 2.6] : [0.6, -2.4, 0.8, 4.6], 0.9, STEEL);
+  if (q >= 1) saltMark(k, 0.2, hand ? -5.4 : -7.6, 1.2, DRIFT);
+  if (q === 2) salt(k, 0, sy0 + 1.6, 1.2, 3, 0, true);
+  k.anchor = { x: 0, y: py + 1, r: 2.4 };
+}
+const crossbow = (k: K) => xbow(k, false), handxbow = (k: K) => xbow(k, true);
+
+// ── shield: an oar blade — a ferry oar cut down to its blade, edged in tarred rope, salt-crusted ──
+function shield(k: K): void {
+  const q = k.q;
+  // the loom stub of the oar above the blade, so it reads as an oar and not a round shield
+  pole(k, [0, -21.4, 0, -12.0], 3.0, DRIFT);
+  const blade = [-2.2, -13.6, 2.2, -13.6, 8.4, -6.0, 10.4, 4.0, 8.4, 13.0, 0, 16.6, -8.4, 13.0, -10.4, 4.0, -8.4, -6.0];
+  slab(k, blade, DRIFT, { hi: [[-7.6, -4.6, -9.0, 6.0]] });
+  if (k.pass === 'paint') { detail(k, [0, -14.4, 0.4, 0, 0, 15.0], shade(DRIFT, 0.3), 0.6); for (const x of [-5.4, 4.8]) detail(k, [x, -6, x + 0.6, 8, x, 12], shade(DRIFT, 0.3), 0.45, 0.8); }
+  ring(k, 0, 1.6, 10.4, 14.2, 1.1, TAR, { a0: -2.6, a1: -0.55 });
+  slab(k, [-10.2, -1.4, 10.2, -1.4, 10.4, 1.6, -10.4, 1.6], OILSKIN, { line: 0.75, hi: [[-9.6, -0.8, 9.6, -0.8]] });
+  whip(k, 0, -15.6, -12.6, 4.6);
+  disc(k, 0, -22.2, 1.9, 1.3, TAR, { line: 0.7 });
+  if (q === 0 && k.pass === 'paint') for (const [x, y, s] of [[-6, 9, 1.2], [5, 11, 0.9], [-3, 12.6, 0.8], [7, 6, 0.7]]) k.c.rect(x - s / 2, y - s / 2, s, s).fill(SALT);
+  if (q >= 1) disc(k, 0, 6.4, 2.6, 2.6, GLASS, { line: 0.8 });
+  if (q >= 1) saltMark(k, 0, -8, 1.8, DRIFT);
+  if (q === 2) salt(k, 7.6, 10.0, 1.3, 4, 0.2, true);
+  k.anchor = { x: 0, y: 0, r: 3 };
+}
+
+// ── quiver: an oilskin roll — yellow oilskin wrapped round the arrows, tied with tarred cord ──
+function quiver(k: K): void {
+  const q = k.q;
+  for (let i = 0; i < 3; i++) {
+    const x = -2.6 + i * 2.6, y = -16.6 - (i % 2) * 1.8;
+    pole(k, [x * 0.6, -8, x, y + 2], 0.9, DRIFT, { flat: true });
+    slab(k, [x - 1.8, y + 4, x, y - 2.6, x + 1.8, y + 4, x, y + 2.4], SALT, { line: 0.7 });
+  }
+  slab(k, [-4.6, -10.4, 4.8, -10.0, 5.4, 6.0, 4.6, 12.8, -4.0, 12.8, -5.0, 6.0], OILSKIN, { hi: [[-3.8, -9, -4.2, 11]] });
+  if (k.pass === 'paint') { detail(k, [-4.6, -10.4, 3.0, -6.8, 5.2, -2.0], shade(OILSKIN, 0.35), 0.7); detail(k, [-4.8, 2.0, 4.8, 5.6], shade(OILSKIN, 0.35), 0.6); }
+  for (const y of [-7.4, 3.4, 10.4]) whip(k, 0.2, y - 1.0, y + 1.0, 10.2);
+  if (q >= 1) disc(k, 3.6, -2.4, 1.3, 1.3, GLASS, { line: 0.7 });
+  if (q === 2) salt(k, -3.0, 12.4, 1.1, 3, 0.1, true);
+  else if (q === 1) salt(k, -3.0, 12.4, 0.9, 2, 0.1, true);
+  k.anchor = { x: 0, y: -9.4, r: 2.4 };
+}
+
+// ── orb: a Lockglass float — green glass blown round, netted in rope for the nets of the causeway ──
+function orb(k: K): void {
+  const q = k.q, R = 7.8;
+  disc(k, 0, 0, R, R, GLASS, { line: 0.9 });
+  if (k.pass === 'paint') {
+    k.c.circle(0, 0, R * 0.72).fill({ color: light(GLASS, 0.35), alpha: 0.5 });
+    k.c.ellipse(-2.6, -3.6, 2.4, 1.4).fill(0xffffff);
+    for (const a of [-0.9, 0, 0.9]) { k.c.moveTo(Math.sin(a) * R, -Math.cos(a) * R).quadraticCurveTo(Math.sin(a) * R * 1.25, 0, Math.sin(a) * R, Math.cos(a) * R); }
+    k.c.stroke({ width: 0.75, color: ROPE });
+    k.c.ellipse(0, 0, R, R * 0.36).stroke({ width: 0.75, color: ROPE });
+    k.c.ellipse(0, -R * 0.55, R * 0.8, R * 0.2).stroke({ width: 0.6, color: ROPE });
+  }
+  whip(k, 0, -R - 1.6, -R + 0.6, 2.8);
+  pole(k, [0, -R - 1.6, 0.8, -R - 4.2], 0.8, ROPE, { flat: true });
+  if (q === 2) salt(k, 4.2, 5.8, 1.1, 3, 0.2, true);
+  else if (q === 1) salt(k, 4.2, 5.8, 0.9, 2, 0.2, true);
+  k.anchor = { x: 0, y: -R, r: 2 };
+}
+
+// ── effects for the rollout families (salt glitter, sea-glass, spray) ──
+function fxGreatsword(k: K): void { if (k.pass === 'light') { k.lit = true; k.litCol = k.litCol || SEA; const b = bloom(k); for (const [x, y] of gsTeeth) k.c.circle(x, y, 1.4 + 0.6 * b).fill({ color: SEA, alpha: k.q === 2 ? 0.34 : 0.18 }); } glitter(k, [[5.0, -30], [-5.0, -20], [0, -52], [3.0, 13]]); }
+function fxGreataxe(k: K): void { haze(k, 11.0, -33, 4.6, 10, SEA, 0.1); glitter(k, [[12.6, -40], [10.6, -22], [-9.6, -38], [0.4, -53]]); }
+function fxMace(k: K): void { glowSpot(k, 0.2, -28.8, 1.2 + 0.7 * bloom(k), SEA, true); haze(k, 0.2, -27.6, 6, 4.6, SEA, 0.12); glitter(k, [[4.6, -30.6], [-4.4, -27.6], [0.2, -34.0], [5.6, -22]]); }
+function fxXbow(k: K): void { for (const s of [-1, 1]) glowSpot(k, s * 13.0, -12, 1.1, SEA, true); glitter(k, [[14.6, -14], [-14.6, -14], [0, -29]]); }
+function fxHand(k: K): void { for (const s of [-1, 1]) glowSpot(k, s * 9.6, -6, 0.9, SEA, true); glitter(k, [[11.0, -8], [-11.0, -8]], 1.4, 2); }
+function fxShield(k: K): void { glowSpot(k, 0, 6.4, 1.5 + 0.7 * bloom(k), SEA, true); haze(k, 0, 6.4, 7, 6, SEA, 0.12); glitter(k, [[8.6, 11], [-7.0, 10], [11.4, -2], [-10.4, 3]]); }
+function fxQuiver(k: K): void { glowSpot(k, 3.6, -2.4, 1.0 + 0.5 * bloom(k), SEA, true); glitter(k, [[-3.0, 14.6], [4.4, -12], [-2.0, -20]], 1.6, 3); }
+// the float keeps its netting readable: a small lit core and the lit rim of the glass, not a white-out
+function fxOrb(k: K): void { glowSpot(k, 0.8, 1.6, 1.3 + 0.9 * bloom(k), SEA, true); glowLine(k, arcAt(0, 0, 7.0, 0.2, 2.4, 8), 0.45 + 0.3 * bloom(k), SEA, true, GLASS); haze(k, 0, 0, 10, 10, SEA, 0.1); glitter(k, [[7.4, -6], [-8.0, 2], [4.2, 9], [0, -12]]); }
+
 export const BRINEKEEPER: SeriesInfo = {
   id: 'brinekeeper', gen: 2, name: 'Brinekeeper', maker: 'Saltwind brine keepers, Sablefen ferriers, the Lockglass cistern', zones: 'Sablefen, Saltwind Pans, Lockglass Cistern', levels: '25–36',
   shape: 'long, lean and tapering; whip curves; black whippings; hard little cubes as accents',
@@ -203,5 +357,9 @@ export const BRINEKEEPER: SeriesInfo = {
   motif: 'cubic salt crystals grown at the ends; tarred whipping at every binding',
   late: 'pink brine-grown crystal clusters; a glass float netted under a ferry hook',
   effects: 'salt glitter turning in the light, a sea-spray mist, the Lockglass float and beads lit sea-glass; shard impacts',
-  draw: { blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand) },
+  draw: {
+    blade: withFx(sword, fxSword), axe: withFx(axe, fxAxe), bow: withFx(bow, fxBow), staff: withFx(staff, fxStaff), wand: withFx(wand, fxWand),
+    greatblade: withFx(greatsword, fxGreatsword), greataxe: withFx(greataxe, fxGreataxe), mace: withFx(mace, fxMace), crossbow: withFx(crossbow, fxXbow),
+    handxbow: withFx(handxbow, fxHand), shield: withFx(shield, fxShield), quiver: withFx(quiver, fxQuiver), orb: withFx(orb, fxOrb),
+  },
 };

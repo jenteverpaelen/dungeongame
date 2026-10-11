@@ -1,14 +1,13 @@
-// Registration of the series art with the gear rig (weaponDrawing.ts, DESIGN-V2 §11). NOT called by the game: only
-// the series gallery calls it (gallery-series.html?view=rig…). Switching the game over is one call at client start,
-// `registerSeriesDrawings()`, after the integration notes of ART-DIRECTION.md §7 (icon halo / glow colour) are done.
-// Families without a series drawing, and legendaries / Sets the series cannot draw, fall back to the default drawing.
+// Registration of the series art with the gear rig (weaponDrawing.ts, DESIGN-V2 §11). Called once at client start by
+// game/weaponArtPreview.ts when the Weapon art setting is the maker series (the default), and by the galleries.
+// Families without a series drawing fall back to the default drawing.
 import { DEFAULT_WEAPON_DRAWINGS } from '../weaponArt';
 import { registerWeaponDrawing, type WeaponDrawing } from '../weaponDrawing';
 import type { WeaponFamily } from '../gearVisuals';
 import { seriesDrawing } from './drawing';
 
 /** The families the checkpoint sample draws. */
-export const SERIES_FAMILIES: WeaponFamily[] = ['blade', 'axe', 'bow', 'staff', 'wand'];
+export const SERIES_FAMILIES: WeaponFamily[] = ['blade', 'greatblade', 'axe', 'greataxe', 'mace', 'bow', 'crossbow', 'handxbow', 'staff', 'wand', 'shield', 'quiver', 'orb'];
 
 export function registerSeriesDrawings(families: WeaponFamily[] = SERIES_FAMILIES): void {
   for (const f of families) {

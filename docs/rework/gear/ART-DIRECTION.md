@@ -53,6 +53,17 @@ Rule: if a small part would need its own ink outline to read, it is too small �
   items get a **rim light** in their own colour instead (icons.ts, `present.rim`).
 * **Motes** (embers, glitter, star motes, chips, drops, glints) are decorative floats: the rig drops them outside the 16
   presence slots (crowd budget); their count follows the effect strength (A6).
+* **Cost rules (performance gate, 2026-10-11; the owner: the game must stay accessible in the browser and on low-end
+  PCs).** Everything a series drawing adds is baked once per look into the hero's part sheet: no Pixi filters, no
+  per-frame Graphics, no new display-object kinds. Per hero the series uses the rig's existing parts — the weapon sprite,
+  one additive light-layer sprite (in the hero's additive group, pulsed by alpha) and one sprite per float, plus at most
+  a few shared pre-baked glow sprites (additive). The float budget follows the Graphics preset (`player.ts
+  heldFloatBudget`): High ≤ 3 decorative floats and ≤ 3 glow sprites per weapon, Medium 2 / 1, Low 0 / 0 (decorative
+  floats are not even baked); structural floats (the pieces an item is made of: Faultstone segments, the Fabled ring, the
+  plumb bob) always stay. Decorative floats show only in the presence slots. Off-hands bake their floats at rest into the
+  off-hand sprite (no extra objects; their light layer is not drawn on the hero). Measured per drawing in `floats.jpg`
+  (rare: 0–4 decorative; rare + Fabled: at most 7 decorative, 9 floats in all — so the cap, not the drawing, sets the
+  cost) and in a 30-hero crowd A/B (§11).
 
 ### 1.4b Effects (owner decision 2026-10-11: "The art looks good however it needs way more vfx like glow and all that stuff
 really stand out clearly but the size and design looks alright")
@@ -84,8 +95,10 @@ in the series colour, motes at rest), on ground loot (the same icon textures plu
 Checked on every sheet: the 40 px bag cell, the ~64 px card, a solid-black silhouette at 40 px, and the hero at the
 default camera (1080/620 × 0.75 ≈ 1.31 px per unit). The business end carries the identity (A7): heads may be drawn
 larger round their mount; drawn tips stay within ~+20 % of the family's canonical reach except staves, whose heads rise
-above the mage (measured in `shots-art/extents.jpg`: swords 33–38, axes 30–35, bows 24–29, staves 59–63, wands 20–25 units
-including the contour, against canonical 31 / 27 / 21 / 50 / 20).
+above the mage (measured in `shots-art/extents.jpg`: swords 33–38, axes 30–35, bows 24–29, staves 57–61, wands 20–25,
+greatswords 50–56, great axes 50–58, maces 30–35, crossbows 32–33, hand crossbows 21 units including the contour, against
+canonical 31 / 27 / 21 / 50 / 20 / 48 / 50 / 27 / 30 / 17; axes, maces and hand crossbows sit +22–31 % over, the size
+band the owner accepted for the axes).
 
 ## 2. Anti-sameness rules (enforced on every new drawing)
 | # | Rule | How it is checked |
@@ -111,6 +124,19 @@ including the contour, against canonical 31 / 27 / 21 / 50 / 20).
 | G4 · 49–60 | **Array** — the readers of the Hollowstar Array | circles, rings, arcs, horn bells, graduated ticks; precise and symmetric | blued star-iron `#2E3A5C`, copper `#C47A4C` / verdigris (RW6) · enamel dial, lilac (Eris) · signal `#C2A8FF` | the graduated ring | graduated blade with an astrolabe-ring guard and a horn-bell pommel · sextant axe (an open graduated arc on radial arms) · bow whose limbs are one true circle, with a sighting ring · orrery staff with planets on arms · horn receiver (ear trumpet) | normal is tarnished to verdigris, magic polished, rare lit: the signal runs in the scales and lenses; the orrery turns |
 | G5 · 61–69 | **Faultstone** — no maker: what the Faultline cracks and gives back (the Faultstone obelisk's slate and runes, WR4) | monolithic tapered slabs, stepped bases, pyramidion tips; split into pieces held apart | obelisk slate `#544A62`, bone `#DCD3C2` · fracture `#B0A4BA` · Faultstone rune `#FF4A9A` | rectangular rune slots; the split with a gap | obelisk blade in three pieces · a wedge split off its haft, hovering in the socket · bow of stacked slate segments · a small obelisk with its pyramidion floating · stepped shard on a bone handle | gaps widen with craft (touching → held apart); runes light slot by slot |
 | G6 · 70 | **Reliquary** — the dome-makers of the Glass Reliquary (the town's glass dome `townHouses.ts dome` and the Reliquary's bronze, WR4) | glass panes leaded in bronze, ribbed domes, gold finials; strict symmetry | bronze `#B4783A` (+ light / shade), reliquary glass `#5FA8A2` · gold finials `#E2C070` · relic light `#96FFEC` | a small ribbed glass dome | a glass blade leaded in bronze rising out of a dome · a labrys of two glass panes in bronze frames · bronze limbs set with glass windows, a caged glass bulb · the Reliquary itself: a ribbed dome with a relic inside · a glass rod in bronze bands with a dome tip | the glass lights from dark to dim to bright with craft; the relic glows inside the dome |
+
+### 3b The other held families (rollout 2026-10-11, owner approved direction and size)
+Same makers, palettes, motifs and craft ladder; each piece a nameable object (A10). Greatswords and great axes are not
+scaled one-handers: each has its own idea, a long two-hand grip and a heavier head.
+| Series | Greatsword · Great axe · Mace | Crossbow · Hand crossbow | Shield · Quiver · Orb |
+|---|---|---|---|
+| Millwright | a two-man crosscut saw made a blade · a broadaxe · a carpenter's beetle (mallet) banded in strap iron | birch crossbow, hemp-lashed prod (the hand crossbow a short-stocked one) | a sluice-gate board with its lifting ring · a birch-bark tube · a hand millstone with its iron rynd |
+| Kilnfolk | an oven peel forged into a blade, wavy temper line · a slag axe · a firebrick maul | iron prod in a clay sleeve with a glaze window | a saggar lid (thumb-pressed rim, glaze dipped, crack glowing) · a tall glazed jar · a stoneware sphere, glaze-capped, crackle glowing |
+| Brinekeeper | a flensing blade · a salter's axe with a salt rake · a fish priest (the club for stunning a catch) | three bound reeds for a prod, tar whippings | an oar blade on its loom · an oilskin roll · the netted Lockglass float |
+| Warden | a ward greatsword (key-ward notches, key-bow pommel) · a beacon halberd · a ward padlock | signal crossbow with pennants at the prod tips | a ward door (keyhole, crimson and white enamel) · a flag case · a ward lantern |
+| Array | a greatsword with a double graduated ring · a quadrant (graduated sector plate) with a plumb bob · an armillary mace | a theodolite crossbow with its sighting ring | a dish receiver · a telescope tube · a celestial globe |
+| Faultstone | an obelisk blade in four pieces · a wedge hovering off its haft · a monolith maul, pieces floating | a prod of stacked slate segments | a fractured slab held apart · a segmented case · a split stone |
+| Reliquary | a monstrance blade (glazed sun at the hilt, diamond-leaded glass either side of a midrib) · a lunette bardiche (one glass crescent leaded like a fan window) · a reliquary case for a head | prod windows of glass in bronze | a rose window · a glass case · a relic sphere |
 
 Endgame lore for G5 / G6 is not written yet: the two series use objects that already exist in town (the Faultstone
 obelisk, the Glass Reliquary's dome) —
@@ -159,9 +185,17 @@ The craft ladder is the same (normal worn / magic finished + mark / rare extra f
   `WeaponDrawing` (style.gen → series, style.rar → craft, style.top → grade, look.variant → wear seed, rig → no bow string;
   `present.light` = the series' own light so trails, strike flash and projectiles take the ember / lamp / signal / rune /
   maze colour, 0 = plain attacks; `strength` on the default scale; `impact` per series, grades override).
-* `series/register.ts` — `registerSeriesDrawings()` registers blade, axe, bow, staff, wand with fallback to the default
-  drawing for families or legendaries the series does not draw. **Not called by the game**; only the gallery's `rig` views
-  call it (`shots-art/rig-*.jpg` are rendered by the game's own icon pipeline and hero rig).
+* `series/register.ts` — `registerSeriesDrawings()` registers all 13 held families (blade, greatblade, axe, greataxe,
+  mace, bow, crossbow, hand crossbow, staff, wand, shield, quiver, orb) with fallback to the default drawing for looks the
+  series cannot draw. Called once at client start by `game/weaponArtPreview.ts` (the default since 2026-10-11, §11) and
+  by the galleries.
+* **Depth-wave bases** (cleaver, maul, polearm, sling, longbow, rod, sceptre, censer, warhorn, trap kit, tome) reuse an
+  existing shape in `shared/data/items.ts` (cleaver → `axe`, maul / polearm → `axe2h`, longbow → `bow`, sling → `handxbow`,
+  rod / sceptre → `wand`, censer → `staff`, warhorn / trap kit → `quiver`, tome → `orb`), and `ItemLook` carries no base
+  id, so today they draw as their family's series piece [M: code]. A dedicated silhouette per base needs its own shape
+  key in `items.ts` and the rig to stop branching on shape strings (`player.ts weaponKind`, `choreo reachOf`, `icons.ts`
+  off-hand branches, `gear.ts isRangedShape`, quiver / orb / shield detection) in favour of `SHAPE_FAMILY` — gear /
+  content work; the series kit can then draw the bases as one more function per series.
 * **Integration notes before the game switches** [M, `rig-icons-rare.jpg`]: `icons.ts renderIcon` still (a) paints a
   backdrop halo for every lit item from G5 in `ItemStyle.light` (the rarity yellow) — against A4 — and (b) tints the light
   layer's glow with `ItemStyle.light` instead of the drawing's own light, so the Reliquary's glass glowed yellow. **Done (2026-10-11):** the halo is limited to legendary / Set / graded items, the
@@ -178,7 +212,13 @@ The craft ladder is the same (normal worn / magic finished + mark / rare extra f
 | `rarity-kilnfolk.jpg`, `rarity-warden.jpg` | one series at normal / magic / rare (120 + 40 px), both legendaries at three stages (+ 40 px, silhouette), rare → Kindled → Fabled |
 | `hero-levelling.jpg`, `hero-rare.jpg` | heroes at the default camera, CURRENT and NEW side by side (gallery overlay copying the rig's weapon transform) |
 | `rig-icons-rare.jpg`, `rig-hero-levelling.jpg`, `rig-hero-rare.jpg`, `rig-hero-attack.jpg` | the same drawings through the real gear rig (icon pipeline; size ladder, hold poses, light layer, floats; an attack windup frame) |
-| `metrics.jpg`, `extents.jpg` | [M] bright-pixel share per band (§1.4) and drawn tips vs canonical reach (§1.5) |
+| `metrics.jpg`, `extents.jpg` | [M] bright-pixel share per band (§1.4) and drawn tips vs canonical reach (§1.5), all 13 families |
+| `floats.jpg` | [M] floats per drawing (structural / decorative / with a glow sprite), rare and rare + Fabled, the crowd-budget input |
+| `zoom-more-levelling.jpg`, `zoom-more-rare.jpg` | the eight rollout families × 7 series at 112 px |
+| `family-<series>.jpg` (7) | one series, all 13 families at normal / magic / rare (118 px): within-series silhouettes (A1), the craft ladder, effect escalation |
+| `rig-icons-more.jpg`, `rig-hero-more-a.jpg`, `rig-hero-more-b.jpg` | the rollout families through the real icon pipeline and hero rig (off-hands on their class's main hand) |
+| `game/series-ranger-L70-offhand-*.jpg`, `game/series-warrior-L40-offhand-*.jpg`, `game/series-mage-L40-offhand-*.jpg` | in game at 1920×1080: an item-level-70 Reliquary quiver; a Warden ward-door shield beside Bloodwake; a Warden lantern orb (town and item card) |
+| `game/series-warrior-fabled-axe-*.jpg` | in game: the L70 Fabled +10 great axe (the Reliquary lunette bardiche with the legendary's accent) in town, on the card, in a rift fight at the default camera and zoomed 1.6, ground loot (a Reliquary monstrance greatsword on the floor) |
 
 **Honest judgement against the complaint.** Sameness: fixed for these five families — every band is a different world
 with its own colours and shapes, nothing converges, the silhouette row shows distinct shapes at 40 px. "AI feeling":
@@ -198,7 +238,18 @@ bow (thin limbs), the G5 staff (the tallest weapon), Bloodwake's waves at 40 px 
 3. Light budget at the top (default ≤ 5 % bright pixels for series items; halos only legendary / graded).
 4. Whether the band boundaries should follow the zones more tightly (G0 covers four zones; G2 straddles salt and glass).
 
-## 10. Rollout estimate [P] (measured on this pass: kit 417 lines, 7 series files 156–197 lines for 5 families × 3 craft
+## 10. Rollout status (2026-10-11) and estimate [P]
+**Done:** all 13 held families × 7 series (91 drawings, each with its series' effects), the bespoke Bloodwake and
+Rainspindle, the grade accents, the default switch (§11). Review fixes during the rollout [M, `family-*.jpg`]: greatswords
+and great axes that were scaled one-handers got their own ideas (Kilnfolk stoker's slice and stoker's spade, Brinekeeper
+tooth sword, Warden beacon blade and a lantern on the halberd, Array sundial blade and a sighting tube on the quadrant,
+Faultstone lengthwise-split stele and a crescent of three stones, Reliquary monstrance blade and lunette bardiche); the
+Kilnfolk saggar lid and stoneware orb lost a crack that read as a face; the Brinekeeper float, the Array globe and the
+Reliquary rose window no longer white out (smaller cores; large glass panes light less per area); maces and hand crossbows
+trimmed to the axes' size band (+22–30 % over the canonical tip, `extents.jpg`). **Open:** depth-wave bases (own shape
+keys first, §7), armour (§6, after review), more bespoke legendaries.
+
+Original estimate: (measured on this pass: kit 417 lines, 7 series files 156–197 lines for 5 families × 3 craft
 levels, 2 legendaries 96 lines, gallery 475 lines)
 | Work | Size | Estimate |
 |---|---|---|
@@ -209,11 +260,13 @@ levels, 2 legendaries 96 lines, gallery 475 lines)
 | Names (owner decision §9.2) | base names per series | content work, separate |
 
 ## 11. In-game preview switch and measurements (2026-10-11)
-* **Switch:** Settings → Display → Weapon art: *Current* / *New series (preview)* (default Current), or the page address
+* **Default since 2026-10-11 (step 3 of the effects plan):** every held family is drawn, so the maker series is the
+  default (`preferences.ts weaponArt: 'series'`); the setting stays as *Maker series* / *Previous art* for A/B and as a
+  fallback.
+* **Switch:** Settings → Display → Weapon art: *Maker series* / *Previous art* (was *Current* / *New series (preview)*), or the page address
   `?weaponArt=series` / `?weaponArt=current` for one visit (`client/src/game/weaponArtPreview.ts`). Applied once at page
   start, before anything is drawn or baked, so icons, the hero, ground loot and the item card always agree; changing the
-  setting shows a reload button (it does **not** flip live). Local only: no save, protocol or server change. Families the
-  series do not draw yet keep the current art.
+  setting shows a reload button (it does **not** flip live). Local only: no save, protocol or server change.
 * **Evidence in game** (1920×1080, `shots-art/game/`): `series-mage-primal-town.jpg` vs `current-mage-primal-town.jpg`
   (a level-1 warrior beside a level-70 Fabled +10 mage), `*-card.jpg` (bag and item card), `series-mage-primal-settings.jpg`
   (the switch), `series-ranger-rare-*.jpg` (an item-level-70 rare bow), `series-warrior-bloodwake-*.jpg` (town, card, a
@@ -226,3 +279,15 @@ levels, 2 legendaries 96 lines, gallery 475 lines)
   Fabled stage: current 15–28 vs series 16–30). Bake cost is measurably higher: pump 9.4 s vs 7.4 s and 2358 vs 2058 baked
   parts for the same 100 looks (+27 % time, +15 % parts — the motes are parts, and the weighted ink draws every contour
   twice). Not optimised yet; a single-pass contour for small parts is the first lever.
+* **Crowd cost after the rollout [M] (2026-10-11, the performance gate's 30-endgame-hero crowd):** `scripts/series-perf.mjs`
+  (perf gallery, 30 heroes, Previous art vs Maker series interleaved, 2 rounds × 4 samples after a 40 s settle, no bakes
+  pending; raw logs `.local/series-perf/crowd30-run*.log`, not committed) and `scripts/series-fill.mjs`. Counted on the live
+  stage, series vs previous: draw calls Fabled 177–178 vs 170–178, L70 169–180 vs 179–180, Fabled + 150 monsters 212–216
+  vs 210–214, Low 174–178 vs 177–180; visible display objects 3393–3425 vs 3458–3468 (Fabled), 2785–2803 vs 2769–2777
+  (L70), 6390–6425 vs 6413–6472 (+ monsters); visible Graphics 8 in every run (no new Graphics; nothing is redrawn per
+  frame); on-screen sprite area 11.6–11.8 vs 11.9–12.0 screens and additive (glow / light) area 2.28–2.31 vs 2.37–2.39
+  (Fabled), 1.07–1.09 vs 1.14–1.15 (L70). So the series costs no more draws, objects or fill than the art it replaces. Frame
+  rate (headless Chrome, software GL, machine shared with four other agents — the same build swung 33–71 fps between
+  rounds): Fabled 36–55 vs 40–58, L70 39–61 vs 33–71, + monsters 25–43 vs 28–52, Low 37–51 vs 42–78; within that noise,
+  not a measured regression, but not a measured gain either. The honest frame-rate check is the perf agent's verify gate
+  on a quiet machine.
