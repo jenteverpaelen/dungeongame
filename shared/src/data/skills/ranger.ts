@@ -11,9 +11,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Fire a magically imbued arrow that seeks out enemies for {coef} weapon damage, with a 35% chance to pierce. Generates {gen} Hatred.',
     icon: { glyph: 'arrow', color: 0x8fd16a },
     runes: [
-      { id: 'puncturing', name: 'Puncturing Arrow', desc: 'Pierce chance increased by 50%.', mods: { pierce: 50 } },
-      { id: 'shatter_shot', name: 'Shatter Shot', desc: 'Piercing splits the arrow into 3 smaller arrows dealing Cold damage.', mods: { element: 'cold', flags: ['splitOnPierce'] } },
-      { id: 'devouring', name: 'Devouring Arrow', desc: 'Each consecutive pierce deals 70% more damage.', mods: { flags: ['devouring'] } },
+      { id: 'puncturing', name: 'Puncturing Arrow', unlock: 3, desc: 'Pierce chance increased by 50%.', mods: { pierce: 50 } },
+      { id: 'shatter_shot', name: 'Shatter Shot', unlock: 6, desc: 'Piercing splits the arrow into 3 smaller arrows dealing Cold damage.', mods: { element: 'cold', flags: ['splitOnPierce'] } },
+      { id: 'devouring', name: 'Devouring Arrow', unlock: 10, desc: 'Each consecutive pierce deals 70% more damage.', mods: { flags: ['devouring'] } },
     ],
     tiers: [
       { name: 'Fletcher', desc: '+20% Hungering Arrow damage.', mods: { dmg: 20 } },
@@ -28,9 +28,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Deploy a turret at your feet that fires bolts at enemies for {coef} weapon damage each second. Up to {max} Sentries; lasts {duration} seconds.',
     icon: { glyph: 'turret', color: 0xc9a227 },
     runes: [
-      { id: 'spitfire', name: 'Spitfire Turret', desc: 'The turret also fires homing rockets dealing 120% weapon damage as Fire.', mods: { flags: ['rockets'] } },
-      { id: 'chain_of_torment', name: 'Chain of Torment', desc: 'Lightning chains form between your Sentries, dealing 300% weapon damage per second to enemies that cross them.', mods: { flags: ['chains'] } },
-      { id: 'polar_station', name: 'Polar Station', desc: 'Bolts deal Cold damage and chill enemies by 60%.', mods: { element: 'cold', flags: ['chill'] } },
+      { id: 'spitfire', name: 'Spitfire Turret', unlock: 4, desc: 'The turret also fires homing rockets dealing 120% weapon damage as Fire.', mods: { flags: ['rockets'] } },
+      { id: 'chain_of_torment', name: 'Chain of Torment', unlock: 7, desc: 'Lightning chains form between your Sentries, dealing 300% weapon damage per second to enemies that cross them.', mods: { flags: ['chains'] } },
+      { id: 'polar_station', name: 'Polar Station', unlock: 11, desc: 'Bolts deal Cold damage and chill enemies by 60%.', mods: { element: 'cold', flags: ['chill'] } },
     ],
     tiers: [
       { name: 'Reinforced Frame', desc: '+25% Sentry damage.', mods: { dmg: 25 } },
@@ -45,9 +45,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Fire a massive volley of arrows in a wide arc, dealing {coef} weapon damage to every enemy hit.',
     icon: { glyph: 'fan', color: 0x9bd36f },
     runes: [
-      { id: 'fire_at_will', name: 'Fire at Will', desc: 'Deals Lightning damage and costs 40% less Hatred.', mods: { element: 'lightning', cost: -40 } },
-      { id: 'arsenal', name: 'Arsenal', desc: 'Also fires 3 rockets at nearby enemies for 300% weapon damage as Fire.', mods: { flags: ['rockets'] } },
-      { id: 'full_broadside', name: 'Full Broadside', desc: 'Multishot deals 50% more damage.', mods: { dmg: 50 } },
+      { id: 'fire_at_will', name: 'Fire at Will', unlock: 6, desc: 'Deals Lightning damage and costs 40% less Hatred.', mods: { element: 'lightning', cost: -40 } },
+      { id: 'arsenal', name: 'Arsenal', unlock: 9, desc: 'Also fires 3 rockets at nearby enemies for 300% weapon damage as Fire.', mods: { flags: ['rockets'] } },
+      { id: 'full_broadside', name: 'Full Broadside', unlock: 13, desc: 'Multishot deals 50% more damage.', mods: { dmg: 50 } },
     ],
     tiers: [
       { name: 'Volley Drill', desc: '+20% Multishot damage.', mods: { dmg: 20 } },
@@ -62,9 +62,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Lob an explosive arrow into the densest pack. It detonates for {coef} weapon damage as Fire, then releases 4 grenades for 210% weapon damage each.',
     icon: { glyph: 'cluster', color: 0xe67e22 },
     runes: [
-      { id: 'maelstrom', name: 'Maelstrom', desc: 'Releases 3 homing rockets instead of grenades.', mods: { flags: ['rockets'] } },
-      { id: 'shooting_stars', name: 'Shooting Stars', desc: 'Deals Lightning damage; grenades become falling stars.', mods: { element: 'lightning' } },
-      { id: 'loaded_for_bear', name: 'Loaded for Bear', desc: 'Explosion radius +40% and +80% damage, but no grenades.', mods: { radius: 40, dmg: 80, flags: ['noGrenades'] } },
+      { id: 'maelstrom', name: 'Maelstrom', unlock: 8, desc: 'Releases 3 homing rockets instead of grenades.', mods: { flags: ['rockets'] } },
+      { id: 'shooting_stars', name: 'Shooting Stars', unlock: 11, desc: 'Deals Lightning damage; grenades become falling stars.', mods: { element: 'lightning' } },
+      { id: 'loaded_for_bear', name: 'Loaded for Bear', unlock: 15, desc: 'Explosion radius +40% and +80% damage, but no grenades.', mods: { radius: 40, dmg: 80, flags: ['noGrenades'] } },
     ],
     tiers: [
       { name: 'Black Powder', desc: '+25% Cluster Arrow damage.', mods: { dmg: 25 } },
@@ -79,9 +79,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'Call down a storm of arrows on a large area, dealing {coef} weapon damage over {duration} seconds.',
     icon: { glyph: 'rain', color: 0x5dade2 },
     runes: [
-      { id: 'dark_cloud', name: 'Dark Cloud', desc: 'Deals Lightning damage; the storm follows the densest pack.', mods: { element: 'lightning', flags: ['follow'] } },
-      { id: 'beastly_bombs', name: 'Beastly Bombs', desc: 'Deals Fire damage and 50% more damage in a shorter burst.', mods: { element: 'fire', dmg: 50, duration: -40 } },
-      { id: 'stampede', name: 'Stampede', desc: 'Cooldown reduced by 33%.', mods: { cooldown: -33 } },
+      { id: 'dark_cloud', name: 'Dark Cloud', unlock: 11, desc: 'Deals Lightning damage; the storm follows the densest pack.', mods: { element: 'lightning', flags: ['follow'] } },
+      { id: 'beastly_bombs', name: 'Beastly Bombs', unlock: 14, desc: 'Deals Fire damage and 50% more damage in a shorter burst.', mods: { element: 'fire', dmg: 50, duration: -40 } },
+      { id: 'stampede', name: 'Stampede', unlock: 18, desc: 'Cooldown reduced by 33%.', mods: { cooldown: -33 } },
     ],
     tiers: [
       { name: 'Hail of Shafts', desc: '+30% Rain of Vengeance damage.', mods: { dmg: 30 } },
@@ -96,9 +96,9 @@ export const RANGER_SKILLS: SkillDef[] = [
     desc: 'A loyal wolf fights at your side, biting enemies for {coef} weapon damage.',
     icon: { glyph: 'paw', color: 0xa0a0a0 },
     runes: [
-      { id: 'wolf_howl', name: 'Pack Leader', desc: 'Your wolf howls, increasing your damage by 15%.', mods: { flags: ['wolfAura'] } },
-      { id: 'bat', name: 'Bat Companion', desc: 'A bat replaces the wolf and generates 1 Hatred per second.', mods: { flags: ['batCompanion'] } },
-      { id: 'raven', name: 'Raven Companion', desc: 'A raven replaces the wolf, dealing Lightning damage and 50% more.', mods: { element: 'lightning', dmg: 50, flags: ['ravenCompanion'] } },
+      { id: 'wolf_howl', name: 'Pack Leader', unlock: 14, desc: 'Your wolf howls, increasing your damage by 15%.', mods: { flags: ['wolfAura'] } },
+      { id: 'bat', name: 'Bat Companion', unlock: 17, desc: 'A bat replaces the wolf and generates 1 Hatred per second.', mods: { flags: ['batCompanion'] } },
+      { id: 'raven', name: 'Raven Companion', unlock: 21, desc: 'A raven replaces the wolf, dealing Lightning damage and 50% more.', mods: { element: 'lightning', dmg: 50, flags: ['ravenCompanion'] } },
     ],
     tiers: [
       { name: 'Sharpened Fangs', desc: '+50% Companion damage.', mods: { dmg: 50 } },

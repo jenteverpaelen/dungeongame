@@ -30,6 +30,8 @@ export interface SkillMods {
 export interface RuneDef {
   id: string;
   name: string;
+  /** Character level at which this rune can be equipped (absolute, data-driven; >= the skill's unlock). */
+  unlock: number;
   desc: string;
   mods: SkillMods;
 }
@@ -64,8 +66,8 @@ export interface SkillDef {
   tiers: TierDef[];
 }
 
-/** Rune i unlocks at skill.unlock + RUNE_UNLOCK_OFFSETS[i]. */
-export const RUNE_UNLOCK_OFFSETS = [2, 5, 9];
+/** Most runes a skill may have (D3: five runes per skill; owner chose five for M1). */
+export const MAX_RUNES = 5;
 /** Skill points needed for tier 1, 2, 3 (Task Bar Hero-style escalating tiers). */
 export const TIER_COSTS = [2, 4, 6];
 export const SKILL_SLOTS = 4;

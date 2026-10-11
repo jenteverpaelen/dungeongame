@@ -35,3 +35,14 @@ Registry order is observable (item affix rolls pick a random skill of the class;
    flourish in `client/src/render/vfx/casts.ts` (unknown skills get the generic flash + sparks + `cast` sound), optional sound.
 5. **Tests** — `server/test/sim.ts` already exercises every skill × rune; add a focused test for new behaviour flags.
    Run `npm run typecheck`, `npm test`, `npx tsx server/test/sim.ts` (isolated `DATA_DIR`).
+
+## 3. Runes (up to five per skill)
+
+```ts
+{ id: 'comet', name: 'Comet', unlock: 7, desc: 'Deals Cold damage and freezes enemies hit for 1.5 seconds.',
+  mods: { element: 'cold', flags: ['freeze'] } }
+```
+`unlock` is the absolute character level (≥ the skill's own `unlock`, ≤ 70). At most `MAX_RUNES = 5` per skill. Rune
+ids are unique within the skill and are persisted in saves (`skills.runes[skillId]`), so never rename a shipped id.
+`mods` is a `SkillMods` (§5); behaviour flags are implemented in the class behaviour module. The existing 54 runes keep
+their levels (skill + 2 / + 5 / + 9).

@@ -9,3 +9,6 @@
   order identical to the old file); server behaviour split into `server/src/sim/skills/{common,warrior,ranger,mage,index}.ts`
   with registries for casts, primaries, channel ticks, summon AI, owner hooks and death hooks (death-hook order kept).
   Proof: sim output identical to baseline except timing lines (`simdiff`), typecheck, shared 54/54, focused server tests.
+- Step 2: `RuneDef.unlock` (absolute level, authored per rune; existing runes written as skill+2/+5/+9, verified 0
+  mismatches); `MAX_RUNES = 5`; `RUNE_UNLOCK_OFFSETS` removed (UI shows each rune's level). Validation: ≤5 runes, unlock
+  integer in [skill unlock, 70]. Skill unlocks were already data (≤70). Sim identical; shared 57/57.

@@ -6,7 +6,7 @@ import { useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AUTO_CAST_MODES, AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText } from '@shared/autoCast';
 import { TARGET_PRIORITIES, TARGET_PRIORITY_LABEL, TARGET_PRIORITY_NOTE, normalizeTargetPriority } from '@shared/targetPriority';
-import { RUNE_UNLOCK_OFFSETS, SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
+import { SKILLS, SKILL_SLOTS, TIER_COSTS, collectSkillMods, describeSkill, runeUnlockLevel, skillsForClass, type SkillDef } from '@shared/data/skills';
 import { PASSIVE_SLOT_LEVELS, passiveEffect, passivesForClass, setPassive, validPassiveState } from '@shared/passives';
 import { computeStats } from '@shared/stats';
 import { skillPointsSpent } from '@shared/character';
@@ -253,7 +253,7 @@ function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         return (
           <button key={r.id} class={cls('sk-rune', on && 'on', locked && 'locked')} disabled={locked} style={{ '--rc': hex(skill.icon.color) }}
             aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}>
-            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABC'[i]}</span><b>{r.name}</b></span>
+            <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b></span>
             <p>{r.desc}</p>
             <em>{locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip'}</em>
           </button>
@@ -312,7 +312,7 @@ function SkillDetail({ skill, char }: { skill: SkillDef; char: CharacterSave }) 
       <Stats skill={skill} char={char} />
       <div class="sk-d-sec"><span>Upgrade tiers</span><em>{tiers} of {skill.tiers.length} · costs {TIER_COSTS.join(' / ')} points</em></div>
       <Tiers skill={skill} char={char} />
-      <div class="sk-d-sec"><span>Runes</span><em>Pick one · unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill</em></div>
+      <div class="sk-d-sec"><span>Runes</span><em>Pick one · unlock at levels {skill.runes.map((_, i) => runeUnlockLevel(skill, i)).join(', ')}</em></div>
       <Runes skill={skill} char={char} />
       {slotIdx >= 0 ? <Casting skill={skill} char={char} slot={slotIdx} />
         : skill.kind !== 'primary' && !locked && <p class="pn-note sk-cast-hint">Put this skill in a slot to set when it casts automatically.</p>}
@@ -398,7 +398,7 @@ export function SkillsPanel() {
             <ul>
               <li><IconStar4 size={11} /> One skill point per level. Spend it with <b>[+]</b> on any unlocked skill.</li>
               <li><IconStar4 size={11} /> Tiers cost {TIER_COSTS.join(', ')} points and stack. <b>Refund tiers</b> returns every point.</li>
-              <li><IconStar4 size={11} /> Runes unlock {RUNE_UNLOCK_OFFSETS.map((o) => `+${o}`).join(', ')} levels after the skill and change how it behaves.</li>
+              <li><IconStar4 size={11} /> Runes unlock as you level (each card shows its level) and change how the skill behaves.</li>
               <li><IconStar4 size={11} /> Slotted skills cast on their own; slot order is priority. Right-click a slot to clear it.</li>
             </ul>
           </section>

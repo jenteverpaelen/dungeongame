@@ -3,7 +3,6 @@
 
 import type { ClassId } from '../../types';
 import type { SkillDef, SkillMods } from './types';
-import { RUNE_UNLOCK_OFFSETS } from './types';
 import { WARRIOR_SKILLS } from './warrior';
 import { RANGER_SKILLS } from './ranger';
 import { MAGE_SKILLS } from './mage';
@@ -18,8 +17,9 @@ export function skillsForClass(classId: ClassId): SkillDef[] {
   return Object.values(SKILLS).filter((s) => s.classId === classId).sort((a, b) => a.unlock - b.unlock);
 }
 
+/** Character level at which rune `runeIndex` of `skill` unlocks (authored per rune; never below the skill itself). */
 export function runeUnlockLevel(skill: SkillDef, runeIndex: number): number {
-  return skill.unlock + RUNE_UNLOCK_OFFSETS[runeIndex];
+  return Math.max(skill.unlock, skill.runes[runeIndex]?.unlock ?? Infinity);
 }
 
 /** Merge rune + purchased tiers into a single mods object (legendary/set mods are merged by the server). */

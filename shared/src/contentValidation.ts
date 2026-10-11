@@ -2,7 +2,7 @@ import { MAX_LEVEL } from './constants';
 import { CLASSES } from './data/classes';
 import { AFFIXES, BASES, GEMS, GEM_RANKS, LEGENDARIES, SETS } from './data/items';
 import { ELITE_AFFIXES, MONSTERS, RIFT_GUARDIANS } from './data/monsters';
-import { RUNE_UNLOCK_OFFSETS, SKILLS, TIER_COSTS, describeSkill } from './data/skills';
+import { MAX_RUNES, SKILLS, TIER_COSTS, describeSkill } from './data/skills';
 import { FIELD_IDS, ZONES } from './data/zones';
 
 /** Typed registries remain the source of truth; this checks semantic relationships. */
@@ -10,7 +10,7 @@ export const CONTENT_DATA = {
   classes: CLASSES, skills: SKILLS, bases: BASES, affixes: AFFIXES,
   legendaries: LEGENDARIES, sets: SETS, gems: GEMS, gemRanks: GEM_RANKS,
   monsters: MONSTERS, guardians: RIFT_GUARDIANS, eliteAffixes: ELITE_AFFIXES,
-  zones: ZONES, fieldIds: FIELD_IDS, runeOffsets: RUNE_UNLOCK_OFFSETS, tierCosts: TIER_COSTS,
+  zones: ZONES, fieldIds: FIELD_IDS, maxRunes: MAX_RUNES, tierCosts: TIER_COSTS,
 };
 export type ContentData = typeof CONTENT_DATA;
 
@@ -66,7 +66,6 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
         `${at}.starter.${slot}`, `incompatible base ${id}`);
     }
   }
-  data.runeOffsets.forEach((n,i)=>number(n,`runeOffsets[${i}]`,0,true));
   data.tierCosts.forEach((n,i)=>number(n,`tierCosts[${i}]`,0,true));
   for (const s of Object.values(data.skills)) {
     const at = `skills.${s.id}`;
@@ -83,11 +82,13 @@ export function validateContent(data: ContentData = CONTENT_DATA): string[] {
       number(s.auto.startAt,`${at}.auto.startAt`);
       number(s.auto.within,`${at}.auto.within`);
     }
-    check(s.runes.length <= data.runeOffsets.length,`${at}.runes`,'missing rune unlock offsets');
+    check(s.runes.length <= data.maxRunes,`${at}.runes`,`at most ${data.maxRunes} runes per skill`);
     check(s.tiers.length <= data.tierCosts.length,`${at}.tiers`,'missing tier costs');
     ids(s.runes.map(r=>r.id),`${at}.runes`);
     for (const [i,rune] of s.runes.entries()) {
-      check(s.unlock + data.runeOffsets[i] <= MAX_LEVEL,`${at}.runes[${i}]`,'unlock exceeds the current level cap');
+      number(rune.unlock,`${at}.runes[${i}].unlock`,1,true);
+      check(rune.unlock >= s.unlock,`${at}.runes[${i}].unlock`,'a rune cannot unlock before its skill');
+      check(rune.unlock <= MAX_LEVEL,`${at}.runes[${i}].unlock`,'unlock exceeds the current level cap');
       for (const [key,value] of Object.entries(rune.mods)) if (typeof value === 'number') check(Number.isFinite(value),`${at}.runes[${i}].mods.${key}`,'expected finite modifier');
     }
     for (const [i,tier] of s.tiers.entries()) for (const [key,value] of Object.entries(tier.mods))

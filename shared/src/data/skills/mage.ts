@@ -11,9 +11,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Launch a missile of arcane energy, dealing {coef} weapon damage as Arcane.',
     icon: { glyph: 'missile', color: 0xb388ff },
     runes: [
-      { id: 'seeker', name: 'Seeker', desc: 'Missiles home in on enemies and deal 30% more damage.', mods: { dmg: 30, flags: ['homing'] } },
-      { id: 'split', name: 'Split', desc: 'Fire 3 missiles that each deal 60% of the damage.', mods: { projectiles: 2, dmg: -40 } },
-      { id: 'glacial_spike', name: 'Glacial Spike', desc: 'Deals Cold damage and has a 15% chance to freeze for 1 second.', mods: { element: 'cold', flags: ['freezeChance'] } },
+      { id: 'seeker', name: 'Seeker', unlock: 3, desc: 'Missiles home in on enemies and deal 30% more damage.', mods: { dmg: 30, flags: ['homing'] } },
+      { id: 'split', name: 'Split', unlock: 6, desc: 'Fire 3 missiles that each deal 60% of the damage.', mods: { projectiles: 2, dmg: -40 } },
+      { id: 'glacial_spike', name: 'Glacial Spike', unlock: 10, desc: 'Deals Cold damage and has a 15% chance to freeze for 1 second.', mods: { element: 'cold', flags: ['freezeChance'] } },
     ],
     tiers: [
       { name: 'Focused Will', desc: '+20% Magic Missile damage.', mods: { dmg: 20 } },
@@ -28,9 +28,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Summon a meteor onto the densest pack. After a short delay it impacts for {coef} weapon damage as Fire and leaves molten ground that burns for 235% weapon damage over {duration} seconds.',
     icon: { glyph: 'meteor', color: 0xff7a1a },
     runes: [
-      { id: 'star_pact', name: 'Star Pact', desc: 'Meteor costs 20 more Arcane Power but deals 70% more damage.', mods: { cost: 50, dmg: 70 } },
-      { id: 'comet', name: 'Comet', desc: 'Deals Cold damage and freezes enemies hit for 1.5 seconds.', mods: { element: 'cold', flags: ['freeze'] } },
-      { id: 'meteor_shower', name: 'Meteor Shower', desc: 'Summon 7 smaller meteors across the area, each dealing 37% of the damage.', mods: { flags: ['shower'] } },
+      { id: 'star_pact', name: 'Star Pact', unlock: 4, desc: 'Meteor costs 20 more Arcane Power but deals 70% more damage.', mods: { cost: 50, dmg: 70 } },
+      { id: 'comet', name: 'Comet', unlock: 7, desc: 'Deals Cold damage and freezes enemies hit for 1.5 seconds.', mods: { element: 'cold', flags: ['freeze'] } },
+      { id: 'meteor_shower', name: 'Meteor Shower', unlock: 11, desc: 'Summon 7 smaller meteors across the area, each dealing 37% of the damage.', mods: { flags: ['shower'] } },
     ],
     tiers: [
       { name: 'Heavier Stars', desc: '+25% Meteor damage.', mods: { dmg: 25 } },
@@ -45,9 +45,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Tear open a black hole that pulls enemies within {radius} units to its centre and deals {coef} weapon damage as Arcane over {duration} seconds. Pairs perfectly with Meteor.',
     icon: { glyph: 'vortex', color: 0x8e44ad },
     runes: [
-      { id: 'event_horizon', name: 'Event Horizon', desc: 'Pull radius increased by 40%.', mods: { radius: 40 } },
-      { id: 'spellsteal', name: 'Spellsteal', desc: 'Gain 3% damage for 10 seconds per enemy caught.', mods: { flags: ['spellsteal'] } },
-      { id: 'absolute_zero', name: 'Absolute Zero', desc: 'Deals Cold damage and freezes enemies when it collapses.', mods: { element: 'cold', flags: ['freeze'] } },
+      { id: 'event_horizon', name: 'Event Horizon', unlock: 6, desc: 'Pull radius increased by 40%.', mods: { radius: 40 } },
+      { id: 'spellsteal', name: 'Spellsteal', unlock: 9, desc: 'Gain 3% damage for 10 seconds per enemy caught.', mods: { flags: ['spellsteal'] } },
+      { id: 'absolute_zero', name: 'Absolute Zero', unlock: 13, desc: 'Deals Cold damage and freezes enemies when it collapses.', mods: { element: 'cold', flags: ['freeze'] } },
     ],
     tiers: [
       { name: 'Singularity', desc: '+30% Black Hole damage.', mods: { dmg: 30 } },
@@ -62,9 +62,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Blast a ring of frost, dealing {coef} weapon damage as Cold and freezing nearby enemies for {duration} seconds.',
     icon: { glyph: 'snowflake', color: 0x7fd3ff },
     runes: [
-      { id: 'shatter', name: 'Shatter', desc: 'Frozen enemies that die explode into another Frost Nova.', mods: { flags: ['shatterNova'] } },
-      { id: 'bone_chill', name: 'Bone Chill', desc: 'Frozen enemies take 33% more damage.', mods: { flags: ['vulnerable'] } },
-      { id: 'deep_freeze', name: 'Deep Freeze', desc: 'Gain 10% Critical Hit Chance for 11 seconds when 5+ enemies are frozen.', mods: { flags: ['deepFreeze'] } },
+      { id: 'shatter', name: 'Shatter', unlock: 8, desc: 'Frozen enemies that die explode into another Frost Nova.', mods: { flags: ['shatterNova'] } },
+      { id: 'bone_chill', name: 'Bone Chill', unlock: 11, desc: 'Frozen enemies take 33% more damage.', mods: { flags: ['vulnerable'] } },
+      { id: 'deep_freeze', name: 'Deep Freeze', unlock: 15, desc: 'Gain 10% Critical Hit Chance for 11 seconds when 5+ enemies are frozen.', mods: { flags: ['deepFreeze'] } },
     ],
     tiers: [
       { name: 'Rime', desc: '+50% Frost Nova damage.', mods: { dmg: 50 } },
@@ -79,9 +79,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Summon a Hydra that attacks for {coef} weapon damage per second as {element}. Lasts {duration} seconds.',
     icon: { glyph: 'hydra', color: 0xff5e3a },
     runes: [
-      { id: 'arcane_hydra', name: 'Arcane Hydra', desc: 'Spits Arcane orbs that explode on impact.', mods: { element: 'arcane', flags: ['splash'] } },
-      { id: 'frost_hydra', name: 'Frost Hydra', desc: 'Fires shards of ice that chill enemies.', mods: { element: 'cold', flags: ['chill'] } },
-      { id: 'mammoth_hydra', name: 'Mammoth Hydra', desc: 'A single massive Hydra breathes a river of fire, dealing 70% more damage.', mods: { dmg: 70, flags: ['mammoth'] } },
+      { id: 'arcane_hydra', name: 'Arcane Hydra', unlock: 11, desc: 'Spits Arcane orbs that explode on impact.', mods: { element: 'arcane', flags: ['splash'] } },
+      { id: 'frost_hydra', name: 'Frost Hydra', unlock: 14, desc: 'Fires shards of ice that chill enemies.', mods: { element: 'cold', flags: ['chill'] } },
+      { id: 'mammoth_hydra', name: 'Mammoth Hydra', unlock: 18, desc: 'A single massive Hydra breathes a river of fire, dealing 70% more damage.', mods: { dmg: 70, flags: ['mammoth'] } },
     ],
     tiers: [
       { name: 'Many Heads', desc: '+30% Hydra damage.', mods: { dmg: 30 } },
@@ -96,9 +96,9 @@ export const MAGE_SKILLS: SkillDef[] = [
     desc: 'Imbue your weapon with arcane power, increasing damage by {buffDamage} for {duration} seconds. Recast automatically.',
     icon: { glyph: 'rune', color: 0x9b59b6 },
     runes: [
-      { id: 'ignite', name: 'Ignite', desc: 'Your attacks burn enemies for 100% weapon damage over 3 seconds.', mods: { flags: ['igniteHits'] } },
-      { id: 'electrify', name: 'Electrify', desc: 'Your attacks have a 25% chance to arc lightning to 3 enemies for 100% weapon damage.', mods: { flags: ['electrify'] } },
-      { id: 'force_weapon', name: 'Force Weapon', desc: 'Increases the damage bonus to 20%.', mods: { flags: ['forceWeapon'] } },
+      { id: 'ignite', name: 'Ignite', unlock: 14, desc: 'Your attacks burn enemies for 100% weapon damage over 3 seconds.', mods: { flags: ['igniteHits'] } },
+      { id: 'electrify', name: 'Electrify', unlock: 17, desc: 'Your attacks have a 25% chance to arc lightning to 3 enemies for 100% weapon damage.', mods: { flags: ['electrify'] } },
+      { id: 'force_weapon', name: 'Force Weapon', unlock: 21, desc: 'Increases the damage bonus to 20%.', mods: { flags: ['forceWeapon'] } },
     ],
     tiers: [
       { name: 'Lasting Glyph', desc: 'Lasts 50% longer.', mods: { duration: 50 } },
