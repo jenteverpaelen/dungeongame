@@ -149,3 +149,14 @@ switch (command) {
 await store.settled();
 await community.flush();
 await flushSaves();
+// Operator audit (F-OPS-05, roadmap §12.3 "admin actions audit-logged"): one line per completed action that changes or
+// reads personal data. The subject is kept only as a salted digest, so the log never outlives an erasure in readable
+// form; an operator can check a name with sha256("hearthfall-audit-v1:" + name).
+const AUDITED = new Set(['create', 'link', 'unlink', 'reset', 'activity', 'revoke-sessions', 'export', 'export-character', 'delete', 'delete-character', 'cancel-delete', 'purge']);
+if (AUDITED.has(command)) {
+  const { createHash } = await import('node:crypto');
+  const dir = path.join(DATA_DIR, 'ops');
+  await fs.mkdir(dir, { recursive: true });
+  const digest = subject ? createHash('sha256').update(`hearthfall-audit-v1:${subject.toLowerCase()}`).digest('hex').slice(0, 16) : null;
+  await fs.appendFile(path.join(dir, 'admin-audit.jsonl'), JSON.stringify({ at: new Date().toISOString(), tool: 'accounts-admin', action: command, subject: digest, now }) + '\n');
+}

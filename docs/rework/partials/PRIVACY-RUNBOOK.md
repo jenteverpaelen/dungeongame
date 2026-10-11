@@ -56,3 +56,5 @@ when in doubt, protect other people's data); OWASP Logging Cheat Sheet (no secre
 | Backups | off unless `BACKUP_DIR`; recommended `BACKUP_KEEP=14` | `BACKUP_KEEP` |
 
 The 14-day grace matches the cancellation window some large publishers use for account deletion [K, not re-checked].
+
+**Operator audit.** Each `accounts-admin.ts` action that changes or reads personal data appends one line to `DATA_DIR/ops/admin-audit.jsonl` (time, action, sha256("hearthfall-audit-v1:" + lower-case subject) truncated to 16 hex). Check a name by hashing it the same way.
