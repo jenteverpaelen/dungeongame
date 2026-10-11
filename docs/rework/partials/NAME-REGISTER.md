@@ -29,10 +29,10 @@ Polished · Brilliant · Sovereign, Damage · Durability · Sustain, the cinder 
 "Kanai's Cube" source notes. **Deviation:** the damage altar is **Hearthfire Altar**, not "Kindled Altar" — Kindled is now
 an item grade. Originality gate: 142 → 82 known borrowed-term uses; the rest are in the class lanes.
 
-**Left to other lanes:** skill, rune, tier and class power names in 
-(class agents, ) — including Hunter's Mark and Siegebreaker's Arsenal (ranger powers) and
-Raiment of the Endless Storm (warrior powers); the matching buff labels in  (Hunter's
-Mark, Spellsteal, Deep Freeze, Momentum) and class texts in  follow those names. Paragon 2.0
+**Left to other lanes:** skill, rune, tier and class power names in `shared/src/data/{skills,powers}/{warrior,ranger,mage}.ts`
+(class agents, `docs/rework/depth/NAMES.md`) — including Hunter's Mark and Siegebreaker's Arsenal (ranger powers) and
+Raiment of the Endless Storm (warrior powers); the matching buff labels in `client/src/ui/hud/SkillBar.tsx` (Hunter's
+Mark, Spellsteal, Deep Freeze, Momentum) and class texts in `shared/src/data/classes.ts` follow those names. Paragon 2.0
 *structure* (§E) stays a design question.
 
 ## A. Applied now (my lane)
