@@ -12,7 +12,7 @@ import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types
 import { pushNotice, togglePanel, ui } from '../store';
 import { characterText } from '@shared/data/characterMessages';
 import { Check, PanelFrame, Wealth } from './common';
-import { cubeUI, invUI, setCubeItem } from './cubestate';
+import { cubeUI, invUI, setCubeItem, stashUI } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { SlotGlyph } from './glyphs';
 import { GemIcon, IconDelta, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
@@ -245,7 +245,7 @@ function BagCell({ index, item, char, flag }: { index: number; item: Item | null
       onClick={() => {
         if (!item || justDragged()) return;
         if (protectMode) toggleItemProtection(item);
-        else if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id });
+        else if (ui.get().panels.stash) void run('stashDeposit', { itemId: item.id, tab: stashUI.get().tab });
         else if (cubeOpen) setCubeItem(item.id);
       }}
       {...(item ? hover : {})}

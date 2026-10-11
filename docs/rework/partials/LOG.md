@@ -80,3 +80,18 @@
   `Math.random`, recorded movement/dash/skill inputs, sha256 per tick of every message except the wall-clock `time`):
   replay = identical on every tick for warrior/ranger/mage; a one-second input change diverges exactly at the change
   with all earlier ticks equal; another seed diverges. Verify stage `combat-replay` (≈30 s).
+- **Merge** `claude/town-ui-rework` @f3019b1 (engine wave 2 + quest rework, includes cbbb4b7). Save history learned
+  `extraFixtures` (v14-pre-quest-rework: custody kept, gold may rise from contract payouts) and `rewrites` (v6 quests
+  rewritten by questMigration, keys must survive); 26 removed `contract_*` quest ids retired in the id lock with that
+  reason. Bot metrics re-run after the merge: 0 % drift in every band [M]. Protocol stays 24 (lead 23), save 15.
+- **F-ECO-08 — stash tabs.** Per character (D-24 unchanged); five 60-slot tabs, tab I free, II–V bought in order with
+  gold: 170 K / 1.1 M / 2.4 M / 4.6 M = one hour of the measured median engaged-bot gold income in L10–15 / 20–25 /
+  30–35 / 35–40 (bot-metrics baseline) rounded to 2 s.f. [M→P]; escalating gold-bought tabs as in D3 / D4 / Last Epoch
+  [K]. Optional save field `stashTabs` (no SAVE_VERSION bump; an older server keeps the extra slots and still withdraws
+  by id; loading never truncates). Ops `stashBuyTab {tab, price}` (must match the shown tab and price → a retry never
+  pays twice), `stashMove {itemId, tab}`, `stashDeposit {tab}` (open tab first, then the next); all persisted, stash
+  proximity, economy action "Stash tabs". UI: tab strip (count per tab, the next tab with lock + price, locked ones),
+  buy confirmation replaces the filter row (cost red when short), drop onto a tab stores/moves there. Tests
+  `stashTabs.test.ts` 5/5 + town-services/persisted/economy suites. Shots `stash-{tabs,buy-short,buy,bought,drag,moved}-
+  {1920,1366}` (no scroll; 607 / 432 px tall). Owner picks: hours per tab (0.5 / 1 / 2), tab count (5 / 6 / 10),
+  account-wide stash (D-24, P14).

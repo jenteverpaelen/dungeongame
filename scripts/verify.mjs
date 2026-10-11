@@ -34,7 +34,7 @@ const stages = [
   ['shutdown-failures', ['--import', 'tsx', '--test', 'server/test/shutdownFailures.test.ts']],
   ['client-preferences', ['--import', 'tsx', '--test', 'client/src/game/preferences.test.ts', 'client/src/game/guidance.test.ts', 'client/src/game/funnel.test.ts', 'client/src/audio/lifetime.test.ts', 'client/src/game/quality.test.ts', 'client/src/game/gamepad.test.ts']],
   ['client-bindings', ['--import', 'tsx', '--test', 'client/src/game/bindings.test.ts', 'client/src/i18n/messages.test.ts']],
-  ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts']],
+  ['town-services', ['--import', 'tsx', '--test', 'server/test/townServices.test.ts', 'server/test/stashTabs.test.ts']],
   ['adventure', ['--import', 'tsx', '--test', 'server/test/adventure.test.ts', 'server/test/quests.test.ts', 'server/test/questDeliveryRift.test.ts', 'server/test/questChapter.test.ts', 'server/test/zoneWideHunts.test.ts', 'server/test/onboarding.test.ts', 'server/test/dungeon.test.ts', 'server/test/reedclaw.test.ts', 'server/test/siltusk.test.ts', 'server/test/questMigration.test.ts', 'server/test/worldQuests.test.ts', 'server/test/earlyGame.test.ts', 'server/test/frontier.test.ts', 'server/test/midgame.test.ts', 'server/test/workshop.test.ts']],
   ['depth', ['--import', 'tsx', '--test', 'server/test/depth.test.ts', 'server/test/powerTemplates.test.ts', 'server/test/parity.test.ts', 'server/test/engineWave2.test.ts']],
   ['skill-descriptions', ['--import', 'tsx', '--test', 'server/test/skillDescriptions.test.ts', 'server/test/autoCastControls.test.ts', 'server/test/targetPriority.test.ts', 'server/test/manualSkills.test.ts', 'server/test/autoRuleEditor.test.ts']],

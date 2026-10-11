@@ -55,6 +55,28 @@
 .st-cap-bar { height: 8px; border-radius: 2px; background: #070504; box-shadow: inset 0 1px 3px #000, 0 0 0 1px #2e2216; overflow: hidden; }
 .st-cap-bar i { display: block; height: 100%; background: linear-gradient(180deg, #f3dc9d, #b8893a); }
 .st-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Stash tabs (F-ECO-08): owned tabs, the next buyable tab with its price, then locked ones. Tokens only. */
+.st-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.st-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 42px; padding: 5px 4px; cursor: pointer;
+  border: 0; border-radius: var(--r-2) var(--r-2) var(--r-1) var(--r-1); background: var(--s-2); color: var(--t-2);
+  box-shadow: inset 0 0 0 1px var(--line-1); transition: background var(--dur-1), color var(--dur-1), box-shadow var(--dur-1); }
+.st-tab b { display: inline-flex; align-items: center; gap: 4px; font: 700 15px/1 var(--font-display); letter-spacing: 0.08em; }
+.st-tab small { font: 700 11px/1 var(--font-body); color: var(--t-3); letter-spacing: 0.02em; }
+.st-tab:hover { background: var(--s-3); color: var(--t-1); }
+.st-tab.on { color: var(--gold-hi); background: var(--s-well); box-shadow: inset 0 0 0 1px var(--line-3), inset 0 -2px 0 var(--gold); }
+.st-tab.on small { color: var(--t-2); }
+.st-tab.drop-ok { box-shadow: inset 0 0 0 2px var(--gold), 0 0 14px color-mix(in srgb, var(--gold) 35%, transparent); color: var(--t-1); }
+.st-tab.over { color: var(--bad); }
+.st-tab-buy { color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, var(--s-1)); box-shadow: none; outline: 1px dashed var(--line-2); outline-offset: -3px; }
+.st-tab-buy small { color: var(--gold-dim); }
+.st-tab-buy.on { outline-color: var(--gold); color: var(--gold-hi); }
+.st-tab.locked { cursor: default; color: var(--t-off); background: var(--s-1); box-shadow: inset 0 0 0 1px var(--line-1); opacity: 0.7; }
+.st-tab.locked small { color: var(--t-off); text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px; }
+.st-buy { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 10px; padding: 4px 10px; border-radius: var(--r-2);
+  background: var(--s-well); box-shadow: inset 0 0 0 1px var(--line-2); }
+.st-buy-t b { display: block; font: 700 14px/1.1 var(--font-display); letter-spacing: 0.06em; color: var(--gold-hi); }
+.st-buy-t span { display: block; font-size: var(--fs-xs); color: var(--t-3); margin-top: 2px; }
+.st-buy .btn { white-space: nowrap; }
 .st-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; cursor: pointer; font: 700 12.5px/1 var(--font-display); letter-spacing: 0.04em; color: var(--t-2);
   background: var(--s-2); border: 0; border-radius: 999px; box-shadow: inset 0 0 0 1px #3a2c1c; transition: background var(--dur-1), color var(--dur-1); }
 .st-chip em { font: 700 11px/1 var(--font-body); font-style: normal; padding: 2px 5px; border-radius: 8px; background: #0b0806; color: var(--t-3); }
