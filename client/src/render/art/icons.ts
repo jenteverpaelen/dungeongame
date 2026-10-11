@@ -15,6 +15,7 @@ import {
 import { rgba } from './util';
 import { GEAR_TIER_COLORS, lookFx } from '@shared/gearVisual';
 import { ANCIENT_GOLD, PRIMAL_CORE, PRIMAL_RED, SET_STYLE } from './gearStyle';
+import { decorShoulder } from './gearDecor';
 
 const MANNEQUIN: Body = { cls: 'warrior', skin: 0x2b2220, hair: 0, hairStyle: 'none', eyes: 0 };
 
@@ -110,6 +111,8 @@ function shoulderIcon(c: Ctx, l: ItemLook): void {
     }
   }
   if (l.glow) gem(c, 0, l.shape === 'mantle' ? 1 : -2, 2.2, light(l.glow, 0.2), 1.1);
+  // the same tier ornaments as on the hero (raised plates, motif spikes, studs, filigree), at icon scale
+  c.save?.(); c.translate(-1.1, 1.1); c.scale(1.9, 1.9); decorShoulder(c, l, false); c.restore?.();
 }
 
 function legsIcon(c: Ctx, l: ItemLook): void {

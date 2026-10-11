@@ -63,3 +63,18 @@ test('gear effect levels persist, reject unknown values and reduced motion caps 
   assert.equal(gearEffectLevel(true,v,false),'full'); assert.equal(gearEffectLevel(false,v,false),'off');
   assert.equal(gearEffectLevel(true,v,true),'reduced'); assert.equal(gearEffectLevel(false,v,true),'off');
 });
+
+test('interface size persists, snaps to hundredths and is clamped to the supported range', async () => {
+  const { MIN_UI_SCALE, MAX_UI_SCALE, DEFAULT_UI_SCALE } = await import('./preferences');
+  const data = new Map<string,string>();
+  const storage = { getItem:(k:string)=>data.get(k)??null, setItem:(k:string,v:string)=>{data.set(k,v);} };
+  const store = new PreferenceStore(storage);
+  assert.equal(store.get().values.uiScale, DEFAULT_UI_SCALE);
+  store.set({uiScale:1.2345});
+  assert.equal(new PreferenceStore(storage).get().values.uiScale, 1.23);
+  store.set({uiScale:9}); assert.equal(store.get().values.uiScale, MAX_UI_SCALE);
+  store.set({uiScale:0.1}); assert.equal(store.get().values.uiScale, MIN_UI_SCALE);
+  store.set({uiScale:NaN}); assert.equal(store.get().values.uiScale, DEFAULT_UI_SCALE, 'a non-finite value falls back to the default, like the other settings');
+  const old = new PreferenceStore({getItem:()=>JSON.stringify({version:1,values:{muted:true}}),setItem(){}});
+  assert.equal(old.get().values.uiScale, DEFAULT_UI_SCALE, 'preferences saved before this setting existed default to 100%');
+});

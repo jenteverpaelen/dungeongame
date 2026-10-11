@@ -140,6 +140,8 @@ export interface GearProfile {
   maxed: number;
   /** Per-slot decoded progression (only slots that carry it). */
   slots: Partial<Record<Slot, GearFx>>;
+  /** A staff or two-handed melee weapon is worn: the off-hand cannot be filled. */
+  noOffhand: boolean;
 }
 
 export interface LookLike {
@@ -162,7 +164,8 @@ export function gearProfile(look: LookLike): GearProfile {
   }
   const weights: Record<string, number> = { ...RANK_WEIGHTS };
   const main = look.slots.mainhand;
-  if (main && TWO_HANDED_NO_OFFHAND.has(main.shape) && !look.slots.offhand) { weights.mainhand += weights.offhand; weights.offhand = 0; }
+  const noOffhand = !!main && TWO_HANDED_NO_OFFHAND.has(main.shape) && !look.slots.offhand;
+  if (noOffhand) { weights.mainhand += weights.offhand; weights.offhand = 0; }
   let sum = 0, total = 0;
   const setCounts = new Map<string, number>();
   let legendaries = 0, ancients = 0, primals = 0, temper = 0, maxed = 0;
@@ -187,7 +190,7 @@ export function gearProfile(look: LookLike): GearProfile {
   let rank = Math.floor(Math.min(MAX_GEAR_TIER, score + RANK_BIAS + setBonus + primalBonus) + 1e-9);
   if (primals === 0) rank = Math.min(rank, 8);
   if (primals + ancients === 0) rank = Math.min(rank, 7);
-  return { rank: Math.max(0, rank), score, sets, topSet: top?.id, topSetCount: top?.count ?? 0, legendaries, ancients, primals, temper, maxed, slots };
+  return { rank: Math.max(0, rank), score, sets, topSet: top?.id, topSetCount: top?.count ?? 0, legendaries, ancients, primals, temper, maxed, slots, noOffhand };
 }
 
 /** Set pieces worn per set id (from a profile). */
@@ -202,4 +205,34 @@ export function lookFromEquipment(classId: import('./types').ClassId, equipment:
   const jw: Partial<Record<CharmSlot, number>> = {};
   for (const s of CHARM_SLOTS) { const it = equipment[s]; if (it) jw[s] = packGearFx(it); }
   return { classId, slots, ...(Object.keys(jw).length ? { jw } : {}) };
+}
+
+// ─────────────────────────── next steps ───────────────────────────
+
+export type GearHint =
+  | { key: 'empty'; slots: Slot[] }
+  | { key: 'weakest'; slot: Slot; tier: number }
+  | { key: 'rares' | 'legendary' | 'level70' | 'ancient' | 'temper' | 'primal' | 'top' }
+  | { key: 'set'; set?: string; count: number };
+
+/** What would raise this hero's gear rank next, judged from what is actually worn (at most two hints, most useful
+ *  first): empty slots, a weak slot far below the rank, then the rung above (Legendary → level 70 → full Set →
+ *  Ancient → Cube upgrades → Primal). */
+export function gearNextSteps(p: GearProfile): GearHint[] {
+  const out: GearHint[] = [];
+  const order = Object.keys(RANK_WEIGHTS) as Slot[];
+  const empty = order.filter((s) => !p.slots[s] && !(s === 'offhand' && p.noOffhand));
+  if (p.rank >= MAX_GEAR_TIER) return [{ key: 'top' }];
+  if (empty.length) out.push({ key: 'empty', slots: empty });
+  let weakest: Slot | null = null;
+  for (const s of order) { const f = p.slots[s]; if (f && (!weakest || f.tier < p.slots[weakest]!.tier)) weakest = s; }
+  if (weakest && p.slots[weakest]!.tier < p.rank - 1) out.push({ key: 'weakest', slot: weakest, tier: p.slots[weakest]!.tier });
+  const rung: GearHint | null = p.rank < 5 ? { key: 'rares' } : p.rank === 5 ? { key: 'legendary' }
+    : p.legendaries < 6 && p.rank === 6 ? { key: 'level70' }
+    : p.topSetCount < 6 ? { key: 'set', set: p.topSet, count: p.topSetCount }
+    : p.ancients + p.primals === 0 ? { key: 'ancient' }
+    : p.maxed < 3 ? { key: 'temper' }
+    : p.primals === 0 ? { key: 'primal' } : { key: 'temper' };
+  if (rung) out.push(rung);
+  return out.slice(0, 2);
 }

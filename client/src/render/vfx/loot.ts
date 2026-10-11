@@ -336,7 +336,7 @@ class LootItemView implements EntityView {
       this.land(false);
     }
     if (this.phase === 'wait' && l?.lk === 'item' && (l.rarity === 'legendary' || l.rarity === 'set')) {
-      V.after(this.delay, () => V.sound(l.rarity === 'set' ? 'set' : 'legendary'));
+      V.after(this.delay, () => V.sound(l.ancient === 2 ? 'primal' : l.rarity === 'set' ? 'set' : 'legendary'));
     }
   }
 

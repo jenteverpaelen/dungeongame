@@ -6,8 +6,12 @@ import { DASH } from '@shared/constants';
 import { ZONES } from '@shared/data/zones';
 import { ARTISAN_FUNCTIONS, type Artisan } from '@shared/townServices';
 import { cubeUI } from '../ui/panels/cubestate';
-import { F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
-import type { ClassId, DerivedStats } from '@shared/types';
+import { CLIENT_OUTDATED_MESSAGE, F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION, type AuthOp, type GameEvent, type S2C, type Snapshot, type ZoneInfo } from '@shared/protocol';
+import type { CharacterSave, ClassId, DerivedStats } from '@shared/types';
+import { playerLook } from '@shared/character';
+import { SETS } from '@shared/data/items';
+import { GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { text } from '../i18n/messages';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
@@ -65,10 +69,22 @@ export class Game {
     window.addEventListener('pagehide',()=>funnel.stop());
   }
 
+  /** The server runs another protocol: this page is a stale build. Reload it once (a loop guard keeps a newer client
+   *  talking to an older server from reloading forever; the message stays visible then). */
+  private reloadOnce() {
+    try {
+      const last = Number(sessionStorage.getItem('hearthfall.reloaded') ?? 0);
+      if (Date.now() - last < 60_000) return;
+      sessionStorage.setItem('hearthfall.reloaded', String(Date.now()));
+    } catch { return; }
+    location.reload();
+  }
+
   /** One socket serves the select screen, the account screens and then the game itself. */
   private async openConnection(): Promise<Connection | null> {
     if (this.conn?.open) return this.conn;
     const conn = new Connection((m) => this.onMessage(m), (reason) => {
+      if (reason === CLIENT_OUTDATED_MESSAGE) this.reloadOnce();
       if (this.conn === conn) { this.conn = null; this.connAuthed = false; }
       if (ui.get().screen === 'select') {
         // An idle login socket ended (server timeout or restart). The next action reconnects and resumes quietly.
@@ -97,6 +113,7 @@ export class Game {
   async start(name: string, classId: ClassId, options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean}) {
     sfx.unlock();
     ui.set({ screen: 'connecting', error: null, enchant: null, lastRun:null,party:null,social:null,inspectionName:'',reportContext:null,chat:[],chatOpen:false,chatChannel:'zone',chatTarget:'' });
+    await this.accountReady;
     const conn = await this.openConnection();
     if (!conn) {
       ui.set({ screen: 'select', error: 'Could not reach the game server' });
@@ -142,13 +159,20 @@ export class Game {
     return { ok: reply.ok, err: reply.err };
   }
 
+  /** Resolves once the account mode is known and a stored session was tried; `start()` waits for it so a login
+   *  started right at page load (autostart, a fast click) never races the resume request. */
+  private accountReady: Promise<void> = Promise.resolve();
+
   /** At startup: read the server's mode and, when accounts exist and a session token is stored, resume it. */
-  async initAccount(): Promise<void> {
-    const mode = await fetchAccountMode();
-    ui.set((s) => ({ account: { ...s.account, mode, open: mode === 'required' && !s.account.username } }));
-    if (mode === 'off' || ui.get().account.username || !loadToken()) return;
-    await this.auth('resume');
-    ui.set((s) => ({ account: { ...s.account, open: s.account.mode === 'required' && !s.account.username } }));
+  initAccount(): Promise<void> {
+    this.accountReady = (async () => {
+      const mode = await fetchAccountMode();
+      ui.set((s) => ({ account: { ...s.account, mode, open: mode === 'required' && !s.account.username } }));
+      if (mode === 'off' || ui.get().account.username || !loadToken()) return;
+      await this.auth('resume');
+      ui.set((s) => ({ account: { ...s.account, open: s.account.mode === 'required' && !s.account.username } }));
+    })();
+    return this.accountReady;
   }
 
   // ─────────────────────────── Messages ───────────────────────────
@@ -190,11 +214,14 @@ export class Game {
       case 's':
         this.onSnapshot(m);
         break;
-      case 'char':
+      case 'char': {
+        const prev = ui.get().char;
         funnel.observe(m.char);
         this.applyDerived(m.derived);
         ui.set({ char: m.char, derived: m.derived });
+        this.gearMoment(prev, m.char);
         break;
+      }
       case 'chat':
         pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item });
         break;
@@ -214,6 +241,7 @@ export class Game {
         ui.set({ ping: Math.round(this.conn?.rtt ?? 0) });
         break;
       case 'err':
+        if (m.msg === CLIENT_OUTDATED_MESSAGE) this.reloadOnce();
         ui.set({ error: m.msg });
         pushNotice(m.msg, 'warn');
         break;
@@ -323,6 +351,31 @@ export class Game {
       }
     }
     this.scene.vfx.handle(ev);
+  }
+
+  /** Highest gear rank and the Sets completed this session, per character (celebrate the first time only). */
+  private gearBest = new Map<string, { rank: number; sets: Set<string> }>();
+
+  /** An equip that raises the gear rank (or completes a Set for the first time) gets its moment: a notice, a chime
+   *  and a burst on the hero (docs/rework/gear/DESIGN.md §2). */
+  private gearMoment(prev: CharacterSave | null, next: CharacterSave) {
+    const now = gearProfile(playerLook(next));
+    let best = this.gearBest.get(next.id);
+    if (!best || !prev || prev.id !== next.id) {
+      if (!best) { best = { rank: now.rank, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
+      return;
+    }
+    const setDone = now.topSetCount >= 6 && !!now.topSet && !best.sets.has(now.topSet);
+    const rankUp = now.rank > best.rank;
+    if (!rankUp && !setDone) return;
+    if (rankUp) best.rank = now.rank;
+    if (setDone) best.sets.add(now.topSet!);
+    const big = setDone || now.rank >= 8;
+    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'level');
+    if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'level');
+    sfx.play(big ? 'gear_rank_big' : 'gear_rank');
+    const view = this.world.entities.get(this.world.myId)?.view as (PlayerView & { celebrateGear?(big: boolean): void }) | null | undefined;
+    view?.celebrateGear?.(big);
   }
 
   private isMine(id: number | undefined) {

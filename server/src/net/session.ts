@@ -18,7 +18,7 @@ import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
-import { MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
 import { diffEvents, observe, type Observed } from '../telemetry';
 import { computeStats } from '../../../shared/src/stats';
@@ -437,7 +437,7 @@ export class Session implements PlayerLink {
     const name = typeof msg.name === 'string' ? msg.name.trim() : '';
     if (!NAME_RE.test(name)) { this.kick('Names are 2-16 letters or numbers.'); return; }
     if (!isClassId(msg.classId)) { this.kick('Unknown class.'); return; }
-    if (msg.v !== PROTOCOL_VERSION) { this.kick('Your game is out of date. Please refresh the page.'); return; }
+    if (msg.v !== PROTOCOL_VERSION) { this.kick(CLIENT_OUTDATED_MESSAGE); return; }
 
     if(msg.appearance!==undefined&&!isHeroAppearance(msg.appearance)){this.kick('Invalid appearance');return;}
     if(msg.tutorial!==undefined&&typeof msg.tutorial!=='boolean'){this.kick('Invalid introduction choice');return;}

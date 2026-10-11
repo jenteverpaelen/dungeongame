@@ -357,6 +357,41 @@ export const SOUNDS: Record<string, SoundDef> = {
       { p: { freq: E5, attack: 0.2, sustain: 0.4, release: 0.8, shape: 1 }, at: 0.2, gain: 0.08, exp: 0.6 },
     ],
   },
+  // Gear rank up (docs/rework/gear): a bright rising A-major arpeggio over a soft sub swell, ending on a shimmer.
+  gear_rank: {
+    gain: 0.6, max: 1, vary: 0, pri: true,
+    layers: [
+      { p: { freq: 80, attack: 0.06, release: 0.5, shape: 0, slide: -0.2 }, gain: 0.35, exp: 0.25 },
+      ...bell(E5, 0, 0.34, 1.0), ...bell(A5, 0.08, 0.34, 1.0), ...bell(Cs6, 0.16, 0.32, 1.1), ...bell(E6, 0.24, 0.3, 1.3),
+      { p: { freq: A5, attack: 0.1, sustain: 0.25, release: 0.8, shape: 0, tremolo: 0.3, repeat: 0.08 }, at: 0.32, gain: 0.1, exp: 0.5 },
+      { p: { freq: 3600, attack: 0.2, release: 0.7, shape: 4, filter: 5000 }, at: 0.24, gain: 0.04, exp: 0.35 },
+    ],
+  },
+  // The big one (full Set / rank 8+): two octaves of arpeggio, a deeper swell and a held major chord.
+  gear_rank_big: {
+    gain: 0.72, max: 1, vary: 0, pri: true,
+    layers: [
+      { p: { freq: 70, attack: 0.08, release: 0.9, shape: 0, slide: -0.25 }, gain: 0.45, exp: 0.4 },
+      { p: { freq: 260, attack: 0.18, release: 0.4, shape: 4, slide: 2.5, filter: -1300 }, gain: 0.18 },
+      ...bell(A4, 0, 0.36, 1.2), ...bell(E5, 0.07, 0.36, 1.2), ...bell(A5, 0.14, 0.34, 1.3), ...bell(Cs6, 0.21, 0.32, 1.4),
+      ...bell(E6, 0.28, 0.3, 1.6), ...bell(A6, 0.36, 0.28, 1.9),
+      { p: { freq: A5, attack: 0.12, sustain: 0.4, release: 1.1, shape: 0, tremolo: 0.25, repeat: 0.09 }, at: 0.44, gain: 0.12, exp: 0.7 },
+      { p: { freq: Cs6, attack: 0.12, sustain: 0.4, release: 1.1, shape: 0, tremolo: 0.25, repeat: 0.1 }, at: 0.44, gain: 0.1, exp: 0.7 },
+      { p: { freq: E6, attack: 0.12, sustain: 0.4, release: 1.1, shape: 0, tremolo: 0.25, repeat: 0.11 }, at: 0.44, gain: 0.09, exp: 0.7 },
+    ],
+  },
+  // Primal drop: a low boom and a dark D-minor bell fall that resolves upward, with a crackle of embers on top.
+  primal: {
+    gain: 0.85, max: 1, vary: 0, pri: true,
+    layers: [
+      { p: { freq: 55, attack: 0.02, release: 0.9, shape: 0, slide: -0.35 }, gain: 0.6, exp: 0.45 },
+      { p: { freq: 120, attack: 0.01, release: 0.35, shape: 4, filter: -900 }, gain: 0.3, exp: 0.2 },
+      ...bell(D6, 0, 0.36, 1.3), ...bell(A5, 0.09, 0.36, 1.3), ...bell(N(8), 0.18, 0.34, 1.4), ...bell(D5, 0.27, 0.34, 1.5),
+      ...bell(D6, 0.45, 0.34, 1.9), ...bell(A6, 0.53, 0.3, 2.1),
+      { p: { freq: 1500, attack: 0.05, sustain: 0.5, release: 0.9, shape: 4, filter: 3200, tremolo: 0.6, repeat: 0.05 }, at: 0.3, gain: 0.06, exp: 0.5 },
+      { p: { freq: D5, attack: 0.15, sustain: 0.4, release: 1.2, shape: 1 }, at: 0.45, gain: 0.08, exp: 0.7 },
+    ],
+  },
   rift: {
     gain: 0.55, max: 1, vary: 0, pri: true,
     layers: [

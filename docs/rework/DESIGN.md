@@ -93,3 +93,29 @@ keeps the waypoint/exit rule. Placement is a diagram, labelled as such (atlas UI
 **Journal (J)**: chapters by act with progress on the left; the quest sheet (story, objectives with progress, rewards
 and unlocks, track toggle, actions) on the right; no inner tabs, no scrolling. **Quest objects**: CAST.md kinds with a
 tracked pulse, an interaction bounce and a used look; first-open hints live inside the panel, never as a screen banner.
+
+## 7. Panel patterns added in rounds 2–3 (lead)
+
+Every window that is not a one-screen sheet uses the same shell so a new panel looks like the rest without new CSS:
+
+| Piece | Markup / class | Source |
+|---|---|---|
+| Shell | `<PanelFrame id title width sub>` → `.pn` (zoomed by `--pz`, never scrolls) | `panels/common.tsx` |
+| Rail + body | `.co` grid: `nav.co-nav` of `button.co-tab` (icon, label, `em` count) + `.co-body` | `panels-collection.css` |
+| Section bar | `.co-bar` (caps title left, one-line `.co-sub` right) | same |
+| Card / card grid | `.so-card` (caps `h4`, `p` note), `.so-cards` two columns | `panels-social.css` |
+| List row | `.so-row` (dot, `.so-who`, `.so-act` icon buttons), `.so-empty` empty state with icon + one sentence, `.so-warn` notice | same |
+| Segmented control / chips | `.co-seg`, `.st-chip` (counts as `em`) | collection / more |
+| Switch / slider | `.pn-settings .settings-check` (switch), `.st-slider` (gold fill) | `panels-services.css` |
+| Paging | `<Paged size>`; used only where a list can exceed one screen (key bindings are 2 columns, so no paging) | `panels/common.tsx` |
+| Item grid | `.cell` + `ItemVisual`; hover compares (`itemHover(..., {compare:true})`), green arrow = upgrade | `panels/inventory.tsx` |
+
+Rules: icon + word for state (never colour alone); ≥ 12 px secondary text; destructive actions need a second click with the
+exact consequence in the text; the server stays the authority (panels call the same `run(op, args)` commands as before).
+Windows are capped to the screen height by `useScale` (tallest window = journal, 909 px) so the no-scroll rule holds at
+any interface size; if you add a taller window, update `TALLEST_PANEL` in `panels/index.tsx`.
+
+Stylesheets: `panels.css` (frame, items, inventory, skills, journal, map), `panels-more.css` (paragon, stash, cube stage),
+`panels-collection.css` (rail/body/cards, collection), `panels-social.css` (rows, party, HUD party frames),
+`panels-services.css` (merchant, waypoint, obelisk, guild, inspect, run summary, settings), `account.css` (select-screen
+accounts), `gear.css` (gear tiers in icons, tooltip, showcase).

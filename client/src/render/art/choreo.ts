@@ -130,9 +130,10 @@ export function basePose(P: Pose, kit: Kit, s: BaseIn): void {
       P.hL = kit.shield ? V(8.6 + sw * 0.8 * m, -20.6, -3.4) : arm(-1, -0.1 + swing, 0.8);
       break;
     case '2h':
-      P.hR = V(4.8, -25.4, 6.6); P.hL = V(7, -21.6, 3.2);
-      P.w = norm(-0.5, -0.82, 0.28);
-      P.hR.x += sw * 0.6 * m; P.hL.x += sw * 0.6 * m;
+      // rested at the side with the head out behind the shoulder (like the staff), so it never covers the face or
+      // the helm ornaments at idle; the free hand hangs. Attacks start from here and blend as before.
+      P.hR = V(1.4 + sw * 0.6 * m, -19.6, 7.8); P.hL = arm(-1, -0.12 + swing, 0.8);
+      P.w = norm(-0.42, -0.9, 0.52);
       break;
     case 'bow':
       // bow carried forward in the bow hand so it reads from either side

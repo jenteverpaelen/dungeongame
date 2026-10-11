@@ -13,6 +13,7 @@ import { PLATE_FONT, ensureFonts } from './fonts';
 import { clamp, lerpColor } from './util';
 import { GEAR_TIER_COLORS, gearProfile } from '@shared/gearVisual';
 import { SET_STYLE } from '../art/gearStyle';
+import { gearEffectLevel } from '../../game/preferences';
 
 /** Gear-rank medal left of the level badge (rank 2+), escalating in shape: disc → shield → winged shield → Ancient
  *  jewels → Primal flame tips (docs/rework/gear/DESIGN.md §5; D3 portrait frames / MapleStory medals as principle). */
@@ -32,6 +33,15 @@ function drawMedal(g: Graphics, rank: number): number {
   g.circle(cx, cy - 0.5, rank >= 4 ? 2 : 1.8).fill({ color: hi });
   if (rank >= 8) for (const k of [-1, 1]) g.circle(cx + k * 3.2, cy - 4.2, 0.9).fill({ color: 0xfff0c8 });
   return rank >= 6 ? 25 : 11;
+}
+
+/** Crown above a rank 8+ name (Primal: crimson with flame licks). Drawn once; animated by transform only. */
+function drawCrown(g: Graphics, col: number, primal: boolean): void {
+  const hi = lerpColor(col, 0xffffff, 0.5), ink = 0x120c08;
+  g.poly([-9, 3, -9, -3, -5, 0, -2.5, -6.5, 0, -1.5, 2.5, -6.5, 5, 0, 9, -3, 9, 3]).fill({ color: col }).stroke({ width: 1.2, color: ink });
+  g.rect(-9, 1.2, 18, 1.8).fill({ color: hi, alpha: 0.9 });
+  for (const x of [-5.5, 0, 5.5]) g.circle(x, 2.1, 1.1).fill({ color: primal ? 0xfff0e0 : 0xffffff });
+  for (const [x, y] of [[-9, -3], [-2.5, -6.5], [2.5, -6.5], [9, -3]]) g.circle(x, y, 1).fill({ color: hi });
 }
 
 const CHAMPION = 0x7f9bff;
@@ -86,8 +96,22 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
   const medal = new Graphics();
   const mw = prof ? drawMedal(medal, prof.rank) : 0;
   const setMark = prof && prof.topSetCount >= 6 && prof.topSet ? new Graphics().poly([0, -4, 3.4, 0, 0, 4, -3.4, 0]).fill({ color: SET_STYLE[prof.topSet]?.main ?? 0x3cff6e }).stroke({ width: 1, color: 0x120c08 }) : null;
+  // rank 6+: the name sits on a dark pill with a rank / Set coloured glow (legible on busy ground); rank 8+: a crown
+  const rankCol = prof ? (prof.primals ? 0xff3a2a : prof.topSetCount >= 4 && prof.topSet ? SET_STYLE[prof.topSet]?.main ?? GEAR_TIER_COLORS[prof.rank] : GEAR_TIER_COLORS[prof.rank]) : 0;
+  const glow = prof && prof.rank >= 6 ? new Sprite(V.T.glow) : null;
+  const pill = prof && prof.rank >= 6 ? new Graphics() : null;
+  if (glow) { glow.anchor.set(0.5); glow.blendMode = 'add'; glow.tint = rankCol; inner.addChild(glow); }
+  if (pill) inner.addChild(pill);
+  if (prof && prof.rank >= 6) name.tint = lerpColor(color, 0xffffff, 0.35);
+  const crown = prof && prof.rank >= 8 ? new Graphics() : null;
+  if (crown) drawCrown(crown, prof!.primals ? 0xff5a3a : rankCol, !!prof!.primals);
+  const licks: Sprite[] = [];
+  const twinkle = crown ? new Sprite(V.T.star4) : null;
+  if (crown && prof!.primals) for (let i = 0; i < 3; i++) { const f = new Sprite(V.T.flame); f.anchor.set(0.5, 1); f.blendMode = 'add'; f.tint = i === 1 ? 0xfff0e0 : 0xff4a2a; licks.push(f); }
+  if (twinkle) { twinkle.anchor.set(0.5); twinkle.blendMode = 'add'; twinkle.tint = 0xffffff; twinkle.width = twinkle.height = 9; }
   inner.addChild(badge, lvl, name, medal);
   if (setMark) inner.addChild(setMark);
+  if (crown) { inner.addChild(crown); for (const f of licks) inner.addChild(f); inner.addChild(twinkle!); }
   const layout = (lv: number, pl: number) => {
     lvl.text = pl > 0 ? `P${pl}` : `${lv}`;
     lvl.tint = pl > 0 ? 0x9fb4ff : 0xe8d9a8;
@@ -103,6 +127,13 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
     lvl.position.set(-total / 2 + mgap + pad, -14.5);
     name.position.set(-total / 2 + mgap + lw + 4, -16.5);
     if (setMark) setMark.position.set(total / 2 - 4, -7.5);
+    if (pill) {
+      const x0 = name.x - 5, w = name.width + 10;
+      pill.clear().roundRect(x0, -16, w, 15, 7).fill({ color: 0x0b0806, alpha: 0.6 }).roundRect(x0, -16, w, 15, 7).stroke({ width: 1, color: rankCol, alpha: 0.75 });
+      glow!.position.set(name.x + name.width / 2, -8.5);
+      glow!.width = name.width + 34; glow!.height = 26;
+    }
+    if (crown) crown.position.set(name.x + name.width / 2, title ? -38 : -24);
   };
   let curLv = desc.lv ?? 1, curPl = desc.pl ?? 0;
   layout(curLv, curPl);
@@ -116,6 +147,25 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
     update(_hp: number, flags: number, hovered: boolean) {
       fade(hovered);
       if (isMe) root.alpha *= 0.85;
+      if (glow) {
+        // the plate ornaments follow the gear-effect setting: off hides them, reduced keeps them still
+        const level = gearEffectLevel(isMe);
+        const show = level !== 'off';
+        glow.visible = pill!.visible = show;
+        if (crown) { crown.visible = show; twinkle!.visible = show && level === 'full'; for (const f of licks) f.visible = show && level === 'full'; }
+        const t = level === 'full' ? V.real : 0;
+        glow.alpha = prof!.rank >= 8 ? 0.42 + 0.14 * Math.sin(t * 2.2) : 0.34;
+        if (crown) {
+          const cx = crown.x, cy = crown.y;
+          crown.y = (title ? -38 : -24) + Math.sin(t * 2.4) * 0.8;
+          licks.forEach((f, i) => { f.position.set(cx + (i - 1) * 5.5, cy - 4); f.height = 7 + 3 * Math.sin(t * 9 + i * 2.1); f.width = 4.5; f.alpha = 0.9; });
+          const u = (t * 0.45) % 1;
+          twinkle!.position.set(cx - 9 + 18 * u, cy - 3 + Math.sin(u * Math.PI) * -4);
+          twinkle!.alpha = Math.sin(u * Math.PI) * 0.9;
+          twinkle!.rotation = t * 3;
+          void cx; void cy;
+        }
+      }
       root.visible = root.visible && (flags & F_DEAD) === 0;
     },
     destroy() { V.levelHooks.delete(desc.id); root.destroy({ children: true }); },

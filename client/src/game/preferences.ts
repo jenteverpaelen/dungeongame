@@ -5,6 +5,8 @@ export interface Preferences {
   muted: boolean;
   cameraShake: boolean;
   cameraZoom: number;
+  /** Interface size multiplier for the HUD, panels and tooltips (accessibility: text is small at 1080p on large displays). */
+  uiScale: number;
   reduceFlashes: boolean;
   lootQualityLabels: boolean;
   combatNumbers: boolean;
@@ -21,8 +23,11 @@ export const GEAR_EFFECT_LEVELS: readonly GearEffects[] = ['full', 'reduced', 'o
 export const DEFAULT_CAMERA_ZOOM = 0.75;
 export const MIN_CAMERA_ZOOM = 2 / 3;
 export const MAX_CAMERA_ZOOM = 2;
+export const DEFAULT_UI_SCALE = 1;
+export const MIN_UI_SCALE = 0.85;
+export const MAX_UI_SCALE = 1.5;
 export const DEFAULT_PREFERENCES: Readonly<Preferences> = Object.freeze({
-  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, cameraZoom: DEFAULT_CAMERA_ZOOM, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true, manualSkills:false,
+  masterVolume: 0.8, effectsVolume: 1, ambienceVolume: 1, muted: false, cameraShake: true, cameraZoom: DEFAULT_CAMERA_ZOOM, uiScale: DEFAULT_UI_SCALE, reduceFlashes: false, lootQualityLabels: false, combatNumbers: true, contextualHints:true, manualSkills:false,
   gearEffects: 'full', otherGearEffects: 'full',
 });
 export const PREFERENCES_KEY = 'hearthfall.preferences.v1';
@@ -37,6 +42,7 @@ function normalize(input: Partial<Preferences>): Readonly<Preferences> {
   }
   for (const key of ['muted', 'cameraShake', 'reduceFlashes', 'lootQualityLabels', 'combatNumbers', 'contextualHints', 'manualSkills'] as const) if (typeof input[key] === 'boolean') value[key] = input[key];
   if (typeof input.cameraZoom === 'number' && Number.isFinite(input.cameraZoom)) value.cameraZoom = Math.max(MIN_CAMERA_ZOOM, Math.min(MAX_CAMERA_ZOOM, input.cameraZoom));
+  if (typeof input.uiScale === 'number' && Number.isFinite(input.uiScale)) value.uiScale = Math.round(Math.max(MIN_UI_SCALE, Math.min(MAX_UI_SCALE, input.uiScale)) * 100) / 100;
   for (const key of ['gearEffects', 'otherGearEffects'] as const) if (GEAR_EFFECT_LEVELS.includes(input[key] as GearEffects)) value[key] = input[key] as GearEffects;
   return Object.freeze(value);
 }

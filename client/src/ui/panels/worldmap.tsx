@@ -10,7 +10,7 @@ import type { MapData } from '@shared/mapgen';
 import type { CharacterSave } from '@shared/types';
 import { text as t } from '../../i18n/messages';
 import { togglePanel, useUI, worldReader } from '../store';
-import { bakeMapTerrain } from '../mapTerrain';
+import { bakeMapTerrain, mapBackdrop } from '../mapTerrain';
 import { ACT_LABELS, MAP_H, MAP_W, WORLD_LAYOUT, worldMapImage, type MapNode } from '../worldMapArt';
 import { UiIcon, type UiIconName } from '../hud/UiIcons';
 import { PanelFrame, Tabs } from './common';
@@ -146,31 +146,79 @@ export function WorldMapPanel() {
   </PanelFrame>;
 }
 
+interface MapLabel { x: number; y: number; text: string }
+interface PlacedLabel { x: number; y: number; anchor: 'start' | 'middle' | 'end' }
+
+/** Greedy label placement: below the marker, else right, left, above; the first spot that stays inside the view and
+ *  clears the labels already placed wins. If none does, the default spot is clamped into the view. */
+function placeLabels(items: MapLabel[], r: number, view: { x: number; y: number; w: number; h: number }): PlacedLabel[] {
+  const fs = r * 1.9, charW = fs * 0.6, pad = r * 0.6, h = fs * 1.3;
+  const boxes: { x0: number; y0: number; x1: number; y1: number }[] = [];
+  const hits = (b: { x0: number; y0: number; x1: number; y1: number }) => boxes.some((o) => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0);
+  const inside = (b: { x0: number; y0: number; x1: number; y1: number }) => b.x0 >= view.x && b.x1 <= view.x + view.w && b.y0 >= view.y && b.y1 <= view.y + view.h;
+  return items.map(({ x, y, text }) => {
+    const w = text.length * charW + pad * 2;
+    const spots: PlacedLabel[] = [
+      { anchor: 'middle', x, y: y + r * 2.6 + fs * 0.7 },
+      { anchor: 'start', x: x + r * 1.6, y: y + fs * 0.35 },
+      { anchor: 'end', x: x - r * 1.6, y: y + fs * 0.35 },
+      { anchor: 'middle', x, y: y - r * 1.9 },
+    ];
+    const boxOf = (s: PlacedLabel) => {
+      const x0 = s.anchor === 'middle' ? s.x - w / 2 : s.anchor === 'start' ? s.x - pad : s.x - w + pad;
+      return { x0, x1: x0 + w, y0: s.y - fs, y1: s.y - fs + h };
+    };
+    let pick = spots.find((s) => { const b = boxOf(s); return inside(b) && !hits(b); });
+    if (!pick) {
+      // Nothing fits cleanly: shift the default spot sideways into the view and accept a small overlap.
+      const d = spots[0], b = boxOf(d);
+      const dx = b.x0 < view.x ? view.x - b.x0 : b.x1 > view.x + view.w ? view.x + view.w - b.x1 : 0;
+      const dy = b.y1 > view.y + view.h ? view.y + view.h - b.y1 : 0;
+      pick = { anchor: d.anchor, x: d.x + dx, y: d.y + dy };
+    }
+    boxes.push(boxOf(pick));
+    return pick;
+  });
+}
+
 function LocalMap({ map, save, terrain, me, point, objectiveLabel }: { map: MapData; save: CharacterSave; terrain: string; me: { x: number; y: number } | null; point?: { x: number; y: number }; objectiveLabel?: string }) {
   const w = map.w * TILE, h = map.h * TILE;
   const [selected, setSelected] = useState<string | null>(null);
   const npcs = map.npcs.filter((n) => n.role !== 'dummy');
-  // Frame the walkable ground (plus a margin) instead of the whole canvas, keeping the panel's 1.7:1 shape.
+  // Frame the walkable ground (plus a margin), centred, in the panel's 1.7:1 frame. A tall zone leaves surplus on the
+  // sides: that is painted with the map's backdrop colour instead of showing the panel's black.
   const floors = map.town?.floors.map((f) => f.polygon) ?? map.adventure?.geometry.floors.map((f) => f.polygon) ?? [];
   const pts = floors.flat();
   let vx = 0, vy = 0, vw = w, vh = h;
   if (pts.length) {
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), m = 260;
-    vx = Math.max(0, Math.min(...xs) - m); vy = Math.max(0, Math.min(...ys) - m); vw = Math.min(w, Math.max(...xs) + m) - vx; vh = Math.min(h, Math.max(...ys) + m) - vy;
-    const aspect = 1.7;
-    if (vw / vh > aspect) { const nh = vw / aspect; vy = Math.max(0, vy - (nh - vh) / 2); vh = nh; } else { const nw = vh * aspect; vx = Math.max(0, vx - (nw - vw) / 2); vw = nw; }
+    vx = Math.min(...xs) - m; vy = Math.min(...ys) - m; vw = Math.max(...xs) + m - vx; vh = Math.max(...ys) + m - vy;
   }
+  const aspect = 1.7, cx = vx + vw / 2, cy = vy + vh / 2;
+  if (vw / vh > aspect) vh = vw / aspect; else vw = vh * aspect;
+  vx = cx - vw / 2; vy = cy - vh / 2;
   // Glyph dimensions are in map units so they stay legible at the panel's fixed height.
   const r = Math.max(vw, vh) / 110;
-  const label = (x: number, y: number, s: string, cls = '') => <text x={x} y={y + r * 2.6} class={`wmx-maplabel ${cls}`} font-size={r * 1.9} stroke-width={r * 0.45}>{s}</text>;
+  const labelled: MapLabel[] = [
+    ...npcs.map((n) => ({ x: n.x, y: n.y, text: n.name.split(' · ')[0] })),
+    ...map.portals.map((p) => ({ x: p.x, y: p.y, text: `↗ ${ZONES[p.to]?.name ?? p.label}` })),
+  ];
+  const spots = useMemo(() => placeLabels(labelled, r, { x: vx, y: vy, w: vw, h: vh }), [map, vx, vy, vw, vh]);
+  const label = (i: number, cls = '') => {
+    const s = spots[i], text = labelled[i].text;
+    return <text x={s.x} y={s.y} class={`wmx-maplabel ${cls}`} style={{ textAnchor: s.anchor }} font-size={r * 1.9} stroke-width={r * 0.45}>{text}</text>;
+  };
   return <div class="wmx-area-map"><svg class="wm-area" viewBox={`${vx} ${vy} ${vw} ${vh}`} role="img" aria-label={t('map.currentArea', { zone: ZONES[map.zone]?.name ?? map.zone })}>
+    <rect x={vx} y={vy} width={vw} height={vh} fill={mapBackdrop(map)} />
     <image href={terrain} x="0" y="0" width={w} height={h} />
-    {npcs.map((n) => <g key={n.id} transform={`translate(${n.x},${n.y})`} onClick={() => setSelected(n.id)}>
-      <title>{n.name} · {n.role}</title><circle r={r * (n.id === selected ? 1.4 : 0.75)} class="service" />
-      <text y={-r} text-anchor="middle" fill="#ffdb83" stroke="#140e0a" stroke-width={r / 8} paint-order="stroke" font-size={r * 2.5} font-weight="bold">{questMarker(save, map.zone, n.id)}</text>
-      {label(0, 0, n.name.split(' · ')[0], n.id === selected ? 'sel' : '')}
+    {npcs.map((n, i) => <g key={n.id} onClick={() => setSelected(n.id)}>
+      <g transform={`translate(${n.x},${n.y})`}>
+        <title>{n.name} · {n.role}</title><circle r={r * (n.id === selected ? 1.4 : 0.75)} class="service" />
+        <text y={-r} text-anchor="middle" fill="#ffdb83" stroke="#140e0a" stroke-width={r / 8} paint-order="stroke" font-size={r * 2.5} font-weight="bold">{questMarker(save, map.zone, n.id)}</text>
+      </g>
+      {label(i, n.id === selected ? 'sel' : '')}
     </g>)}
-    {map.portals.map((p, i) => <g key={i} transform={`translate(${p.x},${p.y})`}><title>{p.label}</title><circle r={r} class="exit" />{label(0, 0, `↗ ${ZONES[p.to]?.name ?? p.label}`, 'exit')}</g>)}
+    {map.portals.map((p, i) => <g key={`p${i}`}><g transform={`translate(${p.x},${p.y})`}><title>{p.label}</title><circle r={r} class="exit" /></g>{label(npcs.length + i, 'exit')}</g>)}
     {point && <g transform={`translate(${point.x},${point.y})`}><title>{objectiveLabel}</title><path d={`M0 ${-r * 1.4} L${r} 0 0 ${r * 1.4} ${-r} 0 Z`} class="objective" /></g>}
     {me && <g transform={`translate(${me.x},${me.y})`}><title>{t('map.here')}</title><path d={`M0 ${-r * 1.6} L${r} ${r} 0 ${r * 0.4} ${-r} ${r} Z`} class="player" /></g>}
   </svg>

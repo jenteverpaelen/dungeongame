@@ -11,6 +11,9 @@ import { getRenderer } from './fx';
 
 export type Version = 'n' | 'f' | 'r';
 
+/** Cumulative bake timing (dev HUD): vector build + bounds vs page render, and the number of pages. */
+export const bakeTimes = { build: 0, render: 0, pages: 0 };
+
 export interface PartSpec {
   name: string;
   draw: (c: Ctx) => void;
@@ -126,6 +129,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
   const sheet = new Sheet();
   const renderer = live ? null : getRenderer();
   const items: Item[] = [];
+  const tb0 = performance.now();
   for (const spec of specs) {
     const versions: Version[] = ['n'];
     if (spec.flash) versions.push('f');
@@ -138,6 +142,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
     }
   }
 
+  bakeTimes.build += performance.now() - tb0;
   if (!renderer) {
     for (const it of items) {
       const entry = sheet.parts.get(it.spec.name) ?? {};
@@ -172,6 +177,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
     }
     const W = Math.max(1, Math.ceil(pg.w)), H = Math.max(1, Math.ceil(pg.h));
     let source:TextureSource;
+    const tr0 = performance.now();
     if(gpuOnly) {
       // Town NPCs stay in this renderer. Preserve the exact MSAA render without a GPU→CPU→GPU trip.
       const target=renderer.generateTexture({target:holder,frame:new Rectangle(0,0,W,H),resolution:res,antialias:true,clearColor:[0,0,0,0],textureSourceOptions:{autoGenerateMipmaps:true,scaleMode:'linear',label:`${label}#${p}`}});
@@ -180,6 +186,7 @@ export function bakeSheet(specs: PartSpec[], res = 3, maxPage = 2048, label = 's
       const canvas = renderer.extract.canvas({ target: holder, frame: new Rectangle(0, 0, W, H), resolution: res, antialias: true, clearColor: [0, 0, 0, 0] }) as HTMLCanvasElement;
       source = new CanvasSource({ resource: canvas, resolution: res, autoGenerateMipmaps: true, scaleMode: 'linear', label: `${label}#${p}` });
     }
+    bakeTimes.render += performance.now() - tr0; bakeTimes.pages++;
     sheet.sources.push(source);
     if (debugPages()&&source instanceof CanvasSource) bakedPages.push({ label: `${label}#${p}`, source });
     for (const it of onPage) {

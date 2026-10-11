@@ -49,8 +49,24 @@ const HIP = -12;
 
 // ─────────────────────────── sheet cache ───────────────────────────
 
-const sheets = new Map<string, Sheet>();
+/** How a view's sheet is produced:
+ *  - 'portable': canvas-backed pages usable from any Pixi renderer (class-select / showcase previews, galleries);
+ *  - 'scene':    GPU render-target pages of the main renderer (in-game heroes: no GPU→CPU readback);
+ *  - 'npc':      like 'scene' at a lower density without hit-flash versions, baked at once (town residents). */
+export type BakeMode = 'portable' | 'scene' | 'npc';
+
+/** One look at one density: its finished sheet (or the live vector fallback) and the remaining bake work. */
+interface Entry {
+  key: string; look: PlayerLook; mode: BakeMode; res: number; refs: number;
+  /** Finished (or live-fallback) sheet; null while a 'scene' look is still baking (views show an interim sheet). */
+  sheet: Sheet | null;
+  /** Remaining bake work; specs are created when the bake starts (cheap acquire for a crowd walking in). */
+  work: { specs: PartSpec[] | null; next: number; acc: Sheet } | null;
+}
+const entries = new Map<string, Entry>();
 const idle: string[] = [];
+/** Looks waiting to be baked, front first. */
+const queue: Entry[] = [];
 
 /** Townsfolk looks carry their own body (hair, skin, beard, face accessory); heroes derive it from class + appearance. */
 export type NpcBodyLook = PlayerLook & { npc?: Omit<Body, 'cls'> };
@@ -86,10 +102,15 @@ function backOf(look: PlayerLook) {
   return {
     kind, tier: p?.rank ?? 0, accent, motif: motif === 'primal' ? 'ember' as const : motif,
     primary: chest?.primary ?? 0x6a4a3a, metal: cs?.metal ?? GEAR_TIER_COLORS[p?.rank ?? 0],
-    deep: set?.deep ?? (p?.primals ? 0x5a1010 : 0x3a2a1c),
-    wing: (p?.primals ? 'primal' : set && p!.topSetCount >= 6 ? set.motif : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
+    deep: p?.primals ? 0x6a1410 : set?.deep ?? 0x3a2a1c,
+    primal: (p?.primals ?? 0) > 0,
+    // a full Set keeps its wing silhouette even when Primal (recoloured crimson); Primal without a Set gets flame wings
+    wing: (set && p!.topSetCount >= 6 ? set.motif : p?.primals ? 'primal' : motif && motif !== 'primal' && ['wind', 'star', 'ember', 'stone', 'feather', 'rain', 'shard', 'lantern', 'flame', 'cog'].includes(motif) ? motif : 'light') as Parameters<typeof drawWing>[1],
     // Ancient heroes get amber-edged wings (the deep tone of the wing gradient)
     ancient: (p?.ancients ?? 0) >= 2,
+    /** Wing drawing scale (span ≥ 2.2× body width at rank 8, ≥ 2.6× with a Primal; measured in LOG.md). */
+    wingK: !p ? 1.5 : p.primals ? 1.5 * 1.72 : p.rank >= 8 ? 1.5 * 1.32 : 1.5 * 1.08,
+    backK: !p ? 1 : 1 + 0.14 * Math.max(0, p.rank - 6),
   };
 }
 
@@ -114,8 +135,9 @@ export function playerParts(look: PlayerLook, body: Body = bodyOf(look)): PartSp
     add('pad', (c) => drawShoulder(c, sl.shoulders!, false));
     if (sl.shoulders.shape === 'mantle' && back.kind !== 'cape' && back.kind !== 'mantle') add('cape', (c) => drawCapeBack(c, sl.shoulders!));
   }
-  if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier));
-  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.ancient && !look.slots.chest?.fx ? back.deep : back.ancient ? 0xb8661a : back.deep));
+  // presence by rank (spectacle pass): baked at their final size so they stay crisp
+  if (back.kind === 'cape' || back.kind === 'mantle') add('back', (c) => drawBackPiece(c, back.kind as 'cape' | 'mantle', back.primary, back.metal, back.accent, back.motif, back.tier, back.backK));
+  if (back.kind === 'wings') add('wing', (c) => drawWing(c, back.wing, back.accent, back.primal ? back.deep : back.ancient ? 0xb8661a : back.deep, back.wingK));
   const probe = new Graphics();
   if (drawHairTail(probe.context, body, sl.head)) add('tail', (c) => { drawHairTail(c, body, sl.head); });
   if (drawHairCurtain(probe.context, body, sl.head)) add('curtain', (c) => { drawHairCurtain(c, body, sl.head); });
@@ -153,83 +175,143 @@ function heroFx(): Sheet {
 export function bakePlayerLook(look: PlayerLook): void {
   const res = bakeRes(3, 6);
   const key = `${lookKey(look)}@${res}`;
-  const cur = sheets.get(key);
-  if (cur && !cur.destroyed && !cur.live) return;
-  const baked = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`);
-  if (cur) { baked.refs = cur.refs; setTimeout(() => cur.destroy(), 4000); }
-  sheets.set(key, baked);
-  pendingBakes.delete(key);
+  const e = entries.get(key) ?? newEntry(key, look, 'portable', res);
+  if (e.sheet && !e.sheet.destroyed && !e.sheet.live && !e.work) return;
+  const old = e.sheet;
+  e.sheet = bakeSheet(playerParts(look), res, 2048, `player:${look.classId}`);
+  dropWork(e);
+  if (old && old !== e.sheet) setTimeout(() => old.destroy(), 4000);
 }
+
+/** Bake cost counters (dev HUD / perf notes). */
+export const bakeStats = { acquireMs: 0, acquires: 0, pumpMs: 0, chunks: 0, maxPumpMs: 0, maxFrameMs: 0, pending: 0 };
 
 /** Dev gallery: no random blinks / glances (contact sheets must be reproducible). */
 export const artDebug = { deterministic: false };
 
-const pendingBakes = new Map<string, PlayerLook>();
-let lastPump = 0;
-/** The look being baked, a chunk of parts per frame (heads are the expensive part: 32 views). */
-let baking: { key: string; look: PlayerLook; sheet: Sheet; specs: PartSpec[]; next: number } | null = null;
-const CHUNK_WEIGHT = 10;
+const prefixOf = (m: BakeMode) => (m === 'npc' ? 'gpu:' : m === 'scene' ? 'scn:' : '');
+const resOf = (m: BakeMode) => bakeRes(m === 'npc' ? 2 : 3, 6);
 const weightOf = (s: PartSpec) => (s.name.startsWith('head@') ? (s.flash ? 2 : 1) : 0.25);
+/** Per-frame bake budget (ms): a crowd walking into view spreads its bakes over frames instead of stalling. */
+export const BAKE_BUDGET_MS = 4;
+/** Measured cost per weight unit (EMA), so chunks are sized to fit the budget. */
+let msPerWeight = 1.5;
+let lastPump = 0;
 
-/** Bake queued looks incrementally (≤ ~10 head views per frame); views swap from the live vector parts to
- *  the baked sheet once a look is complete, so a hero walking into view never stalls a frame. */
-function pumpBakes(): void {
-  const now = performance.now();
-  if (now - lastPump < 14 || !getRenderer()) return;
-  if (!baking) {
-    if (!pendingBakes.size) return;
-    const [key, look] = pendingBakes.entries().next().value as [string, PlayerLook];
-    pendingBakes.delete(key);
-    const cur = sheets.get(key);
-    // looks nobody wears any more (a hero walked out of view, gear swapped) are not worth a bake
-    if (!cur || cur.destroyed || !cur.live || cur.refs <= 0) return;
-    baking = { key, look, sheet: new Sheet(), specs: playerParts(look), next: 0 };
-  }
-  lastPump = now;
-  const b = baking;
-  const cur = sheets.get(b.key);
-  if (!cur || cur.destroyed || !cur.live) { b.sheet.destroy(); baking = null; return; }
-  const res = Number(b.key.slice(b.key.lastIndexOf('@') + 1)) || 3;
-  const chunk: PartSpec[] = [];
-  let w = 0;
-  while (b.next < b.specs.length && (w < CHUNK_WEIGHT || !chunk.length)) { const sp = b.specs[b.next++]; chunk.push(sp); w += weightOf(sp); }
-  b.sheet.absorb(bakeSheet(chunk, res, 2048, `player:${b.look.classId}`,false,b.key.startsWith('gpu:')));
-  if (b.next < b.specs.length) return;
-  baking = null;
-  b.sheet.refs = cur.refs;
-  sheets.set(b.key, b.sheet);
-  setTimeout(() => cur.destroy(), 4000);
+function newEntry(key: string, look: PlayerLook, mode: BakeMode, res: number): Entry {
+  const e: Entry = { key, look, mode, res, refs: 0, sheet: null, work: null };
+  entries.set(key, e);
+  return e;
+}
+function dropWork(e: Entry): void {
+  if (e.work) { e.work.acc.destroy(); e.work = null; }
+  const i = queue.indexOf(e);
+  if (i >= 0) queue.splice(i, 1);
+}
+function specsFor(look: PlayerLook, mode: BakeMode): PartSpec[] {
+  const specs = playerParts(look);
+  if (mode === 'npc') for (const spec of specs) { spec.flash = false; spec.rim = false; }
+  return specs;
 }
 
-function acquireSheet(look: PlayerLook,gpuOnly=false): { key: string; sheet: Sheet; res: number } {
-  const res = bakeRes(gpuOnly?2:3, 6);
-  const key = `${gpuOnly?'gpu:':''}${lookKey(look)}@${res}`;
-  let sheet = sheets.get(key);
-  if (!sheet || sheet.destroyed) {
-    const specs=playerParts(look);
-    if(gpuOnly)for(const spec of specs){spec.flash=false;spec.rim=false;}
-    sheet = bakeSheet(specs, res, 2048, `player:${look.classId}`, !gpuOnly,gpuOnly);
-    sheets.set(key, sheet);
-    if(sheet.live)pendingBakes.set(key, look);
+/** Bake queued looks within BAKE_BUDGET_MS per frame. Chunks are sized from the measured cost per part weight;
+ *  every finished look swaps in on the next update of the views that wear it. */
+function pumpBakes(): void {
+  // once per rendered frame: every view calls this from update(); the frame's timestamp is shared by all of them
+  const frame = (typeof document !== 'undefined' ? Number(document.timeline?.currentTime ?? 0) : 0) || performance.now();
+  if (frame === lastPump || !getRenderer()) return;
+  lastPump = frame;
+  let frameMs = 0;
+  while (queue.length) {
+    const e = queue[0];
+    if (!e.work || e.refs <= 0) { queue.shift(); if (e.refs <= 0) { dropWork(e); if (!e.sheet) entries.delete(e.key); } continue; }
+    // class placeholders unblock every waiting hero: they get a larger budget (once per class per session)
+    const left = (e.key.startsWith('ph:') ? BAKE_BUDGET_MS * 3 : BAKE_BUDGET_MS) - frameMs;
+    if (left <= 0.3) break;
+    const w = e.work, chunk: PartSpec[] = [];
+    const specs = w.specs ??= specsFor(e.look, e.mode);
+    let weight = 0;
+    while (w.next < specs.length) {
+      const sp = specs[w.next], sw = weightOf(sp);
+      if (chunk.length && (weight + sw) * msPerWeight > left) break;
+      chunk.push(sp); weight += sw; w.next++;
+    }
+    const t0 = performance.now();
+    w.acc.absorb(bakeSheet(chunk, e.res, 2048, `player:${e.look.classId}`, false, e.mode !== 'portable'));
+    const dt = performance.now() - t0;
+    frameMs += dt;
+    // EMA of the cost per weight unit; one-off outliers (first shader compile) are clamped
+    msPerWeight = Math.max(0.05, msPerWeight * 0.7 + Math.min(4, dt / Math.max(0.25, weight)) * 0.3);
+    bakeStats.pumpMs += dt; bakeStats.chunks++; bakeStats.maxPumpMs = Math.max(bakeStats.maxPumpMs, dt);
+    if (w.next >= specs.length) {
+      queue.shift();
+      const old = e.sheet;
+      e.sheet = w.acc; e.work = null;
+      if (old && old !== e.sheet) setTimeout(() => old.destroy(), 4000);
+    }
   }
-  else if (sheet.live) pendingBakes.set(key, look); // its bake may have been skipped while nobody wore it
+  bakeStats.maxFrameMs = Math.max(bakeStats.maxFrameMs, frameMs);
+  bakeStats.pending = queue.length;
+}
+
+function acquireEntry(look: PlayerLook, mode: BakeMode, urgent = false): Entry {
+  const res = resOf(mode);
+  const key = `${prefixOf(mode)}${lookKey(look)}@${res}`;
+  let e = entries.get(key);
+  if (!e || (e.sheet?.destroyed && !e.work)) {
+    const t0 = performance.now();
+    e = newEntry(key, look, mode, res);
+    if (mode === 'npc' || !getRenderer()) {
+      // town residents bake at once (town load); without a renderer (tests, early boot) parts are live vectors
+      e.sheet = bakeSheet(specsFor(look, mode), res, 2048, `player:${look.classId}`, mode !== 'npc', mode === 'npc');
+      if (e.sheet.live) { e.work = { specs: null, next: 0, acc: new Sheet() }; queue.push(e); }
+    } else {
+      // portable views (previews, galleries) show live vector parts until baked; scene views show an interim sheet
+      if (mode === 'portable') e.sheet = bakeSheet(specsFor(look, mode), res, 2048, `player:${look.classId}`, true, false);
+      e.work = { specs: null, next: 0, acc: new Sheet() };
+      if (urgent) queue.unshift(e); else queue.push(e);
+    }
+    bakeStats.acquireMs += performance.now() - t0; bakeStats.acquires++;
+  } else if (e.work && urgent) { const i = queue.indexOf(e); if (i > 0) { queue.splice(i, 1); queue.unshift(e); } }
   const i = idle.indexOf(key);
   if (i >= 0) idle.splice(i, 1);
-  sheet.refs++;
-  return { key, sheet, res };
+  e.refs++;
+  return e;
 }
 
-function releaseSheet(key: string): void {
-  const sheet = sheets.get(key);
-  if (!sheet) return;
-  sheet.refs--;
-  if (sheet.refs > 0) return;
+function releaseEntry(key: string): void {
+  const e = entries.get(key);
+  if (!e) return;
+  e.refs--;
+  if (e.refs > 0) return;
+  if (!e.sheet) { dropWork(e); entries.delete(key); return; }   // never finished: nothing worth keeping
   idle.push(key);
   while (idle.length > 10) {
     const k = idle.shift()!;
-    const s = sheets.get(k);
-    if (s && s.refs <= 0) { s.destroy(); sheets.delete(k); pendingBakes.delete(k); }
+    const x = entries.get(k);
+    if (x && x.refs <= 0) { dropWork(x); x.sheet?.destroy(); entries.delete(k); }
   }
+}
+
+/** A class's bare look (no gear, default appearance): what a brand-new scene view shows for the few frames
+ *  before its own sheet is baked. Live vector parts shared by every waiting hero, then baked like any look. */
+function placeholderSheet(classId: PlayerLook['classId'], mode: BakeMode): Sheet {
+  const e = acquirePlaceholder(classId, mode);
+  return e.sheet!;
+}
+const placeholders = new Map<string, Entry>();
+function acquirePlaceholder(classId: PlayerLook['classId'], mode: BakeMode): Entry {
+  const res = resOf(mode);
+  const key = `ph:${mode}:${classId}@${res}`;
+  let e = placeholders.get(key);
+  if (!e || !e.sheet || e.sheet.destroyed) {
+    const look: PlayerLook = { classId, slots: {} };
+    e = { key, look, mode, res, refs: 1e9, sheet: bakeSheet(specsFor(look, mode), res, 2048, `player:${classId}`, true, false), work: null };
+    e.work = { specs: null, next: 0, acc: new Sheet() };
+    queue.unshift(e);
+    placeholders.set(key, e);
+  }
+  return e;
 }
 
 // ─────────────────────────── helpers ───────────────────────────
@@ -296,6 +378,8 @@ export class PlayerArt implements PlayerView {
   private key = '';
   private res = 3;
   private sheet!: Sheet;
+  private entry: Entry | null = null;
+  private mode: BakeMode;
   private kit: Kit = { wk: 'none', shield: false, orb: false, shape: '' };
   private reach = reachOf(undefined);
 
@@ -341,6 +425,15 @@ export class PlayerArt implements PlayerView {
   private padK = 1;
   private wpnK = 1;
   private wingFlap = 0;
+  /** Presence by gear rank (spectacle pass): wing span, cloth back-piece size, weapon-trail brightness. */
+  private wingK = 1;
+  private backK = 1;
+  private trailBoost = 1;
+  /** Rank-up celebration start (view time, s; < 0 none) and whether it is the big one (full Set / rank 8+). */
+  private celebrateAt = -1;
+  private celebrateBig = false;
+  /** Seconds of "in combat" left (attacks, casts, hits): gear ground effects step back meanwhile. */
+  private combatT = 0;
 
   // animation state
   private t = 0;
@@ -386,7 +479,8 @@ export class PlayerArt implements PlayerView {
   private baseCache: Pose = newPose();
   private sn = 1; private cs = 0;
 
-  constructor(look: PlayerLook,private gpuOnly=false) {
+  constructor(look: PlayerLook, mode: boolean | BakeMode = 'portable') {
+    this.mode = mode === true ? 'npc' : mode === false ? 'portable' : mode;
     this.root.addChild(this.rig);
     this.rig.addChild(this.glowBack, this.shadow, this.under, this.body, this.over);
     this.body.sortableChildren = true;
@@ -394,13 +488,16 @@ export class PlayerArt implements PlayerView {
   }
 
   setLook(look: PlayerLook): void {
-    const prevKey = this.key;
+    const prev = this.entry;
     this.look = look;
-    const acq = acquireSheet(look,this.gpuOnly);
-    this.key = acq.key;
-    this.res = acq.res;
-    if (prevKey) releaseSheet(prevKey);
-    this.build(acq.sheet);
+    this.entry = acquireEntry(look, this.mode, this.isLocal);
+    this.key = this.entry.key;
+    this.res = this.entry.res;
+    // until the new sheet is baked, keep showing what we had (old gear / lower density), else the class placeholder
+    const sheet = this.entry.sheet && !this.entry.sheet.destroyed ? this.entry.sheet
+      : this.sheet && !this.sheet.destroyed ? this.sheet : placeholderSheet(look.classId, this.mode);
+    this.build(sheet);
+    if (prev) releaseEntry(prev.key);
   }
 
   // ─────────────────────────── build ───────────────────────────
@@ -426,8 +523,12 @@ export class PlayerArt implements PlayerView {
     this.wpnK = weaponScale(sl.mainhand);
     { const r = reachOf(sl.mainhand?.shape); this.reach = { tip: r.tip * this.wpnK, base: r.base * this.wpnK }; }
     const glow = sl.mainhand?.glow ?? 0;
-    this.trailColor = glow ? light(glow, 0.25) : 0xfff4dc;
-    this.trailAdd = !!glow;
+    const wst = itemStyle(sl.mainhand);
+    this.trailColor = wst && wst.tier >= 6 ? light(wst.accent, 0.12) : glow ? light(glow, 0.25) : 0xfff4dc;
+    this.trailAdd = !!glow || (!!wst && wst.tier >= 6);
+    this.trailBoost = !wst ? 1 : wst.tier >= 8 ? 1.6 : wst.tier >= 6 ? 1.35 : 1;
+    { const pr = Object.values(sl).some((l) => typeof l?.fx === 'number') ? gearProfile(this.look) : null;
+      void pr; this.wingK = 1; this.backK = 1; }
 
     const mk = (key: string, part: string): Sprite | Graphics => {
       const o = sheet.make(part, 'n');
@@ -575,11 +676,19 @@ export class PlayerArt implements PlayerView {
         if (q === 'full') { const tip = sparkleSprite(light(w.accent, 0.4), 8, 0.8); this.tipSpark = tip; this.fxAdd.addChild(tip); }
       }
     }
-    this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR);
+    this.gear = new GearFx(this.look, p, this.glowBack, this.over, this.fxAdd, q, !!this.parts.wingR, this.mode === 'scene');
     if (this.parts.wingR) this.parts.wingR.visible = this.parts.wingL.visible = q !== 'off';
   }
 
   private npcLook(): boolean { return !!(this.look as NpcBodyLook).npc; }
+
+  /** Rank-up / first full Set moment (~1.5 s): rings, a column of light, a fountain of the hero's motif, wings flare.
+   *  Survives the look rebuild that the same equip triggers (the start time lives on the view). */
+  celebrateGear(big: boolean): void {
+    if (this.destroyed) return;
+    this.celebrateAt = this.t; this.celebrateBig = big;
+    this.gear?.flare();
+  }
 
   /** The scene tells views which hero is the local player (own vs other players' gear-effect setting). */
   setIsLocal(v: boolean): void {
@@ -639,6 +748,7 @@ export class PlayerArt implements PlayerView {
     if (this.act) this.lastAct = this.act;
     this.act = { def, skill: a.skill, start: now, cycle: Math.max(180, a.cycleMs || 800), alt, tx: a.tx, ty: a.ty, primary, shots, fired: 0, notes };
     if (a.skill === 'level_up') { this.lvl = now; this.gear?.flare(); }
+    else this.combatT = 2.5;
     // face the target now (the head snaps first, the body follows)
     const yaw = presents(def.pose, 0) || a.skill === 'level_up' ? this.side * 22 : facingYaw(a.tx - this.sx, a.ty - this.sy, this.side);
     if (!Number.isNaN(yaw)) this.setYawTarget(yaw, true);
@@ -673,10 +783,10 @@ export class PlayerArt implements PlayerView {
   update(dt: number, s: ViewState): void {
     if (this.destroyed) return;
     pumpBakes();
-    const cur = sheets.get(this.key);
+    const cur = this.entry?.sheet;
     if (cur && !cur.destroyed && cur !== this.sheet) this.build(cur);
-    else if (this.sheet.destroyed) { if (cur && !cur.destroyed) this.build(cur); else return; }
-    if (this.res < bakeRes(this.gpuOnly?2:3, 6) && !this.dying) { this.setLook(this.look); }
+    else if (this.sheet.destroyed) this.build(cur && !cur.destroyed ? cur : placeholderSheet(this.look.classId, this.mode));
+    if (this.res < resOf(this.mode) && !this.dying) { this.setLook(this.look); }
     this.sx = s.x; this.sy = s.y;
 
     const flags = s.flags;
@@ -707,6 +817,7 @@ export class PlayerArt implements PlayerView {
     this.dashB += (((flags & F_DASH) ? 1 : 0) - this.dashB) * damp(20, dt);
     this.stunB += ((stunned ? 1 : 0) - this.stunB) * damp(10, dt);
     this.hitK = Math.max(0, this.hitK - dt * 5);
+    this.combatT = Math.max(0, this.combatT - dt);
 
     // fallback swing when the server bumps attackSeq without a cast event reaching us
     if (s.attackSeq !== this.lastSeq) {
@@ -823,6 +934,9 @@ export class PlayerArt implements PlayerView {
         sB: Math.sin(this.yawB * D2R), cB: Math.cos(this.yawB * D2R),
         head: { x: n0.head.x, y: n0.head.y, d: 0 }, chest: { x: 0, y: -24, d: 0 }, hR: this.hR, hL: this.hL, wTip: this.wTip, wBase: this.wBase,
         hasWeapon: !!n0.weapon && this.kit.wk !== 'bow', bow: this.kit.wk === 'bow',
+        swing: act ? P.trail : this.chan * 0.6,
+        celebrate: this.celebrateAt >= 0 ? t - this.celebrateAt : -1, celebrateBig: this.celebrateBig,
+        combat: clamp(this.combatT / 0.6), local: this.isLocal,
       });
     }
     this.updateStatus(t, flags, stunned);
@@ -1036,7 +1150,7 @@ export class PlayerArt implements PlayerView {
       this.pt(-6, -33 + drop, 0, this.tmp);
       n.back.position.set(this.tmp.x, this.tmp.y);
       const sway = this.gearQ === 'full' ? Math.sin(t * 1.8) * 0.025 + Math.sin(this.walk) * 0.03 * this.moveBlend : 0;
-      n.back.scale.set((0.5 + 0.5 * Math.abs(cB)) * (1 + fly * 0.3), 1 - fly * 0.18 - 0.05 * this.moveBlend);
+      n.back.scale.set((0.5 + 0.5 * Math.abs(cB)) * (1 + fly * 0.3) * this.backK, (1 - fly * 0.18 - 0.05 * this.moveBlend) * this.backK);
       // in profile the cloth flares out behind the hero so the silhouette shows it
       n.back.rotation = side * (0.2 * Math.abs(sB) + (0.12 * this.moveBlend + 0.5 * fly) * Math.abs(sB)) + sway;
       n.back.zIndex = clamp(this.tmp.d, -8.5, 0.55);
@@ -1051,12 +1165,14 @@ export class PlayerArt implements PlayerView {
       // Wings read like the top-down ARPG convention: always spread to both sides behind the hero, with a yaw-driven
       // asymmetry (the far wing narrows and the pair drifts to the back side in profile).
       const facing = cB >= 0 ? 1 : -1;
+      const cel = this.celebrateAt >= 0 ? clamp(1 - (t - this.celebrateAt) / 1.6) : 0;
+      const K = this.wingK * (1 + 0.16 * Math.sin(cel * Math.PI));
       for (const sz of [1, -1] as const) {
         const w = sz === 1 ? n.wingR : n.wingL;
-        const X = -sz * facing * (0.72 + 0.28 * Math.abs(cB)) - 0.38 * sB;
+        const X = -sz * facing * (0.8 + 0.2 * Math.abs(cB)) - 0.3 * sB;
         w.position.set(ax - sB * 2, ay);
-        w.scale.set(Math.sign(X) * clamp(Math.abs(X), 0.34, 1.05), 1 + flap * 0.05);
-        w.rotation = Math.sign(X) * (-0.05 - flap * 0.1);
+        w.scale.set(Math.sign(X) * clamp(Math.abs(X), 0.62, 1.05) * K, (1 + flap * 0.05) * K);
+        w.rotation = Math.sign(X) * (-0.05 - flap * 0.1 - 0.12 * cel);
         w.zIndex = clamp(ad, -8.6, 0.5) - 0.01;
       }
     }
@@ -1245,14 +1361,14 @@ export class PlayerArt implements PlayerView {
         const ph = this.spinPhase - (back / 1000) * TAU * SPIN_RATE;
         spinPose(Q, this.kit, ph, this.chan);
         this.solveArms(Q, baseYaw + Q.spin / D2R);
-        a = this.chan * Math.pow(1 - j / (N - 1), 1.3);
+        a = Math.min(1, this.chan * Math.pow(1 - j / (N - 1), 1.3) * this.trailBoost);
       } else {
         const tt = c!.t - back;
         if (tt < -5) break;
         copyPose(Q, this.baseCache);
         actionPose(Q, { ...c!, t: tt });
         this.solveArms(Q, yawB);
-        a = Q.trail * Math.pow(1 - j / (N - 1), 1.2);
+        a = Math.min(1, Q.trail * Math.pow(1 - j / (N - 1), 1.2) * this.trailBoost);
       }
       const d = this.wTip.d;
       const fa = a * clamp((d + 3) / 6), ba = a * clamp((3 - d) / 6);
@@ -1434,6 +1550,7 @@ export class PlayerArt implements PlayerView {
 
   hit(intensity: number, crit: boolean): void {
     if (this.destroyed) return;
+    this.combatT = 2.5;
     if (!preferences.get().values.reduceFlashes) this.flashUntil = Math.max(this.flashUntil, performance.now() + (crit ? 90 : 70));
     this.hitK = Math.max(this.hitK, 0.6 + 0.4 * clamp(intensity));
   }
@@ -1452,7 +1569,8 @@ export class PlayerArt implements PlayerView {
     this.ribbonF.destroy(); this.ribbonB.destroy();
     this.gear?.destroy(); this.gear = null;
     this.root.destroy({ children: true });
-    releaseSheet(this.key);
+    if (this.entry) releaseEntry(this.entry.key);
+    this.entry = null;
   }
 }
 

@@ -84,3 +84,11 @@ export function bakeMapTerrain(map: MapData): Baked {
   return { map, key: mapKey(map), canvas: c };
 }
 
+
+/** The colour painted outside the baked canvas (a framed view may extend past the map on one axis). */
+export function mapBackdrop(map: MapData): string {
+  if (map.adventure) return map.adventure.surface === 'ash' ? '#2a1a16' : '#243d48';
+  if (map.town) return '#24342a';
+  const v = (PALETTES[map.theme] ?? PALETTES.glade).void;
+  return `rgb(${v[0]},${v[1]},${v[2]})`;
+}

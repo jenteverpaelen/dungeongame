@@ -70,3 +70,21 @@
   single-use → new password → play. Accounts suite 11/11 (including a parity test for the client input rules).
 - **Known gaps:** Settings panel redesign waits for the gear agent's toggles; the owner's :2577 playtest server was not
   listening when checked at 23:30 (saves present; not touched); `hud.css` in the main working tree is an untracked stray.
+
+## Lead log, 2026-10-11 (merge of gear and worlds, Settings, interface size)
+
+- **Merged** `claude/gear` (tier ladder, set identities, live effects, UI tiers; protocol 22) and `claude/worlds` (zone
+  kit, painted zone renderer, zone life, shrines and caches, rebuilt quest zones, side quest). Full `npm run verify`
+  passed on the merged tree (24 stages, server 757/0, simulation green). The 36 "before" PNGs of the worlds branch were
+  recompressed to JPEG (33 MB → 6 MB) at merge time; `scripts/shoot.mjs --jpeg[=q]` exists for new evidence.
+- **Settings** redone (Sound / Display / Controls rail, cards, switches, sliders); gear-effect choices live in Display.
+- **Interface size** (85–150 %): scales the HUD unit, window dock and tooltips. Windows are capped so the tallest one
+  (journal, 909 px) always fits the screen height; at 1080p a large size can make an open window cover part of the
+  bottom bar. Applied on slider release.
+- **Area map**: framed and centred on the ground, backdrop colour outside the baked image, greedy label placement that
+  avoids overlaps and clipping (zones are now 7.8–12.3 screens large).
+- **Shrine buffs** have names and icons in the buff row.
+- **Dev link** :2587 now serves the merged build (protocol 22); the owner's playtest server :2577 was not running and
+  was not touched.
+- **Gotcha:** `npm run verify` / `npm run build` overwrite `dist/client`, which :2587 serves; `.local/safe-verify.sh`
+  copies it aside and restores it.

@@ -12,11 +12,27 @@ import { EconomySection } from './economy';
 import { UiIcon } from '../hud/UiIcons';
 import { text as ut } from '../../i18n/messages';
 import { playerLook } from '@shared/character';
-import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { GEAR_TIER_COLORS, GEAR_TIER_NAMES, gearNextSteps, gearProfile, type GearHint } from '@shared/gearVisual';
+import { SLOT_LABEL } from './util';
 import { SET_STYLE } from '../../render/art/gearStyle';
 import type { CharacterSave } from '@shared/types';
 
 const hexOf = (c: number) => '#' + c.toString(16).padStart(6, '0');
+/** One next-step hint in words (gearNextSteps decides from what is worn). */
+function hintText(h: GearHint): string {
+  switch (h.key) {
+    case 'empty': return ut('gear.hintEmpty', { slots: h.slots.map((s) => SLOT_LABEL[s]).join(', ') });
+    case 'weakest': return ut('gear.hintWeakest', { slot: SLOT_LABEL[h.slot], tier: GEAR_TIER_NAMES[h.tier] });
+    case 'set': return h.count > 0 && h.set ? ut('gear.hintSet', { set: SETS[h.set]?.name ?? h.set, count: String(h.count) }) : ut('gear.hintSetNone');
+    case 'rares': return ut('gear.hintRares');
+    case 'legendary': return ut('gear.hintLegendary');
+    case 'level70': return ut('gear.hintLevel70');
+    case 'ancient': return ut('gear.hintAncient');
+    case 'temper': return ut('gear.hintTemper');
+    case 'primal': return ut('gear.hintPrimal');
+    default: return ut('gear.hint9');
+  }
+}
 /** The hero as other players see them, animated, with the gear rank and what raises it next (DESIGN.md §4). */
 export function GearShowcase({ save, local = true }: { save: Pick<CharacterSave, 'classId'> & Partial<CharacterSave>; local?: boolean }) {
   const look = save.equipment ? playerLook(save as CharacterSave) : null;
@@ -32,7 +48,7 @@ export function GearShowcaseLook({ look, local }: { look: import('@shared/protoc
       <div class="gear-rank"><i/>{ut('gear.rank', { rank: GEAR_TIER_NAMES[p.rank] })}</div>
       <div class="gear-pips" aria-hidden="true">{GEAR_TIER_NAMES.slice(1).map((_, i) => <span key={i} class={i < p.rank ? 'on' : ''}/>)}</div>
       {p.sets.length > 0 && <div class="gear-sets">{p.sets.map(s => <b key={s.id} style={{ background: hexOf(SET_STYLE[s.id]?.main ?? 0xd2ae68) }}>{ut('gear.setPieces', { set: SETS[s.id]?.name ?? s.id, count: String(s.count) })}</b>)}</div>}
-      <p>{ut('gear.next', { hint: ut(`gear.hint${p.rank}` as 'gear.hint0') })}</p>
+      <p>{ut('gear.next', { hint: gearNextSteps(p).map(hintText).join(' · ') })}</p>
       <p class="pn-note">{ut('gear.rankNote')}</p>
     </div>
   </div>;

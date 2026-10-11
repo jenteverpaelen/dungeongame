@@ -42,7 +42,8 @@ export class Ribbon {
   private geom: MeshGeometry;
   private used = 0;
 
-  constructor(readonly n = 24) {
+  /** `texture`: a custom strip (gear movement trails use a band that is soft on both edges). */
+  constructor(readonly n = 24, texture?: Texture) {
     this.pos = new Float32Array(n * 4);
     this.uv = new Float32Array(n * 4);
     const idx = new Uint32Array((n - 1) * 6);
@@ -52,7 +53,7 @@ export class Ribbon {
     }
     for (let i = 0; i < n; i++) { this.uv[i * 4] = 1; this.uv[i * 4 + 1] = 0; this.uv[i * 4 + 2] = 1; this.uv[i * 4 + 3] = 1; }
     this.geom = new MeshGeometry({ positions: this.pos, uvs: this.uv, indices: idx });
-    this.mesh = new Mesh({ geometry: this.geom, texture: ribbonTexture() });
+    this.mesh = new Mesh({ geometry: this.geom, texture: texture ?? ribbonTexture() });
     this.mesh.visible = false;
   }
 

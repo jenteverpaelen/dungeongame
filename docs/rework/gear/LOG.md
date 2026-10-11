@@ -44,3 +44,51 @@ Worktree `C:\Users\LaptopJente\hearthfall-gear`, branch `claude/gear`; server :2
   the old looks (the crowd budget already thins particles; "reduced" for others brings it back to parity). Warm-up:
   100 unique looks appearing in one frame stall for several seconds while sheets bake (as before; the in-game
   scene adds heroes gradually and caches crowded-town poses).
+
+## Spectacle pass (lead review 2026-10-11)
+
+- **G5 — integrated base.** Merged `claude/town-ui-rework` (55b8f78, later 8dcde16) into `claude/gear`; the lead's
+  resolutions of inspect / settings / index / main kept as they were.
+- **G6 — presence at distance.** Wings baked at rank-scaled size (rank 7 1.62×, 8 1.98×, Primal 2.58× the base drawing;
+  Sets keep their silhouette when Primal), capes +14 %/rank, sigil 40→82 u by rank, light column 230 u for rank 8+
+  (saturated normal-blend outer + additive core so it reads on bright stone; first version was invisible above the wings
+  because its strength faded too early — measured with a forced-green probe and a lossless crop, then fixed), afterimage
+  ribbon, larger orbiters, brighter swing trails with tip sparks, nameplate glow pill (6+) and animated crown (8+).
+  **Measured extents** (`gallery-art.html?view=gear-measure`, px at the default camera, yaw 65; visible = alpha > 0.16,
+  includes the column; body = hero without weapon / off-hand / back / effects):
+
+  | stage | before (legacy) visible | after visible | after solid | wing span / body width |
+  |---|---|---|---|---|
+  | starter (all classes) | 50–65 × 89–101 | same | same | — |
+  | L70 (rank 6) | 67–76 × 93–126 | 74–96 × 109–131 | 73–92 × 100–130 | — (cape) |
+  | full Set (rank 7) | 68–76 × 93–123 | 126–131 × 146–157 | 120–124 × 145–156 | 1.94–2.31 |
+  | Ancient Set (rank 8) | 67–76 × 93–123 | 145–153 × 274 | 143–152 × 233 | 2.40–2.80 (yaw 25: 2.21–2.46) |
+  | Primal Set (rank 9) | 67–76 × 93–123 | 187–199 × 280 | 187–197 × 244 | 3.13–3.67 (yaw 25: 2.88–3.17) |
+
+  Targets met: span ≥ 2.2× body width at rank 8 and ≥ 2.6× with a Primal at both measured yaws; sigil ≥ 1.8× the shadow
+  from rank 7 (64 u vs 34 u).
+- **G7 — readability.** Every ground effect moved to a scene underlay beneath the telegraph layer and dims 45 % while the
+  hero fights. Evidence: `shots/field-telegraphs.jpg` (an elite's warning ring stays crisp beside a Primal veteran),
+  `shots/field-boss.jpg` (rift guardian fight).
+- **G8 — the moment.** Rank-up / first full Set: notice (level banner), procedural chime, 1.5 s burst (rings, column,
+  fountain, wing flare) — `shots/duo-rankup.jpg`. Primal drops get their own stinger.
+- **G9 — known problems fixed.** Two-handed idle rests the weapon at the side; next-step hints from the worn gear
+  (`gearNextSteps`, tested); shoulder icons show pauldron ornaments; budgeted bakes (below).
+- **G10 — bakes.** In-game heroes bake on the GPU within 4 ms per frame (placeholder / previous sheet meanwhile).
+  Probe with 100 never-seen heroes appearing in one frame: synchronous vector build 1,359 ms in that frame → none (the
+  remaining first-frame cost is the town NPCs' existing bake); bake work per frame ≤ 4 ms (single-part outliers ≤ 40 ms)
+  instead of 25 ms chunks plus a 2.1 s first chunk; the crowd pops in over ~20–30 s instead of freezing.
+- **G11 — evidence with two real clients.** `scripts/gear-duo.mjs` drives a second client in its own headless window
+  (`api.newClient()` in `shoot.mjs`): `shots/duo-town.jpg` (level-1 newcomer next to a Primal veteran, default camera),
+  `shots/duo-edge.jpg` (veteran at the screen edge), `shots/duo-rankup.jpg`. Debug-only `showcase` op equips the
+  ladder stages. Note: a long-running Vite served a stale transform of `gearVisual.ts` to a fresh tab (missing export);
+  restarting Vite with a clean cache fixed it.
+- **G12 — performance** (perf gallery, visible tab, no monsters, every hero a unique look, after bakes finished):
+
+  | case | before (legacy looks) | after |
+  |---|---|---|
+  | 30 heroes, all Primal, full | 145–163 fps | 117–125 fps (p95 frame 8.8–12.2 ms) |
+  | 30 heroes, mixed stages, full | 145–163 fps | 147–157 fps (p95 frame 12.1 ms) |
+  | 100 heroes, mixed stages, full | 54–68 fps | 54–55 fps |
+  | 100 heroes, all Primal, full | 54–68 fps | 45–48 fps (20–24 before the 16-hero presence budget) |
+  | 100 heroes, all Primal, reduced | 54–68 fps | 37–53 fps |
