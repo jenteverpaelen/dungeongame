@@ -575,6 +575,9 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   const cxp0 = b.char.cube.xp + b.char.cube.level * 1e6;
   r = await b.cmd('salvage', { itemId: leg1.id });
   c('salvage a legendary gives souls and Cube XP', r.ok && b.char.materials.soul > soulBefore && b.char.cube.xp + b.char.cube.level * 1e6 > cxp0 && !b.inv().some((i) => i.id === leg1.id), r);
+  // The debug grants above fill the 60-slot bag first with every class-usable legendary (the mage: 33 + 19 shared), so
+  // the stash and destroy steps can use up its last rares; top up into the slots they freed.
+  if (!b.inv().some((i) => i.rarity === 'rare')) await b.cmd('debug', { op: 'rares', n: 2 });
   r = await b.cmd('salvageAll', { rarities: ['rare'] });
   c('salvageAll rares', r.ok && !b.inv().some((i) => i.rarity === 'rare') && r.data?.count >= 1, r);
   r = await b.cmd('salvageAll', { rarities: ['rare'] });

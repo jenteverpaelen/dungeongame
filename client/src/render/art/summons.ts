@@ -296,7 +296,7 @@ function kinFamily(frost: boolean): Family {
       glow.scale.y *= 0.42;
       p.under.addChild(glow);
       v.extra.glow = glow;
-      for (let i = 0; i < 3; i++) { const s = sparkleSprite(frost ? 0xe8fbff : 0xffb050, 7, 0); p.under.addChild(s); v.extra[`spark${i}`] = s; }
+      for (let i = 0; i < 3; i++) { const s = sparkleSprite(frost ? 0xe8fbff : 0xffb050, 7, 0); p.under.addChild(s); v.extra[`mote${i}`] = s; }
     },
     pose: (n, s, v) => {
       // hop when moving (squash on landing), bob when idle, both arms rake on an attack
@@ -314,7 +314,7 @@ function kinFamily(frost: boolean): Family {
       if (g) g.alpha = 0.42 + 0.12 * Math.abs(fl) + 0.2 * strike;
       const dir = Math.sign(s.face) || 1, S = v.S;
       for (let i = 0; i < 3; i++) {
-        const sp = v.extra[`spark${i}`];
+        const sp = v.extra[`mote${i}`];
         if (!sp) continue;
         const u = (s.t * (1.6 + i * 0.3) + i / 3) % 1;
         sp.position.set((-6 - u * (10 + 10 * s.move)) * dir * S, (-12 - u * 18 + Math.sin(u * 9 + i) * 2) * S);
@@ -349,7 +349,7 @@ const EMBER_SPRITE: Family = {
     const g = glowSprite(0xff8a3d, 36, 0.7);
     p.under.addChild(g);
     v.extra.glow = g;
-    for (let i = 0; i < 2; i++) { const s = sparkleSprite(0xffc060, 6, 0); p.under.addChild(s); v.extra[`spark${i}`] = s; }
+    for (let i = 0; i < 2; i++) { const s = sparkleSprite(0xffc060, 6, 0); p.under.addChild(s); v.extra[`mote${i}`] = s; }
   },
   pose: (n, s, v) => {
     const flap = Math.sin(s.t * 22);
@@ -363,7 +363,7 @@ const EMBER_SPRITE: Family = {
     if (g) { g.alpha = 0.55 + 0.25 * fl; g.position.set(n.root.x * (Math.sign(s.face) || 1) * v.S, (n.root.y - 2) * v.S); }
     const dir = Math.sign(s.face) || 1;
     for (let i = 0; i < 2; i++) {
-      const sp = v.extra[`spark${i}`];
+      const sp = v.extra[`mote${i}`];
       if (!sp) continue;
       const u = (s.t * 2.2 + i * 0.5) % 1;
       sp.position.set((-4 - u * 14) * dir, -24 - u * 6 + Math.sin(u * 8) * 2);
