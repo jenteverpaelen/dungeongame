@@ -167,7 +167,7 @@ finite amounts, legal buckets, both caps and banned stats (`skillDmg`, `flatMin/
 
 **1:1 conversion proof.** All 22 legendaries and 9 sets were converted. (a) `server/test/powerTemplates.test.ts`
 compares the interpreter with a verbatim copy of the old hard-coded logic for every legendary at four rolls, every set at
-1–6 pieces and mixed class kits (≈3,700 skill × kit comparisons + own-bucket multipliers at 0/1/3/5 sentries + stun factor
+1–6 pieces and mixed class kits (157 kits × 3 classes × 18 skills = 8,478 strict comparisons + own-bucket multipliers at 0/1/3/5 sentries + stun factor
 + dash): all strictly equal. (b) `server/test/sim.ts` output is identical to the baseline apart from timing lines (after
 every step). (c) `scripts/audit-item-builds.ts` rows (81 encounters: damage per skill, time, max hit) are byte-identical.
 One deliberate micro-change: buffs granted by a power now end when that power stops being active (on stat refresh) for

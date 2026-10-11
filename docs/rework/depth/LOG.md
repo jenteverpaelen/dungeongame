@@ -42,3 +42,6 @@
 - Step 7: parity harness `server/test/parity/harness.ts` (KitSpec data, runner, planner), report
   `scripts/audit-parity.ts` → `PARITY.md` / `PARITY-MODEL.json` (15 s), gate `server/test/parity.test.ts` in verify
   stage `depth` (asserts only `parityReady` skills; none yet). Today legendary-only / set = 18.6×–94.6×.
+- Final verify: every stage green except the two machine-load perf thresholds of `server/test/sim.ts` (sim tick avg
+  3.42 ms / 4.10 ms vs < 3 ms). A/B in the same conditions right after: HEAD 2.21–2.57 ms, baseline 7846e60
+  2.59–2.70 ms (sim only) — no regression; the step-4 verify passed all 26 stages on a quieter machine.
