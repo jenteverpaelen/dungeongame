@@ -41,19 +41,20 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 
 | What | Status |
 |---|---|
-| **Build depth: foundation** | ✅ merged: 5 runes per skill, a skill tree per skill, legendaries/sets as data that can target a skill or a kind of skill (tags), new Skills window, set-vs-legendary test in `verify`. ✅ Engine wave 2 merged (procs, defensive powers, ground effects, projectile tricks, monster statuses, Inscriptions). 🔨 Shared items: 19 shared legendaries, 80 item shapes, 55 affixes, set-reduction ring, Kindled/Fabled |
-| **Build depth: content design** | ✅ done (`docs/rework/depth/`): per class 12 skills, 60 runes, trees, 14 passives, 5 sets; 122 legendaries, three quarters of them working on a *kind* of skill so players find their own combinations; build tools plan; Kindled/Fabled replace Ancient/Primal; Diablo-copied names replaced |
-| **Warrior pilot** | 🔨 the full new Warrior on the foundation (12 skills, runes, trees, passives, sets, legendaries), measured against the set-vs-legendary test |
-| **Gear visuals v2** | 🔨 looks come from the item itself (type → shape, level → material/size, rarity → decoration, legendaries unique); weapons escalate strongly; the 0–9 tier ladder goes |
-| **Questing rework** | ✅ merged: story / side story / lesson / bounty marks everywhere; tracker under the minimap with up to five quests; contracts replaced by bounty boards (3 per field zone, a cache for all three); quest givers walk to the work site; Investigate no longer opens a window; repairs and 22 visible world changes with a camera pan; lore records in the journal. Not yet: escort/defend objectives, voiced lines |
-| **Finishing Codex's partial items** | accounts part 2, save migrations, settings (gamepad, colour-blind, low-spec), stash tabs, AFK rewards, telemetry, security audit, combat spec |
+| **Build depth: engine** | ✅ foundation, engine wave 2 and shared items merged (5 runes, a tree per skill, tag-keyed legendaries/sets, procs, grounds, statuses, 19 shared legendaries, 80 item shapes, 55 affixes, set-reduction ring, Kindled/Fabled). 🔨 Engine wave 3 (slows, front/back defence, low-life and movement triggers, double damage-over-time) |
+| **Warrior** | ✅ merged and on the dev link: 12 skills (6 new), 60 runes, skill trees, 5 sets, 32 legendaries. 🔨 last few items that needed engine wave 3 |
+| **Ranger** | 🔨 same treatment, starting with the bible's fixes for build variety |
+| **Mage** | 🔨 same treatment |
+| **Weapon art** | ✅ gear visuals v2 merged (looks come from the item, tier ladder removed, hold poses and attack effects). 🔨 New art direction approved by you: one maker series per level band; now adding much stronger series-specific effects, then the other 8 weapon types; armour after |
+| **Names and town** | 🔨 your recommended names (Ordeal difficulty, Lantern Ranks, Glass Reliquary, Faultline, Glasswright, Mending Orb), offline rewards parked, town shows the new systems |
+| **Questing rework** | ✅ merged (marks per quest type, five-quest tracker, bounty boards, repairs that change the world, lore records). Not yet: escort/defend, voiced lines |
+| **Codex's partial items** | ✅ 19 of 28 done (report: ); the rest need playtests or reviewers |
 
 ## Next (in this order)
 
-1. **Warrior pilot:** 12 skills, 5 runes each, skill trees, 5 sets, about 36 legendaries. Measured and reviewed before the rest.
-2. **Ranger and Mage** to the same level, plus new item shapes and affixes.
-3. **Balance and parity pass:** sets vs legendaries, the three classes against each other (warrior is weakest today), levelling pace.
-4. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
+1. **Balance and parity pass** after all three classes: shared legendaries are now a bit too strong, some 6-piece sets too weak, and the difficulty (Torment/Ordeal) ladder must be re-fitted because endgame set power dropped from up to ×255 to about ×25.
+2. **Build tools** (exact tooltips, damage breakdown, training dummy, loadouts, build codes): .
+3. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
 
 ---
 
