@@ -78,7 +78,8 @@ test('slow: chosen strength, the strongest wins, bosses ignore it, it slows move
     assert(a.ps!.slowMs <= 0, 'the slow ran out');
     assert.equal(conditionCount(p, { targetState: 'slowed' }, undefined, a), 0);
   } finally { inst.destroy(); }
-  assert.deepEqual(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'slow', pct: 95, ms: 1000 } }]).length > 0, true, 'slow pct is capped at 90');
+  assert.deepEqual(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'slow', pct: 30, ms: 1000 } }]), [], 'a slow validates');
+  assert.match(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'slow', pct: 95, ms: 1000 } }]).join(), /slow pct/, 'slow pct is capped at 90');
 });
 
 // ─────────────── directional damage taken ───────────────
@@ -102,7 +103,7 @@ test('directional damage taken: only attackers in front (or behind) of you, haza
     assert.equal(damagePlayer(inst, p, raw, 'physical', front, 70), combatInteger(raw * (base * 0.7)), 'an aiming channel faces its aim, not the movement facing');
     p.channel = null;
   } finally { inst.destroy(); }
-  assert(valid([{ kind: 'damageTaken', pct: -5, when: { targetInFront: 200 } }]).length > 0, 'half angle above 180 rejected');
+  assert.match(valid([{ kind: 'damageTaken', pct: -5, when: { targetInFront: 200 } }]).join(), /half angle/, 'half angle above 180 rejected');
 });
 
 // ─────────────── below-X%-Life trigger and the free bar cast ───────────────
@@ -127,9 +128,9 @@ test('lifeBelow: fires once when Life crosses the threshold and casts the longes
     p.hp = p.mhp; damagePlayer(inst, p, p.mhp * 0.7 / base, 'physical', m, 70);
     assert(low(), 'healed above and crossed again');
   } finally { inst.destroy(); }
-  assert(valid([{ kind: 'proc', on: 'hit', lifePct: 30, resource: 1 }]).length > 0, 'lifePct only on lifeBelow');
-  assert(valid([{ kind: 'proc', on: 'lifeBelow', resource: 1 }]).length > 0, 'lifeBelow needs lifePct');
-  assert(valid([{ kind: 'proc', on: 'lifeBelow', lifePct: 30, skills: ['cleave'], resource: 1 }]).length > 0, 'lifeBelow has no strike to filter');
+  assert.match(valid([{ kind: 'proc', on: 'hit', lifePct: 30, resource: 1 }]).join(), /lifePct needs on: lifeBelow/, 'lifePct only on lifeBelow');
+  assert.match(valid([{ kind: 'proc', on: 'lifeBelow', resource: 1 }]).join(), /lifeBelow needs lifePct/, 'lifeBelow needs lifePct');
+  assert.match(valid([{ kind: 'proc', on: 'lifeBelow', lifePct: 30, skills: ['cleave'], resource: 1 }]).join(), /no strike to filter/, 'lifeBelow has no strike to filter');
   assert.match(describeEffect({ kind: 'proc', on: 'lifeBelow', lifePct: 35, castSkill: { tags: { anyOf: ['buff'] } } }), /35%/);
 });
 
@@ -182,8 +183,8 @@ test('dual dots: a Bleed that also Burns (fire), the strongest dot, and a ground
     assert(got, 'an enemy standing in the pool caught the dot');
     assert.equal(got.perTick, d.perTick * 0.5, 'at 50% strength');
   } finally { inst.destroy(); undo(); }
-  assert(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'carriedDot', pct: 50 } }]).length > 0, 'carriedDot only in grounds');
-  assert(valid([{ kind: 'dot', dot: 'bleed', alsoKind: 'bleed' }]).length > 0, 'alsoKind must differ');
+  assert.match(valid([{ kind: 'proc', on: 'hit', applyStatus: { kind: 'carriedDot', pct: 50 } }]).join(), /carriedDot only works on a ground/, 'carriedDot only in grounds');
+  assert.match(valid([{ kind: 'dot', dot: 'bleed', alsoKind: 'bleed' }]).join(), /alsoKind must differ/, 'alsoKind must differ');
 });
 
 // ─────────────── applyStatus procs filtered by the applying skill ───────────────
@@ -260,7 +261,7 @@ test('channel stacking: stacks each second of channelling with damage and moveme
     assert(!getBuff(p, 'fx_top'), 'gone 1 s after the channel');
     assert.equal(movePct(p), ms0, 'and the movement speed with it');
   } finally { inst.destroy(); }
-  assert(valid([{ kind: 'stacking', buff: 'fx_x', source: 'channel', per: 1000, max: 5, decayMs: 1000, skills: ['whirlwind'] }]).length > 0, 'channel stacking takes no skill filter');
+  assert.match(valid([{ kind: 'stacking', buff: 'fx_x', source: 'channel', per: 1000, max: 5, decayMs: 1000, skills: ['whirlwind'] }]).join(), /only kill-fed stacking/, 'channel stacking takes no skill filter');
 });
 
 // ─────────────── set reduction in the live runtime ───────────────

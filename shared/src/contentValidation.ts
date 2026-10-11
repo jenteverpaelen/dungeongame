@@ -435,7 +435,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
     }
   });
 }
-const STATUS_KINDS = new Set<string>(['stun', 'freeze', 'chill', 'knockback', 'pull', 'weaken', 'vulnerable', 'taunt', 'bleed', 'burn', 'freezeBuild', 'mark']);
+const STATUS_KINDS = new Set<string>(['stun', 'freeze', 'chill', 'knockback', 'pull', 'weaken', 'vulnerable', 'taunt', 'bleed', 'burn', 'freezeBuild', 'mark', 'slow', 'carriedDot']);
 /** Kinds an Inscription may use (rule changes, never multipliers or stats). */
 const INSCRIPTION_KINDS = new Set<string>(['tagGrant', 'rule', 'proc', 'skillMods', 'projectile', 'deflect', 'controlImmunity']);
 
