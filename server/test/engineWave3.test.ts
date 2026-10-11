@@ -22,7 +22,8 @@ import { addOwnedDot, getBuff, mobStatusFlags } from '../src/sim/effects';
 import { updateGrounds } from '../src/sim/grounds';
 import { Instance } from '../src/sim/instance';
 import { createMob, updateMonsters, wakeMob } from '../src/sim/monsters';
-import { buildCtx } from '../src/sim/playerctx';
+import { buildCtx, skillCost as skillCostRaw } from '../src/sim/playerctx';
+const skillCostOf = (p: Player, id: string) => skillCostRaw(p, p.ctx.slots.find((rt) => rt?.def.id === id)!);
 import { movePct, powerTick, strongestDot } from '../src/sim/powerActions';
 import { conditionCount, ownMultiplier } from '../src/sim/powerRuntime';
 import { applyStatus } from '../src/sim/status';
@@ -321,5 +322,25 @@ test('recast floor: a cooldown-less spender with unlimited resource casts at mos
     for (let t = 0; t < 40; t++) { p.res = p.mres; p.atkCdMs = 1e9; inst.t += 50; playerBrain(inst, p, 50); }
     assert.equal(MIN_RECAST_MS, 250);
     assert(casts >= 7 && casts <= 8, `2 s at 50 ms ticks: ${casts} casts (one per 250 ms), not 40`);
+  } finally { inst.destroy(); }
+});
+
+test('recast floor: a burst the hero pays for is not held back; a refunded recast is', () => {
+  const { inst, p, mob } = world('warrior', [], { slots: ['seismic_slam', null, null, null] });
+  try {
+    for (let i = 0; i < 8; i++) mob(60 + i * 8, 0);
+    p.save.skills.autoCast = ['auto', 'paused', 'paused', 'paused'];
+    let casts = 0;
+    const emit = inst.emit.bind(inst);
+    inst.emit = ((ev: { e: string; sk?: string }, x: number, y: number, s: number) => { if (ev.e === 'cast' && ev.sk === 'seismic_slam') casts++; return emit(ev as never, x, y, s); }) as typeof inst.emit;
+    const cost = skillCostOf(p, 'seismic_slam');
+    // Resource for exactly three casts and no refill: three casts on three consecutive ticks (a paid burst).
+    p.res = cost * 3 + 1; p.atkCdMs = 1e9;
+    for (let t = 0; t < 3; t++) { p.atkCdMs = 1e9; inst.t += 50; playerBrain(inst, p, 50); }
+    assert.equal(casts, 3, 'the paid burst is cast tick after tick');
+    // The cost comes straight back (a refund loop): the next recast waits for the 250 ms floor.
+    casts = 0;
+    for (let t = 0; t < 10; t++) { p.res = Math.max(p.res, cost * 3 + 1); p.atkCdMs = 1e9; inst.t += 50; playerBrain(inst, p, 50); }
+    assert(casts >= 2 && casts <= 3, `refunded recasts are held to one per 250 ms (${casts} in 0.5 s)`);
   } finally { inst.destroy(); }
 });

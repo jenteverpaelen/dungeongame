@@ -66,6 +66,8 @@ export function baseArmor(ilvl: number, base: BaseItem): number {
 }
 
 let idCounter = 0;
+/** Harnesses only (server/test/sim.ts freshStreams): restart the item id suffix so a section's items get the same ids. */
+export function resetItemIdsForHarness(next = 0): number { const was = idCounter; idCounter = next; return was; }
 export function newItemId(rng: Rng): string {
   idCounter = (idCounter + 1) % 1679616;
   return rng.seed().toString(36) + idCounter.toString(36);
