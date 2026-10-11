@@ -25,10 +25,9 @@ import { LoadGauge, QUIET_GAUGE_MS } from './perfGauge';
 
 // Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
 // so a failing check reproduces exactly. Override with SIM_SEED=<n> to explore other outcomes.
-{
-  const rng = new Rng(Number(process.env.SIM_SEED ?? 0xc0ffee));
-  Math.random = () => rng.next();
-}
+const SIM_SEED = Number(process.env.SIM_SEED ?? 0xc0ffee);
+let simRng = new Rng(SIM_SEED);
+Math.random = () => simRng.next();
 
 // Calibration runs substitute the balance tables from the environment: TOUGH='[[1,1],[10,20],...]' DAMAGE='[...]'
 if (process.env.TOUGH) { const t = JSON.parse(process.env.TOUGH) as [number, number][]; tuningOverrides.levelToughness = (l) => interpolateLog(l, t); }
@@ -149,6 +148,7 @@ class FakeLink implements PlayerLink {
 // ─────────────────────────── Characters ───────────────────────────
 
 let seedCounter = 1000;
+const SEED_COUNTER_START = seedCounter;
 let gearRng = new Rng(4242);
 
 function equip(save: CharacterSave, it: Item, slot?: Slot) {
@@ -346,6 +346,7 @@ class Bot {
 // ─────────────────────────── Helpers ───────────────────────────
 
 let instSeq = 1;
+const INST_SEQ_START = instSeq;
 function newField(zoneId = 'whispering_glade', fixedSeed?: number): Instance {
   return createInstance({ zoneId, channel: instSeq, key: `${zoneId}#${instSeq++}`, seed: fixedSeed ?? zoneSeed(zoneId, instSeq), theme: ZONES[zoneId].theme }) as Instance;
 }
@@ -1024,6 +1025,10 @@ function multiplayerScenario() {
 
 /** A fresh character levels in the fields, equipping upgrades from its own drops (realistic power curve). */
 function levelingScenario(cls: ClassId, minutes: number) {
+  // Each class starts from the same seeded state, as if it ran alone (scripts/bot-metrics.ts pace targets). Before, the
+  // classes shared one random stream, so new loot for one class (two warrior legendaries in engine wave 3) shifted
+  // the ranger and mage runs after it and flipped the pace gate on the default seed without changing either class [M].
+  simRng = new Rng(SIM_SEED); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START;
   const engaged = process.env.PLAYER !== 'auto';
   console.log(`
 == Leveling: fresh ${cls}, ${minutes} min in the fields with auto-equip, ${engaged ? 'engaged build + points spent' : 'auto-slotted skills'} ==`);
