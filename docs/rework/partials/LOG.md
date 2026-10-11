@@ -112,4 +112,4 @@
   v1's invented 1/40 material constants (~7× live drops). Minute-by-minute progression (levels while away count),
   fractions carried → splitting an absence never earns more [M]; deterministic (Math.random forbidden in the test);
   12 h / 25 % unchanged; report adds rate, basis, share, cap (AFK modal line). Fairness model for alts written for the
-  owner (AFK.md). `afk.test.ts` 7/7 (new verify stage `offline-gains`); bot AFK section 26/26.
+  owner (AFK.md). `afk.test.ts` 7/7 (new verify stage `offline-gains`); bot AFK section 26/26. Shots `afk-{assumed,own}-{1920,1366}` (modal fed with reports computed by afk.ts; 635 / 467 px tall).
