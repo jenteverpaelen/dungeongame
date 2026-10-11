@@ -436,7 +436,7 @@ function validateGround(data: Pick<ContentData, 'skills'>, g: GroundDef, check: 
   if (g.pull) check(g.pull.speed > 0, `${at}.pull`, 'pull needs a speed');
   if (g.maxPerOwner !== undefined) check(Number.isInteger(g.maxPerOwner) && g.maxPerOwner >= 1, at, 'maxPerOwner must be an integer of at least 1');
   const ref = (id: string, where: string) => check(Object.hasOwn(data.skills, id), where, `unknown skill ${id}`);
-  for (const [k, s] of [['tick', g.tick?.status], ['onEnter', g.onEnter?.status], ['insideFor', g.insideFor?.status]] as const) if (s) validateStatus(s, `${at}.${k}`, check, ref);
+  for (const [k, s] of [['tick', g.tick?.status], ['onEnter', g.onEnter?.status], ['insideFor', g.insideFor?.status]] as const) if (s) validateStatus(s, `${at}.${k}`, check, ref);
 }
 
 type NumberCheck = (value: number, at: string, min?: number, integer?: boolean) => void;
