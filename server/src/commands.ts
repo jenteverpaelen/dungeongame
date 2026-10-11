@@ -396,6 +396,7 @@ const extract: Handler = (s, a) => {
   const item = loc.item;
   if (item.rarity !== 'legendary' || !item.legendary) return fail('Only Legendary items hold a power to extract');
   const power = item.legendary.power;
+  if (LEGENDARIES[power]?.extractable === false) return fail('This power cannot be extracted');
   if (save.cube.learned.includes(power)) return fail('You already know this power');
   const cost = extractCost();
   const why = lacking(save, cost);

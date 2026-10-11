@@ -180,6 +180,8 @@ export interface LegendaryDef {
   power: string;
   range: [number, number];
   cubeSlot: CubeSlot;
+  /** false: Kanai's Cube cannot extract it (its cost is the slot it occupies, ITEMS-SHARED.md §1.3). */
+  extractable?: false;
   flavor: string;
   colors: { primary: number; secondary: number; glow: number };
   /** What the power does (power templates). `{ roll }` amounts use the rolled value (Cube: the maximum). */

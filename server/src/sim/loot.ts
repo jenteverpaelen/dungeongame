@@ -66,7 +66,7 @@ function payloadOf(d: Drop, difficulty: number): LootPayload {
 export function dropFor(inst: Instance, p: Player, x: number, y: number, level: number, tier: EliteTier, difficulty = inst.difficulty) {
   const { drops, pity } = rollDrops(inst.lootRng, {
     level, difficulty, elite: tier, classId: p.save.classId,
-    magicFind: 0, pity: p.save.lootPity ?? 0, inRift: inst.kind === 'rift',
+    magicFind: 0, pity: p.save.lootPity ?? 0, inRift: inst.kind === 'rift', globeChance: p.ctx.d.globeChance,
   }, p.ctx.d.goldFind);
   p.save.lootPity = pity;
   for (const d of drops) {
@@ -91,6 +91,9 @@ export function dropGoldPile(inst: Instance, p: Player, m: Mob) {
 export function clearPlayerLoot(p: Player) {
   p.loot.clear();
 }
+
+/** Health globe heal for one player (affix globeHeal: % more). */
+const globeHeal = (o: Player) => (o.ctx.d.globeHeal > 0 ? o.mhp * GLOBE_HEAL * (1 + o.ctx.d.globeHeal / 100) : o.mhp * GLOBE_HEAL);
 
 /** Per tick: lifetime, magnet pickup (gold / gems / materials / globes) and walk-over item pickup. */
 export function updateLoot(inst: Instance, p: Player, dtMs: number) {
@@ -141,8 +144,8 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
         inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'mat', name: l.view.name, amount: pl.amount }, l.x, l.y, p.id);
         break;
       case 'globe':
-        for (const o of inst.playersNear(l.x, l.y, GLOBE_RADIUS)) healPlayer(inst, o, o.mhp * GLOBE_HEAL, false);
-        if (Math.hypot(l.x - p.x, l.y - p.y) > GLOBE_RADIUS) healPlayer(inst, p, p.mhp * GLOBE_HEAL, false);
+        for (const o of inst.playersNear(l.x, l.y, GLOBE_RADIUS)) healPlayer(inst, o, globeHeal(o), false);
+        if (Math.hypot(l.x - p.x, l.y - p.y) > GLOBE_RADIUS) healPlayer(inst, p, globeHeal(p), false);
         inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'globe', name: 'Health Globe' }, l.x, l.y, p.id);
         break;
     }

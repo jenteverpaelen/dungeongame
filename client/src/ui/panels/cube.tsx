@@ -54,7 +54,8 @@ function invalidReason(fn: CubeOp, item: Item | null): string | null {
     case 'enchant': return item.rarity === 'normal' ? 'Normal items have no properties to enchant.' : null;
     case 'upgrade': return item.upgrade >= 10 ? 'This item is already at the maximum tier.' : null;
     case 'transmute': return item.rarity !== 'rare' ? 'Only Rare items can be transmuted.' : null;
-    case 'extract': return item.rarity !== 'legendary' ? 'Only Legendary items carry an extractable power.' : null;
+    case 'extract': return item.rarity !== 'legendary' ? 'Only Legendary items carry an extractable power.'
+      : item.legendary && LEGENDARIES[item.legendary.power]?.extractable === false ? 'This power cannot be extracted.' : null;
     case 'reforge': return item.rarity !== 'legendary' && item.rarity !== 'set' ? 'Only Legendary and Set items can be reforged.' : null;
     case 'socket': return item.sockets.length >= maxSockets(item) ? 'This item cannot hold any more sockets.' : null;
     default: return null;

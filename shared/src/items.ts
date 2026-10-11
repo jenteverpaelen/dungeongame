@@ -338,6 +338,8 @@ export interface DropContext {
   /** Equipment misses since the last generated Legendary or Set (bad-luck protection). */
   pity: number;
   inRift: boolean;
+  /** Affix globeChance of the player: elites drop health globes this % more often. */
+  globeChance?: number;
 }
 
 export type Drop =
@@ -422,7 +424,7 @@ export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number, equipmen
   if (ctx.elite === 1 || ctx.elite === 2 || ctx.elite === 4) {
     if (rng.chance(ctx.elite === 4 ? 1 : 0.6 * resource)) drops.push({ type: 'mat', mat: 'deathsBreath', amount: ctx.elite === 4 ? rng.int(2, 4) : 1 });
   }
-  if (rng.chance(ctx.elite ? 0.5 : 0.035)) drops.push({ type: 'globe' });
+  if (rng.chance(ctx.elite ? (ctx.globeChance ? Math.min(1, 0.5 * (1 + ctx.globeChance / 100)) : 0.5) : 0.035)) drops.push({ type: 'globe' });
   return { drops, pity };
 }
 

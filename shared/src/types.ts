@@ -27,7 +27,9 @@ export type StatId =
   | 'elite' | 'eliteDR'
   | 'lifePct' | 'armor' | 'allRes' | 'lifePerHit' | 'lifeRegen' | 'lifePerKill'
   | 'ms' | 'pickup' | 'goldFind' | 'xpPct' | 'thorns' | 'maxResource' | 'resourceRegen'
-  | 'dmgPct' | 'flatMin' | 'flatMax' | 'weaponDmgPct' | 'sockets';
+  | 'dmgPct' | 'flatMin' | 'flatMax' | 'weaponDmgPct' | 'sockets'
+  // Shared-items wave affixes (docs/rework/depth/ITEMS-SHARED.md §5)
+  | 'dotDmg' | 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'vsControlled' | 'areaRadius' | 'channelCost' | 'ccDuration' | 'summonDuration' | 'buffDuration' | 'resourceOnKill' | 'pierceChance' | 'meleeDR' | 'rangedDR' | 'dashCdr' | 'ccReduction' | 'globeHeal' | 'globeChance' | 'moveWhileChannel' | 'lifeOnControl' | 'chillOnHit';
 
 /** Visual description of an item, used for paper-doll rendering on characters and for icons. */
 export interface ItemLook {
@@ -223,4 +225,28 @@ export interface DerivedStats {
   sets: Record<string, number>;
   /** Dash cooldown after power templates (shared so client prediction and server agree). */
   dashCdMs: number;
+  /** Shared-items wave affix totals (0 without the affix); the tag-keyed ones reach the simulation as power templates
+   *  (powerSources.affixPowerSources), the others through small hooks (see FOUNDATION.md §12). */
+  dotDmg: number;
+  summonDmg: number;
+  primaryDmg: number;
+  spenderDmg: number;
+  cooldownDmg: number;
+  vsControlled: number;
+  areaRadius: number;
+  channelCost: number;
+  ccDuration: number;
+  summonDuration: number;
+  buffDuration: number;
+  resourceOnKill: number;
+  pierceChance: number;
+  meleeDR: number;
+  rangedDR: number;
+  dashCdr: number;
+  ccReduction: number;
+  globeHeal: number;
+  globeChance: number;
+  moveWhileChannel: number;
+  lifeOnControl: number;
+  chillOnHit: number;
 }
