@@ -23,9 +23,26 @@ export interface ZonePaint {
   walkers: { id: string; look: string; path: Point[]; speed: number; pause: number }[];
   critters: { kind: CritterKind; x: number; y: number; r: number; n: number }[];
   /** Large authored landmarks (towers, windmills, kiln stacks…); the kit adds a matching solid base footprint. */
-  structures?: { kind: string; x: number; y: number; w: number; d: number; v?: number; flip?: boolean }[];
+  structures?: { kind: string; x: number; y: number; w: number; d: number; v?: number; flip?: boolean; spin?: string }[];
   /** Named regions (plan metadata for maps, density probes and tools; never collision). */
   areas?: { id: string; role: string; x: number; y: number; r: number }[];
+  /** Per-player visuals tied to a world state (docs/rework/quests/DESIGN.md §7). Never collision. */
+  phases?: ZonePhase[];
+}
+/** Items shown while world state `key` is on (`on: true`) or while it is still off (`on: false`). */
+export interface ZonePhase {
+  key: string;
+  on: boolean;
+  residents: ZonePaint['residents'];
+  walkers: ZonePaint['walkers'];
+  lights: ZonePaint['lights'];
+  emitters: ZonePaint['emitters'];
+  /** Sprite decor only (flat kinds are painted into the ground once and cannot change). */
+  decor: ZonePaint['decor'];
+  /** Flood water over walkable ground that drains when the state turns on, or calm water that appears. */
+  overlays: { kind: 'flood' | 'pool'; polygon: Point[] }[];
+  /** Open fires (signal fires, beacons, candles): flames + glow. */
+  fires: { x: number; y: number; s: number }[];
 }
 /** Optional world objects used in person and validated by the server (docs/rework/worlds/DESIGN.md §1). */
 export interface ZonePoi { id: string; kind: 'shrine' | 'cache'; name: string; x: number; y: number; radius: number; shrine?: 'empowered' | 'frenzied' | 'keen' }
@@ -55,11 +72,15 @@ export interface AdventureData {
   scenery: Prop[];
   npcs: NpcSpot[];
   portals: Portal[];
-  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' }[];
+  interactions: { id: string; name: string; x: number; y: number; radius: number; kind: 'person' | 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board';
+    /** Present only while this world state is on (per player, server-checked). */
+    when?: string;
+    /** Phased positions: the first entry whose world state is on wins; otherwise x/y (per player, server-checked). */
+    moves?: { key: string; x: number; y: number }[] }[];
   encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace' | 'cistern' | 'relay'; affixes?: string[] }[] }[];
   landmarks: { name: string; x: number; y: number }[];
   locations: { id: string; x: number; y: number; radius: number }[];
-  wheel?: { x: number; y: number; radius: number };
+  wheel?: { x: number; y: number; radius: number; spin?: string };
   routes: Point[][];
 }
 

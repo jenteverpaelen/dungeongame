@@ -7,7 +7,9 @@ import { MIDGAME_QUESTS } from '../../shared/src/data/midgameQuests';
 import { QUESTS } from '../../shared/src/data/quests';
 import { MONSTERS } from '../../shared/src/data/monsters';
 import { ZONES } from '../../shared/src/data/zones';
-import { questState, writeQuestState, zoneUnlocked, zoneLevelAllowed } from '../../shared/src/quests';
+import { contactSpot, questState, writeQuestState, zoneUnlocked, zoneLevelAllowed } from '../../shared/src/quests';
+import { xpToNext } from '../../shared/src/progression';
+import { storyMainXp, storyXp } from '../../shared/src/storyBudget';
 import { planQuestReward, questRewardError } from '../../shared/src/questRewards';
 import { generateItem } from '../../shared/src/items';
 import { Rng } from '../../shared/src/math';
@@ -29,20 +31,25 @@ test('six mid-game plans and thirteen quests resolve through shared collision, g
   for(const q of MIDGAME_QUESTS)assert.equal(questRewardError(q),undefined);
 });
 
-test('each class reaches exactly50 from20 on one-time story awards alone and legacy Act I unlocks the route',async()=>{
+test('each class earns exactly the Acts II–III story budget from one-time story awards and legacy Act I unlocks the route',async()=>{
   for(const classId of ['warrior','ranger','mage'] as const){
     const save=createCharacter('MidBudget'+classId,classId,97);save.level=20;save.xp=0;
-    const last=QUESTS.find(q=>q.id==='last_draw')!;writeQuestState(save,last.id,{revision:1,step:last.steps.length,claimed:true});
+    const last=QUESTS.find(q=>q.id==='last_draw')!;writeQuestState(save,last.id,{revision:last.revision,step:last.steps.length,claimed:true});
     assert(zoneUnlocked(save,'sablefen_causeway'));assert(!zoneUnlocked(save,'saltwind_pans'));
     for(const q of MIDGAME_QUESTS){
-      const state={revision:1,step:q.steps.length,claimed:false,...(typeof q.reward==='object'&&q.reward.item?{reward:generateItem(new Rng(97),{ilvl:save.level,classId,rarity:'magic',base:classId==='mage'?'staff':classId==='ranger'?'bow':'sword'})}:{})};
+      const state={revision:q.revision,step:q.steps.length,claimed:false,...(typeof q.reward==='object'&&q.reward.item?{reward:generateItem(new Rng(97),{ilvl:save.level,classId,rarity:'magic',base:classId==='mage'?'staff':classId==='ranger'?'bow':'sword'})}:{})};
       // A stable test seed needs distinct custody identities across separately reserved rewards.
       if(state.reward)state.reward.id=q.id+'-'+classId;
       writeQuestState(save,q.id,state);const result=planQuestReward(save,q,state);assert(!('error' in result));Object.assign(save,result.save);
       assert('error' in planQuestReward(save,q,questState(save,q.id)!));
-      if(q.unlocks){assert(zoneUnlocked(save,q.unlocks));assert(zoneLevelAllowed(save,q.unlocks));assert(save.level>=ZONES[q.unlocks].levelBand[0]);}
+      // Quests pay half their span since the balance pass (BALANCE.md); the story gate opens the route at any level.
+      if(q.unlocks){assert(zoneUnlocked(save,q.unlocks));assert(zoneLevelAllowed(save,q.unlocks));}
     }
-    assert.equal(save.level,50);assert.equal(save.xp,0);assert.equal(save.stats.kills,0);
+    const budget=MIDGAME_QUESTS.reduce((n,q)=>n+(typeof q.reward==='object'?q.reward.xp??0:0),0);
+    let level=20,left=budget;while(left>=xpToNext(level)){left-=xpToNext(level);level++;}
+    assert.equal(save.level,level);assert.equal(save.xp,left);assert.equal(save.stats.kills,0);
+    const spans=storyMainXp(20,23)+storyMainXp(23,25)+storyMainXp(25,28)+storyMainXp(28,30)+storyXp(30,33)+storyXp(33,35)+storyMainXp(35,38)+storyMainXp(38,40)+storyMainXp(40,43)+storyMainXp(43,45)+storyXp(45,47)+storyXp(47,49)+storyXp(49,50);
+    assert.equal(budget,spans,'story quests pay their spans minus the side-story share where a zone has one');
     await saveCharacter(save);await flushSaves();assert(questState((await loadCharacter(save.id))!,'last_transmission')?.claimed);
   }
 });
@@ -50,7 +57,7 @@ test('each class reaches exactly50 from20 on one-time story awards alone and leg
 test('real command path completes all13 quests and both private dungeons with physical contacts and no replay reward',async()=>{
   const world=new World();await world.init();
   const save=createCharacter('MidRoute','warrior',97);save.level=20;
-  for(const q of QUESTS.filter(q=>q.chapter==='water_road'||q.chapter==='upper_road'))writeQuestState(save,q.id,{revision:1,step:q.steps.length,claimed:true});
+  for(const q of QUESTS.filter(q=>q.chapter==='water_road'||q.chapter==='upper_road'))writeQuestState(save,q.id,{revision:q.revision,step:q.steps.length,claimed:true});
   const s={save,derived:computeStats(save),sessionId:save.id,rec:null,entityId:0,homeTown:null,hold:null,
     send(){},sendRaw(){},markDirty(){},saveNow(){},autosave(){},kick(){},shutdown(){},changed(){s.derived=computeStats(save);},
   } as unknown as Session;
@@ -71,7 +78,7 @@ test('real command path completes all13 quests and both private dungeons with ph
     const parent=zone==='lockglass_cistern'?'saltwind_pans':'beaconbreak_ward';travel(parent);
     const exit=inst().map.portals.find(e=>e.to===zone)!;near(exit);travel(zone);
   };
-  const contact=(zone:string,target:string)=>{go(zone);near(inst().map.adventure!.interactions.find(i=>i.id===target)!);};
+  const contact=(zone:string,target:string)=>{go(zone);near(contactSpot(inst().map.adventure,target,save)!);};
   try{
     for(const q of MIDGAME_QUESTS){
       contact(q.start.zone,q.start.target);
@@ -79,7 +86,10 @@ test('real command path completes all13 quests and both private dungeons with ph
       for(const step of q.steps){
         go(step.zone);
         if(step.kind==='interact'){
-          contact(step.zone,step.target);const r=cmd('quest',{action:'inspect',quest:q.id,target:step.target});assert(r.ok,q.id+' '+JSON.stringify(r));
+          contact(step.zone,step.target);
+          // Repairs need the hold (docs/rework/quests/DESIGN.md §6): start, let simulation time pass, finish.
+          if(step.hold){assert(cmd('quest',{action:'holdStart',quest:q.id,target:step.target}).ok,q.id+' hold');inst().t+=step.hold;}
+          const r=cmd('quest',{action:'inspect',quest:q.id,target:step.target});assert(r.ok,q.id+' '+JSON.stringify(r));
         }else if(step.kind==='kill'){
           const mob=inst().mobs.find(m=>!m.dead&&m.adventureTarget===step.target)!;assert(mob,q.id+' target');near(mob);killMob(inst(),mob,p(),'physical','midgame-fixture');
         }else{
@@ -97,7 +107,7 @@ test('real command path completes all13 quests and both private dungeons with ph
       contact(q.finish.zone,q.finish.target);const claim=cmd('quest',{action:'claim',quest:q.id,target:q.finish.target});assert(claim.ok,q.id+' '+JSON.stringify(claim));
       assert(!cmd('quest',{action:'claim',quest:q.id,target:q.finish.target}).ok);
     }
-    assert(save.level>=50);await saveCharacter(save);await flushSaves();assert(questState((await loadCharacter(save.id))!,'last_transmission')?.claimed);
+    assert(save.level>20);await saveCharacter(save);await flushSaves();assert(questState((await loadCharacter(save.id))!,'last_transmission')?.claimed);
   }finally{await world.shutdown();}
 });
 

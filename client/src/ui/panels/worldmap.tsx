@@ -4,6 +4,7 @@ import { ZONES } from '@shared/data/zones';
 import { QUESTS } from '@shared/data/quests';
 import { questText } from '@shared/data/questMessages';
 import { CollisionWorld } from '@shared/movement';
+import { QUEST_COLORS } from '../../render/art/questBadges';
 import { questCompleted, questMarker, questObjective, questPoint, questUnlocks, trackedQuest, zoneLevelAllowed, zoneUnlocked } from '@shared/quests';
 import { worldConnections, zoneRoute } from '@shared/worldNavigation';
 import type { MapData } from '@shared/mapgen';
@@ -50,7 +51,7 @@ export function WorldMapPanel() {
   if (!save || !zone) return null;
   const def = ZONES[selected] ?? ZONES.hearthmere;
   const quest = trackedQuest(save), objective = quest && questObjective(save, quest);
-  const point = map && objective && questPoint(map, objective, save);
+  const point = map && objective && questPoint(map, objective, save, me ?? undefined, objective.targets);
   const route = objective ? zoneRoute(zone.zone, objective.zone, (id) => zoneUnlocked(save, id)) : [];
   const toSelected = zoneRoute(zone.zone, def.id, (id) => zoneUnlocked(save, id));
   const locked = routeLock(save, def.id), tooLow = !zoneLevelAllowed(save, def.id), here = zone.zone === def.id;
@@ -214,7 +215,7 @@ function LocalMap({ map, save, terrain, me, point, objectiveLabel }: { map: MapD
     {npcs.map((n, i) => <g key={n.id} onClick={() => setSelected(n.id)}>
       <g transform={`translate(${n.x},${n.y})`}>
         <title>{n.name} · {n.role}</title><circle r={r * (n.id === selected ? 1.4 : 0.75)} class="service" />
-        <text y={-r} text-anchor="middle" fill="#ffdb83" stroke="#140e0a" stroke-width={r / 8} paint-order="stroke" font-size={r * 2.5} font-weight="bold">{questMarker(save, map.zone, n.id)}</text>
+        {(() => { const m = questMarker(save, map.zone, n.id); return m && <text y={-r} text-anchor="middle" fill={QUEST_COLORS[m.cat].fill} stroke="#140e0a" stroke-width={r / 8} paint-order="stroke" font-size={r * 2.5} font-weight="bold">{m.glyph}</text>; })()}
       </g>
       {label(i, n.id === selected ? 'sel' : '')}
     </g>)}

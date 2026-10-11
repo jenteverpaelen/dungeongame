@@ -44,7 +44,7 @@ test('each lesson checks story, contact, living proximity, one claim and reload;
       const n=inst.map.town!.npcs.find(n=>n.id===q.start.target)!;
       const cmd=(action:string,target=q.start.target)=>runCommand(s,{} as World,'quest',{action,quest:q.id,target,revision:1,step:'lesson'});
       at(...n.approach);assert(!cmd('accept').ok,'story not yet complete');
-      const story=QUESTS.find(d=>d.id===q.requires[0])!;writeQuestState(save,story.id,{revision:1,step:story.steps.length,claimed:true});
+      const story=QUESTS.find(d=>d.id===q.requires[0])!;writeQuestState(save,story.id,{revision:story.revision,step:story.steps.length,claimed:true});
       at(0,0);assert(!cmd('accept').ok);at(...n.approach);p.deadMs=1;assert(!cmd('accept').ok);p.deadMs=0;
       assert(cmd('accept').ok);assert(!cmd('objectiveTalk','wrong').ok);assert(!cmd('claim').ok);
       assert(cmd('objectiveTalk').ok);const xp=save.cube.xp;assert(cmd('claim').ok);assert(!cmd('claim').ok);assert.equal(save.cube.xp,xp);

@@ -9,7 +9,9 @@ import { BARKS } from '@shared/data/barks';
 import { ADVENTURES } from '@shared/adventure';
 import { ZONES } from '@shared/data/zones';
 import { MERCHANTS } from '@shared/merchant';
-import { questAvailable, questObjective, questState, storyFlag, trackedQuest } from '@shared/quests';
+import { questAvailable, questCategory, questHasPick, questObjective, questState, questStepText, storyFlag } from '@shared/quests';
+import { QuestGlyph, RewardPreview, categoryLabel } from './questUi';
+import { useQuestObject } from '../../game/questActions';
 import { questRequest } from '@shared/questRequests';
 import type { QuestDef, QuestTarget } from '@shared/questTypes';
 import type { CharacterSave } from '@shared/types';
@@ -31,36 +33,47 @@ function rowsFor(save: CharacterSave, zone: string, target: string): QuestRow[] 
     if (!questAvailable(save, q)) continue;
     const s = questState(save, q.id);
     if ((!s || (s.claimed && q.repeat)) && here(q.start)) rows.push({ q, kind: 'offer', text: t(q.offer) });
-    else if (s && !s.claimed && s.step === q.steps.length && here(q.finish)) rows.push({ q, kind: 'ready', text: t(q.rewardText) });
-    else if (s && !s.claimed && q.steps[s.step] && here(q.steps[s.step])) rows.push({ q, kind: 'step', text: questObjective(save, q).text });
+    else if (s && !s.claimed && s.step === q.steps.length && here(q.finish)) rows.push({ q, kind: 'ready', text: t(q.complete) });
+    else if (s && !s.claimed && q.steps[s.step] && q.steps[s.step].zone === zone && (q.steps[s.step].targets ?? [q.steps[s.step].target]).includes(target)) rows.push({ q, kind: 'step', text: questObjective(save, q).text });
     else if (s && !s.claimed && (here(q.start) || here(q.finish))) rows.push({ q, kind: 'active', text: questObjective(save, q).text });
   }
-  const order = { ready: 0, step: 1, offer: 2, active: 3 } as const;
-  return rows.sort((a, b) => order[a.kind] - order[b.kind]);
+  // Turn-ins, then objectives, then offers (story before side before lesson), then reminders (DESIGN.md §2).
+  const order = { ready: 0, step: 1, offer: 2, active: 3 } as const, cat = { story: 0, side: 1, lesson: 2 } as const;
+  return rows.sort((a, b) => order[a.kind] - order[b.kind] || cat[questCategory(a.q)] - cat[questCategory(b.q)]);
 }
 
 function QuestAction({ save, row, target, present }: { save: CharacterSave; row: QuestRow; target: string; present: boolean }) {
-  const [busy, setBusy] = useState(false);
-  const { q, kind } = row, state = questState(save, q.id), step = state && q.steps[state.step];
-  const act = async (action: string) => { setBusy(true); try { await run('quest', questRequest(q, state, target, action)); } finally { setBusy(false); } };
-  const reward = typeof q.reward === 'object' ? q.reward : undefined;
+  const [busy, setBusy] = useState(false), [pick, setPick] = useState<'main' | 'alt'>('main');
+  const { q, kind } = row, state = questState(save, q.id), step = state && q.steps[state.step], cat = questCategory(q);
+  const act = async (action: string, extra: Record<string, unknown> = {}) => { setBusy(true); try { return (await run('quest', { ...questRequest(q, state, target, action), ...extra })).ok; } finally { setBusy(false); } };
+  const here = (p: QuestTarget) => p.zone === q.finish.zone && p.target === target;
+  const accept = async () => {
+    // WoW-style (R26): the window closes after Accept unless this person still has something else to offer.
+    const others = rowsFor(save, q.start.zone, target).filter((r) => r.kind === 'offer' && r.q !== q).length;
+    if (await act('accept') && !others) togglePanel('dialogue', false);
+  };
+  const claim = async () => {
+    const followUp = QUESTS.some((n) => n.requires.includes(q.id) && here(n.start));
+    if (await act('claim', questHasPick(q) ? { pick } : {}) && !followUp) togglePanel('dialogue', false);
+  };
   return (
-    <div class={cls('dlg-quest', kind)}>
+    <div class={cls('dlg-quest', kind, cat)}>
       <div class="dlg-q-head">
-        <span class="dlg-q-mark">{kind === 'offer' ? '!' : kind === 'ready' ? '?' : '◆'}</span>
+        <QuestGlyph cat={cat} glyph={kind === 'offer' ? (cat === 'lesson' ? '+' : '!') : kind === 'ready' ? '?' : '◆'} />
         <b>{t(q.title)}</b>
-        <span class="chip">{kind === 'offer' ? 'New quest' : kind === 'ready' ? 'Ready to turn in' : kind === 'step' ? 'Objective here' : 'In progress'}</span>
+        <span class={'chip cat-' + cat}>{categoryLabel(cat)}</span>
+        <span class="chip">{kind === 'offer' ? 'New' : kind === 'ready' ? t('ui.quest.ready') : kind === 'step' ? 'Objective here' : 'In progress'}</span>
       </div>
       <p>{row.text}</p>
-      {(kind === 'offer' || kind === 'ready') && (reward?.xp || reward?.gold) ? <p class="dlg-reward">Reward: {reward?.xp ? `${reward.xp.toLocaleString()} XP` : ''}{reward?.xp && reward?.gold ? ' · ' : ''}{reward?.gold ? `${reward.gold.toLocaleString()} gold` : ''}</p> : null}
+      {kind === 'offer' && <ol class="dlg-steps">{q.steps.map((st) => <li key={st.id}>{questStepText(st)}</li>)}</ol>}
+      {(kind === 'offer' || kind === 'ready') && <RewardPreview save={save} q={q} pick={pick} onPick={setPick} />}
       <div class="dlg-q-act">
-        {kind === 'offer' && <button class="btn primary" disabled={busy || !present} onClick={() => void act('accept')}>{t(state ? 'quest.journal.repeat' : 'quest.journal.accept')}</button>}
-        {kind === 'ready' && <button class="btn primary" disabled={busy || !present} onClick={() => void act('claim')}>{t('quest.journal.claim')}</button>}
+        {kind === 'offer' && <button class="btn primary" disabled={busy || !present} onClick={() => void accept()}>{t(state ? 'quest.journal.repeat' : 'quest.journal.accept')}</button>}
+        {kind === 'ready' && <button class="btn primary" disabled={busy || !present} onClick={() => void claim()}>{t('quest.journal.claim')}</button>}
         {kind === 'step' && step?.kind === 'talk' && <button class="btn primary" disabled={busy || !present} onClick={() => void act('objectiveTalk')}>{t('quest.journal.talk')}</button>}
-        {kind === 'step' && step?.kind === 'interact' && <button class="btn primary" disabled={busy || !present} onClick={() => void act('inspect')}>{t('quest.journal.inspect')}</button>}
+        {kind === 'step' && step?.kind === 'interact' && <button class="btn primary" disabled={busy || !present} onClick={() => void useQuestObject(q, step, step.zone, target)}>{t('quest.journal.inspect')}</button>}
         {kind === 'step' && step?.kind === 'deliver' && <button class="btn primary" onClick={() => { ui.set({ journalQuest: q.id }); togglePanel('adventure', true); }}>{t('quest.delivery.title')}</button>}
         <button class="btn quiet sm" onClick={() => { openJournal(); ui.set({ journalQuest: q.id }); }}>Details in journal</button>
-        {state && !state.claimed && trackedQuest(save)?.id !== q.id && <button class="btn quiet sm" disabled={busy} onClick={() => void act('track')}>{t('quest.journal.track')}</button>}
       </div>
     </div>
   );
@@ -108,7 +121,7 @@ export function DialoguePanel() {
         </div>
       </div>
       {rows.length > 0 && <section class="dlg-quests" aria-label="Quests"><header class="card-h"><span>Quests</span><em>{rows.length === 1 ? 'One matter to discuss' : `${rows.length} matters to discuss`}</em></header>
-        {rows.slice(0, 3).map((r) => <QuestAction key={r.q.id} save={save} row={r} target={d.target} present={present} />)}
+        {rows.slice(0, 3).map((r) => <QuestAction key={r.q.id + r.kind} save={save} row={r} target={d.target} present={present} />)}
       </section>}
       <FieldEventBlock zone={d.zone} target={d.target} present={present} />
       {merchant && <div class="dlg-extra"><button class="btn" disabled={!present} onClick={() => togglePanel('merchant', true)}><UiIcon name="merchant" size={16} /> Trade gear with {merchant.name}</button></div>}

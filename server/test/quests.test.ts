@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter } from '../../shared/src/character';
 import { computeStats } from '../../shared/src/stats';
-import { questState, zoneUnlocked, trackedQuest, questObjective, questPoint } from '../../shared/src/quests';
+import { contactSpot, questState, zoneUnlocked, trackedQuest, questObjective, questPoint, trackerQuests } from '../../shared/src/quests';
 import type { ClassId } from '../../shared/src/types';
 import { World } from '../src/world';
 import { Instance } from '../src/sim/instance';
@@ -29,11 +29,13 @@ async function fixture(cls:ClassId='warrior') {
     const inst=()=>s.rec!.inst as Instance;
     const player=()=>inst().playerById(s.entityId)!;
     const at=(x:number,y:number)=>{const p=player();p.x=p.mv.x=x;p.y=p.mv.y=y;p.hp=p.mhp;p.deadMs=0;};
-    const near=(id:string)=>{const spot=inst().map.adventure!.interactions.find(i=>i.id===id)!;at(spot.x,spot.y+65);};
-    const quest=(quest:string,action:string,target='tender')=>runCommand(s,world,'quest',{quest,action,target});
+    // Contacts stand where this character sees them (phasing: Orren at the mill, Hollis at the forecourt).
+    const near=(id:string)=>{const c=contactSpot(inst().map.adventure,id,save)!,cw=inst().cw;
+      const pt=Array.from({length:16},(_,i)=>({x:c.x+65*Math.cos(i*Math.PI/8),y:c.y+65*Math.sin(i*Math.PI/8)})).find(q=>cw.isFree(q.x,q.y,18)&&!cw.segmentBlocked(q.x,q.y,c.x,c.y))??{x:c.x,y:c.y+65};at(pt.x,pt.y);};
+    const quest=(quest:string,action:string,target='tender',extra:Record<string,unknown>={})=>runCommand(s,world,'quest',{quest,action,target,...extra});
     const travel=(zone:string)=>runCommand(s,world,'travel',{zone});
     const waypoint=()=>{const wp=inst().map.town!.npcs.find(n=>n.role==='waypoint')!;at(...wp.approach);};
-    const completedWheel=()=>{save.rillwake={revision:1,cart:true,warden:true,ledger:true,claimed:true};};
+    const completedWheel=()=>{(save.quests??={}).silent_wheel={revision:2,step:4,claimed:true};};
     return {s,save,inst,player,at,near,quest,travel,waypoint,completedWheel};
   };
   return {world,add,...add()};
@@ -46,9 +48,10 @@ test('quest tracking: acceptance selects, untrack survives progress and reload, 
     assert(f.quest('silent_wheel','accept').ok);
     const q=trackedQuest(f.save)!;assert.equal(q.id,'silent_wheel');
     assert(questPoint(f.inst().map,questObjective(f.save,q),f.save));
-    assert(f.quest(q.id,'untrack').ok);assert.equal(trackedQuest(f.save),undefined);
+    assert(f.quest(q.id,'untrack').ok);assert.equal(trackedQuest(f.save),undefined);assert(!trackerQuests(f.save).includes(q),'hidden from the tracker');
     f.near('cart');assert(f.quest(q.id,'inspect','cart').ok);
-    assert.equal(trackedQuest(f.save),undefined,'advancing does not undo untrack');
+    assert.equal(trackedQuest(f.save),undefined,'advancing does not restore the focus');
+    assert(trackerQuests(f.save).includes(q),'a hidden quest returns to the tracker when it progresses (docs/rework/quests/DESIGN.md §3)');
     await saveCharacter(f.save);await flushSaves();
     const loaded=(await loadCharacter(f.save.id))!;
     assert.equal(loaded.trackedQuest,'');assert.equal(trackedQuest(loaded),undefined);
@@ -62,8 +65,8 @@ test('quest tracking: acceptance selects, untrack survives progress and reload, 
 test('counted server events retain partial progress, ignore failed actions and count each successful action once',async()=>{
   const f=await fixture('mage'),catalog=QUESTS as QuestDef[];
   const q:QuestDef={...structuredClone(QUESTS[1]),id:'adapter_fixture',requires:[],unlocks:undefined,steps:[
-    {id:'kills',kind:'kill',zone:'rillwake_crossing',target:'road',monsterType:'bog_slime',count:2,text:'quest.wheel.warden'},
-    {id:'loot',kind:'collect',zone:'rillwake_crossing',target:'road',itemBase:f.save.equipment.mainhand!.base,count:2,text:'quest.wheel.ledger'},
+    {id:'kills',kind:'kill',zone:'rillwake_crossing',target:'road',monsterType:'bog_slime',count:2,text:'q.silent_wheel.warden'},
+    {id:'loot',kind:'collect',zone:'rillwake_crossing',target:'road',itemBase:f.save.equipment.mainhand!.base,count:2,text:'q.silent_wheel.ledger'},
     {id:'service',kind:'service',zone:'hearthmere',target:'blacksmith',serviceOp:'salvage',count:2,text:'quest.journal.return'},
   ]};
   catalog.push(q);
@@ -102,40 +105,47 @@ test('counted server events retain partial progress, ignore failed actions and c
 const place=(inst:{map:{adventure?:{locations:{id:string;x:number;y:number}[]}}},id:string):[number,number]=>{const l=inst.map.adventure!.locations.find(l=>l.id===id)!;return [l.x,l.y];};
 const gate=(inst:{map:{portals:{to:string;x:number;y:number}[]}},to:string):[number,number]=>{const p=inst.map.portals.find(p=>p.to===to)!;return [p.x,p.y];};
 const near=(inst:{map:{adventure?:{encounters:{id:string;x:number;y:number}[]}}},id:string):[number,number]=>{const e=inst.map.adventure!.encounters.find(e=>e.id===id)!;return [e.x,e.y+80];};
-for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: connected quests, ordered authoritative events, unlock travel, full-bag retry and persistence`,async()=>{
+for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: connected quests, ordered authoritative events, repairs, unlock travel, hand-over, full-bag retry and persistence`,async()=>{
   const f=await fixture(cls);
   const success=(r:{ok:boolean;err?:string})=>assert(r.ok,r.err??'command must succeed');
+  const hold=(quest:string,target:string,ms:number)=>{success(f.quest(quest,'holdStart',target));f.inst().t+=ms;success(f.quest(quest,'inspect',target));};
   try {
     f.waypoint();assert(!f.travel('bracken_sluice').ok,'waypoint cannot skip prerequisites');
     success(f.travel('rillwake_crossing'));f.near('tender');
-    assert(!f.quest('high_water','accept').ok,'previous return required');
-    f.completedWheel();success(f.quest('high_water','accept'));
-    f.near('survey');assert(!f.quest('high_water','inspect','survey').ok,'ordered objectives');
-    f.at(...place(f.inst(),'old_ridge'));f.player().deadMs=1;creditQuestReach(f.inst(),f.player());assert.equal(questState(f.save,'high_water')!.step,0);
-    f.player().deadMs=0;f.inst().tick();assert.equal(questState(f.save,'high_water')!.step,1,'server movement/position drives reach');
-    assert(!f.quest('high_water','reach','old_ridge').ok,'no client credit endpoint');
+    assert(!f.quest('high_water','accept').ok,'previous story step required');
+    f.completedWheel();f.near('tender');success(f.quest('high_water','accept'));
+    f.near('overlook_fire');assert(!f.quest('high_water','holdStart','overlook_fire').ok,'ordered objectives');
     f.near('survey');success(f.quest('high_water','inspect','survey'));success(f.quest('high_water','inspect','survey'));
+    assert(!f.quest('high_water','wave','survey_alarm').ok,'no client credit endpoint');
+    success(runCommand(f.s,f.world,'quest',{action:'activateField',target:'survey'}));
+    for(const m of f.inst().mobs.filter(m=>!m.dead&&m.adventureSite==='overlook')){f.at(m.x,m.y+40);killMob(f.inst(),m,f.player(),'physical','quest-test');}
+    assert.equal(questState(f.save,'high_water')!.step,2,'the alarm wave clears in person');
+    f.near('overlook_fire');hold('high_water','overlook_fire',2000);assert.equal(questState(f.save,'high_water')!.step,3);
     f.at(...gate(f.inst(),'bracken_sluice'));assert(!f.travel('bracken_sluice').ok,'world objective alone does not claim the passage');
     assert(!f.quest('high_water','claim').ok,'remote claim');
     f.near('tender');success(f.quest('high_water','claim'));assert(zoneUnlocked(f.save,'bracken_sluice'));
     assert(!f.quest('high_water','claim').ok,'cannot claim twice');
     success(f.quest('under_spillway','accept'));assert(!f.travel('bracken_sluice').ok,'must walk to connecting portal');
     const home=f.s.homeTown;f.at(...gate(f.inst(),'bracken_sluice'));success(f.travel('bracken_sluice'));assert.equal(f.s.homeTown,home,'field travel preserves home town');
-    f.near('floodgate');assert(!f.quest('under_spillway','inspect','floodgate').ok);
-    f.at(...place(f.inst(),'forecourt'));f.inst().tick();assert.equal(questState(f.save,'under_spillway')!.step,1);
+    f.at(...place(f.inst(),'forecourt'));f.inst().tick();assert.equal(questState(f.save,'under_spillway')!.step,0,'the hand-over comes first');
+    f.near('foreman');success(f.quest('under_spillway','objectiveTalk','foreman',{step:'hollis',revision:2}));assert.equal(questState(f.save,'under_spillway')!.step,1);
+    f.near('floodgate');assert(!f.quest('under_spillway','holdStart','floodgate').ok);
+    f.at(...place(f.inst(),'forecourt'));f.inst().tick();assert.equal(questState(f.save,'under_spillway')!.step,2);
     const boss=f.inst().mobs.find(m=>m.adventureTarget==='keeper')!;
     assert(boss.boss);assert.equal(boss.tier,2,'existing rare reward tier');assert.equal(boss.boss.addsMs,Infinity,'no reward-bearing summons');
-    f.at(boss.x,boss.y+80);killMob(f.inst(),boss,f.player(),'physical','quest-test');assert.equal(questState(f.save,'under_spillway')!.step,2);
-    f.near('floodgate');success(f.quest('under_spillway','inspect','floodgate'));
-    const reserved=structuredClone(questState(f.save,'under_spillway')!.reward!);assert(reserved);
+    f.at(boss.x,boss.y+80);killMob(f.inst(),boss,f.player(),'physical','quest-test');assert.equal(questState(f.save,'under_spillway')!.step,3);
+    f.near('floodgate');hold('under_spillway','floodgate',3000);
+    const reserved=structuredClone(questState(f.save,'under_spillway')!.reward!);assert(reserved);assert(questState(f.save,'under_spillway')!.rewardAlt);
     success(f.quest('under_spillway','inspect','floodgate'));assert.deepEqual(questState(f.save,'under_spillway')!.reward,reserved);
-    assert(!f.travel('rillwake_crossing').ok,'remote return portal');f.at(...gate(f.inst(),'rillwake_crossing'));success(f.travel('rillwake_crossing'));
-    f.near('tender');f.save.inventory.fill({...reserved,id:'full-bag-fixture'});const before=JSON.stringify(f.save);
-    assert(!f.quest('under_spillway','claim').ok);assert.equal(JSON.stringify(f.save),before);
-    f.save.inventory[0]=null;success(f.quest('under_spillway','claim'));assert(!f.quest('under_spillway','claim').ok);
+    // Hollis walks up to the forecourt once the gate is open (phasing): the turn-in is right there, no walk back to camp.
+    const camp=f.inst().map.adventure!.interactions.find(i=>i.id==='foreman')!,up=contactSpot(f.inst().map.adventure,'foreman',f.save)!;
+    assert(Math.hypot(up.x-camp.x,up.y-camp.y)>3000);
+    f.near('foreman');f.save.inventory.fill({...reserved,id:'full-bag-fixture'});const before=JSON.stringify(f.save);
+    assert(!f.quest('under_spillway','claim','foreman').ok);assert.equal(JSON.stringify(f.save),before);
+    f.save.inventory[0]=null;success(f.quest('under_spillway','claim','foreman'));assert(!f.quest('under_spillway','claim','foreman').ok);
     assert.equal(f.save.inventory.filter(i=>i?.id===reserved.id).length,1);assert.deepEqual(f.save.inventory[0],reserved);
     await saveCharacter(f.save);await flushSaves();const loaded=await loadCharacter(f.save.id);
-    assert.deepEqual(loaded!.quests,f.save.quests);assert.deepEqual(loaded!.rillwake,f.save.rillwake);assert(zoneUnlocked(loaded!,'bracken_sluice'));
+    assert.deepEqual(loaded!.quests,f.save.quests);assert.equal(loaded!.rillwake,undefined);assert(zoneUnlocked(loaded!,'bracken_sluice'));
   }finally{await f.world.shutdown();}
 });
 
@@ -144,14 +154,14 @@ test('four clients: only accepted, local and living witnesses receive the author
   try {
     const heroes=[f,f.add(),f.add(),f.add()];
     for(const h of heroes) {
-      h.completedWheel();h.save.quests={high_water:{revision:1,step:2,claimed:true},under_spillway:{revision:1,step:1,claimed:false}};
+      h.save.quests={silent_wheel:{revision:2,step:4,claimed:true},high_water:{revision:2,step:3,claimed:true},under_spillway:{revision:2,step:2,claimed:false}};
       h.waypoint();assert(h.travel('bracken_sluice').ok);h.at(...near(h.inst(),'keeper'));
     }
     assert(heroes.every(h=>h.inst()===f.inst()));
     heroes[2].player().deadMs=1000;heroes[2].player().hp=0;heroes[3].at(heroes[3].inst().map.entry.x,heroes[3].inst().map.entry.y);
     const boss=f.inst().mobs.find(m=>m.adventureTarget==='keeper')!;
     killMob(f.inst(),boss,f.player(),'physical','multiplayer');
-    assert.deepEqual(heroes.map(h=>questState(h.save,'under_spillway')!.step),[2,2,1,1]);
+    assert.deepEqual(heroes.map(h=>questState(h.save,'under_spillway')!.step),[3,3,2,2]);
   }finally{await f.world.shutdown();}
 });
 

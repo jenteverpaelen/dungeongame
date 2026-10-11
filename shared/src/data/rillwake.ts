@@ -54,6 +54,9 @@ z.resident('rw_worker', 'worker', 'Timber hand', ...P(16.5, 72.5), -30);
 z.walker('rw_haul', 'carpenter', [P(15, 69), P(20, 66.6), P(22, 56), P(20.5, 53)], 50, 5);
 z.light(...P(14, 67.5), 0xffc070, 180);
 z.landmark('Tender’s Camp', ...P(12.5, 72));
+z.board(...P(15.9, 66.8), 'Tender’s Camp bounty board');
+// Phasing (docs/rework/quests/DESIGN.md §4): once the wheel turns, Orren waits at the mill door.
+z.moveTo('tender', 'rw_wheel', ...P(81.8, 24.1));
 
 // The road above camp: the first fight, a short way from Orren.
 z.pack('road', ...P(24, 62.6), ['bog_slime', 'bog_slime', 'gloomshroom', 'gloomshroom', 'bog_slime', 'thornling']);
@@ -79,6 +82,8 @@ z.landmark('Old Ridge', ...P(19.5, 36));
 
 // The overlook: survey marker and its alarm.
 z.contact('survey', 'Survey marker', ...P(33.5, 21.6), 'marker');
+z.contact('overlook_fire', 'Signal fire', ...P(36.8, 25.6), 'mechanism');
+z.phase('rw_signal', true, () => { z.fire(...P(36.8, 25.2), 0.9); z.emit('smoke', ...P(36.8, 24.6), 7); z.emit('embers', ...P(36.8, 25), 4); });
 z.pack('overlook', ...P(32, 25), ['mossback', 'thornling', 'bog_slime', 'bog_slime', 'grave_bat', 'gloomshroom']);
 z.event('survey_alarm', 'The Overlook Alarm', 'survey', 'overlook', 'Raise the alarm at the survey marker to draw out the creatures nesting around the overlook.', 'Raise the alarm');
 z.decor('signpost', ...P(30.5, 22)); z.landmark('The Overlook', ...P(33, 26));
@@ -109,11 +114,25 @@ z.pack('mill', ...P(75, 27.2), [{ type: 'mossback', dx: 0, dy: 0, tier: 2, name:
 z.wall(rect(74 * S, 12 * S, 10 * S, 0.4 * S)); z.wall(rect(74 * S, 12 * S, 0.4 * S, 7.5 * S)); z.wall(rect(83.6 * S, 12 * S, 0.4 * S, 7.5 * S));
 z.wall(rect(74 * S, 19.1 * S, 3 * S, 0.4 * S)); z.wall(rect(80.6 * S, 19.1 * S, 3.4 * S, 0.4 * S));
 z.contact('ledger', 'Mill ledger', ...P(76.5, 14), 'ledger');
-z.wheel = { x: Math.round(84.8 * S), y: Math.round(9.6 * S), radius: 38 };
+z.wheel = { x: Math.round(84.8 * S), y: Math.round(9.6 * S), radius: 38, spin: 'rw_wheel' };
+z.contact('mill_brake', 'Wheel brake', ...P(88.4, 12.7), 'mechanism');
+// The wheel turns (rw_wheel): spray at the race, millhands back in the yard and the lamps lit.
+z.phase('rw_wheel', true, () => {
+  z.emit('fog', ...P(84.8, 11), 2); z.light(...P(84.8, 9.8), 0x9ad8ff, 160);
+  z.resident('rw_millhand1', 'worker', 'Millhand', ...P(72.6, 23.8), 20); z.resident('rw_millhand2', 'carpenter', 'Millwright', ...P(77.6, 29.6), -30);
+  z.decor('lamppost', ...P(73.2, 21.4)); z.light(...P(73.2, 20.7), 0xffc070, 180); z.decor('crates', ...P(70.8, 26.4), 0.9);
+});
 z.decor('barrels', ...P(81.5, 14)); z.decor('crates', ...P(82, 17)); z.light(...P(78.5, 13.5), 0xffc070, 160);
 z.landmark('Rillwake Mill', ...P(79, 21.5));
 z.portal(...P(93.5, 9.5), 'bracken_sluice', 'Upstream to Bracken Sluice');
 z.landmark('Upstream Path', ...P(91, 14));
+// The lost survey party: Wenna waits on the upstream path while the quest needs her, then the party is home at the mill.
+z.contact('wenna', 'Wenna · Survey lead', ...P(90, 14.8), 'person'); z.appear('wenna', 'rw_wenna');
+z.phase('rw_wenna', true, () => { z.decor('tent', ...P(94, 13.4), 0.8, 1); z.decor('crate', ...P(90, 17), 0.8); });
+z.phase('rw_survey_home', true, () => {
+  z.resident('rw_wenna', 'scholar', 'Wenna · Survey lead', ...P(83.6, 22.6), -20); z.resident('rw_surveyor1', 'worker', 'Surveyor', ...P(85, 24.4), 10);
+  z.resident('rw_surveyor2', 'pilgrim', 'Surveyor', ...P(70.4, 31.4), 30); z.resident('rw_surveyor3', 'porter', 'Surveyor', ...P(68.8, 29.8), -10);
+});
 
 // Sound and mist.
 for (const [x, y] of [P(44, 40), P(43, 60), P(45, 20)]) { z.sound('water', x, y); z.mist(x, y + 120, 420); }

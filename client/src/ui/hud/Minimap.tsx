@@ -6,8 +6,10 @@ import { useUI, worldReader, type MinimapEntity } from '../store';
 import { DIFFICULTIES } from '@shared/progression';
 import { TILE } from '@shared/constants';
 import { clamp01, fmtClock, safeGet, safeSet } from './util';
-import { AdventureTracker } from '../panels/adventure';
-import { questMarker, questObjective, questPoint, trackedQuest } from '@shared/quests';
+import { QuestTracker } from '../panels/questTracker';
+import { contactSpot, questCategory, questMarker, questObjective, questPoint, trackedQuest, trackerQuests } from '@shared/quests';
+import { paintQuestMark, type MarkCat } from '../../render/art/questBadges';
+import { boardState, boardUnlocked, boardComplete, bountyDef, BOUNTY_BOARDS } from '@shared/bounties';
 import { ui, togglePanel } from '../store';
 import { questText } from '@shared/data/questMessages';
 
@@ -116,15 +118,14 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   // static map features (quest point and markers only change with the character, so they are cached per save object)
   const save=ui.get().char;
   const q = questInfo(baked, save);
-  if (q.point) { const [x, y] = clampTo(px(q.point.x), py(q.point.y)); diamond(g, x, y, 7, '#ffdb83'); }
+  // Every tracked quest's objective in this zone (small, category colour), the focused one large and clamped to the rim.
+  for (const o of q.objectives) { const x = px(o.x), y = py(o.y); if ((x - C) ** 2 + (y - C) ** 2 <= (C - 8) ** 2) g.drawImage(markCanvas(o.cat, '◆'), x - 9, y - 9, 18, 18); }
+  if (q.point) { const [x, y] = clampTo(px(q.point.x), py(q.point.y)); g.drawImage(markCanvas(q.pointCat, '◆'), x - 13, y - 13, 26, 26); }
   const r2 = (C + 12) * (C + 12);
   // Setting ctx.font forces a style resolution, so it is set once per font, not once per NPC.
   g.font = 'bold 8px Arial'; g.textAlign = 'center';
   for (const n of baked.map.npcs) { const x = px(n.x), y = py(n.y); if ((x - C) ** 2 + (y - C) ** 2 <= r2) npcIcon(g, n.role, x, y); }
-  if (q.markers.length) {
-    g.font = 'bold 15px sans-serif'; g.lineWidth = 3; g.strokeStyle = '#140e0a'; g.fillStyle = '#ffdb83';
-    for (const m of q.markers) { const x = px(m.x), y = py(m.y) - 7; if ((x - C) ** 2 + (y - C) ** 2 <= r2) { g.strokeText(m.text, x, y); g.fillText(m.text, x, y); } }
-  }
+  for (const m of q.markers) { const x = px(m.x), y = py(m.y) - 12; if ((x - C) ** 2 + (y - C) ** 2 <= r2) g.drawImage(markCanvas(m.cat, m.glyph), x - 12, y - 12, 24, 24); }
   for (const p of baked.map.portals) { const [x, y, off] = clampTo(px(p.x), py(p.y)); if (!off) portalIcon(g, x, y, t); }
 
   // dynamic entities, drawn in priority order (cheap first)
@@ -171,16 +172,42 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
 }
 
 const vignettes = new WeakMap<CanvasRenderingContext2D, CanvasGradient>();
-interface QuestInfo { key: unknown; mapKey: string; point: { x: number; y: number } | null; markers: { x: number; y: number; text: string }[] }
+/** Quest marks are painted once per category and glyph (setting ctx.font per marker every frame forces style work). */
+const marks = new Map<string, HTMLCanvasElement>();
+function markCanvas(cat: MarkCat, glyph: string): HTMLCanvasElement {
+  const key = cat + glyph; let c = marks.get(key);
+  if (!c) { c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d')!; g.translate(24, 24); paintQuestMark(g, cat, glyph, 20); marks.set(key, c); }
+  return c;
+}
+interface QuestInfo { key: unknown; mapKey: string; point: { x: number; y: number } | null; pointCat: MarkCat; markers: { x: number; y: number; cat: MarkCat; glyph: string }[]; objectives: { x: number; y: number; cat: MarkCat }[] }
 let questCache: QuestInfo | null = null;
-/** Tracked-objective point and NPC quest markers; recomputed only when the character save object or the map changes. */
+/** Focused objective, every tracked objective in this zone, contact marks and bounty targets; recomputed only when the
+ *  character save object or the map changes. */
 function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char']): QuestInfo {
   if (questCache && questCache.key === save && questCache.mapKey === baked.key) return questCache;
-  const quest = save ? trackedQuest(save) : null;
-  const point = (save && quest && questPoint(baked.map, questObjective(save, quest), save)) || null;
-  const markers: QuestInfo['markers'] = [];
-  if (save) for (const n of baked.map.npcs) { const text = questMarker(save, baked.map.zone, n.id); if (text) markers.push({ x: n.x, y: n.y, text }); }
-  questCache = { key: save, mapKey: baked.key, point, markers };
+  const map = baked.map, zone = map.zone;
+  const quest = save ? trackedQuest(save) : null, focusObj = save && quest ? questObjective(save, quest) : null;
+  const point = (save && focusObj && questPoint(map, focusObj, save, undefined, focusObj.targets)) || null;
+  const markers: QuestInfo['markers'] = [], objectives: QuestInfo['objectives'] = [];
+  if (save) {
+    for (const n of map.npcs) {
+      // Phased contacts stand where this player sees them (docs/rework/quests/DESIGN.md §4).
+      const spot = contactSpot(map.adventure, n.id, save); if (spot && !spot.present) continue;
+      const x = spot?.x ?? n.x, y = spot?.y ?? n.y;
+      if (n.id === 'bounty_board') { if (boardUnlocked(save, zone)) markers.push({ x, y, cat: 'bounty', glyph: boardComplete(boardState(save, zone)) ? '!' : '' }); continue; }
+      const m = questMarker(save, zone, n.id); if (m) markers.push({ x, y, cat: m.cat, glyph: m.glyph });
+    }
+    for (const q of trackerQuests(save, zone).slice(0, 5)) {
+      if (q === quest) continue;
+      const o = questObjective(save, q); if (o.zone !== zone) continue;
+      for (const t of o.targets ?? [o.target]) { const p = questPoint(map, { zone, target: t }, save); if (p) objectives.push({ x: p.x, y: p.y, cat: questCategory(q) }); }
+    }
+    if (BOUNTY_BOARDS[zone] && boardUnlocked(save, zone)) {
+      const b = boardState(save, zone);
+      b.picks.forEach((id, i) => { const d = bountyDef(zone, id); if (!d || b.done & (1 << i) || d.kind === 'hunt') return; const p = questPoint(map, { zone, target: d.target }, save); if (p) objectives.push({ x: p.x, y: p.y, cat: 'bounty' }); });
+    }
+  }
+  questCache = { key: save, mapKey: baked.key, point, pointCat: quest ? questCategory(quest) : 'story', markers, objectives };
   return questCache;
 }
 
@@ -295,7 +322,7 @@ export function TopRight() {
       <ZonePlate />
       <Minimap />
       <RiftBar />
-      <AdventureTracker />
+      <QuestTracker />
     </div>
   );
 }

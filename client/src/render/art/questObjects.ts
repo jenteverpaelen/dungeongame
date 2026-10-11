@@ -6,7 +6,7 @@ import { ellipse, hash, INK, line, poly, rrect, tone, type Paint } from './townK
 import { glowSprite, ringSprite, sparkleSprite } from './fx';
 import type { EntityView, ViewState } from '../types';
 
-export type ClueKind = 'cart' | 'ledger' | 'marker' | 'mechanism' | 'person' | undefined;
+export type ClueKind = 'cart' | 'ledger' | 'marker' | 'mechanism' | 'board' | 'person' | undefined;
 type Art = { x0: number; y0: number; x1: number; y1: number; draw: (c: Paint) => void };
 const D = 2;
 const cache = new Map<string, Texture>();

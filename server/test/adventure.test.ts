@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {createCharacter} from '../../shared/src/character';
 import {computeStats} from '../../shared/src/stats';
 import {xpToNext} from '../../shared/src/progression';
-import {storyXp} from '../../shared/src/storyBudget';
+import {storyMainXp} from '../../shared/src/storyBudget';
+import {contactSpot,questState} from '../../shared/src/quests';
 import {Instance} from '../src/sim/instance';
 import {killMob} from '../src/sim/kills';
 import {damagePlayer} from '../src/sim/damage';
@@ -21,37 +22,49 @@ function fixture(cls:ClassId='warrior') {
   const s={save,derived:computeStats(save),sessionId:'adventure-test',send(){},markDirty(){},changed(){},rec:{inst}} as unknown as Session;
   const id=inst.addPlayer(s),p=inst.playerById(id)!;
   const at=(x:number,y:number)=>{p.x=p.mv.x=x;p.y=p.mv.y=y;p.deadMs=0;p.hp=p.mhp;};
-  const near=(id:string)=>{const i=inst.map.adventure!.interactions.find(i=>i.id===id)!;at(i.x,i.y+65);};
-  const cmd=(action:string,target='tender')=>runCommand(s,{} as World,'adventure',{action,target});
+  // Contacts stand where this character sees them (Orren walks up to the mill once the wheel turns).
+  const near=(id:string)=>{const i=contactSpot(inst.map.adventure,id,save)!;at(i.x,i.y+65);};
+  const cmd=(action:string,target='tender',extra:Record<string,unknown>={})=>runCommand(s,{} as World,'adventure',{action,target,...extra});
+  const st=()=>questState(save,'silent_wheel');
   const kill=()=>{const m=inst.mobs.find(m=>m.adventureTarget==='mill'&&!m.dead)!;at(m.x,m.y+80);killMob(inst,m,p,'physical','test');};
-  return {s,save,inst,p,at,near,cmd,kill};
+  return {s,save,inst,p,at,near,cmd,kill,st};
 }
 
-for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: actual quest handlers, kill credit, full-bag retry, duplicate claim and optional-save round trip`,async()=>{
+for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: actual quest handlers, kill credit, hold-to-repair, reward pick, full-bag retry, duplicate claim and optional-save round trip`,async()=>{
   const f=fixture(cls);
   try{
-    assert.equal(f.save.rillwake,undefined);
+    assert.equal(f.st(),undefined);
     assert.equal(f.cmd('accept').ok,false,'remote accept');
     f.near('tender');f.p.deadMs=1;assert.equal(f.cmd('accept').ok,false,'dead accept');f.p.deadMs=0;
     assert.equal(f.cmd('accept','cart').ok,false,'wrong target');
-    assert.equal(f.cmd('accept').ok,true);assert.equal(f.save.rillwake!.reward,undefined);
+    assert.equal(f.cmd('accept').ok,true);assert.equal(f.st()!.reward,undefined);assert.equal(f.save.trackedQuest,'silent_wheel','a story quest takes the focus');
     assert.equal(f.cmd('accept').ok,false,'cannot reset quest');
     assert.equal(f.cmd('claim').ok,false,'unfinished');
     f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,false,'sequence');
     f.near('cart');assert.equal(f.cmd('inspect','cart').ok,true);assert.equal(f.cmd('inspect','cart').ok,true,'repeat harmless');
-    f.kill();assert.equal(f.save.rillwake!.warden,true);
+    f.kill();assert.equal(f.st()!.step,2);
     {const l=f.inst.map.adventure!.interactions.find(i=>i.id==='ledger')!,north=Math.min(...f.inst.map.adventure!.geometry.buildings.map(b=>Math.max(...b.footprint.map(p=>p[1]))).filter(y=>y<l.y));f.at(l.x,north-70);}assert.equal(f.cmd('inspect','ledger').ok,false,'mill wall');
-    f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);
-    const reward=structuredClone(f.save.rillwake!.reward!);
-    assert.equal(reward.ilvl,levelReachedBy(storyXp(1,3)),'the weapon is generated for the level the XP of this reward reaches (storyXp(1,3)), not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
-    assert.equal(f.cmd('inspect','ledger').ok,true);assert.deepEqual(f.save.rillwake!.reward,reward,'repeat inspection cannot reroll');
+    f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);assert.equal(f.st()!.step,3);
+    // Repair: the brake needs a hold of 2.5 s of simulation time, beside it, started by holdStart (docs/rework/quests).
+    f.near('mill_brake');assert.equal(f.cmd('inspect','mill_brake').ok,false,'no hold started');
+    assert.equal(f.cmd('holdStart','mill_brake').ok,true);f.inst.t+=1000;assert.equal(f.cmd('inspect','mill_brake').ok,false,'too early');
+    f.inst.t+=1500;assert.equal(f.cmd('inspect','mill_brake').ok,true);assert.equal(f.st()!.step,4);
+    const reward=structuredClone(f.st()!.reward!),alt=structuredClone(f.st()!.rewardAlt!);
+    assert.equal(reward.ilvl,levelReachedBy(storyMainXp(1,3)),'the weapon is made for the level this quest XP reaches, not the level held before claiming');assert.equal(reward.rarity,'magic');assert.equal(reward.base,cls==='mage'?'staff':cls==='ranger'?'bow':'sword');
+    assert.equal(alt.rarity,'magic');assert(['head','shoulders','chest','hands','wrists','waist','legs','feet'].includes(alt.kind),'the alternative is an armour piece');
+    f.near('ledger');assert.equal(f.cmd('inspect','ledger').ok,true);assert.deepEqual(f.st()!.reward,reward,'repeat inspection cannot reroll');
+    const camp=f.inst.map.adventure!.interactions.find(i=>i.id==='tender')!,mill=contactSpot(f.inst.map.adventure,'tender',f.save)!;
+    assert(Math.hypot(mill.x-camp.x,mill.y-camp.y)>2000,'Orren now waits at the mill');
+    f.at(camp.x,camp.y+65);assert.equal(f.cmd('claim').ok,false,'not at his old spot any more');
     f.near('tender');f.save.inventory.fill({...reward,id:'bag-fixture'});const before=JSON.stringify(f.save);
     assert.equal(f.cmd('claim').ok,false);assert.equal(JSON.stringify(f.save),before,'full bag loses nothing');
-    f.save.inventory[0]=null;assert.equal(f.cmd('claim').ok,true,'slot zero succeeds');
-    assert.deepEqual(f.save.inventory[0],reward);assert.equal(f.save.rillwake!.claimed,true);
-    assert.equal(f.cmd('claim').ok,false);assert.equal(f.save.inventory.filter(i=>i?.id===reward.id).length,1);
-    const normalized=normalizeSave(JSON.parse(JSON.stringify(f.save)));assert.deepEqual(normalized.rillwake,f.save.rillwake);
-    await saveCharacter(f.save);await flushSaves();const reloaded=await loadCharacter(f.save.id);assert.deepEqual(reloaded!.rillwake,f.save.rillwake);assert.deepEqual(reloaded!.inventory[0],reward);
+    f.save.inventory[0]=null;const pick=cls==='mage'?'alt':'main';assert.equal(f.cmd('claim','tender',{pick}).ok,true,'slot zero succeeds');
+    const got=pick==='alt'?alt:reward,other=pick==='alt'?reward:alt;
+    assert.deepEqual(f.save.inventory[0],got);assert.equal(f.st()!.claimed,true);assert.equal(f.st()!.reward,undefined);assert.equal(f.st()!.rewardAlt,undefined);
+    assert(!f.save.inventory.some(i=>i?.id===other.id),'the other choice is discarded');
+    assert.equal(f.cmd('claim').ok,false);assert.equal(f.save.inventory.filter(i=>i?.id===got.id).length,1);
+    const normalized=normalizeSave(JSON.parse(JSON.stringify(f.save)));assert.deepEqual(normalized.quests,f.save.quests);
+    await saveCharacter(f.save);await flushSaves();const reloaded=await loadCharacter(f.save.id);assert.deepEqual(reloaded!.quests,f.save.quests);assert.deepEqual(reloaded!.inventory[0],got);
   } finally{f.inst.destroy();}
 });
 
@@ -60,14 +73,14 @@ test('remote and reward-suppressed kills cannot finish the quest; cleared sites 
   try{
     f.near('tender');f.cmd('accept');f.near('cart');f.cmd('inspect','cart');
     const target=f.inst.mobs.find(m=>m.adventureTarget==='mill')!;
-    f.near('tender');killMob(f.inst,target,f.p,'physical','remote');assert.equal(f.save.rillwake!.warden,false);
+    f.near('tender');killMob(f.inst,target,f.p,'physical','remote');assert.equal(f.st()!.step,1);
     const oldMobs=[...f.inst.mobs];for(const m of oldMobs)if(!m.dead)killMob(f.inst,m,null,'physical','cleanup');
     assert.equal(f.inst.spawner.livePacks(),0);
     {const mill=f.inst.map.adventure!.encounters.find(e=>e.id==='mill')!;f.at(mill.x,mill.y);}f.inst.t=30000;f.inst.spawner.tick(50);
     assert(!f.inst.mobs.some(m=>!m.dead&&m.adventureTarget==='mill'),'no visible respawn');
     f.near('tender');f.inst.t=60000;f.inst.spawner.tick(50);
     const respawn=f.inst.mobs.find(m=>!m.dead&&m.adventureTarget==='mill')!;assert(respawn);
-    f.at(respawn.x,respawn.y+80);respawn.noReward=true;killMob(f.inst,respawn,f.p,'physical','suppressed');assert.equal(f.save.rillwake!.warden,false);
+    f.at(respawn.x,respawn.y+80);respawn.noReward=true;killMob(f.inst,respawn,f.p,'physical','suppressed');assert.equal(f.st()!.step,1);
   } finally{f.inst.destroy();}
 });
 
@@ -79,7 +92,7 @@ test('no quest credit for pre-accept, pre-cart, dead or unrelated kills',()=>{
       if(mode==='dead'||mode==='unrelated'){f.near('cart');f.cmd('inspect','cart');}
       const m=f.inst.mobs.find(m=>mode==='unrelated'?!m.adventureTarget:m.adventureTarget==='mill')!;
       f.at(m.x,m.y+80);if(mode==='dead'){f.p.deadMs=1000;f.p.hp=0;}
-      killMob(f.inst,m,f.p,'physical','test');assert(!f.save.rillwake?.warden,mode);
+      killMob(f.inst,m,f.p,'physical','test');assert((f.st()?.step??0)<2,mode);
     } finally {f.inst.destroy();}
   }
 });

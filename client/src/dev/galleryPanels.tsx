@@ -438,7 +438,7 @@ if(qs.get('s')==='adventure') {
     const title=('fixture.quest.'+i) as QuestMessageKey;
     (QUEST_MESSAGES as Record<string,string>)[title]='Fixture adventure '+(i+1);
     catalogue.push({...structuredClone(QUESTS[0]),id:'gallery_'+i,title,requires:[],grantsFlags:undefined,
-      offer:'quest.pump.offer',steps:Array.from({length:12},(_,j)=>({...QUESTS[0].steps[0],id:'fixture_'+j,text:'quest.pump.offer'}))});
+      offer:'q.pressure_below.offer',steps:Array.from({length:12},(_,j)=>({...QUESTS[0].steps[0],id:'fixture_'+j,text:'q.pressure_below.offer'}))});
   }
   if(mode==='many')ui.set({journalQuest:'gallery_0'});
   else if(mode!=='empty') {

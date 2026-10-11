@@ -1,3 +1,4 @@
+import { activeWorldStates } from '../worldStateFlags';
 import { Container, Graphics } from 'pixi.js';
 import type { AdventureData } from '@shared/adventureTypes';
 import { groundBoundary, type Edge } from '@shared/townGeometry';
@@ -133,8 +134,13 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
   }
   const w=a.wheel;if(!w)return out;
   const root=new Container();root.position.set(w.x,w.y);
-  const wheel=new Graphics().ellipse(0,-48,w.radius,62).stroke({color:0x332d23,width:14}).ellipse(0,-48,w.radius,62).stroke({color:0x9a8054,width:5});
-  for(let i=0;i<10;i++){const a=i*Math.PI/5;wheel.moveTo(0,-48).lineTo(Math.cos(a)*w.radius,-48+Math.sin(a)*62).stroke({color:0x786545,width:6});}
-  wheel.circle(0,-48,8).fill(0x303b35);root.addChild(wheel);out.push({view:root,y:w.y});
+  const rim=new Graphics().ellipse(0,-48,w.radius,62).stroke({color:0x332d23,width:14}).ellipse(0,-48,w.radius,62).stroke({color:0x9a8054,width:5});
+  // Spokes are drawn round and squashed, so rotating them reads as the wheel turning (docs/rework/quests/DESIGN.md §7).
+  const axle=new Container();axle.position.set(0,-48);axle.scale.set(1,62/w.radius);
+  const spokes=new Graphics();for(let i=0;i<10;i++){const a=i*Math.PI/5;spokes.moveTo(0,0).lineTo(Math.cos(a)*w.radius,Math.sin(a)*w.radius).stroke({color:0x786545,width:6});}
+  for(let i=0;i<10;i++){const a=i*Math.PI/5+Math.PI/10;spokes.rect(Math.cos(a)*w.radius-5,Math.sin(a)*w.radius-5,10,10).fill(0x5a4a34);}
+  axle.addChild(spokes);root.addChild(rim,axle,new Graphics().circle(0,-48,8).fill(0x303b35));
+  if(w.spin){const key=w.spin;let last=performance.now();root.onRender=()=>{const now=performance.now();if(activeWorldStates.has(key))spokes.rotation+=(now-last)/1000*1.1;last=now;};}
+  out.push({view:root,y:w.y});
   return out;
 }

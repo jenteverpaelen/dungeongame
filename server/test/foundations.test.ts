@@ -59,7 +59,9 @@ test('legacy/current fixtures retain owned items, overflow slots, progression an
     await saveCharacter(migrated); await flushSaves();
     const loaded = await loadCharacter(migrated.id);
     assert.deepEqual(loaded, migrated, 'save/reload preserves normalized state');
-    assert.deepEqual(loaded!.quests, original.quests, 'quest history and unknown future records are retained');
+    // Quest rework (docs/rework/quests): history migrates to the current revision; unknown future records stay untouched.
+    const expected = original.quests ? { ...original.quests, ...(original.quests.high_water ? { high_water: { ...original.quests.high_water, revision: 2, step: 3 } } : {}) } : undefined;
+    assert.deepEqual(loaded!.quests, expected, 'quest history migrates and unknown future records are retained');
     assert.deepEqual(items(loaded!), beforeItems);
   }
 });

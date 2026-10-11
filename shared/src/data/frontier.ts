@@ -33,6 +33,8 @@ function cairnspill() {
   z.portal(...P(6.5, 74), 'bracken_sluice', 'Bracken Sluice');
   z.resident('cs_chain', 'worker', 'Chainman', ...P(8, 68.5), 20); z.decor('signalflag', ...P(16.5, 73.5)); z.decor('cairn', ...P(5.5, 69.5));
   z.landmark('Survey Camp', ...P(10.5, 75.5));
+  z.board(...P(16.6, 70.2), 'Survey Camp bounty board');
+  z.moveTo('surveyor', 'cs_haul', ...P(79.2, 19.5));
   z.pack('lower_cut', ...P(25.5, 60), ['flint_beetle', 'gloomshroom', 'bog_slime', 'grave_bat', 'flint_beetle']);
   z.quarryCut(...P(22, 65.5)); z.landmark('Lower Cutting', ...P(25, 66));
   z.location('cutting', ...P(45.5, 44.5));
@@ -48,12 +50,20 @@ function cairnspill() {
   z.wall(rect(77 * S, 8.5 * S, 10 * S, 0.5 * S)); z.wall(rect(77 * S, 8.5 * S, 0.5 * S, 6.5 * S)); z.wall(rect(86.5 * S, 8.5 * S, 0.5 * S, 3.2 * S));
   z.contact('dispatch', 'Quarry dispatch', ...P(84, 10.8), 'ledger');
   z.decor('table', ...P(79.5, 10.5)); z.light(...P(82, 10), 0xffc070, 150); z.landmark('Dispatch Shed', ...P(82, 16));
+  z.contact('haul_signal', 'Haul-road signal mast', ...P(84.6, 14.3), 'mechanism');
+  // Haul signal raised (cs_haul): crews back on the bench and the quarry head, lamps along the haul road.
+  z.phase('cs_haul', true, () => {
+    z.decor('banner', ...P(85.6, 16.4)); z.resident('cs_crew1', 'worker', 'Quarryman', ...P(52.6, 40.4), 15); z.resident('cs_crew2', 'porter', 'Haulier', ...P(71.2, 25.6), -20);
+    z.resident('cs_crew3', 'carpenter', 'Cart wright', ...P(44.4, 46.6), 30); z.walker('cs_haulcart', 'porter', [P(41, 47), P(47, 43), P(54, 38), P(61, 33), P(54, 38), P(47, 43)], 40, 4);
+    for (const [x, y] of [P(36, 50.5), P(54, 36.6), P(68, 25.6)]) { z.decor('lamppost', x, y); z.light(x, y - 70, 0xffc070, 180); }
+  });
   z.portal(...P(90, 19), 'cinderwash_kilns', 'Cinderwash Kilns');
   z.pack('old_track', ...P(18.5, 42), ['vault_moth', 'siltusk', 'grave_bat', 'gloomshroom']);
   z.wreck(...P(14, 44)); z.landmark('Old Track', ...P(18, 46));
   z.elite('grindstone', ...P(31.5, 25.5), 'siltusk', 'Grindstone', ['fast'], ['flint_beetle', 'vault_moth'], { questTarget: true });
   z.contact('stake_track', 'Crooked survey stake', ...P(22.5, 39.5), 'marker'); z.contact('stake_scar', 'Buried survey stake', ...P(26.5, 28.5), 'marker');
   z.landmark('Slide Scar', ...P(31, 31));
+  z.phase('cs_stakes', true, () => { z.decor('stake', ...P(20.6, 37.6)); z.decor('stake', ...P(23.8, 31.4), 1, 1); z.decor('signalflag', ...P(21.4, 37.2), 0.7); });
   z.cache('cache_ledge', ...P(11, 17), 'Hermit’s strongbox'); z.shrine('shrine_ledge', ...P(15.5, 19.5), 'keen'); z.decor('cairn', ...P(13, 15));
   z.landmark('Hermit’s Ledge', ...P(13, 22));
   z.fishery(...P(57, 66)); z.cache('cache_creek', ...P(63.5, 60.5), 'Quarrymen’s cache'); z.landmark('Creek Pool', ...P(60, 67));
@@ -96,6 +106,8 @@ function cinderwash() {
   z.portal(...P(6.5, 74), 'cairnspill_terraces', 'Cairnspill Terraces');
   z.resident('cw_stoker', 'worker', 'Off-shift stoker', ...P(8, 68.5), 15); z.decor('barrels', ...P(16, 74.5));
   z.landmark('Firekeepers’ Camp', ...P(10.5, 75.5));
+  z.board(...P(15.4, 70.6), 'Firekeepers’ bounty board');
+  z.moveTo('firekeeper', 'cw_quiet', ...P(62.6, 30.4));
   z.pack('charcoal', ...P(26, 62), ['ember_imp', 'ash_wisp', 'bonewalker', 'cinder_cultist', 'ember_imp']);
   z.kilnYard(...P(21, 66)); z.landmark('Charcoal Road', ...P(25, 68));
   z.contact('pit_bellows', 'Abandoned pit bellows', ...P(41, 60), 'mechanism');
@@ -113,10 +125,13 @@ function cinderwash() {
   z.elite('cinderhusk', ...P(49, 38.5), 'magma_brute', 'Cinderhusk', ['molten'], ['ember_imp', 'ash_wisp'], { questTarget: true });
   z.contact('ember_niche', 'Firekeepers’ offering niche', ...P(38, 60), 'marker');
   z.landmark('Slag Heaps', ...P(48, 44));
+  z.phase('cw_niche', true, () => { z.fire(...P(37.6, 59.2), 0.35); z.fire(...P(38.6, 59.4), 0.3); });
   z.kilns = [{ x: Math.round(58 * S), y: Math.round(15 * S), w: 300, d: 220, h: 160 }, { x: Math.round(70 * S), y: Math.round(18 * S), w: 230, d: 180, h: 130 }];
   z.pack('stoker', ...P(64, 27.5), [{ type: 'cinder_cultist', dx: 0, dy: 0, tier: 2, name: 'The Unattended Flame', questTarget: true, affixes: ['faulted'] }, 'ember_imp', 'bonewalker', 'grave_bat']);
   z.contact('draught', 'Kiln draught lever', ...P(68.5, 25), 'mechanism');
-  z.emit('smoke', ...P(60, 14), 8); z.emit('smoke', ...P(72, 17), 6); z.emit('embers', ...P(64, 20), 8);
+  // The draught closed (cw_quiet): the raging smoke over the upper kilns settles to a thin breath.
+  z.phase('cw_quiet', false, () => { z.emit('smoke', ...P(60, 14), 8); z.emit('smoke', ...P(72, 17), 6); z.emit('embers', ...P(64, 20), 8); z.light(...P(64, 18), 0xff6a2a, 320, 0.4); });
+  z.phase('cw_quiet', true, () => { z.emit('smoke', ...P(60, 14), 2); z.resident('cw_keeper2', 'worker', 'Firekeeper', ...P(57.6, 29.6), 20); });
   z.landmark('Upper Kilns', ...P(66, 30));
   z.elite('flats_rare', ...P(79, 67), 'bonewalker', 'Ashen Tallyman', ['electrified'], ['ember_imp', 'cinder_cultist']);
   z.cache('cache_flats', ...P(82, 63), 'Scorched paybox'); z.landmark('Cinder Flats', ...P(78, 70.5));
@@ -160,6 +175,12 @@ function kilnwatch() {
   z.portal(...P(6.5, 74), 'cinderwash_kilns', 'Cinderwash Kilns');
   z.resident('kw_guard', 'guard', 'Watch sentry', ...P(17, 72.5), -10); z.resident('kw_porter', 'porter', 'Refuge porter', ...P(7.5, 68.5), 25);
   z.wardPost(...P(16, 75.5)); z.landmark('Watchkeepers’ Refuge', ...P(10.5, 76));
+  z.board(...P(15.6, 69.5), 'Refuge bounty board');
+  z.moveTo('watchkeeper', 'kw_cold', ...P(52.2, 36.4));
+  z.phase('kw_shift', true, () => {
+    z.resident('kw_shift1', 'worker', 'Night shift', ...P(7.2, 72.4), 20); z.resident('kw_shift2', 'porter', 'Night shift', ...P(14.6, 69.2), -10);
+    z.resident('kw_shift3', 'carpenter', 'Night shift', ...P(9.4, 76.4), 30); z.resident('kw_shift4', 'worker', 'Shift lead', ...P(13.2, 77), -30);
+  });
   z.pack('gantry', ...P(34, 57.5), ['flint_beetle', 'cinder_cultist', 'bonewalker', 'ember_imp', 'bonewalker']);
   z.contact('chimney_prop', 'Cracked chimney prop', ...P(29.5, 53), 'mechanism');
   z.pack('collapse', ...P(36, 53), ['ember_imp', 'ember_imp', 'ash_wisp', 'cinder_cultist', 'ember_imp', 'magma_brute']);
@@ -173,7 +194,10 @@ function kilnwatch() {
   z.kilns = [{ x: Math.round(58 * S), y: Math.round(9 * S), w: 400, d: 240, h: 200 }];
   z.pack('heart', ...P(62, 19.5), [{ type: 'kiln_heart', dx: 0, dy: 0, tier: 2, name: 'The Last Ember', questTarget: true, combat: 'furnace' }]);
   z.contact('seal', 'Cold draw seal', ...P(68.5, 15), 'mechanism');
-  z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.landmark('Crown Furnace', ...P(62, 23));
+  // The cold draw shut (kw_cold): no more smoke and embers over the crown furnace.
+  z.phase('kw_cold', false, () => { z.emit('smoke', ...P(60, 8), 9); z.emit('embers', ...P(62, 13), 10); z.light(...P(62, 12), 0xff6a2a, 360, 0.4); });
+  z.phase('kw_cold', true, () => { z.emit('smoke', ...P(60, 8), 1); });
+  z.landmark('Crown Furnace', ...P(62, 23));
   z.elite('slagmaw', ...P(79, 45.5), 'magma_brute', 'Slagmaw', ['molten'], ['ember_imp', 'bonewalker', 'ash_wisp'], { questTarget: true });
   z.contact('shift_board', 'Gantry shift board', ...P(37.5, 53.5), 'ledger'); z.contact('lost_tin', 'Dented sweet tin', ...P(76, 47), 'cart');
   z.kilnYard(...P(74, 41)); z.cache('cache_bellows', ...P(82, 41), 'Bellows-house strongbox'); z.landmark('Bellows House', ...P(78, 48.5));
