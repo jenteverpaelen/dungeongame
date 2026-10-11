@@ -16,6 +16,7 @@ import { ItemCard, ItemVisual, itemHover } from './tooltip';
 import { cls, rarityClass, SLOT_LABEL } from './util';
 import { ClassEmblem } from '../hud/Glyphs';
 import { UiIcon } from '../hud/UiIcons';
+import { RarityMark } from './rarityMark';
 
 export function openInspection(name: string) { ui.set({ inspectionName: name }); togglePanel('inspect', true); }
 
@@ -69,6 +70,7 @@ export function InspectPanel() {
                 class={cls('cell', 'ins-cell', it ? rarityClass(it) : 'empty', slot === s && 'on')} onClick={() => setSlot(s)}
                 {...(it ? itemHover(() => it) : {})}>
                 {it ? <ItemVisual item={it} size={40} /> : <SlotGlyph slot={s} size={30} />}
+                {it && <RarityMark item={it} />}
               </button>;
             })}
           </div>

@@ -19,7 +19,9 @@ export class Input {
     window.addEventListener('keyup', this.onUp);
     window.addEventListener('blur', () => this.down.clear());
     window.addEventListener('focusin', () => this.down.clear());
-    window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX; this.mouseY = e.clientY; });
+    window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX; this.mouseY = e.clientY; keys.setDevice('keyboard'); });
+    // Prompts follow the last device: a real key press or mouse use switches them back from gamepad buttons.
+    window.addEventListener('keydown', (e) => { if (e.isTrusted) keys.setDevice('keyboard'); }, { capture: true });
     let previous = keys.get();
     keys.subscribe(() => {
       const next = keys.get();

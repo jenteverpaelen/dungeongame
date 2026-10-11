@@ -58,7 +58,8 @@ export function placeGround(inst: Instance, p: Player, defId: string, x: number,
     wasInside: new Set(), entered: new Map(), insideMs: new Map(), done: new Set(), status: new Map(),
   };
   addGround(inst, g);
-  if (def.visual) inst.emit({ e: 'aoe', v: def.visual, x: Math.round(x), y: Math.round(y), r: Math.round(def.radius), d: def.durationMs, el: elIdx(el), s: p.id, ...(len ? { a: Math.round(angle * 1000) / 1000 } : {}) }, x, y, p.id);
+  if (def.visual) inst.emit({ e: 'aoe', v: def.visual, x: Math.round(g.x), y: Math.round(g.y), r: Math.round(g.r), d: def.durationMs, el: elIdx(el), s: p.id,
+    ...(len ? { a: Math.round(angle * 1000) / 1000 } : {}), ...(g.follow || g.stick ? { f: 1 as const } : {}) }, x, y, p.id);
   return g;
 }
 

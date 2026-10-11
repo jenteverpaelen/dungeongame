@@ -10,8 +10,8 @@ export const ARTISAN_NAMES: Record<Artisan, string> = { blacksmith: 'Blacksmith'
 export const SERVICE_ROLE: Partial<Record<CmdOp, NpcRole>> = {
   salvage: 'blacksmith', salvageAll: 'blacksmith', upgrade: 'blacksmith',
   fuseGem: 'jeweler', insertGem: 'jeweler', removeGem: 'jeweler', socket: 'jeweler',
-  enchantRoll: 'mystic', enchantPick: 'mystic',
+  enchantRoll: 'mystic', enchantPick: 'mystic', rekindle: 'mystic',
   transmute: 'cube', extract: 'cube', reforge: 'cube', cubeEquip: 'cube',
-  stashDeposit: 'stash', stashWithdraw: 'stash', paragon: 'paragon', paragonReset: 'paragon', riftOpen: 'obelisk',
+  stashDeposit: 'stash', stashWithdraw: 'stash', stashMove: 'stash', stashBuyTab: 'stash', paragon: 'paragon', paragonReset: 'paragon', riftOpen: 'obelisk',
   // travel/riftEnter also accept their actual authored exit/active portal, verified by World.
 };

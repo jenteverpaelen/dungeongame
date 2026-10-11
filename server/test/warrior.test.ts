@@ -393,6 +393,30 @@ test('warrior legendaries: Stonecount stacks per stunned enemy, Red Ledger refun
   } finally { g.inst.destroy(); }
 });
 
+test('after the shared-items merge: Kilnmaw (maul2h) lengthens Kilnheart and boosts Burn skills; Cinder Oath 4 counts Burning enemies', () => {
+  const f = fixture({ slots: ['kilnheart', null, null, null] });
+  try {
+    f.setPowers({ kilnmaw: 175 });
+    assert.equal(LEGENDARIES.kilnmaw.base, 'maul2h');
+    assert.equal(f.p.ctx.modsOf('kilnheart').mods.duration, 25);
+    assert.equal(f.p.ctx.modsOf('kilnheart').mods.dmg, 175, 'Kilnheart carries the Burn tag');
+    assert(castSkill(f.inst, f.p, f.p.ctx.slotted('kilnheart')!));
+    assert.equal(getBuff(f.p, 'kilnheart')!.ms, 25000, '20 s + 25%');
+  } finally { f.inst.destroy(); }
+  const strike = (burning: boolean) => {
+    const g = fixture({ posts: [[40, 0]] });
+    try {
+      g.setPowers({}, { cinder_oath: 4 });
+      if (burning) g.posts[0].dots.push({ kind: 'burn', owner: 999, skill: 'x', el: 'fire', perTick: 0, tickMs: 500, nextMs: 500, leftMs: 4000 } as never);
+      const before = g.posts[0].hp;
+      castPrimary(g.inst, g.p, g.posts[0]);
+      return before - g.posts[0].hp;
+    } finally { g.inst.destroy(); }
+  };
+  const plain = strike(false), vsBurning = strike(true);
+  assert(Math.abs(vsBurning / plain - 1.2) < 0.02, `Cinder Oath 4: +20% against a Burning enemy (${(vsBurning / plain).toFixed(3)})`);
+});
+
 // ─────────────────────────── Phase 2: engine wave 2 primitives ───────────────────────────
 
 test('Kilnheart: +20% damage, +15% attack speed, half-price Fury, and warrior hits ignite (Cold Forge chills instead)', () => {

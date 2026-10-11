@@ -23,18 +23,53 @@ legacy window; finally switch to `required` without the legacy flag.
   costs the same as a wrong password and gets the same answer.
 - Eight one-time recovery codes at registration (only their SHA-256 is stored). A code resets the password, is
   consumed, and revokes every session. Codes can be regenerated after proving the password.
-- Session tokens: 32 random bytes, stored hashed in memory, 30-day sliding expiry, at most 5 per account, revoked on
-  logout, password change and recovery. A server restart ends sessions (players log in again).
-- Brute force: 5 failures in 15 minutes lock a username for 15 minutes; 25 per IP; 5 registrations per IP per hour.
+- Session tokens: 32 random bytes, 30-day sliding expiry, at most 5 per account, revoked on logout, password change and
+  recovery. **Since 2026-10-11 they survive a restart**: only the SHA-256 of each token is kept, in memory and in
+  `DATA_DIR/accounts/.sessions.json` (atomic write, one second after a change). A copy of that file cannot be replayed —
+  finding a 256-bit random token from its hash is not feasible — and it is a dotfile, so neither the account loader nor
+  the aux backup picks it up (sessions never come back from a backup). `ACCOUNT_SESSIONS=memory` restores the old
+  behaviour. Each session stores a coarse device label ("Chrome on Windows", parsed from the User-Agent at login; the
+  header itself is never kept) and first/last use, shown under **Devices**, where the player can sign one device or
+  every other device out.
+- Brute force (2026-10-11): 5 failures in 15 minutes lock that **username for that connection** (pair lock); 50 failures
+  from all connections lock the account for 15 minutes (NIST SP 800-63B §5.2.2 asks verifiers to limit failed attempts on
+  one account to no more than 100 consecutive); 25 per connection; 5 registrations per connection per hour. Before this,
+  anyone could lock a player out for 15 minutes with five guesses. Re-asking the password (password change, new codes,
+  export, deletion) has its own counter (5 in 15 minutes).
+- Client address: the socket peer. Behind a reverse proxy set `TRUSTED_PROXIES=<proxy ip>[,…]`; only then the right-most
+  untrusted `X-Forwarded-For` hop is used. One address may hold at most `MAX_CONNECTIONS_PER_IP` sockets (default 20,
+  loopback exempt).
+- Activity log: the last 20 security events per account (created, signed in + device, password changed, recovery code used,
+  new codes, devices signed out, data downloaded, deletion requested/cancelled, hero deletion/restore, owner reset). No IP
+  addresses. This is the email-free replacement for "your password was changed" mails: the Devices tab shows it.
 - Files: one JSON per account in `DATA_DIR/accounts/<username>.json`, written atomically; registration uses an
   exclusive create so two simultaneous registrations cannot both win. Malformed or mismatched files are skipped.
 - Ownership: characters are linked to exactly one account (max 10); claiming is race-safe across accounts. The
   character itself keeps its save format (no migration, `save 14` unchanged).
 
-## Protocol (version 21)
+## Personal data: export and deletion (F-ACC-06, 2026-10-11)
 
-`C2S { t:'auth', op: register | login | resume | logout | recover | password | codes, … }` before `hello`;
-`S2C { t:'auth', op, ok, mode, err?, username?, token?, recoveryCodes?, characters? }`. When the mode is not `off`
+- **Your data → Download** (password re-asked): one JSON file, `format: hearthfall-personal-data` — the account
+  (username, created, heroes, codes left, activity, devices), every hero's exact save, its guild membership and the
+  reports it filed, pending deletions, and its telemetry lines if a playtest logged any. Password hash, salt and
+  recovery-code hashes are secrets and are left out; IP addresses are never stored. (GDPR Art. 15 access + Art. 20
+  portability: structured, machine-readable.)
+- **Delete account** (type the username + password): scheduled, not immediate. The account's heroes cannot be played and
+  other devices are signed out; logging in still works and shows a banner with **Cancel deletion**. After
+  `DELETION_GRACE_DAYS` (default 14, 0–30) the hourly purge erases the account file, sessions, every hero save
+  (including quarantined copies), their telemetry lines and guild membership. A **hero** can be deleted the same way from
+  the Heroes tab and restored until its date.
+- **Erasure ledger** `DATA_DIR/privacy/ledger.json`: pending requests plus the SHA-256 digest and time of each erased id —
+  no names. At start-up the server erases any save or account file older than its erasure (a restored backup), while a
+  new hero who later took the freed name is newer and stays. The aux backup copies the ledger; the restore CLI has
+  `apply-erasures` for a restored directory. Procedures: `docs/rework/partials/PRIVACY-RUNBOOK.md`.
+
+## Protocol (version 23)
+
+`C2S { t:'auth', op: register | login | resume | logout | recover | password | codes | sessions | revoke | export |
+deleteAccount | cancelDeletion | deleteCharacter | restoreCharacter, … }` before `hello`;
+`S2C { t:'auth', op, ok, mode, err?, username?, token?, recoveryCodes?, characters?, info?, sessions?, events?, data? }`.
+When the mode is not `off`
 the server sends `op:'status'` with the mode right after the socket opens, and allows five minutes (instead of ten
 seconds) for the login screen. Details: `shared/src/protocol.ts`.
 
@@ -48,10 +83,12 @@ server in `off` mode shows nothing new and opens no extra socket. With accounts 
   one-time recovery codes once (copy, download as text, and a "I stored these" box before it can be closed; Escape does
   not dismiss it). Recover takes username + one code + a new password. In `required` mode the dialog cannot be dismissed
   and the Enter button reads "Log in to play".
-- **Dialog, signed in**: Heroes (the account's characters; Choose fills the name and class), Security (change
-  password, new recovery codes; both re-ask the password) and Log out. A "Your heroes" row also sits above the name field.
+- **Dialog, signed in**: Heroes (the account's characters; Choose fills the name and class; Delete… / Restore),
+  Security (codes left, change password, new recovery codes; both re-ask the password), Devices (signed-in devices,
+  sign out one or all others, recent activity), Your data (download, delete account) and Log out. A pending account
+  deletion shows a banner with Cancel deletion above the tabs. A "Your heroes" row also sits above the name field.
 - **Session**: the token is kept in `localStorage` (`hearthfall.token`, 30-day sliding on the server). On load the
-  client resumes it; a server restart ends sessions, so the player simply sees the login form with the username prefilled.
+  client resumes it, also after a server restart.
   Passwords are never stored client side. The login socket is reused for `hello` and re-resumes when it was idle past the
   server's five-minute pre-login window.
 - Account management is only reachable before entering the world (the server refuses account changes once `hello` is
@@ -66,22 +103,37 @@ Input rules (`USERNAME_RE`, 10–128 character passwords) are mirrored in `clien
 DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts list
 DATA_DIR=<saves> HF_PASSWORD='…' npx tsx scripts/accounts-admin.ts create alice
 DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts link alice OldHeroName
-DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts reset alice     # new password + codes, printed once
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts reset alice              # new password + codes, printed once
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts activity alice           # devices + security activity
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts revoke-sessions alice
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts export alice out.json    # GDPR copy (check identity first)
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts export-character Name out.json
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts delete alice [--now]
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts delete-character Name [--now]
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts cancel-delete alice|Name
+DATA_DIR=<saves> npx tsx scripts/accounts-admin.ts pending | purge
 ```
-Restart the server afterwards (accounts are cached in memory).
+Account changes need a restart afterwards (accounts are cached in memory); scheduled deletions merge with a running
+server and are picked up within an hour.
 
 ## Tests
 
 `server/test/accounts.test.ts`: validation, enumeration-safe login, lockout with a fake clock, racing registrations,
 recovery single-use and session revocation, token cap/expiry, exclusive and race-safe ownership, restart and tampered
 files, plus two real-server runs (`required` and `optional`) over WebSocket.
+`server/test/accountPrivacy.test.ts` (2026-10-11): device labels; sessions survive a restart with only hashes on disk,
+revoke/logout durable, expired/tampered entries dropped, memory mode; the pair lock keeps the owner in while a guesser is
+locked, the account ceiling engages and expires; activity without IPs; grace bounds; deletion inside/after the grace
+period and cancel; a restored file is erased again but a newer hero with the freed name stays; restore tooling; export
+without secret values; a real server: restart keeps the session, devices list, export re-asks the password, hero
+deletion blocks `hello` until restored, account deletion blocks play until cancelled.
 
 ## Not done — needs an owner decision or an independent review before any public test
 
 - Email verification and email-based recovery (no mail service, no paid services); passkeys; third-party sign-in.
-- Persisting sessions across restarts; device list; account deletion and data export (GDPR flow, roadmap F-ACC-06).
-- A second pair of eyes on this file and `session.ts` (the roadmap requires independent review for auth). A self-review
-  on 2026-10-10 found and fixed two things (below); it is not the independent review.
+- A second pair of eyes on this file and `session.ts` (the roadmap requires independent review for auth). Self-reviews
+  on 2026-10-10 and 2026-10-11 are not the independent review.
+- Usernames can still be enumerated through registration ("taken") — inherent to choosing a public name.
 
 ## Backups
 
@@ -107,4 +159,4 @@ npm run saves:backup -- aux-restore <BACKUP_DIR>\aux-… <NEW-destination-direct
   reverse proxy every player shares one IP and the 25-failure IP lock applies to them together — add a trusted-proxy
   setting before putting this behind one. Anyone can lock a *username* for 15 minutes with five wrong guesses (the IP
   limit stops one source, not many). Usernames can be enumerated through registration ("taken").
-* **Not done:** email-based recovery, session persistence across restarts, account deletion/export, passkeys.
+  **Resolved 2026-10-11:** `TRUSTED_PROXIES`; pair lock + 50-failure account ceiling; persisted sessions; export/deletion.

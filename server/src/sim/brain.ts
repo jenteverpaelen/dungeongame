@@ -269,6 +269,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
   const tgt = pickTarget(inst, p.x, p.y, c.attackRange + (melee?ACQUIRE_BUFFER:0), !melee, p.save.skills.targetPriority);
   if (!tgt) { p.atkCdMs = 0; return; }
   castPrimary(inst, p, tgt);
+  if (c.powers.procs.attack) firePowerProcs(inst, p, 'attack', { skill: c.primary.def.id, mob: tgt });
   const aps = Math.max(0.2, c.d.aps * (1 + p.live.ias / 100));
   p.atkCdMs += 1000 / aps;
   if (p.atkCdMs < 0) p.atkCdMs = 0;

@@ -7,7 +7,8 @@ import {
   playerLook, type BuffView, type EntDesc, type GameEvent, type MeState, type Snapshot,
 } from '../shared';
 import { summonCount } from './brain';
-import { channelMoveFactor } from './powerActions';
+import { skillCooldownMs } from './playerctx';
+import { channelMsPct, extraCharges } from './powerActions';
 import type { Instance } from './instance';
 import type { Loot, Mob, Player, PortalEnt, Summon } from './types';
 
@@ -159,11 +160,20 @@ function buildSnapshot(inst: Instance, p: Player, now: number, rift: Snapshot['r
 function meState(inst: Instance, p: Player): MeState {
   const cds: number[] = [0, 0, 0, 0];
   const ch: number[] = [0, 0, 0, 0];
+  const charged = p.ctx.powers.rules.charges.size > 0;
   for (let i = 0; i < 4; i++) {
     const rt = p.ctx.slots[i];
     if (!rt) continue;
     cds[i] = Math.max(0, Math.round((p.readyAt.get(rt.def.id) ?? 0) - inst.t));
     if (rt.def.kind === 'summon') ch[i] = summonCount(p, rt.def.id);
+    const extra = charged ? extraCharges(p, rt.def.id) : 0;
+    if (extra > 0) {
+      // Charges (rule change): the badge shows charges ready; the sweep only runs while none is.
+      const cd = skillCooldownMs(p, rt), wait = Math.max(0, (p.readyAt.get(rt.def.id) ?? 0) - inst.t);
+      const ready = cd > 0 ? Math.max(0, Math.min(extra + 1, extra + 1 - Math.ceil(wait / cd))) : extra + 1;
+      ch[i] = ready;
+      cds[i] = ready > 0 ? 0 : Math.max(0, Math.round(wait - extra * cd));
+    }
   }
   const buffs: BuffView[] = [];
   for (const b of p.buffs) {
@@ -173,10 +183,9 @@ function meState(inst: Instance, p: Player): MeState {
     buffs.push(v);
   }
   const s = p.save;
-  const mvf = p.channel ? channelMoveFactor(p, p.channel.skill) : 1;
   return {
-    ...(mvf !== 1 ? { mvf } : {}),
     x: p.mv.x, y: p.mv.y, dashMs: p.mv.dashMs, dashCd: p.mv.dashCdMs,
+    ...(p.channel && channelMsPct(p) !== p.ctx.d.ms ? { ms: channelMsPct(p) } : {}),
     hp: Math.max(0, Math.round(p.hp)), mhp: Math.round(p.mhp), res: Math.floor(p.res), mres: Math.round(p.mres),
     cds, ch, buffs, xp: s.xp, lv: s.level, pxp: s.paragon.xp, pl: s.paragon.level, gold: s.gold,
     dead: p.deadMs > 0 ? Math.ceil(p.deadMs) : 0,

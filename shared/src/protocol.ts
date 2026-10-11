@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 23;
+export const PROTOCOL_VERSION = 26; // 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
@@ -88,6 +88,8 @@ export interface MeState {
   y: number;
   dashMs: number;
   dashCd: number;
+  /** Movement speed % in effect when it differs from the sheet (channel slows / rules / moveWhileChannel); prediction uses it. */
+  ms?: number;
   hp: number;
   mhp: number;
   res: number;
@@ -103,8 +105,6 @@ export interface MeState {
   pl: number;
   gold: number;
   dead: number; // ms until respawn, 0 if alive
-  /** Movement factor while a channel slows you (Ironplough); absent = 1. Client prediction applies it (channelMsPct). */
-  mvf?: number;
 }
 
 export type GameEvent =
@@ -114,7 +114,7 @@ export type GameEvent =
   | { e: 'cast'; s: number; sk: string; r?: string; x: number; y: number; tx: number; ty: number; rad?: number }
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
   | { e: 'pend'; id: number; x: number; y: number; hit?: 1 }
-  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number }
+  | { e: 'aoe'; v: string; x: number; y: number; r: number; d: number; el: number; s?: number; delay?: number; a?: number; /** follows entity `s` */ f?: 1 }
   | { e: 'tele'; v: string; x: number; y: number; r: number; d: number; a?: number; w?: number; s?: number }
   | { e: 'beam'; v: string; x: number; y: number; tx: number; ty: number; el: number; d: number }
   | { e: 'level'; t: number; lv: number }
@@ -180,14 +180,17 @@ export interface Snapshot {
 }
 
 export type S2C =
-  | { t: 'auth'; op: AuthOp; ok: boolean; mode: AccountMode; err?: string; username?: string; token?: string; recoveryCodes?: string[]; characters?: AuthCharacter[] }
+  | { t: 'auth'; op: AuthOp; ok: boolean; mode: AccountMode; err?: string; username?: string; token?: string; recoveryCodes?: string[]; characters?: AuthCharacter[];
+      info?: AccountInfo; sessions?: AccountSession[]; events?: AccountActivity[]; data?: unknown }
   | { t: 'welcome'; you: number; char: CharacterSave; derived: DerivedStats; zone: ZoneInfo; time: number; world: WorldInfo }
   | { t: 'zone'; you: number; zone: ZoneInfo }
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
   | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item }
-  | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number }
+  | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
+      /** v2 breakdown (F-MET-02): kills/min used, whether it is the hero's own measured rate, the offline share, cap hit. */
+      rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
   | { t: 'world'; world: WorldInfo }
   | { t: 'party'; party: import('./party').PartyView }
   | { t: 'social'; social: import('./social').SocialView }
@@ -202,10 +205,10 @@ export type CmdOp = 'onboarding'
   | 'collection'
   | 'merchant'
   | 'equip' | 'unequip' | 'swapInv' | 'destroy' | 'itemProtect'
-  | 'stashDeposit' | 'stashWithdraw'
+  | 'stashDeposit' | 'stashWithdraw' | 'stashMove' | 'stashBuyTab'
   | 'adventure'
   | 'quest'
-  | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
+  | 'salvage' | 'salvageAll' | 'enchantRoll' | 'enchantPick' | 'rekindle' | 'upgrade' | 'transmute' | 'extract' | 'cubeEquip' | 'reforge' | 'socket'
   | 'insertGem' | 'removeGem' | 'fuseGem'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
@@ -213,12 +216,21 @@ export type CmdOp = 'onboarding'
   | 'debug';
 
 /** Account operations, sent before `hello`. `status` is only ever a server notice. */
-export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 'recover' | 'password' | 'codes';
+export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 'recover' | 'password' | 'codes'
+  // Devices & activity, personal data (export, deletion with a grace period); all need a logged-in socket before `hello`.
+  | 'sessions' | 'revoke' | 'export' | 'deleteAccount' | 'cancelDeletion' | 'deleteCharacter' | 'restoreCharacter';
 export type AccountMode = 'off' | 'optional' | 'required';
-export interface AuthCharacter { name: string; classId: ClassId; level: number }
+/** `deleteAt`: the hero is scheduled for deletion at this time (epoch ms) and cannot be played until restored. */
+export interface AuthCharacter { name: string; classId: ClassId; level: number; deleteAt?: number }
+/** Account facts the dialog shows: codes left, the grace period and a pending account deletion. */
+export interface AccountInfo { recoveryLeft: number; graceDays: number; deletionAt?: number }
+export interface AccountSession { id: string; device: string; created: number; lastUsed: number; current: boolean }
+export interface AccountActivity { t: number; k: string; d?: string }
 
 export type C2S =
-  | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string }
+  | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string;
+      /** revoke: a session id or 'others'. deleteCharacter/restoreCharacter: the hero's name. deleteAccount: the username typed again. */
+      session?: string; character?: string; confirm?: string }
   | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.

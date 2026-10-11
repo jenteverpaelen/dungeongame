@@ -1,6 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import type { AdventureData } from '@shared/adventureTypes';
 import { glowSprite } from './fx';
+import { backgroundMotion } from '../../game/quality';
 
 type Site = NonNullable<AdventureData['ambience']>['motion'][number];
 type Motion = { site: Site; root: Container; parts: Container[]; phase: number };
@@ -40,7 +41,10 @@ export class AdventureLife {
     }
   }
   update(time: number, cx: number, cy: number, halfW: number, halfH: number): void {
+    // Reduce motion: the mist, ripples and reeds stay where they are (background movement off), still culled.
+    const moving = backgroundMotion();
     for (const m of this.motions) {
+      if (!moving) { const [x, y] = m.site.position; m.root.visible = Math.abs(x - cx) < halfW + m.site.width * 2 && Math.abs(y - cy) < halfH + m.site.width + 60; continue; }
       const [x, y] = m.site.position, width = m.site.width;
       m.root.visible = Math.abs(x - cx) < halfW + width * 2 && Math.abs(y - cy) < halfH + width + 60;
       if (!m.root.visible) continue;

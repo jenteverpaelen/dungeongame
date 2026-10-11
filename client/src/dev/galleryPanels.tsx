@@ -196,7 +196,7 @@ function enchantOptions(item: Item, idx: number): AffixRoll[] {
   return picks.map((def) => {
     const r = def.ranges[item.kind]!;
     const s = affixScale(def.scale, item.ilvl);
-    const am = item.ancient ? 1.3 : 1;
+    const am = item.ancient && item.legacyGrade ? 1.3 : 1; // grades scale nothing; legacy items keep ×1.3
     let min = r[0] * s * am, max = r[1] * s * am;
     if (def.scale !== 'pct') { min = Math.max(1, Math.round(min)); max = Math.max(min, Math.round(max)); } else { min = Math.round(min * 10) / 10; max = Math.round(max * 10) / 10; }
     const v = min + (max - min) * rng.next();

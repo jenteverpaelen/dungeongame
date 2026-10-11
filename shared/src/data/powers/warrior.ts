@@ -86,6 +86,9 @@ export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
   // this engine, so attack speed only reaches the Primary skills — the text says so.
   { id: 'brass_warhorn_helm', name: 'Brass Warhorn Helm', base: 'head_horned', classes: ['warrior'], power: 'While a Buff skill is active, your Primary skills attack {v}% faster.', range: [8, 12], cubeSlot: 'armor', flavor: 'Blown once at every gate it has seen fall.', colors: { primary: 0xc9a227, secondary: 0x5a4320, glow: 0xffe08a },
     effects: [skillMods(tagged('primary'), {}, { field: 'var:warhorn' })] },
+  // Bible: 'Kilnheart lasts 5 s longer' — durations are additive %, so 25% of its 20 s.
+  { id: 'kilnmaw', name: 'Kilnmaw', base: 'maul2h', classes: ['warrior'], power: 'Kilnheart lasts 25% longer (5 more seconds), and your Burn skills deal {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: 'Kessa apologises to it, too.', colors: { primary: 0x3a2a24, secondary: 0xff7a2a, glow: 0xffb066 },
+    effects: [skillMods(['kilnheart'], { duration: 25 }), skillMods(tagged('burn'), {}, { field: 'dmg' })] },
 ];
 
 /** Bible v2 set colours: every set glows 0x3cff6e [M]; primaries / secondaries from WARRIOR.md §7 or the existing set. */
@@ -119,8 +122,8 @@ export const WARRIOR_SETS: SetDef[] = [
       { count: 2, text: 'Your Bleed and Burn skills’ areas are 20% larger.', effects: [skillMods(tagged('bleed', 'burn'), { radius: 20 })] },
       // Bible: 30% less. Measured (warrior parity harness): a Fury-limited Spender turns a cost cut into casts 1:1/(1−x),
       // so 30% was worth ×2.2 on Sawtooth Hatchet against the model's ×1.25; 15% fits the model's value.
-      { count: 4, text: 'Your Primary hits extend Bleeds and Burns on the target by 0.5 seconds (up to 10 seconds left), your Primary skills deal 20% more damage to Bleeding enemies, and your Bleed and Burn skills cost 15% less.',
-        effects: [flags(tagged('primary'), 'cinderExtend'), skillMore(tagged('primary'), 20, { targetState: 'bleeding' }), skillMods(tagged('bleed', 'burn'), { cost: -15 })] },
+      { count: 4, text: 'Your Primary hits extend Bleeds and Burns on the target by 0.5 seconds (up to 10 seconds left), your Primary skills deal 20% more damage to Bleeding or Burning enemies, and your Bleed and Burn skills cost 15% less.',
+        effects: [flags(tagged('primary'), 'cinderExtend'), skillMore(tagged('primary'), 20, { any: [{ targetState: 'bleeding' }, { targetState: 'burning' }] }), skillMods(tagged('bleed', 'burn'), { cost: -15 })] },
       { count: 6, text: 'Your Bleed, Burn and Primary skills deal 25% increased damage.', effects: [ownMult(tagged('bleed', 'burn', 'primary'), 1.25)] },
     ],
     colors: { primary: 0x773e35, secondary: 0xc6b88c, glow },

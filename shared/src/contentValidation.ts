@@ -250,7 +250,7 @@ function validateCondition(c: Condition, bucket: 'own' | 'hit', where: string, c
     kids.forEach((k, i) => validateCondition(k, bucket, `${where}.${'all' in c ? 'all' : 'any'}[${i}]`, check));
     return;
   }
-  for (const k of ['targetControlledWithinMs', 'standingStillMs'] as const)
+  for (const k of ['targetControlledWithinMs', 'standingStillMs', 'noEnemyWithin'] as const)
     if (k in c) check(Number.isFinite((c as Record<string, number>)[k]) && (c as Record<string, number>)[k] >= 0, where, `${k} must be a finite non-negative number`);
   if ('perSummon' in c || 'buffStacks' in c) check(Number.isInteger(c.max) && c.max >= 1, where, 'scaling condition needs a max of at least 1');
   if ('channeling' in c && typeof c.channeling === 'object') validateQuery(c.channeling, where, check);
@@ -282,7 +282,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
   const buff = (b: BuffGrant | undefined, where: string) => {
     if (!b) return;
     check(b.id.length > 0 && b.ms > 0, where, 'buff needs an id and a duration');
-    for (const k of ['dmg', 'chc', 'chd', 'ias', 'dr', 'stackDmg', 'stackIas'] as const) finite(b[k], where);
+    for (const k of ['dmg', 'chc', 'chd', 'ias', 'dr', 'stackDmg', 'stackIas', 'cdRecovery'] as const) finite(b[k], where);
     if (typeof b.dr === 'number') check(b.dr >= 0 && b.dr <= 100, where, 'buff dr must lie in 0..100');
     if (b.maxStacks !== undefined) check(Number.isInteger(b.maxStacks) && b.maxStacks >= 1, where, 'maxStacks must be an integer of at least 1');
     if (b.stackDmg !== undefined || b.stackIas !== undefined) check((b.maxStacks ?? 1) > 1, where, 'per-stack values need maxStacks above 1');
@@ -327,6 +327,8 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         if (e.icdMs !== undefined) check(Number.isFinite(e.icdMs) && e.icdMs >= 0, w, 'icdMs must be a finite non-negative number');
         if (e.status) { check(e.on === 'applyStatus' && e.status.length > 0, w, 'status filters need on: applyStatus and at least one kind'); e.status.forEach((k) => check(STATUS_KINDS.has(k), w, `unknown status ${k}`)); }
         if (e.minHitPct !== undefined) check(e.on === 'takeDamage' && e.minHitPct > 0 && e.minHitPct <= 100, w, 'minHitPct needs on: takeDamage and lies in (0, 100]');
+        if (e.every !== undefined) check(Number.isInteger(e.every) && e.every >= 2, w, 'every must be an integer of at least 2');
+        if (e.repeat) check(e.on === 'attack', w, 'repeat needs on: attack');
         if (e.skills || e.tags) check(!['dash', 'takeDamage', 'applyStatus'].includes(e.on), w, `${e.on} has no strike to filter by skill or tag`);
         if (e.when) validateCondition(e.when, ['dash', 'spend', 'cast'].includes(e.on) ? 'own' : 'hit', w, check);
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
@@ -359,13 +361,18 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
         e.resetCooldowns?.forEach((id) => skillRef(id, w));
         buff(e.buff, w);
         break;
-      case 'controlImmunity': if (e.when) validateCondition(e.when, 'own', w, check); break;
+      case 'controlImmunity':
+        if (e.when) validateCondition(e.when, 'own', w, check);
+        if (e.kinds) check(e.kinds.length > 0 && e.kinds.every((k) => ['stun', 'freeze', 'pull'].includes(k)), w, 'kinds must list stun / freeze / pull');
+        break;
+      case 'setReduce': check((e.by ?? 1) >= 1 && Number.isInteger(e.by ?? 1) && (e.min ?? 2) >= 1, w, 'setReduce needs an integer by >= 1 and min >= 1'); break;
       case 'projectile':
         targets(e, w, false);
         if (e.distBonus) { finite(e.distBonus.pct, w); check(e.distBonus.atUnits > 0, w, 'distBonus needs atUnits > 0'); }
         if (e.bounces !== undefined) check(Number.isInteger(e.bounces) && e.bounces >= 0, w, 'bounces must be a non-negative integer');
         if (e.bounceScale !== undefined) check(e.bounceScale > 0, w, 'bounceScale must be positive');
         if (e.seekMarked) check(e.seekMarked.turn > 0 && e.seekMarked.range > 0, w, 'seekMarked needs a turn rate and a range');
+        if (e.rangeRicochet) check((e.bounces ?? 0) > 0, w, 'rangeRicochet spends bounces: give bounces');
         break;
       case 'deflect':
         check(e.range > 0 && e.halfAngleDeg > 0 && e.halfAngleDeg <= 180, w, 'deflect needs a range and a half angle in (0, 180]');
@@ -381,7 +388,8 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
       case 'stacking':
         targets(e, w, false);
         check(e.buff.length > 0 && e.per > 0 && Number.isInteger(e.max) && e.max >= 1 && e.decayMs > 0, w, 'stacking needs a buff id, per > 0, an integer max and a decay time');
-        if (e.skills || e.tags) check(e.source === 'kills', w, 'only kill-fed stacking can be filtered by skill or tag');
+        if (e.skills || e.tags || e.when) check(e.source === 'kills', w, 'only kill-fed stacking can be filtered by skill, tag or the killed enemy');
+        if (e.when) { validateCondition(e.when, 'hit', w, check); check(isTargetCondition(e.when), w, 'a kill filter tests the killed enemy (target condition)'); }
         finite(e.stackDmg, w); finite(e.stackIas, w);
         buff(e.onMax?.buff, w);
         break;
@@ -405,6 +413,7 @@ export function validateEffects(data: Pick<ContentData, 'skills'> & Partial<Pick
           case 'spendRefund': check(r.pct > 0 && r.pct <= 100 && Number.isInteger(r.minHits) && r.minHits >= 1 && (r.windowMs ?? 1) > 0, w, 'spendRefund needs pct in (0, 100], an integer minHits and a positive window'); break;
           case 'groundsFollow': check(r.scale > 0 && r.scale <= 1, w, 'groundsFollow scale must lie in (0, 1]'); check(!e.skills && !e.tags, w, 'groundsFollow applies to all your grounds'); break;
           case 'countsAs': check(r.state !== r.as, w, 'countsAs needs two different states'); check(!e.skills && !e.tags, w, 'countsAs applies to all your powers'); break;
+          case 'markSpread': check(r.range > 0, w, 'markSpread needs a range'); check(!e.skills && !e.tags, w, 'markSpread applies to all your marks'); break;
           default: check(false, w, 'unknown rule');
         }
         break;
@@ -431,6 +440,7 @@ function validateStatus(s: StatusSpec, where: string, check: Check, skillRef: (i
   if (s.windowMs !== undefined) check(s.kind === 'freezeBuild' && s.windowMs > 0, where, 'windowMs belongs to freezeBuild and must be positive');
   if (s.skills || s.tags || s.exceptSource) check(s.kind === 'vulnerable', where, 'skill / tag scopes belong to vulnerable');
   if (s.origin) check(['knockback', 'pull', 'taunt'].includes(s.kind), where, 'origin belongs to knockback, pull and taunt');
+  if (s.consume) check(s.kind === 'vulnerable', where, 'consume belongs to vulnerable');
   s.skills?.forEach((id) => skillRef(id, where));
   validateQuery(s.tags, where, check);
 }

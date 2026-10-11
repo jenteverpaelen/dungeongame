@@ -1,19 +1,23 @@
-// Live gear effects (docs/rework/gear/DESIGN.md §2–§5): the animated layer on top of the baked ornaments.
-//   • ground layer (drawn BENEATH enemy telegraphs when the scene provides an underlay): rotating sigil with Set
-//     sockets, the rank light column (Primal embers), the movement ribbon, footprints, rank-up rings;
-//   • body layer: aura, per-piece glows (player.ts), motif particles, orbiting tokens and ring gems, halo, weapon sheen,
-//     motif flames, swing sparks, the Primal heartbeat and the full-Set idle flourish.
+// Live gear effects (docs/rework/gear/DESIGN-V2.md §5): the animated layer on top of the baked art. Every effect belongs
+// to an item or item family, never to a rank:
+//   • ground layer (drawn BENEATH enemy telegraphs when the scene provides an underlay): the Set sigil with one socket
+//     per worn piece, the boots' afterimage band and footprints, item-moment rings;
+//   • body layer: the legendary-jewellery aura, per-piece glows (player.ts), motif particles, Set orbit tokens and ring
+//     gems, the graded helm's halo, weapon sheen / signature particles / swing sparks, the Fabled chest's heartbeat and
+//     the full-Set idle flourish. The weapon's own light layer and floating pieces live in player.ts (weaponArt.ts).
 // Sprites are created once per look and pooled; per frame only positions / alphas change. A shared budget thins
 // particles when many heroes are on screen; quality 'reduced' keeps steady glows (no particles, no motion), 'off'
 // shows nothing.
 
 import { CanvasSource, Container, Rectangle, Sprite, Texture } from 'pixi.js';
-import type { GearProfile } from '@shared/gearVisual';
-import { GEAR_TIER_COLORS } from '@shared/gearVisual';
+import { isSpecial, unpackGearFx, type GearProfile } from '@shared/gearVisual';
 import type { PlayerLook } from '@shared/protocol';
 import { LEGENDARIES } from '@shared/data/items';
 import { fx } from './fx';
-import { ANCIENT_GOLD, LEGENDARY_MOTIF, PRIMAL_CORE, PRIMAL_RED, SET_STYLE, itemStyle, motifColor, type Motif } from './gearStyle';
+import { LEGENDARY_MOTIF, RARITY_LIGHT, SET_STYLE, TOP_COLORS, TOP_CORE, itemStyle, motifColor, type Motif } from './gearStyle';
+
+// Top-tier particle colours (the visual slot of the top tier above Legendary; placeholder colours in gearStyle.ts).
+const PRIMAL_RED = TOP_COLORS[2], PRIMAL_CORE = TOP_CORE, ANCIENT_GOLD = TOP_COLORS[1];
 import { Ribbon } from './trail';
 import { TAU, clamp, light } from './util';
 
@@ -194,7 +198,8 @@ interface Part { s: Sprite; kind: Kind; life: number; t: number; x: number; y: n
 function motifTexture(m: Motif | 'primal' | 'mote'): Texture {
   const T = tok(), F = fx();
   switch (m) {
-    case 'ember': case 'flame': case 'primal': return F.flame;
+    case 'ember': case 'flame': return F.flame;
+    case 'primal': return F.sparkle; // Fabled starlight
     case 'star': case 'gold': case 'arcane': case 'shadow': return F.sparkle;
     case 'shard': return T.shard;
     case 'feather': return T.feather;
@@ -218,10 +223,9 @@ function motifKind(m: Motif | 'primal' | 'mote'): Kind {
   }
 }
 
-/** Ground sigil diameter (world units) by rank: ≥ 1.8× the 34-unit shadow from Heroic (rank 7). */
-export function sigilSize(rank: number, setN: number): number {
-  const byRank = [0, 0, 0, 0, 0, 40, 52, 64, 72, 82][Math.max(0, Math.min(9, rank))];
-  return Math.max(byRank, setN >= 2 ? 44 + setN * 3 : 0);
+/** Ground sigil diameter (world units) by Set pieces worn: 2 → 52, 4 → 64, 6 → 76 (≥ 1.8× the 34-unit shadow from 4). */
+export function sigilSize(setN: number): number {
+  return setN >= 2 ? 40 + setN * 6 : 0;
 }
 
 export class GearFx {
@@ -233,8 +237,7 @@ export class GearFx {
   private sigil: Sprite | null = null;
   private sigilRing: Sprite | null = null;
   private nodes: Sprite[] = [];
-  private column: Sprite | null = null;
-  private columnCore: Sprite | null = null;
+
   private ribbon: Ribbon | null = null;
   private trailPts: { x: number; y: number; t: number }[] = [];
   private aura: Sprite | null = null;
@@ -251,7 +254,7 @@ export class GearFx {
   private burstColumn: Sprite | null = null;
   private burstFired = -1;
   private spawnAcc = 0;
-  private columnAcc = 0;
+
   private sparkAcc = 0;
   private stepPhase = 0;
   private idleBurstAt = 7;
@@ -265,28 +268,48 @@ export class GearFx {
   private readonly rate: number;
   private readonly printKind: Motif | 'primal' | 'mote' | null;
   private readonly weaponMotif: Motif | null;
-  private readonly weaponTier: number;
+  private readonly weaponGen: number;
+  private readonly weaponSpecial: boolean;
+  private readonly weaponLit: boolean;
   private readonly weaponTemper: number;
   private readonly weaponAccent: number;
   private readonly setMotif: Motif | null;
   private readonly setN: number;
+  /** Legendary jewellery worn (0..3) and its light: the shared aura escalates with the count (REFERENCES-V2 G4). */
+  private readonly jewels: number;
+  private readonly jewelColor: number;
+  private readonly prim: boolean;
+  /** This hero got a presence slot last frame (the local hero always): the rig shows decorative weapon floats. */
+  rich = true;
 
   /** `world`: the view lives in the game scene (its ground effects go to the scene underlay); previews and galleries
-   *  keep everything inside the view. */
+   *  keep everything inside the view. Every effect here belongs to an item or item family (DESIGN-V2 §5): Set pieces
+   *  (sigil, orbiters, wings, idle flourish), the weapon (sheen, signature particles, swing sparks, footfalls of a
+   *  zenith legendary), legendary jewellery (aura), boots (footprints, afterimage), a top-tier helm (halo) and chest
+   *  (heartbeat). No account-wide rank. */
   constructor(private look: PlayerLook, private p: GearProfile, private back: Container, private front: Container, private bodyFx: Container, private quality: GearQuality, wings: boolean, world = false) {
     const set = p.topSet && p.topSetCount >= 2 ? SET_STYLE[p.topSet] : undefined;
     this.setMotif = set?.motif ?? null;
     this.setN = set ? p.topSetCount : 0;
     const w = itemStyle(look.slots.mainhand);
     this.weaponMotif = w?.motif ?? null;
-    this.weaponTier = w?.tier ?? 0;
+    this.weaponGen = w?.gen ?? 0;
+    this.weaponSpecial = !!w?.special;
+    this.weaponLit = !!w?.light;
     this.weaponTemper = w?.fx.temper ?? 0;
-    this.weaponAccent = w?.accent || 0xfff0c8;
-    this.color = p.primals ? PRIMAL_RED : set ? set.main : p.ancients ? ANCIENT_GOLD : p.rank >= 6 ? (w?.accent || 0xffb347) : GEAR_TIER_COLORS[p.rank];
-    this.motif = p.primals ? 'primal' : set ? set.motif : p.ancients ? 'ember' : (this.weaponMotif ?? 'mote');
-    this.rate = quality === 'full' ? Math.max(0, p.rank - 5) * 1.3 + (this.setN >= 2 ? 1.2 : 0) + (this.setN >= 6 ? 1.5 : 0) : 0;
+    this.weaponAccent = w?.light || w?.edgeLight || 0xfff0c8;
+    this.jewels = p.jewels;
+    this.jewelColor = jewelLight(look);
+    this.prim = p.topMax >= 2;
+    this.color = dominantColor(look, p);
+    this.motif = set ? set.motif : this.weaponSpecial && this.weaponMotif ? this.weaponMotif : this.prim ? 'primal' : (this.weaponMotif ?? 'mote');
+    this.rate = quality === 'full' ? (this.setN >= 2 ? 1.2 : 0) + (this.setN >= 6 ? 1.5 : 0) + (this.weaponSpecial && this.weaponGen >= 4 ? 1.3 : 0) + this.jewels * 0.6 + p.topMax * 0.8 : 0;
     const feet = itemStyle(look.slots.feet);
-    this.printKind = quality !== 'full' ? null : this.setN >= 6 ? set!.motif : p.primals ? 'primal' : (feet && feet.tier >= 6) || p.rank >= 7 ? (feet?.motif ?? (p.ancients ? 'ember' : 'mote')) : null;
+    this.printKind = quality !== 'full' ? null : this.setN >= 6 ? set!.motif
+      : feet && feet.top >= 2 ? 'primal'
+      : feet && ((feet.special && feet.gen >= 5) || feet.top >= 1) ? (feet.motif ?? 'mote')
+      : w && w.special && w.gen >= 6 && w.motif ? w.motif // a zenith legendary weapon leaves its own footfalls (GW2 bundle)
+      : null;
     const under = world ? underlay : null;
     this.worldGround = !!under;
     this.ground = under ? new Container({ label: 'gear-ground' }) : back;
@@ -308,10 +331,10 @@ export class GearFx {
 
   private build(wings: boolean): void {
     const p = this.p, F = fx(), T = tok(), col = this.color, full = this.quality === 'full';
-    // ground sigil: rank 5+, or any Set bonus; Set sigils light one socket per worn piece; turns slowly
-    if (p.rank >= 5 || this.setN >= 2) {
-      const tex = p.primals ? T.sigilPrimal : this.setN >= 2 ? T.sigilSet : T.sigil;
-      const size = sigilSize(p.rank, this.setN);
+    // ground sigil: a Set bonus (2+ pieces); one socket lights per worn piece; turns slowly
+    if (this.setN >= 2) {
+      const tex = this.prim ? T.sigilPrimal : T.sigilSet;
+      const size = sigilSize(this.setN);
       const wrap = new Container();
       wrap.scale.y = 0.42;
       this.ground.addChild(wrap);
@@ -320,44 +343,35 @@ export class GearFx {
       this.sigil.width = this.sigil.height = size;
       this.sigilRing = this.add(this.ground, F.ringSoft, col, 0);
       this.sigilRing.width = size * 1.12; this.sigilRing.height = size * 1.12 * 0.42;
-      if (this.setN >= 2) for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 6; i++) {
         const n = this.add(this.ground, T.node, i < this.setN ? light(col, 0.3) : 0x6a6a6a, 0);
-        n.width = n.height = 7 + Math.max(0, p.rank - 6);
+        n.width = n.height = 7 + (this.setN >= 6 ? 2 : 0);
         this.nodes.push(n);
       }
     }
-    // light column: rank 8+ (spottable at the screen edge); Primal adds rising embers
-    if (p.rank >= 8) {
-      // the outer column is a saturated normal-blend tint (reads on bright stone and dark ground alike), the core adds
-      this.column = this.add(this.ground, T.column, col, 0, false);
-      this.column.anchor.set(0.5, 1);
-      this.column.width = p.primals ? 40 : 32; this.column.height = 230;
-      this.columnCore = this.add(this.ground, T.column, light(col, 0.7), 0);
-      this.columnCore.anchor.set(0.5, 1);
-      this.columnCore.width = p.primals ? 12 : 10; this.columnCore.height = 210;
-    }
-    // movement ribbon (afterimage band) behind a moving hero: Heroic+
-    if (p.rank >= 7 && full) {
+    // afterimage band behind a moving hero: zenith legendary / Set boots or top-grade boots
+    const feet = itemStyle(this.look.slots.feet);
+    if (full && feet && ((feet.special && feet.gen >= 6) || feet.top >= 1)) {
       this.ribbon = new Ribbon(16, T.band);
       this.ribbon.mesh.blendMode = 'add';
-      this.ribbon.mesh.tint = col;
+      this.ribbon.mesh.tint = feet.top >= 1 ? feet.edgeLight : feet.light || col;
       this.ground.addChild(this.ribbon.mesh);
     }
-    // body aura: Storied+
-    if (p.rank >= 6) {
-      this.aura = this.add(this.back, F.glowSoft, col, 0);
-      this.aura.width = 64 + (p.rank - 6) * 10; this.aura.height = this.aura.width * 1.3;
+    // body aura: legendary jewellery, escalating with the number worn (amulet + two rings)
+    if (this.jewels >= 1) {
+      this.aura = this.add(this.back, F.glowSoft, this.jewelColor, 0);
+      this.aura.width = 50 + this.jewels * 12; this.aura.height = this.aura.width * 1.3;
     }
     // wing glow
-    if (wings) { this.wingGlow = this.add(this.back, F.glowSoft, col, 0); this.wingGlow.width = 120 + Math.max(0, p.rank - 7) * 24; this.wingGlow.height = 80; }
-    // halo: an Ancient / Primal helm or rank 8+
+    if (wings) { this.wingGlow = this.add(this.back, F.glowSoft, col, 0); this.wingGlow.width = 120 + p.topMax * 24; this.wingGlow.height = 80; }
+    // halo: a top-grade helm (Kindled: ember ring, Fabled: starlight ring with glints)
     const head = itemStyle(this.look.slots.head);
-    if ((head && head.tier >= 8) || p.rank >= 8) {
-      const hc = p.primals ? PRIMAL_RED : head?.fx.ancient ? ANCIENT_GOLD : col;
+    if (head && head.top >= 1) {
+      const fab = head.top >= 2, hc = head.edgeLight;
       this.halo = this.add(this.front, F.ring, light(hc, 0.2), 0);
       this.halo.width = 30; this.halo.height = 9;
-      const n = full ? (p.primals ? 5 : 3) : 0;
-      for (let i = 0; i < n; i++) { const g = this.add(this.front, p.primals ? F.flame : F.sparkle, p.primals ? (i % 2 ? PRIMAL_CORE : PRIMAL_RED) : light(hc, 0.4), 0); g.width = p.primals ? 6 : 8; g.height = p.primals ? 10 : 8; g.anchor.set(0.5, p.primals ? 0.9 : 0.5); this.haloGlints.push(g); }
+      const n = full ? (fab ? 5 : 3) : 0;
+      for (let i = 0; i < n; i++) { const g = this.add(this.front, fab ? F.sparkle : F.flame, fab ? (i % 2 ? PRIMAL_CORE : light(hc, 0.4)) : light(ANCIENT_GOLD, 0.2), 0); g.width = fab ? 8 : 6; g.height = fab ? 8 : 10; g.anchor.set(0.5, fab ? 0.5 : 0.9); this.haloGlints.push(g); }
     }
     // orbiting charms: Set motif tokens (4+ pieces) and jewellery gems — larger from the spectacle pass
     if (this.setN >= 4) {
@@ -372,22 +386,22 @@ export class GearFx {
       }
       if (m === 'rain' && this.setN >= 6) { this.cloud = this.add(this.front, F.glowSoft, 0xd8d0ff, 0); this.cloud.width = 60; this.cloud.height = 20; }
     }
+    // rings: a legendary ring, or a rare+ ring from runesteel up, orbits as a gem in its own light
     for (const slot of ['ring1', 'ring2'] as const) {
       const n = this.look.jw?.[slot];
       if (n === undefined) continue;
-      const tier = n & 15;
-      if (tier < 3) continue;
-      const legIdx = (n >>> 14) & 31;
-      const legId = legIdx ? Object.keys(LEGENDARIES)[legIdx - 1] : undefined;
-      const c = legId ? LEGENDARIES[legId].colors.glow : GEAR_TIER_COLORS[tier];
+      const r = unpackGearFx(n);
+      const rar = ['normal', 'magic', 'rare', 'legendary', 'set'].indexOf(r.rarity);
+      if (!(isSpecial(r.rarity) || (rar >= 2 && r.gen >= 4) || r.top >= 1)) continue;
+      const c = r.top >= 1 ? TOP_COLORS[Math.min(3, r.top)] : r.legendary && LEGENDARIES[r.legendary] ? LEGENDARIES[r.legendary].colors.glow : RARITY_LIGHT[r.rarity];
       const s = this.add(this.front, F.sparkle, light(c, 0.2), 0.95);
-      s.width = s.height = 8 + Math.min(6, (tier - 3) * 1.1);
+      s.width = s.height = 8 + Math.min(6, r.gen + (isSpecial(r.rarity) ? 2 : 0) - 2);
       this.orbiters.push({ s, r: 20, speed: slot === 'ring1' ? 1.7 : -1.4, phase: slot === 'ring1' ? 0 : Math.PI, y: -17, spin: 0, streak: false });
     }
-    // weapon: sheen sweep (temper or Heroic+), motif flames / sparks, a star on +10
+    // weapon: sheen sweep (enhancement, or the lit late generations), signature particles, a star on +10
     if (this.look.slots.mainhand && full) {
-      if (this.weaponTemper >= 1 || this.weaponTier >= 7) { this.sheen = this.add(this.bodyFx, F.streak, 0xffffff, 0); this.sheen.height = 6; this.sheen.width = 22; }
-      if (this.weaponTier >= 6) {
+      if (this.weaponTemper >= 1 || (this.weaponLit && this.weaponGen >= 5)) { this.sheen = this.add(this.bodyFx, F.streak, 0xffffff, 0); this.sheen.height = 6; this.sheen.width = 22; }
+      if (this.weaponSpecial && this.weaponGen >= 3) {
         const m = this.weaponMotif;
         const n = m === 'ember' || m === 'flame' || m === 'blood' || m === 'storm' || m === 'void' || m === 'frost' ? 3 : 2;
         for (let i = 0; i < n; i++) {
@@ -400,8 +414,9 @@ export class GearFx {
       }
       if (this.weaponTemper >= 3) { this.tipStar = this.add(this.bodyFx, F.sparkle, 0xfff4d0, 0); this.tipStar.width = this.tipStar.height = 11; }
     }
-    // Primal heartbeat ring
-    if (p.primals) { this.pulse = this.add(this.ground, F.ringSoft, PRIMAL_RED, 0); }
+    // Fabled chest: a starlight heartbeat ring
+    const chest = itemStyle(this.look.slots.chest);
+    if (chest && chest.top >= 2) { this.pulse = this.add(this.ground, F.ringSoft, chest.edgeLight, 0); }
     this.counted = true;
     gearFxStats.heroes++;
     gearFxStats.sprites += this.sprites.length;
@@ -428,15 +443,16 @@ export class GearFx {
     const t = a.t, dt = a.dt, full = this.quality === 'full';
     const k = full ? crowdFactor() : 0;
     const rich = full && presenceSlot(a.local);
+    this.rich = rich;
     this.flareT = Math.max(0, this.flareT - dt / 1.2);
     const cel = a.celebrate >= 0 && a.celebrate < 1.6 ? 1 - a.celebrate / 1.6 : 0;
     const fl = 1 + this.flareT * 1.6 + cel * 1.4;
     const breath = full ? 0.85 + 0.15 * Math.sin(t * 2.2) : 1;
-    const prim = this.p.primals > 0;
+    const prim = this.prim;
     const calm = 1 - 0.45 * clamp(a.combat);
     // sigil + set sockets (ground layer, beneath telegraphs; dimmed while fighting)
     if (this.sigil) {
-      const base = (0.24 + Math.max(0, this.p.rank - 5) * 0.05) * (prim ? 1.35 : 1) * fl * calm;
+      const base = (0.28 + this.setN * 0.03) * (prim ? 1.25 : 1) * fl * calm;
       this.sigil.alpha = clamp(base * breath, 0, 0.85);
       if (full) this.sigil.rotation = t * (prim ? 0.32 : 0.22);
       this.sigilWrap!.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 1));
@@ -450,20 +466,10 @@ export class GearFx {
         n.alpha = i < this.setN ? clamp((0.75 + 0.25 * Math.sin(t * 3 + i)) * fl, 0, 1) : 0.25;
       }
     }
-    if (this.column) {
-      const pulse = full ? 0.85 + 0.15 * Math.sin(t * 1.7) : 1;
-      this.column.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.column.alpha = clamp((prim ? 0.46 : 0.38) * pulse * fl * calm, 0, 0.8);
-      this.columnCore!.position.set(this.gx(a, a.wx), this.gy(a, a.wy + 2));
-      this.columnCore!.alpha = clamp((prim ? 0.7 : 0.58) * pulse * fl * calm, 0, 0.95);
-      if (rich && prim) {
-        this.columnAcc += dt * 7 * k;
-        while (this.columnAcc >= 1) { this.columnAcc -= 1; this.spawnColumnEmber(a); }
-      }
-    }
+
     if (this.aura) {
       this.aura.position.set(0, -30);
-      this.aura.alpha = clamp((0.13 + (this.p.rank - 6) * 0.035) * breath * fl, 0, 0.5);
+      this.aura.alpha = clamp((0.1 + this.jewels * 0.05) * breath * fl, 0, 0.5);
     }
     if (this.wingGlow) { this.wingGlow.position.set(-a.side * 6 * Math.abs(a.sB), -42); this.wingGlow.alpha = 0.18 * breath * fl; }
     if (this.halo) {
@@ -507,12 +513,12 @@ export class GearFx {
       });
       if (this.tipStar) { this.tipStar.position.set(tx + Math.cos(t * 3) * 4, ty + Math.sin(t * 3) * 4); this.tipStar.alpha = 0.6 + 0.4 * Math.sin(t * 5); this.tipStar.rotation = t * 2; }
       // brighter swings: sparks shed from the blade tip while a Storied+ weapon swings (visual only)
-      if (rich && this.weaponTier >= 6 && a.swing > 0.25) {
+      if (rich && (this.weaponSpecial || (this.weaponLit && this.weaponGen >= 5)) && a.swing > 0.25) {
         this.sparkAcc += dt * 40 * a.swing;
         while (this.sparkAcc >= 1) { this.sparkAcc -= 1; this.spawnSpark(a); }
       }
     }
-    // Primal heartbeat
+    // Fabled chest heartbeat
     if (this.pulse) {
       this.pulseT += dt;
       const u = (this.pulseT % 1.3) / 0.7;
@@ -524,12 +530,13 @@ export class GearFx {
     // the burst is motion: 'reduced' (and reduced-motion) keep only the aura / sigil flare above
     if (full) this.updateCelebration(a, full);
     if (!full) return;
-    // ambient particles (+ an amber ember stream for Ancients worn under a Set identity)
+    // ambient particles (+ the Kindled ember accent)
     this.spawnAcc += dt * this.rate * k;
     while (this.spawnAcc >= 1) {
       this.spawnAcc -= 1;
-      const amber = this.p.ancients >= 2 && this.motif !== 'ember' && this.motif !== 'primal' && Math.random() < 0.4;
-      if (amber) this.spawn('ember', 'rise', a, ANCIENT_GOLD);
+      // Kindled pieces shed an ember now and then (the grade's ember accent), whatever the hero's motif
+      const ember = this.p.topMax === 1 && this.motif !== 'ember' && Math.random() < 0.3;
+      if (ember) this.spawn('ember', 'rise', a, ANCIENT_GOLD);
       else this.spawn(this.motif, motifKind(this.motif), a, this.color);
     }
     // footprints on each step
@@ -567,7 +574,8 @@ export class GearFx {
     r.end();
   }
 
-  /** Rank-up / first full Set: expanding rings, a column of light and a fountain of the hero's motif (~1.5 s). */
+  /** Item moment (a new best weapon look, a first full Set): expanding rings, a column of light and a fountain of the
+   *  hero's motif (~1.5 s). */
   private updateCelebration(a: GearAnchors, full: boolean): void {
     const c = a.celebrate;
     if (c < 0 || c > 1.7) {
@@ -624,10 +632,10 @@ export class GearFx {
     const r = Math.random;
     p.kind = kind; p.t = 0; p.a = 1;
     p.s.texture = motifTexture(m);
-    p.s.anchor.set(0.5, m === 'ember' || m === 'flame' || m === 'primal' ? 0.85 : 0.5);
+    p.s.anchor.set(0.5, m === 'ember' || m === 'flame' ? 0.85 : 0.5);
     p.s.tint = m === 'primal' && r() < 0.4 ? PRIMAL_CORE : color;
     p.s.rotation = 0; p.rot = 0;
-    p.size = m === 'ember' || m === 'flame' || m === 'primal' ? 8 : m === 'wind' || m === 'storm' ? 18 : m === 'stone' ? 6 : 7;
+    p.size = m === 'ember' || m === 'flame' ? 8 : m === 'primal' ? 9 : m === 'wind' || m === 'storm' ? 18 : m === 'stone' ? 6 : 7;
     switch (kind) {
       case 'rise': p.x = (r() - 0.5) * 30; p.y = -6 - r() * 48; p.vx = (r() - 0.5) * 8; p.vy = -14 - r() * 18; p.life = 1 + r() * 0.6; break;
       case 'fall': p.x = (r() - 0.5) * 40 + a.head.x * 0.5; p.y = -92 - r() * 10; p.vx = -6; p.vy = 120 + r() * 40; p.life = 0.58; break;
@@ -640,17 +648,6 @@ export class GearFx {
     p.s.visible = true;
   }
 
-  /** Primal: embers rising along the light column (ground layer). */
-  private spawnColumnEmber(a: GearAnchors): void {
-    const p = this.take(true);
-    if (!p) return;
-    const r = Math.random;
-    p.kind = 'column'; p.t = 0; p.life = 1.4 + r() * 0.6; p.a = 1;
-    p.x = a.wx + (r() - 0.5) * 14; p.y = a.wy - r() * 20; p.vx = (r() - 0.5) * 6; p.vy = -70 - r() * 40;
-    p.s.texture = fx().flame; p.s.anchor.set(0.5, 0.85); p.s.tint = r() < 0.4 ? PRIMAL_CORE : PRIMAL_RED; p.s.rotation = 0;
-    p.size = 6; p.rot = 0;
-    p.s.visible = true;
-  }
 
   /** A spark shed from the swinging blade tip (body layer). */
   private spawnSpark(a: GearAnchors): void {
@@ -676,8 +673,8 @@ export class GearFx {
     p.t = 0; p.life = m === 'rain' ? 0.8 : 1.1; p.a = 1;
     p.x = a.wx + sideOff * Math.abs(a.cB); p.y = a.wy + 3 + sideOff * 0.3 * Math.abs(a.sB);
     const T = tok(), F = fx();
-    p.s.texture = m === 'rain' ? F.ring : m === 'stone' ? T.crack : m === 'wind' || m === 'storm' ? F.swirl : m === 'star' ? F.sparkle : m === 'lantern' ? T.petal : m === 'ember' || m === 'flame' || m === 'primal' ? F.flame : m === 'shard' ? T.shard : m === 'feather' ? T.feather : m === 'cog' ? F.smoke : T.print;
-    p.s.anchor.set(0.5, m === 'ember' || m === 'flame' || m === 'primal' ? 0.85 : 0.5);
+    p.s.texture = m === 'rain' ? F.ring : m === 'stone' ? T.crack : m === 'wind' || m === 'storm' ? F.swirl : m === 'star' ? F.sparkle : m === 'lantern' ? T.petal : m === 'ember' || m === 'flame' ? F.flame : m === 'primal' ? F.sparkle : m === 'shard' ? T.shard : m === 'feather' ? T.feather : m === 'cog' ? F.smoke : T.print;
+    p.s.anchor.set(0.5, m === 'ember' || m === 'flame' ? 0.85 : 0.5);
     p.s.tint = m === 'primal' ? PRIMAL_RED : this.color;
     p.size = m === 'wind' || m === 'storm' ? 15 : m === 'stone' ? 17 : 10;
     p.rot = m === 'wind' || m === 'storm' ? 5 : 0;
@@ -725,17 +722,33 @@ export class GearFx {
   }
 }
 
-/** The motif a profile reads as (gallery labels, showcase card). */
+/** The motif a hero reads as: the worn Set's, else the legendary weapon's (gallery labels, showcase card). */
 export function profileMotif(look: PlayerLook, p: GearProfile): Motif | 'primal' | null {
-  if (p.primals) return 'primal';
   if (p.topSet && p.topSetCount >= 2) return SET_STYLE[p.topSet]?.motif ?? null;
   const w = look.slots.mainhand && itemStyle(look.slots.mainhand);
-  return w?.fx.legendary ? LEGENDARY_MOTIF[w.fx.legendary] ?? null : null;
+  if (w?.fx.legendary) return LEGENDARY_MOTIF[w.fx.legendary] ?? null;
+  return p.topMax >= 2 ? 'primal' : null;
 }
 
+/** Light of the legendary jewellery (amulet first, then rings), for the shared aura. */
+export function jewelLight(look: PlayerLook): number {
+  for (const slot of ['neck', 'ring1', 'ring2'] as const) {
+    const n = look.jw?.[slot];
+    if (n === undefined) continue;
+    const r = unpackGearFx(n);
+    if (!isSpecial(r.rarity)) continue;
+    if (r.top >= 1) return TOP_COLORS[Math.min(3, r.top)];
+    return r.legendary && LEGENDARIES[r.legendary] ? LEGENDARIES[r.legendary].colors.glow : RARITY_LIGHT[r.rarity];
+  }
+  return 0xffd27a;
+}
+
+/** The hero's dominant effect colour: the worn Set's, else the weapon's light, else the top grade's. */
 export function dominantColor(look: PlayerLook, p: GearProfile): number {
-  if (p.primals) return PRIMAL_RED;
-  if (p.topSet && p.topSetCount >= 2) return SET_STYLE[p.topSet]?.main ?? GEAR_TIER_COLORS[p.rank];
-  if (p.ancients) return ANCIENT_GOLD;
-  return p.rank >= 6 ? (itemStyle(look.slots.mainhand)?.accent || 0xffb347) : GEAR_TIER_COLORS[p.rank];
+  if (p.topSet && p.topSetCount >= 2) return SET_STYLE[p.topSet]?.main ?? 0xffd27a;
+  const w = itemStyle(look.slots.mainhand);
+  if (w?.light && (w.special || w.gen >= 4)) return w.light;
+  if (p.topMax >= 1) return TOP_COLORS[Math.min(3, p.topMax)];
+  if (p.jewels) return jewelLight(look);
+  return w?.light || 0xffd27a;
 }

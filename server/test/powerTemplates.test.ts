@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter, loadoutMods } from '../../shared/src/character';
-import { LEGENDARIES, SETS } from '../../shared/src/data/items';
+import { LEGACY_LEGENDARY_ORDER, LEGENDARIES, SETS } from '../../shared/src/data/items';
 import { SKILLS, mergeMods, type SkillMods } from '../../shared/src/data/skills';
 import { DASH } from '../../shared/src/constants';
 import { computeStats } from '../../shared/src/stats';
@@ -90,16 +90,17 @@ function legacyMult(sets: Record<string, number>, sentries: number, skillId: str
 
 const STRIKES = [...Object.keys(SKILLS), 'dust_devil'];
 const numeric = ['dmg', 'radius', 'cost', 'cooldown', 'duration', 'projectiles', 'pierce', 'gen', 'maxSummons'] as const;
-/** Items converted 1:1 and unchanged since (the warrior pilot redesigned the warrior items: WARRIOR.md §7–§8). */
-const LEGACY_ITEM = (classes?: readonly string[]) => !classes || !classes.includes('warrior');
+/** The 1:1 proof covers the 22 converted legendaries (new content has no legacy code to compare with), except the
+ *  warrior items the warrior pilot redesigned (WARRIOR.md §7–§8). */
+const LEGACY_POWERS = () => Object.values(LEGENDARIES).filter((l) => LEGACY_LEGENDARY_ORDER.includes(l.id) && !l.classes?.includes('warrior'));
 function kits(): { powers: Record<string, number>; sets: Record<string, number>; label: string }[] {
   const out: { powers: Record<string, number>; sets: Record<string, number>; label: string }[] = [];
-  for (const l of Object.values(LEGENDARIES).filter((x) => LEGACY_ITEM(x.classes))) for (const v of [l.range[0], (l.range[0] + l.range[1]) / 2, l.range[1], l.range[0] + (l.range[1] - l.range[0]) * 0.3719])
+  for (const l of LEGACY_POWERS()) for (const v of [l.range[0], (l.range[0] + l.range[1]) / 2, l.range[1], l.range[0] + (l.range[1] - l.range[0]) * 0.3719])
     out.push({ powers: { [l.id]: v }, sets: {}, label: `${l.id}=${v}` });
   for (const s of Object.values(SETS).filter((x) => x.classId !== 'warrior')) for (const n of [1, 2, 3, 4, 5, 6]) out.push({ powers: {}, sets: { [s.id]: n }, label: `${s.id}×${n}` });
   // Mixed kits: every class legendary of a class + its sets at 6 / 4+2.
   for (const classId of ['ranger', 'mage'] as const) {
-    const pw = Object.fromEntries(Object.values(LEGENDARIES).filter((l) => !l.classes || l.classes.includes(classId)).map((l) => [l.id, l.range[0] + (l.range[1] - l.range[0]) * 0.6131]));
+    const pw = Object.fromEntries(LEGACY_POWERS().filter((l) => !l.classes || l.classes.includes(classId)).map((l) => [l.id, l.range[0] + (l.range[1] - l.range[0]) * 0.6131]));
     const own = Object.values(SETS).filter((s) => s.classId === classId).map((s) => s.id);
     for (const id of own) out.push({ powers: pw, sets: { [id]: 6 }, label: `${classId} all + ${id}×6` });
     out.push({ powers: pw, sets: { [own[0]]: 4, [own[1]]: 2 }, label: `${classId} all + 4/2` });

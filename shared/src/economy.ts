@@ -9,7 +9,7 @@ export const ECONOMY_ACTIONS = {
   merchantBuy:'Stock purchases', merchantSell:'Equipment sales', merchantBuyback:'Buyback', merchantRelease:'Released equipment',
   salvage:'Salvage', salvageAll:'Bulk salvage', enchantRoll:'Enchanting', upgrade:'Empowering', transmute:'Transmutation',
   extract:'Power extraction', reforge:'Reforging', socket:'Adding sockets', removeGem:'Removing gems', fuseGem:'Gem fusion',
-  destroy:'Destroyed equipment', debug:'Debug grants', unclassified:'Outside recorded actions',
+  destroy:'Destroyed equipment', stashBuyTab:'Stash tabs', debug:'Debug grants', unclassified:'Outside recorded actions',
 } as const;
 export type EconomyAction = keyof typeof ECONOMY_ACTIONS;
 export const ECONOMY_RESOURCES = ['gold','scrap','dust','crystal','soul','deathsBreath',

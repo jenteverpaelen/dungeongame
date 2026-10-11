@@ -1,7 +1,7 @@
 // Warrior diversity report (BUDGET.md §4 / §6, D1–D6) on the real 20 Hz simulation (server/test/parity/warrior.ts).
 //   DATA_DIR=<fresh empty dir> BACKUP_DIR= BACKUP_KEEP=0 npx tsx scripts/audit-warrior-parity.ts [--seeds=101,202,303] [--search=25]
 // Writes docs/rework/depth/WARRIOR-PARITY.md and WARRIOR-PARITY.json: one run with the shipped item pool and one without
-// the six shared legendaries (the lead asked for both while shared items are a separate wave). Nothing is persisted.
+// the shared (classless) legendaries (the lead asked for both: shared items are the shared-items lane's). Nothing is persisted.
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { LEGENDARIES, SETS } from '../shared/src/data/items';
@@ -42,7 +42,7 @@ const md = [
   'Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× of the class best lift; D2 top item / set ≤ 75% (hard < 100%) of top kits; D3 legendary-only ÷ best 6-piece 0.85–1.20 (hard 0.80–1.25); D4 best hybrid within ±5% (hard ±10%) of the nearer of the two or between; D5 all 5 sets (hard 4) best or best hybrid somewhere; D6 no best lift above 1.5× the class median. `npm run verify` enforces D3 and D4 for the parity-ready skills (server/test/parity.test.ts).',
   '',
   ...section('Shipped item pool', runs.pool),
-  ...section('Without the six shared legendaries', runs.noShared),
+  ...section('Without the shared legendaries (warrior items only)', runs.noShared),
 ];
 await fs.writeFile('docs/rework/depth/WARRIOR-PARITY.md', md.join('\n') + '\n');
 await fs.writeFile('docs/rework/depth/WARRIOR-PARITY.json', JSON.stringify({ generated: new Date().toISOString().slice(0, 10), seeds, search, mains: WARRIOR_MAIN,

@@ -11,12 +11,15 @@ import { CLIENT_OUTDATED_MESSAGE, F_CHANNEL, F_FROZEN, F_STUN, PROTOCOL_VERSION,
 import type { CharacterSave, ClassId, DerivedStats } from '@shared/types';
 import { playerLook } from '@shared/character';
 import { SETS } from '@shared/data/items';
-import { GEAR_TIER_NAMES, gearProfile } from '@shared/gearVisual';
+import { gearProfile, litLook, lookFx, lookStage } from '@shared/gearVisual';
 import { text } from '../i18n/messages';
 import { sfx } from '../audio/sfx';
 import { TownSound } from '../audio/town';
 import { AdventureSound } from '../audio/adventure';
-import { installApi, session } from '../net/api';
+import { installApi, session, type AuthFields, type AuthResult } from '../net/api';
+
+/** Account requests that need this socket to be signed in (they re-resume a stored session first). */
+const SIGNED_IN_OPS = new Set<AuthOp>(['password', 'codes', 'sessions', 'revoke', 'export', 'deleteAccount', 'cancelDeletion', 'deleteCharacter', 'restoreCharacter']);
 import { Connection } from '../net/connection';
 import { clearToken, fetchAccountMode, loadToken, rememberUsername, saveToken } from '../net/account';
 import { Scene } from '../render/scene';
@@ -28,6 +31,14 @@ import { interactObject, tickHold } from './questActions';
 import { QUEST_MESSAGES, questText, type QuestMessageKey } from '@shared/data/questMessages';
 import { Input } from './input';
 import { preferences } from './preferences';
+import { LowSpecMonitor } from './quality';
+import { GamepadInput, type PadAction } from './gamepad';
+import { bindings } from './bindings';
+
+/** Gamepad menu actions → the same hotkey handler the keyboard uses. */
+const PAD_HOTKEYS: Record<Exclude<PadAction, 'interact' | 'dash' | 'cast1' | 'cast2' | 'cast3' | 'cast4'>, string> = {
+  inventory: 'i', skills: 'k', journal: 'j', map: 'm', settings: 'o', paragon: 'p', cube: 'u',
+};
 import { Predictor } from './prediction';
 import { ClientWorld } from './world';
 import { completedRunSummary } from './runSummary';
@@ -47,6 +58,14 @@ export class Game {
   private lastUi = 0;
   private fpsFrames = 0;
   private fpsT = 0;
+  private lowSpec = new LowSpecMonitor();
+  /** Gamepad (standard mapping): same actions as the keyboard; d-pad navigates windows. */
+  private pad = new GamepadInput({
+    onAction: (a) => this.padAction(a),
+    uiOpen: () => { const s = ui.get(); return s.screen !== 'game' || s.chatOpen || Object.values(s.panels).some(Boolean) || s.account.open; },
+    onBack: () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })),
+    onActive: () => bindings.setDevice('gamepad'),
+  });
   private lastRiftKey = '';
   private lastDungeonKey = '';
   private lastFieldEventKey = '';
@@ -141,7 +160,7 @@ export class Game {
 
   // ─────────────────────────── Accounts (before `hello`) ───────────────────────────
 
-  private authRequest(conn: Connection, op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<Extract<S2C, { t: 'auth' }> | null> {
+  private authRequest(conn: Connection, op: Exclude<AuthOp, 'status'>, fields: AuthFields = {}): Promise<Extract<S2C, { t: 'auth' }> | null> {
     return new Promise((resolve) => {
       const done = (m: Extract<S2C, { t: 'auth' }>) => { window.clearTimeout(timer); resolve(m); };
       const timer = window.setTimeout(() => { if (this.authWaiter?.resolve === done) this.authWaiter = null; resolve(null); }, 15_000);
@@ -151,22 +170,22 @@ export class Game {
   }
 
   /** Account request from the select screen. The reply also updates `ui.account` (see the `auth` message case). */
-  async auth(op: Exclude<AuthOp, 'status'>, fields: { username?: string; password?: string; newPassword?: string; code?: string } = {}): Promise<{ ok: boolean; err?: string }> {
+  async auth(op: Exclude<AuthOp, 'status'>, fields: AuthFields = {}): Promise<AuthResult> {
     if (ui.get().account.busy) return { ok: false, err: 'One moment, still working on your last request.' };
     const fail = (err: string) => { ui.set((s) => ({ account: { ...s.account, busy: false, error: err } })); return { ok: false, err }; };
     ui.set((s) => ({ account: { ...s.account, busy: true, error: null } }));
     const conn = await this.openConnection();
     if (!conn) return fail('Could not reach the game server');
-    // Changing a password or asking for codes needs a session on this very socket; a server restart or the login
-    // timeout may have ended it, so pick it up again from the stored token first.
-    if ((op === 'password' || op === 'codes') && !this.connAuthed) {
+    // Signed-in requests need a session on this very socket; a server restart or the login timeout may have ended
+    // it, so pick it up again from the stored token first.
+    if (SIGNED_IN_OPS.has(op) && !this.connAuthed) {
       await this.authRequest(conn, 'resume');
       if (!this.connAuthed) return fail('Your session ended. Please log in again.');
     }
     const reply = await this.authRequest(conn, op, fields);
     ui.set((s) => ({ account: { ...s.account, busy: false } }));
     if (!reply) return fail('The server did not answer. Please try again.');
-    return { ok: reply.ok, err: reply.err };
+    return { ok: reply.ok, err: reply.err, data: reply.data };
   }
 
   /** Resolves once the account mode is known and a stored session was tried; `start()` waits for it so a login
@@ -202,11 +221,16 @@ export class Game {
           if (!m.ok) return { account: { ...a, mode: m.mode, error: m.op === 'resume' ? null : m.err ?? 'That did not work. Please try again.',
             ...(m.op === 'resume' ? { username: null, characters: [] as typeof a.characters } : {}) } };
           const codes = m.recoveryCodes ?? a.codes;
+          const out = m.op === 'logout';
           return { account: { ...a, mode: m.mode, error: null, codes,
-            username: m.op === 'logout' ? null : m.username ?? a.username,
-            characters: m.op === 'logout' ? [] : m.characters ?? a.characters,
-            // The dialog stays open while recovery codes wait to be acknowledged; otherwise a login closes it.
-            open: m.op === 'logout' ? m.mode === 'required' : codes ? true : (m.op === 'password' || m.op === 'codes') ? a.open : false } };
+            username: out ? null : m.username ?? a.username,
+            characters: out ? [] : m.characters ?? a.characters,
+            info: out ? null : m.info ?? a.info ?? null,
+            sessions: out ? [] : m.sessions ?? a.sessions,
+            events: out ? [] : m.events ?? a.events,
+            // The dialog stays open while recovery codes wait to be acknowledged, and for every signed-in action;
+            // a login closes it — unless the account is waiting to be deleted, which the player must see.
+            open: out ? m.mode === 'required' : codes ? true : SIGNED_IN_OPS.has(m.op) ? a.open : !!m.info?.deletionAt } };
         });
         const w = this.authWaiter;
         if (w && m.op !== 'status' && w.op === m.op) { this.authWaiter = null; w.resolve(m); }
@@ -280,13 +304,18 @@ export class Game {
     if (def) pushNotice(zone.kind === 'rift' ? 'Nephalem Rift' : def.name, 'info');
   }
 
+  /** Sheet movement speed; a channel slow from the server (MeState.ms) overrides it while channelling. */
+  private sheetMs = 0;
+
   private applyDerived(d: DerivedStats) {
+    this.sheetMs = d.ms;
     this.predictor.msPct = d.ms;
     this.predictor.dashCd = d.dashCdMs ?? DASH.cooldownMs; // shared computeStats: dash templates (Stridewind …)
     this.scene.myAps = d.aps;
   }
 
   private onSnapshot(s: Snapshot) {
+    this.predictor.msPct = s.me.ms ?? this.sheetMs;
     const prev=this.observationPosition;
     if(prev&&!prev.dead&&!s.me.dead&&Math.hypot(s.me.x-prev.x,s.me.y-prev.y)>0.5)funnel.event('move');
     this.observationPosition={x:s.me.x,y:s.me.y,dead:s.me.dead};
@@ -364,25 +393,27 @@ export class Game {
     this.scene.vfx.handle(ev);
   }
 
-  /** Highest gear rank and the Sets completed this session, per character (celebrate the first time only). */
-  private gearBest = new Map<string, { rank: number; sets: Set<string> }>();
+  /** The best weapon look worn and the Sets completed this session, per character (celebrate the first time only). */
+  private gearBest = new Map<string, { weapon: number; sets: Set<string> }>();
 
-  /** An equip that raises the gear rank (or completes a Set for the first time) gets its moment: a notice, a chime
-   *  and a burst on the hero (docs/rework/gear/DESIGN.md §2). */
+  /** Item moments (docs/rework/gear/DESIGN-V2.md §5): equipping a weapon whose look passes the session's best and carries
+   *  light of its own, or completing a Set for the first time, gets a chime and a burst on the hero (a notice for Sets). */
   private gearMoment(prev: CharacterSave | null, next: CharacterSave) {
-    const now = gearProfile(playerLook(next));
+    const look = playerLook(next);
+    const now = gearProfile(look);
+    const w = lookFx(look.slots.mainhand);
+    const stage = w ? lookStage(w) : 0;
     let best = this.gearBest.get(next.id);
     if (!best || !prev || prev.id !== next.id) {
-      if (!best) { best = { rank: now.rank, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
+      if (!best) { best = { weapon: stage, sets: new Set(now.topSetCount >= 6 && now.topSet ? [now.topSet] : []) }; this.gearBest.set(next.id, best); }
       return;
     }
     const setDone = now.topSetCount >= 6 && !!now.topSet && !best.sets.has(now.topSet);
-    const rankUp = now.rank > best.rank;
-    if (!rankUp && !setDone) return;
-    if (rankUp) best.rank = now.rank;
+    const weaponUp = !!w && stage > best.weapon && litLook(w);
+    if (w) best.weapon = Math.max(best.weapon, stage);
+    if (!weaponUp && !setDone) return;
     if (setDone) best.sets.add(now.topSet!);
-    const big = setDone || now.rank >= 8;
-    if (rankUp) pushNotice(text('gear.rankUp', { rank: GEAR_TIER_NAMES[now.rank] }), 'level');
+    const big = setDone || (!!w && (w.top >= 1 || ((w.rarity === 'legendary' || w.rarity === 'set') && w.gen >= 6)));
     if (setDone) pushNotice(text('gear.setComplete', { set: SETS[now.topSet!]?.name ?? now.topSet! }), 'level');
     sfx.play(big ? 'gear_rank_big' : 'gear_rank');
     const view = this.world.entities.get(this.world.myId)?.view as (PlayerView & { celebrateGear?(big: boolean): void }) | null | undefined;
@@ -396,6 +427,16 @@ export class Game {
   }
 
   // ─────────────────────────── Input ───────────────────────────
+
+  private padAction(a: PadAction) {
+    const noop = { preventDefault() {} } as KeyboardEvent;
+    switch (a) {
+      case 'interact': if (ui.get().screen === 'game') this.interact(); return;
+      case 'dash': sfx.unlock(); this.predictor.queueDash(); return;
+      case 'cast1': case 'cast2': case 'cast3': case 'cast4': this.manualSkill(Number(a.slice(4)) - 1); return;
+      default: this.hotkey(PAD_HOTKEYS[a], noop);
+    }
+  }
 
   private manualSkill(slot: number) {
     const st = ui.get();
@@ -514,9 +555,11 @@ export class Game {
 
   private frame(dtMs: number) {
     funnel.clock(performance.now(),!document.hidden&&ui.get().screen==='game');
+    this.pad.poll();
     const st = ui.get();
     if (st.screen === 'game' && this.world.map) {
-      const mv = st.chatOpen ? { x: 0, y: 0 } : this.input.move();
+      const pv = this.pad.move();
+      const mv = st.chatOpen ? { x: 0, y: 0 } : pv.x || pv.y ? pv : this.input.move();
       if (this.conn) this.predictor.update(dtMs, mv.x, mv.y, this.world.collision, (m) => this.conn!.send(m));
       this.world.interpolate();
       const me = this.predictor.ready
@@ -531,7 +574,12 @@ export class Game {
     }
     this.fpsFrames++;
     this.fpsT += dtMs;
-    if (this.fpsT >= 1000) { ui.set({ fps: Math.round((this.fpsFrames * 1000) / this.fpsT) }); this.fpsFrames = 0; this.fpsT = 0; }
+    if (this.fpsT >= 1000) {
+      const fps = Math.round((this.fpsFrames * 1000) / this.fpsT);
+      ui.set({ fps }); this.fpsFrames = 0; this.fpsT = 0;
+      // Low-spec suggestion: 20 s in game below 40 fps (visible page, no low cap) → offer the Low preset once.
+      if (this.lowSpec.sample(fps, ui.get().screen === 'game', !document.hidden, preferences.get().values)) pushNotice(text('settings.lowSpecNotice', { fps: String(fps) }), 'info');
+    }
   }
 
   /** 10 Hz UI updates: target frame, interact prompt, DPS meter. */

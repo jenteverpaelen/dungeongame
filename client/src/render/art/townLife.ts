@@ -8,8 +8,11 @@ import { flameSprite, glowSprite, sparkleSprite } from './fx';
 import type { ViewState } from '../types';
 import type { Speaker } from '../barks';
 import { BARKS } from '@shared/data/barks';
+import { ambientShare } from '../../game/quality';
 
-type Motion = { root: Container; x: number; y: number; kind: string; parts: Container[]; seed: number };
+/** Background movement that Graphics → ambient life thins and reduce motion hides. */
+const DECORATIVE = new Set(['smoke', 'fog', 'embers', 'motes', 'fireflies', 'leaves', 'birds', 'puddle']);
+type Motion ={ root: Container; x: number; y: number; kind: string; parts: Container[]; seed: number };
 const still = (): ViewState => ({ x: 0, y: 0, vx: 0, vy: 0, moving: false, facingLeft: false, flags: 0, attackSeq: 0, hpFrac: 1, time: 0, aps: 1 });
 const BULBS = [0xffd27a, 0xff9a6a, 0x9fe0ff, 0xc8a0ff, 0xb8f08a];
 let beamTex: Texture | null = null;
@@ -113,11 +116,16 @@ export class TownLife {
       l.view.visible = Math.abs(l.data.position[0] - cx) < halfWidth + l.data.radius && Math.abs(l.data.position[1] - cy) < halfHeight + l.data.radius;
       l.view.alpha = 0.12 * (1 + l.data.flicker * Math.sin(time * 7 + l.data.position[0]));
     }
+    // Graphics → ambient life thins decorative motion (every 2nd part on Medium, every 5th on Low); reduce motion hides
+    // background movement entirely (fog, smoke, motes, fireflies, leaves, birds, puddles). Lights, flames and the beacon stay.
+    const share = ambientShare(), step = share >= 1 ? 1 : share >= 0.5 ? 2 : 5;
     for (const m of this.motions) {
-      m.root.visible = Math.abs(m.x - cx) < halfWidth + (m.kind === 'beacon' ? 900 : 400) && Math.abs(m.y - cy) < halfHeight + (m.kind === 'beacon' ? 700 : 340);
+      const decorative = DECORATIVE.has(m.kind);
+      m.root.visible = (!decorative || share > 0) && Math.abs(m.x - cx) < halfWidth + (m.kind === 'beacon' ? 900 : 400) && Math.abs(m.y - cy) < halfHeight + (m.kind === 'beacon' ? 700 : 340);
       if (!m.root.visible) continue;
       for (let i = 0; i < m.parts.length; i++) {
         const p = m.parts[i], ph = (time * 0.13 + i / m.parts.length + m.seed * 0.17) % 1;
+        if (decorative) { p.visible = i % step === 0; if (!p.visible) continue; }
         switch (m.kind) {
           case 'smoke': p.position.set(Math.sin(time * 0.4 + i) * 15 + ph * 27, -ph * 105); p.scale.set(0.14 + ph * 0.38); p.alpha = Math.sin(ph * Math.PI) * 0.19; break;
           case 'fog': p.position.set((ph - 0.5) * 760, Math.sin(i + time * 0.1) * 50); p.scale.set(2.2, 0.26); p.alpha = Math.sin(ph * Math.PI) * 0.07; break;
@@ -148,9 +156,11 @@ export class TownLife {
       r.state.time = time; r.view.update(dt, r.state);
       r.view.showPlate(Math.hypot(r.x - cx, r.y - cy) < 170);
     }
-    for (const w of this.walkers) {
+    for (let k = 0; k < this.walkers.length; k++) {
+      const w = this.walkers[k];
       const s = w.state; townPatrol(w.data.path, w.data.speed, w.data.pause, time, s); s.time = time; s.moving = Math.hypot(s.vx, s.vy) > 1; s.facingLeft = s.vx < 0;
-      const root = w.view.root; root.position.set(s.x, s.y); root.zIndex = s.y; root.visible = Math.abs(s.x - cx) < halfWidth + 80 && Math.abs(s.y - cy) < halfHeight + 90;
+      // Low ambient life keeps every other walking townsperson (they are full animated heroes); residents always stay.
+      const root = w.view.root; root.position.set(s.x, s.y); root.zIndex = s.y; root.visible = (share >= 0.5 || k % 2 === 0) && Math.abs(s.x - cx) < halfWidth + 80 && Math.abs(s.y - cy) < halfHeight + 90;
       if (root.visible) w.view.update(dt, s);
     }
   }

@@ -162,14 +162,6 @@ export function normInput(mx: number, my: number): { x: number; y: number } {
   return l > 1 ? { x: mx / l, y: my / l } : { x: mx, y: my };
 }
 
-/**
- * Movement speed bonus (%) with a channel's movement factor applied (Ironplough's slow): the same formula on the server
- * (players.ts) and in client prediction, which receives the factor as `MeState.mvf`.
- */
-export function channelMsPct(msPct: number, factor: number): number {
-  return factor === 1 ? msPct : (1 + msPct / 100) * factor * 100 - 100;
-}
-
 /** Advance one fixed step. `msPct` is the movement speed bonus (%), `dashCd` the dash cooldown in ms. */
 export function stepMove(world: CollisionWorld, s: MoveState, input: MoveInput, msPct: number, dashCd: number, dtMs: number, radius: number, frozen = false): boolean {
   const dir = normInput(input.mx, input.my);

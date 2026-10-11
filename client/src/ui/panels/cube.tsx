@@ -1,6 +1,7 @@
 // The Cube (U / E at the cube): Task Bar Hero style levelling Hero-dric Cube carrying the Kanai / Mystic /
 // Jeweler recipes. Cube level + XP, function tabs locked by level, an item chamber, costs, result feedback.
 
+import { canRekindle } from '@shared/itemGrades';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { itemProtectionReason } from '@shared/itemProtection';
@@ -26,6 +27,7 @@ import { CubeEmblem, GemIcon, IconArrowRight, IconCheck, IconChevron, IconDelta,
 import { CubeFnIcon } from './skillicons';
 import { useLocal, useU } from './state';
 import { ItemVisual, itemHover } from './tooltip';
+import { RarityMark } from './rarityMark';
 import {
   affixText, armorValue, cls, emphasize, fmtPowerValue, fmtRange, itemById, itemTypeLine, rarityClass, rollFraction, run, scaledAffix, weaponStats,
 } from './util';
@@ -54,7 +56,8 @@ function invalidReason(fn: CubeOp, item: Item | null): string | null {
     case 'enchant': return item.rarity === 'normal' ? 'Normal items have no properties to enchant.' : null;
     case 'upgrade': return item.upgrade >= 10 ? 'This item is already at the maximum tier.' : null;
     case 'transmute': return item.rarity !== 'rare' ? 'Only Rare items can be transmuted.' : null;
-    case 'extract': return item.rarity !== 'legendary' ? 'Only Legendary items carry an extractable power.' : null;
+    case 'extract': return item.rarity !== 'legendary' ? 'Only Legendary items carry an extractable power.'
+      : item.legendary && LEGENDARIES[item.legendary.power]?.extractable === false ? 'This power cannot be extracted.' : null;
     case 'reforge': return item.rarity !== 'legendary' && item.rarity !== 'set' ? 'Only Legendary and Set items can be reforged.' : null;
     case 'socket': return item.sockets.length >= maxSockets(item) ? 'This item cannot hold any more sockets.' : null;
     default: return null;
@@ -171,6 +174,12 @@ function EnchantView({ item, char }: { item: Item | null; char: CharacterSave })
   const hasEnchant = item.enchanted !== undefined;
   return (
     <div class="cv">
+      {canRekindle(item) && (
+        <div class="cv-row">
+          <Note>This item is an old Ancient. The Mystic can rekindle it once, free: its properties reroll at normal ranges and it gains a Kindled property.</Note>
+          <button class="btn sm" onClick={async () => { const r = await run('rekindle', { itemId: item.id }); if (r.ok) flash('success', 'Rekindled', 'The item now carries a Kindled property.'); }}>Rekindle</button>
+        </div>
+      )}
       <div class="cv-label">Choose a property to reroll</div>
       <div class="ench-list">
         {item.affixes.map((a, i) => {
@@ -466,6 +475,7 @@ function CandidateStrip({ fn, char }: { fn: CubeOp; char: CharacterSave }) {
         {shown.map((it) => (
           <button key={it.id} class={cls('cell', rarityClass(it))} aria-label={`Use ${it.name}`} onClick={() => setCubeItem(it.id)} {...itemHover(() => itemById(ui.get().char, it.id))}>
             <ItemVisual item={it} size={32} />
+            <RarityMark item={it} />
             {it.upgrade > 0 && <span class="cell-up">+{it.upgrade}</span>}
           </button>
         ))}

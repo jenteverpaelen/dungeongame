@@ -19,6 +19,8 @@ import { pickTarget } from '../src/sim/brain';
 import { shotBlocked } from '../src/sim/effects';
 import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
+import { encode } from '../src/net/codec';
+import { writeFileSync } from 'node:fs';
 
 // Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
 // so a failing check reproduces exactly. Override with SIM_SEED=<n> to explore other outcomes.
@@ -76,8 +78,11 @@ class FakeLink implements PlayerLink {
   }
 
   markDirty() { this.dirty++; }
+  /** `budget` scenario: encode every message like the real session (encoding is server cost; decoding below is not). */
+  countBytes = false; bytes = 0; maxMsgBytes = 0;
 
   send(msg: S2C) {
+    if (this.countBytes) { const n = encode(msg).byteLength; this.bytes += n; this.maxMsgBytes = Math.max(this.maxMsgBytes, n); }
     const t0 = performance.now();
     try { this.recv(msg); } finally { linkMs += performance.now() - t0; }
   }
@@ -167,12 +172,14 @@ function gearRares(save: CharacterSave, ilvl: number) {
 
 const CLASS_SET: Record<ClassId, string> = { warrior: 'endless_storm', ranger: 'siegebreaker', mage: 'fallen_star' };
 const CLASS_LEGS: Record<ClassId, Partial<Record<Slot, string>>> = {
-  warrior: { mainhand: 'ninefold_gale', waist: 'eternal_gyre', wrists: 'anvil_vambraces', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
+  // Warrior: the measured best Endless Storm 6 Whirlwind kit of the warrior parity audit (WARRIOR-PARITY.json, merged pool);
+  // the old kit (Eternal Gyre, Bloodwake in the Cube) fed the retired 'Whirlwind applies Rend' 4-piece.
+  warrior: { mainhand: 'ninefold_gale', waist: 'furycord_belt', wrists: 'wardkeepers_cuffs', neck: 'signal_horn_charm', ring1: 'ouroboros_loop', ring2: 'rally_knot' },
   ranger: { mainhand: 'thunderhead', offhand: 'sappers_pack', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
   mage: { mainhand: 'cindervane', waist: 'witching_cord', neck: 'hellforge_talisman', ring1: 'ouroboros_loop', ring2: 'patient_thief' },
 };
 const CLASS_CUBE: Record<ClassId, (string | null)[]> = {
-  warrior: ['bloodwake', 'stridewind', null],
+  warrior: ['millwheel_edge', 'gale_stitched_legguards', 'seething_sigil'],
   ranger: ['hunters_mark', 'gearwright_heart', null],
   mage: ['thousand_missiles', 'starfall_mantle', null],
 };
@@ -193,7 +200,7 @@ function gearEndgame(save: CharacterSave) {
 }
 
 const BUILDS: Record<ClassId, { slots: string[]; runes: Record<string, string> }> = {
-  warrior: { slots: ['whirlwind', 'rend', 'ground_stomp', 'battle_rage'], runes: { cleave: 'broad_sweep', whirlwind: 'dust_devils', rend: 'bloodlust', ground_stomp: 'wrenching_smash', battle_rage: 'into_the_fray' } },
+  warrior: { slots: ['whirlwind', 'battle_rage', 'muster_standard', 'ground_stomp'], runes: { cleave: 'broad_sweep', whirlwind: 'dust_devils', rend: 'bloodlust', ground_stomp: 'wrenching_smash', battle_rage: 'into_the_fray' } },
   ranger: { slots: ['sentry', 'multishot', 'cluster_arrow', 'companion'], runes: { hungering_arrow: 'puncturing', sentry: 'spitfire', multishot: 'arsenal', cluster_arrow: 'maelstrom', companion: 'wolf_howl' } },
   mage: { slots: ['meteor', 'black_hole', 'frost_nova', 'magic_weapon'], runes: { magic_missile: 'seeker', meteor: 'star_pact', black_hole: 'spellsteal', frost_nova: 'bone_chill', magic_weapon: 'force_weapon' } },
 };
@@ -367,6 +374,8 @@ function teleport(inst: Instance, link: FakeLink, x: number, y: number) {
 // ─────────────────────────── Scenarios ───────────────────────────
 
 const summary: string[] = [];
+/** Leveling rows for `SIM_JSON=<file>` (written at the end of a run; see scripts/bot-metrics.ts). */
+const metricRows: Record<string, unknown>[] = [];
 
 function fieldScenario(cls: ClassId, level: number, endgame: boolean) {
   const zone = level >= 20 ? 'ashen_hollow' : 'whispering_glade';
@@ -846,6 +855,70 @@ function perfScenario() {
   inst.destroy();
 }
 
+/**
+ * `budget` (F-TEL-01): the owner's server budget, ARCHITECTURE §1.2 / roadmap §12.2 [O] — four instances with 150
+ * monsters each tick in < 10 ms total on one core. One level-70 player per instance keeps the monsters awake (they are
+ * unkillable so the load stays constant); every snapshot is encoded with the real codec and counted. Timings exclude only
+ * the fake clients' decoding. `PERF_JSON=<file>` writes the numbers for `scripts/perf-budget.ts`.
+ */
+function perfBudgetScenario() {
+  console.log('\n== Performance budget: 4 instances × 150 monsters (one player each) ==');
+  const classes: ClassId[] = ['warrior', 'ranger', 'mage', 'ranger'];
+  const roster = Object.values(MONSTERS).filter((d) => d.weight > 0 && d.attack.kind !== 'explode');
+  const worlds = classes.map((cls) => {
+    const inst = newField('ashen_hollow');
+    const entry = inst.map.entry;
+    let cx = entry.x + 900, cy = entry.y;
+    for (const s of inst.map.spawns) if (Math.hypot(s.x - entry.x, s.y - entry.y) > 900) { cx = s.x; cy = s.y; break; }
+    const link = new FakeLink(makeChar(cls, 70, { endgame: true }));
+    link.countBytes = true;
+    link.myId = inst.addPlayer(link, { x: cx, y: cy });
+    // Exactly 150 monsters: the field's own packs go and its refill is switched off for this measurement only.
+    inst.spawner.tick = () => {};
+    for (const m of [...inst.mobs]) inst.removeEntity(m.id);
+    let placed = 0;
+    for (let guard = 0; placed < 150 && guard < 20000; guard++) {
+      const a = Math.random() * Math.PI * 2, d = 150 + Math.random() * 650;
+      const x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;
+      if (!inst.cw.isFree(x, y, 20)) continue;
+      const m = createMob(inst, roster[placed % roster.length], 70, x, y, { tier: placed % 25 === 0 ? 2 : 0, affixes: placed % 25 === 0 ? ['molten', 'frozen'] : [] });
+      m.mhp = m.hp = 1e18; placed++;
+    }
+    return { inst, link, bot: new Bot(inst, link, cls === 'warrior') };
+  });
+  const rounds: number[] = [];
+  const warmup = 40, total = 20 * 30 + warmup;
+  for (let t = 0; t < total; t++) {
+    for (const w of worlds) { w.bot.step(); for (const p of w.inst.players) p.hp = p.mhp; }
+    const l0 = linkMs, t0 = performance.now();
+    for (const w of worlds) w.inst.tick();
+    if (t >= warmup) rounds.push(performance.now() - t0 - (linkMs - l0));
+    if (t === warmup - 1) for (const w of worlds) { w.link.bytes = 0; w.link.maxMsgBytes = 0; }
+  }
+  const sorted = [...rounds].sort((a, b) => a - b);
+  const q = (p: number) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))];
+  const avg = rounds.reduce((s, v) => s + v, 0) / rounds.length;
+  const seconds = rounds.length / 20;
+  const awake = worlds.map((w) => w.inst.mobs.filter((m) => !m.dead && !m.dormant).length);
+  const bytesPerClientPerSec = worlds.map((w) => w.link.bytes / seconds);
+  const result = {
+    schema: 1, rounds: rounds.length, instances: worlds.length, monstersPerInstance: worlds.map((w) => w.inst.mobs.length), awake,
+    roundMs: { avg: +avg.toFixed(3), p50: +q(0.5).toFixed(3), p95: +q(0.95).toFixed(3), p99: +q(0.99).toFixed(3), max: +sorted[sorted.length - 1].toFixed(3) },
+    snapshotBytes: { perClientPerSecAvg: Math.round(bytesPerClientPerSec.reduce((s, v) => s + v, 0) / worlds.length), perClientPerSecMax: Math.round(Math.max(...bytesPerClientPerSec)), largestMessage: Math.max(...worlds.map((w) => w.link.maxMsgBytes)) },
+    budget: { roundAvgMs: 10, roundP99Ms: 50 },
+    node: process.version, platform: process.platform, cpus: (globalThis as { navigator?: { hardwareConcurrency?: number } }).navigator?.hardwareConcurrency ?? null,
+  };
+  console.log(`  ${result.monstersPerInstance.join('/')} monsters (awake ${awake.join('/')}), round of 4 ticks: avg ${fmt(avg, 3)} ms, p95 ${fmt(q(0.95), 3)} ms, p99 ${fmt(q(0.99), 3)} ms, max ${fmt(result.roundMs.max, 3)} ms`);
+  console.log(`  snapshots: ${result.snapshotBytes.perClientPerSecAvg} B/s per client on average (max ${result.snapshotBytes.perClientPerSecMax} B/s), largest message ${result.snapshotBytes.largestMessage} B`);
+  summary.push(`budget: 4×150 round avg ${fmt(avg, 3)} ms (budget 10), p99 ${fmt(q(0.99), 3)} ms (budget 50), ${result.snapshotBytes.perClientPerSecAvg} B/s per client`);
+  check(worlds.every((w) => w.inst.mobs.length === 150), `every instance holds exactly 150 monsters (${result.monstersPerInstance.join('/')})`);
+  check(awake.every((n) => n >= 100), `monsters are awake around each player (${awake.join('/')})`);
+  check(avg < result.budget.roundAvgMs, `4 instances × 150 monsters tick in < 10 ms on average (${fmt(avg, 3)})`);
+  check(q(0.99) < result.budget.roundP99Ms, `p99 round stays inside one 20 Hz tick period (${fmt(q(0.99), 3)} < 50 ms)`);
+  if (process.env.PERF_JSON) writeFileSync(process.env.PERF_JSON, JSON.stringify(result, null, 1) + '\n');
+  for (const w of worlds) w.inst.destroy();
+}
+
 /** Realistic load: a 4-player party clears a Torment VIII rift together (killable monsters, all builds). */
 function partyRiftPerf() {
   console.log('\n== Performance: 4-player party in a Torment III rift ==');
@@ -920,7 +993,8 @@ function levelingScenario(cls: ClassId, minutes: number) {
   let bot = new Bot(inst, link, cls === 'warrior');
   const ticks = minutes * 60 * 20;
   // per-bucket statistics (a bucket ends at every fifth level)
-  const bucket = { t: 0, kills: 0, deaths: 0, taken: 0, ttk0: 0, ttk1: 0, items: {} as Record<string, number>, level: 1 };
+  const totalXp = () => { let x = save.xp; for (let l = 1; l < save.level; l++) x += xpToNext(l); return x; };
+  const bucket = { t: 0, kills: 0, deaths: 0, taken: 0, ttk0: 0, ttk1: 0, items: {} as Record<string, number>, level: 1, xp: 0, gold: save.gold };
   const med = (a: number[] | undefined, from: number) => { const v = (a ?? []).slice(from); return v.length >= 5 ? [...v].sort((x, y) => x - y)[v.length >> 1] / 1000 : NaN; };
   console.log('  level  at min  min in  kills/min  TTK trash  champ   deaths  taken %life/min  items/h (n/m/r/L)   gems/h  mats/h  globes/h  gold/h');
   const flush = (t: number) => {
@@ -931,6 +1005,21 @@ function levelingScenario(cls: ClassId, minutes: number) {
     const ot = (k: string) => (link.evV[`other:${k}`] ?? 0) - (bucket.items[`o:${k}`] ?? 0);
     const f = (n: number, d = 1) => (Number.isNaN(n) ? '  —  ' : n.toFixed(d));
     console.log(`  ${String(bucket.level).padStart(2)}→${String(save.level).padEnd(3)} ${f(t / 1200).padStart(7)} ${f(dt).padStart(7)} ${f((p.kills - bucket.kills) / dt, 0).padStart(9)}  ${(f(med(link.ttk[0], bucket.ttk0), 2) + 's').padStart(9)} ${(f(med(link.ttk[1], bucket.ttk1), 1) + 's').padStart(7)} ${String(save.stats.deaths - bucket.deaths).padStart(7)}  ${f(((p.taken - bucket.taken) / Math.max(1, p.mhp)) * 100 / dt, 0).padStart(14)}%   ${h(it('normal'))}/${h(it('magic'))}/${h(it('rare'))}/${h(it('legendary') + it('set'))}`.padEnd(125) + `${h(ot('gem'))}`.padStart(6) + `${h(ot('mat'))}`.padStart(8) + `${h(ot('globe'))}`.padStart(9) + `${h(ot('gold'))}`.padStart(10));
+    // Machine-readable copy of the row for scripts/bot-metrics.ts (F-TEL-02); rates are per hour of simulated play.
+    const perH = (n: number) => Math.round((n / dt) * 60), r1 = (n: number) => (Number.isNaN(n) ? null : Math.round(n * 1000) / 1000);
+    metricRows.push({
+      class: cls, mode: engaged ? 'engaged' : 'auto', zone: inst.zone.zone, fromLevel: bucket.level, toLevel: save.level,
+      atMinute: Math.round((t / 1200) * 10) / 10, minutes: Math.round(dt * 10) / 10,
+      killsPerMin: Math.round(((p.kills - bucket.kills) / dt) * 10) / 10,
+      ttkTrashS: r1(med(link.ttk[0], bucket.ttk0)), ttkChampionS: r1(med(link.ttk[1], bucket.ttk1)),
+      deaths: save.stats.deaths - bucket.deaths, deathsPerHour: Math.round(((save.stats.deaths - bucket.deaths) / dt) * 600) / 10,
+      takenLifePctPerMin: Math.round(((p.taken - bucket.taken) / Math.max(1, p.mhp)) * 100 / dt),
+      xpPerHour: perH(totalXp() - bucket.xp),
+      itemsPerHour: { normal: perH(it('normal')), magic: perH(it('magic')), rare: perH(it('rare')), legendarySet: perH(it('legendary') + it('set')) },
+      gemsPerHour: perH(ot('gem')), materialsPerHour: perH(ot('mat')), globesPerHour: perH(ot('globe')),
+      goldPickedPerHour: perH(ot('gold')), goldNetPerHour: perH(save.gold - bucket.gold),
+    });
+    bucket.xp = totalXp(); bucket.gold = save.gold;
     bucket.t = t; bucket.kills = p.kills; bucket.deaths = save.stats.deaths; bucket.taken = p.taken;
     bucket.ttk0 = link.ttk[0]?.length ?? 0; bucket.ttk1 = link.ttk[1]?.length ?? 0; bucket.level = save.level;
     for (const r of ['normal', 'magic', 'rare', 'legendary', 'set']) bucket.items[r] = link.evV[`item:${r}`] ?? 0;
@@ -1523,11 +1612,12 @@ if (!only || only === 'rift') {
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
     riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
-    // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×10 over rares against 8 sturdy
-    // targets [M] (its old sets ×255; ranger ×279 and mage ×142 are still on their old sets), so it no longer clears
-    // Torment II in 12 minutes (44.5% [M]; Master: guardian at 9:36 [M]) until the Torment ladder is re-fitted
-    // (`sim.ts fit`) once every class is on the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts;
-    // here a progress floor guards against further loss (30%, about two thirds of the measured 44.5%).
+    // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×25 over rares against 8 sturdy
+    // targets [M] (its old sets ×255; ranger ×387 and mage ×180 are still on their old sets), so it no longer clears
+    // Torment II in 12 minutes (71.9% [M]) until the Torment ladder is re-fitted (`sim.ts fit`) once every class is on
+    // the budget. The rift flow itself stays covered by the L1 / L20 warrior rifts; here a progress floor guards
+    // against further loss (30%; the seeded stream shifts with any content change — the previous, weaker kit measured
+    // 2.7–44.5% across such shifts).
     riftScenario(cls, 70, 5, true, 'ashen', cls === 'warrior' ? 30 : undefined);
   }
 }
@@ -1544,8 +1634,16 @@ if (only === 'curve') toughnessCurve(Number(process.argv[3] ?? 20), (process.arg
 if (only === 'fit') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) fitScenario(cls, Number(process.argv[3] ?? 90), Number(process.argv[4] ?? 1), (process.argv[5] ?? '3,5,8,10,13,15,18,20,25,30,35,40,45,50,55,60,65,70').split(',').map(Number));
 if (only === 'riftstall') riftStallHunt((process.argv[3] ?? 'mage') as ClassId, Number(process.argv[4] ?? 1), Number(process.argv[5] ?? 12));
 if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
+if (only === 'budget') perfBudgetScenario();
 if (only === 'leveling') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) levelingScenario(cls, Number(process.argv[3] ?? 25));
 
+if (process.env.SIM_JSON) {
+  writeFileSync(process.env.SIM_JSON, JSON.stringify({
+    schema: 1, scenario: only ?? 'all', seed: Number(process.env.SIM_SEED ?? 0xc0ffee), args: process.argv.slice(3),
+    overrides: { tough: process.env.TOUGH ?? null, damage: process.env.DAMAGE ?? null, xpMult: process.env.XP_MULT ?? null },
+    rows: metricRows, summary,
+  }, null, 1) + '\n');
+}
 console.log('\n== Summary ==');
 for (const s of summary) console.log(`  ${s}`);
 console.log(`\n${checks - failures.length}/${checks} checks passed in ${fmt((performance.now() - t0) / 1000)}s`);

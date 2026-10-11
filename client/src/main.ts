@@ -19,6 +19,7 @@ import { initArt } from './render/art';
 import { App } from './ui/App';
 import { ui } from './ui/store';
 import { preferences } from './game/preferences';
+import { GraphicsController, resolutionFor } from './game/quality';
 
 async function boot() {
   await Promise.all([
@@ -30,11 +31,13 @@ async function boot() {
   ]).catch(() => undefined);
 
   const app = new Application();
+  const prefs = preferences.get().values;
   await app.init({
     resizeTo: window,
-    antialias: true,
+    // Antialiasing is fixed when the renderer is created; the Graphics setting takes effect on the next load.
+    antialias: prefs.antialias,
     background: 0x07060a,
-    resolution: Math.min(2, window.devicePixelRatio || 1),
+    resolution: resolutionFor(prefs),
     autoDensity: true,
     preference: 'webgl',
     powerPreference: 'high-performance',
@@ -43,6 +46,7 @@ async function boot() {
   initArt(app.renderer);
 
   const game = new Game(app);
+  const graphics = new GraphicsController(app, () => game.scene.refreshViewScale());
   session.start = (name, classId, options) => { void game.start(name, classId, options); };
   session.auth = (op, fields) => game.auth(op, fields);
   session.initAccount = () => game.initAccount();
@@ -57,7 +61,7 @@ async function boot() {
   const auto = qs.get('autostart');
   if (auto) session.start(auto, (qs.get('class') as 'warrior' | 'ranger' | 'mage') ?? 'warrior');
 
-  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences });
+  Object.assign(window as object, { __game: game, __cmd: cmd, __ui: ui, __prefs: preferences, __graphics: graphics });
 }
 
 void boot();

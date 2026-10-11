@@ -7,69 +7,69 @@ Times are totals over all encounters; `~` marks totals that include extrapolated
 
 | Set | Class | Set-backed skills | Set kit | Hybrid | Legendary-only | Legendary / set | Hybrid between | 1.25 rule | Enforced |
 |---|---|---|---:|---:|---:|---:|---|---|---|
-| Raiment of the Endless Storm | warrior | Whirlwind | 119.8 s | ~3071.0 s (4 t/o) | ~4907.0 s (6 t/o) | 40.98 | yes | fail | no |
-| Siegebreaker's Arsenal | ranger | Sentry, Multishot, Cluster Arrow | 118.6 s | ~1068.9 s (3 t/o) | ~3939.7 s (6 t/o) | 33.22 | yes | fail | no |
-| Regalia of the Fallen Star | mage | Meteor | 44.1 s | ~426.6 s (3 t/o) | ~1211.7 s (3 t/o) | 27.44 | yes | fail | no |
-| Cinder Oath | warrior | Cleave, Rend | 150.7 s | ~12381.2 s (6 t/o) | ~14245.9 s (6 t/o) | 94.56 | yes | fail | no |
-| Fault Warden | warrior | Seismic Slam, Ground Stomp | 126.5 s | ~1871.2 s (5 t/o) | ~2351.7 s (6 t/o) | 18.59 | yes | fail | no |
-| Farwatch | ranger | Hungering Arrow, Multishot | 129.3 s | ~2434.1 s (5 t/o) | ~4232.7 s (6 t/o) | 32.72 | yes | fail | no |
-| Rainkeeper | ranger | Rain of Vengeance, Cluster Arrow | 149.8 s | ~3376.4 s (6 t/o) | ~4736.7 s (6 t/o) | 31.63 | yes | fail | no |
-| Glass Concord | mage | Magic Missile, Black Hole | 129.0 s | ~3465.9 s (6 t/o) | ~6506.5 s (6 t/o) | 50.44 | yes | fail | no |
-| Lantern Garden | mage | Hydra, Frost Nova | 141.7 s | ~2506.8 s (4 t/o) | ~3720.3 s (5 t/o) | 26.26 | yes | fail | no |
+| Raiment of the Endless Storm | warrior | Whirlwind | 115.5 s | ~3690.4 s (5 t/o) | ~4764.7 s (6 t/o) | 41.27 | yes | fail | no |
+| Siegebreaker's Arsenal | ranger | Sentry, Multishot, Cluster Arrow | 110.6 s | ~1473.1 s (3 t/o) | ~3118.4 s (5 t/o) | 28.19 | yes | fail | no |
+| Regalia of the Fallen Star | mage | Meteor | 75.2 s | ~367.3 s (1 t/o) | ~697.2 s (3 t/o) | 9.27 | yes | fail | no |
+| Cinder Oath | warrior | Cleave, Rend | 150.1 s | ~10061.2 s (6 t/o) | ~7825.1 s (6 t/o) | 52.13 | no | fail | no |
+| Fault Warden | warrior | Seismic Slam, Ground Stomp | 110.4 s | ~1971.6 s (4 t/o) | ~1924.8 s (5 t/o) | 17.43 | yes | fail | no |
+| Farwatch | ranger | Hungering Arrow, Multishot | 120.5 s | ~3640.7 s (6 t/o) | ~3161.7 s (6 t/o) | 26.23 | no | fail | no |
+| Rainkeeper | ranger | Rain of Vengeance, Cluster Arrow | 190.7 s | ~4362.4 s (6 t/o) | ~2988.6 s (6 t/o) | 15.67 | no | fail | no |
+| Glass Concord | mage | Magic Missile, Black Hole | 154.2 s | ~2617.5 s (6 t/o) | ~2392.4 s (6 t/o) | 15.51 | no | fail | no |
+| Lantern Garden | mage | Hydra, Frost Nova | 165.6 s | ~1723.4 s (3 t/o) | ~1348.7 s (3 t/o) | 8.15 | no | fail | no |
 
 ## Kits
 
 **Raiment of the Endless Storm** (loadout: Whirlwind, Rend, Ground Stomp, Battle Rage)
 
-- set: 6 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; waist: Girdle of the Eternal Gyre; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Witching Cord
-- hybrid: 4 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; hands: Fists of the Mountain; waist: Girdle of the Eternal Gyre; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Witching Cord
-- legendary: mainhand: Bloodwake; offhand: Bulwark of the Last Light; hands: Fists of the Mountain; waist: Girdle of the Eternal Gyre; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Witching Cord
+- set: 6 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; wrists: Wardkeeper's Cuffs; waist: Girdle of the Eternal Gyre; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Kilnwatch Spaulders, Hellforge Talisman
+- hybrid: 4 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Girdle of the Eternal Gyre; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Kilnwatch Spaulders, Hellforge Talisman
+- legendary: mainhand: Bloodwake; offhand: Bulwark of the Last Light; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Girdle of the Eternal Gyre; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: The Ninefold Gale, Lockglass Cincture, Hellforge Talisman
 
 **Siegebreaker's Arsenal** (loadout: Sentry, Multishot, Cluster Arrow, Companion)
 
-- set: 6 set; mainhand: Thunderhead; offhand: Sapper's Pack; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Gearwright's Heart
-- hybrid: 4 set; mainhand: Thunderhead; offhand: Sapper's Pack; chest: Gearwright's Heart; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark
-- legendary: mainhand: Thunderhead; offhand: Sapper's Pack; chest: Gearwright's Heart; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark
+- set: 6 set; mainhand: Thunderhead; offhand: Sapper's Pack; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Gearwright's Heart, Hellforge Talisman
+- hybrid: 4 set; mainhand: Thunderhead; offhand: Sapper's Pack; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Gearwright's Heart, Hellforge Talisman
+- legendary: mainhand: Thunderhead; offhand: Sapper's Pack; head: Watchkeeper's Hood; shoulders: Kilnwatch Spaulders; chest: Gearwright's Heart; hands: Ink-Stained Gloves; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Fists of the Mountain, Hellforge Talisman
 
 **Regalia of the Fallen Star** (loadout: Meteor, Black Hole, Frost Nova, Magic Weapon)
 
-- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane, Starfall Mantle
-- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; shoulders: Starfall Mantle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane
-- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; shoulders: Starfall Mantle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane
+- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane, Starfall Mantle, Patchwork Signet
+- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane, Starfall Mantle, Patchwork Signet
+- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; head: Watchkeeper's Hood; shoulders: Starfall Mantle; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Cindervane, Kilnwatch Spaulders, Patchwork Signet
 
 **Cinder Oath** (loadout: Rend, Ground Stomp, Battle Rage)
 
-- set: 6 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Fists of the Mountain
-- hybrid: 4 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief
-- legendary: mainhand: Bloodwake; offhand: Bulwark of the Last Light; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief
+- set: 6 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Kilnwatch Spaulders, Patchwork Signet
+- hybrid: 4 set; mainhand: Bloodwake; offhand: Bulwark of the Last Light; hands: Ink-Stained Gloves; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Kilnwatch Spaulders, Patchwork Signet
+- legendary: mainhand: Bloodwake; offhand: Bulwark of the Last Light; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Fists of the Mountain, Patchwork Signet
 
 **Fault Warden** (loadout: Seismic Slam, Ground Stomp, Battle Rage)
 
-- set: 6 set; mainhand: Faultcleaver; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light
-- hybrid: 4 set; mainhand: Faultcleaver; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light
-- legendary: mainhand: Faultcleaver; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light
+- set: 6 set; mainhand: Faultcleaver; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light, Patchwork Signet
+- hybrid: 4 set; mainhand: Faultcleaver; hands: Ink-Stained Gloves; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light, Patchwork Signet
+- legendary: mainhand: Faultcleaver; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Bulwark of the Last Light, Patchwork Signet
 
 **Farwatch** (loadout: Multishot, Rain of Vengeance, Companion)
 
-- set: 6 set; mainhand: Rainspindle; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead, Fists of the Mountain
-- hybrid: 4 set; mainhand: Rainspindle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead
-- legendary: mainhand: Rainspindle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead
+- set: 6 set; mainhand: Rainspindle; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead, Watchkeeper's Hood, Hellforge Talisman
+- hybrid: 4 set; mainhand: Rainspindle; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead, Watchkeeper's Hood, Hellforge Talisman
+- legendary: mainhand: Rainspindle; head: Watchkeeper's Hood; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Thunderhead, Fists of the Mountain, Hellforge Talisman
 
 **Rainkeeper** (loadout: Rain of Vengeance, Cluster Arrow, Companion)
 
-- set: 6 set; mainhand: Rainspindle; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Fists of the Mountain
-- hybrid: 4 set; mainhand: Rainspindle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark
-- legendary: mainhand: Rainspindle; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark
+- set: 6 set; mainhand: Rainspindle; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Watchkeeper's Hood, Hellforge Talisman
+- hybrid: 4 set; mainhand: Rainspindle; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Watchkeeper's Hood, Hellforge Talisman
+- legendary: mainhand: Rainspindle; head: Watchkeeper's Hood; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; feet: Ridgewalker Boots; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Hunter's Mark, Fists of the Mountain, Hellforge Talisman
 
 **Glass Concord** (loadout: Black Hole, Frost Nova, Magic Weapon)
 
-- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Fists of the Mountain
-- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief
-- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief
+- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Watchkeeper's Hood, Patchwork Signet
+- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Ink-Stained Gloves; legs: Causeway Waders; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Watchkeeper's Hood, Patchwork Signet
+- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; head: Watchkeeper's Hood; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Fists of the Mountain, Patchwork Signet
 
 **Lantern Garden** (loadout: Hydra, Frost Nova, Black Hole, Magic Weapon)
 
-- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot, Fists of the Mountain
-- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot
-- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Fists of the Mountain; waist: Witching Cord; neck: Hellforge Talisman; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot
+- set: 6 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot, Watchkeeper's Hood, Hellforge Talisman
+- hybrid: 4 set; mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; hands: Ink-Stained Gloves; legs: Causeway Waders; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot, Watchkeeper's Hood, Hellforge Talisman
+- legendary: mainhand: Spindle of a Thousand Missiles; offhand: Heart of the Void; head: Watchkeeper's Hood; shoulders: Kilnwatch Spaulders; chest: Hearthguard Coat; hands: Ink-Stained Gloves; legs: Causeway Waders; wrists: Wardkeeper's Cuffs; waist: Witching Cord; neck: Signal Horn Charm; ring1: Ouroboros Loop; ring2: Seal of the Patient Thief; Cube: Lanternroot, Fists of the Mountain, Hellforge Talisman
 

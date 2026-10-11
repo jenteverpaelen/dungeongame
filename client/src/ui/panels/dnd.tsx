@@ -3,10 +3,11 @@
 
 import { useLayoutEffect, useRef } from 'preact/hooks';
 import { slotsForKind } from '@shared/items';
+import { STASH_SIZE } from '@shared/constants';
 import type { Item, Slot } from '@shared/types';
 import { ITEM_PROTECTION_REASON } from '@shared/itemProtection';
 import { pushNotice, ui } from '../store';
-import { invUI, setCubeItem } from './cubestate';
+import { invUI, setCubeItem, stashUI } from './cubestate';
 import { GemIcon } from './icons';
 import { SkillGlyph } from './skillicons';
 import { Local, useLocal } from './state';
@@ -87,9 +88,10 @@ export function canDropOn(payload: DragPayload | null, target: string): boolean 
     case 'bag':
       if (kind === 'bag') return Number(arg) !== payload.index;
       if (kind === 'eq') return slotsForKind(payload.item.kind).includes(arg as Slot);
-      return kind === 'cube' || kind === 'trash' || kind === 'stash';
+      return kind === 'cube' || kind === 'trash' || kind === 'stash' || kind === 'stashtab';
     case 'stash':
-      return kind === 'bag';
+      // Onto another owned tab: move it there (the open tab is not a target).
+      return kind === 'bag' || (kind === 'stashtab' && Number(arg) !== Math.floor(payload.index / STASH_SIZE));
     case 'eq':
       return kind === 'bag' || kind === 'cube';
     case 'gem':
@@ -107,13 +109,15 @@ async function handleDrop(p: DragPayload, target: string) {
     if (kind === 'bag') { const to = Number(arg); if (to !== p.index) await run('swapInv', { from: p.index, to }); }
     else if (kind === 'eq') { if (slotsForKind(p.item.kind).includes(arg as Slot)) await run('equip', { itemId: p.item.id, slot: arg }); }
     else if (kind === 'cube') setCubeItem(p.item.id);
-    else if (kind === 'stash') await run('stashDeposit', { itemId: p.item.id });
+    else if (kind === 'stash') await run('stashDeposit', { itemId: p.item.id, tab: stashUI.get().tab });
+    else if (kind === 'stashtab') await run('stashDeposit', { itemId: p.item.id, tab: Number(arg) });
     else if (kind === 'trash') {
       if (p.item.protected) pushNotice(ITEM_PROTECTION_REASON, 'warn');
       else invUI.set({ confirm: { kind: 'destroy', item: p.item } });
     }
   } else if (p.kind === 'stash') {
     if (kind === 'bag') await run('stashWithdraw', { itemId: p.item.id });
+    else if (kind === 'stashtab') await run('stashMove', { itemId: p.item.id, tab: Number(arg) });
   } else if (p.kind === 'eq') {
     if (kind === 'bag') await run('unequip', { slot: p.slot });
     else if (kind === 'cube') setCubeItem(p.item.id);

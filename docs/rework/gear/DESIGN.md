@@ -1,5 +1,8 @@
 # Gear visual progression — design (branch `claude/gear`)
 
+> **Superseded by `DESIGN-V2.md` (2026-10-11):** the player-facing tier ladder, the hero gear rank and the rank-driven
+> effects described here were replaced by item-driven looks (generation × rarity × signature × grade). Kept for history.
+
 Owner request: endgame Legendaries and Sets were "just a different colour and a glow"; a veteran must be unmistakable
 from a newcomer from across the screen. Principles P1–P10 come from `REFERENCES.md`. Everything is drawn in code,
 original, and derived from item data already in saves (`shared/src/gearVisual.ts`), so no save migration.

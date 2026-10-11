@@ -20,10 +20,10 @@
 }
 @keyframes tt-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-.tt.r-magic { --rc: var(--r-magic); --rc-soft: rgba(122, 156, 255, 0.14); }
-.tt.r-rare { --rc: var(--r-rare); --rc-soft: rgba(242, 212, 60, 0.12); }
-.tt.r-legendary { --rc: var(--r-legendary); --rc-soft: rgba(239, 108, 42, 0.15); }
-.tt.r-set { --rc: var(--r-set); --rc-soft: rgba(52, 199, 154, 0.14); }
+.tt.r-magic { --rc: var(--r-magic); --rc-soft: color-mix(in srgb, var(--r-magic) 14%, transparent); }
+.tt.r-rare { --rc: var(--r-rare); --rc-soft: color-mix(in srgb, var(--r-rare) 12%, transparent); }
+.tt.r-legendary { --rc: var(--r-legendary); --rc-soft: color-mix(in srgb, var(--r-legendary) 15%, transparent); }
+.tt.r-set { --rc: var(--r-set); --rc-soft: color-mix(in srgb, var(--r-set) 14%, transparent); }
 
 /* rarity rule along the top edge; top gear tiers get a slow sheen across it */
 .tt-rule { position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--rc); opacity: 0.9; z-index: 2; }
@@ -177,3 +177,10 @@
 .tt-lite .tl b { color: #fff; }
 .tt-lite .tl.note { color: var(--text-dim); font-style: italic; font-size: 13px; }
 .tt-rings { max-width: none; width: 696px; margin-bottom: 6px; padding: 8px 12px; }
+
+/* Item grades (ITEMS-SHARED.md §7): Kindled ember-orange, Fabled white-gold; minimal until the lead's tooltip pass. */
+.tt-grade { color: #f08a3c; font-weight: 600; margin-right: 4px; }
+.tt-grade.fabled { color: #fff0c2; }
+.af-ember { flex: none; width: 7px; height: 7px; margin: 0 4px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffd27a, #e8642a); box-shadow: 0 0 4px #ff8a3a; transform: translateY(-2px); }
+.af-kindled .af-t { color: #ffd9b0; }
+.tt-inscription .pw-l { color: #fff0c2; }

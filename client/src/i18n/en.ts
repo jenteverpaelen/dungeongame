@@ -7,8 +7,10 @@ import { AUTO_RULE_MESSAGES } from './autoRuleMessages';
 import { ONBOARDING_MESSAGES } from './onboardingMessages';
 import { JOURNAL_MESSAGES } from './journalMessages';
 import { GEAR_MESSAGES } from './gearMessages';
+import { SETTINGS_MESSAGES } from './settingsMessages';
 export const ENGLISH = {
   ...GEAR_MESSAGES,
+  ...SETTINGS_MESSAGES,
   ...ONBOARDING_MESSAGES,
   ...JOURNAL_MESSAGES,
   ...AUTO_RULE_MESSAGES,

@@ -2,7 +2,7 @@
 import { boundedCombat, combatInteger } from '../../../shared/src/combatBounds';
 
 import { ELEMENT_INDEX, armorReduction, resistReduction, type Element } from '../shared';
-import { addOwnedDot, elIdx, getBuff } from './effects';
+import { addOwnedDot, chillMob, elIdx, getBuff } from './effects';
 import { onEliteDamaged } from './elites';
 import type { Instance } from './instance';
 import { killMob } from './kills';
@@ -10,7 +10,7 @@ import { onMobHit, wakeMob } from './monsters';
 import { skillPct } from './playerctx';
 import { countCastHit, onPlayerDamaged, powerDefense, tryCheatDeath } from './powerActions';
 import { applyHitTerms, elementStacks, firePowerProcs, vulnTermsFactor } from './powerRuntime';
-import { scopedVulnerability, weakenFactor } from './status';
+import { consumeVulns, scopedVulnerability, weakenFactor } from './status';
 import { killPlayer } from './players';
 import type { Dot, DotKind, Mob, Player, Strike } from './types';
 
@@ -73,6 +73,7 @@ export function strikeMob(inst: Instance, p: Player, m: Mob, st: Strike): HitRes
   const { amount, crit } = rollDamage(inst, p, m, st);
   const killed = hurtMob(inst, m, amount, st.el, p, crit, false, st.src ?? p.id, st.skill);
   if (p.pw?.cast) countCastHit(inst, p, m, st.skill);
+  if (m.ps && m.ps.vulns.length) consumeVulns(m, p, st.skill);
   if (!st.noProc) onHitProcs(inst, p, m, st, amount, crit, killed);
   return { amount, crit, killed };
 }
@@ -128,6 +129,8 @@ function onHitProcs(inst: Instance, p: Player, m: Mob, st: Strike, amount: numbe
     firePowerProcs(inst, p, 'crit', { skill: st.skill, mob: m, el: st.el, amount });
   }
   if (c.powers.procs.hit) firePowerProcs(inst, p, 'hit', { skill: st.skill, mob: m, el: st.el, amount });
+  // Affix: chance on hit to chill for 1 s (RNG only with the affix).
+  if (d.chillOnHit > 0 && !m.dead && inst.rng.next() * 100 < d.chillOnHit) chillMob(m, 1000, inst, p);
   // Area damage (D3): 20% chance to splash area% of the hit to all other enemies within 100. No area-of-area.
   if (!st.noArea && d.area > 0 && inst.rng.next() < 0.2) {
     const splash = Math.max(1, Math.round(amount * (d.area / 100)));
@@ -222,6 +225,8 @@ export function damagePlayer(inst: Instance, p: Player, raw: number, el: Element
   const lvl = Math.max(1, src?.level ?? level);
   if (src?.ps && src.ps.weakenMs > 0) raw *= weakenFactor(src); // power status: weakened attacker
   let mult = defenseMult(p, lvl, !!src && isEliteTier(src.tier));
+  // Affixes: less damage from melee / ranged monster attacks (hazards without a source are neither).
+  if (src) { const dr = melee ? p.ctx.d.meleeDR : p.ctx.d.rangedDR; if (dr > 0) mult *= 1 - Math.min(75, dr) / 100; }
   if (p.ctx.powers.defense || (p.live.dr !== undefined && p.live.dr !== 1)) mult *= powerDefense(inst, p, src);
   const amount = combatInteger(raw * mult);
   p.hp -= amount;

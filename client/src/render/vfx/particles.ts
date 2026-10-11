@@ -4,7 +4,8 @@
 // "Manual" particles never expire on their own: their owner effect positions them every frame.
 
 import { Container, Particle, ParticleContainer, Texture } from 'pixi.js';
-import { preferences } from '../../game/preferences';
+import { motionReduced, preferences } from '../../game/preferences';
+import { effectsFactor } from '../../game/quality';
 import type { FxTextures } from './atlas';
 import { TAU, clamp, toBgr } from './util';
 
@@ -288,10 +289,14 @@ export class FxSystem {
   }
 
   update(dt: number): void {
-    this.budget = clamp(1.25 - this.live / 4800, 0.18, 1);
-    const reduceFlashes = preferences.get().values.reduceFlashes;
+    const prefs = preferences.get().values;
+    // Graphics → effects density scales every count that goes through n() (Medium ×0.5, Low ×0.2).
+    this.budget = clamp(1.25 - this.live / 4800, 0.18, 1) * effectsFactor(prefs);
+    const reduceFlashes = prefs.reduceFlashes;
     this.aFlash.container.visible = !reduceFlashes;
-    for (const l of this.layers) l.update(dt, reduceFlashes);
+    // Reduce motion also drops decorative celebration bursts and flicker (the reduced-flash path does exactly that).
+    const calm = reduceFlashes || motionReduced(prefs);
+    for (const l of this.layers) l.update(dt, calm);
   }
 
   clear(): void {

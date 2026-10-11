@@ -8,24 +8,39 @@ import { LEGENDARIES, SETS } from './data/items';
 import { SKILLS } from './data/skills';
 import type { PowerEffect } from './powers';
 import { savedNodeRanks } from './specialization';
-import type { CharacterSave } from './types';
+import type { CharacterSave, DerivedStats } from './types';
 
 export interface PowerSource {
-  kind: 'set' | 'legendary' | 'inscription' | 'passive' | 'node' | 'rune';
-  /** set:<id>:<count>, legendary id, inscription:<id>, passive id, <skill>:<node>, or <skill>:rune:<rune>. */
+  kind: 'set' | 'legendary' | 'inscription' | 'passive' | 'node' | 'rune' | 'affix';
+  /** set:<id>:<count>, legendary id, inscription:<id>, passive id, <skill>:<node>, <skill>:rune:<rune>, or affixes. */
   id: string;
   /** Value for `{ roll }` amounts: the legendary's rolled value (Cube: maximum), a node's rank, otherwise 1. */
   roll: number;
   effects: readonly PowerEffect[];
 }
 
+/** The active set reduction (Journeyman's Ring: `setReduce` on an active legendary power); the largest applies, never stacks. */
+export function setReduction(powers: Readonly<Record<string, number>>): { by: number; min: number } | null {
+  let out: { by: number; min: number } | null = null;
+  for (const id of Object.keys(powers)) {
+    if (!powers[id] || !Object.hasOwn(LEGENDARIES, id)) continue;
+    for (const e of LEGENDARIES[id].effects) if (e.kind === 'setReduce' && (!out || (e.by ?? 1) > out.by)) out = { by: e.by ?? 1, min: e.min ?? 2 };
+  }
+  return out;
+}
+
+/** Worn pieces a set bonus of `count` needs under a set reduction. */
+export const setThreshold = (count: number, red: { by: number; min: number } | null): number =>
+  red ? Math.max(Math.min(count, red.min), count - red.by) : count;
+
 /** Set bonuses and legendary powers from equipped / Cube-equipped items (DerivedStats.powers / .sets). */
 export function itemPowerSources(powers: Readonly<Record<string, number>>, sets: Readonly<Record<string, number>>): PowerSource[] {
   const out: PowerSource[] = [];
+  const red = setReduction(powers);
   for (const set of Object.values(SETS)) {
     const n = sets[set.id] ?? 0;
     if (!n) continue;
-    for (const b of set.bonuses) if (n >= b.count && b.effects?.length) out.push({ kind: 'set', id: `set:${set.id}:${b.count}`, roll: 1, effects: b.effects });
+    for (const b of set.bonuses) if (n >= setThreshold(b.count, red) && b.effects?.length) out.push({ kind: 'set', id: `set:${set.id}:${b.count}`, roll: 1, effects: b.effects });
   }
   for (const l of Object.values(LEGENDARIES)) {
     const v = powers[l.id];
@@ -58,6 +73,32 @@ export function nodePowerSources(save: Pick<CharacterSave, 'classId' | 'level' |
   }
   return out;
 }
+
+/**
+ * Shared-items wave affixes that are tag-keyed bonuses, as power templates (one source, empty without such affixes):
+ * the skill-group damage affixes join the additive skill bucket of the tagged skills (like "+x% skill damage"), the
+ * others are SkillMods / dot strength / a vulnerability-position conditional / a kill proc. Appended after every other
+ * source, so they cannot change any earlier product.
+ */
+export function affixPowerSources(d: Pick<DerivedStats, 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'areaRadius' | 'channelCost'
+  | 'summonDuration' | 'buffDuration' | 'pierceChance' | 'dotDmg' | 'vsControlled' | 'resourceOnKill'>): PowerSource[] {
+  const effects: PowerEffect[] = [];
+  const mods = (tag: Parameters<typeof tagQuery>[0], m: Record<string, number>) => effects.push({ kind: 'skillMods', tags: tagQuery(tag), mods: m });
+  if (d.summonDmg > 0) mods('summon', { dmg: d.summonDmg });
+  if (d.primaryDmg > 0) mods('primary', { dmg: d.primaryDmg });
+  if (d.spenderDmg > 0) mods('spender', { dmg: d.spenderDmg });
+  if (d.cooldownDmg > 0) mods('cooldown', { dmg: d.cooldownDmg });
+  if (d.areaRadius > 0) mods('area', { radius: d.areaRadius });
+  if (d.channelCost > 0) mods('channel', { cost: -d.channelCost });
+  if (d.summonDuration > 0) mods('summon', { duration: d.summonDuration });
+  if (d.buffDuration > 0) mods('buff', { duration: d.buffDuration });
+  if (d.pierceChance > 0) mods('projectile', { pierce: d.pierceChance });
+  if (d.dotDmg > 0) for (const dot of ['bleed', 'burn', 'poison'] as const) effects.push({ kind: 'dot', dot, strengthPct: 100 + d.dotDmg });
+  if (d.vsControlled > 0) effects.push({ kind: 'conditional', when: { targetState: 'immobilised' }, bucket: 'hit', pct: d.vsControlled });
+  if (d.resourceOnKill > 0) effects.push({ kind: 'proc', on: 'kill', resource: d.resourceOnKill });
+  return effects.length ? [{ kind: 'affix', id: 'affixes', roll: 1, effects }] : [];
+}
+const tagQuery = (t: 'summon' | 'primary' | 'spender' | 'cooldown' | 'area' | 'channel' | 'buff' | 'projectile') => ({ anyOf: [t] });
 
 /** The active Inscription as a source (none when no equipped item carries a known one). */
 export function inscriptionPowerSources(equipment: CharacterSave['equipment'] | undefined): PowerSource[] {

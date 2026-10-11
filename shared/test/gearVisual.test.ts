@@ -1,67 +1,103 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Packr } from 'msgpackr';
 import { createCharacter, playerLook } from '../src/character';
 import { CLASS_IDS } from '../src/data/classes';
+import { BASES } from '../src/data/items';
 import { seedCollection } from '../src/itemCollection';
-import { generateItem } from '../src/items';
+import { baseTierIndex, generateItem } from '../src/items';
 import { Rng } from '../src/math';
 import {
-  GEAR_GEM_ORDER, GEAR_LEGENDARY_ORDER, GEAR_SET_ORDER, GEAR_TIER_NAMES, gearLook, gearProfile, itemVisualTier, lookFx, packGearFx,
-  temperOf, unpackGearFx,
+  FX_CAPACITY, GEAR_GEM_ORDER, GEAR_LEGENDARY_ORDER, GEAR_SET_ORDER, GEN_START, MAX_GEN, RARITY_ORDER, gearLook, gearProfile,
+  itemGeneration, litLook, lookFromEquipment, lookFx, lookStage, packGearFx, temperOf, unpackGearFx,
 } from '../src/gearVisual';
 import { SHOWCASE_STAGES, showcaseEquipment } from '../src/gearShowcase';
-import type { Item, Rarity, Slot } from '../src/types';
+import type { Item, Rarity } from '../src/types';
 
-test('visual tier ladder follows rarity, item-level bands and Ancient / Primal', () => {
-  const t = (rarity: Rarity, ilvl: number, ancient: 0 | 1 | 2 = 0) => itemVisualTier({ rarity, ilvl, ancient });
-  assert.deepEqual([t('normal', 1), t('normal', 12), t('normal', 36)], [0, 1, 2]);
-  assert.deepEqual([t('magic', 5), t('magic', 20), t('magic', 40)], [1, 2, 3]);
-  assert.deepEqual([t('rare', 10), t('rare', 30), t('rare', 60)], [3, 4, 5]);
-  assert.deepEqual([t('legendary', 40), t('set', 69), t('legendary', 70), t('set', 70, 1), t('legendary', 70, 2)], [6, 6, 7, 8, 9]);
-  assert.equal(GEAR_TIER_NAMES.length, 10);
-  // Never goes down when item level or rarity goes up.
-  const rarities: Rarity[] = ['normal', 'magic', 'rare', 'legendary'];
-  for (let i = 0; i < rarities.length; i++) for (let lv = 1; lv <= 70; lv++) {
-    assert.ok(t(rarities[i], lv) >= t(rarities[i], Math.max(1, lv - 1)));
-    if (i) assert.ok(t(rarities[i], lv) >= t(rarities[i - 1], lv));
-  }
+test('generation follows the item-name bands plus the level-70 cap', () => {
+  assert.deepEqual([...GEN_START], [1, 13, 25, 37, 49, 61, 70]);
+  assert.equal(MAX_GEN, 6);
+  assert.deepEqual([1, 12, 13, 24, 25, 36, 37, 48, 49, 60, 61, 69, 70].map(itemGeneration), [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6]);
+  // the first six generations are exactly the base-name ladder (Worn … Starforged), so art and names agree
+  for (let lv = 1; lv < 70; lv++) assert.equal(itemGeneration(lv), baseTierIndex(lv), `ilvl ${lv}`);
+  assert.equal(itemGeneration(0), 0);
+  assert.equal(itemGeneration(99), 6);
+  for (let lv = 2; lv <= 70; lv++) assert.ok(itemGeneration(lv) >= itemGeneration(lv - 1), 'never goes down');
   assert.deepEqual([0, 3, 4, 6, 7, 9, 10].map(temperOf), [0, 0, 1, 1, 2, 2, 3]);
 });
 
-test('packed progression round-trips, fits 31 bits and is deterministic', () => {
+test('packed identity round-trips every field and stays a safe integer', () => {
   const rng = new Rng(7);
-  for (let i = 0; i < 400; i++) {
-    const rarity = (['normal', 'magic', 'rare', 'legendary', 'set'] as const)[i % 5];
+  let maxN = 0;
+  for (let i = 0; i < 600; i++) {
+    const rarity = RARITY_ORDER[i % 5];
     const it = generateItem(rng, { ilvl: 1 + (i * 7) % 70, classId: CLASS_IDS[i % 3], rarity, primalAllowed: true });
     it.upgrade = i % 11;
+    it.ancient = (i % 3) as 0 | 1 | 2;
     if (it.sockets.length) it.sockets[0] = { gem: GEAR_GEM_ORDER[i % GEAR_GEM_ORDER.length], rank: 1 + (i % 6) };
     if (i % 4 === 0 && it.affixes.length) it.enchanted = 0;
     const n = packGearFx(it);
-    assert.ok(Number.isInteger(n) && n >= 0 && n < 2 ** 31, `fits: ${n}`);
-    assert.equal(packGearFx(structuredClone(it)), n);
+    maxN = Math.max(maxN, n);
+    assert.ok(Number.isSafeInteger(n) && n >= 0, `safe: ${n}`);
+    assert.equal(packGearFx(structuredClone(it)), n, 'deterministic');
     const fx = unpackGearFx(n);
-    assert.equal(fx.tier, itemVisualTier(it));
-    assert.equal(fx.ancient, it.ancient);
+    assert.equal(fx.gen, itemGeneration(it.ilvl));
+    assert.equal(fx.rarity, it.rarity);
+    assert.equal(fx.top, it.ancient);
     assert.equal(fx.upgrade, it.upgrade);
+    assert.equal(fx.temper, temperOf(it.upgrade));
     assert.equal(fx.set, it.set);
     assert.equal(fx.legendary, it.legendary?.power);
     assert.equal(fx.gems, it.sockets.filter(Boolean).length);
     assert.equal(fx.gem, it.sockets[0]?.gem);
     assert.equal(fx.enchanted, it.enchanted !== undefined);
   }
+  assert.ok(maxN < 2 ** 35, `largest packed value ${maxN}`);
 });
 
-test('packed id orders are append-only (other clients decode the same set / legendary / gem)', () => {
-  // Append-only: the shipped ids keep their positions; new content (class waves) appends after them.
+test('plain items pack below 2^32 (5 msgpack bytes); ids have room for the planned content', () => {
+  const it = generateItem(new Rng(4), { ilvl: 70, classId: 'warrior', rarity: 'rare' });
+  it.upgrade = 10; it.ancient = 2;
+  it.sockets = [{ gem: GEAR_GEM_ORDER[GEAR_GEM_ORDER.length - 1], rank: 6 }]; it.enchanted = 0;
+  assert.ok(packGearFx(it) < 2 ** 32);
+  // planned content (docs/rework/depth/ITEMS-SHARED.md): 15 Sets, ~120 legendaries, the 6 gems
+  assert.ok(FX_CAPACITY.set - 1 >= Math.max(15, GEAR_SET_ORDER.length));
+  assert.ok(FX_CAPACITY.legendary - 1 >= Math.max(160, GEAR_LEGENDARY_ORDER.length));
+  assert.ok(FX_CAPACITY.gem - 1 >= GEAR_GEM_ORDER.length);
+  assert.ok(FX_CAPACITY.gen > MAX_GEN && FX_CAPACITY.rarity >= RARITY_ORDER.length && FX_CAPACITY.top >= 3 && FX_CAPACITY.upgrade > 10);
+});
+
+test('packed id orders are append-only (other clients decode the same set / legendary / gem / rarity)', () => {
+  assert.deepEqual(RARITY_ORDER, ['normal', 'magic', 'rare', 'legendary', 'set']);
   assert.deepEqual(GEAR_SET_ORDER.slice(0, 9), ['endless_storm', 'siegebreaker', 'fallen_star', 'cinder_oath', 'fault_warden', 'farwatch', 'rainkeeper', 'glass_concord', 'lantern_garden']);
   assert.deepEqual(GEAR_LEGENDARY_ORDER.slice(0, 6), ['faultcleaver', 'rainspindle', 'lanternroot', 'ninefold_gale', 'bloodwake', 'eternal_gyre']);
-  assert.deepEqual(GEAR_LEGENDARY_ORDER.slice(16, 22), ['ouroboros_loop', 'patient_thief', 'hellforge_talisman', 'witching_cord', 'stridewind', 'mountain_fists']);
   assert.deepEqual(GEAR_GEM_ORDER, ['pearlglass', 'ruby', 'emerald', 'topaz', 'amethyst', 'diamond']);
-  assert.ok(GEAR_SET_ORDER.length <= 15 && GEAR_LEGENDARY_ORDER.length <= 255 && GEAR_GEM_ORDER.length <= 7, 'packed field widths');
 });
 
-test('player looks carry progression without touching stored items or the collection', () => {
+test('the look comes from the item: same base, generation by item level, light by rarity, grade on top', () => {
+  const mk = (ilvl: number, rarity: Rarity, ancient: 0 | 1 | 2 = 0) => {
+    const it = generateItem(new Rng(ilvl * 13 + rarity.length), { ilvl, classId: 'warrior', rarity: rarity === 'legendary' ? 'rare' : rarity, base: 'sword', ancientAllowed: false });
+    it.rarity = rarity; it.ancient = ancient;
+    return it;
+  };
+  const early = lookFx(gearLook(mk(1, 'normal')))!, late = lookFx(gearLook(mk(70, 'rare')))!;
+  assert.equal(gearLook(mk(1, 'normal')).shape, gearLook(mk(70, 'rare')).shape, 'the base sets the silhouette family');
+  assert.equal(early.gen, 0); assert.equal(late.gen, 6);
+  // light only where it belongs: none on early plain gear, from runesteel on magic+, always on legendary / graded
+  assert.equal(litLook(early), false);
+  assert.equal(litLook(lookFx(gearLook(mk(30, 'rare')))!), false);
+  assert.equal(litLook(lookFx(gearLook(mk(50, 'magic')))!), true);
+  assert.equal(litLook(lookFx(gearLook(mk(70, 'normal')))!), false, 'a plain level-70 piece has the late silhouette but dormant light');
+  assert.equal(litLook(lookFx(gearLook(mk(20, 'legendary')))!), true);
+  // the look stage is monotone in generation, rarity and grade (equip moments compare it)
+  const st = (ilvl: number, r: Rarity, a: 0 | 1 | 2 = 0) => lookStage(lookFx(gearLook(mk(ilvl, r, a)))!);
+  assert.ok(st(70, 'normal') > st(60, 'legendary'), 'a new generation outranks a rarer piece of the previous one');
+  assert.ok(st(70, 'rare') > st(70, 'magic') && st(70, 'legendary') > st(70, 'rare'));
+  assert.ok(st(70, 'legendary', 1) > st(70, 'legendary') && st(70, 'legendary', 2) > st(70, 'legendary', 1));
+});
+
+test('player looks carry identity without touching stored items or the collection', () => {
   const save = createCharacter('Gx', 'warrior', 3);
   const eq = showcaseEquipment('warrior', 'ancient', 2);
   save.equipment = eq;
@@ -69,42 +105,44 @@ test('player looks carry progression without touching stored items or the collec
   const look = playerLook(save);
   assert.equal(JSON.stringify(save), before, 'playerLook is pure');
   for (const it of Object.values(save.equipment)) assert.equal((it as Item).look.fx, undefined, 'stored looks stay unchanged');
-  assert.equal(lookFx(look.slots.mainhand)!.tier, 8);
+  const main = lookFx(look.slots.mainhand)!;
+  assert.equal(main.gen, 6);
+  assert.equal(main.top, 1, 'the showcase "ancient" stage wears grade-1 (Kindled) weapons');
   assert.ok(look.jw?.neck && look.jw.ring1 && look.jw.ring2, 'jewellery travels for the charms');
-  // Wardrobe looks keep the worn item's progression.
+  // wardrobe looks keep the worn item's identity
   seedCollection(save, Object.values(save.equipment));
   assert.doesNotThrow(() => seedCollection(save, []));
   assert.equal(gearLook(eq.head!, { ...eq.head!.look, primary: 0x123456 }).fx, packGearFx(eq.head!));
+  // inspect builds the same look from items
+  assert.deepEqual(lookFromEquipment('warrior', eq).slots.mainhand, look.slots.mainhand);
 });
 
-test('gear rank climbs the showcase ladder for every class: newcomer 0 → Primal 9', () => {
-  const rows: string[] = [];
-  for (const cls of CLASS_IDS) {
-    let prev = -1;
-    const ranks: number[] = [];
-    for (const stage of SHOWCASE_STAGES) {
-      const save = createCharacter('Gr', cls, 5);
-      save.equipment = showcaseEquipment(cls, stage, 3);
-      const p = gearProfile(playerLook(save));
-      ranks.push(p.rank);
-      assert.ok(p.rank >= prev, `${cls} ${stage} rank ${p.rank} after ${prev}`);
-      prev = p.rank;
-    }
-    rows.push(`${cls.padEnd(8)} ${SHOWCASE_STAGES.map((s, i) => `${s}:${ranks[i]}`).join(' ')}`);
-    assert.equal(ranks[0], 0, 'starter');
-    assert.ok(ranks[SHOWCASE_STAGES.indexOf('L20')] >= 2, 'L20 has left the starter rags behind');
-    assert.ok(ranks[SHOWCASE_STAGES.indexOf('L40')] >= 4, 'L40 reads as an experienced hero');
-    assert.equal(ranks[SHOWCASE_STAGES.indexOf('L70')], 6, 'L70 mixed Legendaries: Storied');
-    assert.equal(ranks[SHOWCASE_STAGES.indexOf('set')], 7);
-    assert.equal(ranks[SHOWCASE_STAGES.indexOf('ancient')], 8);
-    assert.equal(ranks[SHOWCASE_STAGES.indexOf('primal')], 9);
+test('the hero summary counts item families only (no rank): Sets, legendary jewellery, grades, enhancement', () => {
+  const prof = (stage: typeof SHOWCASE_STAGES[number], cls: 'warrior' | 'ranger' | 'mage' = 'mage') => {
+    const save = createCharacter('Gp', cls, 5);
+    save.equipment = showcaseEquipment(cls, stage, 3);
+    return gearProfile(playerLook(save));
+  };
+  const starter = prof('starter');
+  assert.equal(starter.legendaries, 0); assert.equal(starter.topSetCount, 0); assert.equal(starter.tops, 0); assert.equal(starter.jewels, 0);
+  assert.ok(!('rank' in starter), 'no abstract rank');
+  const set = prof('set');
+  assert.equal(set.topSet, 'fallen_star'); assert.equal(set.topSetCount, 6);
+  assert.ok(set.legendaries >= 10, 'set + legendary pieces');
+  assert.equal(set.jewels, 3, 'legendary amulet and two rings');
+  assert.equal(set.topMax, 0);
+  const primal = prof('primal', 'warrior');
+  assert.equal(primal.topMax, 2); assert.ok(primal.tops >= 10);
+  assert.ok(primal.maxed >= 6 && primal.temper === 3);
+});
+
+test('every weapon / off-hand base shape has a silhouette family in the client registry', () => {
+  // keeps the client registry honest when content agents add bases (client/src/render/art/gearVisuals.ts SHAPE_FAMILY)
+  const src = readFileSync(new URL('../../client/src/render/art/gearVisuals.ts', import.meta.url), 'utf8');
+  for (const b of Object.values(BASES)) {
+    if (!b.weapon && b.kind !== 'offhand') continue;
+    assert.ok(new RegExp(`\\b${b.shape}: F\\(`).test(src), `${b.id} (${b.shape}) has a family in SHAPE_FAMILY`);
   }
-  console.log(rows.join('\n'));
-  const endgame = createCharacter('Gs', 'mage', 1);
-  endgame.equipment = showcaseEquipment('mage', 'set', 1);
-  const p = gearProfile(playerLook(endgame));
-  assert.equal(p.topSet, 'fallen_star');
-  assert.equal(p.topSetCount, 6);
 });
 
 test('descriptor bytes stay small (sent on enter / change, never per tick)', () => {
@@ -119,33 +157,9 @@ test('descriptor bytes stay small (sent on enter / change, never per tick)', () 
     const desc = (l: unknown) => ({ id: 123, k: 'player', t: 'ranger', n: 'Bytes', lv: 70, r: 16, look: l, pl: 812 });
     const now = size(desc(look)), before = size(desc(JSON.parse(JSON.stringify(legacy))));
     out.push(`${stage}: ${before} → ${now} bytes (+${now - before})`);
-    assert.ok(now < 1100, `${stage} descriptor ${now} bytes`);
+    assert.ok(now < 1150, `${stage} descriptor ${now} bytes`);
   }
   console.log(out.join('\n'));
   const loot = generateItem(new Rng(3), { ilvl: 70, classId: 'mage', rarity: 'legendary' });
-  assert.ok(size({ lk: 'item', name: loot.name, rarity: loot.rarity, ancient: 0, look: gearLook(loot), kind: loot.kind }) < 160);
-  void ({} as Slot);
-});
-
-test('next-step hints come from what is worn (never "complete a Set" while wearing one)', async () => {
-  const { gearNextSteps } = await import('../src/gearVisual');
-  const hints = (stage: typeof SHOWCASE_STAGES[number], cls: 'warrior' | 'ranger' | 'mage' = 'mage') => {
-    const save = createCharacter('Hint', cls, 2);
-    save.equipment = showcaseEquipment(cls, stage, 3);
-    return gearNextSteps(gearProfile(playerLook(save)));
-  };
-  const starter = hints('starter');
-  assert.equal(starter[0].key, 'empty', 'a starter first fills empty slots');
-  assert.ok(starter[0].key === 'empty' && starter[0].slots.includes('head'));
-  for (const cls of ['warrior', 'ranger', 'mage'] as const) {
-    const set = hints('set', cls);
-    assert.ok(!set.some((h) => h.key === 'set'), `${cls}: full Set worn, no Set hint`);
-    assert.ok(set.some((h) => h.key === 'ancient'), `${cls}: next rung after a full Set is Ancient`);
-    const anc = hints('ancient', cls);
-    assert.ok(anc.some((h) => h.key === 'temper' || h.key === 'primal'));
-    assert.deepEqual(hints('primal', cls), [{ key: 'top' }]);
-  }
-  const l70 = hints('L70');
-  assert.ok(l70.some((h) => h.key === 'set' && h.count === 2), 'L70 wears two Set pieces: hint names the count');
-  assert.ok(hints('L40').length <= 2);
+  assert.ok(size({ lk: 'item', name: loot.name, rarity: loot.rarity, ancient: 0, look: gearLook(loot), kind: loot.kind }) < 170);
 });

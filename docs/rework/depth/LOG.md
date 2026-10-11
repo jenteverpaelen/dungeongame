@@ -86,19 +86,45 @@
     new 1.07 / 1.27 / 1.39 ms; T3 rift 0.090 / 0.124 / 0.097 vs 0.094 / 0.116 / 0.107 ms.
   - An earlier single run under heavy machine load showed 3.2 ms (perf threshold), a load artefact.
   - Tests: `server/test/engineWave2.test.ts` (15). Test change: Cleave's tag set now includes `strike` (alias).
+## Shared-items wave (2026-10-11)
+
+- Merged claude/town-ui-rework (f3019b1, with engine wave 2 and the quest rework) by fast-forward.
+- Commit 624926a (engine only; sim.ts identical to the wave-2 baseline). Added:
+  - setReduce;
+  - noEnemyWithin and burning;
+  - attack trigger with every / repeat;
+  - kill-stack filter;
+  - cdRecovery;
+  - control immunity by kind;
+  - markSpread;
+  - consumable vulnerability;
+  - returning / range-ricochet projectiles;
+  - 22 affix stats as templates and gated hooks;
+  - non-extractable legendaries.
+- Commit b513b69 (content): 13 shared legendaries, Ouroboros 60-80, 38 bases, 22 affixes (weights 3/4 [P], see
+  FOUNDATION 12.3), names, off-hand rule as data. Equivalence proof restricted to the 22 converted legendaries;
+  loot pity fixture seed 27 to 6. Parity evidence regenerated. Sim 382/382 checks pass with the new RNG.
+- Grades: Kindled / Fabled generation, Inscription pool (10), save 16 migration plus golden fixture, Mystic rekindle,
+  tooltip grade / ember / Inscription.
+- Client: channel-speed prediction (MeState.ms), following ground visuals (aoe.f), charge badges, v2 tag labels.
+- Tests: server/test/sharedItems.test.ts (14).
+- Known: 2 gearVisual tests fail until claude/gear-v2 widens the legendary field (gear lane).
 
 ## Warrior pilot (2026-10-11, branch `claude/warrior`)
 
-- Content: 12 skills, 60 runes, 68 / 72 nodes, 11 passives (5 of 8 new), 5 sets (3 redesigned, 2 new), 31 / 34 warrior
+- Content: 12 skills, 60 runes, 68 / 72 nodes, 11 passives (5 of 8 new), 5 sets (3 redesigned, 2 new), 32 / 34 warrior
   legendaries, 7 data grounds; NAMES.md renames (Seismic Slam → Quakeline, ids unchanged); `SPEC_POINTS` = separate,
   1 / level from 21, cap 10. Details, blocked list and deviations: `WARRIOR-PILOT.md`.
 - Narrow generic additions (tests in `server/test/warrior.test.ts` / `powerTemplates.test.ts`): `RuneDef.effects`,
-  `SkillDef.vars`, proc `when`, `Buff.cost`, `MeState.mvf` + shared `channelMsPct` (client prediction of channel slows),
-  grounds placed during the grounds update start next tick, exact dot carry-over (`effects.ticksAhead`), harness RNG per
-  equipment slot.
-- Parity: `WARRIOR-PARITY.md` (D1–D6 measured, with and without shared legendaries); verify gates D3 / D4 for the four
-  parity-ready warrior skills. Fits from measurements: Cinder Oath 4 and Red Ledger cost cuts 30 → 15 %, Hearthbanner 6
-  shockwave 100 → 50 %, Endless Storm 6 wisps 25 % in total.
-- `server/test/sim.ts`: warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9
-  risk 1; measured 44.5 %); Endless Storm 4 flag check updated. Ranger byte-identical vs f3019b1 with the warrior out of
-  the class loops; mage identical up to its first cross-class legendary drop (bigger shared drop pool).
+  `SkillDef.vars`, proc `when`, `Buff.cost`, grounds placed during the grounds update start next tick, exact dot
+  carry-over (`effects.ticksAhead`), harness RNG per equipment slot.
+- Parity: `WARRIOR-PARITY.md` (D1–D6 measured, with and without the shared legendaries); verify gates D3 / D4 on
+  warrior items for the three parity-ready warrior skills (Cleave, Tolling Blow, Quakeline). Fits from measurements:
+  Cinder Oath 4 and Red Ledger cost cuts 30 → 15 %, Hearthbanner 6 shockwave 100 → 50 %, Endless Storm 6 wisps 25 % in
+  total.
+- Merged claude/town-ui-rework d22ee7d (normal merge, 13 conflicts; WARRIOR-PILOT.md §9). Kilnmaw and Cinder Oath 4
+  "or Burning" shipped on the new base / target state. Fixed two verify failures the integration branch had on its own
+  (originality: two affix labels; save history: v16 entry + golden fixture) and a seed-fragile grades test.
+- `server/test/sim.ts`: warrior fixture kit = the audit's best Endless Storm 6 Whirlwind kit (set spike ×25 [M]);
+  warrior L70 Torment II rift is a 30 % progress floor until the Torment re-fit (BUDGET.md §9 risk 1; measured 71.9 %).
+  Ranger and mage byte-identical against d22ee7d with the warrior out of the class loops (spike, rift, field).

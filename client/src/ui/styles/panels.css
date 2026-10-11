@@ -180,7 +180,7 @@
 .menu-note { margin-top: 6px; font-size: 13px; color: var(--text-faint); font-style: italic; }
 .menu-act { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .rar-name { font-weight: 700; }
-.rar-name.r-magic { color: var(--r-magic); } .rar-name.r-rare { color: var(--r-rare); } .rar-name.r-legendary { color: var(--r-legendary); } .rar-name.r-set { color: var(--r-set); } .rar-name.r-normal { color: #fff; }
+.rar-name.r-magic { color: var(--r-magic); } .rar-name.r-rare { color: var(--r-rare); } .rar-name.r-legendary { color: var(--r-legendary); } .rar-name.r-set { color: var(--r-set); } .rar-name.r-normal { color: var(--r-normal); }
 .confirm-veil { position: absolute; inset: -4px; z-index: 8; display: grid; place-items: center; background: rgba(6, 4, 3, 0.72); backdrop-filter: blur(1.5px); animation: pn-in 120ms both; }
 .confirm { width: 300px; padding: 14px 16px 12px; text-align: center; background: linear-gradient(180deg, #221a11, #120d09); border: 1px solid #000; border-radius: 3px; box-shadow: inset 0 0 0 1px var(--frame-hi), 0 12px 30px rgba(0, 0, 0, 0.9); }
 .confirm-item { width: 56px; height: 56px; margin: -34px auto 8px; display: grid; place-items: center; border-radius: 3px; }
@@ -202,6 +202,14 @@
 :is(.cell, .eq, .ch-slot, .confirm-item).r-rare { --rc: var(--r-rare); }
 :is(.cell, .eq, .ch-slot, .confirm-item).r-legendary { --rc: var(--r-legendary); }
 :is(.cell, .eq, .ch-slot, .confirm-item).r-set { --rc: var(--r-set); }
+/* Rarity shape (panels/rarityMark.tsx): top centre, above the icon; Settings → Accessibility switches it off. */
+.rmark { position: absolute; left: 50%; top: 1px; z-index: 2; width: 10px; height: 10px; transform: translateX(-50%); pointer-events: none;
+  background: no-repeat center / contain; filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.9)); }
+.rmark.rm-magic { background-image: var(--glyph-magic); }
+.rmark.rm-rare { background-image: var(--glyph-rare); }
+.rmark.rm-legendary { background-image: var(--glyph-legendary); }
+.rmark.rm-set { background-image: var(--glyph-set); }
+:root[data-rarity-shapes="off"] .rmark { display: none; }
 :is(.cell, .eq, .ch-slot, .confirm-item).anc-1 { box-shadow: inset 0 0 0 2px #e8902f, inset 0 0 0 3px rgba(0, 0, 0, 0.75), inset 0 0 14px rgba(232, 144, 47, 0.45), 0 0 8px rgba(232, 144, 47, 0.3); }
 :is(.cell, .eq, .ch-slot, .confirm-item).anc-2 { box-shadow: inset 0 0 0 2px #e0302f, inset 0 0 0 3px rgba(0, 0, 0, 0.75), inset 0 0 14px rgba(224, 48, 47, 0.55), 0 0 10px rgba(224, 48, 47, 0.45); }
 :is(.cell, .eq, .ch-slot, .confirm-item).anc-2::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1; box-shadow: inset 0 0 0 2px #ff8a6a, inset 0 0 16px rgba(255, 110, 80, 0.8), 0 0 14px rgba(255, 80, 60, 0.7); opacity: 0; animation: prim-pulse 2.4s ease-in-out infinite; }
@@ -540,7 +548,7 @@
 .ch-slot:hover .ch-clear { opacity: 1; }
 .ch-name { position: relative; z-index: 2; margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; padding: 0 4px; }
 .ch-name b { font: 700 14px/1.15 var(--font-display); }
-.ch-name b.r-normal { color: #fff; } .ch-name b.r-magic { color: var(--r-magic); } .ch-name b.r-rare { color: var(--r-rare); } .ch-name b.r-legendary { color: var(--r-legendary); } .ch-name b.r-set { color: var(--r-set); }
+.ch-name b.r-normal { color: var(--r-normal); } .ch-name b.r-magic { color: var(--r-magic); } .ch-name b.r-rare { color: var(--r-rare); } .ch-name b.r-legendary { color: var(--r-legendary); } .ch-name b.r-set { color: var(--r-set); }
 .ch-name span { font-size: 13px; color: var(--text-dim); }
 .ch-name .pn-dim { color: var(--text-faint); font-style: italic; max-width: 150px; }
 .ch-gems { position: relative; z-index: 2; margin-top: 56px; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 96px; justify-content: center; color: var(--gold); }

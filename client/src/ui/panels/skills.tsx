@@ -46,7 +46,12 @@ const KIND_FILTER: Record<SkillKind, string> = { primary: 'Primary', spender: 'S
 const KIND_ORDER: SkillKind[] = ['primary', 'spender', 'channel', 'cooldown', 'buff', 'summon'];
 /** Display group: the authored category (D3-style, per class) or the kind. */
 const categoryOf = (s: SkillDef) => s.category ?? KIND_FILTER[s.kind];
-const TAG_LABEL: Partial<Record<SkillTag, string>> = { projectile: 'Projectile', area: 'Area', melee: 'Melee', ground: 'Ground', movement: 'Movement', mark: 'Mark', aura: 'Aura', summon: 'Summon' };
+/** Mechanic tags shown on a skill (vocabulary v2, ITEMS-SHARED.md §1.1; v1 `melee` is shown as its v2 name Strike). */
+const TAG_LABEL: Partial<Record<SkillTag, string>> = {
+  strike: 'Strike', projectile: 'Projectile', piercing: 'Piercing', area: 'Area', aerial: 'Aerial', ground: 'Ground', summon: 'Summon',
+  device: 'Device', beast: 'Beast', trap: 'Trap', movement: 'Movement', bleed: 'Bleed', burn: 'Burn', chill: 'Chill', stun: 'Stun',
+  displace: 'Displace', mark: 'Mark', aura: 'Aura',
+};
 const ROMAN = ['I', 'II', 'III'];
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 const nodesOf = (char: CharacterSave, id: string) => savedNodeRanks(char, id);

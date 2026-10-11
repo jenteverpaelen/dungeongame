@@ -1,6 +1,7 @@
 import { autoSlotSkills } from '../../shared/src/progression';
 import { ownedItems } from '../../shared/src/merchant';
 import { seedCollection } from '../../shared/src/itemCollection';
+import { GRADE_SAVE_VERSION, migrateItemGrade } from '../../shared/src/itemGrades';
 // Character persistence: one JSON file per character in DATA_DIR (server/data/characters/<id>.json).
 // Writes are atomic (temp file + rename) and serialised per character, so a load that follows a logout
 // always observes the latest save. Nothing here blocks the tick loop except the one-off startup mkdir.
@@ -13,6 +14,9 @@ import { CLASSES, isClassId } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
+import { migrateSteps } from '../../shared/src/saveMigrations';
+import { stashCapacity, stashTabs } from '../../shared/src/stash';
+import { normalizeAfkRate } from './afk';
 import { migrateQuests } from '../../shared/src/questMigration';
 import { normalizeBounties } from '../../shared/src/bounties';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
@@ -111,6 +115,15 @@ function requireSupportedVersion(save: CharacterSave): void {
   if (version > SAVE_VERSION) throw new UnsupportedSaveVersionError(`Save version ${version} requires a newer server`);
 }
 
+/** Privacy purge: permanently remove a character after every write queued before it (nothing can resurrect it). */
+export function eraseCharacter(id: string): Promise<number> {
+  return enqueue(id, async () => { failedWrites.delete(id); return store.erase(id); });
+}
+/** Ids of the stored characters (used to re-apply erasures after a restore). */
+export function listCharacters(): Promise<string[]> { return store.list(); }
+/** The stored bytes, unparsed (privacy checks read `lastSeen` without normalising or quarantining). */
+export function readCharacterBytes(id: string): Promise<Buffer | null> { return enqueue(id, () => store.read(id)); }
+
 /** Load a character or return null if it does not exist. A corrupt file is moved aside and reported. */
 export function loadCharacter(id: string): Promise<CharacterSave | null> {
   return enqueue(id, () => loadQueuedCharacter(id));
@@ -152,6 +165,7 @@ const num = (v: unknown, d: number, lo = 0, hi = Number.MAX_SAFE_INTEGER): numbe
 /** Repair saves written by older builds (missing fields, wrong array lengths). Mutates and returns the save. */
 export function normalizeSave(save: CharacterSave): CharacterSave {
   requireSupportedVersion(save);
+  migrateSteps(save, save.version === undefined ? 0 : save.version); // explicit per-version steps (shared/src/saveMigrations.ts)
   save.level = Math.floor(num(save.level, 1, 1, MAX_LEVEL));
   if (save.skills?.slots) autoSlotSkills(save);
   save.xp = num(save.xp, 0);
@@ -171,7 +185,10 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   while (save.inventory.length < INVENTORY_SIZE) save.inventory.push(null);
   if (!Array.isArray(save.stash)) save.stash = [];
   save.stash = save.stash.map(i => i && typeof i === 'object' ? i : null);
-  while (save.stash.length < STASH_SIZE) save.stash.push(null);
+  // Stash tabs (optional): a malformed count falls back to the clamped owned count; the array grows to the capacity.
+  if (save.stashTabs !== undefined) { const tabs = stashTabs(save); if (tabs > 1) save.stashTabs = tabs; else delete save.stashTabs; }
+  while (save.stash.length < Math.max(STASH_SIZE, stashCapacity(save))) save.stash.push(null);
+  normalizeAfkRate(save);
   // Preserve any future/oversized save entries; never truncate player-owned items.
   // v2: absence remains unprotected. A malformed present flag errs toward safety;
   // the player can explicitly remove protection after loading.
@@ -212,6 +229,9 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   // Quest rework (docs/rework/quests): legacy Silent Wheel record, reworked revisions, retired contracts; bounty boards.
   migrateQuests(save);
   normalizeBounties(save);
+  // v16: item grades (Kindled / Fabled). Pre-grade Ancient / Primal items keep their stored values (legacyGrade);
+  // old Primal items get their deterministic Inscription.
+  if ((save.version ?? 0) < GRADE_SAVE_VERSION) for (const item of ownedItems(save)) migrateItemGrade(item);
   // Preserve owned objects and saved combat preferences.
   seedCollection(save, ownedItems(save));
   save.version = SAVE_VERSION;

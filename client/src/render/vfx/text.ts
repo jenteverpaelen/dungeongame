@@ -6,7 +6,9 @@
 
 import { Container, Particle, ParticleContainer, type Texture } from 'pixi.js';
 import { fmtCompact } from '@shared/format';
-import { preferences } from '../../game/preferences';
+import { motionReduced, preferences } from '../../game/preferences';
+/** Accessibility → floating-number size. */
+const NUMBER_SCALE = { small: 0.8, normal: 1, large: 1.3 } as const;
 import { getGlyphAtlas, type GlyphAtlas } from './atlas';
 import { clamp, easeOut, easeOut3, toBgr } from './util';
 
@@ -87,7 +89,11 @@ export class CombatText {
 
   /** Spawn a number at world (x, y) = head of the target. */
   spawn(amount: number, x: number, y: number, o: NumOpts): void {
-    if (!preferences.get().values.combatNumbers || !(amount > 0)) return;
+    const p = preferences.get().values;
+    if (!p.combatNumbers || !(amount > 0)) return;
+    // Accessibility → floating numbers: which kinds show (hit feedback, sound and particles are unaffected).
+    if ((o.faint && !p.numbersOthers) || (o.kind === NumKind.Taken && !p.numbersTaken) || (o.kind === NumKind.Heal && !p.numbersHealing)
+      || (p.numbersCritsOnly && (o.kind === NumKind.Normal || o.kind === NumKind.Dot))) return;
     const now = this.time;
     const crowded = this.nums.length > 190;
     if (o.key) {
@@ -129,18 +135,20 @@ export class CombatText {
     const lane = o.lane ? this.nextLane(o.lane) : o.key ? this.nextLane(o.key) : 0;
     const laneX = [0, -20, 20, -10, 12][lane];
     const laneY = [0, -10, -5, -18, -13][lane];
+    const prefs = preferences.get().values, still = motionReduced(prefs), size = NUMBER_SCALE[prefs.numberSize];
     const n: Num = {
       x: x + laneX + (Math.random() - 0.5) * 8,
       y: y + laneY,
-      dx: (Math.random() - 0.5) * 22 + Math.sign(laneX) * 8,
-      rise: st.rise[0] + Math.random() * (st.rise[1] - st.rise[0]),
+      // Reduce motion: numbers appear and fade in place (no rise, drift or pop).
+      dx: still ? 0 : (Math.random() - 0.5) * 22 + Math.sign(laneX) * 8,
+      rise: still ? 0 : st.rise[0] + Math.random() * (st.rise[1] - st.rise[0]),
       age: 0, life: (st.life + (merged ? 0.35 : 0)) * (calm < 1 ? 0.75 + 0.25 * calm : 1),
       delay: Math.min(0.045, this.burst * 0.006),
-      px: st.px * (o.big ?? 1) * (o.faint ? 0.75 : 1) * (merged ? 1.12 : 1) * calm,
+      px: st.px * (o.big ?? 1) * (o.faint ? 0.75 : 1) * (merged ? 1.12 : 1) * calm * size,
       fill: toBgr(o.kind === NumKind.Dot && o.color !== undefined ? o.color : st.fill),
       outline: toBgr(st.outline),
       alpha: o.faint ? 0.5 : 1,
-      pop: merged ? 1.45 : st.pop, popDur: st.popDur, bumpAt: -1,
+      pop: still ? 1 : merged ? 1.45 : st.pop, popDur: st.popDur, bumpAt: -1,
       thick: st.thick || merged,
       amount, count: 1, crit: o.kind === NumKind.Crit,
       prefix: o.kind === NumKind.Heal ? '+' : '',

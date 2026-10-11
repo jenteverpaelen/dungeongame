@@ -115,7 +115,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     ],
   },
   {
-    id: 'ground_stomp', classId: 'warrior', parityReady: true, name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['area', 'stun'], category: 'Earthshaker',
+    id: 'ground_stomp', classId: 'warrior', name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['area', 'stun'], category: 'Earthshaker',
     coef: 2.4, cost: 0, gen: 15, cooldown: 12, range: 170, radius: 170, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 170 },
     desc: 'Smash the ground, dealing {coef} weapon damage and stunning nearby enemies for {duration} seconds. Generates {gen} Fury.',

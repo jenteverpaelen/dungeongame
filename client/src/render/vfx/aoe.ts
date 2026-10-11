@@ -69,9 +69,9 @@ export class AoeFx {
     switch (ev.v) {
       case 'meteor': this.onMeteorImpact(ev.x, ev.y); this.meteorImpact(ev.x, ev.y, r, ev.el, false, mine); break;
       case 'meteorSmall': this.meteorImpact(ev.x, ev.y, r, ev.el, true, mine); break;
-      case 'molten': this.pool(ev.x, ev.y, r, Math.max(0.5, d), ev.el === EL_COLD ? 'frost' : 'lava'); break;
-      case 'molten_trail': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'lava'); break;
-      case 'poison_pool': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'goo'); break;
+      case 'molten': this.pool(ev.x, ev.y, r, Math.max(0.5, d), ev.el === EL_COLD ? 'frost' : 'lava', ev.f ? ev.s : undefined); break;
+      case 'molten_trail': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'lava', ev.f ? ev.s : undefined); break;
+      case 'poison_pool': this.pool(ev.x, ev.y, r, Math.max(0.5, d), 'goo', ev.f ? ev.s : undefined); break;
       case 'blackhole': this.blackhole(ev.x, ev.y, r, Math.max(0.4, d), ev.el); break;
       case 'nova': this.nova(ev.x, ev.y, r, ev.el, mine); break;
       case 'stomp': this.stomp(ev.x, ev.y, r, ev.el, mine); break;
@@ -282,7 +282,8 @@ export class AoeFx {
 
   // ─────────────────────────── pools ───────────────────────────
 
-  pool(x: number, y: number, r: number, d: number, kind: 'lava' | 'goo' | 'frost'): void {
+  /** A ground pool; with `follow` (entity id) it moves with that entity (following grounds). */
+  pool(x: number, y: number, r: number, d: number, kind: 'lava' | 'goo' | 'frost', follow?: number): void {
     const V = this.V, s = V.sys, T = s.T;
     const tex = kind === 'lava' ? T.poolLava : kind === 'goo' ? T.poolGoo : T.frostPatch;
     const layer = kind === 'frost' ? s.gAdd : s.gNormal;
@@ -296,6 +297,7 @@ export class AoeFx {
     V.add({
       update: (dt) => {
         age += dt;
+        if (follow !== undefined) { const at = V.ctx.entityPos(follow); if (at) { x = at.x; y = at.y; } }
         const fin = clamp(age / 0.25, 0, 1), fout = clamp((d - age) / 0.5, 0, 1);
         const a = Math.min(fin, fout);
         base.place(x, y, 0);

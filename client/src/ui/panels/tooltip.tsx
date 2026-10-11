@@ -1,6 +1,9 @@
 // The item card (Hearthfall's own layout, see docs/rework/TOOLTIP.md), the comparison row, a lightweight text
 // tooltip and the cursor-following tooltip layer that every panel hovers into.
 
+import { GRADE_LABEL } from '@shared/itemGrades';
+import { INSCRIPTIONS, activeInscription } from '@shared/data/inscriptions';
+import { setReduction, setThreshold } from '@shared/powerSources';
 import type { ComponentChildren, VNode } from 'preact';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'preact/hooks';
 import { AFFIX_BY_STAT, GEMS, LEGENDARIES, SETS } from '@shared/data/items';
@@ -14,8 +17,8 @@ import type { CharacterSave, DerivedStats, Element, Item, Slot } from '@shared/t
 import { GemIcon, EmptySocketIcon, IconDelta, IconStar4, gemColor, lighten, hex } from './icons';
 import { ItemGlyph } from './glyphs';
 import { itemIconUrl } from '../../render/art';
-import { GEAR_TIER_NAMES, gearLook, itemVisualTier, temperOf } from '@shared/gearVisual';
-import { tierText } from '../../render/art/gearStyle';
+import { gearLook } from '@shared/gearVisual';
+import { itemStyle } from '../../render/art/gearStyle';
 import { text } from '../../i18n/messages';
 import { Local, useLocal, useU } from './state';
 import { preferences } from '../../game/preferences';
@@ -27,28 +30,17 @@ import {
 // ───────────────────────────── item icon ─────────────────────────────
 
 export function ItemVisual({ item, size = 40 }: { item: Pick<Item, 'look' | 'kind'> | Item; size?: number }) {
-  // Full items carry their visual progression into the icon (tier frame, Set mark, temper stars); stored looks never do.
+  // Full items carry their visual identity into the icon (generation, rarity light, Set mark, grade jewels, +N stars);
+  // stored looks never do. Lit late pieces breathe in their own light (DESIGN-V2 §6).
   const full = 'ilvl' in item && 'sockets' in item;
   const look = full ? gearLook(item as Item) : item.look;
-  const tier = full ? itemVisualTier(item as Item) : 0;
+  const st = full ? itemStyle(look) : null;
+  const breathe = !!st && !!st.light && (st.top >= 1 || (st.special && st.gen >= 6));
+  const vt = st ? '#' + (st.edgeLight || st.light).toString(16).padStart(6, '0') : '';
   const url = itemIconUrl(look, item.kind, size <= 48 ? 64 : 128);
-  if (url) return <img class={`item-img${tier >= 7 ? ` vt-hi vt-${tier}` : ''}`} src={url} width={size} height={size} draggable={false} alt="" />;
+  if (url) return <img class={`item-img${breathe ? ' vt-hi' : ''}`} style={breathe ? { '--vt': vt } : undefined} src={url} width={size} height={size} draggable={false} alt="" />;
   return <ItemGlyph look={item.look} kind={item.kind} size={size} />;
 }
-
-/** Tier strip under the item name: tier name + numeral in the tier colour, temper stars. */
-function TierStrip({ item }: { item: Item }) {
-  const tier = itemVisualTier(item), temper = temperOf(item.upgrade);
-  const col = '#' + tierText(tier).toString(16).padStart(6, '0');
-  return (
-    <div class="tt-tier" style={{ color: col }}>
-      <i class="tt-tier-gem" style={{ background: col }} />
-      <span>{text('gear.tierLine', { tier: GEAR_TIER_NAMES[tier], numeral: ROMAN[tier] })}</span>
-      {temper > 0 && <span class="tt-temper" title={text('gear.temper', { value: String(item.upgrade) })}>{'★'.repeat(temper)}</span>}
-    </div>
-  );
-}
-const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
 
 // ───────────────────────────── alt tracking ─────────────────────────────
 
@@ -158,11 +150,12 @@ function DeltaBlock({ delta }: { delta: Delta }) {
 function AffixRow({ item, i, alt }: { item: Item; i: number; alt: boolean }) {
   const a = item.affixes[i];
   const ench = item.enchanted === i;
+  const kindled = item.kindledAffix === i;
   const s = scaledAffix(a, item);
   const frac = rollFraction(a);
   return (
-    <li class={cls('af', !a.primary && 'af-minor', ench && 'af-ench', alt && frac >= 0.98 && 'af-max')}>
-      {ench ? <IconStar4 class="af-star" size={11} /> : <span class="af-b" />}
+    <li class={cls('af', !a.primary && 'af-minor', ench && 'af-ench', kindled && 'af-kindled', alt && frac >= 0.98 && 'af-max')}>
+      {ench ? <IconStar4 class="af-star" size={11} /> : kindled ? <span class="af-ember" title="Kindled affix" /> : <span class="af-b" />}
       <span class="af-t">{emphasize(affixText(a, item))}</span>
       {alt && (
         <span class="af-rng">
@@ -236,7 +229,6 @@ function KeyStats({ item }: { item: Item }) {
 export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: CharacterSave | null; alt: boolean; delta?: Delta | null; tag?: string }) {
   const leg = item.legendary ? LEGENDARIES[item.legendary.power] : null;
   const setDef = item.set ? SETS[item.set] : null;
-  const tier = itemVisualTier(item);
   // Core properties first, then the minor ones; one list, no section headings.
   const order = item.affixes.map((_, i) => i).sort((x, y) => Number(!item.affixes[x].primary) - Number(!item.affixes[y].primary) || x - y);
 
@@ -251,9 +243,15 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
   const reqBad = !!char && item.reqLevel > char.level;
   const classBad = !!char && !canClassUse(char.classId, item);
   const rar = RARITY_LABEL[item.rarity];
+  const grade = item.ancient ? GRADE_LABEL[item.ancient] : '';
+  const ins = item.inscription && Object.hasOwn(INSCRIPTIONS, item.inscription) ? INSCRIPTIONS[item.inscription] : null;
+  const worn = !!char && Object.values(char.equipment).includes(item);
+  const insActive = !!ins && worn && activeInscription(char!.equipment)?.def.id === ins.id;
+  // Journeyman's Ring: set bonuses need fewer worn pieces (shared rule, powerSources.setThreshold).
+  const setRed = char ? setReduction(Object.fromEntries(Object.values(char.equipment).filter((e) => e?.legendary).map((e) => [e!.legendary!.power, 1]))) : null;
 
   return (
-    <div class={cls('tt', rarityClass(item), tier >= 8 && 'tt-apex', tag && 'tt-equipped')}>
+    <div class={cls('tt', rarityClass(item), item.ancient >= 1 && 'tt-apex', tag && 'tt-equipped')}>
       <i class="tt-rule" />
       {tag && <div class="tt-tagbar"><span>{tag}</span></div>}
       <header class="tt-head">
@@ -263,11 +261,11 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
         <div class="tt-titles">
           <div class="tt-name">{item.name}{item.upgrade > 0 && <span class="nm-up">+{item.upgrade}</span>}</div>
           <div class="tt-type">
+            {grade && <span class={cls('tt-grade', item.ancient === 2 && 'fabled')}>{grade}</span>}
             {rar && <span class="tt-rar">{rar}</span>}
             {rar && <i class="tt-dot" />}
             <span class="tt-kind">{itemNoun(item)}</span>
           </div>
-          <TierStrip item={item} />
         </div>
       </header>
 
@@ -293,6 +291,13 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
           </section>
         )}
 
+        {ins && (
+          <section class="tt-power tt-inscription">
+            <span class="pw-l">Inscription{worn && !insActive ? ' · inactive: another worn Inscription is active' : ''}</span>
+            <p><b>{ins.name}.</b> {ins.text}</p>
+          </section>
+        )}
+
         {setDef && (
           <section class="tt-set">
             <div class="set-name">
@@ -304,7 +309,7 @@ export function ItemCard({ item, char, alt, delta, tag }: { item: Item; char: Ch
             </ul>
             <ul class="set-bonus">
               {setDef.bonuses.map((b) => (
-                <li class={setCount >= b.count ? 'on' : 'off'} key={b.count}>
+                <li class={setCount >= setThreshold(b.count, setRed) ? 'on' : 'off'} key={b.count}>
                   <b class="sb-n">{b.count}</b><span>{b.text}</span>
                 </li>
               ))}

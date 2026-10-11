@@ -7,8 +7,9 @@ import { nameLabel } from './npcs';
 import type { AdventureData } from '@shared/adventureTypes';
 import type { TownData } from '@shared/townTypes';
 import { ellipse, INK, line, poly, type Paint } from './townKit';
+import { ambientShare } from '../../game/quality';
 
-type Critter = { kind: string; x: number; y: number; hx: number; hy: number; view: Container; phase: number; state: number; t: number; vx: number; vy: number; r: number };
+type Critter = { kind: string; x: number; y: number; hx: number; hy: number; view: Container; phase: number; state: number; t: number; vx: number; vy: number; r: number; rank: number };
 const rnd = (a: number, b: number) => { let n = Math.imul(a | 0, 374761393) + Math.imul(b | 0, 668265263); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
 
 function bird(color: number, size = 1): Container {
@@ -68,13 +69,14 @@ export class ZoneCritters {
       }
       view.position.set(x, y);
       (grp.kind === 'butterflies' || grp.kind === 'moths' || grp.kind === 'bats' || grp.kind === 'fish' ? this.above : this.ground).addChild(view);
-      this.list.push({ kind: grp.kind, x, y, hx: x, hy: y, view, phase: rnd(seed, 3) * 6.28, state: 0, t: 0, vx: 0, vy: 0, r: grp.r });
+      this.list.push({ kind: grp.kind, x, y, hx: x, hy: y, view, phase: rnd(seed, 3) * 6.28, state: 0, t: 0, vx: 0, vy: 0, r: grp.r, rank: rnd(seed, 4) });
     }
   }
   update(dt: number, time: number, cx: number, cy: number, halfW: number, halfH: number, hx: number, hy: number) {
-    const s = dt / 1000;
+    const s = dt / 1000, share = ambientShare();
     for (const c of this.list) {
-      const vis = Math.abs(c.hx - cx) < halfW + 300 && Math.abs(c.hy - cy) < halfH + 300;
+      // Graphics → ambient life keeps a stable random share of critters; reduce motion hides them all (background movement).
+      const vis = c.rank < share && Math.abs(c.hx - cx) < halfW + 300 && Math.abs(c.hy - cy) < halfH + 300;
       c.view.visible = vis; if (!vis) { if (c.state === 1 && time - c.t > 12) { c.state = 0; c.x = c.hx; c.y = c.hy; } continue; }
       const near = Math.hypot(c.x - hx, c.y - hy) < (c.kind === 'deer' ? 330 : 230);
       switch (c.kind) {

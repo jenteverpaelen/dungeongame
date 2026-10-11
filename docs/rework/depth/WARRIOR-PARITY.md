@@ -8,117 +8,117 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 | Main skill | Fixture (internal) | Rares | Legendary-only | Best 6-piece | Best 4-piece hybrid | Best | D3 leg ÷ 6pc | parityReady |
 |---|---|---:|---:|---:|---:|---|---:|---|
-| Cleave | Cleave · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 22550 s | ×10.93 | ×9.95 (Hearthbanner 6) | ×12.00 (Hearthbanner 4) | Hearthbanner 4 ×12.00 (1879 s) | 1.10 | yes |
-| Tolling Blow | Tolling Blow · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 29298 s | ×9.74 | ×10.76 (Hearthbanner 6) | ×12.40 (Hearthbanner 4) | Hearthbanner 4 ×12.40 (2364 s) | 0.90 | yes |
-| Whirlwind | Cleave · Whirlwind, Battle Rage, Muster Standard, Ground Stomp | 21302 s | ×18.71 | ×21.90 (Raiment of the Endless Storm 6) | ×19.63 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×21.90 (973 s) | 0.85 | no |
-| Ironplough | Cleave · Ironplough, Battle Rage, Muster Standard, Ground Stomp | 23779 s | ×9.92 | ×16.98 (Raiment of the Endless Storm 6) | ×12.49 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×16.98 (1400 s) | 0.58 | no |
-| Rend | Cleave · Rend, Battle Rage, Muster Standard, Ground Stomp | 24010 s | ×11.45 | ×11.04 (Cinder Oath 6) | ×13.63 (Cinder Oath 4) | Cinder Oath 4 ×13.63 (1761 s) | 1.04 | no |
-| Sawtooth Hatchet | Cleave · Sawtooth Hatchet, Battle Rage, Muster Standard, Ground Stomp | 9557 s | ×20.34 | ×26.83 (Cinder Oath 6) | ×23.19 (Cinder Oath 4) | Cinder Oath 6 ×26.83 (356 s) | 0.76 | no |
-| Ground Stomp | Cleave · Ground Stomp, Battle Rage, Muster Standard, Cairnfall | 22799 s | ×9.21 | ×9.70 (Hearthbanner 6) | ×11.24 (Fault Warden 4) | Fault Warden 4 ×11.24 (2028 s) | 0.95 | yes |
-| Quakeline | Cleave · Quakeline, Battle Rage, Muster Standard, Ground Stomp | 4407 s | ×20.84 | ×21.27 (Hearthbanner 6) | ×22.55 (Hearthbanner 4) | Hearthbanner 4 ×22.55 (195 s) | 0.98 | yes |
-| Cairnfall | Cleave · Cairnfall, Battle Rage, Muster Standard, Ground Stomp | 22374 s | ×10.15 | ×10.60 (Hearthbanner 6) | ×11.76 (Fault Warden 4) | Fault Warden 4 ×11.76 (1903 s) | 0.96 | no |
+| Cleave | Cleave · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 25894 s | ×14.73 | ×10.14 (Hearthbanner 6) | ×14.44 (Hearthbanner 4) | legendary-only ×14.73 (1758 s) | 1.45 | yes |
+| Tolling Blow | Tolling Blow · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 31257 s | ×14.28 | ×9.80 (Hearthbanner 6) | ×14.66 (Hearthbanner 4) | Hearthbanner 4 ×14.66 (2132 s) | 1.46 | yes |
+| Whirlwind | Cleave · Whirlwind, Battle Rage, Muster Standard, Ground Stomp | 30257 s | ×36.84 | ×27.97 (Raiment of the Endless Storm 6) | ×26.55 (Furrowmark 4) | legendary-only ×36.84 (821 s) | 1.32 | no |
+| Ironplough | Cleave · Ironplough, Battle Rage, Muster Standard, Ground Stomp | 27462 s | ×15.26 | ×15.74 (Raiment of the Endless Storm 6) | ×12.27 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×15.74 (1745 s) | 0.97 | no |
+| Rend | Cleave · Rend, Battle Rage, Muster Standard, Ground Stomp | 24528 s | ×13.98 | ×11.02 (Cinder Oath 6) | ×11.44 (Cinder Oath 4) | legendary-only ×13.98 (1754 s) | 1.27 | no |
+| Sawtooth Hatchet | Cleave · Sawtooth Hatchet, Battle Rage, Muster Standard, Ground Stomp | 10449 s | ×23.39 | ×20.33 (Cinder Oath 6) | ×19.55 (Hearthbanner 4) | legendary-only ×23.39 (447 s) | 1.15 | no |
+| Ground Stomp | Cleave · Ground Stomp, Battle Rage, Muster Standard, Cairnfall | 25309 s | ×11.59 | ×9.55 (Hearthbanner 6) | ×10.98 (Hearthbanner 4) | legendary-only ×11.59 (2183 s) | 1.21 | no |
+| Quakeline | Cleave · Quakeline, Battle Rage, Muster Standard, Ground Stomp | 4868 s | ×23.24 | ×23.18 (Hearthbanner 6) | ×20.42 (Hearthbanner 4) | legendary-only ×23.24 (210 s) | 1.00 | yes |
+| Cairnfall | Cleave · Cairnfall, Battle Rage, Muster Standard, Ground Stomp | 25090 s | ×12.33 | ×10.38 (Hearthbanner 6) | ×11.07 (Fault Warden 4) | legendary-only ×12.33 (2035 s) | 1.19 | no |
 
 | Check | Measured | Target | Hard limit |
 |---|---|---|---|
-| D1 | 3/9 | fail | fail |
-| D2 | anvil_vambraces 9/9 | fail | fail |
-| D3 | 0.58–1.10 | fail | fail |
-| D4 | 1.00–1.19 | fail | fail |
-| D5 | 4/5 (hearthbanner, endless_storm, cinder_oath, fault_warden) | fail | pass |
-| D6 | 1.97 | fail | fail |
+| D1 | 1/9 | fail | fail |
+| D2 | seething_sigil 9/9 | fail | fail |
+| D3 | 0.97–1.46 | fail | fail |
+| D4 | 0.80–1.03 | fail | fail |
+| D5 | 5/5 (hearthbanner, furrowmark, endless_storm, cinder_oath, fault_warden) | pass | pass |
+| D6 | 2.50 | fail | fail |
 
 <details><summary>Kits</summary>
 
-**Cleave** — best: Hearthbanner 4
+**Cleave** — best: legendary-only
 
-- legendary-only: mainhand Millwheel Edge, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Bulwark of the Last Light, Ouroboros Loop
-- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets, Ouroboros Loop
-- Hearthbanner 4: feet set, legs set, shoulders set, head set, mainhand Millwheel Edge, offhand Ward Pennant Shield, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Brass Warhorn Helm, Ouroboros Loop
+- legendary-only: mainhand Millwheel Edge, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Patchwork Signet; Cube Cairnwright's Hammer, Ink-Stained Gloves, Ouroboros Loop
+- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets, Ouroboros Loop
+- Hearthbanner 4: feet set, shoulders set, legs set, head set, mainhand Millwheel Edge, offhand Ward Pennant Shield, chest Hearthguard Coat, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ink-Stained Gloves, Ouroboros Loop
 
 **Tolling Blow** — best: Hearthbanner 4
 
-- legendary-only: mainhand Bellwright's Maul, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Yoke Greaves, feet rare, neck Hellforge Talisman, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Stonecount Gauntlets, Ouroboros Loop
-- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets, Ouroboros Loop
-- Hearthbanner 4: feet set, legs set, head set, shoulders set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Belfry Pauldrons, Ouroboros Loop
+- legendary-only: mainhand Bellwright's Maul, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Causeway Waders, feet rare, neck Seething Sigil, ring1 Patchwork Signet, ring2 Rally Knot; Cube Cairnwright's Hammer, Ink-Stained Gloves, Ouroboros Loop
+- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets, Ouroboros Loop
+- Hearthbanner 4: feet set, legs set, head set, shoulders set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, chest Hearthguard Coat, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ink-Stained Gloves, Ouroboros Loop
 
-**Whirlwind** — best: Raiment of the Endless Storm 6
+**Whirlwind** — best: legendary-only
 
-- legendary-only: mainhand The Ninefold Gale, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Gale-Stitched Legguards, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt, Ouroboros Loop
-- Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand The Ninefold Gale, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Thresher's Knot, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Gale-Stitched Legguards, Ouroboros Loop
-- Raiment of the Endless Storm 4: feet set, head set, shoulders set, hands set, mainhand The Ninefold Gale, chest Fissure-Lined Breastplate, wrists Vambraces of the Anvil, waist Witching Cord, legs Gale-Stitched Legguards, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt, Ouroboros Loop
+- legendary-only: mainhand The Ninefold Gale, head Brass Warhorn Helm, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, legs Gale-Stitched Legguards, feet Ridgewalker Boots, neck Signal Horn Charm, ring1 Patchwork Signet, ring2 Ouroboros Loop; Cube Millwheel Edge, Furycord Belt, Seething Sigil
+- Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand The Ninefold Gale, wrists Wardkeeper's Cuffs, waist Furycord Belt, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Rally Knot; Cube Millwheel Edge, Gale-Stitched Legguards, Seething Sigil
+- Furrowmark 4: wrists set, head set, shoulders set, hands set, mainhand The Ninefold Gale, chest Hearthguard Coat, waist Witching Cord, legs Gale-Stitched Legguards, feet Ridgewalker Boots, neck Signal Horn Charm, ring1 Ouroboros Loop, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt, Seething Sigil
 
 **Ironplough** — best: Raiment of the Endless Storm 6
 
-- legendary-only: mainhand Coulter Blade, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Fissure-Lined Breastplate, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, feet rare, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Tremor Signet; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
-- Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Coulter Blade, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Tremor Signet; Cube Millwheel Edge, Gale-Stitched Legguards, Rally Knot
-- Raiment of the Endless Storm 4: feet set, head set, shoulders set, hands set, mainhand Coulter Blade, chest Fissure-Lined Breastplate, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Tremor Signet; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
+- legendary-only: mainhand Coulter Blade, head Brass Warhorn Helm, shoulders Kilnwatch Spaulders, chest Hearthguard Coat, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, feet Ridgewalker Boots, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Patchwork Signet; Cube Millwheel Edge, Lockglass Cincture, Rally Knot
+- Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Coulter Blade, wrists Wardkeeper's Cuffs, waist Furycord Belt, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Gale-Stitched Legguards, Rally Knot
+- Raiment of the Endless Storm 4: head set, shoulders set, hands set, chest set, mainhand Coulter Blade, wrists Wardkeeper's Cuffs, waist Furycord Belt, legs Gale-Stitched Legguards, feet Ridgewalker Boots, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Fissure-Lined Breastplate, Rally Knot
 
-**Rend** — best: Cinder Oath 4
+**Rend** — best: legendary-only
 
-- legendary-only: mainhand Bloodwake, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist Witching Cord, legs Yoke Greaves, feet rare, neck Red Ledger, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
-- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bloodwake, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
-- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Bloodwake, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Hellforge Talisman, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- legendary-only: mainhand Bloodwake, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Hearthguard Coat, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Causeway Waders, feet Ridgewalker Boots, neck Hellforge Talisman, ring1 Ouroboros Loop, ring2 Patchwork Signet; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bloodwake, offhand Ward Pennant Shield, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Red Ledger, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
+- Cinder Oath 4: head set, shoulders set, legs set, chest set, mainhand Bloodwake, offhand Ward Pennant Shield, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Furycord Belt, feet Ridgewalker Boots, neck Red Ledger, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Fissure-Lined Breastplate, Seething Sigil
 
-**Sawtooth Hatchet** — best: Cinder Oath 6
+**Sawtooth Hatchet** — best: legendary-only
 
-- legendary-only: mainhand Grinning Saw, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, legs Yoke Greaves, feet rare, neck Red Ledger, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
-- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Grinning Saw, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
-- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Grinning Saw, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Ouroboros Loop, ring2 Seal of the Patient Thief; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- legendary-only: mainhand Grinning Saw, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Hearthguard Coat, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, legs Causeway Waders, feet Ridgewalker Boots, neck Red Ledger, ring1 Seal of the Patient Thief, ring2 Rally Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Grinning Saw, offhand Bulwark of the Last Light, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
+- Hearthbanner 4: shoulders set, legs set, head set, chest set, mainhand Grinning Saw, offhand Ward Pennant Shield, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, feet Ridgewalker Boots, neck Red Ledger, ring1 Seal of the Patient Thief, ring2 Rally Knot; Cube Millwheel Edge, Fissure-Lined Breastplate, Seething Sigil
 
-**Ground Stomp** — best: Fault Warden 4
+**Ground Stomp** — best: legendary-only
 
-- legendary-only: mainhand Millwheel Edge, offhand Bulwark of the Last Light, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Yoke Greaves, feet rare, neck Hellforge Talisman, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets, Ouroboros Loop
-- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Belfry Pauldrons, Ouroboros Loop
-- Fault Warden 4: feet set, legs set, head set, chest set, mainhand Millwheel Edge, offhand Ward Pennant Shield, shoulders Belfry Pauldrons, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Seal of the Patient Thief, ring2 Thresher's Knot; Cube Cairnwright's Hammer, Quartermaster's Cuirass, Ouroboros Loop
+- legendary-only: mainhand Millwheel Edge, offhand Bulwark of the Last Light, head Watchkeeper's Hood, shoulders Belfry Pauldrons, chest Hearthguard Coat, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Causeway Waders, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Patchwork Signet; Cube Cairnwright's Hammer, Kilnwatch Spaulders, Ouroboros Loop
+- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Belfry Pauldrons, Ouroboros Loop
+- Hearthbanner 4: feet set, head set, legs set, chest set, mainhand Millwheel Edge, offhand Ward Pennant Shield, shoulders Tanner's Pauldrons, hands Fists of the Mountain, wrists Wardkeeper's Cuffs, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Kilnwatch Spaulders, Ouroboros Loop
 
-**Quakeline** — best: Hearthbanner 4
+**Quakeline** — best: legendary-only
 
-- legendary-only: mainhand Faultcleaver, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Fissure-Lined Breastplate, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Furycord Belt, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
-- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Faultcleaver, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Fissure-Lined Breastplate, Rally Knot
-- Hearthbanner 4: feet set, legs set, head set, shoulders set, mainhand Faultcleaver, chest Fissure-Lined Breastplate, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
+- legendary-only: mainhand Faultcleaver, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Fissure-Lined Breastplate, hands Ink-Stained Gloves, wrists Wardkeeper's Cuffs, waist Furycord Belt, legs Yoke Greaves, feet Ridgewalker Boots, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
+- Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Faultcleaver, wrists Wardkeeper's Cuffs, waist Furycord Belt, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Fissure-Lined Breastplate, Rally Knot
+- Hearthbanner 4: head set, shoulders set, legs set, hands set, mainhand Faultcleaver, chest Fissure-Lined Breastplate, wrists Wardkeeper's Cuffs, waist Furycord Belt, feet Ridgewalker Boots, neck Seething Sigil, ring1 Ouroboros Loop, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
 
-**Cairnfall** — best: Fault Warden 4
+**Cairnfall** — best: legendary-only
 
-- legendary-only: mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Quartermaster's Cuirass, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Ashgrip Gauntlets, Ouroboros Loop
+- legendary-only: mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Hearthguard Coat, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, legs Causeway Waders, feet rare, neck Seething Sigil, ring1 Patchwork Signet, ring2 Rally Knot; Cube Millwheel Edge, Kilnwatch Spaulders, Ouroboros Loop
 - Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Belfry Pauldrons, Ouroboros Loop
-- Fault Warden 4: feet set, legs set, head set, chest set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, shoulders Belfry Pauldrons, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Ouroboros Loop
+- Fault Warden 4: feet set, legs set, chest set, head set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, shoulders Kilnwatch Spaulders, hands Fists of the Mountain, wrists Vambraces of the Anvil, waist Witching Cord, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Watchkeeper's Hood, Ouroboros Loop
 
 </details>
 
-## Without the six shared legendaries
+## Without the shared legendaries (warrior items only)
 
 | Main skill | Fixture (internal) | Rares | Legendary-only | Best 6-piece | Best 4-piece hybrid | Best | D3 leg ÷ 6pc | parityReady |
 |---|---|---:|---:|---:|---:|---|---:|---|
-| Cleave | Cleave · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 22550 s | ×6.26 | ×6.80 (Hearthbanner 6) | ×7.13 (Hearthbanner 4) | Hearthbanner 4 ×7.13 (3162 s) | 0.92 | yes |
-| Tolling Blow | Tolling Blow · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 29298 s | ×5.91 | ×6.71 (Hearthbanner 6) | ×7.23 (Hearthbanner 4) | Hearthbanner 4 ×7.23 (4054 s) | 0.88 | yes |
-| Whirlwind | Cleave · Whirlwind, Battle Rage, Muster Standard, Ground Stomp | 21302 s | ×11.19 | ×15.96 (Raiment of the Endless Storm 6) | ×12.99 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×15.96 (1335 s) | 0.70 | no |
-| Ironplough | Cleave · Ironplough, Battle Rage, Muster Standard, Ground Stomp | 22637 s | ×7.26 | ×12.19 (Raiment of the Endless Storm 6) | ×9.21 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×12.19 (1857 s) | 0.60 | no |
-| Rend | Cleave · Rend, Battle Rage, Muster Standard, Ground Stomp | 24010 s | ×8.83 | ×9.80 (Cinder Oath 6) | ×9.76 (Cinder Oath 4) | Cinder Oath 6 ×9.80 (2449 s) | 0.90 | no |
-| Sawtooth Hatchet | Cleave · Sawtooth Hatchet, Battle Rage, Muster Standard, Ground Stomp | 9557 s | ×12.58 | ×17.48 (Cinder Oath 6) | ×14.40 (Cinder Oath 4) | Cinder Oath 6 ×17.48 (547 s) | 0.72 | no |
-| Ground Stomp | Cleave · Ground Stomp, Battle Rage, Muster Standard, Cairnfall | 22799 s | ×5.77 | ×7.05 (Hearthbanner 6) | ×7.11 (Hearthbanner 4) | Hearthbanner 4 ×7.11 (3205 s) | 0.82 | yes |
-| Quakeline | Cleave · Quakeline, Battle Rage, Muster Standard, Ground Stomp | 4407 s | ×15.14 | ×18.02 (Hearthbanner 6) | ×15.99 (Hearthbanner 4) | Hearthbanner 6 ×18.02 (245 s) | 0.84 | yes |
-| Cairnfall | Cleave · Cairnfall, Battle Rage, Muster Standard, Ground Stomp | 22374 s | ×6.43 | ×7.61 (Hearthbanner 6) | ×7.66 (Hearthbanner 4) | Hearthbanner 4 ×7.66 (2920 s) | 0.84 | no |
+| Cleave | Cleave · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 25894 s | ×7.53 | ×7.65 (Hearthbanner 6) | ×8.16 (Hearthbanner 4) | Hearthbanner 4 ×8.16 (3174 s) | 0.98 | yes |
+| Tolling Blow | Tolling Blow · Battle Rage, Muster Standard, Ground Stomp, Cairnfall | 31257 s | ×6.19 | ×7.34 (Hearthbanner 6) | ×7.76 (Hearthbanner 4) | Hearthbanner 4 ×7.76 (4029 s) | 0.84 | yes |
+| Whirlwind | Cleave · Whirlwind, Battle Rage, Muster Standard, Ground Stomp | 30257 s | ×15.52 | ×22.23 (Raiment of the Endless Storm 6) | ×17.44 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×22.23 (1361 s) | 0.70 | no |
+| Ironplough | Cleave · Ironplough, Battle Rage, Muster Standard, Ground Stomp | 28145 s | ×8.27 | ×14.33 (Raiment of the Endless Storm 6) | ×10.90 (Raiment of the Endless Storm 4) | Raiment of the Endless Storm 6 ×14.33 (1964 s) | 0.58 | no |
+| Rend | Cleave · Rend, Battle Rage, Muster Standard, Ground Stomp | 24528 s | ×9.33 | ×9.89 (Cinder Oath 6) | ×10.31 (Cinder Oath 4) | Cinder Oath 4 ×10.31 (2379 s) | 0.94 | no |
+| Sawtooth Hatchet | Cleave · Sawtooth Hatchet, Battle Rage, Muster Standard, Ground Stomp | 10459 s | ×13.22 | ×18.57 (Cinder Oath 6) | ×15.87 (Cinder Oath 4) | Cinder Oath 6 ×18.57 (563 s) | 0.71 | no |
+| Ground Stomp | Cleave · Ground Stomp, Battle Rage, Muster Standard, Cairnfall | 25250 s | ×6.89 | ×7.90 (Hearthbanner 6) | ×7.42 (Hearthbanner 4) | Hearthbanner 6 ×7.90 (3196 s) | 0.87 | no |
+| Quakeline | Cleave · Quakeline, Battle Rage, Muster Standard, Ground Stomp | 4869 s | ×16.38 | ×19.75 (Hearthbanner 6) | ×17.62 (Hearthbanner 4) | Hearthbanner 6 ×19.75 (246 s) | 0.83 | yes |
+| Cairnfall | Cleave · Cairnfall, Battle Rage, Muster Standard, Ground Stomp | 25088 s | ×7.33 | ×8.29 (Hearthbanner 6) | ×8.45 (Hearthbanner 4) | Hearthbanner 4 ×8.45 (2968 s) | 0.88 | no |
 
 | Check | Measured | Target | Hard limit |
 |---|---|---|---|
 | D1 | 3/9 | fail | fail |
 | D2 | anvil_vambraces 9/9 | fail | fail |
-| D3 | 0.60–0.92 | fail | fail |
-| D4 | 1.00–1.08 | fail | pass |
+| D3 | 0.58–0.98 | fail | fail |
+| D4 | 1.00–1.07 | fail | pass |
 | D5 | 3/5 (hearthbanner, endless_storm, cinder_oath) | fail | fail |
-| D6 | 1.84 | fail | fail |
+| D6 | 2.16 | fail | fail |
 
 <details><summary>Kits</summary>
 
 **Cleave** — best: Hearthbanner 4
 
-- legendary-only: mainhand Millwheel Edge, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Bulwark of the Last Light
+- legendary-only: mainhand Millwheel Edge, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Bulwark of the Last Light
 - Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets
 - Hearthbanner 4: feet set, legs set, shoulders set, head set, mainhand Millwheel Edge, offhand Ward Pennant Shield, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Brass Warhorn Helm
 
 **Tolling Blow** — best: Hearthbanner 4
 
-- legendary-only: mainhand Bellwright's Maul, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Quartermaster's Cuirass, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Stonecount Gauntlets
+- legendary-only: mainhand Bellwright's Maul, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Stonecount Gauntlets
 - Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets
 - Hearthbanner 4: feet set, legs set, head set, shoulders set, mainhand Bellwright's Maul, offhand Ward Pennant Shield, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Belfry Pauldrons
 
@@ -126,31 +126,31 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 - legendary-only: mainhand The Ninefold Gale, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist Girdle of the Eternal Gyre, legs Gale-Stitched Legguards, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt
 - Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand The Ninefold Gale, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Gale-Stitched Legguards
-- Raiment of the Endless Storm 4: feet set, head set, shoulders set, hands set, mainhand The Ninefold Gale, chest Fissure-Lined Breastplate, wrists Vambraces of the Anvil, waist Girdle of the Eternal Gyre, legs Gale-Stitched Legguards, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt
+- Raiment of the Endless Storm 4: feet set, head set, shoulders set, hands set, mainhand The Ninefold Gale, chest Quartermaster's Cuirass, wrists Vambraces of the Anvil, waist Girdle of the Eternal Gyre, legs Gale-Stitched Legguards, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Furycord Belt
 
 **Ironplough** — best: Raiment of the Endless Storm 6
 
-- legendary-only: mainhand Coulter Blade, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Fissure-Lined Breastplate, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, feet rare, neck Seething Sigil, ring1 Tremor Signet, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
+- legendary-only: mainhand Coulter Blade, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Fissure-Lined Breastplate, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, feet rare, neck Seething Sigil, ring1 Tremor Signet, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
 - Raiment of the Endless Storm 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Coulter Blade, wrists Vambraces of the Anvil, waist Furycord Belt, neck Seething Sigil, ring1 Tremor Signet, ring2 Thresher's Knot; Cube Millwheel Edge, Gale-Stitched Legguards, Rally Knot
 - Raiment of the Endless Storm 4: feet set, head set, shoulders set, hands set, mainhand Coulter Blade, chest Fissure-Lined Breastplate, wrists Vambraces of the Anvil, waist Furycord Belt, legs Gale-Stitched Legguards, neck Seething Sigil, ring1 Tremor Signet, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Rally Knot
 
-**Rend** — best: Cinder Oath 6
+**Rend** — best: Cinder Oath 4
 
 - legendary-only: mainhand Bloodwake, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, legs Yoke Greaves, feet rare, neck Red Ledger, ring1 Rally Knot, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
 - Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Bloodwake, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Rally Knot, ring2 Thresher's Knot; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
-- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Bloodwake, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Rally Knot, ring2 Sawyer's Ring; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Bloodwake, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Rally Knot, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
 
 **Sawtooth Hatchet** — best: Cinder Oath 6
 
-- legendary-only: mainhand Grinning Saw, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, legs Yoke Greaves, feet rare, neck Red Ledger, ring1 Rally Knot, ring2 Sawyer's Ring; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
-- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Grinning Saw, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Rally Knot, ring2 Sawyer's Ring; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
-- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Grinning Saw, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Rally Knot, ring2 Sawyer's Ring; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- legendary-only: mainhand Grinning Saw, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, legs Yoke Greaves, feet rare, neck Red Ledger, ring1 Sawyer's Ring, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
+- Cinder Oath 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Grinning Saw, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Sawyer's Ring, ring2 Thresher's Knot; Cube Millwheel Edge, Woodcutter's Grips, Seething Sigil
+- Cinder Oath 4: feet set, legs set, head set, shoulders set, mainhand Grinning Saw, offhand Ward Pennant Shield, chest Fissure-Lined Breastplate, hands Woodcutter's Grips, wrists Vambraces of the Anvil, waist Furycord Belt, neck Red Ledger, ring1 Sawyer's Ring, ring2 Thresher's Knot; Cube Millwheel Edge, Quartermaster's Cuirass, Seething Sigil
 
-**Ground Stomp** — best: Hearthbanner 4
+**Ground Stomp** — best: Hearthbanner 6
 
-- legendary-only: mainhand Millwheel Edge, offhand Bulwark of the Last Light, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets
+- legendary-only: mainhand Millwheel Edge, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Ashgrip Gauntlets
 - Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Millwheel Edge, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Belfry Pauldrons
-- Hearthbanner 4: feet set, legs set, head set, chest set, mainhand Millwheel Edge, offhand Ward Pennant Shield, shoulders Tanner's Pauldrons, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Quartermaster's Cuirass
+- Hearthbanner 4: feet set, legs set, head set, chest set, mainhand Millwheel Edge, offhand Bulwark of the Last Light, shoulders Belfry Pauldrons, hands Ashgrip Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Cairnwright's Hammer, Quartermaster's Cuirass
 
 **Quakeline** — best: Hearthbanner 6
 
@@ -160,9 +160,9 @@ Thresholds (BUDGET.md §6): D1 ≥ 2/3 (hard 1/2) of main skills within 1.25× o
 
 **Cairnfall** — best: Hearthbanner 4
 
-- legendary-only: mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Belfry Pauldrons, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Ashgrip Gauntlets
+- legendary-only: mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, head Brass Warhorn Helm, shoulders Tanner's Pauldrons, chest Quartermaster's Cuirass, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, legs Yoke Greaves, feet rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Ashgrip Gauntlets
 - Hearthbanner 6: head set, shoulders set, chest set, hands set, legs set, feet set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Belfry Pauldrons
-- Hearthbanner 4: feet set, legs set, head set, chest set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, shoulders Tanner's Pauldrons, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Quartermaster's Cuirass
+- Hearthbanner 4: feet set, legs set, head set, chest set, mainhand Cairnwright's Hammer, offhand Ward Pennant Shield, shoulders Belfry Pauldrons, hands Stonecount Gauntlets, wrists Vambraces of the Anvil, waist rare, neck Seething Sigil, ring1 Thresher's Knot, ring2 Rally Knot; Cube Millwheel Edge, Quartermaster's Cuirass
 
 </details>
 

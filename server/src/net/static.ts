@@ -35,6 +35,21 @@ const COMPRESSIBLE = new Set(['.html', '.js', '.mjs', '.css', '.json', '.map', '
 
 const gzipCache = new Map<string, Buffer>();
 
+/** Headers every response gets (OWASP HTTP Headers Cheat Sheet [S]): no MIME sniffing, no framing, no referrer leaks. */
+export const BASE_SECURITY_HEADERS: Readonly<Record<string, string>> = Object.freeze({
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+});
+/** The game page only loads its own bundle, fonts and images; WebSocket to the same host; Pixi may use blob workers
+ *  and data/blob images; Preact sets inline styles through the CSSOM (allowed), but some components set style text. */
+export const PAGE_CSP = [
+  "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:",
+  "font-src 'self' data:", "connect-src 'self' ws: wss:", "worker-src 'self' blob:", "media-src 'self' data: blob:",
+  "object-src 'none'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'",
+].join('; ');
+
 /**
  * Returns a request handler that serves files from `root`; it resolves true when it handled the request.
  * The directory is checked per request so a client build that appears while the server runs is picked up.
@@ -80,10 +95,11 @@ export function createStaticHandler(root: string): (req: IncomingMessage, res: S
     const type = MIME[ext] ?? 'application/octet-stream';
     const hashed = /[./-][A-Za-z0-9_-]{8,}\.[a-z0-9]+$/.test(path.basename(file)) && rel.startsWith('/assets/');
     const headers: Record<string, string | number> = {
+      ...BASE_SECURITY_HEADERS,
       'Content-Type': type,
       'Cache-Control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache',
       'Last-Modified': st.mtime.toUTCString(),
-      'X-Content-Type-Options': 'nosniff',
+      ...(ext === '.html' ? { 'Content-Security-Policy': PAGE_CSP } : {}),
     };
 
     const wantsGzip = COMPRESSIBLE.has(ext) && /\bgzip\b/.test(String(req.headers['accept-encoding'] ?? '')) && st.size > 512;

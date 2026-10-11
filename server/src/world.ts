@@ -8,6 +8,8 @@ import { Social } from './social';
 import { AccountStore } from './accounts';
 import { Telemetry } from './telemetry';
 import { Community } from './community';
+import { PrivacyLedger } from './privacy';
+import { purgeDue, reapplyErasures, type ErasureDeps } from './erasure';
 import { ACCOUNT_MODE, EMPTY_RIFT_DESTROY_MS } from './config';
 import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
@@ -111,6 +113,10 @@ export class World {
   /** Local playtest event log; inert unless TELEMETRY=1. */
   readonly telemetry = new Telemetry();
   readonly community:Community=new Community(()=>this.players,(a,b)=>this.social.blocked(a,b),s=>this.social.isEnabled(s),undefined,(a,b)=>this.social.presenceVisible(a,b));
+  /** Scheduled deletions, the purge and the erasure ledger (server/src/privacy.ts); active in every account mode. */
+  readonly privacy = new PrivacyLedger();
+  private lastPurgeAt = 0;
+  private purging: Promise<unknown> | null = null;
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
   private rng = new Rng((Math.random() * 0xffffffff) >>> 0);
@@ -121,6 +127,12 @@ export class World {
     if (ACCOUNT_MODE !== 'off') await this.accounts.init();
     await this.community.init();
     this.social.community=this.community;
+    await this.privacy.init();
+    await this.telemetry.prune();
+    // A restored backup may have brought back erased people: erase them again before anyone can log in.
+    await reapplyErasures(this.erasureDeps());
+    this.lastPurgeAt = Date.now();
+    await purgeDue(this.erasureDeps());
     this.create = await loadCreateInstance();
     this.channelRec(TOWN_ID, 1);
     for (const id of FIELD_IDS) this.channelRec(id, 1);
@@ -158,6 +170,13 @@ export class World {
       }
     }
     for (const s of this.players) s.autosave(now);
+    // Hourly: pick up deletions the owner tool scheduled and erase whatever finished its grace period.
+    if (!this.purging && now - this.lastPurgeAt >= 3_600_000) {
+      this.lastPurgeAt = now;
+      this.purging = this.privacy.refresh().then(() => purgeDue(this.erasureDeps(), now))
+        .catch(error => console.error('[privacy] purge failed:', error instanceof Error ? error.message : error))
+        .finally(() => { this.purging = null; });
+    }
     if (now - this.lastInfoAt >= WORLD_INFO_MS) {
       this.lastInfoAt = now;
       this.broadcastInfo();
@@ -165,9 +184,11 @@ export class World {
   }
 
   async shutdown(): Promise<void> {
+    await this.purging;
     await this.community.shutdown();
     for (const s of [...this.players]) s.shutdown('Server restarting');
     await this.telemetry.shutdown();
+    await this.accounts.shutdown();
     for (const rec of [...this.recs.values()]) {
       try { rec.inst.destroy(); } catch (err) { console.error(`[world] destroy ${rec.key} failed:`, err); }
     }
@@ -188,6 +209,14 @@ export class World {
 
   release(id: string, s: Session): void {
     if (this.reserved.get(id) === s) this.reserved.delete(id);
+  }
+
+  /** Disconnects whoever has this character open (privacy deletion); its final save is queued by the kick. */
+  disconnectCharacter(id: string, reason: string): void { this.reserved.get(id)?.kick(reason); }
+
+  erasureDeps(): ErasureDeps {
+    return { accounts: this.accounts, ledger: this.privacy, telemetry: this.telemetry, community: this.community,
+      disconnect: (id, reason) => this.disconnectCharacter(id, reason) };
   }
 
   get onlineCount(): number { return this.players.size; }

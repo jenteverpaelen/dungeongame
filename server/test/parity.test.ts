@@ -44,9 +44,11 @@ test('parity rule (1.25) holds for every parity-ready set-backed skill (the warr
 test('warrior: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready warrior main skill', () => {
   // Deterministic gate: planned kits without the search, one seed (~15 s). The full report with three seeds and the
   // search is scripts/audit-warrior-parity.ts (docs/rework/depth/WARRIOR-PARITY.md).
+  // Warrior items only: the shared legendaries belong to the shared-items lane, and with them legendary-only kits beat
+  // the sets (D3 1.2-1.46 measured after merging that wave; WARRIOR-PILOT.md §6). The audit reports both.
   const ready = WARRIOR_MAIN.filter((id) => SKILLS[id].parityReady);
   assert(ready.length > 0, 'the warrior pilot flags its passing main skills');
-  const d = warriorDiversity({ seeds: [101], mains: ready });
+  const d = warriorDiversity({ seeds: [101], mains: ready, excludeShared: true });
   for (const r of d.rows) {
     const leg = r.factor.legendary, set6 = r.factor[r.bestSet6], hyb = r.factor[r.bestHybrid];
     const d3 = leg / set6, lo = Math.min(leg, set6), hi = Math.max(leg, set6);

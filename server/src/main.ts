@@ -4,11 +4,13 @@
 import http from 'node:http';
 import type { Socket } from 'node:net';
 import { WebSocketServer } from 'ws';
-import { ACCOUNT_MODE, BACKUP_DIR, BACKUP_KEEP, CLIENT_DIR, PORT } from './config';
+import { ACCOUNT_MODE, BACKUP_DIR, BACKUP_KEEP, BACKUP_MIRROR_DIR, CLIENT_DIR, PORT } from './config';
 import { startCharacterBackups } from './backupSchedule';
 import { Session } from './net/session';
 import { allowedWebSocketOrigin, webSocketOrigins } from './net/origin';
-import { createStaticHandler } from './net/static';
+import { BASE_SECURITY_HEADERS, createStaticHandler } from './net/static';
+import { clientAddress, parseTrustedProxies } from './net/clientIp';
+import { deviceLabel } from './accounts';
 import { ensureDataDir, flushSaves } from './persistence';
 import { World } from './world';
 import { TICK_MS } from '../../shared/src/constants';
@@ -18,6 +20,11 @@ const HEARTBEAT_MS = 15_000;
 const MAX_CATCHUP_TICKS = 4;
 const SLOW_TICK_MS = 45;
 const MAX_CONNECTIONS = Number(process.env.MAX_CONNECTIONS ?? 1000);
+/** Open sockets per client address (0 = no limit). Loopback is exempt so local tests and same-machine tools keep working. */
+const MAX_CONNECTIONS_PER_IP = Number(process.env.MAX_CONNECTIONS_PER_IP ?? 20);
+const LOOPBACK = new Set(['127.0.0.1', '::1', 'localhost']);
+const trustedProxies = parseTrustedProxies(process.env.TRUSTED_PROXIES);
+const perIp = new Map<string, number>();
 
 async function main(): Promise<void> {
   const allowedOrigins = webSocketOrigins(process.env.WS_ALLOWED_ORIGINS, PORT);
@@ -28,19 +35,21 @@ async function main(): Promise<void> {
   const sessions = new Set<Session>();
   const startedAt = Date.now();
   const serveStatic = createStaticHandler(CLIENT_DIR);
+  /** Set once the backup schedule starts (after the server listens): last backup, drill and mirror results. */
+  let backupStatus: (() => unknown) | null = null;
 
   // ─────────────────────────── HTTP ───────────────────────────
 
   const server = http.createServer((req, res) => {
     const path = (req.url ?? '/').split('?')[0];
     if (path === '/healthz') {
-      const body = JSON.stringify({ ok: true, uptimeSec: Math.round((Date.now() - startedAt) / 1000), ...world.stats() });
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
+      const body = JSON.stringify({ ok: true, uptimeSec: Math.round((Date.now() - startedAt) / 1000), ...world.stats(), backups: backupStatus?.() ?? null });
+      res.writeHead(200, { ...BASE_SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(body);
       return;
     }
     if (path === '/api/config') {
       // Public, non-secret settings the client needs before it opens a socket (whether to show the account screens).
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify({ accounts: ACCOUNT_MODE }));
+      res.writeHead(200, { ...BASE_SECURITY_HEADERS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }).end(JSON.stringify({ accounts: ACCOUNT_MODE }));
       return;
     }
     serveStatic(req, res)
@@ -75,15 +84,26 @@ async function main(): Promise<void> {
       socket.destroy();
       return;
     }
+    const ip = clientAddress(req, trustedProxies);
+    if (MAX_CONNECTIONS_PER_IP > 0 && !LOOPBACK.has(ip) && (perIp.get(ip) ?? 0) >= MAX_CONNECTIONS_PER_IP) {
+      socket.write('HTTP/1.1 429 Too Many Requests\r\nConnection: close\r\nContent-Length: 0\r\n\r\n');
+      socket.destroy();
+      return;
+    }
     socket.setNoDelay(true);
     wss.handleUpgrade(req, socket, head, (ws) => wss.emit('connection', ws, req));
   });
   wss.on('connection', (ws, req) => {
-    // No trusted proxy topology is configured. Forwarding headers are client-controlled.
-    const ip = req.socket.remoteAddress || '';
-    const session = new Session(ws, world, ip);
+    // The socket peer, or (only behind a configured TRUSTED_PROXIES hop) the forwarded client address.
+    const ip = clientAddress(req, trustedProxies);
+    perIp.set(ip, (perIp.get(ip) ?? 0) + 1);
+    const session = new Session(ws, world, ip, deviceLabel(req.headers['user-agent']));
     sessions.add(session);
-    ws.on('close', () => sessions.delete(session));
+    ws.on('close', () => {
+      sessions.delete(session);
+      const n = (perIp.get(ip) ?? 1) - 1;
+      if (n > 0) perIp.set(ip, n); else perIp.delete(ip);
+    });
   });
 
   await new Promise<void>((resolve, reject) => {
@@ -136,7 +156,8 @@ async function main(): Promise<void> {
   let shuttingDown = false;
   const backups = BACKUP_DIR ? startCharacterBackups(BACKUP_DIR, () => {
     for (const session of sessions) session.saveNow();
-  }, BACKUP_KEEP) : undefined;
+  }, BACKUP_KEEP, { mirror: BACKUP_MIRROR_DIR, drill: process.env.BACKUP_DRILL !== '0' }) : undefined;
+  if (backups) backupStatus = () => backups.status();
   const shutdown = async (reason: string, code: number): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;

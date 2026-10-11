@@ -70,13 +70,27 @@ export function ccFactor(m: Mob): number {
  */
 function landed(m: Mob, kind: StatusKind, control: boolean, inst: Instance | undefined, by: Player | undefined) {
   if (control) m.ctrlAgo = 0;
-  if (inst && by && by.ctx.powers.statusWatch) onStatusApplied(inst, by, m, kind);
+  if (!by) return;
+  // Affix: stunning or freezing an enemy heals (quiet, like life per hit).
+  if ((kind === 'stun' || kind === 'freeze') && by.ctx.d.lifeOnControl > 0 && by.deadMs <= 0) by.hp = Math.min(by.mhp, by.hp + by.ctx.d.lifeOnControl);
+  if (inst && by.ctx.powers.statusWatch) onStatusApplied(inst, by, m, kind);
+}
+
+/** Your stuns / freezes last longer (affix ccDuration); 1 when nobody or no affix. */
+const ccLonger = (by: Player | undefined) => (by && by.ctx.d.ccDuration > 0 ? 1 + by.ctx.d.ccDuration / 100 : 1);
+
+/** Mark a monster (Hunter's Mark and other marks): it takes markPct % more damage while markMs lasts. */
+export function markMob(m: Mob, ms: number, pct: number, inst?: Instance, by?: Player) {
+  m.markMs = ms;
+  m.markPct = pct;
+  landed(m, 'mark', false, inst, by);
 }
 
 export function stunMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
-  m.stunMs = Math.max(m.stunMs, ms * f);
+  const longer = ccLonger(by);
+  m.stunMs = Math.max(m.stunMs, longer === 1 ? ms * f : ms * f * longer);
   cancelWindup(m);
   landed(m, 'stun', true, inst, by);
 }
@@ -84,7 +98,8 @@ export function stunMob(m: Mob, ms: number, inst?: Instance, by?: Player) {
 export function freezeMob(m: Mob, ms: number, shatterBy = 0, depth = 0, inst?: Instance, by?: Player) {
   const f = ccFactor(m);
   if (f <= 0) return;
-  m.freezeMs = Math.max(m.freezeMs, ms * f);
+  const longer = ccLonger(by);
+  m.freezeMs = Math.max(m.freezeMs, longer === 1 ? ms * f : ms * f * longer);
   if (shatterBy) { m.shatterBy = shatterBy; m.shatterDepth = depth; }
   cancelWindup(m);
   landed(m, 'freeze', true, inst, by);
@@ -229,7 +244,7 @@ export function removeBuff(p: Player, id: string) {
 export function refreshLive(p: Player) {
   const l = p.live;
   l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
-  let dr = 1, cci = false, cost = 1;
+  let dr = 1, cci = false, cdrec = 0, cost = 1;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
@@ -238,9 +253,10 @@ export function refreshLive(p: Player) {
     if (b.sdmg) l.dmg += b.sdmg * (b.st ?? 1);
     if (b.dr) dr *= 1 - Math.min(100, b.dr) / 100;
     if (b.cci) cci = true;
+    if (b.cdrec) cdrec += b.cdrec;
     if (b.cost) cost *= Math.max(0, 1 + b.cost / 100);
   }
-  l.dr = dr; l.cci = cci; l.cost = cost;
+  l.dr = dr; l.cci = cci; l.cdrec = cdrec; l.cost = cost;
 }
 
 /** Advance buff timers; returns true if any expired. */
@@ -257,24 +273,26 @@ export function tickBuffs(p: Player, dtMs: number) {
 
 // ─────────────────────────── Hostile effects on players ───────────────────────────
 
-/** Control immunity from power buffs (`ccImmune`) or an active controlImmunity template. */
-const ctrlImmune = (p: Player) => !!p.live.cci || !!p.pw?.ctrlImmune;
+/** Control immunity from power buffs (`ccImmune`) or an active controlImmunity template (bits 1 stun, 2 freeze, 4 pull). */
+const ctrlImmune = (p: Player, bit: number) => !!p.live.cci || ((p.pw?.ctrlImmune ?? 0) & bit) !== 0;
 
 export function freezePlayer(p: Player, ms: number) {
-  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p)) return;
+  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p, 2)) return;
+  if (p.ctx.d.ccReduction > 0) ms *= 1 - Math.min(75, p.ctx.d.ccReduction) / 100; // affix: shorter control on you
   p.frozenMs = Math.max(p.frozenMs, ms);
   if (p.channel) p.channel = null;
 }
 
 export function stunPlayer(p: Player, ms: number) {
-  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p)) return;
+  if (p.invulnMs > 0 || p.deadMs > 0 || ctrlImmune(p, 1)) return;
+  if (p.ctx.d.ccReduction > 0) ms *= 1 - Math.min(75, p.ctx.d.ccReduction) / 100;
   p.stunMs = Math.max(p.stunMs, ms);
   if (p.channel) p.channel = null;
 }
 
 /** Yank a player to within `stopDist` of a point (Vortex). */
 export function pullPlayer(inst: Instance, p: Player, tx: number, ty: number, stopDist: number) {
-  if (ctrlImmune(p)) return;
+  if (ctrlImmune(p, 4)) return;
   const dx = tx - p.mv.x, dy = ty - p.mv.y;
   const d = Math.hypot(dx, dy);
   if (d <= stopDist) return;

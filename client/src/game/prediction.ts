@@ -3,7 +3,7 @@
 
 import { DASH, PLAYER_RADIUS, TICK_MS } from '@shared/constants';
 import type { CollisionWorld, MoveInput, MoveState } from '@shared/movement';
-import { channelMsPct, stepMove } from '@shared/movement';
+import { stepMove } from '@shared/movement';
 import type { C2S, MeState } from '@shared/protocol';
 
 interface Cmd extends MoveInput { seq: number }
@@ -18,8 +18,6 @@ export class Predictor {
   private corrX = 0; private corrY = 0;
   ready = false;
   msPct = 0;
-  /** Channel movement factor from the server (MeState.mvf; Ironplough's slow). */
-  msFactor = 1;
   dashCd: number = DASH.cooldownMs;
   frozen = false;
   /** Smoothed render position. */
@@ -48,7 +46,7 @@ export class Predictor {
       this.pending.push(cmd);
       if (this.pending.length > 60) this.pending.shift();
       this.prevX = this.s.x; this.prevY = this.s.y;
-      stepMove(world, this.s, cmd, channelMsPct(this.msPct, this.msFactor), this.dashCd, TICK_MS, PLAYER_RADIUS, this.frozen);
+      stepMove(world, this.s, cmd, this.msPct, this.dashCd, TICK_MS, PLAYER_RADIUS, this.frozen);
     }
     const k = this.acc / TICK_MS;
     // Correction offset decays over ~120 ms so reconciliation never pops visibly.
@@ -75,8 +73,7 @@ export class Predictor {
     const beforeX = this.s.x, beforeY = this.s.y;
     this.s.x = me.x; this.s.y = me.y; this.s.dashMs = me.dashMs; this.s.dashCdMs = me.dashCd;
     this.pending = this.pending.filter((c) => c.seq > ack);
-    this.msFactor = me.mvf ?? 1;
-    for (const c of this.pending) stepMove(world, this.s, c, channelMsPct(this.msPct, this.msFactor), this.dashCd, TICK_MS, PLAYER_RADIUS, this.frozen);
+    for (const c of this.pending) stepMove(world, this.s, c, this.msPct, this.dashCd, TICK_MS, PLAYER_RADIUS, this.frozen);
     const ex = beforeX - this.s.x, ey = beforeY - this.s.y;
     const err = Math.hypot(ex, ey);
     if (err > 300) { this.corrX = this.corrY = 0; this.prevX = this.s.x; this.prevY = this.s.y; } // teleport / respawn

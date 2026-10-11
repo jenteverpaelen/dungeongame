@@ -9,7 +9,7 @@ export {CHAT_MAX_LEN} from '../../../shared/src/social';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
-import { applyAfkGains } from '../afk';
+import { FieldRateMeter, applyAfkGains } from '../afk';
 import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
@@ -20,6 +20,8 @@ import { createCharacter } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
 import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
+import { buildAccountExport } from '../erasure';
+import type { AccountInfo } from '../../../shared/src/protocol';
 import { diffEvents, observe, type Observed } from '../telemetry';
 import { computeStats } from '../../../shared/src/stats';
 import type { AffixRoll, CharacterSave, DerivedStats } from '../../../shared/src/types';
@@ -65,6 +67,8 @@ export class Session implements PlayerLink {
   private charId = '';
   /** Username once `auth` succeeded on this connection (before `hello`). */
   private account: string | null = null;
+  /** The session token this connection authenticated with (to mark "this device" and keep it on "sign out others"). */
+  private token: string | null = null;
   private authBusy = false;
   private alive = true;
   private winStart = 0;
@@ -81,6 +85,8 @@ export class Session implements PlayerLink {
   private helloTimer: NodeJS.Timeout | null;
   private derivedLevel = 0;
   private playMark = 0;
+  /** Own field kill rate for offline gains (F-MET-02). */
+  private readonly afkMeter = new FieldRateMeter();
   private kicking = false;
   private commandReceipts = new CommandReceipts();
   private commandSave:Promise<void>|null=null;
@@ -88,7 +94,7 @@ export class Session implements PlayerLink {
   private seen: Observed | null = null;
   private queuedCommands=0;
 
-  constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '') {
+  constructor(readonly ws: WebSocket, readonly world: World, readonly ip = '', readonly device = '') {
     // With accounts there is a login screen to fill in before `hello`, so the idle allowance is longer.
     this.helloTimer = setTimeout(() => { if (this.state === 'new') this.kick('Login timed out'); }, ACCOUNT_MODE === 'off' ? HELLO_TIMEOUT_MS : ACCOUNT_IDLE_MS);
     ws.on('message', (data, isBinary) => this.onData(data, isBinary));
@@ -184,6 +190,7 @@ export class Session implements PlayerLink {
     const now = Date.now();
     if (this.playMark) this.save.stats.playMs += now - this.playMark;
     this.playMark = now;
+    this.afkMeter?.record(this.save, now); // optional: tests build sessions from the prototype alone
     this.persistDirty = false;
     this.lastSaveAt = now;
     await saveCharacter(this.save);
@@ -191,6 +198,7 @@ export class Session implements PlayerLink {
 
   /** Called once per second by the world: save at most every AUTOSAVE_MS while dirty. */
   autosave(now: number): void {
+    if (this.state === 'ready') this.afkMeter?.sample(now, this.rec?.inst.zone.kind === 'field', this.save.stats.kills);
     if (!this.commandSave && this.persistDirty && now - this.lastSaveAt >= AUTOSAVE_MS) this.saveNow();
     this.observe(now);
   }
@@ -358,51 +366,104 @@ export class Session implements PlayerLink {
     this.authBusy = true;
     const store = this.world.accounts;
     try {
+      const signIn = async (username: string, issue: boolean, extra: Partial<Extract<S2C, { t: 'auth' }>> = {}) => {
+        this.account = username;
+        if (issue) this.token = store.issueToken(username, this.device);
+        reply(true, { username, ...(issue ? { token: this.token! } : {}), characters: await this.accountCharacters(username), info: this.accountInfo(username), ...extra });
+      };
+      const privacy = this.world.privacy;
       switch (op) {
         case 'register': {
-          const r = await store.register(msg.username, msg.password, this.ip);
+          const r = await store.register(msg.username, msg.password, this.ip, this.device);
           if (!r.ok) { reply(false, { err: r.err }); break; }
-          this.account = r.username;
-          reply(true, { username: r.username, token: store.issueToken(r.username), recoveryCodes: r.recoveryCodes, characters: [] });
+          await signIn(r.username, true, { recoveryCodes: r.recoveryCodes });
           break;
         }
         case 'login': {
-          const r = await store.login(msg.username, msg.password, this.ip);
+          const r = await store.login(msg.username, msg.password, this.ip, this.device);
           if (!r.ok) { reply(false, { err: r.err }); break; }
-          this.account = r.username;
-          reply(true, { username: r.username, token: store.issueToken(r.username), characters: await this.accountCharacters(r.username) });
+          await signIn(r.username, true);
           break;
         }
         case 'resume': {
           const username = store.resume(msg.token);
           if (!username) { reply(false, { err: 'Your session expired. Please log in again.' }); break; }
-          this.account = username;
-          reply(true, { username, characters: await this.accountCharacters(username) });
+          this.token = msg.token as string;
+          await signIn(username, false);
           break;
         }
         case 'logout':
           store.revoke(msg.token);
-          this.account = null;
+          this.account = null; this.token = null;
           reply(true);
           break;
         case 'recover': {
           const r = await store.recover(msg.username, msg.code, msg.newPassword, this.ip);
           if (!r.ok) { reply(false, { err: r.err }); break; }
-          this.account = r.username;
-          reply(true, { username: r.username, token: store.issueToken(r.username), characters: await this.accountCharacters(r.username) });
+          await signIn(r.username, true);
           break;
         }
         case 'password': {
           if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
           const r = await store.changePassword(this.account, msg.password, msg.newPassword);
           if (!r.ok) { reply(false, { err: r.err }); break; }
-          reply(true, { username: this.account, token: store.issueToken(this.account) });
+          this.token = store.issueToken(this.account, this.device);
+          reply(true, { username: this.account, token: this.token, info: this.accountInfo(this.account) });
           break;
         }
         case 'codes': {
           if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
           const r = await store.newRecoveryCodes(this.account, msg.password);
-          reply(r.ok, r.ok ? { username: this.account, recoveryCodes: r.recoveryCodes } : { err: r.err });
+          reply(r.ok, r.ok ? { username: this.account, recoveryCodes: r.recoveryCodes, info: this.accountInfo(this.account) } : { err: r.err });
+          break;
+        }
+        case 'sessions':
+        case 'revoke': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          if (op === 'revoke') store.revokeSession(this.account, msg.session, this.token);
+          reply(true, { username: this.account, sessions: store.sessionsOf(this.account, this.token), events: store.events(this.account).reverse() });
+          break;
+        }
+        case 'export': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          const proof = await store.proveOwnPassword(this.account, msg.password);
+          if (!proof.ok) { reply(false, { err: proof.err }); break; }
+          const data = await buildAccountExport(this.world.erasureDeps(), this.account);
+          void store.note(this.account, 'export');
+          reply(true, { username: this.account, data });
+          break;
+        }
+        case 'deleteAccount': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          if (msg.confirm !== this.account) { reply(false, { err: 'Type your username exactly to confirm.' }); break; }
+          const proof = await store.proveOwnPassword(this.account, msg.password);
+          if (!proof.ok) { reply(false, { err: proof.err }); break; }
+          await privacy.schedule('account', this.account, { by: 'player' });
+          for (const id of store.charactersOf(this.account)) this.world.disconnectCharacter(id, 'This account is scheduled for deletion.');
+          store.revokeSession(this.account, 'others', this.token);
+          await store.note(this.account, 'deletion-requested');
+          await signIn(this.account, false);
+          break;
+        }
+        case 'cancelDeletion': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          if (await privacy.cancel('account', this.account)) await store.note(this.account, 'deletion-cancelled');
+          await signIn(this.account, false);
+          break;
+        }
+        case 'deleteCharacter':
+        case 'restoreCharacter': {
+          if (!this.account) { reply(false, { err: 'Log in first.' }); break; }
+          const id = typeof msg.character === 'string' && NAME_RE.test(msg.character) ? characterId(msg.character) : '';
+          if (!id || store.ownerOf(id) !== this.account) { reply(false, { err: 'That hero is not on this account.' }); break; }
+          if (op === 'deleteCharacter') {
+            const proof = await store.proveOwnPassword(this.account, msg.password);
+            if (!proof.ok) { reply(false, { err: proof.err }); break; }
+            await privacy.schedule('character', id, { account: this.account, by: 'player' });
+            this.world.disconnectCharacter(id, 'This hero is scheduled for deletion.');
+            await store.note(this.account, 'character-deletion', msg.character as string);
+          } else if (await privacy.cancel('character', id)) await store.note(this.account, 'character-restored', msg.character as string);
+          await signIn(this.account, false);
           break;
         }
         default:
@@ -424,10 +485,17 @@ export class Session implements PlayerLink {
     for (const id of this.world.accounts.charactersOf(username)) {
       try {
         const c = await loadCharacter(id);
-        if (c) out.push({ name: c.name, classId: c.classId, level: c.level });
+        const pending = this.world.privacy.pending('character', id);
+        if (c) out.push({ name: c.name, classId: c.classId, level: c.level, ...(pending ? { deleteAt: pending.purgeAt } : {}) });
       } catch { /* an unreadable character is simply not listed */ }
     }
     return out;
+  }
+
+  private accountInfo(username: string): AccountInfo {
+    const deletion = this.world.privacy.pending('account', username);
+    return { recoveryLeft: this.world.accounts.recoveryLeft(username), graceDays: Math.round(this.world.privacy.graceMs / 86_400_000),
+      ...(deletion ? { deletionAt: deletion.purgeAt } : {}) };
   }
 
   // ─────────────────────────── Login ───────────────────────────
@@ -446,6 +514,10 @@ export class Session implements PlayerLink {
     const accounts = this.world.accounts, owner = ACCOUNT_MODE === 'off' ? undefined : accounts.ownerOf(id);
     if (ACCOUNT_MODE === 'required' && !this.account) { this.kick('Log in to your account first.'); return; }
     if (owner && owner !== this.account) { this.kick(this.account ? 'That name is taken.' : 'This character belongs to an account. Log in first.'); return; }
+    // Scheduled deletions: nothing new may be saved for a hero or account that is waiting to be erased.
+    const privacy = this.world.privacy;
+    if (privacy.pending('character', id)) { this.kick(owner ? 'This hero is scheduled for deletion. Restore it in Account first.' : 'This hero is scheduled for deletion by the server owner.'); return; }
+    if (this.account && privacy.pending('account', this.account)) { this.kick('This account is scheduled for deletion. Cancel the deletion in Account to play again.'); return; }
     if (!this.world.reserve(id, this)) { this.kick('That character is already online.'); return; }
     this.charId = id;
     this.state = 'loading';

@@ -1,0 +1,38 @@
+{
+ "recorded": "2026-10-11",
+ "machine": "AMD Ryzen 7 7435HS ×16, win32",
+ "schema": 1,
+ "rounds": 600,
+ "instances": 4,
+ "monstersPerInstance": [
+  150,
+  150,
+  150,
+  150
+ ],
+ "awake": [
+  150,
+  150,
+  150,
+  150
+ ],
+ "roundMs": {
+  "avg": 1.872,
+  "p50": 1.63,
+  "p95": 3.675,
+  "p99": 5.227,
+  "max": 7.256
+ },
+ "snapshotBytes": {
+  "perClientPerSecAvg": 81504,
+  "perClientPerSecMax": 94267,
+  "largestMessage": 14221
+ },
+ "budget": {
+  "roundAvgMs": 10,
+  "roundP99Ms": 50
+ },
+ "node": "v24.19.0",
+ "platform": "win32",
+ "cpus": 16
+}

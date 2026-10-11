@@ -15,7 +15,7 @@ import {
   type ProcContext, type ProcRuntime, type StackRule,
 } from './powerRuntime';
 import { clearHostileProjectiles } from './projectiles';
-import { summonBehaviour } from './skills';
+import { castPrimary, summonBehaviour } from './skills';
 import { applyStatus, type TauntRef } from './status';
 import { spawnSummon } from './summons';
 import type { Mob, Player, Strike, SummonType } from './types';
@@ -124,7 +124,13 @@ export function powerTick(inst: Instance, p: Player, dtMs: number) {
   const rt = p.ctx.powers, st = powerState(p);
   if (rt.tracksStill) st.stillMs = p.moving ? 0 : st.stillMs + dtMs;
   const imm = rt.defense?.immune;
-  st.ctrlImmune = !!imm?.length && imm.some((w) => !w || conditionCount(p, w, undefined, null) > 0);
+  let bits = 0;
+  if (imm) for (const t of imm) if (!t.when || conditionCount(p, t.when, undefined, null) > 0) bits |= t.bits;
+  st.ctrlImmune = bits;
+  if (rt.nearRange) {
+    const o = inst.mobHash.nearest(p.x, p.y, rt.nearRange, (m) => !m.dead);
+    st.nearDist = o ? Math.hypot(o.x - p.x, o.y - p.y) : Infinity;
+  }
   if (rt.stacking.length) {
     const moved = Math.hypot(p.x - st.lastX, p.y - st.lastY);
     for (const r of rt.stacking) {
@@ -172,8 +178,17 @@ function decayStacks(inst: Instance, p: Player, r: StackRule) {
 }
 
 /** Kill-fed stacking (called for the killer). */
-export function onKillStacking(inst: Instance, p: Player, skill: string) {
-  for (const r of p.ctx.powers.stacking) if (r.source === 'kills' && (!r.skills || r.skills.has(skill))) addProgress(inst, p, r, 1);
+export function onKillStacking(inst: Instance, p: Player, skill: string, killed: Mob | null = null) {
+  for (const r of p.ctx.powers.stacking) {
+    if (r.source !== 'kills' || (r.skills && !r.skills.has(skill))) continue;
+    if (r.when && !(killed && conditionCount(p, r.when, undefined, killed))) continue;
+    addProgress(inst, p, r, 1);
+  }
+}
+
+/** Repeat a primary attack at the same enemy (proc `repeat`). */
+export function repeatAttack(inst: Instance, p: Player, m: Mob) {
+  castPrimary(inst, p, m);
 }
 
 // ─────────────────────────── Rule changes ───────────────────────────
@@ -193,6 +208,12 @@ export function channelMoveFactor(p: Player, skill: string): number {
   let f = slow ? Math.max(0, 1 + slow / 100) : 1;
   for (const r of p.ctx.powers.rules.channelMove) if ((!r.skills || r.skills.has(skill)) && r.pct / 100 > f) f = r.pct / 100;
   return f;
+}
+
+/** Movement speed % while channelling: the channel's slow and rules (channelMoveFactor) and the moveWhileChannel affix. */
+export function channelMsPct(p: Player): number {
+  const ms = p.ctx.d.ms + p.ctx.d.moveWhileChannel, f = channelMoveFactor(p, p.channel!.skill);
+  return f === 1 ? ms : (1 + ms / 100) * f * 100 - 100;
 }
 
 /** Start counting a cast's hits for a spendRefund rule (false when no rule applies to this skill). */

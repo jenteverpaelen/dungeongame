@@ -48,8 +48,8 @@ export function applyStatus(inst: Instance, p: Player, m: Mob, s: RStatus, fromX
       const ps = mobStatus(m), except = !!s.exceptSource;
       const scope = except ? new Set([source]) : s.scope;
       const cur = ps.vulns.find((v) => v.owner === p.id && v.except === except && sameScope(v.scope, scope));
-      if (cur) { cur.ms = Math.max(cur.ms, ms); cur.pct = Math.max(cur.pct, pct); }
-      else ps.vulns.push({ owner: p.id, scope, except, pct, ms });
+      if (cur) { cur.ms = Math.max(cur.ms, ms); cur.pct = Math.max(cur.pct, pct); if (s.consume) cur.consume = true; }
+      else ps.vulns.push(s.consume ? { owner: p.id, scope, except, pct, ms, consume: true } : { owner: p.id, scope, except, pct, ms });
       break;
     }
     case 'taunt': {
@@ -87,11 +87,28 @@ export function applyStatus(inst: Instance, p: Player, m: Mob, s: RStatus, fromX
 const sameScope = (a: ReadonlySet<string> | null, b: ReadonlySet<string> | null) =>
   a === b || (!!a && !!b && a.size === b.size && [...a].every((x) => b.has(x)));
 
-/** A status from player `by` landed: first-hit windows that reset on it reopen, applyStatus procs run. */
+/** A status from player `by` landed: first-hit windows that reset on it reopen, marks spread, applyStatus procs run. */
 export function onStatusApplied(inst: Instance, by: Player, m: Mob, kind: StatusKind) {
   const fh = by.ctx.powers.defense?.firstHit;
   if (fh) for (let i = 0; i < fh.length; i++) if (fh[i].reset?.includes(kind)) powerState(by).firstHitAt[i] = -Infinity;
+  const spread = by.ctx.powers.rules.markSpread;
+  if (kind === 'mark' && spread > 0) {
+    // The copy is set directly (no second report), so a spread mark never spreads again.
+    const o = inst.mobHash.nearest(m.x, m.y, spread, (x) => !x.dead && x !== m);
+    if (o) { o.markMs = Math.max(o.markMs, m.markMs); if (m.markPct > o.markPct) o.markPct = m.markPct; }
+  }
   firePowerProcs(inst, by, 'applyStatus', { status: kind, mob: m });
+}
+
+/** After a hit by player `p` with strike `skill`: consumable vulnerabilities that applied to it are used up. */
+export function consumeVulns(m: Mob, p: Player, skill: string) {
+  const ps = m.ps!;
+  if (!ps.vulns.some((v) => v.consume && v.owner === p.id)) return;
+  ps.vulns = ps.vulns.filter((x) => {
+    if (!x.consume || x.owner !== p.id) return true;
+    const listed = !!x.scope && x.scope.has(skill);
+    return !!x.scope && (x.except ? listed : !listed); // keep entries that did not apply to this strike
+  });
 }
 
 /** Per monster tick (only when it carries power statuses). */

@@ -3,6 +3,7 @@
 import { useRef, useState } from 'preact/hooks';
 import { ui, togglePanel, useUI } from '../store';
 import { ZONES } from '@shared/data/zones';
+import { AFK_MAX_HOURS } from '@shared/constants';
 import { fmtDuration, fmtInt } from '@shared/format';
 import type { Materials } from '@shared/types';
 import type { NpcRole } from '@shared/mapgen';
@@ -65,6 +66,13 @@ export function AfkModal() {
           {afk.levels > 0 && <div class="afk-row hi"><span>Levels gained</span><b>+{afk.levels}</b></div>}
           <div class="afk-row"><span>Gold</span><b class="gold">{fmtInt(afk.gold)}</b></div>
         </div>
+        {afk.rate !== undefined && (
+          <p class="afk-basis">
+            {fmtInt(Math.round(afk.rate))} kills a minute {afk.basis === 'own' ? 'from your last outing in the fields' : 'as an estimate (fight a few minutes in a field to measure your own pace)'}
+            {afk.efficiency !== undefined ? `, at ${Math.round(afk.efficiency * 100)}% while away.` : '.'}
+            {afk.capped ? ` Time away counts up to ${AFK_MAX_HOURS} hours.` : ''}
+          </p>
+        )}
         {mats.length > 0 && (
           <div class="afk-mats">
             <div class="afk-mats-title">Materials</div>

@@ -29,7 +29,7 @@ import { AdventureLife } from './art/adventureLife';
 import { PoiView, ZoneCritters, zoneAsTown } from './art/zoneLife';
 import { inPolygon } from '@shared/townGeometry';
 import { baselineY } from '@shared/townDepth';
-import { preferences } from '../game/preferences';
+import { motionReduced, preferences } from '../game/preferences';
 import { QuestGuide } from './questGuide';
 import { BarkBubbles, type Speaker } from './barks';
 import { BARKS } from '@shared/data/barks';
@@ -290,8 +290,13 @@ export class Scene {
 
   // ─────────────────────────── Camera & feedback ───────────────────────────
 
+  /** The renderer resolution changed (Graphics → render resolution): re-pick baked texel density. */
+  refreshViewScale() { setViewScale(this.cam.zoom * this.app.renderer.resolution); }
+
   shake(magnitude: number, ms: number) {
-    if (!preferences.get().values.cameraShake) return;
+    const p = preferences.get().values;
+    if (!p.cameraShake || p.shakeStrength <= 0 || motionReduced(p)) return;
+    magnitude *= p.shakeStrength;
     const now = performance.now();
     if (magnitude >= this.shakeMag * Math.max(0, (this.shakeEnd - now) / this.shakeDur)) {
       this.shakeMag = magnitude;
@@ -342,7 +347,7 @@ export class Scene {
       this.cam.y = mh > halfH * 2 ? Math.max(halfH, Math.min(mh - halfH, this.cam.y)) : mh / 2;
     }
     let sx = 0, sy = 0;
-    if (preferences.get().values.cameraShake && now < this.shakeEnd) {
+    if (preferences.get().values.cameraShake && !motionReduced() && now < this.shakeEnd) {
       const f = (this.shakeEnd - now) / this.shakeDur;
       const m = this.shakeMag * f * f;
       sx = (Math.random() * 2 - 1) * m;
@@ -493,9 +498,9 @@ export class Scene {
   }
 }
 
-/** What a player's nameplate shows besides level: title, gear rank and a completed Set (rebuilt when it changes). */
+/** What a player's nameplate shows besides level: title and a completed Set (rebuilt when it changes). */
 function plateKey(look: PlayerLook | undefined): string {
   if (!look) return '';
   const p = gearProfile(look);
-  return `${look.title ?? ''}|${p.rank}|${p.topSetCount >= 6 ? p.topSet : ''}`;
+  return `${look.title ?? ''}|${p.topSetCount >= 6 ? p.topSet : ''}`;
 }

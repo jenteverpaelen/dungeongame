@@ -23,7 +23,7 @@ import { Instance } from '../../src/sim/instance';
 import { createMob } from '../../src/sim/monsters';
 import { resolveTargets, tagIndexFor } from '../../src/sim/powerRuntime';
 import { createCharacter } from '../../../shared/src/character';
-import { BASES, LEGENDARIES, SETS, type LegendaryDef, type SetDef } from '../../../shared/src/data/items';
+import { BASES, LEGENDARIES, SETS, blocksOffhand as blocksOffhandBase, type LegendaryDef, type SetDef } from '../../../shared/src/data/items';
 import { SKILLS, skillsForClass } from '../../../shared/src/data/skills';
 import { MONSTERS } from '../../../shared/src/data/monsters';
 import { generateItem, type GenOptions } from '../../../shared/src/items';
@@ -117,7 +117,7 @@ const slotOf = (l: LegendaryDef): Slot[] => {
   const kind = BASES[l.base].kind;
   return kind === 'ring' ? ['ring1', 'ring2'] : kind === 'weapon1h' || kind === 'weapon2h' ? ['mainhand'] : kind === 'offhand' ? ['offhand'] : [kind as Slot];
 };
-const blocksOffhand = (base: string) => { const w = BASES[base].weapon; return !!w?.twoHanded && (!w.ranged || base === 'staff'); };
+const blocksOffhand = (base: string) => blocksOffhandBase(BASES[base]);
 
 /** Today's planner: the set / hybrid / legendary-only kits for one set (deterministic, no RNG). */
 export function planKit(profile: ParityProfile, kind: KitKind): KitSpec {

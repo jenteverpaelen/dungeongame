@@ -549,9 +549,229 @@ Search, stub-level, following the BUDGET.md §4 method:
 * `SkillDef.vars`: base named parameters, merged before runes (e.g. `channelMovePct`).
 * Proc `when`: a `Condition` gate on any proc.
 * `Buff.cost`: resource-cost factor while the buff lasts (`skillCost` reads `LiveMods.cost`).
-* Client prediction of channel slows: `MeState.mvf` + `channelMsPct` (shared formula). The carried Muster Standard is
-  drawn from its own `standard_carry` events (class code); there is no generic client view of a following ground.
+* Client prediction of channel slows: the pilot's `MeState.mvf` was replaced by the shared-items wave's `MeState.ms`
+  (`powerActions.channelMsPct`) at the merge. The carried Muster Standard is drawn from its own `standard_carry` events
+  (class code).
 * Grounds placed while grounds update start next tick (no proc chains inside one tick).
 * Dot carry-over is exact: `effects.ticksAhead(dot)` counts the ticks a dot will still deal.
-* Still not built: ricochet, recast elsewhere, generic consumable marks (the warrior's Ringing Ears and the returning
-  hatchet are class code), directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.
+* The warrior's Ringing Ears mark and returning hatchet are class code (built before the shared-items wave's
+  `vulnerable.consume` and `returns` projectiles; they can move onto those later). Still not built: recast elsewhere,
+  directional DR, a chosen-strength slow, elite filters on the takeDamage trigger.
+## 12. Shared-items wave (ITEMS-SHARED.md §2, §3, §5, §7)
+
+### 12.1 Shared legendaries (`shared/src/data/powers/shared.ts`, appended after the six v1 items)
+
+| id | base | data (templates) |
+|---|---|---|
+| `patchwork_signet` | ring | `stat dmgPct ROLL perLegendary{max 10} noSetBonus` + `damageTaken −1 perLegendary{max 10} noSetBonus`; not extractable |
+| `journeymans_ring` | ring | `setReduce {by 1, min 2}`; not extractable |
+| `watchkeepers_hood` | head_hood | `skillMore tags{projectile, aerial} ROLL when{noEnemyWithin 200}` |
+| `kilnwatch_spaulders` | shoulders_plate | `proc cast tags{cooldown} buff{kilnwatch, 5 s, dmg ROLL}` |
+| `hearthguard_coat` | chest_mail | `conditional hit ROLL` + `damageTaken −15`, both `when any[channeling, inOwnGround]` |
+| `ink_stained_gloves` | hands_gloves | `skillMods tags{primary} rolled dmg` + `proc attack every 5 repeat` |
+| `causeway_waders` | legs_waders (new base) | `skillMore tags{summon, ground} ROLL when{standingStillMs 1000}` |
+| `ridgewalker_boots` | feet_boots | `stacking distance per 100 max 5 decay 2 s` + `skillMore tags{spender} ROLL when{buffStacks max 5}` |
+| `surveyors_plumb` | neck_amulet | `rule markSpread{range 360 [M retarget radius]}` + `conditional hit ROLL when{targetState marked}` |
+| `brine_tally` | ring | `stacking kills per 1 max 20 no decay when any[bleeding, burning] onMax{buff brine_surge 10 s ias+cdRecovery ROLL, reset}` |
+| `signal_horn_charm` | neck_amulet | `skillMore tags{summon} ROLL` |
+| `lockglass_cincture` | waist_belt | `skillMods tags{channel} rolled cost −` + `controlImmunity kinds[pull] when{channeling}` |
+| `wardkeepers_cuffs` | wrists_bracers | `proc applyStatus [stun, freeze, chill, knockback, pull] → vulnerable ROLL 3 s` (owner-scoped) |
+
+**Deliberate change of an existing item (owner-visible, bible §2):** Ouroboros Loop 150–200 % → **60–80 %**.
+
+Colours [P] are taken from the motif glow (`gearStyle.motifColor`) and base-material tones. The `LEGENDARY_MOTIF`
+entries belong to the gear-visual lane.
+
+The equivalence proof (`powerTemplates.test.ts`) now covers exactly the 22 converted legendaries
+(`LEGACY_LEGENDARY_ORDER`).
+
+### 12.2 Engine primitives added for them (all no-ops without content)
+
+* **`setReduce {by?, min?}`.** Used in set counting (`powerSources.setReduction` / `setThreshold`), in
+  `powerCounts.setBonus` and in `setBonusesActive`. The rule is `max(min(count, min), count − by)`: 5 pieces + the ring
+  give the 6-piece bonus; 1 piece never gives the 2-piece bonus. Worn-piece counts (`DerivedStats.sets`, gear visuals)
+  stay as they are.
+* **Not extractable.** `LegendaryDef.extractable: false`; the Cube refuses it on both server and client.
+* **Conditions.** `{noEnemyWithin: N}`, tracked once per tick by `PowerState.nearDist` and only while used; target
+  state `burning`.
+* **Procs.**
+  * Trigger `attack`: the automatic primary attack, fired in `brain.ts`.
+  * `every: N`: per-proc counter.
+  * `repeat: true`: the same primary attack again, run at the current depth so its hits behave normally.
+* **Stacking.** `when` filters kill stacks by the killed enemy (a target condition).
+* **Buffs.** `cdRecovery`: readyAt runs this % faster, applied in `playerTick` only while `live.cdrec > 0`.
+* **Control immunity.** `controlImmunity.kinds` limits it to some of stun / freeze / pull (`PowerState.ctrlImmune`
+  bits).
+* **Marks.**
+  * Rule `markSpread {range}`: the nearest other enemy copies the mark, once (no chain).
+  * Hunter's Mark now reports as a mark (`effects.markMob`).
+* **Vulnerability.** `vulnerable.consume`: removed after the first matching hit by the applying player (Ringing Ears).
+* **Projectiles.**
+  * `returns`: after its last hit the projectile flies back to the owner once, piercing, able to hit again.
+  * `rangeRicochet`: bounces are also spent at maximum range, toward the nearest unhit enemy within 360 [M].
+* **Affix plumbing.** The 22 new `StatId`s are fields of `DerivedStats`.
+  * Tag-keyed affixes become one `affix` power source (`powerSources.affixPowerSources`), appended last:
+    * skill-group damage → `skillMods` dmg on the tag: summon, primary, spender, cooldown;
+    * `areaRadius`, `channelCost`, `summonDuration`, `buffDuration`, `pierceChance` → `skillMods` on the tag;
+    * `dotDmg` → dot strength on all dot kinds;
+    * `vsControlled` → conditional on immobilised targets;
+    * `resourceOnKill` → kill proc.
+  * The other affixes are small hooks, each gated on a non-zero stat:
+    * melee / ranged DR in `damagePlayer` (capped 75 % like eliteDR [M]);
+    * `dashCdr` in `computeStats`;
+    * `ccDuration` on your stun / freeze;
+    * `ccReduction` on stun / freeze on you;
+    * `globeHeal` and `globeChance` (elite globe chance through `DropContext.globeChance`);
+    * `moveWhileChannel` (`channelMsPct`);
+    * `lifeOnControl` (quiet heal on stun / freeze);
+    * `chillOnHit` (RNG only with the affix).
+
+### 12.3 Bases and affixes (data, appended)
+
+**Bases: 42 → 80.** The 38 new bases are listed below, with the existing look shape they fall back to:
+
+| New base | Fallback shape |
+|---|---|
+| head_coif | hood |
+| head_mask | cap |
+| head_widebrim | cap |
+| shoulders_furmantle | pads |
+| shoulders_capelet | mantle |
+| chest_brigandine | leather |
+| chest_vestment | robe |
+| chest_apron | leather |
+| hands_mitts | wraps |
+| hands_fingerless | gloves |
+| wrists_cuffs | bracers |
+| wrists_vambraces | bracers |
+| wrists_wraps | bracers |
+| waist_girdle | belt |
+| waist_cord | sash |
+| legs_chaps | leather |
+| legs_tassets | plate |
+| legs_waders | leather |
+| feet_wraps | shoes |
+| feet_sandals | shoes |
+| feet_clogs | boots |
+| neck_torc | amulet |
+| neck_charm | amulet |
+| neck_locket | amulet |
+| ring_band | ring |
+| ring_signet | ring |
+| ring_coil | ring |
+| cleaver | axe |
+| maul2h | axe2h |
+| polearm | axe2h |
+| sling | handxbow |
+| longbow | bow |
+| rod | wand |
+| sceptre | wand |
+| censer | staff |
+| warhorn | quiver |
+| trap_kit | quiver |
+| tome | orb |
+
+Other base changes:
+* The materials of the weapons and off-hands are [P].
+* The ring ladder's tiers 1 and 2 are now "Loop" and "Circle" (bible §3.2), so tier 3 "Loop" repeats inside the same
+  ladder; flagged for the naming pass.
+* The off-hand rule is data: `WeaponBase.noOffhand` (staff, censer) and `blocksOffhand(base)`, used in `character.ts`,
+  `stats.ts` and the harness.
+* Drop tables (`pickBase`), smart-loot class rules (`classes` / `affinity`), the collection keys, the merchant
+  (first base per kind, unchanged) and recipes take the new bases automatically.
+
+**Affixes: 33 → 55.** Ranges and labels are the bible's.
+* `AffixScale 'fixed'` (resource per kill).
+* `AffixDef.ranged`: `pierceChance` only on ranged weapons and the quiver (`affixFits`, used by generation and the
+  Mystic pool).
+* Magic prefixes and suffixes as listed in the bible.
+* **Weights [P]: 3 for the new primaries and 4 for the new secondaries.** These are the existing specialist band
+  (element damage, eliteDR / resourceRegen [M]). With the anchor affixes' own weights (up to 9), a level-70 rare kit lost
+  about 22 % of its damage and defence affixes, and the sim's mage endgame rift died 15 times. With 3 / 4 the loss is
+  about 15 % / 12 % and every sim check passes.
+* Measured with a 400-kit sample:
+
+  | Weights | Defence affixes per kit | Damage affixes per kit |
+  |---|---|---|
+  | Old pool (33 affixes) | 15.6 | 11.5 |
+  | 3 / 4 | 13.2 | 10.1 |
+  | Anchor weights | 12.0 | 8.9 |
+
+  This dilution is a real balance effect of more affix variety; the owner should know.
+
+### 12.4 Kindled / Fabled (`shared/src/itemGrades.ts`)
+
+**Storage.** `ancient` stays the stored grade: 1 = Kindled, 2 = Fabled (`GRADE_LABEL`). Drop chances are unchanged.
+
+**Generation.**
+* Grade ≥ 1 adds one primary affix from the slot's normal pool (`kindledAffix` = its index).
+* Grade 2 rolls everything at maximum, the kindled affix included, and picks an Inscription of the slot group.
+* No grade multiplies affixes, weapon damage or armour. `ANCIENT_MULT` is legacy only: enchanting a `legacyGrade` item
+  keeps its old ranges.
+
+**Inscription pool** (`data/inscriptions.ts`, 10 entries; permanent ids, [P] names):
+
+| Id | Group |
+|---|---|
+| shared_tags | weapon |
+| returning_shot | weapon |
+| sky_and_arrow | head / shoulders |
+| spare_charge | head / shoulders |
+| steady_channel | chest / legs |
+| frostbound_stun | hands / feet |
+| kept_buffs | belt / bracers |
+| spenders_refund | belt / bracers |
+| following_ground | jewelry |
+| marking_push | jewelry |
+
+* frostbound_stun chills for 2 s [M: the engine's chill on hit].
+* marking_push marks for 3 s [M: Hunter's Mark].
+* Not in the pool yet:
+  * "Summons inherit your Bleed and Burn": the bible defines no amounts.
+  * "Cast your Ground skill where a Movement skill ends": needs a recast engine.
+* `powerTextIssues` reads "half" as 50 and "full" as 100.
+
+**Save 16** (`migrateItemGrade`, run once in `normalizeSave`):
+* Every graded item keeps its stored values and gets `legacyGrade`. That includes old grade 2, so its enchant ranges
+  stay consistent; the bible names only grade 1.
+* Old grade 2 also gets `inscription` = pool[`fnv1a(id) % n`] of its slot group.
+* Golden fixture: `server/test/fixtures/saves/v15-grades.json`.
+
+**Mystic `rekindle` {itemId}.**
+* Persisted command; server-verified beside the Mystic (`SERVICE_ROLE`).
+* One free conversion of a legacy grade-1 item:
+  * affixes re-roll at normal ranges, keeping their stats and skill;
+  * plus a kindled affix;
+  * weapon damage and armour re-roll without ×1.3;
+  * `legacyGrade` is removed.
+* Fabled items are not rekindled.
+
+**UI** (minimal; the lead's tooltip pass and gear-v2 own the look):
+* the grade name before the rarity;
+* an ember dot on the kindled affix;
+* an "Inscription" block (marked inactive when another Inscription is the active one);
+* set bonuses lit by the effective threshold;
+* a Rekindle button in the Mystic's enchant view;
+* loot labels say "Kindled …" / "Fabled …".
+
+### 12.5 Engine gaps closed
+
+* Returning projectiles, ricochet at maximum range and consumable marks (§12.2).
+* **Client prediction of channel movement.** `MeState.ms`, sent only while it differs from the sheet, feeds the
+  predictor.
+* **Following grounds on the client.**
+  * Data grounds send `aoe.f = 1` and the pool visual follows the owner.
+  * Legacy class grounds (Meteor's molten ground) still announce a fixed position. The class agent adds
+    `f: g.stick ? 1 : undefined` at its emit site.
+* **Charge display.** `MeState.ch` shows the ready charges; the cooldown sweep only runs while none is ready.
+* **Skills window.** Shows the v2 tag labels; melee shows as Strike.
+
+### 12.6 Still open
+
+* `shared/test/gearVisual.test.ts` fails 2 tests on this branch: the lead branch's gear descriptor packs legendaries
+  into 5 bits (31 maximum, now 35). `claude/gear-v2` (ba1c7d3) widens it to at least 160. Merge gear-v2 with or before
+  this wave.
+* No protocol bump. `MeState.ms`, `aoe.f` and the `rekindle` op are additive.
+* SAVE_VERSION is now 16; renumber if the completion agent also bumps.
+* Tag grants still do not show in the Skills window.
+* Negative resource still has no HUD test.
