@@ -344,6 +344,19 @@ export interface Proj {
   returned?: boolean;
   /** Life it was fired with (range ricochets). */
   life0?: number;
+  /** Class behaviour hooks (ranger wave); kept by bounces, returns and ricochets. */
+  hooks?: ProjHooks;
+}
+
+/**
+ * Per-projectile behaviour hooks for class code: `pre` may replace the strike of a hit, `post` runs after the hit
+ * (`through`: the projectile is still flying, i.e. it pierced), `end` once when the projectile finally ends (not when it
+ * continues as a bounce, return or ricochet).
+ */
+export interface ProjHooks {
+  pre?(inst: import('./instance').Instance, pr: Proj, m: Mob, st: Strike): Strike;
+  post?(inst: import('./instance').Instance, pr: Proj, m: Mob, through: boolean): void;
+  end?(inst: import('./instance').Instance, pr: Proj, hit: boolean): void;
 }
 
 export const PB_SPLIT = 1, PB_DEVOUR = 2, PB_MARK = 4, PB_FREEZE = 8, PB_CHILL = 16, PB_BATTERY = 32, PB_SENTRY4 = 64, PB_NOGRENADE = 128, PB_ROCKETS = 256;
