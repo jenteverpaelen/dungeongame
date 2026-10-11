@@ -40,7 +40,7 @@ async function fixture() {
   return {world,add,...add()};
 }
 function definition(id:string):QuestDef {
-  return {...structuredClone(QUESTS[1]),id,requires:[],unlocks:undefined,chapter:undefined,steps:[
+  return {...structuredClone(QUESTS[1]),revision:1,id,requires:[],unlocks:undefined,chapter:undefined,steps:[
     {id:'conversation',kind:'talk',zone:'rillwake_crossing',target:'tender',text:'quest.dialogue.workers.ask'},
   ]};
 }
@@ -99,7 +99,7 @@ test('full bag, overflow and duplicate item ownership cannot partially grant a m
 
 test('four clients: family credit, personal kills, late acceptance, disconnect and rejoin never award an old death',async()=>{
   const f=await fixture(),q=definition('chapter_family'),personal=definition('chapter_personal');
-  q.steps=[{id:'slimes',kind:'kill',zone:'rillwake_crossing',target:'road',monsterFamily:'slime',count:2,text:'quest.wheel.warden'}];
+  q.steps=[{id:'slimes',kind:'kill',zone:'rillwake_crossing',target:'road',monsterFamily:'slime',count:2,text:'q.silent_wheel.warden'}];
   personal.steps=[{...q.steps[0],credit:'killer'}];catalogue.push(q,personal);
   try {
     const heroes=[f,f.add(),f.add(),f.add()];

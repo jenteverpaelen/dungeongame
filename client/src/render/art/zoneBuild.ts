@@ -12,6 +12,7 @@ import { rotorArt, structureArt } from './zoneStructures';
 import { ZoneGround, ZONE_PAL } from './zoneGround';
 import { prewarmMonsters } from './monsters';
 import { summonRigs } from './summons';
+import { activeWorldStates } from '../worldStateFlags';
 
 const DENSITY = 1.6;
 const cache = new Map<string, Texture>();
@@ -29,7 +30,7 @@ function texture(key: string, art: NonNullable<ReturnType<typeof zoneArt>>): Tex
  * zones, kept by the cache and uploaded one by one while walking); quarter steps keep ≤ 100 per zone (LOG W4, D-W15).
  */
 const SCALE_STEP = 0.25;
-function place(kind: string, s: number, v: number, x: number, y: number, flip = false) {
+export function place(kind: string, s: number, v: number, x: number, y: number, flip = false) {
   const sq = Math.max(SCALE_STEP, Math.ceil(s / SCALE_STEP - 1e-6) * SCALE_STEP), k = s / sq;
   const art = zoneArt(kind, sq, v); if (!art) return null;
   const root = new Container(), sp = new Sprite(texture(`z:${kind}:${sq.toFixed(2)}:${v}`, art));
@@ -91,7 +92,10 @@ export function buildZone(map: MapData): MapLayers {
     sp.position.set(art.box.x0, art.box.y0); root.addChild(sp); root.position.set(st.x, st.y); if (st.flip) root.scale.x = -1;
     if (art.rotor) {
       const r = art.rotor, rotor = new Sprite(texture(`rotor:${r.kind}:${r.r}`, rotorArt(r.kind, r.r))); rotor.anchor.set(0.5); rotor.position.set(r.x, r.y); root.addChild(rotor);
-      const speed = r.kind === 'sails' ? 0.35 : -0.7; root.onRender = () => { rotor.rotation = (performance.now() / 1000) * speed; };
+      const speed = r.kind === 'sails' ? 0.35 : -0.7, spin = st.spin;
+      // A structure tied to a world state (e.g. the weir wheel) stands still until the player's quest frees it.
+      if (spin) { let last = performance.now(); root.onRender = () => { const now = performance.now(); if (activeWorldStates.has(spin)) rotor.rotation += ((now - last) / 1000) * speed; last = now; }; }
+      else root.onRender = () => { rotor.rotation = (performance.now() / 1000) * speed; };
     }
     sorted.push({ view: root, y: st.y, bounds: { x0: st.x + art.box.x0, x1: st.x + art.box.x1, y0: st.y + art.box.y0, y1: st.y + art.box.y1 }, building: `fade:st${i}` });
   }

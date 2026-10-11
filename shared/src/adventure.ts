@@ -7,7 +7,6 @@ import type { AdventureData } from './adventureTypes';
 import { TILE } from './constants';
 import { T_FLOOR, T_WATER, type MapData } from './mapgen';
 import { groundTester } from './townGeometry';
-import type { CharacterSave } from './types';
 
 export const RILLWAKE_ID = 'rillwake_crossing';
 export const ADVENTURES:Readonly<Record<string,AdventureData>>={rillwake_crossing:RILLWAKE,bracken_sluice:BRACKEN,reedvault_pumpworks:PUMPWORKS,cairnspill_terraces:CAIRNSPILL,cinderwash_kilns:CINDERWASH,kilnwatch_crown:KILNWATCH,
@@ -22,18 +21,9 @@ export function loadAdventure(id:string,seed:number):MapData {
   a.geometry.props = a.scenery.filter(p=>p.r>0).map(p=>({x:p.x,y:p.y,radius:p.r*p.s}));
   if(a.wheel)a.geometry.props.push(a.wheel);
   for(const k of [...a.kilns??[],...a.works??[]])a.geometry.buildings.push({footprint:[[k.x,k.y],[k.x+k.w,k.y],[k.x+k.w,k.y+k.d],[k.x,k.y+k.d]]});
-  a.geometry.npcs = a.npcs;
+  // Phased contacts (appear / moveTo) are not solid, so every player in a channel shares one collision world.
+  a.geometry.npcs = a.npcs.filter(n=>n.r>0);
   const [w,h]=a.size, tiles=new Uint8Array(w*h), ground=groundTester(a.geometry);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++)tiles[y*w+x]=ground((x+.5)*TILE,(y+.5)*TILE)?T_FLOOR:T_WATER;
   return {zone:a.id,theme:a.theme??'glade',seed,w,h,tiles,props:a.scenery,spawns:a.encounters,entry:a.geometry.entry,portals:a.portals,npcs:a.npcs,adventure:a};
-}
-
-export function rillwakeObjective(save: CharacterSave): { text:string; target:string } {
-  const q=save.rillwake;
-  if(!q)return {text:'Speak with Orren at the camp',target:'tender'};
-  if(q.claimed)return {text:'The Silent Wheel — completed',target:'tender'};
-  if(!q.cart)return {text:'Inspect the cart beyond the timber crossing',target:'cart'};
-  if(!q.warden)return {text:'Defeat Siltroot in the mill yard',target:'mill'};
-  if(!q.ledger)return {text:'Recover the ledger inside the ruined mill',target:'ledger'};
-  return {text:'Return the ledger to Orren at the camp',target:'tender'};
 }

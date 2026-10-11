@@ -23,6 +23,8 @@ import type { ActingView, PlayerView } from '../render/types';
 import { closeAllPanels, pushChat, pushNotice, togglePanel, ui, worldReader, type PanelId } from '../ui/store';
 import { questAtTarget, questMarker } from '@shared/quests';
 import { openJournal } from '../ui/panels/adventure';
+import { interactObject, tickHold } from './questActions';
+import { QUEST_MESSAGES, questText, type QuestMessageKey } from '@shared/data/questMessages';
 import { Input } from './input';
 import { preferences } from './preferences';
 import { Predictor } from './prediction';
@@ -54,6 +56,11 @@ export class Game {
     session.interact = () => this.interact();
     this.world = new ClientWorld({ onAdd: (e) => this.scene.onAdd(e), onRemove: (e) => this.scene.onRemove(e) });
     this.scene = new Scene(app, this.world);
+    // Story presentation (F-QST-08): a world change pans the camera to it and says what happened in one line.
+    this.scene.onReveal = (key) => {
+      const k = `ws.${key}` as QuestMessageKey;
+      if (Object.hasOwn(QUEST_MESSAGES, k)) ui.set({ reading: { title: this.world.zone?.name ?? '', text: questText(k), at: Date.now() } });
+    };
     this.input = new Input({
       onDash: () => { sfx.unlock(); this.predictor.queueDash(); },
       onHotkey: (k, e) => this.hotkey(k, e),
@@ -440,6 +447,11 @@ export class Game {
         void this.conn?.cmd('quest',{action:'activate',target:s.npcId}).then(r=>{if(!r.ok&&r.err)pushNotice(r.err,'warn');});return;
       }
       if(s.role==='quest' || s.role==='clue') {
+        // Boards open the bounty window; objects act on the current objective or show their reading without a window
+        // (docs/rework/quests/DESIGN.md §5, §8). People open the conversation.
+        const kind=this.world.map?.adventure?.interactions.find(i=>i.id===s.npcId)?.kind;
+        if(kind==='board'){this.scene.pulseStatic(s);togglePanel('bounty',true);return;}
+        if(s.role==='clue'&&zone?.zone&&s.npcId&&interactObject(zone.zone,s.npcId)){this.scene.pulseStatic(s);return;}
         if(s.role==='clue')this.scene.pulseStatic(s);
         void this.conn?.cmd('quest',{action:'talk',target:s.npcId}).then(r=>{
           const save=ui.get().char,zoneId=zone?.zone;
@@ -545,6 +557,7 @@ export class Game {
     }
 
     let interact = null as typeof st.interact;
+    if (st.hold) { const mv = this.input.move(); tickHold({ x: px, y: py }, Math.hypot(mv.x, mv.y) > 0.2, this.world.zone?.zone); }
     if (this.predictor.ready) {
       const s = this.scene.nearestInteractable(px, py);
       if (s?.poiId) interact = { role: 'clue', name: s.name };

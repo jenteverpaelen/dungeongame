@@ -23,6 +23,8 @@ import { World } from '../src/world';
 import type { Session } from '../src/net/session';
 import { runCommand } from '../src/commands';
 import { loadCharacter, saveCharacter, flushSaves, ensureDataDir } from '../src/persistence';
+import { xpToNext } from '../../shared/src/progression';
+import { storyMainXp, storyXp } from '../../shared/src/storyBudget';
 
 assert(process.env.DATA_DIR,'isolated DATA_DIR required');
 ensureDataDir();
@@ -33,7 +35,7 @@ test('authored destinations have reachable objectives, real bands, legal spawns 
   for(const id of ['cinderwash_kilns','kilnwatch_crown'])assert.equal(loadAdventure(id,1).theme,'ashen');
 });
 
-test('each class reaches level20 on story awards alone; full bags do not partially award XP and claimed history survives reload',async()=>{
+test('each class earns exactly the Act I story budget from story awards; full bags do not partially award XP and claimed history survives reload',async()=>{
   for(const classId of ['warrior','ranger','mage'] as const){
     const save=createCharacter('Frontier'+classId,classId,11),rng=new Rng(11);
     for(const q of QUESTS.filter(q=>q.chapter==='water_road'||q.chapter==='upper_road')){
@@ -45,12 +47,16 @@ test('each class reaches level20 on story awards alone; full bags do not partial
         assert('error' in planQuestReward(full,q,state));assert.deepEqual(full,before);
       }
       const result=planQuestReward(save,q,state);assert(!('error' in result));Object.assign(save,result.save);
-      if(q.unlocks){assert(zoneUnlocked(save,q.unlocks));assert(zoneLevelAllowed(save,q.unlocks));assert(save.level>=ZONES[q.unlocks].levelBand[0]);}
+      // Since the balance pass quests pay half their level span (BALANCE.md, STORY_XP_SHARE); the gate opens the route at any level.
+      if(q.unlocks){assert(zoneUnlocked(save,q.unlocks));assert(zoneLevelAllowed(save,q.unlocks));}
       assert('error' in planQuestReward(save,q,questState(save,q.id)!),'cannot repay a claimed quest');
     }
-    assert.equal(save.level,20);assert.equal(save.xp,0);assert.equal(save.stats.kills,0);assert(save.skillPoints>0);
+    const budget=QUESTS.filter(q=>q.chapter==='water_road'||q.chapter==='upper_road').reduce((n,q)=>n+(typeof q.reward==='object'?q.reward.xp??0:0),0);
+    let level=1,left=budget;while(left>=xpToNext(level)){left-=xpToNext(level);level++;}
+    assert.equal(save.level,level);assert.equal(save.xp,left);assert.equal(save.stats.kills,0);assert(save.skillPoints>0);
+    assert(Math.abs(budget-(storyMainXp(1,4)+storyMainXp(4,7)+storyXp(7,9)+storyMainXp(9,12)+storyMainXp(12,16)+storyMainXp(16,20)))<=6,'Act I story quests pay their zone spans minus the side-story share');
     await saveCharacter(save);await flushSaves();const restored=(await loadCharacter(save.id))!;
-    assert.equal(restored.level,20);assert(questState(restored,'last_draw')?.claimed);assert.equal(restored.inventory.filter(Boolean).length,6);
+    assert.equal(restored.level,level);assert(questState(restored,'last_draw')?.claimed);assert.equal(restored.inventory.filter(Boolean).length,6);
   }
 });
 

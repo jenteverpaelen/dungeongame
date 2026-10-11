@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter } from '../../shared/src/character';
 import { computeStats } from '../../shared/src/stats';
-import { questState, writeQuestState } from '../../shared/src/quests';
+import { contactSpot, questState, writeQuestState } from '../../shared/src/quests';
+import { QUESTS } from '../../shared/src/data/quests';
 import type { ClassId } from '../../shared/src/types';
 import { World } from '../src/world';
 import { Instance } from '../src/sim/instance';
@@ -21,12 +22,15 @@ function player(world:World,cls:ClassId='mage'){
   world.login(s,(you,zone)=>({t:'welcome',you,char:save,derived:s.derived,zone,time:Date.now(),world:world.infoFor(s)}));
   const inst=()=>s.rec!.inst as Instance,p=()=>inst().playerById(s.entityId)!;
   const at=(x:number,y:number)=>{Object.assign(p(),{x,y,hp:p().mhp,deadMs:0});Object.assign(p().mv,{x,y});};
-  const near=(id:string)=>{const n=inst().map.adventure!.interactions.find(i=>i.id===id)!;at(n.x+65,n.y);};
+  const near=(id:string)=>{const n=contactSpot(inst().map.adventure,id,save)!,cw=inst().cw;
+    const pt=Array.from({length:16},(_,i)=>({x:n.x+65*Math.cos(i*Math.PI/8),y:n.y+65*Math.sin(i*Math.PI/8)})).find(q=>cw.isFree(q.x,q.y,18)&&!cw.segmentBlocked(q.x,q.y,n.x,n.y))??{x:n.x+65,y:n.y};at(pt.x,pt.y);};
   const cmd=(op:Parameters<typeof runCommand>[2],a:Record<string,unknown>={})=>runCommand(s,world,op,a);
   const travel=(zone:string)=>cmd('travel',{zone});
   const waypoint=()=>{const n=inst().map.town!.npcs.find(n=>n.role==='waypoint')!;at(...n.approach);};
-  const unlock=()=>{writeQuestState(save,'silent_wheel',{revision:1,step:3,claimed:true});writeQuestState(save,'high_water',{revision:1,step:2,claimed:true});writeQuestState(save,'under_spillway',{revision:1,step:3,claimed:true});};
-  const accept=()=>{waypoint();assert(travel('rillwake_crossing').ok);near('tender');assert(cmd('quest',{action:'accept',quest:'pressure_below',target:'tender'}).ok);assert(travel('hearthmere').ok);};
+  const done=(id:string)=>{const q=QUESTS.find(q=>q.id===id)!;writeQuestState(save,id,{revision:q.revision,step:q.steps.length,claimed:true});};
+  const unlock=()=>{done('silent_wheel');done('high_water');done('under_spillway');};
+  // Hollis gives the pumpworks quest from the forecourt once the floodgate is open (docs/rework/quests/DESIGN.md §4).
+  const accept=()=>{waypoint();assert(travel('bracken_sluice').ok);near('foreman');const r=cmd('quest',{action:'accept',quest:'pressure_below',target:'foreman'});assert(r.ok,JSON.stringify(r));assert(travel('hearthmere').ok);};
   // Positions come from the zone data since the worlds rebuild (docs/rework/worlds/DECISIONS.md D-W07).
   const hatch=():[number,number]=>{const q=inst().map.portals.find(q=>q.to==='reedvault_pumpworks')!;return [q.x,q.y];};
   const outside=():[number,number]=>{const q=inst().map.portals.find(q=>q.to==='bracken_sluice')!;return [q.x,q.y];};
@@ -116,9 +120,9 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: complete aut
     const reward=questState(a.save,'pressure_below')!.reward!;assert(reward);
     const completedRun=a.inst();a.at(...a.outside());assert(a.travel('bracken_sluice').ok);assert(Math.hypot(a.p().x-a.hatch()[0],a.p().y-a.hatch()[1])<110,'return beside the hatch');
     a.at(...a.hatch());assert(a.travel('reedvault_pumpworks').ok);assert.equal(a.inst().dungeonState()!.stage,0,'completed run starts fresh');assert.notEqual(a.inst(),completedRun);
-    assert(a.travel('hearthmere').ok);a.waypoint();{const r=a.travel('rillwake_crossing');assert(r.ok,JSON.stringify(r));}a.near('tender');
+    assert(a.travel('hearthmere').ok);a.waypoint();{const r=a.travel('bracken_sluice');assert(r.ok,JSON.stringify(r));}a.near('foreman');
     a.save.inventory=a.save.inventory.map((_,i)=>({...structuredClone(a.save.equipment.mainhand!),id:`full-${i}`}));
-    const claim=()=>a.cmd('quest',{quest:'pressure_below',action:'claim',target:'tender'});
+    const claim=()=>a.cmd('quest',{quest:'pressure_below',action:'claim',target:'foreman'});
     assert(!claim().ok);assert(!questState(a.save,'pressure_below')!.claimed);a.save.inventory[0]=null;assert(claim().ok);assert(!claim().ok);
     assert.equal(a.save.inventory.filter(item=>item?.id===reward.id).length,1);
     await saveCharacter(a.save);await flushSaves();assert((await loadCharacter(a.save.id))!.quests!.pressure_below.claimed);

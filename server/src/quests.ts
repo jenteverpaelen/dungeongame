@@ -1,6 +1,6 @@
 import { QUESTS, questById } from '../../shared/src/data/quests';
 import { questText } from '../../shared/src/data/questMessages';
-import { questAvailable, questHasItem, questObjective, questState, trackedQuest, validQuestState, writeQuestState } from '../../shared/src/quests';
+import { bitCount, contactSpot, deleteQuestState, gatherMask, questAvailable, questCategory, questHasItem, questHasPick, questObjective, questState, validQuestState, writeQuestState } from '../../shared/src/quests';
 import { campaignSetReward } from '../../shared/src/campaignSets';
 import { QUEST_SERVICE_OPS, ZONE_WIDE, type QuestDef, type QuestState, type QuestTarget } from '../../shared/src/questTypes';
 import { SERVICE_ROLE } from '../../shared/src/townServices';
@@ -8,7 +8,7 @@ import type { CmdOp } from '../../shared/src/protocol';
 import type { CharacterSave, Item } from '../../shared/src/types';
 import { planQuestReward } from '../../shared/src/questRewards';
 import { recordIntro } from '../../shared/src/onboarding';
-import { generateItem, starterUpgrade } from '../../shared/src/items';
+import { generateItem, pickBase, starterUpgrade } from '../../shared/src/items';
 import { Rng } from '../../shared/src/math';
 import { XP_SHARE_RANGE } from './config';
 import { fail, ok, type CmdResult } from './world';
@@ -17,45 +17,64 @@ import type { Instance } from './sim/instance';
 import type { Mob, Player } from './sim/types';
 import { planQuestDelivery } from '../../shared/src/questDelivery';
 import { addXp } from '../../shared/src/progression';
+import { bountyClaim, creditBountyKill, creditBountyWave } from './bounties';
 
+/** Proximity + line of sight to a contact where this player sees it (phasing, docs/rework/quests/DESIGN.md §4). */
 function near(s:Session, target:QuestTarget):boolean {
   const inst=s.rec?.inst;
   if(!inst || inst.map.zone!==target.zone)return false;
-  const spot=inst.map.adventure?.interactions.find(i=>i.id===target.target);
+  const spot=contactSpot(inst.map.adventure,target.target,s.save);
+  if(spot)return spot.present&&inst.canInteract(s,spot.x,spot.y,spot.radius);
   const npc=inst.map.town?.npcs.find(i=>i.id===target.target);
-  return spot?inst.canInteract(s,spot.x,spot.y,spot.radius):!!npc&&inst.canInteract(s,npc.x,npc.y,npc.interactionRadius);
+  return !!npc&&inst.canInteract(s,npc.x,npc.y,npc.interactionRadius);
 }
+const ARMOUR_KINDS=new Set(['head','shoulders','chest','hands','wrists','waist','legs','feet']);
+function armourPiece(rng:Rng,save:CharacterSave,ilvl:number):Item {
+  let base=pickBase(rng,save.classId,true);
+  for(let i=0;i<40&&!ARMOUR_KINDS.has(base.kind);i++)base=pickBase(rng,save.classId,true);
+  return generateItem(rng,{ilvl,classId:save.classId,rarity:'magic',smartChance:1,base:base.id});
+}
+/** Reserve the item reward(s) when the last objective completes, at the level this quest's XP brings the character to. */
 function reserve(save:CharacterSave,q:QuestDef,state:QuestState) {
-  if(state.step!==q.steps.length || !questHasItem(q) || state.reward)return;
-  if(typeof q.reward==='object'&&q.reward.item==='starter_upgrade'){state.reward=starterUpgrade(new Rng((Math.random()*0xffffffff)>>>0),save.classId);return;}
+  if(state.step!==q.steps.length || !questHasItem(q))return;
+  const rng=()=>new Rng((Math.random()*0xffffffff)>>>0);
+  if(typeof q.reward==='object'&&q.reward.item==='starter_upgrade'){state.reward??=starterUpgrade(rng(),save.classId);return;}
   const projected=structuredClone(save);
   if(typeof q.reward==='object')addXp(projected,q.reward.xp??0);
   if(typeof q.reward==='object'&&(q.reward.item==='class_set_shoulders'||q.reward.item==='class_set_feet')){
-    state.reward=campaignSetReward(new Rng((Math.random()*0xffffffff)>>>0),save.classId,q.reward.item,projected.level);return;
+    state.reward??=campaignSetReward(rng(),save.classId,q.reward.item,projected.level);return;
   }
-  state.reward=generateItem(new Rng((Math.random()*0xffffffff)>>>0),{
-    ilvl:projected.level,classId:save.classId,rarity:'magic',smartChance:1,
-    base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword',
-  });
+  state.reward??=generateItem(rng(),{ilvl:projected.level,classId:save.classId,rarity:'magic',smartChance:1,base:save.classId==='mage'?'staff':save.classId==='ranger'?'bow':'sword'});
+  if(questHasPick(q))state.rewardAlt??=armourPiece(rng(),save,projected.level);
 }
 function nextState(save:CharacterSave,q:QuestDef,state:QuestState):QuestState {
-  const next={...state,step:state.step+1,progress:0};
+  const {parts:_parts,...rest}=state;
+  const next={...rest,step:state.step+1,progress:0};
   reserve(save,q,next);
   return next;
 }
+/** A hidden quest returns to the tracker when it progresses (docs/rework/quests/DESIGN.md §3, REFERENCES R5). */
+function reveal(save:CharacterSave,id:string){if(save.questHidden?.includes(id)){save.questHidden=save.questHidden.filter(x=>x!==id);if(!save.questHidden.length)delete save.questHidden;}}
 function advanceState(save:CharacterSave,q:QuestDef,state:QuestState) {
-  writeQuestState(save,q.id,nextState(save,q,state));
+  writeQuestState(save,q.id,nextState(save,q,state));reveal(save,q.id);
 }
 function countEvent(save:CharacterSave,q:QuestDef,state:QuestState) {
   const need=q.steps[state.step]?.count??1,progress=(state.progress??0)+1;
   if(progress>=need)advanceState(save,q,state);
-  else writeQuestState(save,q.id,{...state,progress});
+  else {writeQuestState(save,q.id,{...state,progress});reveal(save,q.id);}
+}
+function progressNotice(save:CharacterSave,q:QuestDef):string {
+  const s=questState(save,q.id)!;
+  return s.step===q.steps.length?`${questText(q.title)}: ${questText('ui.quest.ready')}`:`${questText(q.title)}: ${questObjective(save,q).text}`;
 }
 function advance(inst:Instance,p:Player,q:QuestDef,state:QuestState) {
   countEvent(p.save,q,state);
   p.link.markDirty();
-  inst.emitTo(p.id,{e:'notice',kind:'info',text:`${questText(q.title)}: ${questObjective(p.save,q).text}`});
+  inst.emitTo(p.id,{e:'notice',kind:'info',text:progressNotice(p.save,q)});
 }
+/** Hold-to-use (repair) starts, per session; the finish must come `hold` ms of simulation time later (DESIGN.md §6). */
+const holds=new WeakMap<Session,{quest:string;step:string;target:string;at:number;key:string}>();
+export const HOLD_TOLERANCE_MS=150;
 
 export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
   const inst=s.rec?.inst;
@@ -75,6 +94,11 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
     if(!inst || typeof a.target!=='string' || !near(s,{zone:inst.map.zone,target:a.target}))return fail('Stand beside the person or object to interact');
     return ok({target:a.target});
   }
+  if(a.action==='bountyClaim') {
+    if(!inst)return fail('Not in a zone');
+    if(!near(s,{zone:inst.map.zone,target:'bounty_board'}))return fail('Stand beside the bounty board');
+    const r=bountyClaim(s,inst as unknown as Instance);return r.ok?ok(r.data):fail(r.err);
+  }
   const q=typeof a.quest==='string'?questById(a.quest):undefined;
   if(!q)return fail('Unknown quest');
   const state=questState(s.save,q.id);
@@ -82,26 +106,46 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
   if(!questAvailable(s.save,q))return fail('Complete the preceding adventure first');
   const expectedCycle=(state?.cycle??0)+(a.action==='accept'&&state?.claimed?1:0);
   if(q.repeat&&a.cycle!==expectedCycle)return fail('This quest cycle changed; reopen the journal');
-  if(a.action==='track'||a.action==='untrack') {
+  // Tracker: focus (pin) drives the trail; hide removes a row until the quest progresses. `track`/`untrack` are the old names.
+  if(['track','untrack','focus','unfocus','hide','show'].includes(a.action as string)) {
     if(state?.claimed)return fail('This adventure is already completed');
-    if(a.action==='untrack'&&trackedQuest(s.save)?.id!==q.id)return ok();
-    s.save.trackedQuest=a.action==='untrack'?'':q.id;s.changed(false);return ok();
+    const hidden=new Set(s.save.questHidden??[]);
+    if(a.action==='track'||a.action==='focus'){s.save.trackedQuest=q.id;hidden.delete(q.id);}
+    else if(a.action==='unfocus'){if(s.save.trackedQuest===q.id||s.save.trackedQuest===undefined)s.save.trackedQuest='';}
+    else if(a.action==='show')hidden.delete(q.id);
+    else {hidden.add(q.id);if(s.save.trackedQuest===q.id)s.save.trackedQuest='';}
+    if(hidden.size)s.save.questHidden=[...hidden].slice(0,128);else delete s.save.questHidden;
+    s.changed(false);return ok();
+  }
+  if(a.action==='abandon') {
+    if(!state||state.claimed)return fail('Nothing to abandon');
+    if(q.tutorial)return fail('The first lesson cannot be abandoned');
+    deleteQuestState(s.save,q.id);reveal(s.save,q.id);
+    if(s.save.trackedQuest===q.id)delete s.save.trackedQuest;
+    s.changed(false);return ok();
   }
   if(!inst)return fail('Not in a zone');
+  const simT=(inst as unknown as Instance).t;
   if(a.action==='accept') {
     if(state&&(!state.claimed||!q.repeat))return fail('This adventure is already recorded in your journal');
     if(a.target!==q.start.target || !near(s,q.start))return fail('Speak with the quest giver in person');
     const cycle=state?(state.cycle??0)+1:0;
     if(!Number.isSafeInteger(cycle+1))return fail('Quest history is full');
     writeQuestState(s.save,q.id,{revision:q.revision,step:0,claimed:false,...(q.repeat?{cycle,completions:cycle}:{})});
-    s.save.trackedQuest=q.id;
+    reveal(s.save,q.id);
+    // Auto-track (R5, R20): every accepted quest shows; a story quest, or the first quest, takes the focus.
+    if(questCategory(q)==='story'||!s.save.trackedQuest)s.save.trackedQuest=q.id;
   } else {
     if(!state)return fail('Accept this adventure first');
     if(state.claimed)return fail('This adventure is already completed');
     if(a.action==='claim') {
       if(a.target!==q.finish.target || !near(s,q.finish))return fail('Return to the quest giver in person');
       if(state.step!==q.steps.length)return fail('Finish the field objectives first');
-      const plan=planQuestReward(s.save,q,state);
+      // A save migrated from before the reward pick may hold only the weapon; reserve the armour now.
+      let claimState=state;
+      if(questHasPick(q)&&(!state.reward||!state.rewardAlt)){claimState={...state};reserve(s.save,q,claimState);writeQuestState(s.save,q.id,claimState);}
+      const pick=a.pick==='alt'&&questHasPick(q)?'alt':'main';
+      const plan=planQuestReward(s.save,q,claimState,pick);
       if('error' in plan)return fail(plan.error);
       Object.assign(s.save,plan.save);
       if(plan.save.trackedQuest===undefined)delete s.save.trackedQuest;
@@ -123,14 +167,34 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
       for(const slot of plan.slots)s.save.inventory[slot]=null;
       s.save.gems=plan.gems;
       writeQuestState(s.save,q.id,next);
-    } else if(a.action==='inspect') {
+    } else if(a.action==='holdStart'||a.action==='inspect') {
       if(typeof a.target!=='string' || !near(s,{zone:inst.map.zone,target:a.target}))return fail('Stand beside the object to investigate');
-      const matches=(step:QuestDef['steps'][number])=>step.kind==='interact'&&step.zone===inst.map.zone&&step.target===a.target;
-      const current=q.steps[state.step];
-      if(current&&matches(current)) {
-        if(q.repeat&&(a.revision!==q.revision||a.step!==current.id))return fail('This investigation changed; reopen the journal');
-        advanceState(s.save,q,state);
-      } else if(!q.steps.slice(0,state.step).some(matches))return fail('Follow the current journal objective first');
+      const step=q.steps[state.step];
+      const matches=(st:QuestDef['steps'][number])=>st.kind==='interact'&&st.zone===inst.map.zone&&(st.targets?st.targets.includes(a.target as string):st.target===a.target);
+      if(!step||!matches(step)) {
+        if(a.action==='inspect'&&q.steps.slice(0,state.step).some(matches))return ok(); // re-reading a finished clue is harmless
+        return fail('Follow the current journal objective first');
+      }
+      if(q.repeat&&(a.revision!==q.revision||a.step!==step.id))return fail('This investigation changed; reopen the journal');
+      const index=step.targets?step.targets.indexOf(a.target):-1,parts=state.parts??0;
+      if(index>=0&&parts&(1<<index))return fail('Already done; find the others');
+      if(step.ordered&&index>=0&&index!==bitCount(parts)) {
+        if(a.action==='holdStart')return fail('Not that one yet');
+        writeQuestState(s.save,q.id,{...state,parts:0});s.changed(false);
+        return fail(`Wrong order. Start again with the first: ${inst.map.adventure?.interactions.find(i=>i.id===step.targets![0])?.name??step.targets![0]}`);
+      }
+      const key=`${q.id}/${step.id}/${a.target}`;
+      if(step.hold) {
+        if(a.action==='holdStart'){holds.set(s,{quest:q.id,step:step.id,target:a.target,at:simT,key});return ok({hold:step.hold});}
+        const h=holds.get(s);
+        if(!h||h.key!==key||simT-h.at<step.hold-HOLD_TOLERANCE_MS)return fail('Keep working on it a little longer');
+        holds.delete(s);
+      } else if(a.action==='holdStart')return ok({hold:0});
+      if(step.targets){
+        const done=parts|(1<<index);
+        if(done===gatherMask(step))advanceState(s.save,q,state);
+        else {writeQuestState(s.save,q.id,{...state,parts:done});reveal(s.save,q.id);}
+      } else advanceState(s.save,q,state);
     } else return fail('Unknown quest action');
   }
   s.changed(false);return ok();
@@ -156,6 +220,7 @@ export function creditQuestKill(inst:Instance,mob:Mob,witnesses:Player[],killer:
       if(matches)advance(inst,p,q,state);
     }
   }
+  creditBountyKill(inst,mob,witnesses);
 }
 
 /** Called only after owned ground loot was successfully inserted into inventory. */
@@ -207,6 +272,7 @@ export function creditQuestWave(inst:Instance,p:Player,target:string) {
     const step=q.steps[state.step];
     if(step?.kind==='wave'&&step.zone===inst.map.zone&&step.target===target)advance(inst,p,q,state);
   }
+  if(inst.kind==='field')creditBountyWave(inst,p,target);
 }
 
 /** Called once by RiftRuntime.complete, using its existing present-member eligibility. */

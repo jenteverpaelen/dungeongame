@@ -52,6 +52,8 @@ z.decor('pillar', ...P(36, 30)); z.decor('pillar', ...P(64, 30)); z.light(...P(5
 z.landmark('Pump Heart', ...P(50, 28));
 z.contact('work_record', 'Maintenance record', ...P(54.5, 4.5), 'ledger');
 z.decor('table', ...P(46, 5.5)); z.light(...P(50, 5), 0xffc070, 150);
+// Once the pumps run again (br_pumping) the heart glows steady and the hall lamps burn.
+z.phase('br_pumping', true, () => { z.light(...P(50, 20), 0x9ad8ff, 300, 0.05); z.emit('motes', ...P(61, 13), 6); z.light(...P(50, 66), 0xffc070, 220); });
 z.landmark('Record Room', ...P(50, 9));
 
 z.dungeon = { stages: [

@@ -15,8 +15,8 @@ z.land('mud', riverPoly([P(48, 66), P(52, 71), P(56, 70)], 2.4 * S));
 
 z.region('camp', P(10.5, 70), [6 * S, 4.6 * S], { role: 'outpost', ground: 'dirt' });
 z.region('lower_road', P(22, 63), [5.2 * S, 3.6 * S], { roster: marsh, packs: 1, ground: 'meadow' });
-z.region('basin', P(56, 59), [7.4 * S, 5.6 * S], { roster: marsh, packs: 2, ground: 'mud' });
-z.region('weir', P(50, 72), [4.6 * S, 3.4 * S], { roster: marsh, packs: 1, ground: 'mud' });
+const basin = z.region('basin', P(56, 59), [7.4 * S, 5.6 * S], { roster: marsh, packs: 2, ground: 'mud' });
+const weir = z.region('weir', P(50, 72), [4.6 * S, 3.4 * S], { roster: marsh, packs: 1, ground: 'mud' });
 z.region('steps', P(63, 44), [5.6 * S, 4.2 * S], { role: 'yard', ground: 'stone', roster: works, packs: 1 });
 z.region('forecourt', P(64.5, 31), [6.6 * S, 4.4 * S], { role: 'arena', ground: 'flag' });
 z.region('floodgate', P(67, 15.5), [7.5 * S, 4.6 * S], { role: 'arena', ground: 'stone', dress: 0 });
@@ -42,7 +42,10 @@ z.road([P(66, 24), P(76, 22), P(85, 20), P(89, 12)], 150, 'dirt');
 // Maintenance camp: Orren's crew keeps a foothold above the flood.
 z.camp(...P(11, 71), { tents: 2 });
 z.portal(...P(6.5, 72.5), 'rillwake_crossing', 'Back to Rillwake Crossing');
-z.contact('foreman', 'Sluice foreman', ...P(14.5, 67.2), 'person');
+z.contact('foreman', 'Hollis · Sluice foreman', ...P(14.5, 67.2), 'person');
+z.board(...P(17.2, 63.8), 'Maintenance Camp bounty board');
+// Hollis walks up to the forecourt once the floodgate opens (br_drained), next to the pumpworks hatch.
+z.moveTo('foreman', 'br_drained', ...P(69.3, 33.1));
 z.resident('br_guard', 'guard', 'Causeway watch', ...P(17.5, 70.5), 30);
 z.decor('noticeboard', ...P(8, 66.5)); z.decor('cart', ...P(5.5, 68.6));
 z.landmark('Maintenance Camp', ...P(10.5, 74));
@@ -51,6 +54,11 @@ z.pack('causeway', ...P(28.5, 60), ['thornling', 'bog_slime', 'gloomshroom', 'gr
 z.landmark('Sluice Causeway', ...P(41.5, 58.5));
 z.pack('basin', ...P(57, 61), ['siltusk', 'gloomshroom', 'thornling', 'bog_slime', 'grave_bat']);
 z.decor('rowboat', ...P(46.4, 63), 1, 2); z.decor('barrels', ...P(60.5, 55)); z.landmark('Flooded Basin', ...P(56, 64));
+// The basin and the weir stand under flood water until the floodgate opens (br_drained).
+z.phase('br_drained', false, () => { z.overlay('flood', basin); z.overlay('flood', weir); });
+z.contact('cog_basin', 'Silted weir cog', ...P(61.6, 57.4), 'marker');
+z.contact('cog_weir', 'Silted weir cog', ...P(47.7, 70.1), 'marker');
+z.contact('cog_reeds', 'Silted weir cog', ...P(80.6, 64.6), 'marker');
 z.contact('weir_valve', 'Jammed weir valve', ...P(47.5, 74), 'mechanism');
 z.pack('weir', ...P(51.5, 70.5), ['reedclaw', 'bog_slime', 'reedclaw', 'siltusk', 'bog_slime', 'reedclaw']);
 z.event('bursting_weir', 'The Bursting Weir', 'weir_valve', 'weir', 'The weir valve is jammed with silt and something has made a nest of the overflow. Free it and they come out of the water.', 'Force the valve');
@@ -63,7 +71,8 @@ z.location('forecourt', ...P(64.5, 32));
 z.pack('keeper', ...P(66, 24.5), [{ type: 'mossback', dx: 0, dy: 0, tier: 2, name: 'The Rootbound Keeper', questTarget: true, combat: 'keeper' }]);
 z.wall(rect(58 * S, 11 * S, 3.4 * S, 0.5 * S)); z.wall(rect(73 * S, 11 * S, 3.4 * S, 0.5 * S));
 z.contact('floodgate', 'Floodgate mechanism', ...P(65, 14), 'mechanism');
-z.wheel = { x: Math.round(71 * S), y: Math.round(13 * S), radius: 38 };
+z.wheel = { x: Math.round(71 * S), y: Math.round(13 * S), radius: 38, spin: 'br_drained' };
+z.phase('br_drained', true, () => { z.emit('fog', ...P(67, 9), 3); z.light(...P(71, 13), 0x9ad8ff, 170); });
 z.decor('pillar', ...P(60, 18.5), 1, 1); z.decor('pillar', ...P(74, 18.5)); z.light(...P(65, 13.5), 0xffc070, 170);
 z.landmark('Spillway Forecourt', ...P(64.5, 35)); z.landmark('Floodgate', ...P(67, 19.5));
 
@@ -92,7 +101,12 @@ z.emit('birds', ...P(56, 50), 4); z.emit('fireflies', ...P(10, 30), 10); z.emit(
 z.critters('frogs', ...P(52, 70), 120, 4); z.critters('birds', ...P(76, 62), 200, 5);
 
 // Second pass (LOG W4): big landmarks seen from afar, more people at work.
-z.structure('pumphouse', ...P(78.3, 38.9)); z.structure('watchtower', ...P(33, 51.5)); z.structure('waterwheel', ...P(46.2, 77));
+z.structure('pumphouse', ...P(78.3, 38.9)); z.structure('watchtower', ...P(33, 51.5)); z.structure('waterwheel', ...P(46.2, 77), 0, false, 'br_weir');
+// The pumps run (br_pumping): the pumphouse breathes, two pump hands at the hatch.
+z.phase('br_pumping', true, () => {
+  z.emit('smoke', ...P(78.3, 32.5), 6); z.light(...P(78.3, 38.5), 0xffc070, 200);
+  z.resident('br_pumphand1', 'worker', 'Pump hand', ...P(76.6, 45.6), 20); z.resident('br_pumphand2', 'carpenter', 'Pump fitter', ...P(86.4, 41.2), -20);
+});
 z.structure('ruinhouse', ...P(6.5, 24.5)); z.structure('stonetower', ...P(79.5, 12)); z.structure('dryingrack', ...P(79, 66.6));
 z.resident('br_porter', 'porter', 'Sluice porter', ...P(7.5, 69), 20); z.resident('br_smith', 'carpenter', 'Gate fitter', ...P(61.8, 47.6), -20);
 z.walker('br_patrol', 'guard', [P(56, 58), P(60.5, 51), P(63, 44.5), P(60.5, 51)], 45, 5); z.stores(...P(84, 46));

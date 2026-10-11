@@ -13,6 +13,8 @@ import { CLASSES, isClassId } from '../../shared/src/data/classes';
 import { ZONES } from '../../shared/src/data/zones';
 import type { CharacterSave } from '../../shared/src/types';
 import { SAVE_VERSION } from '../../shared/src/saveVersion';
+import { migrateQuests } from '../../shared/src/questMigration';
+import { normalizeBounties } from '../../shared/src/bounties';
 import { normalizeAutoCast } from '../../shared/src/autoCast';
 import { normalizeTargetPriority } from '../../shared/src/targetPriority';
 import { normalizeSavedAutoRules } from '../../shared/src/autoCastRules';
@@ -207,6 +209,9 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
 
   const st = (save.stats ??= { kills: 0, elites: 0, legendaries: 0, rifts: 0, playMs: 0, deaths: 0 });
   for (const k of ['kills', 'elites', 'legendaries', 'rifts', 'playMs', 'deaths'] as const) st[k] = num(st[k], 0);
+  // Quest rework (docs/rework/quests): legacy Silent Wheel record, reworked revisions, retired contracts; bounty boards.
+  migrateQuests(save);
+  normalizeBounties(save);
   // Preserve owned objects and saved combat preferences.
   seedCollection(save, ownedItems(save));
   save.version = SAVE_VERSION;

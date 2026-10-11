@@ -1,7 +1,7 @@
 // Zone kit (docs/rework/worlds/DESIGN.md §1): a short authored plan → AdventureData + a visual-only paint block.
 // Everything is deterministic (hashes of the zone id and coordinates), so server and client build identical collision.
 import type { Point } from './townTypes';
-import type { AdventureData, Biome, CritterKind, ZoneGroundKind, ZonePaint, ZonePoi } from './adventureTypes';
+import type { AdventureData, Biome, CritterKind, ZoneGroundKind, ZonePaint, ZonePhase, ZonePoi } from './adventureTypes';
 import type { NpcRole, NpcSpot, Portal, Prop } from './mapgen';
 import { TownCollision } from './townCollision';
 import { groundBoundary, groundTester, inPolygon, type GroundGeometry } from './townGeometry';
@@ -111,7 +111,9 @@ export class ZoneBuilder {
   private reserved: { x: number; y: number; r: number }[] = [];
   private lanes: { a: Point; b: Point; w: number }[] = [];
   private seed: number;
-  private pending: { kind: keyof typeof STRUCTURES; x: number; y: number; v: number; flip: boolean }[] = [];
+  private pending: { kind: keyof typeof STRUCTURES; x: number; y: number; v: number; flip: boolean; spin?: string }[] = [];
+  /** While set, residents, walkers, lights, emitters, sprite decor, overlays and fires belong to this per-player phase. */
+  private phasing: ZonePhase | null = null;
   constructor(readonly id: string, readonly size: [number, number], readonly biome: Biome, readonly entry: Point, readonly opts: { theme?: 'glade' | 'ashen'; surface?: AdventureData['surface'] } = {}) {
     this.paint = { biome, landscape: [], ground: [], decor: [], lights: [], emitters: [], residents: [], walkers: [], critters: [] };
     this.seed = strSeed(id);
@@ -155,6 +157,40 @@ export class ZoneBuilder {
     this.interactions.push({ id, name, x, y, radius: 110, kind });
     this.reserve(x, y, 120);
   }
+  /** A per-player contact: present only while world state `key` is on. Not solid, so collision is the same for everyone. */
+  appear(id: string, key: string) {
+    const i = this.interactions.find((c) => c.id === id), n = this.npcs.find((c) => c.id === id);
+    if (!i || !n) throw new Error(`appear: unknown contact ${id}`);
+    i.when = key; n.r = 0;
+  }
+  /** Phasing (DESIGN.md §4): once world state `key` is on, the contact stands at (x, y) for that player. Not solid. */
+  moveTo(id: string, key: string, x: number, y: number) {
+    const i = this.interactions.find((c) => c.id === id), n = this.npcs.find((c) => c.id === id);
+    if (!i || !n) throw new Error(`moveTo: unknown contact ${id}`);
+    (i.moves ??= []).push({ key, x, y }); n.r = 0; this.reserve(x, y, 120);
+  }
+  /** The zone's bounty board (DESIGN.md §5). */
+  board(x: number, y: number, name = 'Bounty board') {
+    this.contact('bounty_board', name, x, y, 'board');
+    // The camp's decorative notice board would read as a second board: the bounty board replaces it.
+    for (let i = this.paint.decor.length - 1; i >= 0; i--) { const d = this.paint.decor[i]; if (d.kind === 'noticeboard' && Math.hypot(d.x - x, d.y - y) < 700) this.paint.decor.splice(i, 1); }
+  }
+  /** Visuals inside `fn` show only while world state `key` is on (`on`) or still off (`!on`), per player. */
+  phase(key: string, on: boolean, fn: () => void) {
+    const phases = (this.paint.phases ??= []);
+    let ph = phases.find((p) => p.key === key && p.on === on);
+    if (!ph) { ph = { key, on, residents: [], walkers: [], lights: [], emitters: [], decor: [], overlays: [], fires: [] }; phases.push(ph); }
+    const prev = this.phasing; this.phasing = ph;
+    try { fn(); } finally { this.phasing = prev; }
+  }
+  /** Phase-only: flood water over walkable ground (`flood`) or still water that appears (`pool`). */
+  overlay(kind: 'flood' | 'pool', polygon: Point[]) {
+    if (!this.phasing) throw new Error('overlay outside a phase'); this.phasing.overlays.push({ kind, polygon });
+  }
+  /** Phase-only: an open fire (flames and glow). */
+  fire(x: number, y: number, s = 1) {
+    if (!this.phasing) throw new Error('fire outside a phase'); this.phasing.fires.push({ x, y, s }); this.phasing.lights.push({ x, y: y - 20, color: 0xffb060, radius: 220 * s, flicker: 0.3 });
+  }
   /** Story or authored pack. Members may be plain monster ids (formation offsets) or explicit members. */
   pack(id: string, x: number, y: number, members: (string | Member)[]) {
     this.encounters.push({ id, x, y, members: members.map((m, i) => typeof m === 'string' ? { type: m, dx: FORMATION[i % FORMATION.length][0], dy: FORMATION[i % FORMATION.length][1] } : { ...m, dx: m.dx ?? FORMATION[i % FORMATION.length][0], dy: m.dy ?? FORMATION[i % FORMATION.length][1] }) });
@@ -173,12 +209,15 @@ export class ZoneBuilder {
     this.light(x, y - 30, kind === 'empowered' ? 0xff9a5a : kind === 'frenzied' ? 0x9ad8ff : 0xd8b0ff, 160);
   }
   cache(id: string, x: number, y: number, name = 'Hidden cache') { this.pois.push({ id, kind: 'cache', name, x, y, radius: 110 }); this.reserve(x, y, 100); }
-  light(x: number, y: number, color: number, radius: number, flicker = 0.12) { this.paint.lights.push({ x, y, color, radius, flicker }); }
-  emit(kind: ZonePaint['emitters'][number]['kind'], x: number, y: number, rate = 6) { this.paint.emitters.push({ kind, x, y, rate }); }
+  light(x: number, y: number, color: number, radius: number, flicker = 0.12) { (this.phasing ?? this.paint).lights.push({ x, y, color, radius, flicker }); }
+  emit(kind: ZonePaint['emitters'][number]['kind'], x: number, y: number, rate = 6) { (this.phasing ?? this.paint).emitters.push({ kind, x, y, rate }); }
   critters(kind: CritterKind, x: number, y: number, r = 180, n = 5) { this.paint.critters.push({ kind, x, y, r, n }); }
-  resident(id: string, look: string, name: string, x: number, y: number, facing?: number) { this.paint.residents.push({ id, look, name, x, y, ...(facing !== undefined ? { facing } : {}) }); this.reserve(x, y, 50); }
-  walker(id: string, look: string, path: Point[], speed = 55, pause = 3) { this.paint.walkers.push({ id, look, path, speed, pause }); }
-  decor(kind: string, x: number, y: number, s = 1, v?: number, flip?: boolean) { this.paint.decor.push({ kind, x, y, ...(s !== 1 ? { s } : {}), ...(v !== undefined ? { v } : {}), ...(flip ? { flip } : {}) }); }
+  resident(id: string, look: string, name: string, x: number, y: number, facing?: number) { (this.phasing ?? this.paint).residents.push({ id, look, name, x, y, ...(facing !== undefined ? { facing } : {}) }); this.reserve(x, y, 50); }
+  walker(id: string, look: string, path: Point[], speed = 55, pause = 3) { (this.phasing ?? this.paint).walkers.push({ id, look, path, speed, pause }); }
+  decor(kind: string, x: number, y: number, s = 1, v?: number, flip?: boolean) {
+    if (this.phasing && ZONE_FLAT_KINDS.has(kind)) throw new Error(`phase decor must be a sprite kind, not flat ${kind}`);
+    (this.phasing ?? this.paint).decor.push({ kind, x, y, ...(s !== 1 ? { s } : {}), ...(v !== undefined ? { v } : {}), ...(flip ? { flip } : {}) });
+  }
   /** Solid prop (collision circle r × s). */
   solid(kind: string, x: number, y: number, s = 1, v = 0, r?: number) { this.scenery.push({ k: kind, x, y, r: r ?? SOLID_R[kind] ?? 20, s, v }); }
   sound(kind: 'water' | 'wind' | 'fire', x: number, y: number, radius = 720) { this.sounds.push({ id: `${kind}-${this.sounds.length}`, kind, position: [x, y], radius }); }
@@ -225,7 +264,7 @@ export class ZoneBuilder {
   /** Fence pieces along a polyline (decor; never a wall). */
   fence(points: Point[]) { for (let i = 1; i < points.length; i++) { const [x0, y0] = points[i - 1], [x1, y1] = points[i], n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / 64)); for (let k = 0; k < n; k++) this.decor('fence', Math.round(x0 + (x1 - x0) * (k + 0.5) / n), Math.round(y0 + (y1 - y0) * (k + 0.5) / n), 1, k % 3); } }
   /** A big authored landmark with a solid base footprint (see STRUCTURES). */
-  structure(kind: keyof typeof STRUCTURES, x: number, y: number, v = 0, flip = false) { this.pending.push({ kind, x, y, v, flip }); }
+  structure(kind: keyof typeof STRUCTURES, x: number, y: number, v = 0, flip = false, spin?: string) { this.pending.push({ kind, x, y, v, flip, ...(spin ? { spin } : {}) }); }
   /** Place pending landmarks: a footprint never touches a route, a contact, a portal, a spawn or another landmark; a
    *  blocked one slides away deterministically (≤ 480 u), else it is left out. Adds the solid base and its lights. */
   private placeStructures() {
@@ -245,7 +284,7 @@ export class ZoneBuilder {
       if (!at) continue;
       const [x, y] = at, r = rect(Math.round(x - w / 2), Math.round(y - d), w, d); placed.push(r);
       this.wall(r);
-      (this.paint.structures ??= []).push({ kind: s.kind, x, y, w, d, ...(s.v ? { v: s.v } : {}), ...(s.flip ? { flip: s.flip } : {}) });
+      (this.paint.structures ??= []).push({ kind: s.kind, x, y, w, d, ...(s.v ? { v: s.v } : {}), ...(s.flip ? { flip: s.flip } : {}), ...(s.spin ? { spin: s.spin } : {}) });
       this.reserve(x, y - d / 2, Math.max(w, d) / 2 + 50);
       if (s.kind === 'kilnstack') { this.emit('smoke', x, y - 330, 7); this.light(x, y - 20, 0xff8a3a, 220, 0.25); }
       if (s.kind === 'beacontower') this.light(x, y - 40, 0xffd070, 260, 0.2);

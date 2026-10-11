@@ -17,6 +17,9 @@ import { inPolygon } from './townGeometry';
 import { validateAdventureAmbience } from './adventureAmbience';
 import { DIFFICULTIES } from './progression';
 import { validateAdventureReachability } from './adventureReachability';
+import { WORLD_STATES } from './data/worldStates';
+import { BOUNTY_BOARDS, BOUNTIES_PER_BOARD, bountyKey, drawBounties } from './bounties';
+import { storyXp } from './storyBudget';
 
 /** Semantic references, prerequisite cycles and actual player-radius authored routes. */
 export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
@@ -26,7 +29,7 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
   const target=(t:QuestTarget,kind:QuestStep['kind'],path:string,step?:QuestStep)=>{
     const a=ADVENTURES[t.zone];
     const person=a?.interactions.some(i=>i.id===t.target&&i.kind==='person')||t.zone===town.id&&town.npcs.some(n=>n.id===t.target&&['blacksmith','jeweler','mystic','healer','vendor','quest'].includes(n.role));
-    const found=kind==='interact'?a?.interactions.some(i=>i.id===t.target)||t.zone===town.id&&town.npcs.some(n=>n.id===t.target)
+    const found=kind==='interact'?(step?.targets??[t.target]).every(id=>a?.interactions.some(i=>i.id===id)||t.zone===town.id&&town.npcs.some(n=>n.id===id))
       :kind==='deliver'||kind==='talk'?person
       :kind==='rift'?t.zone==='rift'&&t.target==='completion'
       :kind==='reach'?a?.locations.some(i=>i.id===t.target)
@@ -71,7 +74,22 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
       else check(s.minDifficulty===undefined,path,'rift difficulty on a different objective kind');
       if(s.kind==='service')check(!!s.serviceOp&&QUEST_SERVICE_OPS.includes(s.serviceOp),path,'unsupported service operation');
       else check(s.serviceOp===undefined,path,'service operation on a different objective kind');
+      // Gather / ordered / hold (docs/rework/quests/DESIGN.md §6).
+      if(s.targets!==undefined){
+        check(s.kind==='interact'&&Array.isArray(s.targets)&&s.targets.length>=2&&s.targets.length<=8&&new Set(s.targets).size===s.targets.length,path,'gather needs 2–8 distinct interact targets');
+        check(s.target===s.targets[0],path,'gather target must be its first listed object');
+        check(s.count===undefined,path,'gather counts its targets, not a count');
+      }
+      check(!s.ordered||!!s.targets,path,'ordered needs gather targets');
+      if(s.hold!==undefined)check(s.kind==='interact'&&Number.isInteger(s.hold)&&s.hold>=500&&s.hold<=6000,path,'hold is 500–6000 ms on an interact objective');
+      // A per-player contact must already be present when this step needs it.
+      for(const id of s.targets??[s.target]){
+        const c=ADVENTURES[s.zone]?.interactions.find(i=>i.id===id),cond=c?.when?WORLD_STATES[c.when]:undefined;
+        if(c?.when)check(!!cond&&cond.quest===q.id&&(cond.step??q.steps.length)<=i,path,`contact ${id} is not present yet at this step`);
+      }
     }
+    for(const [end,t] of [['start',q.start],['finish',q.finish]] as const)check(!ADVENTURES[t.zone]?.interactions.find(c=>c.id===t.target)?.when,q.id,`${end} contact must always be present`);
+    check(QUEST_MESSAGES[q.offer].length<=511,q.id,'offer text exceeds 511 characters (docs/rework/quests/REFERENCES.md R1)');
     for(const id of q.requires)check(ids.has(id),q.id,`unknown prerequisite ${id}`);
     for(const zone of questUnlocks(q))check(Object.hasOwn(ZONES,zone),q.id,`unknown unlocked zone ${zone}`);
   }
@@ -84,7 +102,50 @@ export function validateQuests(quests:readonly QuestDef[]=QUESTS):string[] {
   };
   for(const q of quests)visit(q.id);
   errors.push(...validateQuestGraph(quests),...validateDialogues());
+  if(quests===QUESTS)errors.push(...validateWorldStates(),...validateBounties(),...validateStoryBudget());
   return errors;
+}
+
+/** Every world-state key used by a zone exists and points at a real quest milestone (docs/rework/quests/DESIGN.md §7). */
+export function validateWorldStates():string[] {
+  const errors:string[]=[];
+  for(const [key,c] of Object.entries(WORLD_STATES)){
+    const q=QUESTS.find(d=>d.id===c.quest);
+    if(!q)errors.push(`world state ${key}: unknown quest ${c.quest}`);
+    else if(c.step!==undefined&&(!Number.isInteger(c.step)||c.step<1||c.step>q.steps.length))errors.push(`world state ${key}: step outside ${q.id}`);
+    if(!Object.hasOwn(QUEST_MESSAGES,`ws.${key}`))errors.push(`world state ${key}: no reveal caption ws.${key}`);
+  }
+  for(const [zone,a] of Object.entries(ADVENTURES)){
+    const keys=[...(a.paint?.phases??[]).map(p=>p.key),...a.interactions.flatMap(i=>[...(i.when?[i.when]:[]),...(i.moves??[]).map(m=>m.key)]),
+      ...(a.paint?.structures??[]).flatMap(st=>st.spin?[st.spin]:[]),...(a.wheel?.spin?[a.wheel.spin]:[]),...(a.kilns??[]).flatMap(k=>k.cold?[k.cold]:[])];
+    for(const key of keys)if(!WORLD_STATES[key])errors.push(`${zone}: unknown world state ${key}`);
+  }
+  return errors;
+}
+/** Boards: a board object in the zone, a real unlock quest, and every pooled bounty pointing at real content. */
+export function validateBounties():string[] {
+  const errors:string[]=[];
+  for(const [zone,b] of Object.entries(BOUNTY_BOARDS)){
+    const a=ADVENTURES[zone];
+    if(!a){errors.push(`bounties ${zone}: unknown zone`);continue;}
+    if(!a.interactions.some(i=>i.id==='bounty_board'&&i.kind==='board'))errors.push(`bounties ${zone}: no bounty board`);
+    if(!QUESTS.some(q=>q.id===b.unlock&&!q.repeat))errors.push(`bounties ${zone}: unknown unlock ${b.unlock}`);
+    if(b.pool.length<BOUNTIES_PER_BOARD||new Set(b.pool.map(p=>p.id)).size!==b.pool.length)errors.push(`bounties ${zone}: pool too small or duplicated`);
+    if(new Set(drawBounties('validator',zone,0)).size!==BOUNTIES_PER_BOARD)errors.push(`bounties ${zone}: draw does not give three`);
+    for(const d of b.pool){
+      const ok=d.kind==='event'?!!a.events?.some(e=>e.id===d.target)
+        :d.kind==='rare'?a.encounters.some(e=>e.id===d.target&&e.members.some(m=>m.tier===2))
+        :a.encounters.some(e=>e.members.some(m=>!m.questTarget&&!m.combat&&MONSTERS[m.type]?.family===d.family))&&Number.isInteger(d.count)&&d.count!>0;
+      if(!ok)errors.push(`bounties ${zone}/${d.id}: no such ${d.kind} target`);
+      if(!Object.hasOwn(QUEST_MESSAGES,bountyKey(zone,d.id)))errors.push(`bounties ${zone}/${d.id}: no title`);
+    }
+  }
+  return errors;
+}
+/** One-time quest XP sums to the calibrated story budget (BALANCE.md; DESIGN.md §9), within rounding. */
+export function validateStoryBudget():string[] {
+  const total=QUESTS.filter(q=>!q.repeat).reduce((sum,q)=>sum+(typeof q.reward==='object'?q.reward.xp??0:0),0),want=storyXp(1,50);
+  return Math.abs(total-want)<=QUESTS.length?[]:[`story XP budget ${total} differs from storyXp(1,50)=${want}`];
 }
 
 export function validateAdventures():string[] {
@@ -131,7 +192,7 @@ export function validateAdventures():string[] {
     }
     for(const group of [a.interactions,a.encounters,a.locations])check(new Set(group.map(i=>i.id)).size===group.length,`${id}: duplicate target ID`);
     for(const loc of a.locations)check(Number.isFinite(loc.radius)&&loc.radius>0&&cw.isFree(loc.x,loc.y,PLAYER_RADIUS),`${id}: invalid reach ${loc.id}`);
-    for(const interaction of [...a.interactions,...a.portals.map(p=>({...p,id:p.to,radius:110}))]) {
+    for(const interaction of [...a.interactions,...a.interactions.flatMap(i=>(i.moves??[]).map(m=>({...i,id:`${i.id}@${m.key}`,x:m.x,y:m.y}))),...a.portals.map(p=>({...p,id:p.to,radius:110}))]) {
       check(Number.isFinite(interaction.radius)&&interaction.radius>0,`${id}: invalid radius ${interaction.id}`);
       check(Array.from({length:16},(_,n)=>{
         const x=interaction.x+70*Math.cos(n*Math.PI/8),y=interaction.y+70*Math.sin(n*Math.PI/8);
