@@ -1,25 +1,29 @@
 // VFX gallery: a standalone Pixi page that drives the real `Vfx` module with scripted server events
 // against placeholder targets. Scenes: ?scene=combat | proj | aoe | aoe2 | tele | beam | cast | death |
-// loot | mix | stress. Exposes window.__gallery / window.__perf for automated screenshots and profiling.
+// loot | mix | stress | warrior | warrior2. Exposes window.__gallery / window.__perf for automated screenshots
+// and profiling. The warrior scenes use the real hero rig so the skill poses play with their effects.
 
 import '@fontsource/alegreya-sans/700.css';
 import '@fontsource/lilita-one/400.css';
 import '@fontsource/cinzel/700.css';
 
 import { Application, Container, Graphics, Text } from 'pixi.js';
+import { createCharacter, playerLook } from '@shared/character';
 import { MONSTERS } from '@shared/data/monsters';
-import { F_MOVING, F_STUN, F_WINDUP, type EntDesc, type GameEvent, type LootView } from '@shared/protocol';
-import type { ItemLook } from '@shared/types';
+import { F_CHANNEL, F_MOVING, F_STUN, F_WINDUP, type EntDesc, type GameEvent, type LootView } from '@shared/protocol';
+import type { ClassId, ItemLook } from '@shared/types';
 import { sfx } from '../audio/sfx';
-import { createMonsterView, initArt } from '../render/art';
-import type { EntityView, Nameplate, ViewState } from '../render/types';
+import { createMonsterView, createPlayerView, initArt } from '../render/art';
+import type { ActingView, EntityView, Nameplate, ViewState } from '../render/types';
 import { Vfx, type VfxContext } from '../render/vfx';
 
 const qs = new URLSearchParams(location.search);
 const SCENE = qs.get('scene') ?? 'combat';
 /** ?manual=1: time only advances through __gallery.advance(sec) (deterministic captures). */
 const MANUAL = qs.get('manual') === '1';
-const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress'];
+const SCENES = ['combat', 'proj', 'aoe', 'aoe2', 'tele', 'charge', 'beam', 'cast', 'death', 'loot', 'mix', 'stress', 'warrior', 'warrior2', 'warrior3'];
+/** Scenes that draw players with the real hero rig (skill poses) instead of placeholders. */
+const REAL_HEROES = SCENE === 'warrior' || SCENE === 'warrior2' || SCENE === 'warrior3';
 
 await Promise.all([
   document.fonts.load('700 26px "Alegreya Sans"'),
@@ -34,7 +38,8 @@ try { initArt(app.renderer); } catch { /* art module may be mid-rewrite */ }
 
 // ─────────────────────────── world & camera ───────────────────────────
 
-const VIEW_HEIGHT = SCENE === 'charge' ? 620 : 920;
+/** ?vh= world units shown vertically (close-ups), ?cx= / ?cy= camera centre override. */
+const VIEW_HEIGHT = Number(qs.get('vh') ?? (SCENE === 'charge' ? 620 : 920));
 const world = new Container();
 const ground = new Container();
 const groundFx = new Container();
@@ -77,6 +82,8 @@ interface Ent {
   id: number; x: number; y: number; h: number; r: number; hp: number; flags: number;
   kind: 'player' | 'mob' | 'loot' | 'summon';
   view: EntityView; plate: Nameplate | null; desc: EntDesc; dying?: boolean;
+  /** Scripted velocity (units/s) for views that face / animate by it; defaults to the F_MOVING stand-in. */
+  vx?: number; vy?: number;
 }
 
 const ents = new Map<number, Ent>();
@@ -141,6 +148,7 @@ function addEnt(desc: EntDesc, x: number, y: number, h = 40): Ent {
   let view: EntityView;
   if (desc.k === 'loot') view = vfx.createLootView(desc);
   else if (SCENE === 'charge' && desc.k === 'mob') view = createMonsterView(desc.t, 0, [], desc.sc ?? 1);
+  else if (REAL_HEROES && desc.k === 'player') view = createPlayerView(playerLook(createCharacter(desc.n || 'Brakka', desc.t as ClassId, 7 + (desc.id % 5))));
   else {
     const def = MONSTERS[desc.t];
     const color = desc.k === 'player' ? (desc.t === 'mage' ? 0x2e86de : desc.t === 'ranger' ? 0x27ae60 : 0xc0392b) : def?.colors.body ?? 0x8fbf6a;
@@ -204,7 +212,11 @@ const bakeT0 = performance.now();
 const vfx = new Vfx({ groundFx, aboveFx, text: textLayer }, ctx);
 const bakeMs = performance.now() - bakeT0;
 let handleAcc = 0;
-const fire = (ev: GameEvent) => { const t0 = performance.now(); vfx.handle(ev); handleAcc += performance.now() - t0; };
+const fire = (ev: GameEvent) => {
+  // like game.ts: a `cast` also plays the caster's pose (real hero rigs only; placeholders ignore it)
+  if (ev.e === 'cast') (ents.get(ev.s)?.view as ActingView | undefined)?.playAction?.({ skill: ev.sk, rune: ev.r, tx: ev.tx, ty: ev.ty, cycleMs: 1000 / 1.6 });
+  const t0 = performance.now(); vfx.handle(ev); handleAcc += performance.now() - t0;
+};
 
 // ─────────────────────────── scheduling helpers ───────────────────────────
 
@@ -411,10 +423,11 @@ const scenes: Record<string, () => void> = {
       ['warrior', 'cleave'], ['warrior', 'whirlwind'], ['warrior', 'rend'], ['warrior', 'ground_stomp'], ['warrior', 'seismic_slam'], ['warrior', 'battle_rage'],
       ['ranger', 'hungering_arrow'], ['ranger', 'sentry'], ['ranger', 'multishot'], ['ranger', 'cluster_arrow'], ['ranger', 'rain_of_vengeance'], ['ranger', 'companion'],
       ['mage', 'magic_missile'], ['mage', 'meteor'], ['mage', 'black_hole'], ['mage', 'frost_nova'], ['mage', 'hydra'], ['mage', 'magic_weapon'],
+      ['warrior', 'tolling_blow'], ['warrior', 'sawtooth_hatchet'], ['warrior', 'muster_standard'], ['warrior', 'ironplough'], ['warrior', 'cairnfall'],
     ];
-    const cols = 6, sx = 240, sy = 250;
+    const cols = 6, sx = 240, sy = 205;
     skills.forEach(([cls, sk, rune], i) => {
-      const x = -((cols - 1) * sx) / 2 + (i % cols) * sx, y = -330 + Math.floor(i / cols) * sy;
+      const x = -((cols - 1) * sx) / 2 + (i % cols) * sx, y = -360 + Math.floor(i / cols) * sy;
       const id = 10 + i;
       player(id, cls, '', x, y);
       label(sk, x, y + 20, 13);
@@ -579,7 +592,243 @@ const scenes: Record<string, () => void> = {
     every(1.5, () => { const m = pickOne(mobs); fire({ e: 'tele', v: 'meteor', x: m.x, y: m.y, r: 100, d: 900 }); later(0.9, () => fire({ e: 'aoe', v: 'meteor', x: m.x, y: m.y, r: 100, d: 0, el: 1, s: ME })); });
     every(0.4, () => { const m = pickOne(mobs); killEnt(m, pickOne([0, 1, 2, 3, 4, 5])); const i = mobs.indexOf(m); later(0.4, () => { mobs[i] = mob(pickOne(['bog_slime', 'ember_imp']), m.x, m.y); }); });
   },
+
+  // Warrior M1 strikes & throws (server contract: server/src/sim/skills/warriorM1.ts), real hero rig.
+  warrior() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -170 + Math.floor(i / 3) * 400 });
+    const HS = 760; // WARRIOR_FX.hatchetSpeed
+    const blows = (h: Ent, m: Ent, el: number, echo: boolean) => {
+      for (let k = 0; k < 3; k++) later(k * 0.55, () => {
+        fire({ e: 'cast', s: h.id, sk: 'tolling_blow', r: el ? 'furnace_clapper' : undefined, x: h.x, y: h.y, tx: m.x, ty: m.y, rad: 40 });
+        fire({ e: 'aoe', v: 'tollblow', x: m.x, y: m.y, r: 40, d: 260, el, s: h.id, a: 0 });
+        if (k < 2) return;
+        fire({ e: 'aoe', v: 'toll', x: m.x, y: m.y, r: 70, d: 520, el, s: h.id });
+        if (echo) later(0.5, () => fire({ e: 'aoe', v: 'toll', x: m.x, y: m.y, r: 70, d: 520, el, s: h.id }));
+        else fire({ e: 'aoe', v: 'toll', x: h.x, y: h.y, r: 50, d: 520, el, s: h.id });
+      });
+    };
+    { // Tolling Blow: every third blow tolls; Twin Ring rings at the hero's feet
+      const c = cell(0), h = player(10, 'warrior', 'Brakka', c.x - 70, c.y + 40), m = mob('bonewalker', c.x + 10, c.y + 40);
+      label('Tolling Blow · 3rd blow tolls · Twin Ring', c.x, c.y + 130);
+      every(2.8, () => blows(h, m, 0, false), 0.3);
+    }
+    { // Furnace Clapper (fire) + Bronze Echo
+      const c = cell(1), h = player(11, 'warrior', 'Hroth', c.x - 70, c.y + 40), m = mob('magma_brute', c.x + 14, c.y + 40, 1, [], 'Cinderhide');
+      label('Furnace Clapper (fire) · Bronze Echo', c.x, c.y + 130);
+      every(3.2, () => blows(h, m, 1, true), 0.9);
+    }
+    { // Sawtooth Hatchet with Grinding Stop (hold) and Splinters off an elite
+      const c = cell(2), h = player(12, 'warrior', 'Ulla', c.x - 230, c.y + 40);
+      const elite = mob('magma_brute', c.x + 10, c.y + 40, 1, [], 'Grimfang');
+      const s1 = mob('ember_imp', c.x + 70, c.y - 60), s2 = mob('grave_bat', c.x + 120, c.y + 120);
+      mob('bog_slime', c.x - 90, c.y + 46);
+      label('Sawtooth Hatchet · Grinding Stop · Splinters', c.x, c.y + 130);
+      every(2.8, () => {
+        fire({ e: 'cast', s: h.id, sk: 'sawtooth_hatchet', x: h.x, y: h.y, tx: h.x + 320, ty: h.y });
+        fire({ e: 'aoe', v: 'hatchet', x: h.x, y: h.y, r: 320, d: 400, el: 0, s: h.id, a: 0 });
+        later(240 / HS, () => {
+          fire({ e: 'beam', v: 'splinter', x: elite.x, y: elite.y, tx: s1.x, ty: s1.y, el: 0, d: 200 });
+          fire({ e: 'beam', v: 'splinter', x: elite.x, y: elite.y, tx: s2.x, ty: s2.y, el: 0, d: 200 });
+        });
+      }, 0.5);
+    }
+    { // Twin Hatchets (±10°) and Seeking Return
+      const c = cell(3), h = player(13, 'warrior', 'Sigrun', c.x - 220, c.y + 30);
+      const bleeding = mob('thornling', c.x - 40, c.y + 150);
+      mob('bonewalker', c.x + 30, c.y - 20); mob('gloomshroom', c.x - 30, c.y + 70);
+      label('Twin Hatchets · Seeking Return', c.x, c.y + 200);
+      every(2.6, () => {
+        fire({ e: 'cast', s: h.id, sk: 'sawtooth_hatchet', r: 'twin_hatchets', x: h.x, y: h.y, tx: h.x + 300, ty: h.y });
+        for (const o of [-1, 1]) fire({ e: 'aoe', v: 'hatchet', x: h.x, y: h.y, r: 300, d: 0, el: 0, s: h.id, a: o * 10 * Math.PI / 180 });
+        later(300 / HS + 0.02, () => fire({ e: 'aoe', v: 'hatchet_seek', x: bleeding.x, y: bleeding.y, r: 1, d: 0, el: 0, s: h.id }));
+      }, 0.7);
+    }
+    { // Grinning Saw (hatchet3): out, home, out again along the same line, home — Kiln-Heated (fire)
+      const c = cell(4), h = player(14, 'warrior', 'Dagny', c.x - 200, c.y + 40);
+      mob('ember_imp', c.x - 20, c.y + 40); mob('grave_bat', c.x + 90, c.y + 30);
+      label('Grinning Saw (out · home · out · home) · Kiln-Heated', c.x, c.y + 130);
+      every(3.2, () => {
+        fire({ e: 'cast', s: h.id, sk: 'sawtooth_hatchet', r: 'kiln_heated', x: h.x, y: h.y, tx: h.x + 300, ty: h.y });
+        fire({ e: 'aoe', v: 'hatchet3', x: h.x, y: h.y, r: 300, d: 0, el: 1, s: h.id, a: -0.12 });
+      }, 0.2);
+    }
+    { // 360° Cleave (two opposite arcs) and Quakeline Rumble aftershocks
+      const c = cell(5), h = player(15, 'warrior', 'Ivar', c.x, c.y + 30);
+      const ring = [0, 1, 2, 3].map((k) => mob(['bonewalker', 'ember_imp', 'thornling', 'grave_bat'][k], c.x + Math.cos(k * 1.57 + 0.4) * 110, c.y + 30 + Math.sin(k * 1.57 + 0.4) * 80));
+      label('Cleave 360° (opposite arcs) · Rumble aftershocks', c.x, c.y + 150);
+      every(2.2, () => {
+        fire({ e: 'cast', s: h.id, sk: 'cleave', x: h.x, y: h.y, tx: h.x + 120, ty: h.y, rad: 120 });
+        fire({ e: 'aoe', v: 'cleave', x: h.x, y: h.y, r: 120, d: 220, el: 0, s: h.id, a: Math.PI });
+        fire({ e: 'aoe', v: 'cleave', x: h.x, y: h.y, r: 120, d: 220, el: 0, s: h.id, a: 0 });
+        for (const [k, m] of ring.entries()) later(0.35 + k * 0.12, () => fire({ e: 'aoe', v: 'aftershock', x: m.x, y: m.y, r: 40, d: 300, el: 0, s: h.id }));
+      }, 0.4);
+    }
+  },
+
+  // Warrior M1 grounds & channels: Muster Standard, Ironplough, Cairnfall, Outward Tremor, Gyre of Ash.
+  warrior2() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -540 + (i % 3) * 540, y: -190 + Math.floor(i / 3) * 420 });
+    { // Muster Standard planted, Ember Pennant pulses once per second, then the standard comes down
+      const c = cell(0), h = player(10, 'warrior', 'Brakka', c.x + 26, c.y + 70);
+      label('Muster Standard · Ember Pennant pulses', c.x, c.y + 150);
+      every(6.5, () => {
+        const x = c.x, y = c.y + 60;
+        fire({ e: 'cast', s: h.id, sk: 'muster_standard', r: 'ember_pennant', x, y, tx: x, ty: y, rad: 150 });
+        fire({ e: 'aoe', v: 'standard', x, y, r: 150, d: 5600, el: 1, s: h.id });
+        for (let k = 1; k <= 4; k++) later(k, () => fire({ e: 'aoe', v: 'standard_pulse', x, y, r: 150, d: 400, el: 1, s: h.id }));
+        later(5, () => fire({ e: 'aoe', v: 'standard_end', x, y, r: 150, d: 0, el: 0, s: h.id }));
+      }, 0.3);
+    }
+    { // Marching Orders: the standard is carried
+      const c = cell(1), h = player(11, 'warrior', 'Hroth', c.x - 120, c.y + 60);
+      label('Muster Standard · Marching Orders (carried)', c.x, c.y + 150);
+      let dir = 1;
+      stressTicks.push((dt) => {
+        h.x += dir * 120 * dt;
+        if (h.x > c.x + 130) dir = -1; else if (h.x < c.x - 130) dir = 1;
+        h.vx = dir * 120; h.flags = F_MOVING;
+      });
+      every(6.5, () => fire({ e: 'aoe', v: 'standard_carry', x: h.x, y: h.y, r: 105, d: 6000, el: 0, s: h.id }), 0.2);
+    }
+    { // Ironplough: the ramp builds 0..5, Stone Spray every 0.5 s, Sod Burst every second
+      const c = cell(2), h = player(12, 'warrior', 'Ulla', c.x - 210, c.y + 60);
+      const pack = [mob('bonewalker', c.x - 60, c.y + 40), mob('ember_imp', c.x - 30, c.y + 100), mob('bog_slime', c.x - 10, c.y + 20)];
+      label('Ironplough · ramp 0→5 · Stone Spray · Sod Burst', c.x, c.y + 150);
+      let t = -1;
+      every(4.2, () => {
+        t = 0; h.x = c.x - 210;
+        pack.forEach((m, k) => { m.x = c.x - 60 + k * 25; });
+        fire({ e: 'cast', s: h.id, sk: 'ironplough', x: h.x, y: h.y, tx: h.x, ty: h.y, rad: 150 });
+      }, 0.2);
+      let tick = 0, stone = 0, sod = 0;
+      stressTicks.push((dt) => {
+        if (t < 0) return;
+        t += dt;
+        if (t > 3.2) { t = -1; h.flags = 0; h.vx = 0; return; }
+        h.flags = F_CHANNEL | F_MOVING; h.vx = 72; h.x += 72 * dt;
+        if ((tick -= dt) <= 0) {
+          tick += 0.25;
+          const lv = Math.min(5, Math.floor(t / 0.5));
+          fire({ e: 'aoe', v: 'plough', x: h.x, y: h.y, r: 150, d: lv, el: 0, s: h.id, a: 0 });
+          for (const m of pack) if (m.x - h.x < 150 && m.x > h.x) m.x += 20;
+        }
+        if ((stone -= dt) <= 0) {
+          stone += 0.5;
+          for (const o of [-14, 0, 14]) { const a = (o * Math.PI) / 180; proj('stone', h.x + 20, h.y - 6, h.x + 20 + Math.cos(a) * 300, h.y - 6 + Math.sin(a) * 300, 700, 0, h.id, undefined, false); }
+        }
+        if ((sod -= dt) <= 0) { sod += 1; fire({ e: 'aoe', v: 'sod', x: h.x + 128, y: h.y, r: 60, d: 380, el: 0, s: h.id }); }
+      });
+    }
+    { // Cairnfall: five telegraphed cairns land in a ring 0.25 s apart; Waymarker keeps them 6 s and pulses
+      const c = cell(3), h = player(13, 'warrior', 'Sigrun', c.x, c.y + 40);
+      const ring = [0, 1, 2, 3, 4].map((k) => ({ x: c.x + Math.cos(k * 1.2566 - 1.2) * 125, y: c.y + 40 + Math.sin(k * 1.2566 - 1.2) * 125 }));
+      for (const p of ring.slice(0, 3)) mob(pickOne(['bonewalker', 'ember_imp', 'gloomshroom']), p.x + 14, p.y + 8);
+      label('Cairnfall · Waymarker pulses', c.x, c.y + 200);
+      every(7.5, () => {
+        fire({ e: 'cast', s: h.id, sk: 'cairnfall', x: h.x, y: h.y, tx: h.x, ty: h.y, rad: 70 });
+        ring.forEach((p, k) => {
+          const delay = 250 * (k + 1);
+          fire({ e: 'tele', v: 'cairn', x: p.x, y: p.y, r: 70, d: delay, s: h.id });
+          later(delay / 1000, () => fire({ e: 'aoe', v: 'cairn', x: p.x, y: p.y, r: 70, d: 6000, el: 0, s: h.id }));
+          for (let j = 1; j <= 2; j++) later(delay / 1000 + j * 2, () => fire({ e: 'aoe', v: 'cairn_pulse', x: p.x, y: p.y, r: 50, d: 400, el: 0, s: h.id }));
+        });
+      }, 0.3);
+    }
+    { // Ground Stomp + Outward Tremor ring wave
+      const c = cell(4), h = player(14, 'warrior', 'Dagny', c.x, c.y + 40);
+      label('Ground Stomp · Outward Tremor', c.x, c.y + 200);
+      every(2.6, () => {
+        fire({ e: 'cast', s: h.id, sk: 'ground_stomp', r: 'outward_tremor', x: h.x, y: h.y, tx: h.x, ty: h.y, rad: 120 });
+        later(0.26, () => {
+          fire({ e: 'aoe', v: 'tremor_ring', x: h.x, y: h.y, r: 220, d: 420, el: 0, s: h.id });
+          fire({ e: 'aoe', v: 'stomp', x: h.x, y: h.y, r: 110, d: 500, el: 0, s: h.id });
+        });
+      }, 0.6);
+    }
+    { // Whirlwind · Gyre of Ash: a hero spinning along a loop leaves burning embers (one patch per 40 units)
+      const c = cell(5), h = player(15, 'warrior', 'Ivar', c.x + 90, c.y + 40);
+      label('Whirlwind · Gyre of Ash ember trail', c.x, c.y + 200);
+      fire({ e: 'cast', s: h.id, sk: 'whirlwind', x: h.x, y: h.y, tx: h.x, ty: h.y, rad: 100 });
+      let a = 0, tick = 0, lastX = h.x, lastY = h.y;
+      stressTicks.push((dt) => {
+        a += dt * 1.3;
+        const nx = c.x + Math.cos(a) * 110, ny = c.y + 40 + Math.sin(a) * 70;
+        h.vx = (nx - h.x) / Math.max(dt, 1e-3); h.vy = (ny - h.y) / Math.max(dt, 1e-3);
+        h.x = nx; h.y = ny; h.flags = F_CHANNEL | F_MOVING;
+        if ((tick -= dt) <= 0) {
+          tick += 0.25;
+          fire({ e: 'aoe', v: 'whirl', x: h.x, y: h.y, r: 100, d: 260, el: 0, s: h.id });
+          if (Math.hypot(h.x - lastX, h.y - lastY) >= 40) { lastX = h.x; lastY = h.y; fire({ e: 'aoe', v: 'ember_trail', x: h.x, y: h.y, r: 45, d: 2000, el: 1, s: h.id }); }
+        }
+      });
+    }
+  },
+
+  // Warrior wave 2: Kilnheart (stoked aura, Cold Forge, Bellows Breath), Hearthbanner shock, the data grounds
+  // (server/src/sim/groundFx.ts placeGround: x, y = line start, a = angle, r = half-width, d = lifetime).
+  warrior3() {
+    camX = 0; camY = 0;
+    const cell = (i: number) => ({ x: -660 + (i % 4) * 440, y: -190 + Math.floor(i / 4) * 420 });
+    const walker = (h: Ent, c: { x: number }, speed: number) => {
+      let dir = 1;
+      stressTicks.push((dt) => {
+        h.x += dir * speed * dt;
+        if (h.x > c.x + 110) dir = -1; else if (h.x < c.x - 110) dir = 1;
+        h.vx = dir * speed; h.flags = F_MOVING;
+      });
+    };
+    [0, 1].forEach((i) => { // Kilnheart: chest glow, heat haze, scorched (frosted) footprints while it burns
+      const c = cell(i), cold = i === 1, h = player(10 + i, 'warrior', cold ? 'Hroth' : 'Brakka', c.x - 100, c.y + 60);
+      label(cold ? 'Kilnheart · Cold Forge' : 'Kilnheart · stoked (glow, haze, footprints)', c.x, c.y + 150);
+      walker(h, c, 90);
+      every(21, () => fire({ e: 'cast', s: h.id, sk: 'kilnheart', r: cold ? 'cold_forge' : undefined, x: h.x, y: h.y, tx: h.x, ty: h.y }), 0.3 + i * 0.2);
+    });
+    [2, 3].forEach((i) => { // Bellows Breath: a 90° exhale of fire (and the cold variant)
+      const c = cell(i), cold = i === 3, h = player(10 + i, 'warrior', cold ? 'Sigrun' : 'Ulla', c.x - 150, c.y + 60);
+      mob('bonewalker', c.x + 20, c.y + 30); mob('ember_imp', c.x + 70, c.y + 110); mob('grave_bat', c.x + 40, c.y - 20);
+      label(cold ? 'Bellows Breath · Cold Forge' : 'Bellows Breath', c.x, c.y + 150);
+      every(2.8, () => {
+        fire({ e: 'cast', s: h.id, sk: 'kilnheart', r: cold ? 'cold_forge' : 'bellows_breath', x: h.x, y: h.y, tx: h.x + 200, ty: h.y });
+        fire({ e: 'aoe', v: 'kiln_breath', x: h.x, y: h.y, r: 250, d: 520, el: cold ? 2 : 1, s: h.id, a: 0.05 });
+      }, 0.4 + (i - 2) * 0.3);
+    });
+    { // Hearthbanner: banner-gold shockwave
+      const c = cell(4), h = player(14, 'warrior', 'Dagny', c.x, c.y + 40);
+      label('Hearthbanner · hearth shock', c.x, c.y + 190);
+      every(1.8, () => fire({ e: 'aoe', v: 'hearth_shock', x: h.x, y: h.y, r: 140, d: 420, el: 0, s: h.id }), 0.3);
+    }
+    { // Quakeline · Open Crack: the fissure leaves a glowing crack along its line
+      const c = cell(5), h = player(15, 'warrior', 'Ivar', c.x - 180, c.y + 40);
+      label('Quakeline · Open Crack (quake_crack)', c.x, c.y + 190);
+      every(3, () => {
+        fire({ e: 'cast', s: h.id, sk: 'seismic_slam', x: h.x, y: h.y, tx: h.x + 300, ty: h.y, rad: 300 });
+        fire({ e: 'aoe', v: 'fissure', x: h.x, y: h.y, r: 300, d: 650, el: 0, s: h.id, a: 0 });
+        later(0.1, () => fire({ e: 'aoe', v: 'quake_crack', x: h.x + 20, y: h.y, r: 26, d: 2000, el: 0, s: h.id, a: 0 }));
+      }, 0.3);
+    }
+    { // Deep Earth tremor ground (slowing field)
+      const c = cell(6);
+      player(16, 'warrior', 'Asta', c.x - 150, c.y + 40);
+      mob('bog_slime', c.x - 20, c.y + 30); mob('thornling', c.x + 40, c.y + 80);
+      label('Deep Earth · tremor ground', c.x, c.y + 190);
+      every(2.6, () => fire({ e: 'aoe', v: 'tremor', x: c.x + 10, y: c.y + 50, r: 120, d: 2000, el: 0, s: 16 }), 0.3);
+    }
+    { // Fault Warden fault line and Furrowmark furrow (line grounds, 3 s)
+      const c = cell(7);
+      player(17, 'warrior', 'Orm', c.x - 150, c.y + 80);
+      label('Fault line (top) · Furrow (bottom)', c.x, c.y + 190);
+      every(3.4, () => {
+        fire({ e: 'aoe', v: 'fault_line', x: c.x - 80, y: c.y - 10, r: 20, d: 3000, el: 0, s: 17, a: 0 });
+        fire({ e: 'aoe', v: 'furrow', x: c.x - 80, y: c.y + 100, r: 22, d: 3000, el: 0, s: 17, a: 0 });
+      }, 0.3);
+    }
+  },
 };
+
+/** Per-frame scripted motion used by the warrior scenes (in addition to `stressTick`). */
+const stressTicks: ((dt: number) => void)[] = [];
 
 let stressTick: ((dt: number) => void) | null = null;
 
@@ -611,6 +860,8 @@ const perf = { bakeMs, avgVfx: 0, p95Vfx: 0, maxVfx: 0, avgTotal: 0, p95Total: 0
 Object.assign(window as object, { __gallery: { vfx, fire, scene: SCENE, sfx }, __perf: perf });
 
 (scenes[SCENE] ?? scenes.combat)();
+if (qs.has('cx')) camX = Number(qs.get('cx'));
+if (qs.has('cy')) camY = Number(qs.get('cy'));
 window.addEventListener('pointerdown', () => sfx.unlock());
 
 // ─────────────────────────── frame ───────────────────────────
@@ -624,6 +875,7 @@ function step(rawMs: number): void {
   for (const t of due) t.fn();
   for (const l of loops) while (time >= l.next) { l.next += l.period; l.fn(); }
   stressTick?.(dt);
+  for (const f of stressTicks) f(dt);
 
   const now = simNow();
   const scr = app.screen;
@@ -641,7 +893,8 @@ function step(rawMs: number): void {
     e.view.root.position.set(e.x, e.y);
     e.view.root.zIndex = e.y;
     const moving=!!(e.flags & F_MOVING);
-    const st: ViewState = { x: e.x, y: e.y, vx: moving?230/0.17:0, vy: 0, moving, facingLeft: SCENE!=='charge' && e.kind === 'mob', flags: e.flags, attackSeq: 0, hpFrac: e.hp, time, aps: 1.2 };
+    const vx = e.vx ?? (moving ? 230 / 0.17 : 0), vy = e.vy ?? 0;
+    const st: ViewState = { x: e.x, y: e.y, vx, vy, moving, facingLeft: SCENE !== 'charge' && (e.kind === 'mob' || vx < 0), flags: e.flags, attackSeq: 0, hpFrac: e.hp, time, aps: REAL_HEROES ? 1.6 : 1.2 };
     e.view.update(viewDt, st);
     if (e.plate) { e.plate.root.position.set(e.x, e.y - e.view.height - 8); e.plate.update(e.hp, e.flags, false); }
   }

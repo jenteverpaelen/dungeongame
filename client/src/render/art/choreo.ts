@@ -218,6 +218,29 @@ export function spinPose(P: Pose, kit: Kit, phase: number, k: number): void {
   P.spin = phase; // never interpolate the rotation itself
 }
 
+/**
+ * Ironplough channel, blended in by k: the weapon is held low and forward like a plough share (two hands on the
+ * haft; a shield is braced in front instead), the hero leans in and crouches, the walk keeps striding underneath,
+ * and a fast small vibration sells the grind. No body spin (unlike Whirlwind).
+ */
+export function ploughPose(P: Pose, kit: Kit, t: number, k: number): void {
+  if (k <= 0.001) return;
+  const S = tmpC;
+  copyPose(S, P);
+  const jit = Math.sin(t * 47) * 0.6 + Math.sin(t * 29) * 0.4;
+  S.upper = 0; S.twist = -0.12;
+  S.hR = arm(1, -0.92 + 0.035 * jit, 0.1, ARM * 1.14);
+  S.w = norm(0.92, 0.4 + 0.03 * jit, -0.1);
+  if (kit.shield) S.hL = V(9.4, -21.5 + 0.4 * jit, -3.2);
+  else S.hL = V(S.hR.x - S.w.x * 6, S.hR.y - S.w.y * 6, S.hR.z - S.w.z * 6);
+  S.lean = 0.4; S.crouch = 0.4; S.spread = 0.42;
+  S.legR = P.legR * 0.8 - 0.3; S.legL = P.legL * 0.8 + 0.34;
+  S.headTilt = 0.12; S.headYaw = 0;
+  S.sx = 1.03; S.sy = 0.97;
+  S.shake = 0.22; S.hairFly = 0.35; S.trail = 0;
+  mixPose(P, P, S, k);
+}
+
 // ─────────────────────────── actions ───────────────────────────
 
 export interface ActCtx {
@@ -257,7 +280,10 @@ export function actionPose(P: Pose, c: ActCtx): void {
     case 'groundBurst': return timed(P, c, novaAt, 40, 150);
     case 'summon': return timed(P, c, hydraAt, 50, 150);
     case 'empower': return timed(P, c, empowerAt, 60, 160);
-    case 'spin': return;
+    case 'toll': return primary(P, c, tollAt);
+    case 'throw': return timed(P, c, throwAt, 30, 150);
+    case 'plant': return timed(P, c, plantAt, 50, 170);
+    case 'spin': case 'plough': return;
   }
 }
 
@@ -459,6 +485,81 @@ function roarAt(S: Pose, c: ActCtx, t: number): void {
   S.aura = burst * (1 - smooth(seg(t, 200, 600)));
   S.shake = k * (t < 420 ? 0.5 : 0);
   S.spread = 0.35; S.legR = -0.2; S.legL = 0.2;
+}
+
+/**
+ * Tolling Blow: an overhead two-handed strike brought straight down onto the target, like ringing a great bell.
+ * t < 0 = the wind-up (weapon raised high behind the head), so chained blows lift and drop rhythmically.
+ */
+function tollAt(S: Pose, c: ActCtx, t: number): void {
+  const kit = c.kit;
+  const strike = c.def.strikeMs;
+  const follow = strike + Math.min(140, c.cycle * 0.34);
+  const e = t < 0 ? 0 : easeIn(clamp(t / strike)) * 0.7 + clamp(t / strike) * 0.3;
+  const f = t < strike ? 0 : easeOut(seg(t, strike, follow));
+  const imp = t > strike ? Math.exp(-(t - strike) / 70) : 0;
+  const sq = t < 0 ? 0 : Math.sin(clamp(t / (strike * 1.3)) * Math.PI);
+  const b = t < 0 ? -0.8 : t < strike ? lerp(-0.8, 2.25, e) : lerp(2.25, 2.45, f);
+  S.hR = arm(1, (t < 0 ? -3.05 : lerp(-3.05, -0.92, e)) + 0.14 * f, 0.14, ARM * (1.06 + 0.16 * sq));
+  S.w = blade(b, 0.1);
+  if (kit.shield) S.hL = V(lerp(7, 9.5, e), lerp(-30, -23, e), lerp(-4, -6.5, e));
+  else S.hL = V(S.hR.x - S.w.x * 5, S.hR.y - S.w.y * 5, S.hR.z - S.w.z * 5);
+  S.twist = t < 0 ? 0.18 : lerp(0.18, -0.12, e);
+  S.lean = t < 0 ? -0.3 : lerp(-0.3, 0.38, e) - 0.1 * f;
+  S.crouch = t < 0 ? 0.04 : 0.34 * e * (1 - 0.35 * f);
+  S.hop = t < 0 ? 2.4 : 2.4 * (1 - e);
+  S.sy = (t < 0 ? 1.07 : 1) - 0.1 * imp; S.sx = 1 + 0.1 * imp + 0.05 * sq;
+  S.headTilt = t < 0 ? -0.16 : 0.1 * e;
+  S.legR = -0.32; S.legL = 0.4; S.spread = 0.46;
+  S.lunge = c.def.lunge * 1.25 * (t < 0 ? -0.2 : e * (1 - 0.3 * f));
+  S.trail = t < 0 ? 0 : t < strike ? 1 : 1 - smooth(seg(t, strike + 20, follow + 50));
+  S.shake = imp * 0.45;
+}
+
+/** Sawtooth Hatchet: cock the arm back over the shoulder, whip it forward to release, follow through across. */
+function throwAt(S: Pose, c: ActCtx, t: number): void {
+  const strike = c.def.strikeMs;
+  const cock = easeOut(seg(t, 0, strike * 0.45)), whip = easeOut3(seg(t, strike * 0.45, strike)), fol = smooth(seg(t, strike, strike + 160));
+  const back = arm(1, -2.75, 1.05, ARM * 1.05), rel = arm(1, -1.45 - clamp(c.aimEl, -0.3, 0.3), 0.05, ARM * 1.2), low = arm(1, -0.7, -0.45, ARM * 1.05);
+  lerpV(S.hR, S.hR, back, cock);
+  if (whip > 0) lerpV(S.hR, back, rel, whip);
+  if (fol > 0) lerpV(S.hR, S.hR, low, fol * 0.8);
+  const wBack = norm(-0.7, -0.55, 0.45), wRel = norm(1, -0.25, -0.05), wLow = norm(0.55, 0.75, -0.35);
+  nlerp(S.w, S.w, wBack, cock);
+  if (whip > 0) nlerp(S.w, wBack, wRel, whip);
+  if (fol > 0) nlerp(S.w, S.w, wLow, fol * 0.8);
+  if (c.kit.wk === '2h' || c.kit.wk === 'staff') S.hL = arm(-1, lerp(-1.3, -0.5, whip), 0.9);
+  else if (!c.kit.shield) S.hL = arm(-1, lerp(-1.5, -0.35, whip), 1.0);
+  S.twist = lerp(0.75 * cock, -0.55, whip) - 0.1 * fol;
+  S.lean = -0.14 * cock * (1 - whip) + 0.3 * whip - 0.1 * fol;
+  S.crouch = 0.12 + 0.12 * whip * (1 - fol);
+  S.lunge = c.def.lunge * (whip - 0.4 * cock * (1 - whip));
+  S.legR = -0.35; S.legL = 0.42; S.spread = 0.5;
+  S.headYaw = 0.2 * cock * (1 - whip);
+  S.trail = whip > 0 ? 1 - smooth(seg(t, strike + 10, strike + 90)) : 0;
+  const sq = Math.sin(whip * Math.PI);
+  S.sx = 1 + 0.06 * sq; S.sy = 1 - 0.04 * sq;
+}
+
+/** Muster Standard: lift the weapon two-handed like a pole and drive it straight down into the ground. */
+function plantAt(S: Pose, c: ActCtx, t: number): void {
+  const strike = c.def.strikeMs;
+  const lift = easeOut(seg(t, 0, strike - 50)), drive = easeIn(seg(t, strike - 50, strike));
+  const imp = t > strike ? Math.exp(-(t - strike) / 90) : 0;
+  const hi = V(7, -40, 6), lo = V(9.5, -16, 5);
+  lerpV(S.hR, S.hR, hi, lift);
+  if (drive > 0) lerpV(S.hR, hi, lo, drive);
+  nlerp(S.w, S.w, norm(0.12, 1, 0.02), Math.max(lift, drive));
+  S.hL = c.kit.shield ? V(5, -24, -8) : V(S.hR.x + 0.4, S.hR.y - 6, S.hR.z - 3);
+  S.hop = 3 * lift * (1 - drive);
+  S.sy = 1 + 0.07 * lift * (1 - drive) - 0.16 * imp; S.sx = 1 + 0.14 * imp;
+  S.crouch = 0.55 * Math.max(drive, imp * 0.9) * (1 - smooth(seg(t, 300, 520)));
+  S.lean = -0.1 * lift * (1 - drive) + 0.18 * drive;
+  S.headTilt = -0.12 * lift * (1 - drive) + 0.12 * imp;
+  S.expr = t > strike - 40 && t < strike + 260 ? 1 : 0;
+  S.shake = imp * 0.6;
+  S.trail = drive > 0 ? 1 - smooth(seg(t, strike, strike + 80)) : 0;
+  S.spread = 0.4; S.legR = -0.22; S.legL = 0.26;
 }
 
 // ── Ranger ────────────────────────────────

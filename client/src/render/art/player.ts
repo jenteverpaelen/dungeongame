@@ -24,7 +24,7 @@ import { ACTIONS, type ActionDef, type ActionSpec } from '../actions';
 import type { PlayerView, ViewState } from '../types';
 import { Sheet, bakeSheet, type PartSpec } from './bake';
 import {
-  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, levelUpPose, newPose, reachOf, spinPose,
+  ARM, HEAD_Y, LEVEL_UP, SH, SPIN_RATE, actionLife, actionPose, basePose, copyPose, levelUpPose, newPose, ploughPose, reachOf, spinPose,
   type ActCtx, type Kit, type Pose, type V3, type WeaponKind,
 } from './choreo';
 import { OUT } from './draw';
@@ -361,10 +361,10 @@ interface Act { def: ActionDef; skill: string; start: number; cycle: number; alt
 interface Fly { s: Sprite; streak: Sprite; vx: number; vy: number; t: number; life: number }
 interface Note { s: Sprite; t: number; x: number; y: number }
 
-const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick']);
+const PRIMARY_POSES = new Set(['swing', 'shoot', 'flick', 'toll']);
 /** Non-directional skills (or their gather phase) turn the hero towards the camera so the whole-body pose
  *  reads: ms the hero presents before turning to the target. */
-const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175 };
+const PRESENT_MS: Record<string, number> = { roar: 1e9, empower: 1e9, whistle: 1e9, groundBurst: 1e9, callDown: 175, plant: 1e9 };
 const presents = (pose: string, t: number) => t < (PRESENT_MS[pose] ?? -1);
 const SPELL_POSES = new Set(['flick', 'callDown', 'thrust', 'groundBurst', 'summon', 'empower']);
 
@@ -448,6 +448,8 @@ export class PlayerArt implements PlayerView {
   private moveBlend = 0;
   private chan = 0;
   private spinPhase = 0;
+  /** Which loop F_CHANNEL plays: the last channel skill this hero started (`cast` of whirlwind → spin, ironplough → plough). */
+  private chanPose: 'spin' | 'plough' = 'spin';
   private castB = 0;
   private dashB = 0;
   private stunB = 0;
@@ -730,7 +732,16 @@ export class PlayerArt implements PlayerView {
       const wk = this.kit.wk;
       def = wk === 'bow' || wk === 'xbow' || wk === 'hxbow' ? ACTIONS.hungering_arrow : wk === 'staff' || wk === 'wand' ? ACTIONS.magic_missile : ACTIONS.cleave;
     }
-    if (def.pose === 'spin') return; // whirlwind is driven by F_CHANNEL
+    // channels (whirlwind, ironplough) are driven by F_CHANNEL; the cast only picks which loop it shows
+    if (def.pose === 'spin' || def.pose === 'plough') {
+      if (def.pose === 'plough' && this.spinPhase !== 0) {
+        // a plough started while a whirlwind is still winding down: keep the visible facing, drop the spin
+        const deg = (this.spinPhase / D2R) % 360;
+        this.yawB = wrapDeg(this.yawB + deg); this.yawH = wrapDeg(this.yawH + deg); this.spinPhase = 0;
+      }
+      this.chanPose = def.pose;
+      return;
+    }
     const now = this.t * 1000;
     const primary = PRIMARY_POSES.has(def.pose) && a.skill !== 'level_up';
     const prev = this.act ?? this.lastAct;
@@ -806,7 +817,8 @@ export class PlayerArt implements PlayerView {
     if (moving) this.walk += adt * 8 * clamp(speed / 250, 0.6, 1.5) * Math.PI;
     const chanOn = (flags & F_CHANNEL) !== 0 && !frozen;
     this.chan += ((chanOn ? 1 : 0) - this.chan) * damp(chanOn ? 16 : 10, dt);
-    if (chanOn || this.chan > 0.02) this.spinPhase += adt * TAU * SPIN_RATE * Math.max(0.35, this.chan);
+    const spinChan = this.chanPose === 'spin';
+    if (spinChan && (chanOn || this.chan > 0.02)) this.spinPhase += adt * TAU * SPIN_RATE * Math.max(0.35, this.chan);
     if (!chanOn && this.chan < 0.02 && this.spinPhase !== 0) {
       // fold the spin into the yaw springs so the hero eases back to its facing
       const deg = (this.spinPhase / D2R) % 360;
@@ -841,10 +853,10 @@ export class PlayerArt implements PlayerView {
     } else if (act) {
       const yaw = facingYaw(act.tx - s.x, act.ty - s.y, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
-    } else if (moving && speed > 25 && !chanOn) {
+    } else if (moving && speed > 25 && !(chanOn && spinChan)) {
       const yaw = facingYaw(s.vx, s.vy, this.side);
       if (!Number.isNaN(yaw)) this.setYawTarget(yaw);
-    } else if (s.facingLeft !== this.lastFacingLeft && !chanOn) {
+    } else if (s.facingLeft !== this.lastFacingLeft && !(chanOn && spinChan)) {
       const want = s.facingLeft ? -1 : 1;
       if (Math.sign(this.yawTarget) !== want) this.setYawTarget(-this.yawTarget);
     }
@@ -879,7 +891,8 @@ export class PlayerArt implements PlayerView {
       if (act.skill === 'level_up') levelUpPose(P, actCtx.t);
       else actionPose(P, actCtx);
     }
-    spinPose(P, this.kit, this.spinPhase, this.chan);
+    if (spinChan) spinPose(P, this.kit, this.spinPhase, this.chan);
+    else ploughPose(P, this.kit, t, this.chan);
 
     // hit flinch: away from the facing side, squash
     const hk = this.hitK;
@@ -934,7 +947,7 @@ export class PlayerArt implements PlayerView {
         sB: Math.sin(this.yawB * D2R), cB: Math.cos(this.yawB * D2R),
         head: { x: n0.head.x, y: n0.head.y, d: 0 }, chest: { x: 0, y: -24, d: 0 }, hR: this.hR, hL: this.hL, wTip: this.wTip, wBase: this.wBase,
         hasWeapon: !!n0.weapon && this.kit.wk !== 'bow', bow: this.kit.wk === 'bow',
-        swing: act ? P.trail : this.chan * 0.6,
+        swing: act ? P.trail : spinChan ? this.chan * 0.6 : 0,
         celebrate: this.celebrateAt >= 0 ? t - this.celebrateAt : -1, celebrateBig: this.celebrateBig,
         combat: clamp(this.combatT / 0.6), local: this.isLocal,
       });
@@ -1338,7 +1351,7 @@ export class PlayerArt implements PlayerView {
 
   private updateTrail(P: Pose, c: ActCtx | null, yawB: number): void {
     const act = this.act;
-    const spinning = this.chan > 0.05;
+    const spinning = this.chan > 0.05 && this.chanPose === 'spin';
     const wantAction = !!(c && act && P.trail > 0.01 && this.kit.wk !== 'bow');
     if (!spinning && !wantAction) { this.ribbonF.hide(); this.ribbonB.hide(); this.whirlRing!.visible = false; this.whirlDisc!.visible = false; return; }
     const col = (act && act.def.trail) || this.trailColor;
@@ -1419,7 +1432,7 @@ export class PlayerArt implements PlayerView {
     const au = this.aura!;
     au.alpha = clamp(P.aura) * 0.75;
     au.visible = au.alpha > 0.01;
-    au.tint = act?.skill === 'level_up' ? 0xffd36a : 0xff4a2a;
+    au.tint = act?.skill === 'level_up' ? 0xffd36a : act?.skill === 'kilnheart' ? 0xff7a1a : 0xff4a2a;
     au.position.set(0, -30); au.width = 70 + 70 * P.aura; au.height = (70 + 70 * P.aura) * 1.15;
     // black hole swirl at the hands
     const sw = this.swirl!;
