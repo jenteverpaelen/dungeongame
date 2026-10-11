@@ -55,8 +55,9 @@ function TargetBody({ t }: { t: TargetInfo }) {
         </div>
       )}
       <div class="tf-bar">
-        <div class="tf-trail" style={{ width: `${(trail * 100).toFixed(2)}%` }} />
-        <div class="tf-fill" style={{ width: `${(hp * 100).toFixed(2)}%` }}><i /></div>
+        {/* full-width bars slid left by the missing share: a transform, not a width, so no layout or repaint per frame */}
+        <div class="tf-trail" style={{ '--v': trail.toFixed(4) }} />
+        <div class="tf-fill" style={{ '--v': hp.toFixed(4) }}><i /></div>
         <div class="tf-ticks" />
         {boss && <span class="tf-pct">{Math.ceil(hp * 100)}%</span>}
       </div>

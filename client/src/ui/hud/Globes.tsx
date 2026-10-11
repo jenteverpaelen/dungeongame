@@ -1,34 +1,16 @@
 // Health and resource globes: glass orbs with an animated liquid surface.
-// Layers (back to front): drop shadow, socket, liquid (static glass/tint, level, bob, two waves, glow, bubbles, static
-// floor/light/depth), glass grain, static glass SVG (specular, inner shadow, rim light) and the bronze bezel. Only the
-// liquid level reacts to state, via a CSS transition. All motion is transform/opacity on composited layers: an animated
-// SVG interior (or a filter on the orb) re-rasterised the HUD every frame and halved the frame rate in fights.
+// Layers (back to front): drop shadow, socket, the interior canvas (static glass and tint, liquid level, bob, two waves,
+// glow, bubbles, static floor / light / depth shading, glass grain and swirl — orbCanvas.ts), the static glass SVG
+// (specular, inner shadow, rim light) and the bronze bezel. The interior was 11 continuously animated compositor layers
+// per globe plus blend passes over moving content every frame (docs/rework/PERF.md §4.1); one canvas per globe now
+// draws the same layers. On the Low preset and with reduced motion the interior holds still; level changes still move.
 
+import { useEffect, useRef } from 'preact/hooks';
 import { useUI } from '../store';
 import { fmtCompact, fmtInt } from '@shared/format';
+import { motionReduced, preferences } from '../../game/preferences';
 import { LIFE_STYLE, RESOURCE_STYLES, clamp01, type ResourceStyle } from './util';
-
-const R = 84; // liquid radius inside the 200-unit viewBox
-
-/** Quadratic-bezier sine: alternating Q / T segments, `reps` half-periods wide. */
-function waveTop(period: number, amp: number, halfPeriods: number): string {
-  const h = period / 2;
-  let d = `M0 0Q${period / 4} ${-amp} ${h} 0`;
-  for (let i = 2; i <= halfPeriods; i++) d += `T${h * i} 0`;
-  return d;
-}
-const WAVE_F = waveTop(100, 9, 8);
-const WAVE_B = waveTop(140, 11, 6);
-
-const BUBBLES: { x: number; y: number; r: number; dur: number; delay: number; rise: number }[] = [
-  { x: 62, y: 150, r: 3, dur: 6.5, delay: -1, rise: 46 },
-  { x: 88, y: 120, r: 1.6, dur: 5.2, delay: -3.2, rise: 38 },
-  { x: 118, y: 160, r: 3.6, dur: 7.8, delay: -5, rise: 58 },
-  { x: 140, y: 110, r: 1.5, dur: 4.6, delay: -2, rise: 30 },
-  { x: 100, y: 170, r: 2, dur: 8.4, delay: -6.4, rise: 64 },
-  { x: 74, y: 96, r: 1.3, dur: 5.8, delay: -0.4, rise: 28 },
-  { x: 128, y: 140, r: 1.8, dur: 6.9, delay: -4.2, rise: 44 },
-];
+import { OrbCanvas, R } from './orbCanvas';
 
 export interface GlobeProps {
   kind: 'life' | 'res';
@@ -36,6 +18,53 @@ export interface GlobeProps {
   max: number;
   style: ResourceStyle;
   label: string;
+}
+
+// ───────────────────────── one shared draw loop for both globes ─────────────────────────
+
+interface Live { orb: OrbCanvas; size: number; dirty: boolean }
+const live = new Set<Live>();
+let raf = 0, lastDraw = -1e9;
+/** Idle motion off: Low preset or reduced motion (the DOM version stopped the same animations for reduced motion). */
+const still = () => { const p = preferences.get().values; return p.graphicsPreset === 'low' || motionReduced(p); };
+/** Tests pin the animation clock (s) through window.__orbClock; otherwise it is page time. */
+const clock = (now: number) => { const c = (globalThis as { __orbClock?: number }).__orbClock; return typeof c === 'number' ? c : now / 1000; };
+function frame(now: number) {
+  raf = live.size ? requestAnimationFrame(frame) : 0;
+  const isStill = still(), pinned = typeof (globalThis as { __orbClock?: number }).__orbClock === 'number';
+  // Idle motion redraws 30 times a second: the liquid moves under a pixel per redraw (front wave 0.7 px at 1080p,
+  // bubbles 0.2 px) and is resampled smoothly; the display rate cost a tenth more GPU-process time for no visible
+  // difference. A level change (up to ~25 px in its first 33 ms) redraws at up to 60 a second.
+  let moving = false; for (const l of live) if (l.orb.transitioning(now)) moving = true;
+  if (!pinned && now - lastDraw < 1000 / (moving ? 61 : 31)) return;
+  lastDraw = now;
+  const dpr = window.devicePixelRatio || 1;
+  for (const l of live) {
+    if (isStill && !l.dirty && !l.orb.transitioning(now) && !pinned) continue;
+    if (l.orb.draw(l.size, dpr, clock(now), now, isStill)) l.dirty = false;
+    const c = l.orb.canvas, w = c.width / dpr;
+    if (c.style.width !== `${w}px`) { c.style.width = `${w}px`; c.style.height = `${w}px`; }
+  }
+}
+function track(l: Live) { live.add(l); if (!raf) raf = requestAnimationFrame(frame); }
+preferences.subscribe(() => { for (const l of live) l.dirty = true; });
+
+function GlobeInterior({ style, y, empty }: { style: ResourceStyle; y: number; empty: boolean }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const state = useRef<Live | null>(null);
+  useEffect(() => {
+    const canvas = ref.current!, host = canvas.parentElement!;
+    const l: Live = { orb: new OrbCanvas(canvas, style), size: host.getBoundingClientRect().width, dirty: true };
+    state.current = l;
+    const ro = new ResizeObserver(() => { l.size = host.getBoundingClientRect().width; l.dirty = true; });
+    ro.observe(host);
+    track(l);
+    return () => { ro.disconnect(); live.delete(l); state.current = null; };
+  }, []);
+  // .liquid { transition: transform 0.7s cubic-bezier(.25,.85,.3,1) }, 0.3 s into empty; also on Low and with reduced
+  // motion (lead decision, PERF.md §4.1: still orbs there, but the level keeps easing)
+  useEffect(() => { const s = state.current; if (s) { s.orb.setStyle(style); s.orb.setLevel(y, performance.now(), empty ? 300 : 700); s.dirty = true; } }, [y, style, empty]);
+  return <canvas class="globe-canvas" ref={ref} aria-hidden="true" />;
 }
 
 export function Globe(p: GlobeProps) {
@@ -49,102 +78,7 @@ export function Globe(p: GlobeProps) {
     <div class={`globe globe-${p.kind}${low ? ' low' : ''}${frac <= 0 ? ' empty' : ''}`} style={{ '--glow': s.glow, '--liq-hi': s.hi, '--liq-mid': s.mid, '--liq-lo': s.lo }}>
       <div class="globe-shadow" />
       <div class="globe-socket" />
-      <div class="globe-liq" aria-hidden="true">
-        {/* .globe-liq clips to the liquid circle (r = R); .gl-frame restores the 200-unit globe frame inside it. */}
-        <div class="gl-frame">
-          <svg class="gl-svg" viewBox="0 0 200 200">
-            <defs>
-              <radialGradient id={`${id}-glass`} cx="50%" cy="38%" r="66%">
-                <stop offset="0" stop-color="#241619" />
-                <stop offset="0.6" stop-color="#0d0709" />
-                <stop offset="1" stop-color="#030203" />
-              </radialGradient>
-              <radialGradient id={`${id}-tint`} cx="50%" cy="92%" r="70%">
-                <stop offset="0" stop-color={s.mid} stop-opacity=".34" />
-                <stop offset="1" stop-color={s.mid} stop-opacity="0" />
-              </radialGradient>
-            </defs>
-            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-glass)`} />
-            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-tint)`} />
-          </svg>
-          {/* translateY in % of the 200-unit frame: y units → y / 2 % */}
-          <div class="liquid" style={{ transform: `translateY(${(y / 2).toFixed(2)}%)` }}>
-            <div class="liquid-bob">
-              <svg class="gl-svg wave wave-b" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id={`${id}-back`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="160">
-                    <stop offset="0" stop-color={s.hi} stop-opacity=".95" />
-                    <stop offset="1" stop-color={s.mid} stop-opacity=".45" />
-                  </linearGradient>
-                </defs>
-                <path d={`${WAVE_B}V300H0Z`} fill={`url(#${id}-back)`} />
-              </svg>
-              <svg class="gl-svg wave wave-f" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id={`${id}-body`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="196">
-                    <stop offset="0" stop-color={s.hi} />
-                    <stop offset="0.05" stop-color={s.mid} />
-                    <stop offset="0.38" stop-color={s.mid} />
-                    <stop offset="0.78" stop-color={s.lo} />
-                    <stop offset="1" stop-color="#000" stop-opacity=".92" />
-                  </linearGradient>
-                </defs>
-                <path d={`${WAVE_F}V300H0Z`} fill={`url(#${id}-body)`} />
-                <path d={WAVE_F} fill="none" stroke={s.hi} stroke-width="3" stroke-linecap="round" stroke-opacity=".95" />
-                <path d={WAVE_F} fill="none" stroke="#fff" stroke-width=".9" stroke-opacity=".55" transform="translate(0 -1)" />
-              </svg>
-              <svg class="gl-svg" viewBox="0 0 200 200">
-                <defs>
-                  <radialGradient id={`${id}-core`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0" stop-color={s.hi} stop-opacity=".5" />
-                    <stop offset="0.6" stop-color={s.hi} stop-opacity=".12" />
-                    <stop offset="1" stop-color={s.hi} stop-opacity="0" />
-                  </radialGradient>
-                  <radialGradient id={`${id}-glow`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0" stop-color={s.hi} stop-opacity=".45" />
-                    <stop offset="1" stop-color={s.hi} stop-opacity="0" />
-                  </radialGradient>
-                </defs>
-                <ellipse cx="100" cy="14" rx="86" ry="22" fill={`url(#${id}-glow)`} />
-                <ellipse cx="96" cy="78" rx="74" ry="64" fill={`url(#${id}-core)`} />
-              </svg>
-              {BUBBLES.map((b) => (
-                <i
-                  class="bubble"
-                  style={{
-                    left: `${(b.x - b.r) / 2}%`, top: `${(b.y - b.r) / 2}%`, width: `${b.r}%`, height: `${b.r}%`,
-                    animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s`, '--rise': `calc(var(--globe) * ${(-b.rise / 200).toFixed(3)})`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-          <svg class="gl-svg" viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0.45" stop-color="#000" stop-opacity="0" />
-                <stop offset="1" stop-color="#000" stop-opacity=".16" />
-              </linearGradient>
-              <linearGradient id={`${id}-light`} x1="0" y1="0" x2="1" y2="0.35">
-                <stop offset="0" stop-color="#fff" stop-opacity=".2" />
-                <stop offset="0.38" stop-color="#fff" stop-opacity="0" />
-                <stop offset="0.72" stop-color="#000" stop-opacity=".18" />
-                <stop offset="1" stop-color="#000" stop-opacity=".5" />
-              </linearGradient>
-              <radialGradient id={`${id}-depth`} cx="50%" cy="46%" r="52%">
-                <stop offset="0.42" stop-color="#000" stop-opacity="0" />
-                <stop offset="0.78" stop-color="#000" stop-opacity=".22" />
-                <stop offset="0.93" stop-color="#000" stop-opacity=".55" />
-                <stop offset="1" stop-color="#000" stop-opacity=".88" />
-              </radialGradient>
-            </defs>
-            <rect x="0" y="0" width="200" height="200" fill={`url(#${id}-floor)`} />
-            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-light)`} />
-            <circle cx="100" cy="100" r={R + 2} fill={`url(#${id}-depth)`} />
-          </svg>
-        </div>
-      </div>
-      <div class="globe-grain" />
+      <GlobeInterior style={s} y={y} empty={frac <= 0} />
       <svg class="globe-glass" viewBox="0 0 200 200" aria-hidden="true">
         <defs>
           <radialGradient id={`${id}-spec`} cx="50%" cy="50%" r="50%">

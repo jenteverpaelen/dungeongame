@@ -57,8 +57,8 @@
 }
 
 /* Performance (docs/rework/PERF.md): nothing in the orb may repaint per frame. No CSS filter on the orb (any change
-   inside re-ran the blur over the whole orb), no animation inside an SVG (repaints the SVG), only transform/opacity on
-   elements that are their own compositor layers. */
+   inside re-ran the blur over the whole orb). The moving interior (liquid, waves, bubbles, glass grain and swirl) is
+   one canvas per globe drawn by orbCanvas.ts; everything above it is static. */
 .globe {
   position: relative;
   width: var(--globe);
@@ -82,40 +82,8 @@
   background: #050303;
 }
 .globe-glass { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-/* liquid circle: r = 84 of the 200-unit globe → inset 8 %, size 84 %; rounded clip of composited children is a mask */
-.globe-liq { position: absolute; inset: 8%; border-radius: 50%; overflow: hidden; transform: translateZ(0); pointer-events: none; }
-.gl-frame { position: absolute; left: -9.5238%; top: -9.5238%; width: 119.0476%; height: 119.0476%; }
-.gl-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.liquid, .liquid-bob { position: absolute; inset: 0; will-change: transform; }
-.wave { will-change: transform; }
-.bubble { position: absolute; border-radius: 50%; background: #fff; will-change: transform, opacity; }
-.globe-grain {
-  position: absolute;
-  inset: 8%;
-  border-radius: 50%;
-  background: var(--noise);
-  mix-blend-mode: soft-light;
-  opacity: 0.55;
-  pointer-events: none;
-}
-.globe-grain::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.16) 70deg, rgba(255, 255, 255, 0) 130deg, rgba(0, 0, 0, 0.28) 200deg, rgba(255, 255, 255, 0) 260deg, rgba(255, 255, 255, 0.1) 320deg, rgba(255, 255, 255, 0) 360deg);
-  mix-blend-mode: overlay;
-  animation: globeSwirl 26s linear infinite;
-  will-change: transform;
-}
-
-.liquid { transition: transform 0.7s cubic-bezier(0.25, 0.85, 0.3, 1); }
-.globe.empty .liquid { transition-duration: 0.3s; }
-.liquid-bob { animation: liquidBob 3.6s ease-in-out infinite alternate; }
-.wave-f { animation: waveF 4.6s linear infinite; }
-.wave-b { animation: waveB 7.4s linear infinite reverse; opacity: 0.85; }
-.bubble { animation: bubbleRise 6s ease-in infinite; opacity: 0; }
-
+/* the interior canvas (orbCanvas.ts) covers the globe box; its CSS size is set from its backing size */
+.globe-canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
 /* bezel: brushed bronze ring with engraved edges */
 .globe-bezel {
   position: absolute;
@@ -850,8 +818,11 @@
 .tf-affixes { display: flex; justify-content: center; gap: calc(var(--u) * 8); margin-top: calc(var(--u) * 2); font-family: var(--font-display); font-weight: 700; font-size: var(--f-xs); letter-spacing: 0.12em; text-transform: uppercase; color: #d8d0bc; text-shadow: 0 1px 0 #000, 0 0 6px #000; }
 .tf-affixes em { font-style: normal; color: var(--text-faint); margin-right: calc(var(--u) * 8); }
 .tf-bar { position: relative; margin-top: calc(var(--u) * 8); height: calc(var(--u) * 16); border-radius: calc(var(--u) * 2); overflow: hidden; background: linear-gradient(180deg, #070403, #1a0e0c); box-shadow: 0 0 0 1px #000, 0 0 0 calc(var(--u) * 2) var(--trim), 0 0 0 calc(var(--u) * 3) #000, 0 calc(var(--u) * 6) calc(var(--u) * 14) rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.9); }
-.tf-trail { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(180deg, #f3e0b0, #c9a45c); opacity: 0.85; transition: width 0.7s ease-out; }
-.tf-fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(180deg, #ff8a78 0%, #d8301f 30%, #a01a14 64%, #5c0a0a 100%); box-shadow: 0 0 calc(var(--u) * 10) rgba(255, 60, 40, 0.5); transition: width 0.18s linear; }
+/* Trail and fill are full-width and slide left by the missing share (--v = the remaining fraction): the same edge, cap
+   and glow as a width of --v, but moved by the compositor instead of a layout and repaint every frame. The edge lands on
+   a whole pixel like the painted width did (round(), where supported). */
+.tf-trail { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(180deg, #f3e0b0, #c9a45c); opacity: 0.85; transform: translateX(calc((var(--v, 1) - 1) * 100%)); transform: translateX(round(calc((var(--v, 1) - 1) * 100%), 1px)); transition: transform 0.7s ease-out; }
+.tf-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(180deg, #ff8a78 0%, #d8301f 30%, #a01a14 64%, #5c0a0a 100%); box-shadow: 0 0 calc(var(--u) * 10) rgba(255, 60, 40, 0.5); transform: translateX(calc((var(--v, 1) - 1) * 100%)); transform: translateX(round(calc((var(--v, 1) - 1) * 100%), 1px)); transition: transform 0.18s linear; }
 .tf-fill i { position: absolute; left: 0; right: 0; top: 0; height: 42%; background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0)); }
 .tf-fill::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: calc(var(--u) * 3); background: rgba(255, 220, 200, 0.8); }
 .tf-ticks { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(10% - 1px), rgba(5, 2, 2, 0.75) calc(10% - 1px), rgba(5, 2, 2, 0.75) 10%); pointer-events: none; }
@@ -1165,10 +1136,6 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 /* ═════════════════════════ Keyframes ═════════════════════════ */
 
 /* one wave period of the 200-unit frame: 100 units = 50 %, 140 units = 70 %; bob ±2.4 units = ±1.2 % */
-@keyframes waveF { to { transform: translateX(-50%); } }
-@keyframes waveB { to { transform: translateX(-70%); } }
-@keyframes liquidBob { from { transform: translateY(-1.2%); } to { transform: translateY(1.2%); } }
-@keyframes bubbleRise { 0% { transform: translateY(0); opacity: 0; } 14% { opacity: 0.7; } 78% { opacity: 0.45; } 100% { transform: translateY(var(--rise, -40px)); opacity: 0; } }
 @keyframes globeSwirl { to { transform: rotate(360deg); } }
 @keyframes lowPulse { from { opacity: 0.25; } to { opacity: 1; } }
 @keyframes slotActive { from { opacity: 1; filter: brightness(1); } to { filter: brightness(1.25); } }
@@ -1203,7 +1170,7 @@ kbd { min-width: calc(var(--u) * 28); height: calc(var(--u) * 26); padding: 0 ca
 @keyframes haloBreath { from { opacity: 0.8; } to { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .wave-f, .wave-b, .liquid-bob, .bubble, .globe-grain::after, .xp-shine, .rb-fill i, .cs-embers i, .cs-card.selected .cs-halo { animation: none; }
+  .xp-shine, .rb-fill i, .cs-embers i, .cs-card.selected .cs-halo { animation: none; }
 }
 .guide-toast { position:fixed; right:calc(var(--u)*22); bottom:calc(var(--u)*190); width:calc(var(--u)*300); padding:calc(var(--u)*16); pointer-events:auto; }
 .guide-toast h3,.guide-entry h3 { margin:0 0 8px; color:var(--bronze-1); font-size:var(--f-m); }

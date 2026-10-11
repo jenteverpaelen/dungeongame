@@ -85,6 +85,27 @@ heroes (`scene.ts`).
 Tried and dropped: a render group per monster / prop (+30 draw calls, no CPU win, paired); the Medium / Low presets on
 a real GPU (−1 to −4 % CPU: this fight is CPU-bound on rig and scene work, not on particles or pixels) [M].
 
+### 4.1 Second pass: the globes and the target bars (lead decision, 2026-10-12)
+
+The HUD was still the largest cost: hidden, the fight cost 29 % less main-thread and 51 % less GPU-process time. Each
+globe's interior was 11 continuously animated compositor layers, which Blink restyles every frame (26 such layers in the
+HUD, 22 of them in the globes). The interior also had soft-light and overlay blend passes over moving content in the GPU
+process every frame.
+
+| # | Change | Where | Look |
+|---|---|---|---|
+| O1 | Each globe's interior is one canvas (`ui/hud/orbCanvas.ts`). It holds the static glass and tint, the liquid (level, bob, both waves, glow, 7 bubbles), the floor / light / depth shading and the glass grain with its swirl. It reproduces the DOM layer stack: the same SVG markup rasterised once at whole-pixel size and exact scale; moving layers rasterised once and moved with bilinear filtering, as the compositor moves layers; the CSS keyframes, easings, delays and the alternate / reverse directions evaluated in code; soft-light and overlay done with canvas blending (the same compositing formulas). Idle motion redraws 30 times a second. A level change redraws up to 60 times a second. The grain group is re-made every 2° of swirl (≤ about 1 level per step). | `orbCanvas.ts`, `Globes.tsx`, `hud.css` (the old liquid rules and keyframes removed) | Frozen frames: DOM orbs with every CSS animation paused at clock T, against the canvas with `window.__orbClock = T`. 1920×1080 and 1366×768, starter and full skill bar, life and resource, T = 0 / 1.7 / 5.3 / 12.9 s (32 crops). Inside the liquid circle, mean per channel 0.76 / 0.79 / 0.69 of 255; 1.7 % of pixels differ by more than 4; max 33 / 44 / 47. The maxima sit on the 3-pixel bubble dots (the compositor draws them as small squares) and on the wave-crest anti-aliasing. Including the anti-aliased rim: mean 0.95 / 0.85 / 0.71. Side by side (DOM, canvas, difference ×16): `shots/perf/orb-1080p-full-life.jpg`, `orb-1366-full-res.jpg`, `orb-1080p-starter-life.jpg`. Visually identical; not bit-identical. |
+| O2 | On the Low preset and with reduced motion the interior holds still (no waves, bob, bubbles or swirl, as the DOM version showed for reduced motion). The level still eases (0.7 s, 0.3 s into empty) in both. The Low preset note in Settings says so. | `Globes.tsx`, `settingsMessages.ts` | Low and reduced motion: two captures 1 s apart identical; a life change moves the level |
+| O3 | Target-frame HP trail and fill are full-width and slide by `translateX(round(…, 1px))` instead of animating `width`, so no layout or repaint every frame. | `Target.tsx`, `hud.css` | 1080p: max 1/255 at four life fractions. 1366×768 (bar width 312.875 px): the moving edge column lands one pixel over on 15–18 pixels of the bar (0.25 %) |
+
+Reproduce the frozen-frame check with `node scripts/perf/orb-equivalence.mjs <DOM-globe client> <canvas-globe client>`.
+
+Measured against `claude/town-ui-rework` 07c97c9 (paired, rift 4 rounds, town 3):
+- Rift: main thread −13 %, GPU process −12 %, 4× fps +14 % (main thread −15 %).
+- Town crowd: main −9 %, GPU process −13 %, fps +10 %, 4× fps +5 %.
+- The orb canvas alone (O1 at 60 Hz, without the 30 Hz cap and the grain step) took the main thread down 9 %; the GPU process stayed level until the cap (−10 %) and the grain step (−4 %).
+- Idle town now runs 2 CSS animations (24 before); rift DOM paints per frame 0.57 → 0.19.
+
 ## 5. Before / after (production builds; before = `claude/town-ui-rework` f6ccb15, after = this branch)
 
 **Paired, concurrent** (`scripts/perf/ab.mjs`: both builds replay the same recording at the same time; median of the
@@ -132,11 +153,11 @@ server (own port, isolated `DATA_DIR`, debug off), opens headless Chrome at 1920
 
 | Check | Budget (`scripts/perf/budgets.json`) | Measured now |
 |---|---|---|
-| Idle town: DOM Paint events per frame | ≤ 0.1 | 0 |
+| Idle town: DOM Paint events per frame / running CSS animations | ≤ 0.1 / ≤ 6 | 0 / 2 |
 | Idle town and both replays: running CSS keyframe animations | transform / opacity / translate / rotate / scale only | 24 running, all compositor-only |
 | Rift fight (replayed): draw calls / texture binds / texture uploads / buffer KB per frame | ≤ 50 / 80 / 0.5 / 240 | 36 / 60 / 0 / 189 |
 | Rift fight: visible display objects / renderables | ≤ 1,100 / 600 | 905 / 486 |
-| Rift fight: DOM paints per frame | ≤ 1.0 | 0.57 |
+| Rift fight: DOM paints per frame | ≤ 0.4 | 0.19 |
 | Town crowd (replayed, 25 heroes): draws / binds / uploads / KB | ≤ 330 / 660 / 0.5 / 540 | 272 / 505–544 / 0 / 426 |
 | Town crowd: visible / renderables / DOM paints | ≤ 3,000 / 2,400 / 0.5 | 2,466 / 1,950 / 0.01 |
 
@@ -174,7 +195,8 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 7. **zIndex** is free in the scene's entity layer and inside a hero's body and `fxAdd` (lazily sorted). Anywhere else
    a zIndex write makes the parent sorted and rebuilds its group every time: use child order, or `lazyDepthSort(c)`.
 8. **Particles** scale with `effectsFactor()` (Graphics → effects density).
-9. **HUD**: animate only transform and opacity (the gate fails otherwise); no `filter` on elements whose content
+9. **HUD**: animate only transform and opacity (the gate fails otherwise; idle town allows at most 6 running CSS
+   animations, so continuously moving parts belong in a canvas, as the globes are); no `filter` on elements whose content
    changes; anything updating at 10 Hz or more over expensive content gets its own layer (`will-change: transform`),
    and compare the pixels (promoted text can shift 1 px); never assign `ctx.font` per frame; never call
    `toLocaleString` or `new Intl.*` per frame (use `shared/src/format.ts`).
@@ -182,14 +204,11 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 
 ## 8. What is left (needs a decision or a bigger change)
 
-1. **The HUD is still the largest single cost.** Hidden, the fight costs 29 % less main-thread and 51 % less
-   GPU-process time (paired, after these changes); the orbs alone are 21 % of the GPU process. It comes from the orb
-   design: 26 continuously animated layers that Blink re-styles every frame (26 `StyleRecalc … Animation` per frame)
-   and about 9 blend-mode render passes per frame (the soft-light grain with its rotating overlay swirl alone is 14 %).
-   Options for the owner: (a) the Low preset / reduce motion stills the orb motion; (b) an orb drawn in the game canvas
-   (needs a look sign-off); (c) drop the blend modes of the grain swirl.
-2. The target frame's HP bars transition `width` (layout and paint every frame while a target takes damage). A clip +
-   translate rewrite can look identical but touches HUD markup: not done.
+1. **The HUD after the second pass (§4.1).** The globes and the target bars are done. What still moves is the XP
+   shine, the rift-bar shine and the menu / key pulses (2 to 4 compositor-only animations), plus the 10 Hz cooldown
+   sweeps and Preact renders.
+2. Remaining HUD GPU-process cost: the globe interior canvas is rasterised in the GPU process (30 times a second).
+   Drawing it with WebGL in one pass would make it nearly free, but would mean re-deriving the blend maths: not done.
 3. Hero rigs cost about 0.2–0.5 ms per hero per frame (weapon trails sample 20 poses per swing); 25 heroes ≈ 5 ms in
    town. Remote heroes are pose-cached at 24 Hz only above 40 active entities; lowering that threshold changes how
    smoothly other players animate: an owner call.
@@ -207,7 +226,8 @@ per frame at 1× so a 4× slower CPU still fits a 16 ms frame (now ~5.0 ms) [I].
 ## 9. Files
 
 `client/src/render/depthSort.ts` (new) · `scene.ts` · `art/player.ts` (lazy sort, `stale`) · `art/fx.ts`
-(`additiveAsNormal`) · `art/map.ts` (prop lights) · `ui/hud/Minimap.tsx` · `ui/styles/hud.css` (1 rule) ·
+(`additiveAsNormal`) · `art/map.ts` (prop lights) · `ui/hud/Minimap.tsx` · `ui/hud/orbCanvas.ts` (new), `Globes.tsx`,
+`Target.tsx`, `i18n/settingsMessages.ts` · `ui/styles/hud.css` (sweep layer, globe interior, target bars) ·
 `game/preferences.ts` · `game/quality.ts` (+ test) · `main.ts` (first-run default, `window.__bakes`) · `shared/src/format.ts`
 (+ `shared/test/format.test.ts`) · `scripts/client-perf-check.mjs`, `scripts/perf/` (harness, replay, recorders,
 recordings, budgets, `ab.mjs` paired A/B, `crowd-cache-check.mjs`, `record-field.mjs`) · `scripts/verify.mjs` (stage) · `scripts/shoot.mjs` (`CHROME_EXTRA` flags for the SwiftShader run).

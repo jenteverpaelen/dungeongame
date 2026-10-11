@@ -35,7 +35,7 @@ export const SETTINGS_MESSAGES = {
   'set.gfx.preset.medium': 'Medium',
   'set.gfx.preset.high': 'High',
   'set.gfx.preset.custom': 'Custom',
-  'set.gfx.presetNote': 'High is the full look. Medium renders at screen resolution with half the effects. Low renders at three quarters, with minimal effects and ambient life and no edge smoothing.',
+  'set.gfx.presetNote': 'High is the full look. Medium renders at screen resolution with half the effects. Low renders at three quarters, with minimal effects and ambient life, no edge smoothing and still life and resource globes.',
   'set.gfx.resolution': 'Render resolution',
   'set.gfx.res.auto': 'Auto',
   'set.gfx.resolutionNote': 'Auto follows your screen density (up to 2×). Lower values are faster and softer.',
