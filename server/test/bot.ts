@@ -458,7 +458,7 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   r = await b.cmd('salvage', { itemId: 'nope' });
   c('salvage unknown item rejected', !r.ok, r);
   r = await b.cmd('enchantRoll', { itemId: 'nope', affix: 0 });
-  c('enchant before Cube level 3 rejected', !r.ok && /Cube level 3/.test(r.err ?? ''), r);
+  c('enchant before Reliquary level 3 rejected', !r.ok && /Reliquary level 3/.test(r.err ?? ''), r);
   r = await b.cmd('debug', { op: 'nonsense' });
   c('unknown debug op rejected', !r.ok, r);
   r = await b.cmd('travel', { zone: 'rift' });
@@ -510,8 +510,9 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('debug legendaries include every class legendary', classOnly.every((id) => b.inv().some((i) => i.legendary?.power === id)), classOnly);
   r = await b.cmd('debug', { op: 'set' });
   c('debug set grants six class set pieces', r.ok && b.inv().filter((i) => i.rarity === 'set').length === 6, { r, n: b.inv().filter((i) => i.rarity === 'set').length });
-  // The ranger's debug grants (35 class + the shared legendaries + a set) fill the 60-slot bag before the rares: make
-  // room by dropping shared, non-weapon debug legendaries (the class ones were checked above).
+  // Large class pools (ranger 35, warrior 34 class legendaries + the 19 shared + a set) fill the 60-slot bag before the
+  // rares: make room by dropping shared, non-weapon debug legendaries (the class ones were checked above). The
+  // salvageAll step below keeps its own guard for the case where no rare is left.
   for (const it of b.inv().filter((i) => i.rarity === 'legendary' && !LEGENDARIES[i.legendary!.power]?.classes && i.kind !== 'weapon1h' && i.kind !== 'weapon2h')) {
     if (b.char.inventory.filter((x) => x === null).length >= 8) break;
     await b.cmd('destroy', { itemId: it.id });
@@ -581,6 +582,12 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   const cxp0 = b.char.cube.xp + b.char.cube.level * 1e6;
   r = await b.cmd('salvage', { itemId: leg1.id });
   c('salvage a legendary gives souls and Cube XP', r.ok && b.char.materials.soul > soulBefore && b.char.cube.xp + b.char.cube.level * 1e6 > cxp0 && !b.inv().some((i) => i.id === leg1.id), r);
+  if (!b.findInv((i) => i.rarity === 'rare')) {
+    // A class with many legendaries (the warrior has 34) fills the bag before any rare arrives; make room and add
+    // rares so salvageAll is tested on real input instead of failing on an empty selection.
+    for (const it of b.inv().filter((i) => i.rarity === 'legendary').slice(0, 3)) await b.cmd('salvage', { itemId: it.id });
+    await b.cmd('debug', { op: 'rares', n: 2 });
+  }
   r = await b.cmd('salvageAll', { rarities: ['rare'] });
   c('salvageAll rares', r.ok && !b.inv().some((i) => i.rarity === 'rare') && r.data?.count >= 1, r);
   r = await b.cmd('salvageAll', { rarities: ['rare'] });
@@ -1234,49 +1241,28 @@ async function testAfk(url: string, dataDir: string | null) {
   check('lastZone is the field the character logged out in', save.lastZone === 'whispering_glade', save.lastZone);
   const goldBefore = save.gold, killsBefore = save.stats.kills;
 
+  // Offline rewards are parked by the owner (2026-10-11; OFFLINE_REWARDS off by default): a long absence in a field
+  // grants nothing and sends no report. The dormant formula is covered by server/test/afk.test.ts with the switch on.
   save.lastSeen = Date.now() - 2 * 3_600_000;
   fs.writeFileSync(fileAt, JSON.stringify(save));
   const back = await connect(url, name, 'ranger');
-  const afk = await back.waitFor(() => back.afk, 3000);
-  check('afk message sent on login after 2 h in a field', !!afk, back.errs);
-  if (afk) {
-    check('afk duration ~2 h', Math.abs(afk.ms - 2 * 3_600_000) < 60_000, afk.ms);
-    check('afk kills = minutes x 60 x 0.25 (~1800)', Math.abs(afk.kills - 1800) <= 20, afk.kills);
-    check('afk xp, gold and materials are positive', afk.xp > 0 && afk.gold > 0 && (afk.mats.scrap ?? 0) > 0 && (afk.mats.dust ?? 0) > 0 && (afk.mats.crystal ?? 0) > 0, afk);
-    check('afk report names the field', afk.zone === 'whispering_glade', afk.zone);
-    check('afk levels reported and applied', afk.levels > 0 && back.char.level > 20, { levels: afk.levels, level: back.char.level });
-    check('afk gold and kills applied to the save', back.char.gold === goldBefore + afk.gold && back.char.stats.kills === killsBefore + afk.kills, { gold: back.char.gold, was: goldBefore, add: afk.gold });
-  }
+  await sleep(1500);
+  check('offline rewards parked: no afk report after 2 h in a field', back.afk === null, back.afk);
+  check('offline rewards parked: no gold, XP or kills added', back.char.gold === goldBefore && back.char.stats.kills === killsBefore && back.char.level === save.level, { gold: back.char.gold, was: goldBefore });
   check('characters always reappear in town', back.zone.kind === 'town');
   back.close();
   await back.waitFor(() => back.closed, 2000);
   await sleep(300);
-  const again = await connect(url, name, 'ranger');
-  check('no repeat AFK gains on the next login', again.afk === null);
-  again.close();
-  await again.waitFor(() => again.closed, 2000);
-  await sleep(300);
-
-  // 12 h cap, and no gains when the last zone was the town.
   const s2 = JSON.parse(fs.readFileSync(fileAt, 'utf8')) as CharacterSave;
+  check('no field kill rate is measured while parked', s2.afk === undefined, s2.afk);
   s2.lastZone = 'ashen_hollow';
   s2.lastSeen = Date.now() - 100 * 3_600_000;
   fs.writeFileSync(fileAt, JSON.stringify(s2));
-  const capped = await connect(url, name, 'ranger');
-  const afk2 = await capped.waitFor(() => capped.afk, 3000);
-  check('afk is capped at 12 hours', !!afk2 && afk2.ms === 12 * 3_600_000 && afk2.kills === 12 * 60 * 15, afk2);
-  capped.close();
-  await capped.waitFor(() => capped.closed, 2000);
-  await sleep(300);
-  const s3 = JSON.parse(fs.readFileSync(fileAt, 'utf8')) as CharacterSave;
-  s3.lastZone = 'hearthmere';
-  s3.lastSeen = Date.now() - 5 * 3_600_000;
-  fs.writeFileSync(fileAt, JSON.stringify(s3));
-  const town = await connect(url, name, 'ranger');
-  await sleep(300);
-  check('no afk gains when the last zone was the town', town.afk === null);
-  town.close();
-  await town.waitFor(() => town.closed, 2000);
+  const long = await connect(url, name, 'ranger');
+  await sleep(1500);
+  check('offline rewards parked: nothing after 100 h either', long.afk === null && long.char.gold === goldBefore, long.afk);
+  long.close();
+  await long.waitFor(() => long.closed, 2000);
   await sleep(300);
 
   // Corrupt save: refused, moved aside, never overwritten by a new character.

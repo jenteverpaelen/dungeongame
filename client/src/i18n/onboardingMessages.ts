@@ -64,7 +64,7 @@ export const ONBOARDING_MESSAGES={
   'intro.faq.points.title':'What do levels, tiers and runes do?',
   'intro.faq.points.body':'Levels unlock skills and grant points. Skills shows the cost and effect of each tier before you buy it. Runes unlock at the levels printed on them and change a skill. Choosing one replaces that skill’s previous rune.',
   'intro.faq.services.title':'Why can’t I use a town service here?',
-  'intro.faq.services.body':'Stand beside the right artisan or structure and interact. Blacksmith, Jeweler and Mystic have different operations. Cube level gates some functions; the locked row explains the requirement. The Cube shortcut works only beside the Cube.',
+  'intro.faq.services.body':'Stand beside the right artisan or structure and interact. Blacksmith, Jeweler and Glasswright have different operations. Reliquary level gates some functions; the locked row explains the requirement. The Cube shortcut works only beside the Cube.',
   'intro.faq.death.title':'What happens if I die or disconnect?',
   'intro.faq.death.body':'After defeat you return to the area entrance. Your equipment and recorded quest progress remain. Reconnecting begins in town. Active encounters may need restarting; a completed quest reward cannot be claimed twice.',
   'intro.faq.map.title':'Where should I go next?',

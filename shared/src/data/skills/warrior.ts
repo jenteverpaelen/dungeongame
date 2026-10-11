@@ -295,9 +295,9 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'rallying_ground', name: 'Rallying Ground', unlock: 31, desc: 'Everyone inside also regenerates 1% of maximum Life per second.', mods: { flags: ['standardRegen'] } },
       { id: 'taunting_colours', name: 'Taunting Colours', unlock: 35, desc: 'On planting, enemies within 300 units turn on the standard for 3 seconds.', mods: { flags: ['standardTaunt'] } },
       { id: 'marching_orders', name: 'Marching Orders', unlock: 40, desc: 'The standard is carried: it follows you, but its radius is 30% smaller.', mods: { radius: -30, flags: ['standardCarry'] } },
-      // "Once per standard" = once per cooldown of the standard (20 s); the engine's cheat death has a time cooldown only.
-      { id: 'last_rampart', name: 'Last Rampart', unlock: 46, desc: 'Once every 20 seconds, fatal damage taken while you stand in a Muster Standard leaves you at 1% Life and invulnerable for 2 seconds.', mods: {},
-        effects: [{ kind: 'cheatDeath', lifePct: 1, invulnMs: 2000, cooldownMs: 20000, when: { buff: 'muster_standard' } }] },
+      // "Once per standard": no time cooldown; planting a standard re-arms it (engine wave 3 rearmOnCast). lifePct 0 = 1 Life.
+      { id: 'last_rampart', name: 'Last Rampart', unlock: 46, desc: 'Once per standard, fatal damage taken while you stand in your Muster Standard leaves you at 1 Life and invulnerable for 2 seconds.', mods: {},
+        effects: [{ kind: 'cheatDeath', lifePct: 0, invulnMs: 2000, cooldownMs: Infinity, rearmOnCast: ['muster_standard'], when: { buff: 'muster_standard' } }] },
     ],
     tiers: [
       { name: 'Taller Pole', desc: 'Radius increased by 20%.', mods: { radius: 20 } },
@@ -310,6 +310,9 @@ export const WARRIOR_SKILLS: SkillDef[] = [
         ranks: [{ vars: { drillGen: 1 } }, { vars: { drillGen: 1 } }, { vars: { drillGen: 1 } }], pos: at(1, 0) },
       { id: 'rallying_pulse', name: 'Rallying Pulse', text: 'Planting the standard heals you and allies inside for {var:plantHeal}% of maximum Life.', maxRank: 3,
         ranks: [{ vars: { plantHeal: 5 } }, { vars: { plantHeal: 5 } }, { vars: { plantHeal: 5 } }], pos: at(2, 0) },
+      // Bible N4 (engine wave 3 slow): the standard re-applies a 0.4 s slow every 0.25 s to enemies inside.
+      { id: 'hold_the_line', name: 'Hold the Line', text: 'Enemies inside your standard are slowed by {var:standardSlow}%.', maxRank: 3,
+        ranks: [{ vars: { standardSlow: 10 } }, { vars: { standardSlow: 10 } }, { vars: { standardSlow: 10 } }], requires: needs('wide_muster'), pos: at(0, 1) },
       { id: 'quick_muster', name: 'Quick Muster', text: 'Each enemy that dies inside your standard reduces its cooldown by {var:musterRefund} seconds.', maxRank: 3,
         ranks: [{ vars: { musterRefund: 0.25 } }, { vars: { musterRefund: 0.25 } }, { vars: { musterRefund: 0.25 } }], requires: needs('drill_cadence'), pos: at(1, 1) },
       { id: 'colour_guard', name: 'Colour Guard', text: 'When the standard expires, everyone who stood inside gains {var:colourGuard}% increased damage for 5 seconds.', maxRank: 3,
@@ -348,6 +351,11 @@ export const WARRIOR_SKILLS: SkillDef[] = [
         ranks: [{ vars: { sodBurst: 1 } }, { vars: { sodBurst: -0.25 } }, { vars: { sodBurst: -0.25 } }], requires: needs('broad_share'), pos: at(0, 1) },
       { id: 'thrift_furrow', name: 'Thrift Furrow', text: 'Ironplough costs {var:thrift} less Fury per second for each enemy in the cone beyond the first.', maxRank: 3,
         ranks: [{ vars: { thrift: 1 } }, { vars: { thrift: 1 } }, { vars: { thrift: 1 } }], requires: needs('ox_strength'), pos: at(1, 1) },
+      // Bible N6 (engine wave 3 directional damage taken): class code keeps the hidden buff plough_brace up while the ramp is
+      // full (level 5); "in front of you" = the plough's facing ± 90° [P], the front half.
+      { id: 'brace', name: 'Brace', text: 'At full ramp you take {var:ploughBrace}% less damage from enemies in front of you.', maxRank: 3,
+        ranks: [{ vars: { ploughBrace: 10 } }, { vars: { ploughBrace: 10 } }, { vars: { ploughBrace: 10 } }], requires: needs('patient_draft'), pos: at(2, 1),
+        effects: [{ kind: 'damageTaken', pct: { roll: -10 }, when: { all: [{ buff: 'plough_brace' }, { targetInFront: 90 }] } }] },
     ],
   },
   {
@@ -372,10 +380,14 @@ export const WARRIOR_SKILLS: SkillDef[] = [
       { id: 'heavier_stones', name: 'Heavier Stones', text: 'Cairnfall deals {dmg}% increased damage.', maxRank: 3, ranks: [{ dmg: 10 }, { dmg: 10 }, { dmg: 10 }], pos: at(0, 0) },
       { id: 'tight_ring', name: 'Tight Ring', text: 'The ring shrinks to {var:ringRadius} units, so cairns overlap on enemies next to you.', maxRank: 3,
         ranks: [{ vars: { ringRadius: 90 } }, { vars: { ringRadius: -20 } }, { vars: { ringRadius: -20 } }], pos: at(1, 0) },
+      { id: 'quarry_dust', name: 'Quarry Dust', text: 'Enemies hit by Cairnfall are slowed by {var:cairnSlow}% for 3 seconds.', maxRank: 3,
+        ranks: [{ vars: { cairnSlow: 20 } }, { vars: { cairnSlow: 15 } }, { vars: { cairnSlow: 15 } }], pos: at(2, 0) },
       { id: 'second_fall', name: 'Second Fall', text: 'Each cairn has a {var:bounce}% chance to bounce once to an enemy within 150 units for 50% damage.', maxRank: 3,
         ranks: [{ vars: { bounce: 30 } }, { vars: { bounce: 30 } }, { vars: { bounce: 30 } }], requires: needs('heavier_stones'), pos: at(0, 1) },
       { id: 'fury_cairn', name: 'Fury Cairn', text: 'Each cairn that hits generates {var:cairnFury} Fury.', maxRank: 3,
         ranks: [{ vars: { cairnFury: 2 } }, { vars: { cairnFury: 2 } }, { vars: { cairnFury: 2 } }], requires: needs('tight_ring'), pos: at(1, 1) },
+      { id: 'capstone', name: 'Capstone', text: 'The last cairn is a giant: its radius is ×{var:capstone} and it deals 50% more damage.', maxRank: 3,
+        ranks: [{ vars: { capstone: 1.5 } }, { vars: { capstone: 0.25 } }, { vars: { capstone: 0.25 } }], requires: needs('quarry_dust'), pos: at(2, 1) },
     ],
   },
   {

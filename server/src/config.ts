@@ -8,6 +8,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const PORT = Number(process.env.PORT ?? 2567);
 /** Multiplier on monster XP. 1 is the designed pace (the prototype shipped 3, which levelled a bot to 70 in ~20 min). */
 export const XP_MULT = Number(process.env.XP_MULT ?? 1) || 1;
+/** Offline rewards (server/src/afk.ts) are parked by the owner (2026-10-11): off unless OFFLINE_REWARDS=1. While off, no
+ *  gains are granted, no report is sent and no field kill rate is measured; saves keep any existing `afk` field. */
+export const OFFLINE_REWARDS = process.env.OFFLINE_REWARDS === '1';
 export const ROOT_DIR = path.resolve(here, '..', '..');
 export const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT_DIR, 'server', 'data', 'characters');
 /** Opt in to verified local backups; retention/off-device copies are operator policy. */

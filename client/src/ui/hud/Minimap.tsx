@@ -304,7 +304,7 @@ export function RiftBar() {
   return (
     <div class={`rift-bar${guardian ? ' guardian' : ''}${done ? ' done' : ''}`}>
       <div class="rb-head">
-        <span class="rb-title">{done ? 'Rift Cleared' : guardian ? 'Rift Guardian!' : 'Rift Progress'}</span>
+        <span class="rb-title">{done ? 'Faultline cleared' : guardian ? 'Faultline Keeper!' : 'Faultline progress'}</span>
         {!guardian && !done && <span class="rb-pct">{Math.floor(rift.progress)}%</span>}
         {(guardian || done) && <span class="rb-lv">Lv {rift.level}</span>}
       </div>

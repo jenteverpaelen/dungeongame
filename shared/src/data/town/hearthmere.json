@@ -3822,7 +3822,7 @@
   },
   {
    "id": "mystic",
-   "name": "Mystic",
+   "name": "Glasswright",
    "role": "mystic",
    "x": 3480,
    "y": 1885,
@@ -3838,7 +3838,7 @@
   },
   {
    "id": "cube",
-   "name": "The Ancients' Cube",
+   "name": "The Glass Reliquary",
    "role": "cube",
    "x": 2790,
    "y": 1890,
@@ -3853,7 +3853,7 @@
   },
   {
    "id": "rift",
-   "name": "Rift Obelisk",
+   "name": "Faultstone",
    "role": "obelisk",
    "x": 3330,
    "y": 2430,
@@ -3868,7 +3868,7 @@
   },
   {
    "id": "paragon",
-   "name": "Paragon shrine",
+   "name": "Lantern shrine",
    "role": "paragon",
    "x": 1480,
    "y": 1860,
@@ -4224,7 +4224,7 @@
    ]
   },
   {
-   "label": "To the obelisk",
+   "label": "To the Faultstone",
    "points": [
     [
      3020,

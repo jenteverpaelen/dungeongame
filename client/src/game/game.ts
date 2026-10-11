@@ -301,7 +301,7 @@ export class Game {
     this.lastRiftKey='';
     ui.set({ zone, myId: you, rift: null, dungeon:null, target: null, interact: null, panels: {} });
     const def = ZONES[zone.zone];
-    if (def) pushNotice(zone.kind === 'rift' ? 'Nephalem Rift' : def.name, 'info');
+    if (def) pushNotice(zone.kind === 'rift' ? 'Faultline' : def.name, 'info');
   }
 
   /** Sheet movement speed; a channel slow from the server (MeState.ms) overrides it while channelling. */
@@ -364,7 +364,7 @@ export class Game {
         break;
       }
       case 'paragon':
-        if (ev.t === myId) pushNotice(`Paragon ${ev.lv}`, 'level');
+        if (ev.t === myId) pushNotice(`Lantern Rank ${ev.lv}`, 'level');
         break;
       case 'notice':
         pushNotice(ev.text, ev.kind);
@@ -464,7 +464,7 @@ export class Game {
     if (k === 'u') {
       const n = this.world.map?.town?.npcs.find(n => n.role === 'cube');
       if (n && Math.hypot(n.x - this.predictor.x, n.y - this.predictor.y) <= n.interactionRadius && !this.world.collision?.segmentBlocked(this.predictor.x, this.predictor.y, n.x, n.y)) this.openArtisan('cube');
-      else pushNotice("Stand beside the Ancients' Cube to use it", 'info');
+      else pushNotice('Stand beside the Glass Reliquary to use it', 'info');
       return;
     }
     const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', o: 'settings', F1: 'help', F2: 'debug' };
@@ -615,7 +615,7 @@ export class Game {
       if (s?.poiId) interact = { role: 'clue', name: s.name };
       else if (s?.role) interact = { role: s.role, name: s.name };
       else if (s?.portalTo) interact = { role: 'waypoint', name: s.name };
-      else if (this.nearestPortalEntity(px, py)) interact = { role: 'obelisk', name: this.world.zone?.kind === 'town' ? 'Enter the Rift' : 'Return to Hearthmere' };
+      else if (this.nearestPortalEntity(px, py)) interact = { role: 'obelisk', name: this.world.zone?.kind === 'town' ? 'Enter the Faultline' : 'Return to Hearthmere' };
     }
     const sameTarget = st.target && target && st.target.id === target.id && Math.abs(st.target.hpFrac - target.hpFrac) < 0.005;
     const patch: Partial<ReturnType<typeof ui.get>> = { dps };

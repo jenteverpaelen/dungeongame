@@ -196,6 +196,8 @@ export function addOwnedDot(p: Player, m: Mob, dot: Dot) {
   for (const r of rules) {
     if (r.kind !== dot.kind || (r.skills && !r.skills.has(dot.skill))) continue;
     stacks = Math.max(stacks, r.stacks); strength *= r.strength; carry = Math.min(100, carry + r.carry);
+    if (r.also) dot.also = r.also; // "Bleeds also Burn"
+    if (r.el) dot.el = r.el;
   }
   if (strength !== 1) dot.perTick *= strength;
   addDot(m, dot, stacks, carry);
@@ -217,6 +219,8 @@ export function mobStatusFlags(m: Mob): number {
     if (k === 'bleed') f |= F_BLEED;
     else if (k === 'burn') f |= F_BURN;
     else f |= F_POISON;
+    const a = m.dots[i].also;
+    if (a) f |= a === 'bleed' ? F_BLEED : a === 'burn' ? F_BURN : F_POISON;
   }
   return f;
 }
@@ -244,7 +248,7 @@ export function removeBuff(p: Player, id: string) {
 export function refreshLive(p: Player) {
   const l = p.live;
   l.dmg = 0; l.chc = 0; l.chd = 0; l.ias = 0;
-  let dr = 1, cci = false, cdrec = 0, cost = 1;
+  let dr = 1, cci = false, cdrec = 0, cost = 1, mv = 0;
   for (const b of p.buffs) {
     l.dmg += b.dmg ?? 0;
     l.chc += b.chc ?? 0;
@@ -255,8 +259,9 @@ export function refreshLive(p: Player) {
     if (b.cci) cci = true;
     if (b.cdrec) cdrec += b.cdrec;
     if (b.cost) cost *= Math.max(0, 1 + b.cost / 100);
+    if (b.mv) mv += b.mv * (b.st ?? 1);
   }
-  l.dr = dr; l.cci = cci; l.cdrec = cdrec; l.cost = cost;
+  l.dr = dr; l.cci = cci; l.cdrec = cdrec; l.cost = cost; l.mv = mv;
 }
 
 /** Advance buff timers; returns true if any expired. */

@@ -21,7 +21,7 @@ export function planQuestDelivery(save: CharacterSave, step: QuestStep, ids: unk
     if (!item || owned.filter(item => item?.id === id).length !== 1) return { error: 'Every selected item must be uniquely owned in your bag' };
     const reason = deliveryItemReason(item, step);
     if (reason) return { error: reason };
-    if (id === pendingItemId) return { error: 'Choose your pending enchantment at the Mystic before delivering this item' };
+    if (id === pendingItemId) return { error: 'Choose your pending enchantment at the Glasswright before delivering this item' };
     for (const gem of item.sockets) if (gem) {
       const key = `${gem.gem}:${gem.rank}`, value = (gems[key] ?? 0) + 1;
       if (!Number.isSafeInteger(value) || value < 1) return { error: 'Your returned gem balance cannot be represented safely' };

@@ -135,7 +135,7 @@ export const MATERIAL_INFO: Record<MaterialId, { name: string; color: string; de
   dust: { name: MATERIAL_NAMES.dust, color: '#c9a8ff', desc: 'Glittering residue of faded enchantments.', source: 'Salvage Magic items' },
   crystal: { name: MATERIAL_NAMES.crystal, color: '#8fb8ff', desc: 'A shard that bends light around hidden power.', source: 'Salvage Rare items' },
   soul: { name: MATERIAL_NAMES.soul, color: '#9ff0c8', desc: 'The lingering will of a legendary relic.', source: 'Salvage Legendary and Set items' },
-  deathsBreath: { name: MATERIAL_NAMES.deathsBreath, color: '#ff8a5a', desc: 'Distilled from the last exhale of a slain elite.', source: 'Dropped by champions, rares and bosses' },
+  deathsBreath: { name: MATERIAL_NAMES.deathsBreath, color: '#ff8a5a', desc: 'A hot cinder left where an elite falls.', source: 'Dropped by champions, rares and bosses' },
 };
 export const MATERIAL_ORDER: MaterialId[] = ['scrap', 'dust', 'crystal', 'soul', 'deathsBreath'];
 
@@ -339,7 +339,7 @@ export function EmptySocketIcon({ size = 20 }: { size?: number }) {
 
 export function CubeEmblem({ size = 48, glow = true, class: cls }: { size?: number; glow?: boolean; class?: string }) {
   return (
-    <Svg size={size} vb={48} class={cls} title="The Cube">
+    <Svg size={size} vb={48} class={cls} title="The Glass Reliquary">
       <defs>
         <linearGradient id="cb-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1d48a" /><stop offset="1" stop-color="#9a6a2e" /></linearGradient>
         <linearGradient id="cb-left" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8c5f2a" /><stop offset="1" stop-color="#4a2e12" /></linearGradient>

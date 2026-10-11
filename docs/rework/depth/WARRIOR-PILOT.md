@@ -9,11 +9,11 @@ Implements `WARRIOR.md` (bible v2) on the depth foundation and engine wave 2. La
 |---|---|---|
 | Skills | 12 / 12 | 6 existing + Tolling Blow (16), Sawtooth Hatchet (20), Muster Standard (26), Ironplough (32), Cairnfall (40), Kilnheart (50) |
 | Runes | 60 / 60 | runes 4–5 of the existing skills at skill + 14 / + 20 [B] |
-| Specialization nodes | 68 / 72 | 204 ranks; every tree holds 12–18 ranks for a cap of 10 |
-| Passives | 11 (6 kept + 5 of 8 new) | Bellwether, Open Veins, War Drummer, Deep Earth, Second Wind |
+| Specialization nodes | 72 / 72 | 216 ranks; every tree holds 12–18 ranks for a cap of 10 (the last four on engine wave 3) |
+| Passives | 14 (6 kept + 8 of 8 new) | Bellwether, Open Veins, War Drummer, Deep Earth, Second Wind; Spinning Top, Grudge Holder, Iron Discipline on engine wave 3 |
 | Sets | 5 / 5 | Endless Storm, Cinder Oath, Fault Warden redesigned on tags; Furrowmark and Hearthbanner new |
-| Warrior legendaries | 32 / 34 | 6 existing (Faultcleaver text, Ninefold Gale now boosts Whirlwind) + 26 new (Kilnmaw after the merge brought the `maul2h` base) |
-| Data grounds | 7 | `shared/src/data/groundsWarrior.ts` |
+| Warrior legendaries | 34 / 34 | 6 existing (Faultcleaver text, Ninefold Gale now boosts Whirlwind) + 28 new (Kilnmaw after the merge brought the `maul2h` base; Slagforged Helm and Quakestep Sabatons on engine wave 3) |
+| Data grounds | 8 | `shared/src/data/groundsWarrior.ts` (Cinder Oath 6 `cinder_pool` on engine wave 3) |
 | Point economy | `SPEC_POINTS = { separate, 1/level from 21, cap 10 }` | 50 points at 70 = the five active trees |
 | Names | `NAMES.md` recommendations | Seismic Slam → **Quakeline**; 10 rune renames; ids unchanged |
 | Tags | every warrior skill and rune per `ITEMS-SHARED.md` §1.2 | Spender authored on the channels, Cooldown on Muster Standard |
@@ -29,18 +29,30 @@ spending, the death hook); client VFX `client/src/render/vfx/*`, poses `client/s
 New legendaries and set pieces drop through normal loot (the class pools are data; test "loot drops"); debug `legendaries`
 grants every class legendary, debug `set` every set (`{ id }` limits it to one set's pieces, so they fit the bag).
 
-## 2. Still blocked (needs an engine primitive)
+## 2. Formerly blocked — shipped on engine wave 3 (`claude/depth`, FOUNDATION.md §13)
 
-| Content | Missing primitive |
-|---|---|
-| Muster Standard N4 Hold the Line (slow 10/20/30 %), Cairnfall N3 Quarry Dust (20/35/50 %) and N6 Capstone (needs N3) | slow of a chosen strength (chill is a fixed 40 % [M]) |
-| Ironplough N6 Brace, Furrowmark 4 "30 % less damage from enemies in front while channelling" | directional damage reduction |
-| Spinning Top (passive) | movement speed from a buff (channel-time stacks are class code; the speed part is not) |
-| Grudge Holder (passive) | an elite filter on the takeDamage trigger |
-| Iron Discipline (passive) | turning Fury decay off |
-| Cinder Oath 2 "Bleeds also Burn", Cinder Oath 6 cinder pools | dual Bleed/Burn dots, a ground applying "your strongest dot at 50 %" (Cinder Oath 4 "or Burning" shipped after the merge brought the `burning` target state) |
-| Slagforged Helm | a fall-below-35 %-Life trigger that casts a skill |
-| Quakestep Sabatons | a Movement-end trigger (the dash proc fires at the start) |
+Everything the pilot listed as blocked now ships, text and effect together. Tests: `server/test/warriorWave3.test.ts`.
+
+| Content | Primitive used | Choices made here |
+|---|---|---|
+| Muster Standard N4 Hold the Line (slow 10 / 20 / 30 %) | status `slow` | re-applied every 0.25 s with 0.4 s duration [P], so it ends just after an enemy leaves |
+| Cairnfall N3 Quarry Dust (20 / 35 / 50 % for 3 s), N6 Capstone (×1.5 / 1.75 / 2.0 radius, 50 % more) | status `slow`; class code | the giant is the last cairn of the cast (with Scree Line, the farthest); its Kiln Stones ground and Deep Earth tremor use the giant radius too |
+| Ironplough N6 Brace (10 / 20 / 30 % less from enemies in front at full ramp) | `damageTaken` + `targetInFront`, `ChannelState.aim` | full ramp = ramp level 5; hidden marker buff `plough_brace`; "in front" = the plough's facing ± 90° [P] |
+| Furrowmark 4 "30 % less damage from enemies in front while channelling" | `damageTaken` + `targetInFront` | ± 90° [P]; Whirlwind faces your movement, Ironplough its cone |
+| Spinning Top (passive, 24) | stacking `source: 'channel'`, `stackMoveSpeed` | any channel; 4 % increased damage and 3 % movement speed per stack, as the bible |
+| Grudge Holder (passive, 36) | proc `when: { targetElite: true }` on `takeDamage` | two procs on the same hit and internal cooldown: Mark (6 s) and your own vulnerable 15 % (6 s) |
+| Iron Discipline (passive, 64) | rule `noDecay`, stat `maxResource` 20, `vars.genPct` −15 on Primary skills | the whole Fury a Primary hit generates (base, nodes, items) is scaled |
+| Cinder Oath 2 "Bleeds also Burn" | tag grant Bleed → Burn, dot rule `alsoKind: 'burn', element: 'fire'` | as the bible's data column |
+| Cinder Oath 6 cinder pools (radius 80, 2 s, strongest dot at 50 %) | kill proc + ground `carryDot` + status `carriedDot` | each enemy in the pool gets one copy (onEnter) [P]; at most 8 pools [P]; visual: the existing lava pool |
+| Slagforged Helm (Buff cooldowns −20–30 %, below 35 % Life casts a Buff) | trigger `lifeBelow`, action `castSkill` | only a ready Buff skill (off cooldown); free; the text says "ready" |
+| Quakestep Sabatons (Movement end: stun 1 s within 120, 60–80 % weapon damage, once per 3 s) | trigger `dashEnd` | "Movement skill" = the dash (the engine's one Movement skill) |
+| Deep Earth "slows by 30 %" (was a 40 % chill) | status `slow`, target state `slowed` | its 10 % bonus counts slowed or chilled enemies |
+| Last Rampart "once per standard, 1 Life" (was once every 20 s, 1 % Life) | `cheatDeath` `lifePct: 0`, `cooldownMs: Infinity`, `rearmOnCast` | planting a standard (also by Slagforged Helm) re-arms it |
+
+Parity fixture: `server/test/parity/warrior.ts` keeps Cairnfall's measured node spec (Heavier Stones 3, Tight Ring 3,
+Fury Cairn 2, Second Fall 2). The positional rule would now put 2 ranks into Quarry Dust (a slow) instead of Second Fall;
+that moved Tolling Blow's legendary-only D3 in the verify gate from 0.91 to 0.79 [M] (hard limit 0.80) through the
+support's nodes, not through any item.
 
 ## 3. Narrow generic additions made for the pilot (with tests)
 
@@ -80,8 +92,7 @@ grants every class legendary, debug `set` every set (`{ id }` limits it to one s
 | Brass Warhorn Helm | "Primary and Strike skills attack faster" | Primary skills | channel ticks have a fixed rate; attack speed reaches primaries only |
 | Iron Root | "cannot be knocked back" | "cannot be pulled" | the engine's control immunity covers stun / freeze / pull (players are not knocked back) |
 | Slag Skin | melee attackers burn | every attacker burns | the takeDamage trigger does not know melee from ranged |
-| Deep Earth | slows by 30 % | chills (40 %) | one fixed chill |
-| Last Rampart | once per standard, 1 Life | once every 20 s (the standard's cooldown), 1 % Life | time cooldown only; the text-check needs the number |
+| Slagforged Helm | "your Buff skill with the longest cooldown activates" | the ready one with the longest cooldown | a skill on cooldown cannot be cast |
 | Stone Spray | range 300 | ≈ 250 | `spawnProj` caps flight at the skill range + 2 × player radius |
 | Hot Blood | uncapped | at most 4 heals per second [P] | as Red Draw [M]; uncapped it heals per Whirlwind tick |
 | Ringing Ears | consumed on the next hit | consumed, or after 8 s [P] | stale marks forever otherwise |
@@ -146,6 +157,51 @@ the bible's.
   6-piece on warrior items, hence D5 3/5. Their 6-piece bonuses need more value (a design call; not changed).
 * **D2** counts frequency, not power: Vambraces of the Anvil is the only warrior wrists legendary (its ablation ×0.99–1.05);
   with the shared items Seething Sigil takes every neck.
+
+### 6.1 Engine wave 3 content: parity before → after [M]
+
+* **Method.** Same harness: `scripts/audit-warrior-parity.ts` with 3 seeds and a 25-evaluation search per kit.
+  * **Before:** the wave-3 start; the engine commits are byte-identical.
+  * **After:** this content plus the carried-dot fix.
+  * The table above is the pilot's run. `WARRIOR-PARITY.md` / `.json` now hold the after run.
+
+| Check | Warrior items only, before → after | With shared legendaries, before → after |
+|---|---|---|
+| D1 | 3/9 → 2/9 | 1/9 → 1/9 |
+| D3 | 0.58–0.98 → 0.63–1.00 | 0.97–1.46 → 0.89–1.53 |
+| D4 | 1.00–1.07 → 1.00–1.07 | 0.80–1.03 → 0.81–1.09 |
+| D5 | 3/5 → 4/5 (Fault Warden now passes) | 5/5 → 5/5 |
+| D6 | 2.16 → 2.16 | 2.50 → 2.45 |
+
+Rows that moved more than 5 % [M]:
+
+* **Legendary-only, warrior items only.** Five mains rose:
+  * Tolling Blow ×6.2 → ×6.7;
+  * Ironplough ×8.3 → ×9.0;
+  * Sawtooth Hatchet ×13.2 → ×14.3;
+  * Quakeline ×16.4 → ×17.5;
+  * Whirlwind ×15.5 → ×16.2.
+
+  Cleave fell from ×7.5 to ×7.2.
+* **Legendary-only, with shared legendaries.**
+  * Cleave fell from ×14.7 to ×13.3.
+  * Ground Stomp rose from ×11.6 to ×12.9.
+* **Why legendary-only moved [inferred, not ablated].** Quakestep Sabatons is in 51 kit entries of the after run, filling
+  the feet slot, and the search path changes with the two new candidates.
+* **Cinder Oath 6 on Sawtooth Hatchet.**
+  * Warrior items only: ×18.6 → ×17.3.
+  * With shared legendaries: ×20.3 → ×26.2.
+  * Inferred cause: Burn-keyed items now also reach Bleed skills through Cinder Oath 2. The warrior-only drop is not
+    isolated; candidates are the Fire conversion of Bleeds and carried copies.
+  * A 50 % copy replacing a nearly expired full-strength Bleed is possible in the engine. It was fixed in engine commit
+    f99d84e, which brought ×16.9 back to ×17.3.
+* **Set audit (`scripts/audit-parity.ts`).** Unchanged except Cinder Oath set ~9771 → ~9784 s (+0.1 %).
+* **Verify gate (seed 101, greedy kits; Cairnfall spec pinned, §2).** D3 before → after:
+  * Cleave 0.93 → 0.95;
+  * Tolling Blow 0.90 → 0.91;
+  * Quakeline 0.82 → 0.89.
+
+  All within 0.80–1.25.
 
 ## 7. Endgame power and the simulation
 

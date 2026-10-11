@@ -50,12 +50,12 @@ export interface Difficulty {
 
 const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 export const DIFFICULTIES: Difficulty[] = [
-  { name: 'Normal', hp: 1, dmg: 1, xpBonus: 0, goldBonus: 0, legendaryBonus: 0, minLevel: 1 },
-  { name: 'Hard', hp: 2, dmg: 1.3, xpBonus: 75, goldBonus: 75, legendaryBonus: 0, minLevel: 1 },
-  { name: 'Expert', hp: 4, dmg: 1.7, xpBonus: 150, goldBonus: 150, legendaryBonus: 0, minLevel: 1 },
-  { name: 'Master', hp: 8, dmg: 2.2, xpBonus: 250, goldBonus: 250, legendaryBonus: 0, minLevel: 1 },
+  { name: 'Story', hp: 1, dmg: 1, xpBonus: 0, goldBonus: 0, legendaryBonus: 0, minLevel: 1 },
+  { name: 'Normal', hp: 2, dmg: 1.3, xpBonus: 75, goldBonus: 75, legendaryBonus: 0, minLevel: 1 },
+  { name: 'Hard', hp: 4, dmg: 1.7, xpBonus: 150, goldBonus: 150, legendaryBonus: 0, minLevel: 1 },
+  { name: 'Severe', hp: 8, dmg: 2.2, xpBonus: 250, goldBonus: 250, legendaryBonus: 0, minLevel: 1 },
   ...roman.map((r, i) => ({
-    name: `Torment ${r}`,
+    name: `Ordeal ${r}`,
     hp: 16 * Math.pow(2, i),
     dmg: 2.8 * Math.pow(1.3, i),
     xpBonus: 400 + 250 * i,

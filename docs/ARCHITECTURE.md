@@ -13,7 +13,7 @@ Decisions from the design Q&A (see `docs/research/` for sources):
 | Rarity | Pure Diablo 3: Normal / Magic / Rare / Legendary / Set (+ Ancient, Primal) |
 | Trading | Hybrid binding: items bind when equipped or upgraded (trading not in the prototype) |
 | Skills | D3 unlock-by-level + 3 runes per skill, plus TBH-style 3 upgrade tiers bought with skill points |
-| Idle | Idleon-style offline progress (25% efficiency, 12 h cap) reported on login |
+| Idle | **Parked by the owner (2026-10-11)**: Idleon-style offline progress, off unless `OFFLINE_REWARDS=1` (code dormant, see §1.10) |
 | Cube | TBH levelling Cube (functions unlock by Cube level, ops grant Cube XP) with D3 Kanai/Mystic recipes and +0..+10 upgrade tiers |
 | World | Shared hub town (channels of 100), shared training fields (channels of 30), instanced rifts |
 | Tone | Cute characters/monsters, dark-fantasy D3-like UI |
@@ -185,7 +185,9 @@ Use `loadoutMods(save, skill)` + legendary/set mods. Notes per skill (radii/coef
 
 Equipment changes must set `bound = true`. Every cmd that changes the save marks it dirty and triggers a `char` message.
 
-### 1.10 AFK gains (Idleon)
+### 1.10 AFK gains (Idleon) — parked
+**Parked by the owner (2026-10-11):** off by default (`OFFLINE_REWARDS` in `server/src/config.ts`); nothing is granted, no report is sent and no field kill rate is measured. The v2 formula (`server/src/afk.ts`, `docs/rework/partials/AFK.md`) stays dormant and tested. Historical v1 text:
+
 On `hello` for an existing save: `away = now − lastSeen` capped at 12 h; if away > 2 min and last zone was a field: kills = away_min × 60 × `AFK_EFFICIENCY` (≈ 15 kills/min), XP = kills × monsterXp(level,0,0) × (1 + xpPct/100) × XP_MULT, gold = kills × 0.22 × goldAmount avg, materials (scrap/dust ~ kills/40, crystal ~ kills/150). Apply with `addXp`, send `afk` message. Characters always reappear in town.
 
 ---

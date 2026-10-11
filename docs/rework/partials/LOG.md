@@ -138,3 +138,38 @@
   Inscription) with golden fixture `v16-grades` (the lead's `v15-grades` normalised) and `v15-grades` registered as an
   extra v15 fixture; content-id lock records the shared-items wave's 73 new ids; two new "health globe" affix labels
   allowlisted under owner pick B6 (2 stale entries dropped).
+- **Served-build verify stage (lead request).** `scripts/served-build-check.mjs` (stage `served-build`, after `build`):
+  the real server on a free port with a temp DATA_DIR serves dist/client with its headers; headless Chrome autostarts a
+  hero and the stage fails unless the game screen (canvas + own entity) appears with zero exceptions, console errors or
+  browser log errors, and the page carries a CSP. Proven: with `import 'pixi.js/unsafe-eval'` removed it fails with
+  Pixi's unsafe-eval error; with it, game screen in ~8 s, 0 errors. It also caught a favicon 404 → `<link rel="icon"
+  href="data:,">` in client/index.html.
+- **Offline rewards parked (owner 2026-10-11).** `OFFLINE_REWARDS` (server/src/config.ts) defaults off: `applyAfkGains`
+  returns nothing unless switched on (or `{ enabled: true }` in tests), the session neither grants nor sends a report
+  (so the modal never shows) and the field-rate meter neither samples nor writes `afk`; saves keep any existing field.
+  Tests: `afk.test.ts` 8/8 (new "parked" case + the dormant formula with the switch on), bot AFK section 20/20 checks
+  the parked behaviour (no report, no gold/XP/kills after 2 h and 100 h, no rate measured). Docs: ARCHITECTURE §1.10,
+  AFK.md, REPORT.md, roadmap row F-MET-02 "Parked by the owner".
+- **Owner decisions 2026-10-11 ("use recommendations for now").** Names: register B1–B6 + table C applied (see
+  NAME-REGISTER status; the damage altar became Hearthfire Altar because Kindled is now a grade; class skill and power
+  files left to the class agents). Combat freeze: 16 rows frozen as recommended. Pace targets (F-CMB-08): per band on
+  the class median — trash TTK ≤ 1.0 s (BALANCE.md fit target), champion TTK ≤ 1.25 × baseline, kills/min ≥ 0.75 ×
+  baseline — `bot-metrics/targets.json`, verify stage `pace-targets` (120 simulated min per class, ~45 s). Baseline
+  re-recorded after the Warrior pilot (the old one already missed L5 champion TTK, 5.8 > 5.6 s), AFK table regenerated.
+  Stash: five tabs at one measured hour each → 170 K / 630 K / 2.1 M / 3.4 M from the new baseline; D-24 recommendation
+  adopted: per character now, account-wide shared tab(s) for account holders together with F-MET-01 (P14).
+- **F-WLD-06 — town reflects the systems (owner unfroze the town 2026-10-11).** Per player, client-only
+  (`client/src/game/townProgress.ts` rules, `client/src/render/townProgress.ts` view, refreshed with the save): each
+  Reliquary operation the hero has unlocked adds one kit prop at the artisan who performs it — Empower: forge brazier
+  (Blacksmith); Gem Fusion: display table and Add Socket: stone lantern (Jeweler); Enchant: lantern (Glasswright);
+  Transmute / Bind Power: lanterns at the Reliquary door, Reforge: brazier — and every bought stash tab adds a strongbox
+  beside the stash (2 × 2 cluster, the vault clerk stays clear). Grounding: Diablo III's artisan shops visibly grow as
+  they are trained [K]; the steps are our own unlock table and tab count. Existing town art kinds only (`place`), no
+  collision, services/ids untouched; a debug op `cube {n}` sets the Reliquary level for QA. Tests
+  `townProgress.test.ts` 2/2 (one prop per unlock, every prop on an authored NPC, off the approach point). Evidence:
+  `shots/town-progress-{west,east}-{fresh,progressed}-1920.jpg` (fresh hero vs Reliquary 8 + five tabs bought through
+  `stashBuyTab`).
+- **Verify after the owner-decision pass:** passed, 33/33 stages (new: `served-build`, `pace-targets`), server 769/0,
+  simulation 455/455, perf budget 4/4, pace targets 0 misses over 7 bands, served build reaches the game in ~9 s with
+  0 page errors. One earlier run failed only the sim's absolute 3 ms tick check (3.06 ms) on a loaded machine; five
+  samples right after ranged 1.7–8.1 ms (load), the clean rerun measured 2.69 ms.

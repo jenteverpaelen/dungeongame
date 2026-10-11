@@ -88,7 +88,7 @@ export class RiftRuntime {
     this.phase = 'guardian';
     inst.emit({ e: 'aoe', v: 'explode', x: Math.round(x), y: Math.round(y), r: 160, d: 800, el: elIdx('arcane'), s: m.id }, x, y);
     for (const p of inst.players) inst.emitTo(p.id, { e: 'shake', m: 5, d: 300 });
-    inst.notice('The Rift Guardian has appeared!', 'boss');
+    inst.notice('The Faultline Keeper has appeared!', 'boss');
   }
 
   private complete(m: Mob) {
@@ -104,7 +104,7 @@ export class RiftRuntime {
     }
     inst.spawnPortal({ kind: 'town', x: m.x, y: m.y + 40, label: 'To Hearthmere', ttlMs: 0 });
     const secs = Math.round((this.endT - Math.max(0, this.startT)) / 1000);
-    inst.notice(`Rift completed in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}!`, 'rift');
+    inst.notice(`Faultline cleared in ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}!`, 'rift');
     for (const p of inst.players) inst.emitTo(p.id, { e: 'shake', m: 6, d: 260 });
     try { inst.opts.onRiftComplete?.(); } catch (err) { console.error('[rift] onRiftComplete', err); }
   }
@@ -150,7 +150,7 @@ export function bossTick(inst: Instance, m: Mob, p: Player, dtMs: number) {
 /** debug 'boss': rifts summon their Guardian now; elsewhere spawn a Guardian next to the player. */
 export function debugBoss(inst: Instance, p: Player): string | null {
   if (inst.rift) {
-    if (inst.rift.phase !== 'hunt') return 'The Rift Guardian has already been summoned';
+    if (inst.rift.phase !== 'hunt') return 'The Faultline Keeper has already been summoned';
     inst.rift.setFull(p);
     return null;
   }

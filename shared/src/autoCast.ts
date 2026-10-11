@@ -30,7 +30,7 @@ export function autoCastRuleText(skill: SkillDef, resource: string): string {
   const rule = skill.auto;
   switch (rule.when) {
     case 'always': return 'Fires automatically while enemies are in range.';
-    case 'enemiesNear': return `Needs enemy weight ${rule.count} within ${rule.within} base units. Ordinary enemies count as 1, elites and treasure goblins as 3, and bosses as 10.${['rend', 'ground_stomp', 'frost_nova'].includes(skill.id) ? ' This range can grow with skill radius.' : ''}${skill.id === 'rend' ? ' Enemies already bleeding from your Rend do not count.' : ''}`;
+    case 'enemiesNear': return `Needs enemy weight ${rule.count} within ${rule.within} base units. Ordinary enemies count as 1, elites and Hoardlings as 3, and bosses as 10.${['rend', 'ground_stomp', 'frost_nova'].includes(skill.id) ? ' This range can grow with skill radius.' : ''}${skill.id === 'rend' ? ' Enemies already bleeding from your Rend do not count.' : ''}`;
     case 'maintainBuff': return 'Refreshes its buff near enemies when at most 2 seconds remain.';
     case 'maintainSummon': return skill.id === 'companion' ? 'Maintains your companion, including outside combat.' : 'Replaces missing or distant summons when enemies are in skill range.';
     case 'channel': return `Starts at ${rule.startAt} ${resource} with enemies within ${rule.within} units, then uses the normal channel upkeep.`;

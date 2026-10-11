@@ -128,7 +128,7 @@ function Slot(p: SlotProps) {
 interface BuffMeta { name: string; shape?: string; skill?: SkillDef; color: string }
 
 const BUFF_META: Record<string, { name: string; shape: string; color: string }> = {
-  hellforge: { name: 'Hellforge', shape: 'flame', color: '#ff8a3d' },
+  hellforge: { name: 'Kilnheart', shape: 'flame', color: '#ff8a3d' },
   stridewind: { name: 'Stridewind', shape: 'up', color: '#6fe3d0' },
   spellsteal: { name: 'Spellsteal', shape: 'star', color: '#c39bff' },
   deep_freeze: { name: 'Deep Freeze', shape: 'crit', color: '#7fd3ff' },
@@ -140,9 +140,9 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   shield: { name: 'Shield', shape: 'shield', color: '#7fb4ff' },
   haste: { name: 'Haste', shape: 'bolt', color: '#ffe36a' },
   // Field shrines (server/src/sim/instance.ts SHRINE): two minutes, combat only.
-  shrine_empowered: { name: 'Empowered Shrine', shape: 'flame', color: '#ff7a4a' },
-  shrine_frenzied: { name: 'Frenzied Shrine', shape: 'bolt', color: '#ffe36a' },
-  shrine_keen: { name: 'Keen Shrine', shape: 'crit', color: '#7fd3ff' },
+  shrine_empowered: { name: 'Hearthfire Altar', shape: 'flame', color: '#ff7a4a' },
+  shrine_frenzied: { name: 'Quickening Altar', shape: 'bolt', color: '#ffe36a' },
+  shrine_keen: { name: 'Keen Altar', shape: 'crit', color: '#7fd3ff' },
   // Warrior M1 (docs/rework/depth/WARRIOR.md §3–§7): colours follow the source skill / set motif.
   rend_haste: { name: 'Bloodletter’s Pace', shape: 'bolt', color: '#e0503c' },
   gale_stitched: { name: 'Gale-Stitched', shape: 'up', color: '#cfe6ee' },
@@ -224,7 +224,7 @@ export function XpBar() {
         <div class="xp-ticks" />
       </div>
       <div class="xp-label">
-        <b>{paragon ? `Paragon ${v.pl}` : `Level ${v.lv}`}</b>
+        <b>{paragon ? `Lantern Rank ${v.pl}` : `Level ${v.lv}`}</b>
         <span>{fmtInt(cur)} / {fmtInt(need)}</span>
         <em>{(frac * 100).toFixed(1)}%</em>
       </div>

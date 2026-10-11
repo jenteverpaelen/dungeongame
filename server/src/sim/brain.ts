@@ -215,7 +215,10 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   if (floor === 0 ? p.res < cost : p.res - cost < floor) return `Not enough resource for ${rt.def.name}`;
   if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
   const tracked = p.ctx.powers.rules.spendRefund.length ? trackCast(inst, p, id, cost) : false;
-  if (!castSkill(inst, p, rt)) { if (tracked) p.pw!.cast = null; return `No valid target for ${rt.def.name}`; }
+  p.acting = id;
+  const cast = castSkill(inst, p, rt);
+  p.acting = undefined;
+  if (!cast) { if (tracked) p.pw!.cast = null; return `No valid target for ${rt.def.name}`; }
   p.res -= cost;
   // Power procs: every resource-spending cast (Seal of the Patient Thief shortens all active cooldowns), every cast.
   if (cost > 0) firePowerProcs(inst, p, 'spend', { skill: id });
@@ -246,7 +249,7 @@ export function playerBrain(inst: Instance, p: Player, dtMs: number) {
     const slot = p.save.skills.slots.indexOf(p.channel.skill);
     const rt = p.ctx.slots[slot];
     if (!rt || slot < 0 || (!p.channel.manual && (!slotAllowsCast(p, slot) || !automaticFilters(inst,p,rt,autoRuleForSlot(p.save.skills,slot),skillCost(p,rt)*dtMs/1000)))) endChannel(inst, p);
-    else channelTick(inst, p, dtMs);
+    else { channelTick(inst, p, dtMs); p.acting = undefined; }
   }
 
   const c = p.ctx;

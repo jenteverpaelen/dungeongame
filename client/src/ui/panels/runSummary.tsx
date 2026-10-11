@@ -20,7 +20,7 @@ export function RunSummaryPanel() {
       <div class="rs-stats">
         <div class="rs-stat"><span>{t('run.summary.difficulty')}</span><b>{DIFFICULTIES[run.difficulty]?.name ?? '—'}</b></div>
         <div class="rs-stat"><span>{t('run.summary.time')}</span><b>{run.elapsedMs === null ? '—' : fmtDuration(run.elapsedMs)}</b></div>
-        <div class="rs-stat"><span>Type</span><b>{run.kind === 'rift' ? 'Rift' : 'Dungeon'}</b></div>
+        <div class="rs-stat"><span>Type</span><b>{run.kind === 'rift' ? 'Faultline' : 'Dungeon'}</b></div>
       </div>
       <p class="co-sub">{t(run.kind === 'rift' ? 'run.summary.riftClock' : 'run.summary.dungeonClock')}</p>
       <section class="so-card">

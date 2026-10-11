@@ -15,7 +15,7 @@ done (each needs you, real people or later work), 1 not started (blocked by your
 | **Names and licences** | An originality check fails the build if a borrowed name sneaks in; Diablo's elite names and "Treasure Goblin" were replaced (Swift, Hulking, Kilnborn… and the **Hoardling**); licence list checked |
 | **Settings** | Graphics presets with measured cost (Low ≈ 105–110 fps, High 42–72 fps on this PC); colour-blind palettes (rarity colours now 2–3× easier to tell apart for colour-blind players) plus shapes on rarity labels; gamepad support with remapping (tested with a simulated pad only) |
 | **Stash tabs** | 5 tabs of 60 slots; tabs 2–5 cost 170 K / 1.1 M / 2.4 M / 4.6 M gold (about one hour of play each at that level) |
-| **Offline rewards** | Rewards now based on what *your* hero really earns per minute (Codex's numbers were about 7× too generous); logging in more often can never earn more |
+| **Offline rewards** | **Parked by you (2026-10-11)**: switched off, nothing granted or shown; the improved version (based on what *your* hero really earns, logging in more often never earns more) stays dormant behind `OFFLINE_REWARDS=1` |
 | **Telemetry and speed checks** | A local analytics page for you; the test suite now fails if the server gets slower or network messages get bigger; recorded fights replay exactly, which makes bugs reproducible |
 | **Monsters** | Enrage and summon behaviours are shared building blocks (the Rift Guardian uses them) |
 | **Security** | Safer web headers; a security checklist; dependencies audited (0 known vulnerabilities; four small upgrade proposals, nothing installed) |

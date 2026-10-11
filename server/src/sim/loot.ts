@@ -30,7 +30,7 @@ function viewOf(pl: LootPayload): LootView {
     case 'gold': return { lk: 'gold', name: 'Gold', amount: pl.amount };
     case 'gem': return { lk: 'gem', name: gemName(pl.gem, pl.rank), gem: `${pl.gem}:${pl.rank}`, amount: pl.rank };
     case 'mat': return { lk: 'mat', name: MATERIAL_NAMES[pl.mat], amount: pl.amount };
-    case 'globe': return { lk: 'globe', name: 'Health Globe' };
+    case 'globe': return { lk: 'globe', name: 'Mending Orb' };
   }
 }
 
@@ -147,7 +147,7 @@ export function updateLoot(inst: Instance, p: Player, dtMs: number) {
       case 'globe':
         for (const o of inst.playersNear(l.x, l.y, GLOBE_RADIUS)) healPlayer(inst, o, globeHeal(o), false);
         if (Math.hypot(l.x - p.x, l.y - p.y) > GLOBE_RADIUS) healPlayer(inst, p, globeHeal(p), false);
-        inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'globe', name: 'Health Globe' }, l.x, l.y, p.id);
+        inst.emit({ e: 'pickup', t: p.id, l: l.id, lk: 'globe', name: 'Mending Orb' }, l.x, l.y, p.id);
         break;
     }
     if(before)recordEconomy(p.save,'pickup',before);
