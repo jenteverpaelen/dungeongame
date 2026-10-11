@@ -354,6 +354,17 @@ const INST_SEQ_START = instSeq;
 function newField(zoneId = 'whispering_glade', fixedSeed?: number): Instance {
   return createInstance({ zoneId, channel: instSeq, key: `${zoneId}#${instSeq++}`, seed: fixedSeed ?? zoneSeed(zoneId, instSeq), theme: ZONES[zoneId].theme }) as Instance;
 }
+/**
+ * Run `fn` from a fresh, fixed random state (Math.random, the gear stream, the character and instance counters) and
+ * restore the shared state afterwards, so a section measures the same thing whatever ran before it. The rift floors
+ * swung with the shared stream (the ranger agent measured one mage kit at 8.9 % and 54.8 % of a Torment II rift in two
+ * streams), so each class's rift now starts from the state its section and the seed give, not from the classes before it.
+ */
+function freshStreams<T>(section: number, fn: () => T): T {
+  const saved = { simRng, gearRng, seedCounter, instSeq };
+  simRng = new Rng(SIM_SEED + section); gearRng = new Rng(4242 + section); seedCounter = SEED_COUNTER_START; instSeq = INST_SEQ_START;
+  try { return fn(); } finally { ({ simRng, gearRng, seedCounter, instSeq } = saved); }
+}
 function newRift(level: number, difficulty: number, theme: 'glade' | 'ashen', onDone?: () => void): Instance {
   return createInstance({ zoneId: 'rift', channel: 1, key: `rift#${instSeq++}`, seed: 77 + instSeq * 13, theme, level, difficulty, owner: 'Bot', onRiftComplete: onDone }) as Instance;
 }
@@ -1680,10 +1691,10 @@ if (!only || only === 'dodge') dodgeScenario();
 if (!only || only === 'rift') {
   console.log('\n== Rifts: every class at L1 (Normal) / L20 (Hard) / L70 (Torment II) until completion (every class at L70: progress floor until the Torment re-fit) ==');
   for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) {
-    riftScenario(cls, 1, 0, false, 'glade');
+    freshStreams(1, () => riftScenario(cls, 1, 0, false, 'glade'));
     // After the level-toughness calibration (docs/rework/BALANCE.md) a full ilvl-20 rare kit clears Hard in 5-8 minutes
     // and Master in 12+; the set + legendaries kit sits around Torment III-V (it was Torment VIII on the old life curve).
-    riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade');
+    freshStreams(20, () => riftScenario(cls, 20, 1, false, cls === 'ranger' ? 'ashen' : 'glade'));
     // Depth budget (docs/rework/depth/BUDGET.md §9 risk 1): the warrior's v2 kit lifts ×25 over rares against 8 sturdy
       // targets [M] (its old sets ×255), so it no longer clears Torment II in 12 minutes (71.9% [M]) until the Torment ladder
       // is re-fitted (`sim.ts fit`) once every class is on the budget. The rift flow itself stays covered by the L1 / L20
@@ -1693,7 +1704,10 @@ if (!only || only === 'rift') {
       // Torment II in 12 minutes with the audit's Siegebreaker 6 Sentry kit [M]; 64.6–81.5% before the last fits and the
       // Arbalest's pierce cap shifted the seeded stream). The mage wave put the mage on the budget too (old sets ×180, v2
       // Fallen Star kit ×13 [M]; 87.3–93.6% of a Torment II rift in 12 minutes across seeded streams [M], MAGE-PILOT.md §7).
-      riftScenario(cls, 70, 5, true, 'ashen', 30);
+      // Own streams (freshStreams), 5 seeds after the ranger merge [M]: warrior 73.0–84.3 %, ranger 14.8–33.0 %, mage
+      // 59.6–91.1 % (the warrior's 22.9 % in the shared stream was the classes before it). The ranger sits at the floor in
+      // its own stream whatever the recast rule (no floor 25.2–36.0 %, plain 250 ms floor 28.8–31.1 %): reported, not lowered.
+      freshStreams(70, () => riftScenario(cls, 70, 5, true, 'ashen', 30));
   }
 }
 if (!only || only === 'skills') skillCoverage();

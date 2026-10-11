@@ -244,3 +244,11 @@
   - `passives.test.ts` counts by class.
   - Stable ids recorded; the build-code registry is append-only and checked by content:check.
 - Merged `claude/town-ui-rework` 27f7e0c (mage wave): 56b2bf3.
+- **After the ranger merge (630bef3).**
+  - Build-code ids appended (88).
+  - The plain recast floor slowed the new ranger (L25+ +1.4 ± 0.6 s over 10 seeds; Multishot bursts spread). It is
+    now refused only for recasts the hero does not pay for. The gate's L25+ class median went from 6.87 to 6.53 s.
+  - L25+ still sits at the 6.4 s target; that is the combined classes' pace.
+  - Rift sections run in their own streams: warrior L70 73–84 %, ranger 15–33 % (at the 30 % floor; reported, not
+    lowered), mage 60–91 %.
+  - Details in FOUNDATION.md §13.15.

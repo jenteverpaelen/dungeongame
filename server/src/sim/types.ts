@@ -522,6 +522,9 @@ export interface Player extends Hashed {
   readyAt: Map<string, number>;
   /** Earliest time a skill without a cooldown may be cast again (playerctx.MIN_RECAST_MS after its last cast; no HUD cooldown). */
   recastAt: Map<string, number>;
+  /** Resource before the last bar cast of each skill without a cooldown: inside the recast window a recast is refused only
+   *  while the resource is back at or above it (the last cast was refunded or free; playerctx.MIN_RECAST_MS). */
+  recastRes: Map<string, number>;
   attackFlagMs: number;
   castFlagMs: number;
   buffs: Buff[];
