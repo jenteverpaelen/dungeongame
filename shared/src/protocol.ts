@@ -224,6 +224,8 @@ export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 're
   // Devices & activity, personal data (export, deletion with a grace period); all need a logged-in socket before `hello`.
   | 'sessions' | 'revoke' | 'export' | 'deleteAccount' | 'cancelDeletion' | 'deleteCharacter' | 'restoreCharacter';
 export type AccountMode = 'off' | 'optional' | 'required';
+/** The refusal for `hello` with `existing` when no hero has that name. */
+export const NO_SUCH_HERO_MESSAGE = 'No hero with that name was found. Check the spelling.';
 /** `deleteAt`: the hero is scheduled for deletion at this time (epoch ms) and cannot be played until restored. */
 /** One hero on the account. `look` and `zone` feed the hero-select scene (docs/rework/ui/CHARACTER_SCREENS.md §2). */
 export interface AuthCharacter { name: string; classId: ClassId; level: number; deleteAt?: number; look?: PlayerLook; zone?: string }
@@ -236,7 +238,8 @@ export type C2S =
   | { t: 'auth'; op: Exclude<AuthOp, 'status'>; username?: string; password?: string; token?: string; code?: string; newPassword?: string;
       /** revoke: a session id or 'others'. deleteCharacter/restoreCharacter: the hero's name. deleteAccount: the username typed again. */
       session?: string; character?: string; confirm?: string }
-  | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
+  /** `existing`: load a hero that already exists and never create one (Continue a hero, Bring a hero from before accounts). */
+  | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean; existing?: boolean }
   | { t: 'in'; seq: number; mx: number; my: number; dash?: 1; potion?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
   // Reusing an ID means retrying that request, not performing another action.

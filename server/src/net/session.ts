@@ -18,7 +18,7 @@ import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter, playerLook } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
-import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, NO_SUCH_HERO_MESSAGE, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
 import { buildAccountExport } from '../erasure';
 import type { AccountInfo } from '../../../shared/src/protocol';
@@ -510,6 +510,7 @@ export class Session implements PlayerLink {
 
     if(msg.appearance!==undefined&&!isHeroAppearance(msg.appearance)){this.kick('Invalid appearance');return;}
     if(msg.tutorial!==undefined&&typeof msg.tutorial!=='boolean'){this.kick('Invalid introduction choice');return;}
+    if(msg.existing!==undefined&&typeof msg.existing!=='boolean'){this.kick('Invalid hero request');return;}
     const id = characterId(name);
     if(this.world.community.banned(id)){this.kick('This character is suspended. Contact the owner.');return;}
     const accounts = this.world.accounts, owner = ACCOUNT_MODE === 'off' ? undefined : accounts.ownerOf(id);
@@ -535,6 +536,8 @@ export class Session implements PlayerLink {
       return;
     }
     if (this.isClosed) return;
+    // Continue / Bring: a name nobody has played is refused before anything is created or linked to an account.
+    if (msg.existing && save === null) { this.kick(NO_SUCH_HERO_MESSAGE); return; }
 
     // Account rules once we know whether the character already exists. A character nobody owns can be taken by the
     // logged-in account when it is brand new, or when the owner has opened the legacy migration window.

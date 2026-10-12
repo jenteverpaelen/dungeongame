@@ -10,7 +10,7 @@ import { Packr } from 'msgpackr';
 import { AccountStore, MAX_CHARACTERS_PER_ACCOUNT, PASSWORD_MAX, PASSWORD_MIN, USERNAME_RE, kdfStats } from '../src/accounts';
 import * as clientRules from '../../client/src/net/account';
 import { createCharacter } from '../../shared/src/character';
-import { PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
+import { NO_SUCH_HERO_MESSAGE, PROTOCOL_VERSION, type S2C } from '../../shared/src/protocol';
 
 assert.ok(process.env.DATA_DIR, 'Account checks require an isolated DATA_DIR');
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -215,8 +215,8 @@ async function client(port: number) {
     await until(() => messages.filter(m => m.t === 'auth' && m.op !== 'status').length > before, `auth ${String(msg.op)}`);
     return messages.filter(m => m.t === 'auth' && m.op !== 'status').at(-1) as Extract<S2C, { t: 'auth' }>;
   };
-  const hello = async (name: string) => {
-    send({ t: 'hello', name, classId: 'warrior', v: PROTOCOL_VERSION });
+  const hello = async (name: string, extra: { existing?: boolean } = {}) => {
+    send({ t: 'hello', name, classId: 'warrior', v: PROTOCOL_VERSION, ...extra });
     await until(() => messages.some(m => m.t === 'welcome' || m.t === 'err') || closeReason !== '', 'welcome or error');
     const err = messages.find(m => m.t === 'err') as { msg: string } | undefined;
     return err ? { ok: false as const, err: err.msg } : messages.some(m => m.t === 'welcome') ? { ok: true as const } : { ok: false as const, err: 'closed' };
@@ -226,7 +226,9 @@ async function client(port: number) {
 
 test('required mode: no hello without an account, characters belong to their account, legacy ones stay closed', { timeout: 60000 }, async () => {
   const legacy = createCharacter('LegacyHero', 'warrior', 7);
+  let savesDir = '';
   const server = await startServer({ ACCOUNTS: 'required' }, async saves => {
+    savesDir = saves;
     await fs.writeFile(path.join(saves, 'legacyhero.json'), JSON.stringify(legacy));
   });
   try {
@@ -262,11 +264,19 @@ test('required mode: no hello without an account, characters belong to their acc
     const legacyTry = await bob2.hello('LegacyHero');
     assert.equal(legacyTry.ok, false);
     assert.match((legacyTry as { err: string }).err, /not linked to an account/);
+    // Continue / Bring ask for an existing hero only: an unknown name is refused, nothing is saved or linked.
+    const bob3 = await client(server.port);
+    assert.ok((await bob3.auth({ op: 'login', username: 'bob_b', password: GOOD })).ok);
+    assert.deepEqual(await bob3.hello('NoSuchHero', { existing: true }), { ok: false, err: NO_SUCH_HERO_MESSAGE });
+    await assert.rejects(fs.stat(path.join(savesDir, 'nosuchhero.json')));
+    const bob4 = await client(server.port);
+    const bobBack = await bob4.auth({ op: 'login', username: 'bob_b', password: GOOD });
+    assert.ok(bobBack.ok && !bobBack.characters?.some(c => c.name === 'NoSuchHero'), JSON.stringify(bobBack));
     // Wrong password never authenticates and answers generically.
     const mallory = await client(server.port);
     const bad = await mallory.auth({ op: 'login', username: 'alice_a', password: 'wrong password!!' });
     assert.ok(!bad.ok && bad.err === 'Wrong username or password.');
-    for (const c of [status, bob, bob2, mallory]) c.close();
+    for (const c of [status, bob, bob2, bob3, bob4, mallory]) c.close();
   } finally {
     await server.stop();
   }

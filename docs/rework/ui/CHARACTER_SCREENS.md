@@ -73,5 +73,9 @@ choice still loads).
   carries each hero's look and last zone.
 * Heroes from before accounts: "Bring a hero from before accounts" on hero select claims one by name while the server's
   legacy window is open (`ALLOW_LEGACY_LOGIN=1`, docs/rework/ACCOUNTS.md).
+* "Continue a hero" (title) and "Bring a hero" (hero select) ask for an existing hero only (`hello.existing`): a
+  misspelt name is refused with "No hero with that name was found" next to the field, instead of creating a new
+  level-1 hero that takes one of the three places. Checked on a copy of the dev saves: the owner's level-70 Ranger
+  came onto a fresh account and played.
 * Shots: `docs/rework/ui/shots/` (fr-title, acc-title, acc-heroes-second, fr-class-hover, fr-focus-warrior,
   fr-look-custom, fr-look-nogear). Frame rate on these screens: 150–165 fps (RTX 4070 laptop, headless Chrome).

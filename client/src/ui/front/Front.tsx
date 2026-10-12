@@ -43,10 +43,10 @@ function Logo({ small }: { small?: boolean }) {
 
 // ─────────── title: log in, or (accounts off / optional) begin as a guest ───────────
 function Title() {
-  const { mode } = useUI((s) => s.account);
+  const { mode } = useUI((s) => s.account), error = useUI((s) => s.error);
   const [name, setName] = useState(() => safeGet('hearthfall.name') ?? '');
   const go = () => setFront({ step: 'class', focus: null, hover: null });
-  const cont = () => { if (!NAME_RE.test(name)) return; safeSet('hearthfall.name', name); session.start(name, (safeGet('hearthfall.class') as ClassId) ?? 'warrior'); };
+  const cont = () => { if (!NAME_RE.test(name)) return; safeSet('hearthfall.name', name); session.start(name, (safeGet('hearthfall.class') as ClassId) ?? 'warrior', { existing: true }); };
   return (
     <div class="fr-title">
       <Logo />
@@ -65,6 +65,7 @@ function Title() {
               onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') cont(); }} />
             <button type="button" class="btn fr-go-continue" disabled={!NAME_RE.test(name)} onClick={cont}>{t('front.title.continueGo')}</button>
           </label>
+          {error && <div class="cs-hint bad" role="alert">{error}</div>}
         </div>
       )}
     </div>
@@ -94,7 +95,7 @@ function Heroes() {
   const free = MAX_HEROES - heroes.length;
   // Heroes from before accounts can be brought onto the account while the server's legacy window is open (ACCOUNTS.md).
   const [claim, setClaim] = useState<string | null>(null);
-  const bring = () => { if (claim && NAME_RE.test(claim)) { ui.set({ error: null }); session.start(claim, 'warrior'); } };
+  const bring = () => { if (claim && NAME_RE.test(claim)) { ui.set({ error: null }); session.start(claim, 'warrior', { existing: true }); } };
   const play = () => { if (!chosen) return; ui.set({ error: null }); session.start(chosen.name, chosen.classId); };
   useEffect(() => { if (chosen && front.hero !== chosen.name) setFront({ hero: chosen.name }); }, [chosen?.name]);
   useEffect(() => {
@@ -123,6 +124,7 @@ function Heroes() {
           : <label class="fr-continue fr-claim"><input value={claim} maxLength={16} spellcheck={false} autocomplete="off" placeholder={t('front.heroes.claimHint')}
               onInput={(e) => setClaim((e.currentTarget as HTMLInputElement).value.replace(/[^A-Za-z0-9]/g, ''))} onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') bring(); }} />
               <button type="button" class="btn" disabled={!NAME_RE.test(claim)} onClick={bring}>{t('front.heroes.claimGo')}</button></label>)}
+        {error && !chosen && <div class="cs-hint bad" role="alert">{error}</div>}
         <button type="button" class="ac-link" onClick={() => ui.set((s) => ({ account: { ...s.account, open: true, error: null } }))}>{t('front.heroes.manage')}</button>
       </aside>
       {/* the heroes in the scene: click one to choose it (MapleStory and D3 let you pick the hero itself), name below */}
