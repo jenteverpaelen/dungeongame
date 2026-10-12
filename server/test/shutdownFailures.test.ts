@@ -51,7 +51,14 @@ test('real child shutdown reports failed storage, exits nonzero and never claims
     ws.send(codec.pack({ t: 'hello', name: save.name, classId: save.classId, v: PROTOCOL_VERSION }));
     await until(() => messages.some(m => m.t === 'welcome'));
     await until(async () => JSON.parse(await fs.readFile(file, 'utf8')).lastSeen > save.lastSeen);
-    const previousBytes = await fs.readFile(file);
+    // A login can write the save twice in quick succession: take the bytes once the file has not changed for 300 ms.
+    let previousBytes = await fs.readFile(file);
+    for (let settled = 0; settled < 3;) {
+      await pause(100);
+      const now = await fs.readFile(file);
+      settled = now.equals(previousBytes) ? settled + 1 : 0;
+      previousBytes = now;
+    }
     // These are only this test's files. A directory at the final filename makes
     // the real atomic rename fail on Windows and POSIX without permission hacks.
     await fs.rename(file, file + '.previous');

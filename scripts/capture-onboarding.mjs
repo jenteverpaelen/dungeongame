@@ -13,7 +13,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'hf-first-session-'));
 const controlsCheck = process.argv.includes('--controls');
 const dataDir = path.join(tmp, 'saves'), out = path.join(root, 'docs/phase/P01-research/checks', controlsCheck ? 'controls-cues' : 'first-session');
-const controlsShots = new Set(['01-first-town', '03-first-skills', '12-primary-tooltip', '13-slot-tooltip', '14-returning']);
+const controlsShots = new Set(['01-first-town', '03-first-skills', '12-primary-tooltip', '13-dash-tooltip', '14-returning']);
 await fs.mkdir(dataDir); await fs.mkdir(out, { recursive: true });
 const procs = [], channels = [], logs = [], observations = [];
 const started = performance.now(), wait = ms => new Promise(r => setTimeout(r, ms));
@@ -106,9 +106,12 @@ try {
     assert.equal(await evaluate("document.querySelector('.slot-dash .slot-key').textContent"), 'SPACE');
     assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.').length"), 1);
     assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text.includes('F1 shows your controls')).length"), 1);
+    // Level 1 shows the starter bar: the automatic primary, dash and potion, no skill slots yet (SkillBar.tsx compact).
+    assert.equal(await evaluate("document.querySelectorAll('.slot-skill').length"), 0);
+    assert.ok(await evaluate("Boolean(document.querySelector('.hud-bottom.is-starter'))"));
     for (const [selector, name, expected] of [
       ['.slot-primary', '12-primary-tooltip', 'Fires automatically'],
-      ['.slot-skill', '13-slot-tooltip', 'slot number, not a cast key'],
+      ['.slot-dash', '13-dash-tooltip', 'Burst forward'],
     ]) {
       const rect = await evaluate(`(()=>{const r=document.querySelector('${selector}').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
       await page.call('Input.dispatchMouseEvent', { type: 'mouseMoved', ...rect }); await wait(350);
@@ -121,7 +124,7 @@ try {
   await key('Escape', 'Escape', 27);
   await key('k', 'KeyK', 75); await record('03-first-skills', 'Known K hotkey at level one');
   if (controlsCheck) {
-    assert.equal(await evaluate("document.querySelector('.sslot.primary .sslot-key').textContent"), 'AUTO');
+    assert.equal(await evaluate("document.querySelector('.sk-slot.primary .sk-slot-key').textContent"), 'AUTO');
     await key('Escape', 'Escape', 27);
     await evaluate('__game.conn.close();true');
     await until(async () => { try { return JSON.parse(await fs.readFile(path.join(dataDir, 'firsttrace.json'), 'utf8')).id === 'firsttrace'; } catch { return false; } });

@@ -142,8 +142,11 @@ try {
   const readField=()=>evaluate(`({x:__game.predictor.x,y:__game.predictor.y,char:__ui.get().char,dead:__ui.get().me?.dead,
     entities:[...__game.world.entities.values()].filter(e=>!e.removed&&!e.dying).map(e=>({x:e.x,y:e.y,k:e.kind,t:e.desc.t,hp:e.hp,loot:e.desc.loot}))})`);
   const move=async (x,y)=>{const d=Math.hypot(x,y)||1;await evaluate(`__decisionMove={x:${x/d},y:${y/d}};true`);};
+  // Open fields start with no pack in sight: with nothing visible, walk to the nearest pack spawn not reached yet.
+  const unvisited=[...map.spawns];
   let earned, lastLog=-1;
-  while(performance.now()-fieldStart<120000) {
+  // Level 3 takes 1748 XP; the open-field walk earns about 3.4 XP/s (measured 2026-10-12), so ~515 s: budget 600 s.
+  while(performance.now()-fieldStart<600000) {
     const s=await readField(),ms=Math.round(performance.now()-fieldStart);
     const items=s.char.inventory.filter(Boolean);
     if(Math.floor(ms/1000)>lastLog){lastLog=Math.floor(ms/1000);fieldSamples.push({ms,x:s.x,y:s.y,dead:s.dead,level:s.char.level,xp:s.char.xp,gold:s.char.gold,kills:s.char.stats.kills,items:items.map(i=>i.id)});}
@@ -152,8 +155,9 @@ try {
     const near=es=>es.sort((a,b)=>Math.hypot(a.x-s.x,a.y-s.y)-Math.hypot(b.x-s.x,b.y-s.y))[0];
     const loot=near(s.entities.filter(e=>e.k==='loot'&&e.loot?.lk==='item'));
     const mob=near(s.entities.filter(e=>e.k==='mob'&&e.hp>0));
-    const target=loot??mob;
-    if(target&&!s.dead){const d=Math.hypot(target.x-s.x,target.y-s.y),want=loot?5:260;
+    for(let i=unvisited.length-1;i>=0;i--) if(Math.hypot(unvisited[i].x-s.x,unvisited[i].y-s.y)<200) unvisited.splice(i,1);
+    const target=loot??mob??near([...unvisited]);
+    if(target&&!s.dead){const d=Math.hypot(target.x-s.x,target.y-s.y),want=loot?5:mob?260:120;
       if(d>want||cw.segmentBlocked(s.x,s.y,target.x,target.y)) await move(...steer(map,cw,s.x,s.y,target.x,target.y));else await move(0,0);
     }else await move(0,0);
     await wait(200);
@@ -173,19 +177,20 @@ try {
   await until(()=>evaluate(`Object.values(__ui.get().char.equipment).some(i=>i?.id===${JSON.stringify(earned.id)})`));
   await page.call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1900,y:20});
   await record('04-equipped','Right-click equip; actual server-confirmed item identity');
-  await key('Escape'); await key('KeyK'); await selectText('.srow','Magic Missile');
+  // Skills window (client/src/ui/panels/skills.tsx): skill cards, runes in the detail pane, "+" tier buttons, Refund all.
+  await key('Escape'); await key('KeyK'); await selectText('.sk-card','Magic Missile');
   const points=await evaluate('__ui.get().char.skillPoints');
   await record('05-first-skill-options','Inspect first rune and affordable tier after earned progression');
-  await selectText('.rune','Seeker'); await until(()=>evaluate('__ui.get().char.skills.runes.magic_missile==="seeker"'));
+  await selectText('.sk-rune','Seeker'); await until(()=>evaluate('__ui.get().char.skills.runes.magic_missile==="seeker"'));
   assert.equal(await evaluate('__ui.get().char.skillPoints'),points);
-  await click('.tier-node.next button'); await until(()=>evaluate('__ui.get().char.skills.tiers.magic_missile===1'));
+  await click('.sk-card.on .sk-plus[aria-label^="Unlock tier I of Magic Missile"]'); await until(()=>evaluate('__ui.get().char.skills.tiers.magic_missile===1'));
   assert.equal(await evaluate('__ui.get().char.skillPoints'),points-2);
   await record('06-rune-tier','Select first rune and buy first tier through existing controls');
-  await selectText('.sk-points button','Reset Tiers'); await record('07-refund-prompt','First reset click requests confirmation; points unchanged');
+  await selectText('.sk-side button','Refund all'); await record('07-refund-prompt','First reset click requests confirmation; points unchanged');
   assert.equal(await evaluate('__ui.get().char.skillPoints'),points-2);
-  await selectText('.srow','Meteor');
+  await selectText('.sk-card','Meteor');
   assert.equal(await evaluate('__ui.get().char.skills.tiers.magic_missile'),1);
-  await selectText('.sk-points button','Reset Tiers'); await selectText('.sk-points button','Refund');
+  await selectText('.sk-side button','Refund all'); await selectText('.sk-side button','Refund');
   await until(()=>evaluate(`__ui.get().char.skillPoints===${points}`));
   assert.equal(await evaluate('__ui.get().char.skills.tiers.magic_missile??0'),0);
   assert.equal(await evaluate('__ui.get().char.skills.runes.magic_missile'),'seeker');
@@ -195,7 +200,7 @@ try {
   await page.call('Page.navigate',{url:`http://127.0.0.1:${port}/?autostart=EarnedTrace&class=mage`});await ready();
   assert.equal(await evaluate('__ui.get().char.skills.runes.magic_missile'),'seeker');
   assert.ok(await evaluate(`Object.values(__ui.get().char.equipment).some(i=>i?.id===${JSON.stringify(earned.id)})`));
-  await key('KeyK'); await selectText('.srow','Magic Missile'); await record('09-reconnected','Normal reconnect reloads equipped item, selected rune and refunded points');
+  await key('KeyK'); await selectText('.sk-card','Magic Missile'); await record('09-reconnected','Normal reconnect reloads equipped item, selected rune and refunded points');
   passed=true;
 } catch(error){failure=String(error.stack??error);console.error(failure);process.exitCode=1;}
 finally {
