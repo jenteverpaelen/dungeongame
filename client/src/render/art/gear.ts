@@ -25,7 +25,7 @@ export interface Body {
   hair: number;
   hairStyle: string;
   eyes: number;
-  /** Townsfolk only (npcLooks.ts): facial hair, its colour and a face accessory. Heroes never set these. */
+  /** Facial hair, its colour and a face accessory: townsfolk (npcLooks.ts) and heroes with a v2 appearance (CHARACTER_SCREENS.md §3). */
   beard?: 'full' | 'braided' | 'moustache' | 'goatee' | 'stubble';
   beardColor?: number;
   face?: 'monocle' | 'spectacles' | 'goggles' | 'eyepatch';
@@ -33,7 +33,7 @@ export interface Body {
 
 export function classBody(cls: ClassId, choice?:HeroAppearance): Body {
   const a = appearanceFor(cls,choice);
-  return { cls, skin: a.skin, hair: a.hair, hairStyle: a.hairStyle, eyes: a.eyes };
+  return { cls, skin: a.skin, hair: a.hair, hairStyle: a.hairStyle, eyes: a.eyes, ...(a.beard ? { beard: a.beard, beardColor: a.hair } : {}), ...(a.face ? { face: a.face } : {}) };
 }
 
 /** Trim colour: emissive towards the glow on legendary / set pieces. */

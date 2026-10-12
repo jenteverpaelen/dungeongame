@@ -8,6 +8,16 @@ import type { AccountMode, AuthCharacter, FieldEventState, DungeonState, LootVie
 import type { AffixRoll, CharacterSave, ClassId, DerivedStats, Materials } from '@shared/types';
 import type { Artisan } from '@shared/townServices';
 import type { RunSummary } from '../game/runSummary';
+import { classAppearance, type HeroAppearanceV2 } from '@shared/appearance';
+
+/** The front-end screens (docs/rework/ui/CHARACTER_SCREENS.md §2): title, hero select, class choice, appearance. The
+ *  DOM screens write it; render/front/frontScene.ts reads it to pose the camp scene. */
+export interface FrontView {
+  step: 'title' | 'heroes' | 'class' | 'look';
+  /** Selected account hero (hero select). */ hero: string | null;
+  /** Class step: the class under the pointer and the one stepped forward. */ hover: ClassId | null; focus: ClassId | null;
+  /** Creator: class, look, starting gear on or off, turn angle (0 faces the camera). */ cls: ClassId; appearance: HeroAppearanceV2; gear: boolean; yaw: number;
+}
 
 export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection' | 'dialogue' | 'bounty' | 'bench';
 
@@ -52,6 +62,7 @@ export interface UIState {
   adventureZone: string | null;
   journalQuest: string | null;
   screen: 'select' | 'connecting' | 'game';
+  front: FrontView;
   account: AccountView;
   connected: boolean;
   error: string | null;
@@ -114,6 +125,7 @@ export const ui = new Store<UIState>({
   helpTab:'controls',
   adventureTarget: null, adventureZone:null, journalQuest:null,
   screen: 'select', connected: false, error: null,
+  front: { step: 'title', hero: null, hover: null, focus: null, cls: 'warrior', appearance: classAppearance('warrior'), gear: true, yaw: 0 },
   account: { mode: 'off', username: null, characters: [], busy: false, error: null, codes: null, open: false, picked: null },
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,

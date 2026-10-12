@@ -44,7 +44,7 @@ legacy window; finally switch to `required` without the legacy flag.
   addresses. This is the email-free replacement for "your password was changed" mails: the Devices tab shows it.
 - Files: one JSON per account in `DATA_DIR/accounts/<username>.json`, written atomically; registration uses an
   exclusive create so two simultaneous registrations cannot both win. Malformed or mismatched files are skipped.
-- Ownership: characters are linked to exactly one account (max 10); claiming is race-safe across accounts. The
+- Ownership: characters are linked to exactly one account (max 3 since 2026-10-12, docs/rework/ui/CHARACTER_SCREENS.md); claiming is race-safe across accounts. The
   character itself keeps its save format (no migration, `save 14` unchanged).
 
 ## Personal data: export and deletion (F-ACC-06, 2026-10-11)

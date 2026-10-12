@@ -6,7 +6,9 @@ import '../styles/quests.css';
 import { useUI } from '../store';
 import { preferences } from '../../game/preferences';
 import { useLocal } from '../panels/state';
-import { ClassSelect, Connecting } from './ClassSelect';
+import { Connecting } from './ClassSelect';
+import { Front } from '../front/Front';
+import '../styles/front.css';
 import { BottomBar } from './SkillBar';
 import { TopRight } from './Minimap';
 import { TargetFrame } from './Target';
@@ -51,7 +53,7 @@ export function HudRoot() {
   const k = useLocal(preferences, (s) => s.values.uiScale);
   return (
     <div class={`hud-root screen-${screen}`} style={k === 1 ? undefined : { '--ui-k': k }}>
-      {screen === 'select' && <ClassSelect />}
+      {screen === 'select' && <Front />}
       {screen === 'connecting' && <Connecting />}
       {screen === 'game' && <GameHud />}
     </div>

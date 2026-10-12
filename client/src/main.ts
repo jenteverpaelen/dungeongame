@@ -19,6 +19,7 @@ import { Game } from './game/game';
 import { startPreviews } from './game/previews';
 import { cmd, session } from './net/api';
 import { initArt } from './render/art';
+import { FrontScene } from './render/front/frontScene';
 import { bakeStats } from './render/art/player';
 import { App } from './ui/App';
 import { ui } from './ui/store';
@@ -64,6 +65,7 @@ async function boot() {
   initArt(app.renderer);
 
   const game = new Game(app);
+  new FrontScene(app); // the camp behind the title, hero select and creator (docs/rework/ui/CHARACTER_SCREENS.md)
   const graphics = new GraphicsController(app, () => game.scene.refreshViewScale());
   session.start = (name, classId, options) => { void game.start(name, classId, options); };
   session.auth = (op, fields) => game.auth(op, fields);

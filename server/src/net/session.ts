@@ -16,7 +16,7 @@ import type { PlayerLink } from '../contracts';
 import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
 import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { isClassId } from '../../../shared/src/data/classes';
-import { createCharacter } from '../../../shared/src/character';
+import { createCharacter, playerLook } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
 import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
@@ -487,7 +487,7 @@ export class Session implements PlayerLink {
       try {
         const c = await loadCharacter(id);
         const pending = this.world.privacy.pending('character', id);
-        if (c) out.push({ name: c.name, classId: c.classId, level: c.level, ...(pending ? { deleteAt: pending.purgeAt } : {}) });
+        if (c) out.push({ name: c.name, classId: c.classId, level: c.level, look: playerLook(c), zone: c.lastZone, ...(pending ? { deleteAt: pending.purgeAt } : {}) });
       } catch { /* an unreadable character is simply not listed */ }
     }
     return out;

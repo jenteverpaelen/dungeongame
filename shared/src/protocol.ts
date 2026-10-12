@@ -225,7 +225,8 @@ export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 're
   | 'sessions' | 'revoke' | 'export' | 'deleteAccount' | 'cancelDeletion' | 'deleteCharacter' | 'restoreCharacter';
 export type AccountMode = 'off' | 'optional' | 'required';
 /** `deleteAt`: the hero is scheduled for deletion at this time (epoch ms) and cannot be played until restored. */
-export interface AuthCharacter { name: string; classId: ClassId; level: number; deleteAt?: number }
+/** One hero on the account. `look` and `zone` feed the hero-select scene (docs/rework/ui/CHARACTER_SCREENS.md §2). */
+export interface AuthCharacter { name: string; classId: ClassId; level: number; deleteAt?: number; look?: PlayerLook; zone?: string }
 /** Account facts the dialog shows: codes left, the grace period and a pending account deletion. */
 export interface AccountInfo { recoveryLeft: number; graceDays: number; deletionAt?: number }
 export interface AccountSession { id: string; device: string; created: number; lastUsed: number; current: boolean }

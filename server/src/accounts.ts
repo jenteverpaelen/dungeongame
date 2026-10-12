@@ -24,7 +24,9 @@ export const USERNAME_RE = /^[a-z0-9_]{3,20}$/;
 export const PASSWORD_MIN = 10;
 export const PASSWORD_MAX = 128;
 export const RECOVERY_CODES = 8;
-export const MAX_CHARACTERS_PER_ACCOUNT = 10;
+/** Heroes per account (owner 2026-10-12: "up to 3 characters"; docs/rework/ui/CHARACTER_SCREENS.md §4, C6). A hero
+ *  waiting out its deletion grace still holds its slot. */
+export const MAX_CHARACTERS_PER_ACCOUNT = 3;
 const TOKEN_TTL_MS = 30 * 24 * 3600_000;
 const MAX_TOKENS_PER_ACCOUNT = 5;
 const PAIR_FAILURES = 5, PAIR_WINDOW_MS = 15 * 60_000, PAIR_LOCK_MS = 15 * 60_000;

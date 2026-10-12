@@ -8,7 +8,9 @@ import { ONBOARDING_MESSAGES } from './onboardingMessages';
 import { JOURNAL_MESSAGES } from './journalMessages';
 import { GEAR_MESSAGES } from './gearMessages';
 import { SETTINGS_MESSAGES } from './settingsMessages';
+import { FRONT_MESSAGES } from './frontMessages';
 export const ENGLISH = {
+  ...FRONT_MESSAGES,
   ...GEAR_MESSAGES,
   ...SETTINGS_MESSAGES,
   ...ONBOARDING_MESSAGES,

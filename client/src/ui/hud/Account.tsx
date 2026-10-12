@@ -82,7 +82,7 @@ function RecoveryCodes({ codes, username }: { codes: string[]; username: string 
   );
 }
 
-function SignedOut({ closable }: { closable: boolean }) {
+export function SignedOut({ closable }: { closable: boolean }) {
   const { busy, error, mode } = useUI((s) => s.account);
   const [tab, setTab] = useState<Tab>('login');
   const [username, setUsername] = useState(lastUsername);

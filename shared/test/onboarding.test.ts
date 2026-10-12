@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCharacter, equipItem, playerLook } from '../src/character';
 import { INTRO_LESSONS,introLesson,introduced,recordIntro,skipIntroLesson,startIntro,validIntro } from '../src/onboarding';
-import { appearanceFor,isHeroAppearance } from '../src/appearance';
+import { EYE_COLORS,HAIR_COLORS,SKIN_TONES,appearanceFor,classAppearance,isHeroAppearance,randomAppearance } from '../src/appearance';
 import { CLASS_IDS,CLASSES } from '../src/data/classes';
 import { starterUpgrade } from '../src/items';
 import { Rng } from '../src/math';
@@ -36,6 +36,17 @@ test('all original palettes can be mixed without changing the default or gamepla
     assert.equal(appearanceFor(cls,choice).hairStyle,CLASSES.warrior.appearance.hairStyle);
   }
   for(const value of [null,{},[],{skin:'__proto__',hair:'mage',style:'warrior'},{skin:'mage',hair:'mage',style:'mage',extra:1}])assert(!isHeroAppearance(value));
+});
+test('the creator look (v2, docs/rework/ui/CHARACTER_SCREENS.md) validates strictly and resolves to what the art draws',()=>{
+  const v2={v:2,skin:3,hairStyle:'curly',hair:5,eyes:6,beard:'full',face:'goggles'} as const;
+  assert(isHeroAppearance(v2));
+  const r=appearanceFor('warrior',v2);
+  assert.equal(r.skin,SKIN_TONES[3]);assert.equal(r.hair,HAIR_COLORS[5]);assert.equal(r.eyes,EYE_COLORS[6]);assert.equal(r.hairStyle,'curly');assert.equal(r.beard,'full');assert.equal(r.face,'goggles');
+  const plain=appearanceFor('mage',{...v2,beard:'none',face:'none'});assert.equal(plain.beard,undefined);assert.equal(plain.face,undefined);
+  for(const bad of [{...v2,skin:SKIN_TONES.length},{...v2,hair:-1},{...v2,eyes:1.5},{...v2,hairStyle:'mohawk'},{...v2,beard:'wizard'},{...v2,face:'crown'},{...v2,v:3},{...v2,extra:1}])assert(!isHeroAppearance(bad),JSON.stringify(bad));
+  const {face:_,...missing}=v2;assert(!isHeroAppearance(missing));
+  for(const cls of CLASS_IDS)assert(isHeroAppearance(classAppearance(cls)),cls);
+  const rng=new Rng(7);for(let i=0;i<200;i++)assert(isHeroAppearance(randomAppearance(()=>rng.next())),'randomize always yields a complete hero');
 });
 test('one-time road weapon improves every class starter with the same speed/base and no toughness or recovery loss',()=>{
   for(const cls of CLASS_IDS)for(let seed=1;seed<=40;seed++){
