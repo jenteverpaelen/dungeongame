@@ -5,6 +5,7 @@ const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i'
 
 export interface InputHandlers {
   onDash(): void;
+  onPotion?(): void;
   onHotkey(key: string, e: KeyboardEvent): void;
   onSkill?(slot: number): void;
 }
@@ -60,6 +61,7 @@ export class Input {
     const k = e.code;
     const action = this.keys.action(k);
     if (action === 'dash') { e.preventDefault(); if (!e.repeat) this.h.onDash(); return; }
+    if (action === 'potion') { e.preventDefault(); if (!e.repeat) this.h.onPotion?.(); return; }
     if (action === 'up' || action === 'down' || action === 'left' || action === 'right') {
       // A repeat after blur, focus or a binding change must not restart movement.
       if (!e.repeat) this.down.add(k);

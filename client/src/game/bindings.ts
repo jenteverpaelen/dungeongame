@@ -4,7 +4,7 @@ import { PAD_ACTIONS, padBindings, type PadAction } from './gamepad';
 export const ACTIONS = [
   ['up', text('controls.up.label')], ['left', text('controls.left.label')],
   ['down', text('controls.down.label')], ['right', text('controls.right.label')],
-  ['dash', text('controls.dash.label')], ['interact', text('controls.interact.label')],
+  ['dash', text('controls.dash.label')], ['potion', text('controls.potion.label')], ['interact', text('controls.interact.label')],
   ['inventory', text('controls.inventory.label')], ['skills', text('controls.skills.label')],
   ['paragon', text('controls.paragon.label')], ['cube', text('controls.cube.label')], ['settings', text('controls.settings.label')],
   ['journal', text('controls.journal.label')],
@@ -13,13 +13,13 @@ export const ACTIONS = [
   ['cast3', text('controls.cast3.label')], ['cast4', text('controls.cast4.label')],
 ] as const;
 export const CAST_ACTIONS = ['cast1', 'cast2', 'cast3', 'cast4'] as const;
-const ADDED_ACTIONS = ['journal', 'map', ...CAST_ACTIONS] as const;
+const ADDED_ACTIONS = ['journal', 'map', ...CAST_ACTIONS, 'potion'] as const;
 export type Action = typeof ACTIONS[number][0];
 export type Bindings = Readonly<Record<Action, readonly [string, string | null]>>;
 export const BINDINGS_KEY = 'hearthfall.bindings.v1';
 const defaults: Record<Action, [string, string | null]> = {
   up: ['KeyW', 'ArrowUp'], left: ['KeyA', 'ArrowLeft'], down: ['KeyS', 'ArrowDown'], right: ['KeyD', 'ArrowRight'],
-  dash: ['Space', null], interact: ['KeyE', null], inventory: ['KeyI', 'KeyB'], skills: ['KeyK', null],
+  dash: ['Space', null], potion: ['KeyQ', null], interact: ['KeyE', null], inventory: ['KeyI', 'KeyB'], skills: ['KeyK', null],
   paragon: ['KeyP', null], cube: ['KeyU', null], settings: ['KeyO', null],
   journal: ['KeyJ', null],
   map: ['KeyM', null],

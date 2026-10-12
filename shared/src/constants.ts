@@ -25,6 +25,12 @@ export const DASH = {
   invulnMs: 220,
 } as const;
 
+/** Health potion (owner 2026-10-12, with the early-danger pass): one bottomless potion on a cooldown, no inventory.
+ *  Diablo III 2.2 replaced stacks of potions with a bottomless one that heals 60 % of maximum Life [S, Blizzard 2.2.0
+ *  patch notes]; its 30-second cooldown is genre knowledge [K]. Diablo IV Season 11: 4 charges of 35 %, one back every
+ *  30 s [SN, Icy Veins]. */
+export const POTION = { healPct: 60, cooldownMs: 30_000 } as const;
+
 /** Gold and materials fly to the player inside this radius (D3 pickup radius analogue). */
 export const MAGNET_RADIUS = 110;
 /** Items are picked up when the player walks within this radius. */

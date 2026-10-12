@@ -348,7 +348,7 @@ class Bot {
 
   step() {
     const me = this.link.me;
-    let mx = 0, my = 0, dash = false;
+    let mx = 0, my = 0, dash = false, potion = false;
     // a player salvages junk when the bag fills up
     const inv = this.link.save.inventory;
     if (this.seq % 100 === 0 && inv.filter(Boolean).length > 50) {
@@ -390,8 +390,10 @@ class Bot {
       if (kills !== this.lastKills) { this.lastKills = kills; this.idleTicks = 0; } else if (++this.idleTicks > 20 * 20) { this.idleTicks = 0; this.unstickMs = 1200; this.unstickA = Math.random() * Math.PI * 2; }
       if (this.unstickMs > 0) { this.unstickMs -= 50; mx = Math.cos(this.unstickA); my = Math.sin(this.unstickA); }
       if (me.hp < me.mhp * 0.35 && me.dashCd <= 0) dash = true;
+      // a player drinks the health potion when low (POTION, since 2026-10-12)
+      if (me.hp < me.mhp * 0.4 && (me.potionCd ?? 0) <= 0) potion = true;
     }
-    this.inst.queueInput(this.link, { t: 'in', seq: ++this.seq, mx: Math.round(mx * 100) / 100, my: Math.round(my * 100) / 100, ...(dash ? { dash: 1 as const } : {}) });
+    this.inst.queueInput(this.link, { t: 'in', seq: ++this.seq, mx: Math.round(mx * 100) / 100, my: Math.round(my * 100) / 100, ...(dash ? { dash: 1 as const } : {}), ...(potion ? { potion: 1 as const } : {}) });
   }
 }
 

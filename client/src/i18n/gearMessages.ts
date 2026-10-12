@@ -7,7 +7,7 @@ export const GEAR_MESSAGES = {
   'gear.full': 'Full',
   'gear.reduced': 'Reduced',
   'gear.off': 'Off',
-  'gear.settingsNote': 'Full shows every gear effect: glowing weapons, floating pieces, auras, wings, particles and footprints. Reduced keeps steady glows and back pieces without motion. Off hides gear effects; the shapes of your weapons and armour always show. Reduced motion in your system caps this at Reduced.',
+  'gear.settingsNote': 'Full shows every gear effect: glowing weapons, floating pieces, auras, mantles, particles and footprints. Reduced keeps steady glows and back pieces without motion. Off hides gear effects; the shapes of your weapons and armour always show. Reduced motion in your system caps this at Reduced.',
   'gear.temper': 'Tempered +{value}',
   'gear.showcaseTitle': 'Gear showcase',
   'gear.lookNote': 'Your hero looks like what you wear: every weapon and armour piece changes shape and material with its item level, gains light with its rarity, and Legendary items carry their own signature.',
@@ -21,6 +21,6 @@ export const GEAR_MESSAGES = {
   'gear.artUrl': 'Set by the page address for this visit.',
   'gear.armourArt': 'Armour art',
   'gear.armourArt.current': 'Previous art',
-  'gear.armourArt.series': 'Maker series (preview)',
-  'gear.armourArtNote': 'A preview of armour and jewellery made by the makers of each level band: their materials, their fittings and, on rare pieces, their light. Takes effect when the page reloads.',
+  'gear.armourArt.series': 'Maker series',
+  'gear.armourArtNote': 'Armour and jewellery made by the makers of each level band: their materials, their fittings and, on rare pieces, their light. Previous art switches back to the earlier drawings. Takes effect when the page reloads.',
 } as const;

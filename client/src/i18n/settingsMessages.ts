@@ -107,6 +107,7 @@ export const SETTINGS_MESSAGES = {
   'set.pad.cancelled': 'No change.',
   'set.pad.action.interact': 'Interact',
   'set.pad.action.dash': 'Dash',
+  'set.pad.action.potion': 'Health potion',
   'set.pad.action.cast1': 'Cast skill 1',
   'set.pad.action.cast2': 'Cast skill 2',
   'set.pad.action.cast3': 'Cast skill 3',

@@ -320,7 +320,7 @@
   flex: none;
 }
 .slot-primary { width: calc(var(--slot) * 1.12); height: calc(var(--slot) * 1.12); }
-.slot-dash { width: calc(var(--slot) * 0.9); height: calc(var(--slot) * 0.9); }
+.slot-dash, .slot-potion { width: calc(var(--slot) * 0.9); height: calc(var(--slot) * 0.9); }
 
 /* bronze frame */
 .slot::before {
@@ -334,6 +334,7 @@
 }
 .slot-primary::before { background: linear-gradient(145deg, #e6c27a 0%, #9a7338 28%, #46301a 55%, #8a6a35 82%, #dbb263 100%); }
 .slot-dash::before { background: linear-gradient(145deg, #b9c4cc 0%, #6a7c88 28%, #2c3a44 55%, #5c6e7a 82%, #a8b8c4 100%); }
+.slot-potion::before { background: linear-gradient(145deg, #e0a07a 0%, #9a4a32 28%, #3e1810 55%, #8a3c28 82%, #d88a66 100%); }
 .slot:hover::before { box-shadow: 0 0 0 1px #000, 0 0 calc(var(--u) * 12) rgba(242, 213, 140, 0.55), inset 0 1px 0 rgba(255, 240, 200, 0.6); }
 .slot.is-active::before { box-shadow: 0 0 0 1px #000, 0 0 calc(var(--u) * 14) calc(var(--u) * 1) rgba(255, 214, 120, 0.8), inset 0 1px 0 rgba(255, 240, 200, 0.6); animation: slotActive 1.6s ease-in-out infinite alternate; }
 
@@ -884,6 +885,7 @@
   filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 calc(var(--u) * 14) rgba(255, 200, 90, 0.55));
   text-shadow: none;
 }
+.notice-level.notice-level-long .notice-text span { font-size: calc(var(--u) * 34); letter-spacing: 0.1em; }
 .notice-level.paragon { --nc: #b3a8ff; --ng: rgba(140, 120, 255, 0.65); }
 .notice-level.paragon .notice-text span { background-image: linear-gradient(180deg, #f1ecff 0%, #b3a8ff 42%, #6558d8 100%); filter: drop-shadow(0 2px 0 #000) drop-shadow(0 0 calc(var(--u) * 14) rgba(130, 110, 255, 0.65)); }
 .notice-burst { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 520); height: calc(var(--u) * 190); transform: translate(-50%, -50%); background: radial-gradient(ellipse at center, rgba(255, 210, 110, 0.38), transparent 66%); animation: burstPulse 2.5s ease-out both; pointer-events: none; }

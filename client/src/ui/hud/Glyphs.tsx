@@ -736,6 +736,20 @@ export function SkillGlyph(p: { glyph: string; color: string; size?: number | st
 
 // ───────────────────────── Small marks ─────────────────────────
 
+/** Health potion: a round flask, original drawing (cork, neck, bulb, liquid line, glint). */
+export function PotionGlyph() {
+  return (
+    <svg class="hud-glyph" viewBox="0 0 64 64" style={{ color: '#e8503f' }} aria-hidden="true">
+      <path d="M26 6H38V12H26Z" fill="#b07a48" {...OUT} />
+      <path d="M27 12H37V22C46 25 52 33 52 41C52 52 43 60 32 60C21 60 12 52 12 41C12 33 18 25 27 22Z" fill="#2a1712" fill-opacity=".55" {...OUT} />
+      <path d="M14.5 38C20 35 26 40 32 37C38 34 44 39 49.5 37C50.3 47 42.5 57 32 57C21.5 57 13.7 48 14.5 38Z" fill="currentColor" />
+      <path d="M17 44C21 52 27 55 32 55" {...hiLine} stroke-opacity=".35" />
+      <path d="M22 30C19 33 17 36 16.5 39" {...hiLine} />
+      <circle cx="40" cy="46" r="2.4" fill="#fff" fill-opacity=".55" />
+    </svg>
+  );
+}
+
 export function DashGlyph(p: { color?: string }) {
   return (
     <svg class="hud-glyph" viewBox="0 0 64 64" style={{ color: p.color ?? '#dbe9f5' }} aria-hidden="true">

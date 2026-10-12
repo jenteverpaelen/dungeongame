@@ -60,10 +60,11 @@ test('malformed, future, incomplete and conflicting records fall back as a whole
 });
 test('layout labels do not change physical actions; captured characters and numpad identity survive', () => {
   const disk = storage(), keys = new BindingStore(disk);
-  keys.applyLayout(new Map([['KeyW', 'z'], ['KeyQ', 'a']]));
+  keys.applyLayout(new Map([['KeyW', 'z'], ['KeyQ', 'a'], ['KeyY', 'y']]));
   assert.equal(keys.label('up'), 'Z'); assert.equal(keys.action('KeyW'), 'up');
   assert.equal(keys.action('KeyZ'), undefined);
-  keys.assign('dash', 0, 'KeyQ', 'a'); assert.equal(keys.label('dash'), 'A');
+  assert.equal(keys.label('potion'), 'A', 'the health potion sits on the physical Q key (A on AZERTY)');
+  keys.assign('dash', 0, 'KeyY', 'y'); assert.equal(keys.label('dash'), 'Y');
   keys.assign('interact', 0, 'Minus', 'ß');
   assert.equal(new BindingStore(disk).label('interact'), 'ß');
   assert.equal(keyLabel('Numpad1', { Numpad1: '1' }), 'Num1');

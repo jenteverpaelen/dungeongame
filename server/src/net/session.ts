@@ -273,6 +273,7 @@ export class Session implements PlayerLink {
     if (!Number.isFinite(seq) || !Number.isFinite(mx) || !Number.isFinite(my)) return;
     const input: Extract<C2S, { t: 'in' }> = { t: 'in', seq: Math.trunc(seq), mx: clamp(mx, -1, 1), my: clamp(my, -1, 1) };
     if (msg.dash) input.dash = 1;
+    if (msg.potion) input.potion = 1;
     rec.inst.queueInput(this, input);
   }
 

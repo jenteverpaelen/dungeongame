@@ -36,7 +36,7 @@ import { GamepadInput, type PadAction } from './gamepad';
 import { bindings } from './bindings';
 
 /** Gamepad menu actions → the same hotkey handler the keyboard uses. */
-const PAD_HOTKEYS: Record<Exclude<PadAction, 'interact' | 'dash' | 'cast1' | 'cast2' | 'cast3' | 'cast4'>, string> = {
+const PAD_HOTKEYS: Record<Exclude<PadAction, 'interact' | 'dash' | 'potion' | 'cast1' | 'cast2' | 'cast3' | 'cast4'>, string> = {
   inventory: 'i', skills: 'k', journal: 'j', map: 'm', settings: 'o', paragon: 'p', cube: 'u',
 };
 import { Predictor } from './prediction';
@@ -85,6 +85,7 @@ export class Game {
     };
     this.input = new Input({
       onDash: () => { sfx.unlock(); this.predictor.queueDash(); },
+      onPotion: () => this.predictor.queuePotion(),
       onHotkey: (k, e) => this.hotkey(k, e),
       onSkill: slot => this.manualSkill(slot),
     });
@@ -433,6 +434,7 @@ export class Game {
     switch (a) {
       case 'interact': if (ui.get().screen === 'game') this.interact(); return;
       case 'dash': sfx.unlock(); this.predictor.queueDash(); return;
+      case 'potion': this.predictor.queuePotion(); return;
       case 'cast1': case 'cast2': case 'cast3': case 'cast4': this.manualSkill(Number(a.slice(4)) - 1); return;
       default: this.hotkey(PAD_HOTKEYS[a], noop);
     }

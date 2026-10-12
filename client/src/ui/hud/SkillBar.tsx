@@ -7,13 +7,13 @@ import { useUI } from '../store';
 import { CLASSES } from '@shared/data/classes';
 import { SKILLS, collectSkillMods, describeSkill, type SkillDef, type SkillMods } from '@shared/data/skills';
 import { AUTO_CAST_LABEL, AUTO_CAST_NOTE, autoCastMode, autoCastRuleText, type AutoCastMode } from '@shared/autoCast';
-import { DASH, MAX_LEVEL } from '@shared/constants';
+import { DASH, MAX_LEVEL, POTION } from '@shared/constants';
 import { fmtInt } from '@shared/format';
 import { paragonXpToNext, xpToNext } from '@shared/progression';
 import type { BuffView } from '@shared/protocol';
 import type { ClassId } from '@shared/types';
 import { SHRINES } from '@shared/shrines';
-import { BuffGlyph, DashGlyph, SkillGlyph } from './Glyphs';
+import { BuffGlyph, DashGlyph, PotionGlyph, SkillGlyph } from './Glyphs';
 import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
 import { bindings, CAST_ACTIONS } from '../../game/bindings';
@@ -84,7 +84,7 @@ function SkillTip(p: { skill: SkillDef; classId: ClassId; rcr: number; runeId: s
 // ───────────────────────── Slots ─────────────────────────
 
 interface SlotProps {
-  kind: 'primary' | 'skill' | 'dash';
+  kind: 'primary' | 'skill' | 'dash' | 'potion';
   keyLabel: ComponentChildren;
   skill: SkillDef | null;
   cd: number;
@@ -105,7 +105,7 @@ function Slot(p: SlotProps) {
     prev.current = p.cd;
   }, [p.cd]);
 
-  const color = p.skill ? hex(p.skill.icon.color) : p.kind === 'dash' ? '#9cc8ee' : '#6d5a3d';
+  const color = p.skill ? hex(p.skill.icon.color) : p.kind === 'dash' ? '#9cc8ee' : p.kind === 'potion' ? '#ef6a58' : '#6d5a3d';
   const r = p.cd > 0 && total > 0 ? clamp01(p.cd / total) : 0;
   const a = (1 - r) * 360;
   const sweep = r > 0
@@ -114,14 +114,14 @@ function Slot(p: SlotProps) {
   const secs = p.cd >= 9950 ? String(Math.ceil(p.cd / 1000)) : (p.cd / 1000).toFixed(1);
   return (
     <div
-      class={`slot slot-${p.kind} interactive${p.active ? ' is-active' : ''}${p.dim ? ' is-dim' : ''}${r > 0 ? ' on-cd' : ''}${p.skill || p.kind === 'dash' ? '' : ' is-empty'}`}
+      class={`slot slot-${p.kind} interactive${p.active ? ' is-active' : ''}${p.dim ? ' is-dim' : ''}${r > 0 ? ' on-cd' : ''}${p.skill || p.kind === 'dash' || p.kind === 'potion' ? '' : ' is-empty'}`}
       style={{ '--sk': color }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <div class="slot-well">
         <div class="slot-icon">
-          {p.kind === 'dash' ? <DashGlyph /> : p.skill ? <SkillGlyph glyph={p.skill.icon.glyph} color={color} /> : null}
+          {p.kind === 'dash' ? <DashGlyph /> : p.kind === 'potion' ? <PotionGlyph /> : p.skill ? <SkillGlyph glyph={p.skill.icon.glyph} color={color} /> : null}
         </div>
         {sweep && <div class="slot-sweep" style={{ background: sweep }} />}
         {r > 0 && total >= 1500 && <div class="slot-cd">{secs}</div>}
@@ -255,11 +255,11 @@ export function XpBar() {
 // ───────────────────────── Bottom bar assembly ─────────────────────────
 
 export function BottomBar() {
-  const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash'), casts: CAST_ACTIONS.map(a => bindings.label(a)) }));
+  const keys = useLocal(bindings, () => ({ skills: bindings.label('skills'), dash: bindings.label('dash'), potion: bindings.label('potion'), casts: CAST_ACTIONS.map(a => bindings.label(a)) }));
   const manual = useLocal(preferences, s => s.values.manualSkills);
   const char = useUI((s) => (s.char ? { cls: s.char.classId, skills: s.char.skills, level: s.char.level } : null));
   const rcr = useUI((s) => s.derived?.rcr ?? 0);
-  const m = useUI((s) => (s.me ? { cds: s.me.cds, ch: s.me.ch, res: s.me.res, dashCd: s.me.dashCd, buffs: s.me.buffs } : null));
+  const m = useUI((s) => (s.me ? { cds: s.me.cds, ch: s.me.ch, res: s.me.res, dashCd: s.me.dashCd, potionCd: s.me.potionCd ?? 0, buffs: s.me.buffs } : null));
   if (!char) return null;
   const { cls, skills } = char;
   const buffIds = new Set((m?.buffs ?? []).map((b) => b.id));
@@ -310,10 +310,20 @@ export function BottomBar() {
           )))}
           <i class="bar-sep" />
           <Slot kind="dash" keyLabel={keys.dash.toUpperCase()} skill={null} cd={m?.dashCd ?? 0} nominalMs={DASH.cooldownMs} tip={<DashTip />} />
+          <Slot kind="potion" keyLabel={keys.potion.toUpperCase()} skill={null} cd={m?.potionCd ?? 0} nominalMs={POTION.cooldownMs} tip={<PotionTip />} />
         </div>
         <i class="bar-crest" />
       </div>
       <ResourceGlobe />
+    </div>
+  );
+}
+
+function PotionTip() {
+  return (
+    <div class="skill-tip tip-small" role="tooltip">
+      <div class="st-name">Health potion</div>
+      <div class="st-desc">Restore {POTION.healPct}% of your maximum Life. Cooldown {POTION.cooldownMs / 1000}s.</div>
     </div>
   );
 }

@@ -344,7 +344,7 @@ installApi(mock as never, () => {});
 function setupUI() {
   const d = computeStats(char);
   ui.set({
-    me: { x: 0, y: 0, dashMs: 0, dashCd: 0, hp: d.life * 0.72, mhp: d.life, res: 64, mres: 100, cds: [0, 3200, 0, 0], ch: [0, 0, 0, 0], buffs: [], xp: 0, lv: char.level, pxp: 4_200_000, pl: char.paragon.level, gold: char.gold, dead: 0 },
+    me: { x: 0, y: 0, dashMs: 0, dashCd: 0, potionCd: 0, hp: d.life * 0.72, mhp: d.life, res: 64, mres: 100, cds: [0, 3200, 0, 0], ch: [0, 0, 0, 0], buffs: [], xp: 0, lv: char.level, pxp: 4_200_000, pl: char.paragon.level, gold: char.gold, dead: 0 },
     screen: 'game', connected: true, char, derived: computeStats(char), myId: 1,
     zone: { zone: 'hearthmere', name: 'Hearthmere', kind: 'town', theme: 'town', seed: 1, channel: 1, instance: 'town:1', difficulty: 0 },
     world: {

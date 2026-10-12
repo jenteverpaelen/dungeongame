@@ -13,7 +13,7 @@ class Local<T extends object> {
   subscribe(l: () => void) { this.listeners.add(l); return () => { this.listeners.delete(l); }; }
 }
 
-export const PAD_ACTIONS = ['interact', 'dash', 'cast1', 'cast2', 'cast3', 'cast4', 'inventory', 'skills', 'journal', 'map', 'settings', 'paragon', 'cube'] as const;
+export const PAD_ACTIONS = ['interact', 'dash', 'potion', 'cast1', 'cast2', 'cast3', 'cast4', 'inventory', 'skills', 'journal', 'map', 'settings', 'paragon', 'cube'] as const;
 export type PadAction = typeof PAD_ACTIONS[number];
 export type PadBindings = Readonly<Record<PadAction, number | null>>;
 /** Positional names on the standard layout (Xbox-style letters; on other pads the same positions). */
@@ -22,7 +22,7 @@ export const CONFIRM = 0, BACK = 1, DPAD_UP = 12, DPAD_DOWN = 13, DPAD_LEFT = 14
 /** Buttons that cannot be bound to a game action: the d-pad moves (and navigates windows), Home belongs to the system. */
 const RESERVED = new Set([DPAD_UP, DPAD_DOWN, DPAD_LEFT, DPAD_RIGHT, 16]);
 export const DEFAULT_PAD: PadBindings = Object.freeze({
-  interact: 0, dash: 1, cast1: 2, cast2: 3, cast3: 4, cast4: 5, inventory: 6, skills: 7, map: 8, settings: 9, journal: 10, paragon: null, cube: null,
+  interact: 0, dash: 1, potion: null, cast1: 2, cast2: 3, cast3: 4, cast4: 5, inventory: 6, skills: 7, map: 8, settings: 9, journal: 10, paragon: null, cube: null,
 });
 export const PAD_KEY = 'hearthfall.gamepad.v1';
 /** Radial dead zone on the stick (fraction of full deflection); the rest is rescaled to 0..1 so slow walking stays possible. */

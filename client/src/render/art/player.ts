@@ -94,15 +94,21 @@ function lookKey(look: PlayerLook): string {
   return parts.join('|');
 }
 
-/** The back piece a look earns from its items (DESIGN-V2 §5): wings from a full 6-piece Set (the Set's transformation),
- *  a mantle from 4 Set pieces, a cape from a legendary / Set / graded chest of the late generations. */
+/** Wings on a full 6-piece Set. Off since 2026-10-12 (owner: the wings look weird; they should become a separate, much
+ *  cooler cosmetic later, possibly paid): a full Set wears the mantle instead. The drawings (drawWing) stay for that. */
+export const SET_WINGS = false;
+
+/** The back piece a look earns from its items (DESIGN-V2 §5): wings from a full 6-piece Set (the Set's transformation;
+ *  the mantle while SET_WINGS is off), a mantle from 4 Set pieces, a cape from a legendary / Set / graded chest of the
+ *  late generations. */
 function backOf(look: PlayerLook) {
   const hasFx = Object.values(look.slots).some((l) => typeof l?.fx === 'number');
   const p = hasFx ? gearProfile(look) : null;
   const chest = look.slots.chest;
   const cs = itemStyle(chest);
   const chestCape = !!cs && ((cs.special && cs.gen >= 5) || cs.top >= 1);
-  const kind = p ? backPieceFor(p.topSetCount, chestCape) : 'none';
+  const earned = p ? backPieceFor(p.topSetCount, chestCape) : 'none';
+  const kind = earned === 'wings' && !SET_WINGS ? 'mantle' : earned;
   const set = p?.topSet && p.topSetCount >= 4 ? SET_STYLE[p.topSet] : undefined;
   const motif = p ? profileMotif(look, p) : null;
   const accent = p ? dominantColor(look, p) : 0xffffff;

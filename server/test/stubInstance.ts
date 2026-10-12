@@ -261,7 +261,7 @@ class StubInstance implements InstanceApi {
     const d = pl.link.derived;
     const sv = pl.link.save;
     const me: MeState = {
-      x: pl.mv.x, y: pl.mv.y, dashMs: pl.mv.dashMs, dashCd: pl.mv.dashCdMs, hp: d.life, mhp: d.life, res: 0, mres: d.maxResource,
+      x: pl.mv.x, y: pl.mv.y, dashMs: pl.mv.dashMs, dashCd: pl.mv.dashCdMs, potionCd: 0, hp: d.life, mhp: d.life, res: 0, mres: d.maxResource,
       cds: [0, 0, 0, 0], ch: [0, 0, 0, 0], buffs: [], xp: sv.xp, lv: sv.level, pxp: sv.paragon.xp, pl: sv.paragon.level, gold: sv.gold, dead: 0,
     };
     const snap: Snapshot = { t: 's', tick: this.tickNo, time: Date.now(), ack: pl.ack, me, upd };

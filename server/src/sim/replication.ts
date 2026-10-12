@@ -184,7 +184,7 @@ function meState(inst: Instance, p: Player): MeState {
   }
   const s = p.save;
   return {
-    x: p.mv.x, y: p.mv.y, dashMs: p.mv.dashMs, dashCd: p.mv.dashCdMs,
+    x: p.mv.x, y: p.mv.y, dashMs: p.mv.dashMs, dashCd: p.mv.dashCdMs, potionCd: Math.ceil(p.potionCdMs),
     ...(movePct(p) !== p.ctx.d.ms ? { ms: movePct(p) } : {}),
     hp: Math.max(0, Math.round(p.hp)), mhp: Math.round(p.mhp), res: Math.floor(p.res), mres: Math.round(p.mres),
     cds, ch, buffs, xp: s.xp, lv: s.level, pxp: s.paragon.xp, pl: s.paragon.level, gold: s.gold,

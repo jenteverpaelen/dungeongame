@@ -119,7 +119,7 @@ function mockState() {
   const res = state === 'lowres' ? 11 : cls === 'ranger' ? 92 : cls === 'mage' ? 71 : 64;
   const mres = def.resource.max;
   const meState: MeState = {
-    x: me.x, y: me.y, dashMs: 0, dashCd: 1400,
+    x: me.x, y: me.y, dashMs: 0, dashCd: 1400, potionCd: 0,
     hp: state === 'lowres' ? 1900 : state === 'full' ? 12480 : 8120, mhp: 12480,
     res: state === 'full' ? mres : res, mres,
     cds: state === 'full' ? [0, 0, 0, 0] : [0, 7400, 0, 0],

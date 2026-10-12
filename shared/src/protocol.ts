@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 27; // 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
+export const PROTOCOL_VERSION = 28; // 28: health potion (in.potion, me.potionCd); 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
@@ -89,6 +89,8 @@ export interface MeState {
   y: number;
   dashMs: number;
   dashCd: number;
+  /** Remaining health-potion cooldown (ms), 0 = ready (POTION). */
+  potionCd: number;
   /** Movement speed % in effect when it differs from the sheet (channel slows / rules / moveWhileChannel); prediction uses it. */
   ms?: number;
   hp: number;
@@ -234,7 +236,7 @@ export type C2S =
       /** revoke: a session id or 'others'. deleteCharacter/restoreCharacter: the hero's name. deleteAccount: the username typed again. */
       session?: string; character?: string; confirm?: string }
   | { t: 'hello'; name: string; classId: ClassId; v: number; appearance?: import('./appearance').HeroAppearance; tutorial?: boolean }
-  | { t: 'in'; seq: number; mx: number; my: number; dash?: 1 }
+  | { t: 'in'; seq: number; mx: number; my: number; dash?: 1; potion?: 1 }
   // IDs are positive safe integers, strictly increasing for new requests on a connection.
   // Reusing an ID means retrying that request, not performing another action.
   | { t: 'cmd'; id: number; op: CmdOp; a?: Record<string, unknown>; r?: import('./commandState').CommandRequest }

@@ -13,6 +13,7 @@ export class Predictor {
   private pending: Cmd[] = [];
   private acc = 0;
   private dashQueued = false;
+  private potionQueued = false;
   private s: MoveState = { x: 0, y: 0, dashMs: 0, dashDx: 0, dashDy: 0, dashCdMs: 0, faceX: 1, faceY: 0 };
   private prevX = 0; private prevY = 0;
   private corrX = 0; private corrY = 0;
@@ -33,6 +34,8 @@ export class Predictor {
   }
 
   queueDash() { this.dashQueued = true; }
+  /** Health potion: sent with the next input; the server checks the cooldown (no prediction needed). */
+  queuePotion() { this.potionQueued = true; }
 
   /** Call every frame. Emits input commands at the server tick rate. */
   update(dtMs: number, mx: number, my: number, world: CollisionWorld | null, send: (m: C2S) => void) {
@@ -42,7 +45,8 @@ export class Predictor {
       this.acc -= TICK_MS;
       const cmd: Cmd = { seq: ++this.seq, mx: Math.round(mx * 100) / 100, my: Math.round(my * 100) / 100, dash: this.dashQueued };
       this.dashQueued = false;
-      send({ t: 'in', seq: cmd.seq, mx: cmd.mx, my: cmd.my, ...(cmd.dash ? { dash: 1 as const } : {}) });
+      const potion = this.potionQueued; this.potionQueued = false;
+      send({ t: 'in', seq: cmd.seq, mx: cmd.mx, my: cmd.my, ...(cmd.dash ? { dash: 1 as const } : {}), ...(potion ? { potion: 1 as const } : {}) });
       this.pending.push(cmd);
       if (this.pending.length > 60) this.pending.shift();
       this.prevX = this.s.x; this.prevY = this.s.y;

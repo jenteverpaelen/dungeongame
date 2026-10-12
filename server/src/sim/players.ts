@@ -5,7 +5,7 @@ import { recordIntro } from '../../../shared/src/onboarding';
 import { benchTick } from './bench';
 import type { PlayerLink } from '../contracts';
 import {
-  CLASSES, DASH, PLAYER_RADIUS, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
+  CLASSES, DASH, PLAYER_RADIUS, POTION, TICK_MS, addXp, computeStats, setSkillSlot, skillsForClass, stepMove, type Element,
 } from '../shared';
 import { healPlayer } from './damage';
 import { debtRegenFactor, movePct, powerTick } from './powerActions';
@@ -52,7 +52,7 @@ export function addPlayerEntity(inst: Instance, link: PlayerLink, at: { x: numbe
     atkCdMs: 0, readyAt: new Map(), recastAt: new Map(), recastRes: new Map(), attackFlagMs: 0, castFlagMs: 0,
     buffs: [], live: { dmg: 0, chc: 0, chd: 0, ias: 0, dr: 1, cci: false, cdrec: 0, cost: 1, mv: 0 },
     summons: [], channel: null,
-    deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500,
+    deadMs: 0, stunMs: 0, frozenMs: 0, invulnMs: 1500, potionCdMs: 0,
     sinceHitMs: 1e9, sinceHurtMs: 1e9,
     loot: new Set(), known: new Map(), lohSeen: new Map(),
     lastEle: {}, ouroIdx: 0, ouroMs: 4000, noticeFullAt: -1e9,
@@ -106,6 +106,7 @@ export function processInputs(inst: Instance, p: Player) {
     while (steps < 2 && p.inQ.length) {
       const inp = p.inQ.shift()!;
       p.lastIn.mx = inp.mx; p.lastIn.my = inp.my;
+      if (inp.potion) drinkPotion(inst, p);
       const sx = p.mv.x, sy = p.mv.y, wasDashing = p.mv.dashMs > 0;
       const dashed = stepMove(inst.cw, p.mv, inp, msPct, dashCd, TICK_MS, PLAYER_RADIUS, blocked);
       if (dashed) onDash(inst, p, sx, sy);
@@ -123,6 +124,15 @@ export function processInputs(inst: Instance, p: Player) {
   p.moving = moved > 0.5;
   if(p.moving&&recordIntro(p.save,'move'))touchChar(p);
   if (p.faceLockMs <= 0 && Math.abs(p.lastIn.mx) > 0.05 && !blocked) p.faceLeft = p.lastIn.mx < 0;
+}
+
+/** Health potion: heals POTION.healPct of maximum life, then waits POTION.cooldownMs. Refused while dead, on cooldown
+ *  or at full life (the cooldown is not wasted). */
+export function drinkPotion(inst: Instance, p: Player): boolean {
+  if (p.deadMs > 0 || p.potionCdMs > 0 || p.hp >= p.mhp) return false;
+  healPlayer(inst, p, p.mhp * POTION.healPct / 100, false);
+  p.potionCdMs = POTION.cooldownMs;
+  return true;
 }
 
 function onDash(inst: Instance, p: Player, sx: number, sy: number) {
@@ -147,6 +157,7 @@ export function playerTick(inst: Instance, p: Player, dtMs: number) {
   const dt = dtMs / 1000;
   if (p.bench) benchTick(inst, p, dtMs);
   if (p.invulnMs > 0) p.invulnMs -= dtMs;
+  if (p.potionCdMs > 0) p.potionCdMs = Math.max(0, p.potionCdMs - dtMs);
   if (p.stunMs > 0) p.stunMs -= dtMs;
   if (p.frozenMs > 0) p.frozenMs -= dtMs;
   if (p.attackFlagMs > 0) p.attackFlagMs -= dtMs;

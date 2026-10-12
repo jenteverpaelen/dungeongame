@@ -282,7 +282,7 @@ export class Instance implements InstanceApi {
     const last = p.inQ.length ? p.inQ[p.inQ.length - 1].seq : p.ack;
     const seq = typeof input.seq === 'number' && Number.isFinite(input.seq) ? input.seq : last + 1;
     if (seq <= last) return; // duplicate / out of order
-    p.inQ.push({ seq, mx: num(input.mx), my: num(input.my), dash: !!input.dash });
+    p.inQ.push({ seq, mx: num(input.mx), my: num(input.my), dash: !!input.dash, potion: !!input.potion });
     // A flooding / lagging client cannot bank more than ~1 s of movement.
     if (p.inQ.length > 20) p.inQ.splice(0, p.inQ.length - 20);
   }
@@ -395,6 +395,10 @@ export class Instance implements InstanceApi {
         return null;
       case 'heal':
         debugHeal(this, p);
+        return null;
+      case 'hurt':
+        // QA only: drop to 30 % life (tests the health potion and low-life warnings; never kills)
+        if (p.deadMs <= 0) p.hp = Math.max(1, Math.round(p.mhp * 0.3));
         return null;
       case 'infres': {
         // Prototype toggle stored on the save so it survives zone changes: resource stays full every tick.
