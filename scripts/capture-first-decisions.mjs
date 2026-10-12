@@ -118,12 +118,19 @@ try {
     await evaluate('document.activeElement?.blur();true');
   };
   await page.call('Page.navigate',{url:`http://127.0.0.1:${port}/`});
-  await until(()=>evaluate('Boolean(document.querySelector(".cs-go"))'));
-  await click('canvas[data-preview="mage"]');
-  await evaluate(`const n=document.querySelector('input[placeholder="Hero name"]');n.value='EarnedTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
-  await click('.cs-go'); await ready(); assert.equal(await evaluate('__ui.get().char.level'),1);
-  await key('KeyE'); await selectText('.wp-card','Whispering Glade');
-  await evaluate(`document.querySelectorAll('.wp-card').forEach(e=>{if(e.textContent.includes('Whispering Glade'))e.setAttribute('data-audit-field','true')});true`);
+  // Front screens (docs/rework/ui/CHARACTER_SCREENS.md): Begin → the mage in the lineup → Choose → name → Create hero.
+  await until(()=>evaluate('Boolean(document.querySelector(".fr-go-begin"))'));
+  await click('.fr-go-begin');
+  await until(()=>evaluate('document.querySelectorAll(".fr-hot[data-class]").length===3')); await wait(1200);
+  await click('.fr-hot[data-class="mage"]');
+  await until(()=>evaluate('Boolean(document.querySelector(".fr-go-choose"))')); await wait(800);
+  await click('.fr-go-choose');
+  await until(()=>evaluate('Boolean(document.querySelector(".fr-namebox input"))'));
+  await evaluate(`const n=document.querySelector('.fr-namebox input');n.value='EarnedTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
+  await click('.fr-go-create'); await ready(); assert.equal(await evaluate('__ui.get().char.level'),1);
+  // The first field is Rillwake Crossing (the old fields are retired, worlds DECISIONS D-W19).
+  await key('KeyE'); await selectText('.wp-card','Rillwake Crossing');
+  await evaluate(`document.querySelectorAll('.wp-card').forEach(e=>{if(e.textContent.includes('Rillwake Crossing'))e.setAttribute('data-audit-field','true')});true`);
   await click('[data-audit-field] .wp-go button');
   await until(()=>evaluate('__ui.get().zone?.kind==="field"')); await wait(800);
   await record('01-field-entry','Fresh character; normal physical Waypoint travel; no grants');

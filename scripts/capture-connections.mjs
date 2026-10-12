@@ -88,12 +88,21 @@ try {
   for (const [name, origin, character] of [['01-built-client', directOrigin, 'DirectTrace'], ['02-vite-proxy', devOrigin, 'ProxyTrace']]) {
     if (selection) {
       await page.call('Page.navigate', { url: origin });
-      await until(() => evaluate('typeof __ui!=="undefined" && __ui.get().screen==="select" && document.querySelectorAll(".cs-sig-glyph").length===3'));
-      await wait(900);
-      const cards = await evaluate(`Array.from(document.querySelectorAll('.cs-card'), card => ({
-        classId: card.querySelector('canvas').dataset.preview, signature: card.querySelector('.cs-sig b').textContent,
-        glyph: card.querySelector('.cs-sig-glyph').outerHTML, visible: card.getBoundingClientRect().bottom <= innerHeight
-      }))`);
+      // Front screens (docs/rework/ui/CHARACTER_SCREENS.md): Begin → the lineup; each class's focus, stepped with ›.
+      await until(() => evaluate('typeof __ui!=="undefined" && __ui.get().screen==="select" && !!document.querySelector(".fr-go-begin")'));
+      await evaluate('document.querySelector(".fr-go-begin").click();true');
+      await until(() => evaluate('document.querySelectorAll(".fr-hot[data-class]").length===3'));
+      await wait(1500);
+      const lineupShot = await page.call('Page.captureScreenshot', { format:'png', captureBeyondViewport:false });
+      await evaluate('document.querySelector(".fr-hot[data-class=warrior]").click();true');
+      const cards = [];
+      for (let i = 0; i < 3; i++) {
+        await until(() => evaluate('Boolean(document.querySelector(".fr-classcard .cs-sig-glyph"))')); await wait(500);
+        cards.push(await evaluate(`(()=>{const card=document.querySelector('.fr-classcard');return {classId:__ui.get().front.focus,
+          signature:card.querySelector('.fr-cc-facts b').textContent,glyph:card.querySelector('.cs-sig-glyph').outerHTML,visible:card.getBoundingClientRect().bottom<=innerHeight};})()`));
+        if (i < 2) await evaluate('document.querySelector(\'.fr-cc-go button[aria-label="Next class"]\').click();true');
+      }
+      await evaluate('__ui.set(s=>({front:{...s.front,step:"title",focus:null,hover:null}}));true');
       assert.deepEqual(cards.map(card => [card.classId, card.signature, card.visible]), [
         ['warrior', 'Whirlwind', true], ['ranger', 'Sentry Turrets', true], ['mage', 'Meteor', true]
       ]);
@@ -101,8 +110,7 @@ try {
       const viewport = await evaluate('({width:innerWidth,height:innerHeight,hidden:document.hidden})');
       assert.deepEqual(viewport, { width:1920, height:1080, hidden:false });
       observations.push({ capture: name + '-selection', ...viewport, cards });
-      const selectionShot = await page.call('Page.captureScreenshot', { format:'png', captureBeyondViewport:false });
-      await fs.writeFile(path.join(out, name + '-selection.png'), Buffer.from(selectionShot.data, 'base64'));
+      await fs.writeFile(path.join(out, name + '-selection.png'), Buffer.from(lineupShot.data, 'base64'));
       console.log(`Captured ${name}-selection`);
     }
     await page.call('Page.navigate', { url: `${origin}/?autostart=${character}&class=mage` });
@@ -115,18 +123,19 @@ try {
     const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64')); console.log(`Captured ${name}`);
     if (returnSelection) {
-      assert.equal(await evaluate('__previewObserverCount'), 0);
+      // One preview watcher for the whole session (in-game showcases); the camp scene draws in the game canvas.
+      assert.equal(await evaluate('__previewObserverCount'), 1);
       for (let cycle=1;cycle<=2;cycle++) {
         await evaluate('__game.conn.close();true');
-        await until(() => evaluate('__ui.get().screen==="select" && document.querySelectorAll("canvas[data-preview][data-test-renderer]").length===3'));
+        await until(() => evaluate('__ui.get().screen==="select" && !!document.querySelector(".fr-root")'));
         await wait(600);
         const lifecycle = await evaluate(`(()=>{
           for(let i=0;i<5;i++)__ui.set({ping:i});
-          return {observers:__previewObserverCount,canvases:Array.from(document.querySelectorAll('canvas[data-preview]'),c=>({classId:c.dataset.preview,renderer:c.dataset.testRenderer})),
-            screen:__ui.get().screen,width:innerWidth,height:innerHeight,hidden:document.hidden};
+          return {observers:__previewObserverCount,canvases:document.querySelectorAll('canvas').length,previews:document.querySelectorAll('canvas[data-preview]').length,
+            step:__ui.get().front.step,screen:__ui.get().screen,width:innerWidth,height:innerHeight,hidden:document.hidden};
         })()`);
-        assert.equal(lifecycle.observers, 1); assert.equal(lifecycle.canvases.length, 3);
-        assert.deepEqual(lifecycle.canvases.map(c=>c.classId), ['warrior','ranger','mage']);
+        // the return never multiplies watchers or WebGL contexts: one watcher, one canvas (the game's), no preview canvases
+        assert.equal(lifecycle.observers, 1); assert.equal(lifecycle.canvases, 1); assert.equal(lifecycle.previews, 0);
         const capture = `${name}-return-${cycle}`;
         observations.push({ capture, ...lifecycle });
         const frame = await page.call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
@@ -134,9 +143,9 @@ try {
         console.log(`Captured ${capture}`);
         await evaluate(`__game.start(${JSON.stringify(character)},'mage')`);
         await until(() => evaluate('__ui.get().screen==="game" && !!__game.world.me'));
-        assert.equal(await evaluate('__previewObserverCount'), 0);
+        assert.equal(await evaluate('__previewObserverCount'), 1);
       }
-      assert.deepEqual(page.errors, [], 'No browser runtime exception across preview initialization/destruction');
+      assert.deepEqual(page.errors, [], 'No browser runtime exception across the select screen and back');
     }
   }
   await page.call('Page.navigate', { url: foreignOrigin });

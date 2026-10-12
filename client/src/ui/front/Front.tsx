@@ -57,13 +57,13 @@ function Title() {
         </div>
       ) : (
         <div class="fr-begin interactive">
-          <button type="button" class="btn primary fr-big" onClick={go}>{t('front.title.begin')}</button>
+          <button type="button" class="btn primary fr-big fr-go-begin" onClick={go}>{t('front.title.begin')}</button>
           <label class="fr-continue">
             <span>{t('front.title.continue')}</span>
             <input value={name} maxLength={16} spellcheck={false} autocomplete="off" placeholder={t('front.title.continueHint')}
               onInput={(e) => setName((e.currentTarget as HTMLInputElement).value.replace(/[^A-Za-z0-9]/g, ''))}
               onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') cont(); }} />
-            <button type="button" class="btn" disabled={!NAME_RE.test(name)} onClick={cont}>{t('front.title.continueGo')}</button>
+            <button type="button" class="btn fr-go-continue" disabled={!NAME_RE.test(name)} onClick={cont}>{t('front.title.continueGo')}</button>
           </label>
         </div>
       )}
@@ -173,7 +173,7 @@ function ClassFocus({ cls }: { cls: ClassId }) {
       </div>
       <div class="fr-cc-go">
         <button type="button" class="btn" aria-label={t('front.class.prev')} onClick={() => step(-1)}>‹</button>
-        <button type="button" class="btn primary fr-big" onClick={choose}>{t('front.class.choose', { cls: def.name })}</button>
+        <button type="button" class="btn primary fr-big fr-go-choose" onClick={choose}>{t('front.class.choose', { cls: def.name })}</button>
         <button type="button" class="btn" aria-label={t('front.class.next')} onClick={() => step(1)}>›</button>
       </div>
       <button type="button" class="ac-link" onClick={() => setFront({ focus: null })}>{t('front.class.back')}</button>
@@ -192,7 +192,7 @@ function ClassPick() {
         const hover = front.hover === cls;
         return (
           <button key={cls} type="button" class={`fr-hot interactive${hover ? ' on' : ''}`} style={{ left: `${p.x - wid / 2}px`, top: `${p.y - hgt}px`, width: `${wid}px`, height: `${hgt}px`, '--theme': hex(def.themeColor) }}
-            aria-label={def.name} onPointerEnter={() => setFront({ hover: cls })} onPointerLeave={() => setFront({ hover: null })} onFocus={() => setFront({ hover: cls })} onClick={() => setFront({ focus: cls, hover: null })}>
+            aria-label={def.name} data-class={cls} onPointerEnter={() => setFront({ hover: cls })} onPointerLeave={() => setFront({ hover: null })} onFocus={() => setFront({ hover: cls })} onClick={() => setFront({ focus: cls, hover: null })}>
             <span class="fr-hot-label"><b>{def.name}</b><small>{def.title}</small></span>
           </button>
         );
@@ -273,7 +273,7 @@ function Creator() {
             onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') create(); }} />
         </label>
         <label class="settings-check"><input type="checkbox" checked={guide} onChange={(e) => setGuide(e.currentTarget.checked)} />{t('front.look.guide')}</label>
-        <button type="button" class="btn primary fr-big" disabled={!valid} onClick={create}>{t('front.look.create')}</button>
+        <button type="button" class="btn primary fr-big fr-go-create" disabled={!valid} onClick={create}>{t('front.look.create')}</button>
         <div class={`cs-hint${error || (touched && !valid) ? ' bad' : ''}`}>{error ? error : touched && !valid ? t('front.look.nameBad') : t('front.look.nameHint')}</div>
         <button type="button" class="ac-link" onClick={() => setFront({ step: 'class', focus: front.cls })}>{t('front.look.back')}</button>
       </footer>

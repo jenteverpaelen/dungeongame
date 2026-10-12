@@ -83,16 +83,23 @@ try {
     await wait(450);
   };
   await page.call('Page.navigate', { url: `http://127.0.0.1:${port}/` });
-  await until(() => evaluate('Boolean(document.querySelector(".cs-go"))')); await wait(1500);
-  await record('00-class-selection', 'Fresh profile; no saved class/name, before input');
-  await evaluate(`document.querySelector('canvas[data-preview="mage"]').closest('button').click();
-    const n=document.querySelector('input[placeholder="Hero name"]');n.value='FirstTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
-  await until(() => evaluate('!document.querySelector(".cs-go").disabled'));
-  await evaluate('document.querySelector(".cs-go").click();true');
+  // Front screens (docs/rework/ui/CHARACTER_SCREENS.md): title → the class lineup → the mage's focus → the creator.
+  await until(() => evaluate('Boolean(document.querySelector(".fr-go-begin"))')); await wait(1500);
+  await record('00-title', 'Fresh profile; the title over the camp scene, before input');
+  await evaluate('document.querySelector(".fr-go-begin").click();true');
+  await until(() => evaluate('document.querySelectorAll(".fr-hot[data-class]").length===3')); await wait(1500);
+  await record('00-class-selection', 'The class lineup around the fire; no saved class/name, before input');
+  await evaluate('document.querySelector(".fr-hot[data-class=mage]").click();true');
+  await until(() => evaluate('Boolean(document.querySelector(".fr-go-choose"))')); await wait(1200);
+  await evaluate('document.querySelector(".fr-go-choose").click();true');
+  await until(() => evaluate('Boolean(document.querySelector(".fr-namebox input"))'));
+  await evaluate(`const n=document.querySelector('.fr-namebox input');n.value='FirstTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
+  await until(() => evaluate('!document.querySelector(".fr-go-create").disabled'));
+  await evaluate('document.querySelector(".fr-go-create").click();true');
   await until(() => evaluate('Boolean(window.__game?.world?.map && __ui.get().screen==="game")'));
   await until(() => evaluate('(()=>{const g=__game.scene.ground.children[0]?.children[0];return g?.tiles && !g.wanted.length && !g.timer})()'));
   await wait(1500); await evaluate('document.activeElement.blur();true');
-  await record('01-first-town', 'Enter World through the visible class/name controls');
+  await record('01-first-town', 'Create the hero through the visible class, appearance and name controls');
   if (controlsCheck) {
     assert.equal(await evaluate("document.querySelector('.slot-primary .slot-key').textContent"), 'AUTO');
     assert.equal(await evaluate("document.querySelector('.slot-dash .slot-key').textContent"), 'SPACE');
@@ -118,15 +125,14 @@ try {
     await evaluate('__game.conn.close();true');
     await until(async () => { try { return JSON.parse(await fs.readFile(path.join(dataDir, 'firsttrace.json'), 'utf8')).id === 'firsttrace'; } catch { return false; } });
     await page.call('Page.reload');
-    await until(() => evaluate('Boolean(document.querySelector(".cs-go"))'));
-    await evaluate(`document.querySelector('canvas[data-preview="mage"]').closest('button').click();
-      const n=document.querySelector('input[placeholder="Hero name"]');n.value='FirstTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
-    await until(() => evaluate('!document.querySelector(".cs-go").disabled'));
-    await evaluate('document.querySelector(".cs-go").click();true');
+    await until(() => evaluate('Boolean(document.querySelector(".fr-continue input"))'));
+    await evaluate(`const n=document.querySelector('.fr-continue input');n.value='FirstTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
+    await until(() => evaluate('!document.querySelector(".fr-go-continue").disabled'));
+    await evaluate('document.querySelector(".fr-go-continue").click();true');
     await until(() => evaluate('__ui.get().screen==="game" && __ui.get().chat.some(l=>l.text.startsWith("Welcome to"))'));
     await wait(2000);
     assert.equal(await evaluate("__ui.get().chat.filter(l=>l.text==='Attacks and slotted skills are automatic.' || l.text.includes('F1 shows your controls')).length"), 0);
-    await record('14-returning', 'Reconnect the same saved character through class selection; no repeated new-character hints');
+    await record('14-returning', 'Reconnect the same saved character through the title\'s Continue a hero; no repeated new-character hints');
     passed = true;
   } else {
   await key('Escape', 'Escape', 27);
@@ -147,7 +153,7 @@ try {
   await key('e', 'KeyE', 69);
   await until(() => evaluate('Boolean(document.querySelector("[data-panel=waypoint]"))'));
   await record('06-waypoint', 'E beside the physical Waypoint');
-  await evaluate(`const card=[...document.querySelectorAll('.wp-card')].find(e=>e.innerText.includes('Whispering Glade'));
+  await evaluate(`const card=[...document.querySelectorAll('.wp-card')].find(e=>e.innerText.includes('Rillwake Crossing'));
     const go=card.querySelector('.wp-go button');if(go.disabled)throw Error('First field disabled');go.click();true`);
   await until(() => evaluate('__ui.get().zone?.kind==="field"')); await wait(2000);
   await record('07-first-field', 'Click first field travel button; no debug grants');
