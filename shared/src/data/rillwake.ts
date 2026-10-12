@@ -152,7 +152,8 @@ z.decor('barrels', ...P(82.5, 23.8)); z.decor('crates', ...P(74.5, 23.2)); z.lig
 z.phase('rw_wheel', true, () => {
   z.emit('fog', ...P(79.6, 16.6), 3); z.light(...P(79.6, 16.4), 0x9ad8ff, 200);
   z.resident('rw_millhand1', 'worker', 'Millhand', ...P(74, 26), 20); z.resident('rw_millhand2', 'carpenter', 'Millwright', ...P(80.8, 26.8), -30);
-  z.decor('lamppost', ...P(73.2, 24)); z.light(...P(73.2, 23.3), 0xffc070, 180); z.decor('crates', ...P(71.5, 26.5), 0.9);
+  // against the mill's west and front walls: phased props carry no collision, so nobody walks through them
+  z.decor('lamppost', ...P(75.82, 19.43)); z.light(...P(75.82, 18.9), 0xffc070, 180); z.decor('crates', ...P(76.66, 19.82), 0.9);
 });
 z.landmark('Rillwake Mill', ...P(79, 28.6));
 
@@ -160,7 +161,8 @@ z.landmark('Rillwake Mill', ...P(79, 28.6));
 z.portal(...P(92, 9.5), 'bracken_sluice', 'Upstream to Bracken Sluice');
 z.landmark('Upstream Path', ...P(89.5, 14.5));
 z.contact('wenna', 'Wenna · Survey lead', ...P(88.5, 13.4), 'person'); z.appear('wenna', 'rw_wenna');
-z.phase('rw_wenna', true, () => { z.decor('tent', ...P(92.5, 13.6), 0.8, 1); z.decor('crate', ...P(89, 16.2), 0.8); });
+z.solid('boulder', ...P(92.5, 13.15)); z.solid('log', ...P(92.6, 14.2)); // the tent pitches against the boulder, the crate leans on the log
+z.phase('rw_wenna', true, () => { z.decor('tent', ...P(92.5, 13.6), 0.8, 1); z.decor('crate', ...P(92.95, 14.2), 0.8); });
 z.phase('rw_survey_home', true, () => {
   z.resident('rw_wenna', 'scholar', 'Wenna · Survey lead', ...P(83.5, 26.6), -20); z.resident('rw_surveyor1', 'worker', 'Surveyor', ...P(85.2, 28.2), 10);
   z.resident('rw_surveyor2', 'pilgrim', 'Surveyor', ...P(70.5, 30.5), 30); z.resident('rw_surveyor3', 'porter', 'Surveyor', ...P(69, 28.8), -10);

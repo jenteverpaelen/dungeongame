@@ -10,6 +10,7 @@ import { CACHE_GOLD_UNITS, boardUnlocked, bountyGold, drawBounties } from '../..
 import { xpToNext } from '../../shared/src/progression';
 import { questRequest } from '../../shared/src/questRequests';
 import { Instance } from '../src/sim/instance';
+import { ADVENTURES } from '../../shared/src/adventure';
 import { killMob } from '../src/sim/kills';
 import type { Session } from '../src/net/session';
 import type { World } from '../src/world';
@@ -130,6 +131,8 @@ test('bounty board: actual authored deaths progress a hunt, each bounty pays onc
 });
 
 test('field event requires physical enrollment and actual whole-pack deaths; cooldown cannot spawn on players',()=>{
+  // the whole authored overlook pack answers the alarm (its size comes from the zone data)
+  const OVERLOOK=ADVENTURES.rillwake_crossing!.encounters.find(e=>e.id==='overlook')!.members.length;
   const f=fixture(),other=f.add();
   try{
     for(const h of [f,other]){complete(h.save,'silent_wheel');h.at(...spot(f.inst,'tender',h.save));assert(h.quest('high_water','accept').ok);h.at(...app(f.inst,'survey'));assert(h.quest('high_water','inspect','survey').ok);}
@@ -137,12 +140,12 @@ test('field event requires physical enrollment and actual whole-pack deaths; coo
     assert(!f.inst.mobs.some(m=>m.adventureSite==='overlook'));
     const start=()=>f.cmd('quest',{action:'activateField',target:'survey'});
     f.at(...app(f.inst,'tender'));assert(!start().ok);f.at(...app(f.inst,'survey'));f.p.deadMs=1;assert(!start().ok);f.p.deadMs=0;assert(start().ok);assert(start().ok);
-    const pack=f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook');assert.equal(pack.length,6);other.at(f.p.x,f.p.y);
+    const pack=f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook');assert.equal(pack.length,OVERLOOK);other.at(f.p.x,f.p.y);
     for(const m of pack)killMob(f.inst,m,f.p,'physical','fixture');
     assert.equal(questState(f.save,'high_water')!.step,2);assert.equal(questState(other.save,'high_water')!.step,1,'nearby but never enrolled');
     assert(!start().ok);f.inst.t+=19000;f.inst.spawner.tick(50);assert(!start().ok,'must leave the view before re-arming');
     f.at(...app(f.inst,'tender'));other.at(...app(f.inst,'tender'));f.inst.t+=1000;f.inst.spawner.tick(50);assert.equal(f.inst.spawner.eventStates(f.p.id).find(e=>e.id==='survey_alarm')!.phase,'ready');
-    f.at(...app(f.inst,'survey'));assert(start().ok);assert.equal(f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook').length,6);
+    f.at(...app(f.inst,'survey'));assert(start().ok);assert.equal(f.inst.mobs.filter(m=>!m.dead&&m.adventureSite==='overlook').length,OVERLOOK);
   }finally{f.inst.destroy();}
 });
 
