@@ -52,12 +52,23 @@ Codex's feature count (147 features): **60 done, 32 partial, 52 open**. The work
 
 Overnight report: `docs/rework/REPORT-2026-10-12.md`.
 
+## Balance pass (2026-10-12, daytime) ✅
+
+| What | Result |
+|---|---|
+| **Shrines** | show their name, what they give and a recharge countdown above them |
+| **Early drops** | elites always drop something (every champion pack ≥1 item, rare elites 1 + 40 %), normal monsters 1.5 %, mostly blue with whites/yellows now and then, Legendaries rarer while levelling (`docs/rework/balance/EARLY.md`) |
+| **Early danger** | monsters hit harder early, elites ×1.25 / ×1.5, healing stats follow your life, Warrior −30 % damage taken; standing in an elite pack now costs 10–35 % of life on Story, 30–100 % on Normal |
+| **Ordeal ladder** | monster life 10 × 1.6 per step (was 16 × 2, Ordeal III ×64 → ×25.6), like Diablo III's Torment curve; a full set with Lantern 700 clears Ordeal II–III (`LADDER.md`) |
+| **Build balance** | every class's skills pulled toward each other (dominant skill 1.69–2.16× → 1.27–1.54× except Mage Meteor), Ninefold Gale / Fallen Star / Siegebreaker fitted, Warrior no longer the slowest levelling class (`PARITY.md`) |
+
 ## Next (in this order)
 
 1. **Your look at the armour art** (switch it on in Settings → Display).
-2. **Balance pass:** sets vs legendaries (shared legendaries a bit too strong, a few named weapons dominate), classes against each other (warrior slowest at level 25+), the Ordeal ladder re-fit (endgame set power dropped from up to ×387 to ×13–29), ranger survival on some rift maps.
+2. **Your call: a health potion** (none exists; recommended now that monsters can kill, Diablo-style 30 s cooldown).
 3. **Endgame** (timed rifts with ranks, leaderboards, bounties) or a **playtest with friends** — your call.
-4. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
+4. **Balance, part 2:** Meteor's set synergy, per-skill set vs legendary gaps (e.g. Skipstone Bolt has no set), Warrior's legendary-only route, levelling speed (10–20 % faster than this morning).
+5. **Second wave:** 20 skills per class, 200+ legendaries, support-style modifiers.
 
 ---
 
