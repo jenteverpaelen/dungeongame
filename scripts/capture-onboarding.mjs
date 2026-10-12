@@ -67,9 +67,10 @@ try {
     const state = await evaluate(`(()=>{const u=window.__ui?.get();return {width:innerWidth,height:innerHeight,hidden:document.hidden,
       text:document.body.innerText,controls:[...document.querySelectorAll('button,input')].map(e=>({text:e.innerText||e.getAttribute('aria-label')||e.placeholder,disabled:e.disabled})),
       screen:u?.screen,zone:u?.zone,char:u?.char,me:u?.me,panels:u?.panels,interact:u?.interact,
-      camera:u?.screen==='game'?innerHeight/__game.scene.cam.zoom:null};})()`);
+      camera:u?.screen==='game'?innerHeight/__game.scene.cam.zoom:null,cameraZoom:__prefs.get().values.cameraZoom};})()`);
     assert.equal(state.width, 1920); assert.equal(state.height, 1080); assert.equal(state.hidden, false);
-    if (state.screen === 'game') assert.equal(state.camera, 620);
+    // the view is 620 units tall at camera zoom 1 (client/src/render/scene.ts VIEW_HEIGHT), scaled by the zoom preference
+    if (state.screen === 'game') assert.ok(Math.abs(state.camera - 620 / state.cameraZoom) < 0.01, `camera ${state.camera} at zoom ${state.cameraZoom}`);
     if (!controlsCheck || controlsShots.has(name)) {
       const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
       await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64'));
@@ -153,8 +154,11 @@ try {
   await key('e', 'KeyE', 69);
   await until(() => evaluate('Boolean(document.querySelector("[data-panel=waypoint]"))'));
   await record('06-waypoint', 'E beside the physical Waypoint');
-  await evaluate(`const card=[...document.querySelectorAll('.wp-card')].find(e=>e.innerText.includes('Rillwake Crossing'));
-    const go=card.querySelector('.wp-go button');if(go.disabled)throw Error('First field disabled');go.click();true`);
+  // The waypoint lists destinations (.wp-row); the chosen one has a single travel button (.wp-travel).
+  await evaluate(`const row=[...document.querySelectorAll('.wp-row')].find(e=>e.innerText.includes('Rillwake Crossing'));
+    if(!row)throw Error('First field missing');row.click();true`);
+  await until(() => evaluate('Boolean(document.querySelector(".wp-go .wp-travel"))'));
+  await evaluate(`const go=document.querySelector('.wp-go .wp-travel');if(go.disabled)throw Error('First field disabled');go.click();true`);
   await until(() => evaluate('__ui.get().zone?.kind==="field"')); await wait(2000);
   await record('07-first-field', 'Click first field travel button; no debug grants');
   await key('F1', 'F1', 112); await key('Escape', 'Escape', 27); // Dismiss any focus before movement.

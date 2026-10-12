@@ -84,11 +84,12 @@ try {
   };
   const record = async (name, action) => {
     await wait(250);
-    const state = await evaluate(`({width:innerWidth,height:innerHeight,hidden:document.hidden,camera:innerHeight/__game.scene.cam.zoom,
+    const state = await evaluate(`({width:innerWidth,height:innerHeight,hidden:document.hidden,camera:innerHeight/__game.scene.cam.zoom,cameraZoom:__prefs.get().values.cameraZoom,
       text:document.body.innerText,char:__ui.get().char,derived:__ui.get().derived,me:__ui.get().me,zone:__ui.get().zone,
       tooltip:document.querySelector('[role=tooltip]')?.textContent,
       panels:[...document.querySelectorAll('.pn')].map(e=>{const r=e.getBoundingClientRect();return {name:e.getAttribute('data-panel'),x:r.x,y:r.y,w:r.width,h:r.height}})})`);
-    assert.equal(state.width, 1920); assert.equal(state.height, 1080); assert.equal(state.hidden, false); assert.equal(state.camera, 620);
+    assert.equal(state.width, 1920); assert.equal(state.height, 1080); assert.equal(state.hidden, false);
+    assert.ok(Math.abs(state.camera - 620 / state.cameraZoom) < 0.01, `camera ${state.camera} at zoom ${state.cameraZoom}`); // VIEW_HEIGHT / zoom preference
     for (const p of state.panels) assert.ok(p.y >= 0 && p.y+p.h <= 1081, JSON.stringify(p));
     observations.push({name,action,elapsedScriptMs:Math.round(performance.now()-startMs),...state});
     const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
@@ -129,9 +130,10 @@ try {
   await evaluate(`const n=document.querySelector('.fr-namebox input');n.value='EarnedTrace';n.dispatchEvent(new Event('input',{bubbles:true}));true`);
   await click('.fr-go-create'); await ready(); assert.equal(await evaluate('__ui.get().char.level'),1);
   // The first field is Rillwake Crossing (the old fields are retired, worlds DECISIONS D-W19).
-  await key('KeyE'); await selectText('.wp-card','Rillwake Crossing');
-  await evaluate(`document.querySelectorAll('.wp-card').forEach(e=>{if(e.textContent.includes('Rillwake Crossing'))e.setAttribute('data-audit-field','true')});true`);
-  await click('[data-audit-field] .wp-go button');
+  // The waypoint lists destinations (.wp-row); the chosen one has a single travel button (.wp-travel).
+  await key('KeyE'); await selectText('.wp-row','Rillwake Crossing');
+  await until(()=>evaluate('Boolean(document.querySelector(".wp-go .wp-travel"))'));
+  await click('.wp-go .wp-travel');
   await until(()=>evaluate('__ui.get().zone?.kind==="field"')); await wait(800);
   await record('01-field-entry','Fresh character; normal physical Waypoint travel; no grants');
   const map=await evaluate('__game.world.map'),cw=new CollisionWorld(map);

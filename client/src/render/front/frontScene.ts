@@ -134,7 +134,10 @@ export class FrontScene {
       const lookKey = JSON.stringify(w.look);
       let a = this.actors.get(w.key);
       if (!a) {
-        const view = createPlayerView(w.look) as Turnable, ring = glowSprite(0xffd890, 220, 0, true);
+        // 'scene' bake mode: these heroes draw in the game's renderer like the heroes in town. The default 'portable' mode
+        // is for the separate preview renderers (character showcase), and sharing a portable sheet with one of those let
+        // closing the inventory free drawings this scene still held (the next frame threw and froze movement).
+        const view = createPlayerView(w.look, 'scene') as Turnable, ring = glowSprite(0xffd890, 220, 0, true);
         view.root.scale.set(HERO_SCALE); ring.scale.y *= 0.4;
         this.props.addChild(ring, view.root);
         a = { key: w.key, look: lookKey, view, ring, seq: 0, lastSwing: 0 }; this.actors.set(w.key, a);
@@ -148,6 +151,8 @@ export class FrontScene {
     const s = ui.get(), on = s.screen === 'select' || s.screen === 'connecting';
     if (on !== this.active) {
       this.active = on; this.root.visible = on;
+      // Into the game: the camp heroes go (they are rebuilt on the way back), only the painted camp stays for a return.
+      if (!on) { for (const a of this.actors.values()) { a.view.destroy(); a.ring.destroy(); } this.actors.clear(); }
       if (on && !this.fire) { this.build(); this.app.stage.addChildAt(this.root, 0); }
     }
     if (!on) return;

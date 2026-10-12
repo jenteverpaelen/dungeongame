@@ -116,9 +116,9 @@ try {
     await page.call('Page.navigate', { url: `${origin}/?autostart=${character}&class=mage` });
     await until(() => evaluate('typeof __ui!=="undefined" && __ui.get().screen==="game" && !!__ui.get().char'));
     await wait(900);
-    const state = await evaluate('({origin:location.origin,width:innerWidth,height:innerHeight,hidden:document.hidden,camera:innerHeight/__game.scene.cam.zoom,name:__ui.get().char.name,level:__ui.get().char.level,text:document.body.innerText})');
+    const state = await evaluate('({origin:location.origin,width:innerWidth,height:innerHeight,hidden:document.hidden,camera:innerHeight/__game.scene.cam.zoom,cameraZoom:__prefs.get().values.cameraZoom,name:__ui.get().char.name,level:__ui.get().char.level,text:document.body.innerText})');
     assert.equal(state.origin, origin); assert.equal(state.name, character); assert.equal(state.width, 1920); assert.equal(state.height, 1080);
-    assert.equal(state.camera, 620); assert.equal(state.hidden, false);
+    assert.ok(Math.abs(state.camera - 620 / state.cameraZoom) < 0.01, `camera ${state.camera} at zoom ${state.cameraZoom}`); assert.equal(state.hidden, false); // VIEW_HEIGHT / zoom preference
     observations.push({ capture: name, ...state });
     const shot = await page.call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
     await fs.writeFile(path.join(out, name + '.png'), Buffer.from(shot.data, 'base64')); console.log(`Captured ${name}`);
