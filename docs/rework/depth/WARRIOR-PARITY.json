@@ -1,11 +1,11 @@
 {
- "generated": "2026-10-11",
+ "generated": "2026-10-12",
  "seeds": [
   101,
   202,
   303
  ],
- "search": 25,
+ "search": 0,
  "mains": [
   "cleave",
   "tolling_blow",
@@ -21,34 +21,34 @@
   "pool": {
    "checks": {
     "D1": {
-     "value": "1/9",
+     "value": "2/9",
      "target": false,
      "hard": false
     },
     "D2": {
-     "value": "seething_sigil 9/9",
+     "value": "anvil_vambraces 9/9",
      "target": false,
      "hard": false
     },
     "D3": {
-     "value": "0.89–1.53",
+     "value": "0.61–1.21",
      "target": false,
      "hard": false
     },
     "D4": {
-     "value": "0.81–1.09",
+     "value": "0.98–1.17",
      "target": false,
      "hard": false
     },
     "D5": {
-     "value": "5/5 (hearthbanner, furrowmark, endless_storm, cinder_oath, fault_warden)",
-     "target": true,
+     "value": "4/5 (hearthbanner, furrowmark, endless_storm, cinder_oath)",
+     "target": false,
      "hard": true
     },
     "D6": {
-     "value": "2.45",
-     "target": false,
-     "hard": false
+     "value": "1.39",
+     "target": true,
+     "hard": true
     }
    },
    "rows": [
@@ -65,46 +65,46 @@
       ]
      },
      "ms": {
-      "rare": 25894188,
-      "legendary": 1953218,
-      "endless_storm6": 3928610,
-      "endless_storm4": 2090632,
-      "cinder_oath6": 3349891,
-      "cinder_oath4": 2090632,
-      "fault_warden6": 3066064,
-      "fault_warden4": 1942228,
-      "furrowmark6": 4080501,
-      "furrowmark4": 2660161,
-      "hearthbanner6": 2554694,
-      "hearthbanner4": 1793607
+      "rare": 7134272,
+      "legendary": 846749,
+      "endless_storm6": 1292288,
+      "endless_storm4": 929483,
+      "cinder_oath6": 1181553,
+      "cinder_oath4": 929483,
+      "fault_warden6": 1117770,
+      "fault_warden4": 807912,
+      "furrowmark6": 1451897,
+      "furrowmark4": 1055468,
+      "hearthbanner6": 901005,
+      "hearthbanner4": 759289
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 4,
-      "endless_storm6": 6,
-      "endless_storm4": 5,
-      "cinder_oath6": 6,
-      "cinder_oath4": 5,
-      "fault_warden6": 6,
-      "fault_warden4": 5,
-      "furrowmark6": 6,
-      "furrowmark4": 5,
-      "hearthbanner6": 5,
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
       "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 13.25719300149804,
-      "endless_storm6": 6.591183141110978,
-      "endless_storm4": 12.385818259741551,
-      "cinder_oath6": 7.729859867082243,
-      "cinder_oath4": 12.385818259741551,
-      "fault_warden6": 8.445416664492326,
-      "fault_warden4": 13.332208165055802,
-      "furrowmark6": 6.345835474614514,
-      "furrowmark4": 9.734067975584937,
-      "hearthbanner6": 10.135925476789001,
-      "hearthbanner4": 14.436935181452792
+      "legendary": 8.425486183036531,
+      "endless_storm6": 5.52065174326466,
+      "endless_storm4": 7.675527147887589,
+      "cinder_oath6": 6.038046537057585,
+      "cinder_oath4": 7.675527147887589,
+      "fault_warden6": 6.382593914669386,
+      "fault_warden4": 8.830506292764559,
+      "furrowmark6": 4.91375903387086,
+      "furrowmark4": 6.759344669852615,
+      "hearthbanner6": 7.918126980427411,
+      "hearthbanner4": 9.395990196091343
      },
      "best": "hearthbanner4",
      "bestSet6": "hearthbanner6",
@@ -188,19 +188,19 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "slagforged_helm"
+         "legendary": "brass_warhorn_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -215,7 +215,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -269,10 +269,10 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -333,10 +333,10 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -463,10 +463,10 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -590,10 +590,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -674,7 +674,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -720,10 +720,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -792,7 +792,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -850,10 +850,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -892,48 +892,48 @@
       ]
      },
      "ms": {
-      "rare": 31257188,
-      "legendary": 2081355,
-      "endless_storm6": 5159944,
-      "endless_storm4": 2758554,
-      "cinder_oath6": 4439207,
-      "cinder_oath4": 2758554,
-      "fault_warden6": 3935425,
-      "fault_warden4": 2446620,
-      "furrowmark6": 6368728,
-      "furrowmark4": 3257498,
-      "hearthbanner6": 3188263,
-      "hearthbanner4": 2111515
+      "rare": 7898828,
+      "legendary": 887917,
+      "endless_storm6": 1496320,
+      "endless_storm4": 971945,
+      "cinder_oath6": 1271304,
+      "cinder_oath4": 971945,
+      "fault_warden6": 1062272,
+      "fault_warden4": 812764,
+      "furrowmark6": 1719210,
+      "furrowmark4": 1157508,
+      "hearthbanner6": 953419,
+      "hearthbanner4": 758682
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 5,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 5,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 5
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 5,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 15.017711058421076,
-      "endless_storm6": 6.057660315693348,
-      "endless_storm4": 11.33100457703565,
-      "cinder_oath6": 7.041164784611306,
-      "cinder_oath4": 11.33100457703565,
-      "fault_warden6": 7.942519041780748,
-      "fault_warden4": 12.77566111615208,
-      "furrowmark6": 4.90791693411934,
-      "furrowmark4": 9.595458846022316,
-      "hearthbanner6": 9.803829859707308,
-      "hearthbanner4": 14.803204334328669
+      "legendary": 8.895908063478906,
+      "endless_storm6": 5.2788360778443115,
+      "endless_storm4": 8.126826106415486,
+      "cinder_oath6": 6.213170099362545,
+      "cinder_oath4": 8.126826106415486,
+      "fault_warden6": 7.4357866911676105,
+      "fault_warden4": 9.718476704184733,
+      "furrowmark6": 4.594452103000797,
+      "furrowmark4": 6.823994305006964,
+      "hearthbanner6": 8.284739448238392,
+      "hearthbanner4": 10.41125003624707
      },
-     "best": "legendary",
+     "best": "hearthbanner4",
      "bestSet6": "hearthbanner6",
      "bestHybrid": "hearthbanner4",
      "kits": {
@@ -1018,13 +1018,13 @@
          "legendary": "brass_warhorn_helm"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -1042,7 +1042,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -1157,10 +1157,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -1229,7 +1229,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -1287,10 +1287,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -1420,7 +1420,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -1547,10 +1547,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -1619,7 +1619,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -1677,10 +1677,10 @@
          "legendary": "ward_pennant_shield"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -1719,21 +1719,21 @@
       ]
      },
      "ms": {
-      "rare": 30256613,
-      "legendary": 821385,
-      "endless_storm6": 1081583,
-      "endless_storm4": 1460077,
-      "cinder_oath6": 1652007,
-      "cinder_oath4": 1681366,
-      "fault_warden6": 1636279,
-      "fault_warden4": 1627422,
-      "furrowmark6": 2900138,
-      "furrowmark4": 1144123,
-      "hearthbanner6": 1646878,
-      "hearthbanner4": 1641535
+      "rare": 10909299,
+      "legendary": 879129,
+      "endless_storm6": 1066216,
+      "endless_storm4": 1422037,
+      "cinder_oath6": 1594286,
+      "cinder_oath4": 1596928,
+      "fault_warden6": 1508734,
+      "fault_warden4": 1576788,
+      "furrowmark6": 1674280,
+      "furrowmark4": 898555,
+      "hearthbanner6": 1579840,
+      "hearthbanner4": 1612074
      },
      "timeouts": {
-      "rare": 9,
+      "rare": 6,
       "legendary": 3,
       "endless_storm6": 3,
       "endless_storm4": 3,
@@ -1741,24 +1741,24 @@
       "cinder_oath4": 3,
       "fault_warden6": 3,
       "fault_warden4": 3,
-      "furrowmark6": 6,
+      "furrowmark6": 3,
       "furrowmark4": 3,
       "hearthbanner6": 3,
       "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 36.83609147963501,
-      "endless_storm6": 27.974379220087595,
-      "endless_storm4": 20.72261462922846,
-      "cinder_oath6": 18.315063434961232,
-      "cinder_oath4": 17.99525683283711,
-      "fault_warden6": 18.491108790126866,
-      "fault_warden4": 18.591743874668033,
-      "furrowmark6": 10.43281836933277,
-      "furrowmark4": 26.44524496055057,
-      "hearthbanner6": 18.372103458786867,
-      "hearthbanner4": 18.431902457151384
+      "legendary": 12.409212982395076,
+      "endless_storm6": 10.231790744089377,
+      "endless_storm4": 7.671599965401744,
+      "cinder_oath6": 6.842749042518093,
+      "cinder_oath4": 6.83142821717698,
+      "fault_warden6": 7.23076367338444,
+      "fault_warden4": 6.9186846931864014,
+      "furrowmark6": 6.515815156365721,
+      "furrowmark4": 12.140936281028985,
+      "hearthbanner6": 6.905318893052461,
+      "hearthbanner4": 6.767244555771013
      },
      "best": "legendary",
      "bestSet6": "endless_storm6",
@@ -1839,22 +1839,22 @@
          "legendary": "ninefold_gale"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
@@ -1866,10 +1866,10 @@
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -1920,16 +1920,16 @@
          "legendary": "ninefold_gale"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -1975,25 +1975,25 @@
          "legendary": "ninefold_gale"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -2047,16 +2047,16 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -2102,19 +2102,19 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -2168,16 +2168,16 @@
          "legendary": "ninefold_gale"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -2223,10 +2223,10 @@
          "legendary": "ninefold_gale"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
@@ -2238,7 +2238,7 @@
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -2301,7 +2301,7 @@
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -2347,25 +2347,25 @@
          "legendary": "ninefold_gale"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -2419,16 +2419,16 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -2471,22 +2471,22 @@
          "legendary": "ninefold_gale"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "legs": {
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "signal_horn_charm"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         },
         "ring2": {
          "legendary": "rally_knot"
@@ -2513,50 +2513,50 @@
       ]
      },
      "ms": {
-      "rare": 28074606,
-      "legendary": 1830573,
-      "endless_storm6": 1746263,
-      "endless_storm4": 2285305,
-      "cinder_oath6": 2757753,
-      "cinder_oath4": 2842780,
-      "fault_warden6": 2787589,
-      "fault_warden4": 2780780,
-      "furrowmark6": 3327672,
-      "furrowmark4": 2267824,
-      "hearthbanner6": 2796813,
-      "hearthbanner4": 2806717
+      "rare": 10181783,
+      "legendary": 1286410,
+      "endless_storm6": 780389,
+      "endless_storm4": 1024811,
+      "cinder_oath6": 1307819,
+      "cinder_oath4": 1317901,
+      "fault_warden6": 1247882,
+      "fault_warden4": 1278733,
+      "furrowmark6": 1508735,
+      "furrowmark4": 1223807,
+      "hearthbanner6": 1284780,
+      "hearthbanner4": 1298579
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 5,
-      "endless_storm6": 4,
-      "endless_storm4": 5,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
       "furrowmark6": 3,
-      "furrowmark4": 5,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 15.336512665706312,
-      "endless_storm6": 16.076963206573122,
-      "endless_storm4": 12.28483987914086,
-      "cinder_oath6": 10.180246744360355,
-      "cinder_oath4": 9.875757533118989,
-      "fault_warden6": 10.071285975084562,
-      "fault_warden4": 10.095946461064882,
-      "furrowmark6": 8.436710709468962,
-      "furrowmark4": 12.37953474343688,
-      "hearthbanner6": 10.038070475215898,
-      "hearthbanner4": 10.00264935866352
+      "legendary": 7.914881725110968,
+      "endless_storm6": 13.047061145146843,
+      "endless_storm4": 9.935278797749048,
+      "cinder_oath6": 7.78531509329655,
+      "cinder_oath4": 7.725757094045759,
+      "fault_warden6": 8.159251435632536,
+      "fault_warden4": 7.962399500130207,
+      "furrowmark6": 6.748556240824267,
+      "furrowmark4": 8.31976202129911,
+      "hearthbanner6": 7.924923333177665,
+      "hearthbanner4": 7.840711269780275
      },
      "best": "endless_storm6",
      "bestSet6": "endless_storm6",
-     "bestHybrid": "furrowmark4",
+     "bestHybrid": "endless_storm4",
      "kits": {
       "rare": {
        "id": "ironplough/rare",
@@ -2636,13 +2636,13 @@
          "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -2660,10 +2660,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -2714,7 +2714,7 @@
          "legendary": "coulter_blade"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -2723,10 +2723,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -2769,7 +2769,7 @@
          "legendary": "coulter_blade"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -2778,16 +2778,16 @@
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -2838,7 +2838,7 @@
          "legendary": "coulter_blade"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -2847,10 +2847,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -2893,7 +2893,7 @@
          "legendary": "coulter_blade"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -2902,16 +2902,16 @@
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "tremor_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -2971,10 +2971,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3017,7 +3017,7 @@
          "legendary": "coulter_blade"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -3032,10 +3032,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "tremor_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3095,7 +3095,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -3141,7 +3141,7 @@
          "legendary": "coulter_blade"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -3156,10 +3156,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "tremor_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3219,10 +3219,10 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3274,16 +3274,16 @@
          "legendary": "gale_stitched_legguards"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
-         "legendary": "tremor_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3307,48 +3307,48 @@
       ]
      },
      "ms": {
-      "rare": 24528395,
-      "legendary": 1754241,
-      "endless_storm6": 3855508,
-      "endless_storm4": 3187422,
-      "cinder_oath6": 2275385,
-      "cinder_oath4": 2144487,
-      "fault_warden6": 3738959,
-      "fault_warden4": 3245148,
-      "furrowmark6": 4249569,
-      "furrowmark4": 3239665,
-      "hearthbanner6": 2549370,
-      "hearthbanner4": 2657736
+      "rare": 6305139,
+      "legendary": 1113706,
+      "endless_storm6": 1211385,
+      "endless_storm4": 1215324,
+      "cinder_oath6": 888333,
+      "cinder_oath4": 1094078,
+      "fault_warden6": 1153620,
+      "fault_warden4": 1213738,
+      "furrowmark6": 1543037,
+      "furrowmark4": 1238280,
+      "hearthbanner6": 933635,
+      "hearthbanner4": 1099309
      },
      "timeouts": {
-      "rare": 9,
+      "rare": 6,
       "legendary": 3,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 5,
-      "hearthbanner4": 6
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 13.982340510796407,
-      "endless_storm6": 6.3619100258642955,
-      "endless_storm4": 7.695371055354452,
-      "cinder_oath6": 10.779887799207607,
-      "cinder_oath4": 11.437884678247059,
-      "fault_warden6": 6.560220371499126,
-      "fault_warden4": 7.5584826947800225,
-      "furrowmark6": 5.771972404730927,
-      "furrowmark4": 7.571275116408641,
-      "hearthbanner6": 9.621355472136253,
-      "hearthbanner4": 9.229056234328768
+      "legendary": 5.661403458363338,
+      "endless_storm6": 5.204901001745935,
+      "endless_storm4": 5.188031339790871,
+      "cinder_oath6": 7.097720111714864,
+      "cinder_oath4": 5.762970281826341,
+      "fault_warden6": 5.46552504290841,
+      "fault_warden4": 5.194810576911986,
+      "furrowmark6": 4.086187823104695,
+      "furrowmark4": 5.091852408179087,
+      "hearthbanner6": 6.753323300861686,
+      "hearthbanner4": 5.735547512118977
      },
-     "best": "legendary",
+     "best": "cinder_oath6",
      "bestSet6": "cinder_oath6",
      "bestHybrid": "cinder_oath4",
      "kits": {
@@ -3430,37 +3430,37 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3523,10 +3523,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3572,22 +3572,22 @@
          "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -3644,7 +3644,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -3653,10 +3653,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3702,7 +3702,7 @@
          "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -3717,7 +3717,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -3783,10 +3783,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -3829,16 +3829,16 @@
          "legendary": "bloodwake"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
@@ -3847,7 +3847,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -3907,13 +3907,13 @@
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -3962,10 +3962,10 @@
          "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -3977,10 +3977,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4034,16 +4034,16 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -4092,13 +4092,13 @@
          "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "witching_cord"
+         "legendary": "furycord_belt"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
@@ -4107,10 +4107,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4134,46 +4134,46 @@
       ]
      },
      "ms": {
-      "rare": 10446689,
-      "legendary": 447450,
-      "endless_storm6": 736546,
-      "endless_storm4": 738415,
-      "cinder_oath6": 398600,
-      "cinder_oath4": 521046,
-      "fault_warden6": 650011,
-      "fault_warden4": 689511,
-      "furrowmark6": 1033302,
-      "furrowmark4": 839334,
-      "hearthbanner6": 527079,
-      "hearthbanner4": 530869
+      "rare": 6656353,
+      "legendary": 893131,
+      "endless_storm6": 943767,
+      "endless_storm4": 957664,
+      "cinder_oath6": 648113,
+      "cinder_oath4": 742242,
+      "fault_warden6": 941376,
+      "fault_warden4": 959158,
+      "furrowmark6": 1301388,
+      "furrowmark4": 1012914,
+      "hearthbanner6": 775177,
+      "hearthbanner4": 825320
      },
      "timeouts": {
-      "rare": 7,
-      "legendary": 0,
+      "rare": 6,
+      "legendary": 3,
       "endless_storm6": 3,
       "endless_storm4": 3,
-      "cinder_oath6": 0,
-      "cinder_oath4": 2,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
       "fault_warden6": 3,
       "fault_warden4": 3,
-      "furrowmark6": 4,
+      "furrowmark6": 3,
       "furrowmark4": 3,
-      "hearthbanner6": 2,
-      "hearthbanner4": 2
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 23.347165046373895,
-      "endless_storm6": 14.183349037263117,
-      "endless_storm4": 14.147449604896975,
-      "cinder_oath6": 26.20845208228801,
-      "cinder_oath4": 20.049456286009296,
-      "fault_warden6": 16.071557250569604,
-      "fault_warden4": 15.150866338608086,
-      "furrowmark6": 10.110005593718004,
-      "furrowmark4": 12.446402743127289,
-      "hearthbanner6": 19.819968164165143,
-      "hearthbanner4": 19.678468699434323
+      "legendary": 7.452829428157796,
+      "endless_storm6": 7.052962224786414,
+      "endless_storm4": 6.950614202893708,
+      "cinder_oath6": 10.270358718309925,
+      "cinder_oath4": 8.96790130442632,
+      "fault_warden6": 7.070876036780202,
+      "fault_warden4": 6.939787813895104,
+      "furrowmark6": 5.114810494641106,
+      "furrowmark4": 6.5714887937179265,
+      "hearthbanner6": 8.586881447720971,
+      "hearthbanner4": 8.06517835506228
      },
      "best": "cinder_oath6",
      "bestSet6": "cinder_oath6",
@@ -4257,13 +4257,13 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "watchkeepers_hood"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "fissure_lined_breastplate"
         },
         "hands": {
          "legendary": "woodcutters_grips"
@@ -4284,10 +4284,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4338,10 +4338,10 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -4350,10 +4350,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "ouroboros_loop"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4414,10 +4414,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4471,7 +4471,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -4480,10 +4480,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4538,16 +4538,16 @@
          "legendary": "furycord_belt"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4610,10 +4610,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4656,7 +4656,7 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "hands": {
          "legendary": "woodcutters_grips"
@@ -4674,10 +4674,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4728,22 +4728,22 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "legs": {
          "legendary": "causeway_waders"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4786,7 +4786,7 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "hands": {
          "legendary": "woodcutters_grips"
@@ -4804,10 +4804,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "sawyers_ring"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4870,10 +4870,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4928,16 +4928,16 @@
          "legendary": "furycord_belt"
         },
         "feet": {
-         "legendary": "quakestep_sabatons"
+         "legendary": "ridgewalker_boots"
         },
         "neck": {
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "patient_thief"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "rally_knot"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -4961,48 +4961,48 @@
       ]
      },
      "ms": {
-      "rare": 25317293,
-      "legendary": 1965597,
-      "endless_storm6": 3596928,
-      "endless_storm4": 2714315,
-      "cinder_oath6": 3270232,
-      "cinder_oath4": 2714315,
-      "fault_warden6": 2945309,
-      "fault_warden4": 2341903,
-      "furrowmark6": 4177362,
-      "furrowmark4": 3077271,
-      "hearthbanner6": 2651339,
-      "hearthbanner4": 2306028
+      "rare": 7132244,
+      "legendary": 930204,
+      "endless_storm6": 1275998,
+      "endless_storm4": 1045209,
+      "cinder_oath6": 1081979,
+      "cinder_oath4": 1045209,
+      "fault_warden6": 1068850,
+      "fault_warden4": 985310,
+      "furrowmark6": 1410813,
+      "furrowmark4": 1209221,
+      "hearthbanner6": 931733,
+      "hearthbanner4": 919753
      },
      "timeouts": {
-      "rare": 9,
+      "rare": 6,
       "legendary": 3,
-      "endless_storm6": 6,
-      "endless_storm4": 5,
-      "cinder_oath6": 6,
-      "cinder_oath4": 5,
-      "fault_warden6": 5,
-      "fault_warden4": 5,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 5,
-      "hearthbanner4": 5
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 12.88020535236877,
-      "endless_storm6": 7.038587650350522,
-      "endless_storm4": 9.327323099934974,
-      "cinder_oath6": 7.741742176090259,
-      "cinder_oath4": 9.327323099934974,
-      "fault_warden6": 8.595802002438454,
-      "fault_warden4": 10.81056431457665,
-      "furrowmark6": 6.060593503747102,
-      "furrowmark4": 8.227189935498043,
-      "hearthbanner6": 9.54887058953985,
-      "hearthbanner4": 10.97874483744343
+      "legendary": 7.667397689109055,
+      "endless_storm6": 5.589541676397612,
+      "endless_storm4": 6.823749125772932,
+      "cinder_oath6": 6.591850673626753,
+      "cinder_oath4": 6.823749125772932,
+      "fault_warden6": 6.672820320905647,
+      "fault_warden4": 7.238578721417625,
+      "furrowmark6": 5.055414147729005,
+      "furrowmark4": 5.89821380872479,
+      "hearthbanner6": 7.654815274332883,
+      "hearthbanner4": 7.754521050760367
      },
-     "best": "legendary",
+     "best": "hearthbanner4",
      "bestSet6": "hearthbanner6",
      "bestHybrid": "hearthbanner4",
      "kits": {
@@ -5081,19 +5081,19 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5102,7 +5102,7 @@
          "legendary": "witching_cord"
         },
         "legs": {
-         "legendary": "yoke_greaves"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "quakestep_sabatons"
@@ -5114,7 +5114,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patchwork_signet"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -5165,7 +5165,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5180,7 +5180,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -5223,13 +5223,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5295,7 +5295,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5310,7 +5310,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -5353,13 +5353,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5425,7 +5425,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -5483,16 +5483,16 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -5555,7 +5555,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -5570,7 +5570,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -5613,16 +5613,16 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "legs": {
-         "legendary": "yoke_greaves"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "quakestep_sabatons"
@@ -5685,10 +5685,10 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -5743,16 +5743,16 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -5788,48 +5788,48 @@
       ]
      },
      "ms": {
-      "rare": 4868497,
-      "legendary": 209500,
-      "endless_storm6": 264350,
-      "endless_storm4": 262000,
-      "cinder_oath6": 274250,
-      "cinder_oath4": 262000,
-      "fault_warden6": 264350,
-      "fault_warden4": 262000,
-      "furrowmark6": 251900,
-      "furrowmark4": 272100,
-      "hearthbanner6": 210050,
-      "hearthbanner4": 238450
+      "rare": 4589472,
+      "legendary": 715673,
+      "endless_storm6": 792604,
+      "endless_storm4": 753438,
+      "cinder_oath6": 754788,
+      "cinder_oath4": 753438,
+      "fault_warden6": 725227,
+      "fault_warden4": 713071,
+      "furrowmark6": 871525,
+      "furrowmark4": 699806,
+      "hearthbanner6": 679567,
+      "hearthbanner4": 686197
      },
      "timeouts": {
-      "rare": 8,
-      "legendary": 0,
-      "endless_storm6": 0,
-      "endless_storm4": 0,
-      "cinder_oath6": 0,
-      "cinder_oath4": 0,
-      "fault_warden6": 0,
-      "fault_warden4": 0,
-      "furrowmark6": 0,
-      "furrowmark4": 0,
-      "hearthbanner6": 0,
-      "hearthbanner4": 0
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 23.238649164677803,
-      "endless_storm6": 18.416860223188955,
-      "endless_storm4": 18.58204961832061,
-      "cinder_oath6": 17.75204010938924,
-      "cinder_oath4": 18.58204961832061,
-      "fault_warden6": 18.416860223188955,
-      "fault_warden4": 18.58204961832061,
-      "furrowmark6": 19.32710202461294,
-      "furrowmark4": 17.89230797500919,
-      "hearthbanner6": 23.177800523684837,
-      "hearthbanner4": 20.417265674145522
+      "legendary": 6.41280584848108,
+      "endless_storm6": 5.790371989038662,
+      "endless_storm4": 6.091373145501024,
+      "cinder_oath6": 6.0804782269988396,
+      "cinder_oath4": 6.091373145501024,
+      "fault_warden6": 6.328324786584063,
+      "fault_warden4": 6.4362062122846115,
+      "furrowmark6": 5.2660244972892345,
+      "furrowmark4": 6.558206131413563,
+      "hearthbanner6": 6.753523935093964,
+      "hearthbanner4": 6.688271735376284
      },
-     "best": "legendary",
+     "best": "hearthbanner6",
      "bestSet6": "hearthbanner6",
      "bestHybrid": "hearthbanner4",
      "kits": {
@@ -5908,7 +5908,7 @@
          "legendary": "faultcleaver"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -5917,16 +5917,16 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
         },
         "legs": {
-         "legendary": "yoke_greaves"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
@@ -5935,7 +5935,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -5989,7 +5989,7 @@
          "legendary": "faultcleaver"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -5998,7 +5998,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6047,7 +6047,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6059,7 +6059,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6113,16 +6113,16 @@
          "legendary": "faultcleaver"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
         },
         "neck": {
-         "legendary": "hellforge_talisman"
+         "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6171,7 +6171,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6183,7 +6183,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6237,7 +6237,7 @@
          "legendary": "faultcleaver"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6246,7 +6246,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6295,7 +6295,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6307,7 +6307,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6361,7 +6361,7 @@
          "legendary": "faultcleaver"
         },
         "legs": {
-         "legendary": "yoke_greaves"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
@@ -6370,7 +6370,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6422,7 +6422,7 @@
          "legendary": "furycord_belt"
         },
         "legs": {
-         "legendary": "yoke_greaves"
+         "legendary": "causeway_waders"
         },
         "feet": {
          "legendary": "ridgewalker_boots"
@@ -6431,7 +6431,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6485,7 +6485,7 @@
          "legendary": "faultcleaver"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6494,7 +6494,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6543,7 +6543,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -6555,7 +6555,7 @@
          "legendary": "seething_sigil"
         },
         "ring1": {
-         "legendary": "ouroboros_loop"
+         "legendary": "tremor_signet"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -6582,50 +6582,50 @@
       ]
      },
      "ms": {
-      "rare": 25020654,
-      "legendary": 2017674,
-      "endless_storm6": 3312960,
-      "endless_storm4": 2755006,
-      "cinder_oath6": 2946769,
-      "cinder_oath4": 2755006,
-      "fault_warden6": 2992188,
-      "fault_warden4": 2266048,
-      "furrowmark6": 3770808,
-      "furrowmark4": 3214794,
-      "hearthbanner6": 2416412,
-      "hearthbanner4": 2362882
+      "rare": 6952280,
+      "legendary": 892181,
+      "endless_storm6": 1114989,
+      "endless_storm4": 1092441,
+      "cinder_oath6": 1047318,
+      "cinder_oath4": 1092441,
+      "fault_warden6": 937879,
+      "fault_warden4": 959710,
+      "furrowmark6": 1256293,
+      "furrowmark4": 1239047,
+      "hearthbanner6": 883827,
+      "hearthbanner4": 907435
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 5,
-      "endless_storm6": 6,
-      "endless_storm4": 5,
-      "cinder_oath6": 6,
-      "cinder_oath4": 5,
-      "fault_warden6": 5,
-      "fault_warden4": 5,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 5,
-      "hearthbanner4": 5
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 12.400741646073648,
-      "endless_storm6": 7.55235620110113,
-      "endless_storm4": 9.08188729897503,
-      "cinder_oath6": 8.490877296455881,
-      "cinder_oath4": 9.08188729897503,
-      "fault_warden6": 8.361992628805409,
-      "fault_warden4": 11.041537513768464,
-      "furrowmark6": 6.635356135873266,
-      "furrowmark4": 7.782972719247329,
-      "hearthbanner6": 10.354465215368903,
-      "hearthbanner4": 10.58904084080373
+      "legendary": 7.792454670072552,
+      "endless_storm6": 6.235290213625426,
+      "endless_storm4": 6.363986705002833,
+      "cinder_oath6": 6.6381748427889145,
+      "cinder_oath4": 6.363986705002833,
+      "fault_warden6": 7.412768598081415,
+      "fault_warden4": 7.244146669306353,
+      "furrowmark6": 5.533963812581938,
+      "furrowmark4": 5.610989736466816,
+      "hearthbanner6": 7.866109544062356,
+      "hearthbanner4": 7.661463355502047
      },
-     "best": "legendary",
+     "best": "hearthbanner6",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "fault_warden4",
+     "bestHybrid": "hearthbanner4",
      "kits": {
       "rare": {
        "id": "cairnfall/rare",
@@ -6705,16 +6705,16 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "watchkeepers_hood"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
         },
         "chest": {
-         "legendary": "hearthguard_coat"
+         "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -6735,7 +6735,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -6847,10 +6847,10 @@
          "legendary": "ward_pennant_shield"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -6977,10 +6977,10 @@
          "legendary": "ward_pennant_shield"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7049,7 +7049,7 @@
          "legendary": "ward_pennant_shield"
         },
         "wrists": {
-         "legendary": "wardkeepers_cuffs"
+         "legendary": "anvil_vambraces"
         },
         "waist": {
          "legendary": "witching_cord"
@@ -7107,10 +7107,10 @@
          "legendary": "ward_pennant_shield"
         },
         "shoulders": {
-         "legendary": "kilnwatch_spaulders"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "mountain_fists"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7191,7 +7191,7 @@
          "legendary": "threshers_knot"
         },
         "ring2": {
-         "legendary": "patient_thief"
+         "legendary": "rally_knot"
         }
        },
        "cube": [
@@ -7240,7 +7240,7 @@
          "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "legs": {
          "legendary": "causeway_waders"
@@ -7367,10 +7367,10 @@
          "legendary": "ward_pennant_shield"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ink_stained_gloves"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7406,27 +7406,27 @@
      "hard": false
     },
     "D2": {
-     "value": "anvil_vambraces 9/9",
+     "value": "seething_sigil 9/9",
      "target": false,
      "hard": false
     },
     "D3": {
-     "value": "0.63–1.00",
+     "value": "0.61–1.23",
      "target": false,
      "hard": false
     },
     "D4": {
-     "value": "1.00–1.07",
+     "value": "1.00–1.13",
      "target": false,
-     "hard": true
+     "hard": false
     },
     "D5": {
-     "value": "4/5 (hearthbanner, endless_storm, cinder_oath, fault_warden)",
-     "target": false,
+     "value": "5/5 (fault_warden, endless_storm, cinder_oath, hearthbanner, furrowmark)",
+     "target": true,
      "hard": true
     },
     "D6": {
-     "value": "2.16",
+     "value": "1.89",
      "target": false,
      "hard": false
     }
@@ -7445,50 +7445,50 @@
       ]
      },
      "ms": {
-      "rare": 25894188,
-      "legendary": 3576968,
-      "endless_storm6": 4827551,
-      "endless_storm4": 3811600,
-      "cinder_oath6": 3853750,
-      "cinder_oath4": 3811600,
-      "fault_warden6": 4196819,
-      "fault_warden4": 3582867,
-      "furrowmark6": 4806221,
-      "furrowmark4": 3689150,
-      "hearthbanner6": 3384946,
-      "hearthbanner4": 3174308
+      "rare": 7134272,
+      "legendary": 1378804,
+      "endless_storm6": 1646949,
+      "endless_storm4": 1445752,
+      "cinder_oath6": 1453947,
+      "cinder_oath4": 1445752,
+      "fault_warden6": 1472587,
+      "fault_warden4": 1212950,
+      "furrowmark6": 1646984,
+      "furrowmark4": 1439078,
+      "hearthbanner6": 1257413,
+      "hearthbanner4": 1224059
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 7.239144437411797,
-      "endless_storm6": 5.363835203398162,
-      "endless_storm4": 6.793521880575087,
-      "cinder_oath6": 6.719218423613364,
-      "cinder_oath4": 6.793521880575087,
-      "fault_warden6": 6.169955864191427,
-      "fault_warden4": 7.227225571030128,
-      "furrowmark6": 5.387639894212105,
-      "furrowmark4": 7.019011967526395,
-      "hearthbanner6": 7.649808298271228,
-      "hearthbanner4": 8.157427697627325
+      "legendary": 5.17424666595107,
+      "endless_storm6": 4.331811124691779,
+      "endless_storm4": 4.9346443926759225,
+      "cinder_oath6": 4.906830854219583,
+      "cinder_oath4": 4.9346443926759225,
+      "fault_warden6": 4.844720210079268,
+      "fault_warden4": 5.881752751556124,
+      "furrowmark6": 4.331719069523444,
+      "furrowmark4": 4.9575297516882335,
+      "hearthbanner6": 5.673769875132514,
+      "hearthbanner4": 5.828372651971841
      },
-     "best": "hearthbanner4",
+     "best": "fault_warden4",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "hearthbanner4",
+     "bestHybrid": "fault_warden4",
      "kits": {
       "rare": {
        "id": "cleave/rare",
@@ -7577,7 +7577,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7649,7 +7649,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7707,13 +7707,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "chest": {
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7837,13 +7837,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "chest": {
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -7967,13 +7967,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "chest": {
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -8103,7 +8103,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "legs": {
          "legendary": "yoke_greaves"
@@ -8233,7 +8233,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -8272,50 +8272,50 @@
       ]
      },
      "ms": {
-      "rare": 31257188,
-      "legendary": 4694763,
-      "endless_storm6": 6834361,
-      "endless_storm4": 5090011,
-      "cinder_oath6": 5939609,
-      "cinder_oath4": 5090011,
-      "fault_warden6": 5136911,
-      "fault_warden4": 4272362,
-      "furrowmark6": 7233451,
-      "furrowmark4": 5370669,
-      "hearthbanner6": 4258929,
-      "hearthbanner4": 4021351
+      "rare": 7899604,
+      "legendary": 1354540,
+      "endless_storm6": 1870411,
+      "endless_storm4": 1543895,
+      "cinder_oath6": 1658177,
+      "cinder_oath4": 1551261,
+      "fault_warden6": 1367222,
+      "fault_warden4": 1232179,
+      "furrowmark6": 1921462,
+      "furrowmark4": 1647873,
+      "hearthbanner6": 1255949,
+      "hearthbanner4": 1236349
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 5,
+      "endless_storm4": 3,
+      "cinder_oath6": 5,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 5,
+      "furrowmark4": 5,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 6.65788411470398,
-      "endless_storm6": 4.573534819129396,
-      "endless_storm4": 6.140888104171091,
-      "cinder_oath6": 5.262499265524044,
-      "cinder_oath4": 6.140888104171091,
-      "fault_warden6": 6.084821792707719,
-      "fault_warden4": 7.316137537034549,
-      "furrowmark6": 4.321199936240668,
-      "furrowmark4": 5.819980341369018,
-      "hearthbanner6": 7.3392132153412275,
-      "hearthbanner4": 7.772807695722159
+      "legendary": 5.831945900453291,
+      "endless_storm6": 4.223458908229261,
+      "endless_storm4": 5.116671794390163,
+      "cinder_oath6": 4.764029413024062,
+      "cinder_oath4": 5.092375815546191,
+      "fault_warden6": 5.777850268646935,
+      "fault_warden4": 6.411084753108112,
+      "furrowmark6": 4.111246540394762,
+      "furrowmark4": 4.7938184556698245,
+      "hearthbanner6": 6.289749026433398,
+      "hearthbanner4": 6.389461228180716
      },
-     "best": "hearthbanner4",
+     "best": "fault_warden4",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "hearthbanner4",
+     "bestHybrid": "fault_warden4",
      "kits": {
       "rare": {
        "id": "tolling_blow/rare",
@@ -8395,7 +8395,7 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "slagforged_helm"
+         "legendary": "brass_warhorn_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -8540,7 +8540,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -8670,7 +8670,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -8800,7 +8800,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -8930,7 +8930,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "legs": {
          "legendary": "yoke_greaves"
@@ -9060,7 +9060,7 @@
          "legendary": "quartermasters_cuirass"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -9099,21 +9099,21 @@
       ]
      },
      "ms": {
-      "rare": 30256613,
-      "legendary": 1864582,
-      "endless_storm6": 1361113,
-      "endless_storm4": 1734646,
-      "cinder_oath6": 2037184,
-      "cinder_oath4": 1896890,
-      "fault_warden6": 1954722,
-      "fault_warden4": 1882175,
-      "furrowmark6": 3390917,
-      "furrowmark4": 1970038,
-      "hearthbanner6": 2001671,
-      "hearthbanner4": 1929173
+      "rare": 10909299,
+      "legendary": 946393,
+      "endless_storm6": 1165354,
+      "endless_storm4": 834714,
+      "cinder_oath6": 1711827,
+      "cinder_oath4": 973555,
+      "fault_warden6": 1608242,
+      "fault_warden4": 934146,
+      "furrowmark6": 1769669,
+      "furrowmark4": 976535,
+      "hearthbanner6": 1719978,
+      "hearthbanner4": 947370
      },
      "timeouts": {
-      "rare": 9,
+      "rare": 6,
       "legendary": 3,
       "endless_storm6": 3,
       "endless_storm4": 3,
@@ -9121,26 +9121,26 @@
       "cinder_oath4": 3,
       "fault_warden6": 3,
       "fault_warden4": 3,
-      "furrowmark6": 6,
+      "furrowmark6": 3,
       "furrowmark4": 3,
       "hearthbanner6": 3,
       "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 16.227021927702832,
-      "endless_storm6": 22.229317477681867,
-      "endless_storm4": 17.442528907915506,
-      "cinder_oath6": 14.852174864911564,
-      "cinder_oath4": 15.950641840064527,
-      "fault_warden6": 15.47872945615796,
-      "fault_warden4": 16.07534527873338,
-      "furrowmark6": 8.922840930639117,
-      "furrowmark4": 15.358390548811748,
-      "hearthbanner6": 15.115677351572762,
-      "hearthbanner4": 15.683721988644875
+      "legendary": 11.52723974078422,
+      "endless_storm6": 9.361360582278003,
+      "endless_storm4": 13.069505243712218,
+      "cinder_oath6": 6.372898079069906,
+      "cinder_oath4": 11.205631936562392,
+      "fault_warden6": 6.783369045205883,
+      "fault_warden4": 11.678366122640359,
+      "furrowmark6": 6.164598577474092,
+      "furrowmark4": 11.171436763659266,
+      "hearthbanner6": 6.34269682519195,
+      "hearthbanner4": 11.515351974413376
      },
-     "best": "endless_storm6",
+     "best": "endless_storm4",
      "bestSet6": "endless_storm6",
      "bestHybrid": "endless_storm4",
      "kits": {
@@ -9219,7 +9219,7 @@
          "legendary": "ninefold_gale"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -9228,7 +9228,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -9303,7 +9303,7 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "seething_sigil"
@@ -9355,7 +9355,7 @@
          "legendary": "ninefold_gale"
         },
         "chest": {
-         "legendary": "quartermasters_cuirass"
+         "legendary": "fissure_lined_breastplate"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -9427,7 +9427,7 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "seething_sigil"
@@ -9551,7 +9551,7 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "seething_sigil"
@@ -9727,7 +9727,7 @@
          "legendary": "ninefold_gale"
         },
         "chest": {
-         "legendary": "quartermasters_cuirass"
+         "legendary": "fissure_lined_breastplate"
         },
         "waist": {
          "legendary": "eternal_gyre"
@@ -9799,7 +9799,7 @@
          "legendary": "anvil_vambraces"
         },
         "waist": {
-         "legendary": "furycord_belt"
+         "legendary": "eternal_gyre"
         },
         "neck": {
          "legendary": "seething_sigil"
@@ -9893,46 +9893,46 @@
       ]
      },
      "ms": {
-      "rare": 27299204,
-      "legendary": 3019018,
-      "endless_storm6": 1916255,
-      "endless_storm4": 2599861,
-      "cinder_oath6": 3085478,
-      "cinder_oath4": 3232739,
-      "fault_warden6": 3084760,
-      "fault_warden4": 3214692,
-      "furrowmark6": 3641225,
-      "furrowmark4": 3087653,
-      "hearthbanner6": 3151507,
-      "hearthbanner4": 3163967
+      "rare": 10009564,
+      "legendary": 1297083,
+      "endless_storm6": 790689,
+      "endless_storm4": 1030814,
+      "cinder_oath6": 1295319,
+      "cinder_oath4": 1353632,
+      "fault_warden6": 1256492,
+      "fault_warden4": 1283133,
+      "furrowmark6": 1519105,
+      "furrowmark4": 1221348,
+      "hearthbanner6": 1275980,
+      "hearthbanner4": 1307164
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 5,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
       "furrowmark6": 3,
-      "furrowmark4": 5,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 9.042411804103189,
-      "endless_storm6": 14.246122775935353,
-      "endless_storm4": 10.500255205951396,
-      "cinder_oath6": 8.847641759234712,
-      "cinder_oath4": 8.444605023789425,
-      "fault_warden6": 8.849701111269596,
-      "fault_warden4": 8.492012298534354,
-      "furrowmark6": 7.497258202939944,
-      "furrowmark4": 8.841409316396629,
-      "hearthbanner6": 8.662269828370999,
-      "hearthbanner4": 8.628156994052087
+      "legendary": 7.7169803320219295,
+      "endless_storm6": 12.659293350482933,
+      "endless_storm4": 9.71034929676935,
+      "cinder_oath6": 7.727489521886114,
+      "cinder_oath4": 7.394597645445734,
+      "fault_warden6": 7.966277540963254,
+      "fault_warden4": 7.800878007190214,
+      "furrowmark6": 6.589119251138006,
+      "furrowmark4": 8.195505294150397,
+      "hearthbanner6": 7.84460884966849,
+      "hearthbanner4": 7.657466086887338
      },
      "best": "endless_storm6",
      "bestSet6": "endless_storm6",
@@ -10013,7 +10013,7 @@
          "legendary": "coulter_blade"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -10022,7 +10022,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "stonecount_gauntlets"
+         "legendary": "ashgrip_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -10687,50 +10687,50 @@
       ]
      },
      "ms": {
-      "rare": 24528395,
-      "legendary": 2495162,
-      "endless_storm6": 4239867,
-      "endless_storm4": 3011147,
-      "cinder_oath6": 2498486,
-      "cinder_oath4": 2379308,
-      "fault_warden6": 4148933,
-      "fault_warden4": 2963572,
-      "furrowmark6": 4762403,
-      "furrowmark4": 3557304,
-      "hearthbanner6": 3016758,
-      "hearthbanner4": 2465548
+      "rare": 6305139,
+      "legendary": 1113727,
+      "endless_storm6": 1211385,
+      "endless_storm4": 1121138,
+      "cinder_oath6": 888333,
+      "cinder_oath4": 989892,
+      "fault_warden6": 1153620,
+      "fault_warden4": 1102914,
+      "furrowmark6": 1560742,
+      "furrowmark4": 1238475,
+      "hearthbanner6": 933635,
+      "hearthbanner4": 971331
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 9.830381754771835,
-      "endless_storm6": 5.7851802898534315,
-      "endless_storm4": 8.145864350030072,
-      "cinder_oath6": 9.817303358914158,
-      "cinder_oath4": 10.309045739349424,
-      "fault_warden6": 5.911976645561642,
-      "fault_warden4": 8.276632050781961,
-      "furrowmark6": 5.150424061130484,
-      "furrowmark4": 6.895220369133479,
-      "hearthbanner6": 8.130713501049803,
-      "hearthbanner4": 9.948455678007486
+      "legendary": 5.6612967091576305,
+      "endless_storm6": 5.204901001745935,
+      "endless_storm4": 5.623874135030657,
+      "cinder_oath6": 7.097720111714864,
+      "cinder_oath4": 6.369522129686875,
+      "fault_warden6": 5.46552504290841,
+      "fault_warden4": 5.716800221957469,
+      "furrowmark6": 4.039834258320722,
+      "furrowmark4": 5.091050687337249,
+      "hearthbanner6": 6.753323300861686,
+      "hearthbanner4": 6.491236252111793
      },
-     "best": "cinder_oath4",
+     "best": "cinder_oath6",
      "bestSet6": "cinder_oath6",
-     "bestHybrid": "cinder_oath4",
+     "bestHybrid": "hearthbanner4",
      "kits": {
       "rare": {
        "id": "rend/rare",
@@ -10810,16 +10810,16 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -10837,7 +10837,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -10955,7 +10955,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -10967,7 +10967,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11033,7 +11033,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11085,7 +11085,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -11097,7 +11097,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11215,7 +11215,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -11227,7 +11227,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11342,7 +11342,7 @@
          "legendary": "ward_pennant_shield"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "waist": {
          "legendary": "furycord_belt"
@@ -11357,7 +11357,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11423,10 +11423,10 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
-         "legendary": "sawyers_ring"
+         "legendary": "threshers_knot"
         }
        },
        "cube": [
@@ -11475,7 +11475,7 @@
          "legendary": "fissure_lined_breastplate"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "woodcutters_grips"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -11487,7 +11487,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11514,50 +11514,50 @@
       ]
      },
      "ms": {
-      "rare": 10459251,
-      "legendary": 729710,
-      "endless_storm6": 851789,
-      "endless_storm4": 960490,
-      "cinder_oath6": 604229,
-      "cinder_oath4": 659029,
-      "fault_warden6": 836895,
-      "fault_warden4": 856694,
-      "furrowmark6": 1323596,
-      "furrowmark4": 891448,
-      "hearthbanner6": 769983,
-      "hearthbanner4": 754327
+      "rare": 6656353,
+      "legendary": 906534,
+      "endless_storm6": 943767,
+      "endless_storm4": 880500,
+      "cinder_oath6": 648113,
+      "cinder_oath4": 767780,
+      "fault_warden6": 941376,
+      "fault_warden4": 864510,
+      "furrowmark6": 1292037,
+      "furrowmark4": 970250,
+      "hearthbanner6": 775177,
+      "hearthbanner4": 762039
      },
      "timeouts": {
-      "rare": 7,
+      "rare": 6,
       "legendary": 3,
       "endless_storm6": 3,
       "endless_storm4": 3,
       "cinder_oath6": 3,
-      "cinder_oath4": 2,
+      "cinder_oath4": 3,
       "fault_warden6": 3,
       "fault_warden4": 3,
-      "furrowmark6": 5,
+      "furrowmark6": 3,
       "furrowmark4": 3,
       "hearthbanner6": 3,
       "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 14.333435200285045,
-      "endless_storm6": 12.279157162161052,
-      "endless_storm4": 10.889494945288343,
-      "cinder_oath6": 17.31007780162819,
-      "cinder_oath4": 15.870699164983636,
-      "fault_warden6": 12.497686089652824,
-      "fault_warden4": 12.208852869285883,
-      "furrowmark6": 7.902147634172361,
-      "furrowmark4": 11.73287841803448,
-      "hearthbanner6": 13.583742757956994,
-      "hearthbanner4": 13.865672314526725
+      "legendary": 7.342640209854236,
+      "endless_storm6": 7.052962224786414,
+      "endless_storm4": 7.5597421919364,
+      "cinder_oath6": 10.270358718309925,
+      "cinder_oath4": 8.669609784052723,
+      "fault_warden6": 7.070876036780202,
+      "fault_warden4": 7.699567384992655,
+      "furrowmark6": 5.151828469308541,
+      "furrowmark4": 6.8604514300438035,
+      "hearthbanner6": 8.586881447720971,
+      "hearthbanner4": 8.734924328019957
      },
      "best": "cinder_oath6",
      "bestSet6": "cinder_oath6",
-     "bestHybrid": "cinder_oath4",
+     "bestHybrid": "hearthbanner4",
      "kits": {
       "rare": {
        "id": "sawtooth_hatchet/rare",
@@ -11637,10 +11637,10 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
          "legendary": "fissure_lined_breastplate"
@@ -11664,7 +11664,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11730,7 +11730,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11776,7 +11776,7 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "chest": {
          "legendary": "fissure_lined_breastplate"
@@ -11860,7 +11860,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -11990,7 +11990,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -12054,7 +12054,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -12108,7 +12108,7 @@
          "legendary": "grinning_saw"
         },
         "offhand": {
-         "legendary": "last_light"
+         "legendary": "ward_pennant_shield"
         },
         "legs": {
          "legendary": "yoke_greaves"
@@ -12184,7 +12184,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -12250,7 +12250,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -12314,7 +12314,7 @@
          "legendary": "red_ledger"
         },
         "ring1": {
-         "legendary": "rally_knot"
+         "legendary": "sawyers_ring"
         },
         "ring2": {
          "legendary": "threshers_knot"
@@ -12341,50 +12341,50 @@
       ]
      },
      "ms": {
-      "rare": 25249908,
-      "legendary": 3651917,
-      "endless_storm6": 4739495,
-      "endless_storm4": 3566483,
-      "cinder_oath6": 4028495,
-      "cinder_oath4": 3566483,
-      "fault_warden6": 4112948,
-      "fault_warden4": 3398718,
-      "furrowmark6": 4622590,
-      "furrowmark4": 3690354,
-      "hearthbanner6": 3196381,
-      "hearthbanner4": 3400809
+      "rare": 7132244,
+      "legendary": 1367615,
+      "endless_storm6": 1656226,
+      "endless_storm4": 1378139,
+      "cinder_oath6": 1443050,
+      "cinder_oath4": 1378139,
+      "fault_warden6": 1362172,
+      "fault_warden4": 1215395,
+      "furrowmark6": 1733323,
+      "furrowmark4": 1498446,
+      "hearthbanner6": 1247887,
+      "hearthbanner4": 1212356
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 6,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 6
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 6.914151663359271,
-      "endless_storm6": 5.327552408009714,
-      "endless_storm4": 7.079778033429572,
-      "cinder_oath6": 6.267826570468624,
-      "cinder_oath4": 7.079778033429572,
-      "fault_warden6": 6.1391264854308885,
-      "fault_warden4": 7.42924479171264,
-      "furrowmark6": 5.462285861389394,
-      "furrowmark4": 6.84213709579081,
-      "hearthbanner6": 7.899530124850573,
-      "hearthbanner4": 7.424676893056917
+      "legendary": 5.2150963538715205,
+      "endless_storm6": 4.306322929358674,
+      "endless_storm4": 5.175271870254017,
+      "cinder_oath6": 4.942478777589134,
+      "cinder_oath4": 5.175271870254017,
+      "fault_warden6": 5.235934962691936,
+      "fault_warden4": 5.868251885189588,
+      "furrowmark6": 4.114780684269464,
+      "furrowmark4": 4.759760445154513,
+      "hearthbanner6": 5.71545660784991,
+      "hearthbanner4": 5.882961770305092
      },
-     "best": "hearthbanner6",
+     "best": "hearthbanner4",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "fault_warden4",
+     "bestHybrid": "hearthbanner4",
      "kits": {
       "rare": {
        "id": "ground_stomp/rare",
@@ -12461,13 +12461,13 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "chest": {
          "legendary": "quartermasters_cuirass"
@@ -12545,7 +12545,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -12603,10 +12603,10 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
          "legendary": "stonecount_gauntlets"
@@ -12675,7 +12675,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -12733,10 +12733,10 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
          "legendary": "stonecount_gauntlets"
@@ -12863,7 +12863,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -12935,7 +12935,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "legs": {
          "legendary": "yoke_greaves"
@@ -12993,10 +12993,10 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
          "legendary": "stonecount_gauntlets"
@@ -13065,7 +13065,7 @@
          "legendary": "millwheel_edge"
         },
         "offhand": {
-         "legendary": "ward_pennant_shield"
+         "legendary": "last_light"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -13129,7 +13129,7 @@
          "legendary": "belfry_pauldrons"
         },
         "hands": {
-         "legendary": "ashgrip_gauntlets"
+         "legendary": "stonecount_gauntlets"
         },
         "wrists": {
          "legendary": "anvil_vambraces"
@@ -13168,50 +13168,50 @@
       ]
      },
      "ms": {
-      "rare": 4868497,
-      "legendary": 277750,
-      "endless_storm6": 312050,
-      "endless_storm4": 312050,
-      "cinder_oath6": 281700,
-      "cinder_oath4": 312050,
-      "fault_warden6": 312050,
-      "fault_warden4": 312050,
-      "furrowmark6": 279200,
-      "furrowmark4": 306550,
-      "hearthbanner6": 246450,
-      "hearthbanner4": 276350
+      "rare": 4644725,
+      "legendary": 690034,
+      "endless_storm6": 792604,
+      "endless_storm4": 753441,
+      "cinder_oath6": 754788,
+      "cinder_oath4": 753441,
+      "fault_warden6": 725227,
+      "fault_warden4": 710299,
+      "furrowmark6": 851919,
+      "furrowmark4": 673155,
+      "hearthbanner6": 679567,
+      "hearthbanner4": 687915
      },
      "timeouts": {
-      "rare": 8,
-      "legendary": 0,
-      "endless_storm6": 0,
-      "endless_storm4": 0,
-      "cinder_oath6": 0,
-      "cinder_oath4": 0,
-      "fault_warden6": 0,
-      "fault_warden4": 0,
-      "furrowmark6": 0,
-      "furrowmark4": 0,
-      "hearthbanner6": 0,
-      "hearthbanner4": 0
+      "rare": 7,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 17.52834203420342,
-      "endless_storm6": 15.60165678577151,
-      "endless_storm4": 15.60165678577151,
-      "cinder_oath6": 17.282559460418884,
-      "cinder_oath4": 15.60165678577151,
-      "fault_warden6": 15.60165678577151,
-      "fault_warden4": 15.60165678577151,
-      "furrowmark6": 17.43731017191977,
-      "furrowmark4": 15.88157559941282,
-      "hearthbanner6": 19.754501927368633,
-      "hearthbanner4": 17.617141306314455
+      "legendary": 6.731153827202718,
+      "endless_storm6": 5.860082714697377,
+      "endless_storm4": 6.164683100601109,
+      "cinder_oath6": 6.153681563564868,
+      "cinder_oath4": 6.164683100601109,
+      "fault_warden6": 6.404511966598045,
+      "fault_warden4": 6.539112401960301,
+      "furrowmark6": 5.4520734952501355,
+      "furrowmark4": 6.899933893382653,
+      "hearthbanner6": 6.834830119767441,
+      "hearthbanner4": 6.75188795127305
      },
-     "best": "hearthbanner6",
+     "best": "furrowmark4",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "hearthbanner4",
+     "bestHybrid": "furrowmark4",
      "kits": {
       "rare": {
        "id": "seismic_slam/rare",
@@ -13288,7 +13288,7 @@
          "legendary": "faultcleaver"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -13962,50 +13962,50 @@
       ]
      },
      "ms": {
-      "rare": 25100733,
-      "legendary": 3362500,
-      "endless_storm6": 4067206,
-      "endless_storm4": 3315010,
-      "cinder_oath6": 3612574,
-      "cinder_oath4": 3315010,
-      "fault_warden6": 3598591,
-      "fault_warden4": 3086394,
-      "furrowmark6": 4126082,
-      "furrowmark4": 3526126,
-      "hearthbanner6": 3022430,
-      "hearthbanner4": 2968270
+      "rare": 6957062,
+      "legendary": 1232172,
+      "endless_storm6": 1434788,
+      "endless_storm4": 1260140,
+      "cinder_oath6": 1334372,
+      "cinder_oath4": 1260140,
+      "fault_warden6": 1155450,
+      "fault_warden4": 1043902,
+      "furrowmark6": 1463135,
+      "furrowmark4": 1280986,
+      "hearthbanner6": 1066600,
+      "hearthbanner4": 1051563
      },
      "timeouts": {
-      "rare": 9,
-      "legendary": 6,
-      "endless_storm6": 6,
-      "endless_storm4": 6,
-      "cinder_oath6": 6,
-      "cinder_oath4": 6,
-      "fault_warden6": 5,
-      "fault_warden4": 6,
-      "furrowmark6": 6,
-      "furrowmark4": 6,
-      "hearthbanner6": 6,
-      "hearthbanner4": 5
+      "rare": 6,
+      "legendary": 3,
+      "endless_storm6": 3,
+      "endless_storm4": 3,
+      "cinder_oath6": 3,
+      "cinder_oath4": 3,
+      "fault_warden6": 3,
+      "fault_warden4": 3,
+      "furrowmark6": 3,
+      "furrowmark4": 3,
+      "hearthbanner6": 3,
+      "hearthbanner4": 3
      },
      "factor": {
       "rare": 1,
-      "legendary": 7.464902007434945,
-      "endless_storm6": 6.171492911841692,
-      "endless_storm4": 7.571842317217746,
-      "cinder_oath6": 6.948157463348847,
-      "cinder_oath4": 7.571842317217746,
-      "fault_warden6": 6.9751558318241775,
-      "fault_warden4": 8.13270535129345,
-      "furrowmark6": 6.0834304795687535,
-      "furrowmark4": 7.118501437554983,
-      "hearthbanner6": 8.304818639306783,
-      "hearthbanner4": 8.456351005804729
+      "legendary": 5.6461776440302165,
+      "endless_storm6": 4.8488431740438305,
+      "endless_storm4": 5.520864348405732,
+      "cinder_oath6": 5.213735000434661,
+      "cinder_oath4": 5.520864348405732,
+      "fault_warden6": 6.021084425981219,
+      "fault_warden4": 6.664478083191717,
+      "furrowmark6": 4.754900948989669,
+      "furrowmark4": 5.431021104055782,
+      "hearthbanner6": 6.522653290830677,
+      "hearthbanner4": 6.615925056320924
      },
-     "best": "hearthbanner4",
+     "best": "fault_warden4",
      "bestSet6": "hearthbanner6",
-     "bestHybrid": "hearthbanner4",
+     "bestHybrid": "fault_warden4",
      "kits": {
       "rare": {
        "id": "cairnfall/rare",
@@ -14085,7 +14085,7 @@
          "legendary": "ward_pennant_shield"
         },
         "head": {
-         "legendary": "brass_warhorn_helm"
+         "legendary": "slagforged_helm"
         },
         "shoulders": {
          "legendary": "belfry_pauldrons"
@@ -14487,7 +14487,7 @@
          "legendary": "ward_pennant_shield"
         },
         "shoulders": {
-         "legendary": "tanners_pauldrons"
+         "legendary": "belfry_pauldrons"
         },
         "hands": {
          "legendary": "stonecount_gauntlets"

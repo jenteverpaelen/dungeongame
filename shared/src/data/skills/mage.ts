@@ -33,7 +33,7 @@ export const MAGE_FX = {
 export const MAGE_SKILLS: SkillDef[] = [
   {
     id: 'magic_missile', classId: 'mage', name: 'Magic Missile', kind: 'primary', unlock: 1, element: 'arcane', tags: ['projectile'], category: 'Bolts',
-    coef: 2.3, cost: 0, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
+    coef: 2.53, cost: 0, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Launch a missile of arcane energy, dealing {coef} weapon damage as Arcane.',
     icon: { glyph: 'missile', color: 0xb388ff },
@@ -62,7 +62,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   },
   {
     id: 'meteor', classId: 'mage', name: 'Meteor', kind: 'spender', unlock: 2, element: 'fire', tags: ['aerial', 'area', 'ground', 'burn'], category: 'Celestial',
-    coef: 7.4, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 130, duration: 3, maxSummons: 0,
+    coef: 5.55, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 130, duration: 3, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 1, within: 380 },
     desc: 'Summon a meteor onto the densest pack. After a short delay it impacts for {coef} weapon damage as Fire and leaves molten ground that burns for 235% weapon damage over {duration} seconds.',
     icon: { glyph: 'meteor', color: 0xff7a1a },
@@ -91,7 +91,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   },
   {
     id: 'black_hole', classId: 'mage', name: 'Black Hole', kind: 'cooldown', unlock: 4, element: 'arcane', tags: ['area', 'ground', 'displace'], category: 'Void and Storm',
-    coef: 5.4, cost: 20, gen: 0, cooldown: 12, range: 380, radius: 220, duration: 2, maxSummons: 0,
+    coef: 5.83, cost: 20, gen: 0, cooldown: 12, range: 380, radius: 220, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 380 },
     // ITEMS-SHARED.md §0 rule 1: the old "Pairs perfectly with Meteor." recommended a combination; texts describe mechanics only.
     desc: 'Tear open a black hole that pulls enemies within {radius} units to its centre and deals {coef} weapon damage as Arcane over {duration} seconds.',
@@ -124,7 +124,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   },
   {
     id: 'frost_nova', classId: 'mage', name: 'Frost Nova', kind: 'cooldown', unlock: 6, element: 'cold', tags: ['area', 'chill'], category: 'Frost',
-    coef: 1.75, cost: 0, gen: 0, cooldown: 11, range: 180, radius: 190, duration: 2, maxSummons: 0,
+    coef: 2.5, cost: 0, gen: 0, cooldown: 11, range: 180, radius: 190, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 170 },
     desc: 'Blast a ring of frost, dealing {coef} weapon damage as Cold and freezing nearby enemies for {duration} seconds.',
     icon: { glyph: 'snowflake', color: 0x7fd3ff },
@@ -156,7 +156,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   },
   {
     id: 'hydra', classId: 'mage', name: 'Hydra', kind: 'summon', unlock: 9, element: 'fire', tags: ['projectile'], category: 'Conjuring',
-    coef: 2.8, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 380, duration: 9, maxSummons: 1,
+    coef: 2.17, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 380, duration: 9, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'Summon a Hydra that attacks for {coef} weapon damage per second as {element}. Lasts {duration} seconds.',
     icon: { glyph: 'hydra', color: 0xff5e3a },
@@ -223,7 +223,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   {
     // Bible M7. Freeze build-up: each needle adds 100/6 points to the target inside a 2 s window (status freezeBuild).
     id: 'rime_needles', classId: 'mage', parityReady: true, name: 'Rime Needles', kind: 'primary', unlock: 16, element: 'cold', tags: ['projectile', 'chill'], category: 'Bolts',
-    coef: 0.9, cost: 0, gen: 0, cooldown: 0, range: 340, radius: 0, duration: 0.75, maxSummons: 0,
+    coef: 3.13, cost: 0, gen: 0, cooldown: 0, range: 340, radius: 0, duration: 0.75, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire three needles of rime for {coef} weapon damage each as Cold, chilling enemies. Six needles in two seconds freeze an enemy for {duration} seconds.',
     icon: { glyph: 'needle', color: 0x9fdcff },
@@ -257,7 +257,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   {
     // Bible M8. Resonance ramps linearly from 1× to 2.5× over 2 s of continuous channelling.
     id: 'thrumming_ray', classId: 'mage', name: 'Thrumming Ray', kind: 'channel', unlock: 20, element: 'arcane', tags: ['spender', 'piercing'], category: 'Void and Storm',
-    coef: 2.0, cost: 12, gen: 0, cooldown: 0, range: 380, radius: 30, duration: 0, maxSummons: 0,
+    coef: 8, cost: 12, gen: 0, cooldown: 0, range: 380, radius: 30, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 30, within: 380 },
     desc: 'Channel a thrumming ray that pierces every enemy in a line, dealing {coef} weapon damage per second as Arcane, rising to two and a half times as the note steadies. You move at 40% speed while channelling. Costs {cost} Arcane Power per second.',
     icon: { glyph: 'ray', color: 0xa07cff },
@@ -292,7 +292,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   {
     // Bible M9. Up to three small fire spirits that run into melee; each bursts for 200 % within 80 when its time ends.
     id: 'cinderkin', classId: 'mage', name: 'Cinderkin', kind: 'summon', unlock: 26, element: 'fire', tags: ['area', 'burn'], category: 'Conjuring',
-    coef: 1.0, cost: 20, gen: 0, cooldown: 0, range: 380, radius: 80, duration: 15, maxSummons: 3,
+    coef: 3.16, cost: 20, gen: 0, cooldown: 0, range: 380, radius: 80, duration: 15, maxSummons: 3,
     auto: { when: 'maintainSummon' },
     desc: 'Coax up to {max} cinderkin out of the coals. Each claws enemies for {coef} weapon damage per second as {element} for {duration} seconds, then bursts for 200% weapon damage.',
     icon: { glyph: 'ember_kin', color: 0xff8a3d },
@@ -323,7 +323,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     // Bible M10. A field at the best point: ticks every 0.5 s for coef / 12, chills inside, and freezes an enemy that
     // stays 1.5 s straight (once per enemy per field). Class code with a footprint ground ('rime_ground').
     id: 'rimefield', classId: 'mage', name: 'Rimefield', kind: 'cooldown', unlock: 32, element: 'cold', tags: ['area', 'ground', 'chill'], category: 'Frost',
-    coef: 4.0, cost: 25, gen: 0, cooldown: 15, range: 380, radius: 200, duration: 6, maxSummons: 0,
+    coef: 6, cost: 25, gen: 0, cooldown: 15, range: 380, radius: 200, duration: 6, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 380 },
     desc: 'Spread a field of rime for {duration} seconds that deals {coef} weapon damage as Cold over its duration, chills enemies inside, and freezes those that stay for 1.5 seconds.',
     icon: { glyph: 'rime', color: 0xbfe9ff },
@@ -356,7 +356,7 @@ export const MAGE_SKILLS: SkillDef[] = [
   {
     // Bible M11. A slow projectile with a periodic area tick (zaps), detonating at the end of its flight.
     id: 'stormglass_orb', classId: 'mage', name: 'Stormglass Orb', kind: 'spender', unlock: 40, element: 'lightning', tags: ['projectile', 'area'], category: 'Void and Storm',
-    coef: 0.5, cost: 35, gen: 0, cooldown: 0, range: 440, radius: 160, duration: 2, maxSummons: 0,
+    coef: 1.29, cost: 35, gen: 0, cooldown: 0, range: 440, radius: 160, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 2, within: 380 },
     // Measured (mage parity harness): one more orb (Glass Concord 2) doubled the skill (×2.1) and made the whole set ×3.1
     // on it (BUDGET.md R3: at most ×2.5); additional orbs deal half damage, as Split's extra missiles deal less [M].
@@ -390,7 +390,7 @@ export const MAGE_SKILLS: SkillDef[] = [
     // Bible M12. Five spheres orbit the mage (radius 130) for 15 s; each strikes enemies it passes (each enemy at most every
     // 0.5 s per sphere) and every 1.5 s fires the mage's Magic Missile (rune and nodes) at 50 % damage.
     id: 'orrery', classId: 'mage', name: 'Orrery', kind: 'cooldown', unlock: 50, element: 'arcane', tags: ['summon', 'area'], category: 'Celestial',
-    coef: 0.8, cost: 0, gen: 0, cooldown: 60, range: 380, radius: 130, duration: 15, maxSummons: 0,
+    coef: 0.524, cost: 0, gen: 0, cooldown: 60, range: 380, radius: 130, duration: 15, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 6, within: 380 },
     desc: 'Set five spheres turning around you for {duration} seconds. Each strikes enemies it passes for {coef} weapon damage and fires your Magic Missile every 1.5 seconds at 50% damage.',
     icon: { glyph: 'orrery', color: 0xd8b46a },

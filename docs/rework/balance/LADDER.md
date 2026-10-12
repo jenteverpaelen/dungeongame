@@ -66,8 +66,24 @@ kits). They stay the long-term goal for the endgame update (timed rifts with ran
 in 12 minutes) and reach 70 % of Ordeal II, median of 3 maps, per class (measured 100 / 100 / 100 % and 95 / 81 / 100 %).
 `SIM_WEAK_KIT=ranger` (L70 rares) fails both (15.5 % and 7.4 %).
 
+## After the build-balance pass (same day, PARITY.md)
+
+Skill numbers moved (each class kept within about one Ordeal step); grid again, 12 minutes, median of 3 maps:
+
+| Kit | Warrior: clears / ≥ 50 % | Ranger | Mage |
+|---|---|---|---|
+| 6pc set, Lantern 0 | Ordeal I / IV | Ordeal I / II | Ordeal II / III |
+| 6pc set, Lantern 700 | Ordeal II / IV | Ordeal II / V | Ordeal III / IV |
+| 6pc set, Lantern 1500 | Ordeal III / V | Ordeal III / V | Ordeal III / VI |
+| Legendary-only, Lantern 700 | Severe / II | Ordeal II / IV | Ordeal II / V |
+
+Owner's saved hero: Ordeal I in 7:00, Ordeal II in 9:51, Ordeal III 93 %, Ordeal IV 55 %; with the Defense points spent
+Ordeal III 100 % with no deaths and Ordeal IV 64 %. The gate still holds (warrior 100 / 97 %, ranger 100 / 71 %, mage
+100 / 100 % for Ordeal I / II).
+
 ## Open
 
+- The warrior's legendary-only kit is the weakest endgame route (Severe / Ordeal II).
 - The Ranger still dies most on map 1 at Lantern 0 (6 deaths in Ordeal II); with Lantern 700 spent as above it is 0.
 - Elite damage (`ELITE_DMG_MULT`) stays at ×1 from level 60 for now; if the endgame should feel more dangerous, that is
   the lever, measured with the same grid.

@@ -108,8 +108,9 @@ export const RANGER_SETS: SetDef[] = [
     bonuses: [
       { count: 2, text: 'Your Device skills get +1 maximum each, and their cooldowns are 20% shorter.', effects: [skillMods(tagged('device'), { maxSummons: 1, cooldown: -20 })] },
       { count: 4, text: 'Your Sentries and Pitch Mortars also fire your Projectile Spender skills at 20% damage.', effects: [flags(tagged('device'), 'deviceCasts')] },
-      { count: 6, text: 'With 4 Devices active they fire a rocket salvo every 3 seconds. Your Devices and Spender skills deal 10% more damage for each active Device (at most 4).',
-        effects: [flags(tagged('device'), 'deviceSalvo'), conditional({ perSummon: 'device', max: 4 }, 'own', 10, tagged('device', 'spender'))] },
+      { count: 6, text: 'With 4 Devices active they fire a rocket salvo every 3 seconds. Your Devices and Spender skills deal 12% more damage for each active Device (at most 4).',
+        // 10 → 12 % per Device in the 2026-10-12 parity pass (Pitch Mortar legendary-only beat this set 1.26×, hard 1.25).
+        effects: [flags(tagged('device'), 'deviceSalvo'), conditional({ perSummon: 'device', max: 4 }, 'own', 12, tagged('device', 'spender'))] },
     ],
     colors: { primary: 0x3d4a2f, secondary: 0xc9a227, glow },
     parityLoadout: ['sentry', 'pitch_mortar', 'spring_snare', 'multishot'],

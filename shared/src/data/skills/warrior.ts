@@ -22,7 +22,7 @@ export const WARRIOR_FX = { hatchetSpeed: 760 } as const;
 export const WARRIOR_SKILLS: SkillDef[] = [
   {
     id: 'cleave', classId: 'warrior', parityReady: true, name: 'Cleave', kind: 'primary', unlock: 1, element: 'physical', tags: ['strike', 'area'], category: 'Strikes',
-    coef: 1.6, cost: 0, gen: 5, cooldown: 0, range: 86, radius: 110, duration: 0, maxSummons: 0,
+    coef: 2.45, cost: 0, gen: 5, cooldown: 0, range: 86, radius: 110, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Swing in a wide arc, dealing {coef} weapon damage to all enemies caught in the swing. Generates {gen} Fury per swing.',
     icon: { glyph: 'arc', color: 0xd9d2c5 },
@@ -54,7 +54,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'whirlwind', classId: 'warrior', name: 'Whirlwind', kind: 'channel', unlock: 2, element: 'physical', tags: ['spender', 'strike', 'area'], category: 'Steel Storm',
-    coef: 3.4, cost: 10, gen: 0, cooldown: 0, range: 260, radius: 100, duration: 0, maxSummons: 0,
+    coef: 4.47, cost: 10, gen: 0, cooldown: 0, range: 260, radius: 100, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 25, within: 240 },
     desc: 'Become a whirling storm of steel, dealing {coef} weapon damage per second to all enemies around you while you move. Costs {cost} Fury per second. Starts automatically at 25 Fury when enemies are near.',
     icon: { glyph: 'spiral', color: 0xe6e0d0 },
@@ -84,7 +84,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'rend', classId: 'warrior', name: 'Rend', kind: 'spender', unlock: 4, element: 'physical', tags: ['area', 'bleed'], category: 'Bloodletting',
-    coef: 6.0, cost: 20, gen: 0, cooldown: 0, range: 150, radius: 150, duration: 5, maxSummons: 0,
+    coef: 21, cost: 20, gen: 0, cooldown: 0, range: 150, radius: 150, duration: 5, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 150 },
     desc: 'Tear into all nearby enemies, causing them to bleed for {coef} weapon damage over {duration} seconds. Cast automatically when 3+ unbleeding enemies are near.',
     icon: { glyph: 'claw', color: 0xc0392b },
@@ -116,7 +116,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'ground_stomp', classId: 'warrior', name: 'Ground Stomp', kind: 'cooldown', unlock: 6, element: 'physical', tags: ['area', 'stun'], category: 'Earthshaker',
-    coef: 2.4, cost: 0, gen: 15, cooldown: 12, range: 170, radius: 170, duration: 2, maxSummons: 0,
+    coef: 8.48, cost: 0, gen: 15, cooldown: 12, range: 170, radius: 170, duration: 2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 4, within: 170 },
     desc: 'Smash the ground, dealing {coef} weapon damage and stunning nearby enemies for {duration} seconds. Generates {gen} Fury.',
     icon: { glyph: 'stomp', color: 0xb08850 },
@@ -151,7 +151,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'seismic_slam', classId: 'warrior', parityReady: true, name: 'Quakeline', kind: 'spender', unlock: 9, element: 'physical', tags: ['area', 'displace'], category: 'Earthshaker',
-    coef: 7.55, cost: 30, gen: 0, cooldown: 0, range: 336, radius: 60, duration: 0, maxSummons: 0,
+    coef: 3.17, cost: 30, gen: 0, cooldown: 0, range: 336, radius: 60, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 304 },
     desc: 'Send a fissure through the earth, dealing {coef} weapon damage to all enemies in a 60° cone.',
     icon: { glyph: 'fissure', color: 0x9c7b52 },
@@ -220,7 +220,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   // ─────────────────────────── M1 skills (bible W7–W12) ───────────────────────────
   {
     id: 'tolling_blow', classId: 'warrior', parityReady: true, name: 'Tolling Blow', kind: 'primary', unlock: 16, element: 'physical', tags: ['strike', 'stun'], category: 'Strikes',
-    coef: 2.0, cost: 0, gen: 6, cooldown: 0, range: 86, radius: 70, duration: 0.75, maxSummons: 0,
+    coef: 3.49, cost: 0, gen: 6, cooldown: 0, range: 86, radius: 70, duration: 0.75, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Strike an enemy for {coef} weapon damage. Every third blow tolls, dealing 100% weapon damage and stunning enemies within {radius} units for {duration} seconds. Generates {gen} Fury.',
     icon: { glyph: 'bell', color: 0xc9a227 },
@@ -253,7 +253,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'sawtooth_hatchet', classId: 'warrior', name: 'Sawtooth Hatchet', kind: 'spender', unlock: 20, element: 'physical', tags: ['projectile', 'piercing', 'bleed'], category: 'Bloodletting',
-    coef: 1.8, cost: 20, gen: 0, cooldown: 0, range: 320, radius: 40, duration: 4, maxSummons: 0,
+    coef: 0.726, cost: 20, gen: 0, cooldown: 0, range: 320, radius: 40, duration: 4, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 2, within: 320 },
     desc: 'Hurl a serrated hatchet that cuts through enemies on the way out and back for {coef} weapon damage each pass, and makes them bleed for 240% weapon damage over {duration} seconds.',
     icon: { glyph: 'hatchet', color: 0xa33a2a },
@@ -321,7 +321,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'ironplough', classId: 'warrior', name: 'Ironplough', kind: 'channel', unlock: 32, element: 'physical', tags: ['spender', 'strike', 'area', 'displace'], category: 'Steel Storm',
-    coef: 2.6, cost: 12, gen: 0, cooldown: 0, range: 200, radius: 150, duration: 0, maxSummons: 0,
+    coef: 3.32, cost: 12, gen: 0, cooldown: 0, range: 200, radius: 150, duration: 0, maxSummons: 0,
     auto: { when: 'channel', startAt: 30, within: 200 },
     desc: 'Drive forward behind your weapon, dealing {coef} weapon damage per second to enemies in front of you and pushing them back. Damage rises the longer you push, up to double. You move at 60% speed while pushing. Costs {cost} Fury per second.',
     icon: { glyph: 'plough', color: 0x8a6f4d },
@@ -360,7 +360,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
   },
   {
     id: 'cairnfall', classId: 'warrior', name: 'Cairnfall', kind: 'cooldown', unlock: 40, element: 'physical', tags: ['aerial', 'area', 'stun'], category: 'Earthshaker',
-    coef: 3.0, cost: 0, gen: 20, cooldown: 30, range: 0, radius: 70, duration: 1, maxSummons: 0,
+    coef: 8.56, cost: 0, gen: 20, cooldown: 30, range: 0, radius: 70, duration: 1, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 5, within: 200 },
     desc: 'Call down five stone cairns around you. Each deals {coef} weapon damage and stuns enemies within {radius} units for {duration} second. Generates {gen} Fury.',
     icon: { glyph: 'cairn', color: 0x8f8578 },
@@ -394,7 +394,7 @@ export const WARRIOR_SKILLS: SkillDef[] = [
     // Bible W12. A burst window: +20 % damage (generic bucket), +15 % attack speed, Fury costs −50 % (Buff.cost) and an
     // ignite on every warrior hit (warriorKit.wHit) for 20 of 90 s.
     id: 'kilnheart', classId: 'warrior', name: 'Kilnheart', kind: 'buff', unlock: 50, element: 'fire', tags: ['cooldown', 'burn'], category: 'Warcries',
-    coef: 0.6, cost: 0, gen: 0, cooldown: 90, range: 0, radius: 0, duration: 20, maxSummons: 0,
+    coef: 0.48, cost: 0, gen: 0, cooldown: 90, range: 0, radius: 0, duration: 20, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 8, within: 300 },
     desc: 'Stoke your heart like a kiln for {duration} seconds: deal 20% more damage, attack 15% faster, spend half as much Fury, and your hits ignite enemies for {coef} weapon damage over 2 seconds.',
     icon: { glyph: 'furnace', color: 0xff6a1a },

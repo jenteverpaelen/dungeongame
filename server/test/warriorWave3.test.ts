@@ -101,7 +101,8 @@ test('Cairnfall N3 Quarry Dust slows hit enemies 50% for 3 s; N6 Capstone: the l
     try { castSkill(g.inst, g.p, g.p.ctx.slotted('cairnfall')!); g.run(1300); return g.posts[0].mhp - g.posts[0].hp; } finally { g.inst.destroy(); }
   };
   const plain = dmg(0), giant = dmg(1);
-  assert(Math.abs(giant / plain - 1.25) < 1e-6, `two cairns, the last 50% stronger (${plain} → ${giant})`);
+  // Hit damage is a whole number (combatInteger), so the ratio is exact up to one point of rounding.
+  assert(Math.abs(giant - plain * 1.25) <= 1, `two cairns, the last 50% stronger (${plain} → ${giant})`);
 });
 
 test('Ironplough N6 Brace: at full ramp, damage from enemies in front of the plough −30%, behind unchanged', () => {

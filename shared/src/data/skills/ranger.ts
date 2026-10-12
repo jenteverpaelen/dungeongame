@@ -25,7 +25,7 @@ export const RANGER_FX = { skipSpeed: 900, overcastFallMs: 350, mortarFlightMs: 
 export const RANGER_SKILLS: SkillDef[] = [
   {
     id: 'hungering_arrow', classId: 'ranger', name: 'Tracking Arrow', kind: 'primary', unlock: 1, element: 'physical', tags: ['projectile', 'piercing'], category: 'Shots',
-    coef: 1.55, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
+    coef: 3.19, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire an arrow that seeks out enemies for {coef} weapon damage, with a 35% chance to pierce. Generates {gen} Hatred.',
     icon: { glyph: 'arrow', color: 0x8fd16a },
@@ -56,7 +56,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'sentry', classId: 'ranger', name: 'Sentry', kind: 'summon', unlock: 2, element: 'physical', tags: ['device', 'cooldown', 'projectile'], category: 'Devices',
-    coef: 2.8, cost: 20, gen: 0, cooldown: 8, range: 380, radius: 380, duration: 30, maxSummons: 2,
+    coef: 1.85, cost: 20, gen: 0, cooldown: 8, range: 380, radius: 380, duration: 30, maxSummons: 2,
     auto: { when: 'maintainSummon' },
     desc: 'Deploy a turret at your feet that fires bolts at enemies for {coef} weapon damage each second. Up to {max} Sentries; lasts {duration} seconds.',
     icon: { glyph: 'turret', color: 0xc9a227 },
@@ -85,7 +85,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'multishot', classId: 'ranger', name: 'Multishot', kind: 'spender', unlock: 4, element: 'physical', tags: ['projectile', 'piercing'], category: 'Volleys',
-    coef: 3.6, cost: 25, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
+    coef: 6.78, cost: 25, gen: 0, cooldown: 0, range: 380, radius: 0, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 2, within: 380 },
     desc: 'Fire a massive volley of arrows in a wide arc, dealing {coef} weapon damage to every enemy hit.',
     icon: { glyph: 'fan', color: 0x9bd36f },
@@ -116,7 +116,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'cluster_arrow', classId: 'ranger', name: 'Burst Arrow', kind: 'spender', unlock: 6, element: 'fire', tags: ['projectile', 'area'], category: 'Volleys',
-    coef: 6.5, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 110, duration: 0, maxSummons: 0,
+    coef: 4.09, cost: 40, gen: 0, cooldown: 0, range: 380, radius: 110, duration: 0, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 380 },
     desc: 'Lob an explosive arrow into the densest pack. It detonates for {coef} weapon damage as Fire, then releases 4 grenades for 210% weapon damage each.',
     icon: { glyph: 'cluster', color: 0xe67e22 },
@@ -146,7 +146,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'rain_of_vengeance', classId: 'ranger', parityReady: true, name: 'Arrowfall', kind: 'cooldown', unlock: 9, element: 'physical', tags: ['aerial', 'area', 'ground'], category: 'Skyfall',
-    coef: 15, cost: 0, gen: 0, cooldown: 30, range: 380, radius: 240, duration: 5, maxSummons: 0,
+    coef: 26.9, cost: 0, gen: 0, cooldown: 30, range: 380, radius: 240, duration: 5, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 5, within: 380 },
     desc: 'Call down a storm of arrows on a large area, dealing {coef} weapon damage over {duration} seconds.',
     icon: { glyph: 'rain', color: 0x5dade2 },
@@ -174,7 +174,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'companion', classId: 'ranger', parityReady: true, name: 'Companion', kind: 'summon', unlock: 12, element: 'physical', tags: ['beast'], category: 'Beasts',
-    coef: 1.5, cost: 0, gen: 0, cooldown: 0, range: 320, radius: 0, duration: 0, maxSummons: 1,
+    coef: 1.14, cost: 0, gen: 0, cooldown: 0, range: 320, radius: 0, duration: 0, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     desc: 'A loyal wolf fights at your side, biting enemies for {coef} weapon damage.',
     icon: { glyph: 'paw', color: 0xa0a0a0 },
@@ -204,7 +204,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   // ─────────────────────────── New skills (RANGER.md §3) ───────────────────────────
   {
     id: 'skipstone_bolt', classId: 'ranger', name: 'Skipstone Bolt', kind: 'primary', unlock: 16, element: 'physical', tags: ['projectile', 'piercing'], category: 'Shots',
-    coef: 1.35, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 220, duration: 0, maxSummons: 0,
+    coef: 2.95, cost: 0, gen: 3, cooldown: 0, range: 380, radius: 220, duration: 0, maxSummons: 0,
     auto: { when: 'always' },
     desc: 'Fire a flat bolt that hits for {coef} weapon damage and skips to 2 more enemies within {radius} units, losing 20% damage each skip. Generates {gen} Hatred.',
     icon: { glyph: 'skip', color: 0x7fb8c9 },
@@ -233,7 +233,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'spring_snare', classId: 'ranger', name: 'Spring Snare', kind: 'summon', unlock: 20, element: 'physical', tags: ['device', 'trap', 'area', 'stun'], category: 'Devices',
-    coef: 4.0, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 90, duration: 20, maxSummons: 3,
+    coef: 3.38, cost: 15, gen: 0, cooldown: 0, range: 380, radius: 90, duration: 20, maxSummons: 3,
     auto: { when: 'maintainSummon' },
     desc: 'Set a spring snare near enemies. When one steps on it, it snaps for {coef} weapon damage and holds enemies within {radius} units for 1.5 seconds. Up to {max} snares; each lasts {duration} seconds.',
     icon: { glyph: 'snare', color: 0x9a7b4f },
@@ -263,7 +263,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'overcast_volley', classId: 'ranger', name: 'Overcast Volley', kind: 'spender', unlock: 26, element: 'physical', tags: ['aerial', 'area'], category: 'Skyfall',
-    coef: 1.1, cost: 30, gen: 0, cooldown: 0, range: 380, radius: 140, duration: 1.2, maxSummons: 0,
+    coef: 0.89, cost: 30, gen: 0, cooldown: 0, range: 380, radius: 140, duration: 1.2, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 3, within: 380 },
     desc: 'Loose arrows into the sky; 8 of them fall over {duration} seconds across {radius} units, each dealing {coef} weapon damage where it lands.',
     icon: { glyph: 'overcast', color: 0x6a8caf },
@@ -321,7 +321,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'pitch_mortar', classId: 'ranger', parityReady: true, name: 'Pitch Mortar', kind: 'summon', unlock: 40, element: 'fire', tags: ['device', 'area', 'ground', 'burn'], category: 'Devices',
-    coef: 3.6, cost: 30, gen: 0, cooldown: 0, range: 500, radius: 100, duration: 20, maxSummons: 1,
+    coef: 8.39, cost: 30, gen: 0, cooldown: 0, range: 500, radius: 100, duration: 20, maxSummons: 1,
     auto: { when: 'maintainSummon' },
     // Bible: "+ 1.8 burn over 3 s" — the burning pitch (a data ground) deals the second number.
     vars: { pitchBurn: 1.8 },
@@ -351,7 +351,7 @@ export const RANGER_SKILLS: SkillDef[] = [
   },
   {
     id: 'murmuration', classId: 'ranger', parityReady: true, name: 'Murmuration', kind: 'cooldown', unlock: 50, element: 'physical', tags: ['summon', 'beast', 'area'], category: 'Beasts',
-    coef: 2.0, cost: 0, gen: 0, cooldown: 50, range: 500, radius: 120, duration: 10, maxSummons: 0,
+    coef: 3.26, cost: 0, gen: 0, cooldown: 50, range: 500, radius: 120, duration: 10, maxSummons: 0,
     auto: { when: 'enemiesNear', count: 6, within: 450 },
     desc: 'Release a murmuration of birds that sweeps between the densest groups for {duration} seconds, dealing {coef} weapon damage per second to enemies inside it ({radius} units).',
     icon: { glyph: 'flock', color: 0x3a3a4a },

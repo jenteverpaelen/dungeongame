@@ -105,7 +105,7 @@ function meteor(inst: Instance, p: Player, rt: SkillRuntime): boolean {
   const cast: MeteorCast = { tally: newTally(), budget: newBudget(p), elite };
   dropMeteor(inst, p, rt, bp.x, bp.y, radius, 1, cast);
   // Regalia of the Fallen Star 2 (Aerial skills strike a second time at 60 %); the old full second meteor stays for its flag.
-  const echo = rt.flags.has('aerialEcho') ? 0.6 : rt.flags.has('secondMeteor') ? 1 : 0;
+  const echo = rt.flags.has('aerialEcho') ? 0.45 : rt.flags.has('secondMeteor') ? 1 : 0;
   if (echo > 0) {
     let best: Mob | null = null, bd = Infinity;
     for (const m of inst.queryMobs(bp.x, bp.y, 400)) {

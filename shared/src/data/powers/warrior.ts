@@ -19,7 +19,7 @@ export const WARRIOR_LEGENDARIES: LegendaryDef[] = [
   { id: 'faultcleaver', name: 'Faultcleaver', base: 'axe2h', classes: ['warrior'], power: 'Quakeline deals {v}% increased damage and costs 40% less Fury.', range: [150, 200], cubeSlot: 'weapon', flavor: 'Its edge follows the seams beneath the earth.', colors: { primary: 0x5b5045, secondary: 0xdb9860, glow: 0xffb369 },
     effects: [rolledDamage('seismic_slam', { cost: -40 })] },
   // Lead decision (c): the roll now covers Whirlwind as well as its Dust Devils (Dust Devils inherit Whirlwind's damage bonus).
-  { id: 'ninefold_gale', name: 'The Ninefold Gale', base: 'axe2h', classes: ['warrior'], power: 'Whirlwind always spawns Dust Devils, and Whirlwind and Dust Devils deal {v}% increased damage.', range: [150, 200], cubeSlot: 'weapon', flavor: '"Nine storms bound in one edge. It hungers to spin."', colors: { primary: 0xb8c4cc, secondary: 0x6b8fa3, glow: 0x9fe3ff },
+  { id: 'ninefold_gale', name: 'The Ninefold Gale', base: 'axe2h', classes: ['warrior'], power: 'Whirlwind always spawns Dust Devils, and Whirlwind and Dust Devils deal {v}% increased damage.', range: [100, 150], cubeSlot: 'weapon', flavor: '"Nine storms bound in one edge. It hungers to spin."', colors: { primary: 0xb8c4cc, secondary: 0x6b8fa3, glow: 0x9fe3ff },
     effects: [rolledDamage('whirlwind', { flags: ['dustDevils', 'ninefold'] })] },
   { id: 'bloodwake', name: 'Bloodwake', base: 'sword', classes: ['warrior'], power: "Rend's bleed deals {v}% increased damage.", range: [150, 200], cubeSlot: 'weapon', flavor: 'The blade weeps for every wound it opens.', colors: { primary: 0x9e1b1b, secondary: 0x3a0d0d, glow: 0xff3b3b },
     effects: [rolledDamage('rend')] },

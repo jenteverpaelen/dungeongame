@@ -340,7 +340,7 @@ test('sets: Siegebreaker 2 / 6 count Devices; Thicket Kin 4 damage reduction per
     f.setPowers({}, { siegebreaker: 6 });
     assert.equal(slot(f, 'sentry').mods.maxSummons, 1); assert.equal(slot(f, 'pitch_mortar').mods.cooldown, -20);
     castSkill(f.inst, f.p, slot(f, 'sentry')); castSkill(f.inst, f.p, slot(f, 'pitch_mortar'));
-    assert(Math.abs(ownMultiplier(f.p, 'multishot') - 1.2) < 1e-9, 'Siegebreaker 6: +10 % per active Device (2)');
+    assert(Math.abs(ownMultiplier(f.p, 'multishot') - 1.24) < 1e-9, 'Siegebreaker 6: +12 % per active Device (2)');
     assert.equal(ownMultiplier(f.p, 'hungering_arrow'), 1, 'not for a non-Device, non-Spender skill');
   } finally { f.inst.destroy(); }
   const g = fixture({ slots: ['companion', null, null, null], posts: [[300, 0]] });

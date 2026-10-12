@@ -122,8 +122,9 @@ export const MAGE_SETS: SetDef[] = [
       { base: 'legs_cloth', name: 'Leggings of the Long Night' }, { base: 'feet_shoes', name: 'Ashwalker Slippers' },
     ],
     bonuses: [
-      // Generalises the old second meteor [M] to every Aerial skill, at 60 % damage.
-      { count: 2, text: 'Your Aerial skills strike a second time on a nearby enemy at 60% damage, and your Spender skills cost 10% less.',
+      // Generalises the old second meteor [M] to every Aerial skill; 60 → 45 % in the 2026-10-12 parity pass (Meteor with
+      // this set was 2× the mage median, docs/rework/balance/PARITY.md).
+      { count: 2, text: 'Your Aerial skills strike a second time on a nearby enemy at 45% damage, and your Spender skills cost 10% less.',
         effects: [flags(tagged('aerial'), 'aerialEcho'), skillMods(tagged('spender'), { cost: -10 })] },
       // Moved from its own multiplier (×1.5 per element [M]) into the generic damage bucket (bible §9.3).
       { count: 4, text: 'Each element (Arcane, Cold, Fire, Lightning) you dealt damage with in the last 8 seconds grants 5% increased damage (at most 4).',
