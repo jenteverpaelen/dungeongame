@@ -49,6 +49,63 @@ export function riverPoly(points: Point[], w: number): Point[] {
 export function octo(p: Point, r: number): Point[] {
   return Array.from({ length: 8 }, (_, i) => { const a = (i / 8) * Math.PI * 2 + Math.PI / 8; return [p[0] + Math.cos(a) * r, p[1] + Math.sin(a) * r] as Point; });
 }
+/** Arc length of a polyline. */
+export function polyLength(p: Point[]): number { let l = 0; for (let i = 1; i < p.length; i++) l += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return l; }
+/** The point and unit tangent at arc length `s` along a polyline. */
+export function pointAt(p: Point[], s: number): { x: number; y: number; tx: number; ty: number } {
+  for (let i = 1; i < p.length; i++) {
+    const [ax, ay] = p[i - 1], [bx, by] = p[i], l = Math.hypot(bx - ax, by - ay);
+    if (s <= l || i === p.length - 1) { const t = l ? Math.max(0, Math.min(1, s / l)) : 0; return { x: ax + (bx - ax) * t, y: ay + (by - ay) * t, tx: (bx - ax) / (l || 1), ty: (by - ay) / (l || 1) }; }
+    s -= l;
+  }
+  return { x: p[0][0], y: p[0][1], tx: 1, ty: 0 };
+}
+/** Arc length of the point of a polyline nearest to `p` (authoring crossings by map position). */
+export function arcAt(line: Point[], p: Point): number {
+  let best = Infinity, at = 0, run = 0;
+  for (let i = 1; i < line.length; i++) {
+    const [ax, ay] = line[i - 1], [bx, by] = line[i], dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy) || 1;
+    const t = Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / (l * l))), d = Math.hypot(ax + dx * t - p[0], ay + dy * t - p[1]);
+    if (d < best) { best = d; at = run + t * l; }
+    run += l;
+  }
+  return at;
+}
+/** The part of a polyline between two arc lengths, resampled every `step` u. */
+export function subLine(p: Point[], s0: number, s1: number, step = 120): Point[] {
+  const out: Point[] = [];
+  for (let s = s0; s < s1; s += step) { const q = pointAt(p, s); out.push([Math.round(q.x), Math.round(q.y)]); }
+  const e = pointAt(p, s1); out.push([Math.round(e.x), Math.round(e.y)]);
+  return out;
+}
+/**
+ * Open field (2026-10-12, docs/rework/worlds/OPEN.md): the map inset by `margin`, its border pulled inwards by smooth noise
+ * (0 … amp × margin) so the edge reads as land, not a frame. Diablo III's outdoor zones keep fixed outer borders whose shape
+ * and art vary [SN, Diablo Wiki / developer comments]. Obstacles are holes cut into it (`ZoneBuilder.hole`).
+ */
+export function fieldPoly(w: number, h: number, margin: number, seed: number, amp = 0.9, step = 150): Point[] {
+  const x0 = margin, y0 = margin, x1 = w - margin, y1 = h - margin, sw = x1 - x0, sh = y1 - y0, per = 2 * (sw + sh), n = Math.max(16, Math.round(per / step));
+  const ph = [h01(seed, 11), h01(seed, 12), h01(seed, 13)].map((v) => v * 6.283), out: Point[] = [];
+  for (let i = 0; i < n; i++) {
+    let d = (i / n) * per, x: number, y: number, nx: number, ny: number;
+    if (d < sw) { x = x0 + d; y = y0; nx = 0; ny = 1; }
+    else if ((d -= sw) < sh) { x = x1; y = y0 + d; nx = -1; ny = 0; }
+    else if ((d -= sh) < sw) { x = x1 - d; y = y1; nx = 0; ny = -1; }
+    else { d -= sw; x = x0; y = y1 - d; nx = 1; ny = 0; }
+    const t = (i / n) * 6.283, k = 0.5 + 0.5 * (0.5 * Math.sin(5 * t + ph[0]) + 0.3 * Math.sin(11 * t + ph[1]) + 0.2 * Math.sin(23 * t + ph[2]));
+    out.push([Math.round(x + nx * k * amp * margin), Math.round(y + ny * k * amp * margin)]);
+  }
+  return out;
+}
+/** Pack formation for n members: a centre and staggered rings 72 u apart (flattened for the 3/4 view). */
+function packRing(n: number): Point[] {
+  const out: Point[] = [[0, 0]];
+  for (let r = 72, k = 0; out.length < n; r += 72, k++) {
+    const m = Math.max(5, Math.round((2 * Math.PI * r) / 76));
+    for (let i = 0; i < m && out.length < n; i++) { const a = (i / m) * Math.PI * 2 + k * 0.55; out.push([Math.round(Math.cos(a) * r), Math.round(Math.sin(a) * r * 0.75)]); }
+  }
+  return out;
+}
 const segDist = (px: number, py: number, a: Point, b: Point) => {
   const dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / (dx * dx + dy * dy || 1)));
   return Math.hypot(px - a[0] - dx * t, py - a[1] - dy * t);
@@ -91,7 +148,7 @@ export class ZoneBuilder {
   readonly floors: Point[][] = [];
   readonly paint: ZonePaint;
   readonly scenery: Prop[] = [];
-  readonly buildings: { footprint: Point[] }[] = [];
+  readonly buildings: { footprint: Point[]; hole?: boolean }[] = [];
   readonly npcs: NpcSpot[] = [];
   readonly interactions: AdventureData['interactions'] = [];
   readonly encounters: AdventureData['encounters'] = [];
@@ -145,6 +202,112 @@ export class ZoneBuilder {
       const [a, b] = [points[0], points[points.length - 1]], l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, nx = -(b[1] - a[1]) / l, ny = (b[0] - a[0]) / l;
       for (const [px, py] of [a, b]) for (const s of [-1, 1]) { const x = Math.round(px + nx * s * (w / 2 - 14)), y = Math.round(py + ny * s * (w / 2 - 14)); this.decor('lamppost', x, y); }
       this.light(Math.round(a[0]), Math.round(a[1]) - 40, 0xffc070, 200); this.light(Math.round(b[0]), Math.round(b[1]) - 40, 0xffc070, 200);
+    }
+  }
+  // ─────────── open fields (2026-10-12, docs/rework/worlds/OPEN.md) ───────────
+  /** Authored things the kit could not place where they stand on real ground (tests assert this stays empty). */
+  readonly dropped: string[] = [];
+  private fillOpts: { roster: string[]; spacing: number; size: [number, number]; champion: number; rare: number; clear: number } | null = null;
+  /** The walkable field: the whole map inset by `margin` with a natural border. Obstacles are holes cut into it. */
+  open(o: { margin?: number; amp?: number; ground?: ZoneGroundKind; dress?: number } = {}): Point[] {
+    const W = this.size[0] * 64, H = this.size[1] * 64, poly = fieldPoly(W, H, o.margin ?? 260, this.seed, o.amp ?? 0.9);
+    this.floors.push(poly);
+    this.paint.ground.push({ kind: o.ground ?? this.kit.walk, polygon: poly });
+    this.regions.push({ id: 'field', poly, role: 'wild', packs: 0, dress: o.dress ?? 0.45, size: [W / 2, H / 2] });
+    return poly;
+  }
+  /** Impassable ground inside the field (lake, river reach, cliff, chasm): one polygon for collision and paint. */
+  hole(kind: 'water' | 'deep' | 'cliff' | 'chasm' | 'lava', poly: Point[]): Point[] {
+    this.buildings.push({ footprint: poly, hole: true }); this.paint.landscape.push({ kind, polygon: poly }); return poly;
+  }
+  lake(x: number, y: number, rx: number, ry: number, kind: 'water' | 'deep' = 'water'): Point[] {
+    return this.hole(kind, blob(x, y, rx, ry, strSeed(`${this.id}/lake${this.buildings.length}`), 28, 0.2));
+  }
+  /** A river: water along `points` except at its crossings (arc-length fraction t, opening w). A bridge carries a plank deck
+   *  with lamps at both heads; a ford is a gravel bar through the shallows. */
+  river(points: Point[], width: number, crossings: { at: Point; w: number; kind: 'bridge' | 'ford' }[], kind: 'water' | 'deep' = 'water') {
+    const L = polyLength(points);
+    let s = 0;
+    for (const c of crossings.map((c) => ({ ...c, s: arcAt(points, c.at) })).sort((a, b) => a.s - b.s)) {
+      const at = c.s, s1 = Math.max(s, at - c.w / 2);
+      if (s1 - s > 60) this.hole(kind, riverPoly(subLine(points, s, s1), width));
+      const q = pointAt(points, at), nx = -q.ty, ny = q.tx, half = width / 2 + 90;
+      const a: Point = [Math.round(q.x - nx * half), Math.round(q.y - ny * half)], b: Point = [Math.round(q.x + nx * half), Math.round(q.y + ny * half)];
+      if (c.kind === 'bridge') this.road([a, b], c.w, 'planks', { bridge: true, route: false });
+      else { this.paint.ground.push({ kind: 'gravel', polygon: lane(a, b, c.w) }); this.paint.landscape.push({ kind: 'water', polygon: lane(a, b, c.w * 0.55) }); }
+      s = Math.min(L, at + c.w / 2);
+    }
+    if (L - s > 60) this.hole(kind, riverPoly(subLine(points, s, L), width));
+  }
+  /** A cliff band along `points` that the field breaks around, with passes (arc-length fraction t, opening w). */
+  ridge(points: Point[], width: number, gaps: { at: Point; w: number }[] = []) {
+    const L = polyLength(points);
+    let s = 0;
+    for (const g of gaps.map((g) => ({ ...g, s: arcAt(points, g.at) })).sort((a, b) => a.s - b.s)) {
+      const s1 = Math.max(s, g.s - g.w / 2);
+      if (s1 - s > 60) this.hole('cliff', riverPoly(subLine(points, s, s1), width));
+      s = Math.min(L, g.s + g.w / 2);
+    }
+    if (L - s > 60) this.hole('cliff', riverPoly(subLine(points, s, L), width));
+  }
+  /** A named part of the open field: its own ground paint, monster roster and dressing. Walking is the field's. */
+  area(id: string, at: Point, r: [number, number], o: { ground?: ZoneGroundKind; role?: Role; roster?: string[]; poly?: Point[]; amp?: number; dress?: number } = {}): Point[] {
+    const poly = o.poly ?? blob(at[0], at[1], r[0], r[1], strSeed(this.id + '/' + id), 32, o.amp ?? 0.2);
+    if (o.ground) this.paint.ground.push({ kind: o.ground, polygon: poly });
+    this.regions.push({ id, poly, role: o.role ?? 'wild', roster: o.roster, packs: 0, dress: o.dress ?? 0.6, size: r });
+    (this.paint.areas ??= []).push({ id, role: o.role ?? 'wild', x: Math.round(at[0]), y: Math.round(at[1]), r: Math.round(Math.min(r[0], r[1])) });
+    return poly;
+  }
+  /** A grove or outcrop: `n` solid anchors (the biome's trees and boulders, or `kinds`) within `r` of (x, y), a natural
+   *  obstacle that breaks open ground into lanes. */
+  grove(x: number, y: number, r: number, n: number, kinds?: string[]) {
+    const list = kinds ?? this.kit.anchors.map(([k]) => k).filter((k) => k !== 'stump' && k !== 'log'), sd = strSeed(`${this.id}/grove${x},${y}`);
+    for (let i = 0; i < n; i++) {
+      const a = h01(i, 1, sd) * Math.PI * 2, d = Math.sqrt(h01(i, 2, sd)) * r;
+      this.solid(list[Math.floor(h01(i, 3, sd) * list.length)], Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.8), Math.round((0.85 + h01(i, 4, sd) * 0.4) * 100) / 100, Math.floor(h01(i, 5, sd) * 3));
+    }
+  }
+  /** Packs across the open field, placed in build() after the authored ones: one about every `spacing` u (Path of Exile:
+   *  the next pack after 1-2 s of sprinting [SN, official forum]), never within `clear` u of the entry nor near an
+   *  outpost, a contact or a portal. Mostly trash packs of `size` members from 2-3 kinds of the roster of the area they
+   *  stand in; `champion` of them champion packs (3-4 of one kind) and `rare` a rare elite with 4-6 minions (the server
+   *  names them and rolls their affixes at every spawn, like the field spawner). */
+  fill(o: { roster: string[]; spacing?: number; size?: [number, number]; champion?: number; rare?: number; clear?: number }) {
+    this.fillOpts = { roster: o.roster, spacing: o.spacing ?? 760, size: o.size ?? [6, 12], champion: o.champion ?? 0.1, rare: o.rare ?? 0.06, clear: o.clear ?? 900 };
+  }
+  /**
+   * Open fields: nothing floats, nothing stands in a wall (owner 2026-10-12: "some objects are floating or in walls").
+   * Solid props and people stand on walkable ground; decor stands on ground, in the border strip just outside the field
+   * (the edge trees), or on water when it is a water thing. Anything else moves to the nearest good spot within 200 u, or
+   * goes (and is listed in `dropped`, which the zone tests keep empty for authored things).
+   */
+  private settleProps(ground: (x: number, y: number) => boolean) {
+    const holes = this.buildings.filter((b) => b.hole).map((b) => ({ poly: b.footprint, wet: this.paint.landscape.some((l) => l.polygon === b.footprint && (l.kind === 'water' || l.kind === 'deep')) }));
+    const WET = new Set(['reeds', 'reedclump', 'lilypads', 'rowboat', 'nets', 'fishcrates', 'buoy']);
+    const onFloor = (x: number, y: number) => this.floors.some((p) => inPolygon(x, y, p));
+    const hole = (x: number, y: number) => holes.find((h) => inPolygon(x, y, h.poly));
+    const nearField = (x: number, y: number) => [0, 1, 2, 3, 4, 5, 6, 7].some((k) => ground(x + Math.cos(k * 0.785) * 260, y + Math.sin(k * 0.785) * 260));
+    const tall = new Set([...this.kit.tall, ...this.kit.anchors.map(([a]) => a)]);
+    const walls = this.buildings.filter((b) => !b.hole).map((b) => b.footprint), inWall = (x: number, y: number) => walls.some((p) => inPolygon(x, y, p));
+    const kept = (x: number, y: number) => this.reserved.some((q) => Math.hypot(q.x - x, q.y - y) < q.r);
+    const okDecor = (kind: string, x: number, y: number) => { if (inWall(x, y) || (tall.has(kind) && kept(x, y))) return false; if (ground(x, y)) return true; const h = hole(x, y); if (h) return h.wet && WET.has(kind); return !onFloor(x, y) && nearField(x, y); };
+    const nudge = (x: number, y: number, ok: (x: number, y: number) => boolean): Point | null => {
+      for (let d = 30; d <= 200; d += 30) for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2, nx = Math.round(x + Math.cos(a) * d), ny = Math.round(y + Math.sin(a) * d); if (ok(nx, ny)) return [nx, ny]; }
+      return null;
+    };
+    const fix = <T extends { x: number; y: number }>(list: T[], label: (t: T) => string, ok: (t: T, x: number, y: number) => boolean) => {
+      for (let i = list.length - 1; i >= 0; i--) {
+        const t = list[i]; if (ok(t, t.x, t.y)) continue;
+        const to = nudge(t.x, t.y, (x, y) => ok(t, x, y));
+        if (to) { t.x = to[0]; t.y = to[1]; } else { list.splice(i, 1); this.dropped.push(label(t)); }
+      }
+    };
+    fix(this.scenery, (p) => `solid ${p.k} at ${p.x},${p.y}`, (_p, x, y) => ground(x, y));
+    for (const layer of [this.paint, ...(this.paint.phases ?? [])]) {
+      // decor standing in a wall is dropped rather than moved (moved, it stood right in front of the house or wheel)
+      for (let i = layer.decor.length - 1; i >= 0; i--) { const d = layer.decor[i]; if (inWall(d.x, d.y)) { layer.decor.splice(i, 1); this.dropped.push(`decor ${d.kind} at ${d.x},${d.y} (in a wall)`); } }
+      fix(layer.decor, (d) => `decor ${d.kind} at ${d.x},${d.y}`, (d, x, y) => okDecor(d.kind, x, y));
+      fix(layer.residents, (r) => `resident ${r.id} at ${r.x},${r.y}`, (_r, x, y) => ground(x, y));
     }
   }
   /** Painted only. */
@@ -269,6 +432,13 @@ export class ZoneBuilder {
    *  blocked one slides away deterministically (≤ 480 u), else it is left out. Adds the solid base and its lights. */
   private placeStructures() {
     const placed: Point[][] = [];
+    // Open fields: the whole footprint stands on the floor, out of cliffs; only water-side kinds may touch water (a wheel
+    // over its race). Before this, a structure that clashed moved up to 480 u in any direction, onto voids, into walls
+    // or among the edge trees (the owner's mill wheel "in the trees", 2026-10-12).
+    const holes = this.buildings.filter((b) => b.hole), wetOk = (k: string) => k === 'waterwheel' || k === 'boatwreck';
+    const onFloor = (x: number, y: number) => this.floors.some((p) => inPolygon(x, y, p));
+    const inHole = (x: number, y: number, wet: boolean) => holes.some((h) => inPolygon(x, y, h.footprint) && !(wet && this.paint.landscape.some((l) => l.polygon === h.footprint && (l.kind === 'water' || l.kind === 'deep'))));
+    const sits = (r: Point[], kind: string) => { const pts: Point[] = [...r, [(r[0][0] + r[2][0]) / 2, (r[0][1] + r[2][1]) / 2], [(r[0][0] + r[2][0]) / 2, r[2][1]]]; return pts.every(([x, y]) => (onFloor(x, y) || wetOk(kind)) && !inHole(x, y, wetOk(kind))); };
     const rectDist = (px: number, py: number, r: Point[]) => { const dx = Math.max(r[0][0] - px, 0, px - r[2][0]), dy = Math.max(r[0][1] - py, 0, py - r[2][1]); return Math.hypot(dx, dy); };
     const clash = (r: Point[]) => this.routes.some((rt) => rt.some((p, i) => i > 0 && (segRect(rt[i - 1], p, r) || [0, 0.25, 0.5, 0.75, 1].some((t) => rectDist(rt[i - 1][0] + (p[0] - rt[i - 1][0]) * t, rt[i - 1][1] + (p[1] - rt[i - 1][1]) * t, r) < 46))))
       || [...this.interactions, ...this.portals, ...this.pois].some((q) => rectDist(q.x, q.y, r) < 130) || this.npcs.some((n) => rectDist(n.x, n.y, r) < 90)
@@ -279,13 +449,16 @@ export class ZoneBuilder {
       let at: Point | null = null;
       for (let dist = 0; dist <= 480 && !at; dist += 60) for (let k = 0; k < (dist ? 12 : 1) && !at; k++) {
         const a = (k / 12) * Math.PI * 2, x = Math.round(s.x + Math.cos(a) * dist), y = Math.round(s.y + Math.sin(a) * dist), r = rect(Math.round(x - w / 2), Math.round(y - d), w, d);
-        if (!clash(r)) at = [x, y];
+        if (!clash(r) && sits(r, s.kind)) at = [x, y];
       }
-      if (!at) continue;
+      if (!at) { this.dropped.push(`structure ${s.kind} at ${s.x},${s.y}`); continue; }
       const [x, y] = at, r = rect(Math.round(x - w / 2), Math.round(y - d), w, d); placed.push(r);
       this.wall(r);
       (this.paint.structures ??= []).push({ kind: s.kind, x, y, w, d, ...(s.v ? { v: s.v } : {}), ...(s.flip ? { flip: s.flip } : {}), ...(s.spin ? { spin: s.spin } : {}) });
-      this.reserve(x, y - d / 2, Math.max(w, d) / 2 + 50);
+      // keep the whole drawing clear (art rises 200–400 u above the footprint): no tree in front of a wheel or a door
+      this.reserve(x, y - Math.max(d, 160), Math.max(w, 260) / 2 + 70);
+      // ...and the strip in front of it: a tree 250 u south of a wheel hides its lower half from the camera
+      this.reserve(x, y + 130, Math.max(w, 200) / 2 + 60);
       if (s.kind === 'kilnstack') { this.emit('smoke', x, y - 330, 7); this.light(x, y - 20, 0xff8a3a, 220, 0.25); }
       if (s.kind === 'beacontower') this.light(x, y - 40, 0xffd070, 260, 0.2);
       if (s.kind === 'watchtower' || s.kind === 'signaltower') this.light(x, y - 10, 0xffc070, 160);
@@ -348,6 +521,30 @@ export class ZoneBuilder {
         settle(e); this.encounters.push(e); this.reserve(x, y, 160); placed++;
       }
     }
+    if (this.fillOpts) {
+      const o = this.fillOpts, W = this.size[0] * 64, H = this.size[1] * 64, sd = (this.seed ^ 0x5eed) >>> 0, step = o.spacing;
+      const keepOut = [...this.interactions, ...this.portals, ...this.pois].map((q) => [q.x, q.y] as Point);
+      const rosterAt = (x: number, y: number) => [...this.regions].reverse().find((r) => r.roster?.length && inPolygon(x, y, r.poly))?.roster ?? o.roster;
+      let n = 0;
+      for (let gy = 0; (gy + 0.5) * step * 0.86 < H; gy++) for (let gx = 0; (gx + 0.5) * step < W; gx++) {
+        const x = Math.round((gx + 0.5 + (gy % 2) * 0.5) * step + (h01(gx, gy, sd) - 0.5) * step * 0.6), y = Math.round((gy + 0.5) * step * 0.86 + (h01(gy, gx, sd) - 0.5) * step * 0.5);
+        if (!ground(x, y) || !free(x, y, 110) || Math.hypot(x - this.entry[0], y - this.entry[1]) < o.clear) continue;
+        if (spots().some(([sx, sy]) => Math.hypot(sx - x, sy - y) < step * 0.72)) continue;
+        if (keepOut.some(([qx, qy]) => Math.hypot(qx - x, qy - y) < 340) || this.npcs.some((q) => Math.hypot(q.x - x, q.y - y) < 420)) continue;
+        if (this.reserved.some((r) => Math.hypot(r.x - x, r.y - y) < r.r + 120)) continue;
+        if (this.regions.some((r) => r.role === 'outpost' && inPolygon(x, y, r.poly))) continue;
+        const roster = rosterAt(x, y), roll = h01(x, y, sd + 1), pick = (k: number) => roster[Math.floor(h01(x + k * 7, y, sd + 2) * roster.length)];
+        const sturdy = roster.filter((t) => MONSTERS[t] && MONSTERS[t].attack.kind !== 'explode'), main = sturdy.length ? sturdy[Math.floor(h01(x, y, sd + 3) * sturdy.length)] : roster[0];
+        let members: Member[];
+        if (roll < o.champion) { const k = 3 + Math.floor(h01(x, y, sd + 4) * 2); members = packRing(k).map(([dx, dy]) => ({ type: main, dx, dy, tier: 1 as const })); }
+        else if (roll < o.champion + o.rare) { const k = 5 + Math.floor(h01(x, y, sd + 5) * 3); members = packRing(k).map(([dx, dy], i) => ({ type: main, dx, dy, tier: i === 0 ? 2 as const : 3 as const })); }
+        else {
+          const kinds = [pick(1), pick(2), pick(3)].slice(0, 2 + (h01(x, y, sd + 6) > 0.55 ? 1 : 0)), k = o.size[0] + Math.floor(h01(x, y, sd + 7) * (o.size[1] - o.size[0] + 1));
+          members = packRing(k).map(([dx, dy], i) => ({ type: kinds[i % 3 === 0 ? 0 : i % kinds.length], dx, dy }));
+        }
+        const e = { id: `amb_${n++}`, x, y, members }; settle(e); this.encounters.push(e);
+      }
+    }
     const nearLane = (x: number, y: number, pad: number) => this.lanes.some((l) => segDist(x, y, l.a, l.b) < l.w / 2 + pad);
     const blocked = (x: number, y: number, r: number) => this.reserved.some((q) => Math.hypot(q.x - x, q.y - y) < q.r + r)
       || this.encounters.some((e) => e.members.some((m) => Math.hypot(e.x + m.dx - x, e.y + m.dy - y) < r + 60))
@@ -379,6 +576,8 @@ export class ZoneBuilder {
     const edges = groundBoundary(geometry), water = this.paint.landscape.filter((l) => l.kind !== 'cliff');
     const inWater = (x: number, y: number) => water.some((l) => inPolygon(x, y, l.polygon));
     const nearPortal = (x: number, y: number) => this.portals.some((p) => Math.hypot(p.x - x, p.y - y) < 170);
+    const built = this.buildings.filter((b) => !b.hole).map((b) => bbox(b.footprint));
+    const nearBuilt = (x: number, y: number) => built.some((q) => x > q.x0 - 40 && x < q.x1 + 40 && y > q.y0 - 60 && y < q.y1 + 40) || this.reserved.some((q) => Math.hypot(q.x - x, q.y - y) < q.r);
     if (!this.kit.dungeon) {
       const taken: Point[] = [];
       for (const e of edges) {
@@ -387,7 +586,7 @@ export class ZoneBuilder {
           const k = h01(Math.round(e.ax + t), Math.round(e.ay), this.seed), px = e.ax + ((e.bx - e.ax) * t) / len, py = e.ay + ((e.by - e.ay) * t) / len;
           const north = oy < -0.35, south = oy > 0.35, depth = north ? 70 + k * 80 : 45 + k * 50;
           const x = Math.round(px + ox * depth), y = Math.round(py + oy * depth);
-          if (ground(x, y) || inWater(x, y) || nearPortal(x, y)) continue;
+          if (ground(x, y) || inWater(x, y) || nearPortal(x, y) || nearBuilt(x, y)) continue;
           if (taken.some(([tx, ty]) => Math.abs(tx - x) < 56 && Math.abs(ty - y) < 40)) continue;
           const list = north ? this.kit.tall : south ? this.kit.low : (k > 0.5 ? this.kit.tall : this.kit.low);
           if (!list.length) continue;
@@ -395,7 +594,7 @@ export class ZoneBuilder {
           taken.push([x, y]);
           if (north && h01(x, y, 13) > 0.35) {
             const x2 = Math.round(x + ox * 90 + (h01(x, y, 14) - 0.5) * 60), y2 = Math.round(y + oy * 90);
-            if (!ground(x2, y2) && !inWater(x2, y2)) { this.decor(this.kit.tall[Math.floor(h01(x2, y2, 3) * this.kit.tall.length)], x2, y2, 1 + h01(x2, y2, 4) * 0.35, Math.floor(h01(x2, y2, 5) * 3)); taken.push([x2, y2]); }
+            if (!ground(x2, y2) && !inWater(x2, y2) && !nearBuilt(x2, y2)) { this.decor(this.kit.tall[Math.floor(h01(x2, y2, 3) * this.kit.tall.length)], x2, y2, 1 + h01(x2, y2, 4) * 0.35, Math.floor(h01(x2, y2, 5) * 3)); taken.push([x2, y2]); }
           }
         }
       }
@@ -459,14 +658,15 @@ export class ZoneBuilder {
       }
     }
     for (const l of this.paint.landscape) if (l.kind === 'water' || l.kind === 'deep') { const b = bbox(l.polygon); this.critters('fish', Math.round((b.x0 + b.x1) / 2), Math.round((b.y0 + b.y1) / 2), Math.min(b.x1 - b.x0, b.y1 - b.y0) * 0.35, 3); }
+    if (this.buildings.some((b) => b.hole)) this.settleProps(ground);
     return {
       id: this.id, size: this.size, ...(this.opts.theme ? { theme: this.opts.theme } : {}), ...(this.opts.surface ? { surface: this.opts.surface } : {}),
       paint: this.paint, pois: this.pois, ...(this.events.length ? { events: this.events } : {}), ...(this.dungeon ? { dungeon: this.dungeon } : {}),
       ...(this.kilns ? { kilns: this.kilns } : {}), ...(this.works ? { works: this.works } : {}),
       ambience: { motion: this.motion, sounds: this.sounds },
-      geometry: { entry: { x: this.entry[0], y: this.entry[1] }, floors: this.floors.map((polygon) => ({ polygon })), buildings: this.buildings.map((b) => ({ footprint: b.footprint })), barriers: [], props: [], npcs: [] },
+      geometry: { entry: { x: this.entry[0], y: this.entry[1] }, floors: this.floors.map((polygon) => ({ polygon })), buildings: this.buildings.map((b) => ({ footprint: b.footprint, ...(b.hole ? { hole: true } : {}) })), barriers: [], props: [], npcs: [] },
       paths: this.paths, scenery: this.scenery, npcs: this.npcs, portals: this.portals, interactions: this.interactions, encounters: this.encounters,
-      landmarks: this.landmarks, locations: this.locations, ...(this.wheel ? { wheel: this.wheel } : {}), routes: this.routes,
+      landmarks: this.landmarks, locations: this.locations, ...(this.wheel ? { wheel: this.wheel } : {}), routes: this.routes, ...(this.dropped.length ? { dropped: this.dropped } : {}),
     };
   }
 }

@@ -49,6 +49,9 @@ Other measured facts used below:
 | W6 | Diablo Wiki *Forlorn Farm*, *Decaying Crypt*, Blizzard forum *Cursed Cellar, Mill & Bellows* | one D3 outdoor zone (Fields of Misery) holds: an unmarked event started by touching an object that opens a cellar with a guaranteed chest; a medium two-level side dungeon with its own event; two random events (Cursed Mill, Cursed Bellows); a rare random dwelling (~5 %) | community wiki; gives the **kinds** of points of interest, not counts per km |
 | W7 | GDC 2024 *The Art of Open World Sanctuary Level Art* (summary, artstation) | D4's open world is "POIs plus the wilderness between them" | talk summary only; structure, no numbers |
 | W8 | Existing project research `docs/research/12-world-town-dungeons.md` | idle/MMO training maps keep ~10–20 monsters per screen; D3 rooms 5–15 monsters | marked [UNVERIFIED] in that doc; used only as an upper bound |
+| W9 | Diablo Wiki *Levels* (https://di.diablowiki.net/Levels) | D3 surface levels: outer borders fixed, but their art and shape far more varied than D2's squared-off edges; chests along the outer edges reward exploring | community wiki; structure, no numbers |
+| W10 | Blizzard forum *The new zones: Desolate Sands needs a fix* (https://us.forums.blizzard.com/en/d3/t/the-new-zones-desolate-sands-needs-a-fix/50660) | a new D3 zone was "too large" for its monster density; shrink it or add monsters; denser zones with obstacles compared better | player opinion; direction only |
+| W11 | Path of Exile forum thread 3900126 (https://www.pathofexile.com/forum/view-thread/3900126) | after clearing one pack the next is usually 1–2 s of sprinting away; packs feel separate enough not to pull neighbours | anecdote from one patch, not a developer figure |
 
 Not found (searched): published D3/PoE zone dimensions, monsters-per-minute, or POI spacing figures. Where a target needs
 them it is derived from W2/W4/W5 time bands and this game's own speed, and labelled *inferred*.

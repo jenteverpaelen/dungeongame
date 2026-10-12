@@ -1,4 +1,4 @@
-import { activeWorldStates } from '../worldStateFlags';
+import { stateRamp } from '../worldStateFlags';
 import { Container, Graphics } from 'pixi.js';
 import type { AdventureData } from '@shared/adventureTypes';
 import { groundBoundary, type Edge } from '@shared/townGeometry';
@@ -65,13 +65,14 @@ export function paintAdventureGround(c:CanvasRenderingContext2D,a:AdventureData,
     c.beginPath();c.moveTo(e.ax+e.nx*3,e.ay+e.ny*3);c.lineTo(e.bx+e.nx*3,e.by+e.ny*3);c.strokeStyle='#85856a';c.lineWidth=2;c.stroke();
   }
   for(const prop of a.scenery)if(prop.r>0){c.fillStyle='rgba(13,22,20,.3)';c.beginPath();c.ellipse(prop.x+8,prop.y+4,prop.r*prop.s*1.3,prop.r*prop.s*.5,0,0,Math.PI*2);c.fill();}
-  for(const b of a.geometry.buildings){polygon(c,b.footprint);c.fillStyle='#333b35';c.fill();}
+  for(const b of a.geometry.buildings)if(!b.hole){polygon(c,b.footprint);c.fillStyle='#333b35';c.fill();}
   c.restore();
 }
 
 export function adventureStructures(a:AdventureData): {view:Container;y:number}[] {
   const out:{view:Container;y:number}[]=[];
   for(const b of a.geometry.buildings) {
+    if(b.hole)continue; // open-field holes are landscape (water, rock), painted by the ground, never walls
     const xs=b.footprint.map(p=>p[0]),ys=b.footprint.map(p=>p[1]);
     const x=Math.min(...xs),y=Math.max(...ys),w=Math.max(...xs)-x,d=y-Math.min(...ys);
     const kiln=a.kilns?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),work=a.works?.find(k=>k.x===x&&k.y+k.d===y&&k.w===w),h=kiln?.h??work?.h??54;
@@ -138,7 +139,8 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
           flames.poly([bx-fw*.5,0,bx-fw*.2,-fh*.4,bx,-fh*.62,bx+fw*.25,-fh*.38,bx+fw*.5,0]).fill(0xffd060);
         }
         root.addChild(g,top,cold,fire,bars,flames);
-        root.onRender=()=>{const off=activeWorldStates.has(key);fire.visible=flames.visible=!off;cold.visible=off;if(!off)flames.scale.y=1+Math.sin(performance.now()/140)*.08;};
+        // A kiln that goes cold during play dies down over a moment (stateRamp) instead of switching off.
+        root.onRender=()=>{const now=performance.now(),r=stateRamp(key,now,1600);fire.visible=flames.visible=r<1;cold.visible=r>0;cold.alpha=r;fire.alpha=1-r;if(r<1)flames.scale.y=(1+Math.sin(now/140)*.08)*(1-r);};
         out.push({view:root,y});continue;
       }
     }
@@ -158,7 +160,7 @@ export function adventureStructures(a:AdventureData): {view:Container;y:number}[
   const spokes=new Graphics();for(let i=0;i<10;i++){const a=i*Math.PI/5;spokes.moveTo(0,0).lineTo(Math.cos(a)*w.radius,Math.sin(a)*w.radius).stroke({color:0x786545,width:6});}
   for(let i=0;i<10;i++){const a=i*Math.PI/5+Math.PI/10;spokes.rect(Math.cos(a)*w.radius-5,Math.sin(a)*w.radius-5,10,10).fill(0x5a4a34);}
   axle.addChild(spokes);root.addChild(rim,axle,new Graphics().circle(0,-48,8).fill(0x303b35));
-  if(w.spin){const key=w.spin;let last=performance.now();root.onRender=()=>{const now=performance.now();if(activeWorldStates.has(key))spokes.rotation+=(now-last)/1000*1.1;last=now;};}
+  if(w.spin){const key=w.spin;let last=performance.now();root.onRender=()=>{const now=performance.now();spokes.rotation+=(now-last)/1000*1.1*stateRamp(key,now,2200);last=now;};}
   out.push({view:root,y:w.y});
   return out;
 }

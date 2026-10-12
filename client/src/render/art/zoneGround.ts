@@ -223,6 +223,9 @@ function flatStamp(kind: string, v: number, s: number) {
 
 interface Prep {
   pal: Pal; floorPath: Path2D;
+  /** Open-field holes (lakes, river reaches, cliffs): ground paint is clipped out of them (evenodd), so the landscape
+   *  painted underneath shows; their outlines are edges like any floor border (foam on water, faces on cliffs). */
+  holeClip: Path2D | null;
   regions: { kind: string; path: Path2D; b: ReturnType<typeof bounds> }[];
   roads: { points: Point[]; width: number; kind: string; b: ReturnType<typeof bounds> }[];
   land: { kind: string; poly: Point[]; path: Path2D; b: ReturnType<typeof bounds> }[];
@@ -242,14 +245,17 @@ function prepare(a: AdventureData): Prep {
   const land = paint.landscape.map((l, i) => { const p = l.kind === 'water' || l.kind === 'deep' ? l.polygon : wobble(l.polygon, 26, 10, 50 + i); return { kind: l.kind, poly: p, path: pathOf(p), b: bounds(p) }; });
   const water = paint.landscape.filter((l) => l.kind === 'water' || l.kind === 'deep').map((l) => l.polygon);
   const waterPath = new Path2D(); for (const w of water) waterPath.addPath(pathOf(w));
-  const geo = { ...a.geometry, buildings: [] }, test = groundTester(geo);
+  const holes = a.geometry.buildings.filter((b) => b.hole).map((b) => b.footprint);
+  const geo = { ...a.geometry, buildings: holes.map((footprint) => ({ footprint })) }, test = groundTester(geo);
+  let holeClip: Path2D | null = null;
+  if (holes.length) { holeClip = new Path2D(); holeClip.rect(-4096, -4096, a.size[0] * 64 + 8192, a.size[1] * 64 + 8192); for (const h of holes) holeClip.addPath(pathOf(h)); }
   const edges = groundBoundary(geo).map((e) => {
     const mx = (e.ax + e.bx) / 2 - e.nx * 16, my = (e.ay + e.by) / 2 - e.ny * 16;
     return { ...e, b: { x0: Math.min(e.ax, e.bx), y0: Math.min(e.ay, e.by), x1: Math.max(e.ax, e.bx), y1: Math.max(e.ay, e.by) }, wet: water.some((w) => inPoly(mx, my, w)) };
   });
   const gw = Math.ceil(a.size[0] * 64 / 32), gh = Math.ceil(a.size[1] * 64 / 32), walk = new Uint8Array(gw * gh);
   for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) walk[y * gw + x] = test(x * 32 + 16, y * 32 + 16) ? 1 : 0;
-  return { pal, floorPath, regions, roads, land, water, waterPath, edges, walk, gw, gh };
+  return { pal, floorPath, holeClip, regions, roads, land, water, waterPath, edges, walk, gw, gh };
 }
 function nearWalk(p: Prep, x: number, y: number, up: number, side = 70): boolean {
   for (let yy = y - up; yy <= y + 60; yy += 32) for (let xx = x - side; xx <= x + side; xx += 32) {
@@ -355,7 +361,8 @@ function* paintChunk(c: Paint, a: AdventureData, p: Prep, x0: number, y0: number
     }
   }
   yield;
-  // 4. walkable ground: base, regions and roads (soft edges), macro variation
+  // 4. walkable ground: base, regions and roads (soft edges), macro variation; never inside an open-field hole
+  c.save(); if (p.holeClip) c.clip(p.holeClip, 'evenodd');
   c.save(); c.clip(p.floorPath); c.fillStyle = pattern(c, pal.walk); c.fillRect(x0, y0, CHUNK, CHUNK); c.restore();
   yield;
   // Natural surfaces first, then macro variation, then paved surfaces (bridges, yards, floors stay clean of grass and snow).
@@ -394,6 +401,7 @@ function* paintChunk(c: Paint, a: AdventureData, p: Prep, x0: number, y0: number
     }
   }
   c.restore();
+  c.restore(); // the hole clip
   yield;
   // 5. soft rims: a shadow strip beyond every dry edge, foam on wet edges, stones and tufts along the line; bridge rails
   for (const e of p.edges) {
@@ -463,12 +471,16 @@ export class ZoneGround extends Container {
   private serial = 0;
   private job: Job | null = null;
   private prep: Prep;
+  private cols: number; private rows: number;
+  /** A camera path painted ahead of time (reveal pans) and kept until released; destination first. */
+  private ahead: [number, number][] = [];
+  private pinned = new Set<string>();
   constructor(private a: AdventureData) {
     super();
     this.prep = prepare(a);
     const cx = Math.floor(a.geometry.entry.x / CHUNK), cy = Math.floor(a.geometry.entry.y / CHUNK);
     for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 2; x <= cx + 2; x++) if (x >= 0 && y >= 0) this.finish(this.start(x, y));
-    const cols = Math.ceil(a.size[0] * 64 / CHUNK), rows = Math.ceil(a.size[1] * 64 / CHUNK);
+    const cols = this.cols = Math.ceil(a.size[0] * 64 / CHUNK), rows = this.rows = Math.ceil(a.size[1] * 64 / CHUNK);
     this.onRender = (r: Renderer) => {
       const m = this.getGlobalTransform(this.matrix, false), s = r.screen;
       const minX = Math.floor(-m.tx / m.a / CHUNK), minY = Math.floor(-m.ty / m.d / CHUNK);
@@ -482,12 +494,33 @@ export class ZoneGround extends Container {
       list.sort((q, w) => (onScreen(q) ? 0 : 100) + Math.abs(q[0] - mid[0]) + Math.abs(q[1] - mid[1]) - ((onScreen(w) ? 0 : 100) + Math.abs(w[0] - mid[0]) + Math.abs(w[1] - mid[1])));
       for (const q of list) { const tile = this.tiles.get(`${q[0]},${q[1]}`); if (tile) tile.used = this.serial; else this.wanted.push(q); }
       for (const q of this.wanted) if (onScreen(q)) { this.syncBakes++; this.finish(this.job?.key === `${q[0]},${q[1]}` ? this.job : this.start(q[0], q[1])); }
+      const pending = this.ahead.filter(([x, y]) => !this.tiles.has(`${x},${y}`)); this.wanted.push(...pending);
       for (const tile of this.tiles.values()) { const x = tile.x * m.a + m.tx, y = tile.y * m.d + m.ty; tile.sprite.visible = x < s.width && x + CHUNK * m.a > 0 && y < s.height && y + CHUNK * m.d > 0; }
-      while (this.tiles.size > cap) if (!this.evict()) break;
+      while (this.tiles.size > cap + this.pinned.size) if (!this.evict()) break;
       this.work(3);
     };
     this.on('destroyed', () => { this.job = null; this.tiles.clear(); });
   }
+  /**
+   * Reveal pans (render/scene.ts): paint the chunks along a camera move ahead of time, destination first, and keep them
+   * until `release()`. Without this a 4000 u pan painted ~50 chunks synchronously, frames up to 176 ms on an RTX 4070
+   * laptop (measured 2026-10-12, .local/scn/pan-perf.mjs).
+   */
+  prefetch(from: { x: number; y: number }, to: { x: number; y: number }, halfW: number, halfH: number) {
+    const keys = new Map<string, [number, number]>();
+    // the destination with a one-chunk margin (it holds there), the way there without one
+    const view = (cx: number, cy: number, m: number) => {
+      for (let y = Math.floor((cy - halfH) / CHUNK) - m; y <= Math.floor((cy + halfH) / CHUNK) + m; y++)
+        for (let x = Math.floor((cx - halfW) / CHUNK) - m; x <= Math.floor((cx + halfW) / CHUNK) + m; x++)
+          if (x >= 0 && y >= 0 && x < this.cols && y < this.rows) keys.set(`${x},${y}`, [x, y]);
+    };
+    const n = Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / (CHUNK / 2));
+    for (let i = n; i >= 0; i--) view(from.x + ((to.x - from.x) * i) / Math.max(1, n), from.y + ((to.y - from.y) * i) / Math.max(1, n), i === n ? 1 : 0);
+    this.ahead = [...keys.values()]; this.pinned = new Set(keys.keys());
+  }
+  /** Prefetched chunks not painted yet. */
+  get pendingAhead(): number { return this.ahead.reduce((n, [x, y]) => n + (this.tiles.has(`${x},${y}`) ? 0 : 1), 0); }
+  release() { this.ahead = []; this.pinned.clear(); }
   private work(budget: number) {
     const began = performance.now();
     while (performance.now() - began < budget) {
@@ -516,7 +549,7 @@ export class ZoneGround extends Container {
   }
   private evict(): boolean {
     let oldest: string | undefined, age = Infinity;
-    for (const [k, v] of this.tiles) if (!v.sprite.visible && v.used < age) { oldest = k; age = v.used; }
+    for (const [k, v] of this.tiles) if (!v.sprite.visible && v.used < age && !this.pinned.has(k)) { oldest = k; age = v.used; }
     if (!oldest) return false;
     this.tiles.get(oldest)!.sprite.destroy(); this.tiles.delete(oldest); return true;
   }

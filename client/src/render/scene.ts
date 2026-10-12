@@ -31,6 +31,7 @@ import { PoiView, ZoneCritters, zoneAsTown } from './art/zoneLife';
 import { inPolygon } from '@shared/townGeometry';
 import { baselineY } from '@shared/townDepth';
 import { motionReduced, preferences } from '../game/preferences';
+import { ZoneGround } from './art/zoneGround';
 import { QuestGuide } from './questGuide';
 import { BarkBubbles, type Speaker } from './barks';
 import { BARKS } from '@shared/data/barks';
@@ -89,7 +90,8 @@ export class Scene {
   /** Town reflects the hero's systems (F-WLD-06): Reliquary unlocks at the artisans, bought stash tabs at the vault. */
   private townProgress:TownProgressView|null=null;
   /** Story presentation (F-QST-08): a short camera pan to a world change that just happened (docs/rework/quests/DESIGN.md §7). */
-  private revealPan:{x:number;y:number;t:number}|null=null;
+  private revealPan:{x:number;y:number;t:number;asked:number}|null=null;
+  private zoneGround:ZoneGround|null=null;
   onReveal:((key:string)=>void)|null=null;
   private barks=new BarkBubbles();
   /** Ambient speakers: statics with lines plus visual-only residents (filled by setMap / TownLife). */
@@ -145,7 +147,7 @@ export class Scene {
     this.townLife?.destroy();this.townLife=null;
     this.adventureLife?.destroy();this.adventureLife=null;
     this.critters?.destroy();this.critters=null;
-    this.phases?.destroy();this.phases=null;this.revealPan=null;
+    this.phases?.destroy();this.phases=null;this.revealPan=null;this.zoneGround=null;
     this.townProgress?.destroy();this.townProgress=null;
     this.root.tint=map.town?.lighting?.ambient??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
@@ -164,6 +166,7 @@ export class Scene {
     if (this.collisionOverlay) { this.collisionOverlay.visible = this.showCollision; this.aboveFx.addChild(this.collisionOverlay); }
     const layers = buildMapLayers(map);
     this.ground.addChild(layers.ground);
+    this.zoneGround=layers.ground.children.find((c):c is ZoneGround=>c instanceof ZoneGround)??null;
     this.decals.addChild(layers.decals);
     for (const p of layers.sorted) {
       p.view.zIndex = p.y;
@@ -337,12 +340,17 @@ export class Scene {
     if (zoom !== this.cam.zoom) { this.cam.zoom = zoom; setViewScale(zoom * this.app.renderer.resolution); }
     // Camera follows the predicted player with a small movement lead.
     if (this.revealPan) {
-      // Pan out, hold, then hand the camera back to the hero; moving cancels the hold.
-      const t = (now - this.revealPan.t) / 1000, k = 1 - Math.exp(-dtMs / 260);
-      if (t > 2.6 || (t > 0.6 && me?.moving)) this.revealPan = null;
-      else { this.cam.x += (this.revealPan.x - this.cam.x) * k; this.cam.y += (this.revealPan.y - this.cam.y) * k; }
+      // Wait until the ground along the way is painted (≤ 1.5 s), pan out, hold, then hand the camera back to the hero;
+      // moving cancels the hold. The world change starts as the camera leaves, so it plays when the camera gets there.
+      const p = this.revealPan;
+      if (!p.t) { if (!this.zoneGround || this.zoneGround.pendingAhead === 0 || now - p.asked > 1500) { p.t = now; this.phases?.start(650, p); } }
+      else {
+        const t = (now - p.t) / 1000, k = 1 - Math.exp(-dtMs / 260);
+        if (t > 3.4 || (t > 1.0 && me?.moving)) { this.revealPan = null; this.zoneGround?.release(); }
+        else { this.cam.x += (p.x - this.cam.x) * k; this.cam.y += (p.y - this.cam.y) * k; }
+      }
     }
-    if (me && !this.revealPan) {
+    if (me && !this.revealPan?.t) {
       const lead = 0.14;
       const tx = me.x + Math.max(-70, Math.min(70, me.vx * lead));
       const ty = me.y + Math.max(-50, Math.min(50, me.vy * lead));
@@ -400,7 +408,14 @@ export class Scene {
       // World states first: people may have moved, appeared or gone (phasing), and changes may deserve a reveal.
       const turnedOn=this.phases?.refresh(questSave)??[];
       this.townProgress?.refresh(questSave);
-      if(!firstStamp&&turnedOn.length&&this.phases){const at=this.phases.revealPoint(turnedOn[0]);if(at)this.reveal(at.x,at.y);this.onReveal?.(turnedOn[0]);}
+      // The change plays where it happens: the camera pans there only when the spot is off-screen, and the change waits
+      // until it arrives (worldPhases.start); on-screen it starts at once.
+      if(!firstStamp&&this.phases){
+        const at=turnedOn.length?this.phases.revealPoint(turnedOn[0],me?{x:me.x,y:me.y}:undefined):undefined;
+        const seen=!!at&&Math.abs(at.x-this.cam.x)<halfW*0.7&&Math.abs(at.y-this.cam.y)<halfH*0.7;
+        if(!(at&&!seen&&this.reveal(at.x,at.y,halfW,halfH)))this.phases.start(150,at);
+        if(turnedOn.length)this.onReveal?.(turnedOn[0]);
+      }
       const zone=this.map?.zone??'',rows=questSave?trackerQuests(questSave,zone):[];
       for(const s of this.statics)if(s.questBadge&&s.npcId&&this.map) {
         const spot=contactSpot(this.map.adventure,s.npcId,questSave);
@@ -495,9 +510,11 @@ export class Scene {
 
   /** Nearest static NPC / map portal within interaction range of (x, y). */
   /** Pan the camera to a world change for a moment (F-QST-08 story presentation); skipped for reduced motion. */
-  reveal(x: number, y: number) {
-    if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    this.revealPan = { x, y, t: performance.now() };
+  reveal(x: number, y: number, halfW = 960, halfH = 540): boolean {
+    if (motionReduced()) return false;
+    this.zoneGround?.prefetch(this.cam, { x, y }, halfW, halfH);
+    this.revealPan = { x, y, t: 0, asked: performance.now() };
+    return true;
   }
 
   nearestInteractable(x: number, y: number): StaticView | null {

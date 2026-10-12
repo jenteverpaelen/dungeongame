@@ -22,19 +22,28 @@ for(const zone of ['rillwake_crossing','bracken_sluice'])test(`${zone}: determin
   console.log(JSON.stringify({routeUnits:length,walkingSecondsWithoutCombat:length/BASE_MOVE_SPEED,encounters:a.encounters.length,members:a.encounters.reduce((s,e)=>s+e.members.length,0)}));
 });
 
-// Layout moved in the worlds rebuild (docs/rework/worlds/DECISIONS.md D-W07): positions now come from the zone data.
-test('exact shore, mill walls and bridge edges stop movement and rays; doorway remains open',()=>{
+// Open-field rebuild (2026-10-12, docs/rework/worlds/OPEN.md): positions come from the zone data, bridges cross the
+// rivers at any angle, and the mill is a house with its wheel on the race (no interior, so no doorway to check).
+test('exact shore, bridge edges and mill walls stop movement and rays; the wheel stands on the mill',()=>{
   const map=generateMap('rillwake_crossing',1),cw=new CollisionWorld(map),a=map.adventure!;
-  const bridge=a.paths.find(p=>p.bridge)!,b0=bridge.points[0],b1=bridge.points[bridge.points.length-1],mid=[(b0[0]+b1[0])/2,(b0[1]+b1[1])/2];
-  const water=[mid[0],mid[1]-260];
-  assert(!cw.isFree(water[0],water[1],16),'water');
-  assert(cw.isFree(mid[0],mid[1],16),'bridge');
-  const edge=cw.moveCircle(mid[0],mid[1],16,0,-600);assert(edge.y>=mid[1]-bridge.width/2-1e-3,'no dash off the bridge');
-  assert(cw.segmentBlocked(mid[0],mid[1],water[0],water[1]));
-  const ledger=a.interactions.find(i=>i.id==='ledger')!,north=Math.min(...a.geometry.buildings.map(b=>Math.max(...b.footprint.map(p=>p[1]))).filter(y=>y<ledger.y));
+  const bridges=a.paths.filter(p=>p.bridge);assert(bridges.length>=3,'two Rill bridges and the race bridge');
+  for(const bridge of bridges){
+    const b0=bridge.points[0],b1=bridge.points[bridge.points.length-1],mid=[(b0[0]+b1[0])/2,(b0[1]+b1[1])/2],l=Math.hypot(b1[0]-b0[0],b1[1]-b0[1]);
+    let nx=-(b1[1]-b0[1])/l,ny=(b1[0]-b0[0])/l;if(ny>0){nx=-nx;ny=-ny;} // across the deck
+    const water=[mid[0]+nx*260,mid[1]+ny*260];
+    assert(!cw.isFree(water[0],water[1],16),'water');
+    assert(cw.isFree(mid[0],mid[1],16),'bridge');
+    const edge=cw.moveCircle(mid[0],mid[1],16,nx*600,ny*600);assert((edge.x-mid[0])*nx+(edge.y-mid[1])*ny<=bridge.width/2+1e-3,'no dash off the bridge');
+    assert(cw.segmentBlocked(mid[0],mid[1],water[0],water[1]));
+  }
+  const ledger=a.interactions.find(i=>i.id==='ledger')!;
+  const over=a.geometry.buildings.filter(b=>!b.hole&&Math.min(...b.footprint.map(p=>p[0]))<ledger.x&&Math.max(...b.footprint.map(p=>p[0]))>ledger.x);
+  const north=Math.max(...over.map(b=>Math.max(...b.footprint.map(p=>p[1]))).filter(y=>y<ledger.y));
+  assert(ledger.y-north<500,'the ledger stands in front of the mill');
   const wall=cw.moveCircle(ledger.x,ledger.y+60,16,0,-600);assert(wall.y>=north+16-1e-3,'no tunnel through mill wall');
   assert(cw.segmentBlocked(ledger.x,ledger.y+60,ledger.x,north-120));
-  const door=a.routes[2],inside=door[door.length-1],outside=door[door.length-2];
-  assert(!cw.segmentBlocked(outside[0],outside[1],inside[0],inside[1]),'open doorway');
-  assert(cw.isFree(inside[0],inside[1],16));
+  const st=a.paint!.structures!,wheel=st.find(s=>s.kind==='waterwheel')!,house=st.filter(s=>s.kind==='house').sort((p,q)=>Math.hypot(p.x-wheel.x,p.y-wheel.y)-Math.hypot(q.x-wheel.x,q.y-wheel.y))[0];
+  assert(!cw.isFree(wheel.x,wheel.y-wheel.d/2,16),'the wheel is solid');
+  assert(Math.abs(wheel.x-wheel.w/2-(house.x+house.w/2))<40,'the wheel stands on the mill wall');
+  const brake=a.interactions.find(i=>i.id==='mill_brake')!;assert(Math.hypot(brake.x-wheel.x,brake.y-wheel.y)<300,'the brake stands at the wheel');
 });

@@ -1,0 +1,88 @@
+# Open fields — the 2026-10-12 rebuild of the field zones
+
+Owner, 2026-10-12: remove the old 1–70 fields and the quest maps made so far ("those circle areas and narrow roads"),
+and build "huge square open maps" like Diablo and Path of Exile, with bigger and more varied packs ("real density").
+Quest moments that pan the camera must show something ("it took my camera somewhere … and nothing was happening
+there"; the mill reveal zoomed on "a round spinning thing in the trees"). Objects must not float or stand in walls.
+
+Status: **Rillwake Crossing is the prototype**, waiting for the owner's look. The other eleven zones follow the same kit
+after that, and the two old fields (Whispering Glade, Ashen Hollow) go once the bots, pace gate, parity arena and AFK
+bands that use them have moved (see §6).
+
+## 1. Evidence (REFERENCES W9–W11, plus W2/W4/W5/W8)
+
+| What | Source | Use here |
+|---|---|---|
+| D3 surface levels keep fixed outer borders, but their art and shape vary more than D2's squared-off edges; chests sit along the edges to reward exploring | W9 (Diablo Wiki *Levels*) | the field is the whole map inset by a margin, its border pulled in by smooth noise; caches on the edges |
+| A D3 zone that is too large for its monster density feels empty (Desolate Sands complaint); dense zones with obstacles feel better | W10 (Blizzard forum) | size and density are set together; density is measured per screen |
+| PoE: after one pack, the next is "usually" 1–2 s of sprinting away; packs feel separate enough to avoid pulling neighbours | W11 (PoE forum, anecdote) | procedural packs about every 720 u (≈ 2.9 s at 250 u/s) with a clear radius around the entry |
+| Rift ≈ zone in 3–5 min; 3–4 min per bounty; "20 s of running" between packs is the bad case | W2, W4, W5 | unchanged route-time band |
+| Idle/MMO training maps 10–20 monsters per screen | W8 [UNVERIFIED] | upper bound only |
+
+Not found: published D3/PoE zone dimensions or monsters-per-screen. Sizes below are this game's own measurements.
+
+## 2. The kit (`shared/src/zoneKit.ts`)
+
+* `open({ margin, amp, ground, dress })` — one walkable field polygon (`fieldPoly`) over the whole map.
+* Obstacles are **holes** in it (`hole(kind, poly)`, building footprints with `hole: true`): `lake`, `river` (split
+  around each crossing: a plank bridge along the river normal, or a gravel ford), `ridge` (cliff band with passes).
+  Crossings and passes are authored by map point (`arcAt`), not by fraction of the line.
+* `area(id, at, r, { ground, role, roster, dress })` paints, dresses and names a part of the field; `grove` places
+  solid anchors; `fill({ roster, spacing, size, champion, rare, clear })` fills the rest with packs: 2–3 kinds of
+  trash per pack, champion packs (tier 1) and rares with minions (tier 2 + 3). The server rolls names and affixes
+  per spawn (`server/src/sim/spawner.ts`).
+* **Placement rules** (the "floating / in walls" fixes):
+  * A structure's whole footprint must stand on the floor and out of holes. Only waterwheels and boat wrecks may
+    touch water. A structure that cannot be placed is listed in `dropped`; it is never moved onto a void.
+  * Each structure keeps the space above its footprint **and** a strip in front of it clear of trees (a tree 250 u
+    south of the wheel hid its lower half).
+  * The outer tree band skips structure footprints and the space they keep clear: a footprint is "not ground" too,
+    and before this fix its edges grew trees inside the mill house and in front of the wheel.
+  * `settleProps` (open fields only): solid props and people stand on walkable ground; decor stands on ground, in a
+    260 u strip outside the field (edge trees), or on water when it is a water thing; decor standing in a wall is
+    removed, not nudged out (nudged, it stood right in front of the house). Anything else moves ≤ 200 u or is dropped.
+
+## 3. Rillwake Crossing, measured (`.local/bal/zone-check.ts`, 2026-10-12)
+
+| | Before (region-and-road layout) | Open field |
+|---|---|---|
+| Walkable area | 12.3 screens | **52.5 screens** (76 % of a 10 240 × 8 192 u map, 63.9 Mu²) |
+| Encounters / monsters | — | 72 / 466 (412 trash, 18 champions, 9 rares, 27 minions) |
+| Monsters per screen | — | **8.9** (below W8's 10–20 upper band) |
+| Props per walkable Mu² | 1.5–21 (REFERENCES §1) | **181** (855 solid, 10 734 decor) |
+| Authored things dropped | — | 0 (3 generated edge trees) |
+
+The mill is a house on the race's south bank with its wheel on the east wall, standing in the race mouth; the brake
+is beside the wheel. All quest ids, contacts and world states are unchanged.
+
+## 4. Quest reveals (render/worldPhases.ts, render/scene.ts)
+
+Before, a world change switched its visuals at once while the camera was still on its way, so the camera arrived at
+a finished scene ("nothing was happening there"). Now:
+
+1. The camera pans only when the spot is off-screen (outside 70 % of the half-view); on-screen the change starts
+   after 150 ms.
+2. For a pan, the ground along the way is painted first (`ZoneGround.prefetch`, ≤ 1.5 s, normal 3 ms/frame budget,
+   chunks pinned against eviction until the pan ends). Measured on the reveal path: a plain pan painted ~50 chunks
+   synchronously with frames up to 176 ms; with the prefetch, 0 synchronous paints and the worst frame 36–42 ms
+   (RTX 4070 laptop, headless Chrome, `.local/scn/reveal-perf.mjs`, `.local/scn/pan-perf.mjs`).
+3. The change starts as the camera leaves (+650 ms) and plays there: water drains (fades and pulls in from the banks,
+   2.4 s), new props settle in and people fade in (1.5 s), fires catch from small with a flare, wheels spin up and kilns
+   die down (`stateRamp`), and a gold ring and motes mark the spot (1.7 s). The one-line caption (`ws.*` quest messages)
+   shows as before.
+4. Reveal points frame one real spot: the biggest drained pool, or the cluster nearest the hero, never the middle of
+   several sites.
+
+All timings are **[P] placeholders** judged by eye at 1920×1080. Reduced motion skips the pan and the animation.
+
+## 5. Open owner decisions
+
+* Approve the Rillwake look and density before the other eleven zones are rebuilt.
+* Pack size: Rillwake uses 5–9 per filler pack; the plan for the rest is 6–12 with more varied rosters.
+
+## 6. Still to do
+
+* Rebuild bracken, pumpworks, cairnspill, cinderwash, kilnwatch, sablefen, saltwind, lockglass, shiverline,
+  beaconbreak and hollowstar with the kit.
+* Before removing Whispering Glade and Ashen Hollow, move the sim levelling bot, the pace gate, the parity-harness arena
+  (`whispering_glade`) and the AFK band references to the new zones.

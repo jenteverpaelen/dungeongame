@@ -29,7 +29,9 @@ export function bakeMapTerrain(map: MapData): Baked {
     const poly=(points:number[][],fill:string)=>{g.beginPath();points.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fillStyle=fill;g.fill();};
     for(const f of map.adventure.geometry.floors)poly(f.polygon,ash?`rgb(${pal.floor.join(',')})`:map.adventure.surface==='masonry'?'#6c7770':'#69705a');
     for(const p of map.adventure.paths){g.beginPath();p.points.forEach((a,i)=>i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]));g.strokeStyle='#b49d70';g.lineWidth=p.width;g.stroke();}
-    for(const b of map.adventure.geometry.buildings)poly(b.footprint,'#30383b');
+    // open-field holes read as what they are: water blue, cliffs dark rock
+    const holeLand=(b:{footprint:number[][]})=>map.adventure!.paint?.landscape.find(l=>l.polygon===b.footprint||(l.polygon.length===b.footprint.length&&l.polygon[0][0]===b.footprint[0][0]&&l.polygon[0][1]===b.footprint[0][1]));
+    for(const b of map.adventure.geometry.buildings){const k=b.hole?holeLand(b)?.kind:undefined;poly(b.footprint,k==='water'||k==='deep'?'#2f5d6e':k?'#3a3632':'#30383b');}
     return {map,key:mapKey(map),canvas:c};
   }
   if (map.town) {

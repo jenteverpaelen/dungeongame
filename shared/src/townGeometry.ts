@@ -4,7 +4,9 @@ import type { Point } from './townTypes';
 export interface GroundGeometry {
   entry: { x: number; y: number };
   floors: { polygon: Point[] }[];
-  buildings: { footprint: Point[]; interior?: { floors: Point[][] } }[];
+  /** Solid footprints. `hole`: a cut in an open field (lake, river reach, cliff, chasm): it blocks like a building, but
+   *  clients paint it as its landscape (water, rock) instead of drawing walls (shared/src/zoneKit.ts `hole`). */
+  buildings: { footprint: Point[]; interior?: { floors: Point[][] }; hole?: boolean }[];
   barriers: { a: Point; b: Point; radius: number }[];
   props: { x: number; y: number; radius: number }[];
   npcs: { x: number; y: number; r: number }[];

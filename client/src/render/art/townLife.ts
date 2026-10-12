@@ -110,6 +110,13 @@ export class TownLife {
     this.active = on; this.ground.visible = on; this.above.visible = on;
     if (!on) { for (const r of this.residents) r.view.root.visible = false; for (const w of this.walkers) w.view.root.visible = false; for (const m of this.motions) if (m.root.parent === this.entities) m.root.visible = false; }
   }
+  /** Quest reveals (render/worldPhases.ts): the whole population fades in or out as one. */
+  setAlpha(a: number) {
+    this.ground.alpha = a; this.above.alpha = a;
+    for (const r of this.residents) r.view.root.alpha = a;
+    for (const w of this.walkers) w.view.root.alpha = a;
+    for (const m of this.motions) if (m.root.parent === this.entities) m.root.alpha = a;
+  }
   update(dt: number, time: number, cx: number, cy: number, halfWidth: number, halfHeight: number) {
     if (!this.active) return;
     for (const l of this.lightSprites) {

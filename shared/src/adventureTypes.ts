@@ -49,6 +49,8 @@ export interface ZonePoi { id: string; kind: 'shrine' | 'cache'; name: string; x
 
 export interface AdventureData {
   id: string;
+  /** Authoring diagnostics: things the zone kit could not place on real ground (open fields; tests keep it empty). */
+  dropped?: string[];
   theme?: 'glade' | 'ashen';
   paint?: ZonePaint;
   pois?: ZonePoi[];
@@ -77,7 +79,7 @@ export interface AdventureData {
     when?: string;
     /** Phased positions: the first entry whose world state is on wins; otherwise x/y (per player, server-checked). */
     moves?: { key: string; x: number; y: number }[] }[];
-  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 2; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace' | 'cistern' | 'relay'; affixes?: string[] }[] }[];
+  encounters: { id: string; x: number; y: number; members: { type: string; dx: number; dy: number; tier?: 0 | 1 | 2 | 3; name?: string; questTarget?: boolean; combat?: 'keeper' | 'furnace' | 'cistern' | 'relay'; affixes?: string[] }[] }[];
   landmarks: { name: string; x: number; y: number }[];
   locations: { id: string; x: number; y: number; radius: number }[];
   wheel?: { x: number; y: number; radius: number; spin?: string };

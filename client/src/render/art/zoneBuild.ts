@@ -12,7 +12,7 @@ import { rotorArt, structureArt } from './zoneStructures';
 import { ZoneGround, ZONE_PAL } from './zoneGround';
 import { prewarmMonsters } from './monsters';
 import { summonRigs } from './summons';
-import { activeWorldStates } from '../worldStateFlags';
+import { stateRamp } from '../worldStateFlags';
 
 const DENSITY = 1.6;
 const cache = new Map<string, Texture>();
@@ -94,7 +94,7 @@ export function buildZone(map: MapData): MapLayers {
       const r = art.rotor, rotor = new Sprite(texture(`rotor:${r.kind}:${r.r}`, rotorArt(r.kind, r.r))); rotor.anchor.set(0.5); rotor.position.set(r.x, r.y); root.addChild(rotor);
       const speed = r.kind === 'sails' ? 0.35 : -0.7, spin = st.spin;
       // A structure tied to a world state (e.g. the weir wheel) stands still until the player's quest frees it.
-      if (spin) { let last = performance.now(); root.onRender = () => { const now = performance.now(); if (activeWorldStates.has(spin)) rotor.rotation += ((now - last) / 1000) * speed; last = now; }; }
+      if (spin) { let last = performance.now(); root.onRender = () => { const now = performance.now(); rotor.rotation += ((now - last) / 1000) * speed * stateRamp(spin, now, 2200); last = now; }; }
       else root.onRender = () => { rotor.rotation = (performance.now() / 1000) * speed; };
     }
     sorted.push({ view: root, y: st.y, bounds: { x0: st.x + art.box.x0, x1: st.x + art.box.x1, y0: st.y + art.box.y0, y1: st.y + art.box.y1 }, building: `fade:st${i}` });

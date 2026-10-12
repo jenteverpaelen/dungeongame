@@ -163,10 +163,16 @@ export class Spawner {
     const authored = inst.map.adventure?.encounters[i];
     if (authored) {
       const pack: Pack = { id:packSeq++,kind:'custom',alive:0,slot:i,itemFor:null };
+      // Open-field packs (zoneKit fill) carry tiers only: a champion pack shares one rolled name and two affixes, a rare
+      // elite gets its own name and 2-3 affixes (+1 from Ordeal I), re-rolled at every spawn like the field spawner.
+      const rolled = authored.members.some((m) => (m.tier === 1 || m.tier === 2) && !m.name && !m.affixes);
+      const packName = rolled ? eliteName(inst.rng) : undefined;
+      const packAffixes = rolled ? rollEliteAffixes(inst.rng, authored.members.some((m) => m.tier === 2) ? inst.rng.int(2, 3) + (diff >= 4 ? 1 : 0) : 2) : undefined;
       for(const member of authored.members) {
         const def=MONSTERS[member.type], x=s.x+member.dx, y=s.y+member.dy;
         if(!def || !inst.cw.isFree(x,y,def.radius))throw new Error(`Invalid authored spawn ${authored.id}/${member.type}`);
-        const m=createMob(inst,def,level,x,y,{tier:member.tier??0,combat:member.combat,affixes:member.affixes,name:member.name,pack,dormant,players:playersFor(inst,x,y),difficulty:diff});
+        const elite=(member.tier===1||member.tier===2)&&!member.name&&!member.affixes;
+        const m=createMob(inst,def,level,x,y,{tier:member.tier??0,combat:member.combat,affixes:member.affixes??(elite?packAffixes:undefined),name:member.name??(elite?packName:undefined),pack,dormant,players:playersFor(inst,x,y),difficulty:diff});
         m.adventureSite=authored.id;
         if(member.questTarget)m.adventureTarget=authored.id;
         pack.alive++;
