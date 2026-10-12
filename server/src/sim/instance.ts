@@ -26,6 +26,7 @@ import type { EvRec, Ground, Mob, Player, PortalEnt, Proj, Summon } from './type
 
 import { boundedCombat } from '../../../shared/src/combatBounds';
 import { addBuff } from './effects';
+import { SHRINES, SHRINE_BUFF_MS, SHRINE_COOLDOWN_MS, shrineNotice } from '../../../shared/src/shrines';
 import { buildSheet } from './breakdown';
 import { benchCommand } from './bench';
 import { dropFor } from './loot';
@@ -33,12 +34,8 @@ import { encounterDifficulty } from './monsters';
 /** Shrine and cache cooldowns per character, zone and object (wall clock), shared by every channel of a zone so hopping
  *  channels cannot reopen a cache. Shrines: D3's 120 s buffs (docs/rework/worlds/REFERENCES W1), combat effects only. */
 const POI_READY = new Map<string, number>();
-const SHRINE = {
-  empowered: { buff: { dmg: 25 }, text: 'Hearthfire Altar: +25% damage for 2 minutes' },
-  frenzied: { buff: { ias: 25 }, text: 'Quickening Altar: +25% attack speed for 2 minutes' },
-  keen: { buff: { chc: 10 }, text: 'Keen Altar: +10% critical chance for 2 minutes' },
-} as const;
-export const SHRINE_COOLDOWN_MS = 180_000, CACHE_COOLDOWN_MS = 600_000;
+export { SHRINE_COOLDOWN_MS };
+export const CACHE_COOLDOWN_MS = 600_000;
 const TICK_HISTORY = 100; // ~5 s at 20 Hz
 
 interface DmgAgg { owner: number; src: number; a: number; best: number; crit: boolean; dot: boolean; el: number; k: boolean; x: number; y: number }
@@ -423,18 +420,18 @@ export class Instance implements InstanceApi {
   }
 
   /** Shrines and caches (docs/rework/worlds/DESIGN.md §1). A cache rolls exactly one rare elite's drop at the zone level. */
-  usePoi(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string } {
+  usePoi(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string; data?: Record<string, unknown> } {
     const poi = this.map.adventure?.pois?.find((q) => q.id === id), p = this.byLink.get(link);
     if (!poi) return { ok: false, err: 'Nothing to use here' };
     if (!p || !this.canInteract(link, poi.x, poi.y, poi.radius)) return { ok: false, err: 'Stand beside it while alive' };
     const key = p.save.id + '|' + this.map.zone + '|' + poi.id, now = Date.now(), ready = POI_READY.get(key) ?? 0;
-    if (now < ready) return { ok: false, err: poi.name + ' is spent; it recovers in ' + Math.ceil((ready - now) / 1000) + ' s' };
+    if (now < ready) return { ok: false, err: poi.name + ' is spent; it recovers in ' + Math.ceil((ready - now) / 1000) + ' s', data: { readyIn: ready - now } };
     if (POI_READY.size > 50_000) for (const [k, v] of POI_READY) if (v <= now) POI_READY.delete(k);
     if (poi.kind === 'shrine') {
-      const s = SHRINE[poi.shrine ?? 'empowered'];
-      addBuff(p, { id: 'shrine_' + (poi.shrine ?? 'empowered'), ms: 120_000, ...s.buff });
+      const kind = poi.shrine ?? 'empowered';
+      addBuff(p, { id: 'shrine_' + kind, ms: SHRINE_BUFF_MS, ...SHRINES[kind].buff });
       POI_READY.set(key, now + SHRINE_COOLDOWN_MS);
-      return { ok: true, data: { text: s.text, readyIn: SHRINE_COOLDOWN_MS } };
+      return { ok: true, data: { text: shrineNotice(kind), readyIn: SHRINE_COOLDOWN_MS } };
     }
     const [lo, hi] = this.def.levelBand, level = Math.max(lo, Math.min(hi, p.save.level));
     dropFor(this, p, poi.x, poi.y + 40, level, 2, encounterDifficulty(this, p));

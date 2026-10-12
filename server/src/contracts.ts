@@ -79,7 +79,7 @@ export interface InstanceApi {
   /** QA teleport inside this instance (debug servers only); refuses blocked ground. */
   debugWarp?(link: PlayerLink, x: number, y: number): string | null;
   /** Optional world object (shrine, cache) used in person; validated by the instance. */
-  usePoi?(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string };
+  usePoi?(link: PlayerLink, id: string): { ok: true; data?: Record<string, unknown> } | { ok: false; err: string; data?: Record<string, unknown> };
   riftState(): RiftState | null;
   /** Broadcast an event/notice to every player in the instance. */
   notice(text: string, kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn'): void;

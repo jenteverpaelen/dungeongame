@@ -483,7 +483,7 @@ export class Game {
       const view = s.view as unknown as { setUsed?(ms: number): void };
       void this.conn?.cmd('quest', { action: 'poi', target: s.poiId }).then((r) => {
         const data = r.data as { text?: string; readyIn?: number } | undefined;
-        if (r.ok) { view.setUsed?.(data?.readyIn ?? 0); if (data?.text) pushNotice(data.text, 'info'); } else if (r.err) pushNotice(r.err, 'warn');
+        if (r.ok) { view.setUsed?.(data?.readyIn ?? 0); if (data?.text) pushNotice(data.text, 'info'); } else { if (data?.readyIn) view.setUsed?.(data.readyIn); if (r.err) pushNotice(r.err, 'warn'); }
       });
       return;
     }

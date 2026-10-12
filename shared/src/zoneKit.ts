@@ -6,6 +6,7 @@ import type { NpcRole, NpcSpot, Portal, Prop } from './mapgen';
 import { TownCollision } from './townCollision';
 import { groundBoundary, groundTester, inPolygon, type GroundGeometry } from './townGeometry';
 import { MONSTERS } from './data/monsters';
+import { SHRINES } from './shrines';
 
 type Kind = AdventureData['interactions'][number]['kind'];
 type Member = AdventureData['encounters'][number]['members'][number];
@@ -204,8 +205,7 @@ export class ZoneBuilder {
   landmark(name: string, x: number, y: number) { this.landmarks.push({ name, x, y }); }
   event(id: string, name: string, trigger: string, encounter: string, blurb: string, action: string) { this.events.push({ id, name, trigger, encounter, blurb, action }); }
   shrine(id: string, x: number, y: number, kind: NonNullable<ZonePoi['shrine']>) {
-    const names = { empowered: 'Hearthfire Altar', frenzied: 'Quickening Altar', keen: 'Keen Altar' } as const;
-    this.pois.push({ id, kind: 'shrine', name: names[kind], x, y, radius: 110, shrine: kind }); this.reserve(x, y, 110);
+    this.pois.push({ id, kind: 'shrine', name: SHRINES[kind].name, x, y, radius: 110, shrine: kind }); this.reserve(x, y, 110);
     this.light(x, y - 30, kind === 'empowered' ? 0xff9a5a : kind === 'frenzied' ? 0x9ad8ff : 0xd8b0ff, 160);
   }
   cache(id: string, x: number, y: number, name = 'Hidden cache') { this.pois.push({ id, kind: 'cache', name, x, y, radius: 110 }); this.reserve(x, y, 100); }

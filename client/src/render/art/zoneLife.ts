@@ -5,6 +5,7 @@ import { Container, Graphics, Sprite, Texture } from 'pixi.js';
 import { glowSprite } from './fx';
 import { nameLabel } from './npcs';
 import type { AdventureData } from '@shared/adventureTypes';
+import { SHRINES, SHRINE_BUFF_MS } from '@shared/shrines';
 import type { TownData } from '@shared/townTypes';
 import { ellipse, INK, line, poly, type Paint } from './townKit';
 import { ambientShare } from '../../game/quality';
@@ -152,6 +153,10 @@ export function poiArt(kind: 'shrine' | 'cache', shrine?: string): (c: Paint) =>
 }
 function rrectLock(c: Paint) { c.fillStyle = '#d8b54a'; c.fillRect(-4, -26, 8, 9); c.strokeStyle = INK; c.lineWidth = 1; c.strokeRect(-4, -26, 8, 9); }
 
+/** Buff line colours: the shrine glow lifted toward white so the small text stays readable on grass and stone. */
+const EFFECT_COLOR = { empowered: 0xffb88c, frenzied: 0xa6deff, keen: 0xdcc0ff } as const;
+const SPENT_COLOR = 0xa49c90;
+
 /** Scene view for a point of interest (EntityView contract; never hit, never dies). */
 export class PoiView {
   readonly root = new Container();
@@ -166,17 +171,36 @@ export class PoiView {
     const color = poi.kind === 'cache' ? 0xffd27a : poi.shrine === 'empowered' ? 0xff9a5a : poi.shrine === 'frenzied' ? 0x7ad0ff : 0xc8a0ff;
     this.glow = glowSprite(color, poi.kind === 'cache' ? 90 : 150, 0.5, true); this.glow.position.set(0, poi.kind === 'cache' ? -24 : -60); this.root.addChild(this.glow);
     this.height = poi.kind === 'cache' ? 46 : 96;
-    this.plate = nameLabel(poi.name, -this.height - 14, 0xf2e8d5); this.plate.visible = false; this.root.addChild(this.plate);
+    // Always-on label (owner 2026-10-12: shrines must say what they offer): name, and for shrines the buff on a second
+    // line in the shrine's colour; while spent it shows the time until it returns (re-rendered once a second at most).
+    const shrine = poi.kind === 'shrine' ? SHRINES[poi.shrine ?? 'empowered'] : null;
+    this.plate = nameLabel(poi.name, -this.height - (shrine ? 31 : 14), 0xf2e8d5); this.root.addChild(this.plate);
+    if (shrine) {
+      // The name a step above the 13 px service-NPC plates (npcs.ts), the offer at their size: it reads at a glance.
+      this.plate.style.fontSize = 14;
+      this.effectText = `${shrine.effect} · ${SHRINE_BUFF_MS / 60_000} min`;
+      this.effect = nameLabel(this.effectText, -this.height - 13, EFFECT_COLOR[poi.shrine ?? 'empowered']);
+      this.effect.style.fontSize = 13; this.root.addChild(this.effect);
+    }
     sp.on('destroyed', () => tex.destroy(true));
   }
+  private effect: import('pixi.js').Text | null = null;
+  private effectText = '';
+  private shownSec = -1;
   /** Server answered: show the used look until the cooldown it reported ends. */
   setUsed(readyInMs: number) { this.readyAt = performance.now() + readyInMs; }
   update(_dt: number, s: { time: number }) {
-    const ready = performance.now() >= this.readyAt;
+    const left = this.readyAt - performance.now(), ready = left <= 0;
     this.glow.alpha = ready ? 0.45 + Math.sin(s.time * 2.4 + this.poi.x) * 0.12 : 0.06;
-    this.plate.visible = false;
+    if (!this.effect) return;
+    const sec = ready ? 0 : Math.ceil(left / 1000);
+    if (sec === this.shownSec) return;
+    this.shownSec = sec;
+    this.effect.text = ready ? this.effectText : `Spent · returns in ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+    this.effect.style.fill = ready ? EFFECT_COLOR[this.poi.shrine ?? 'empowered'] : SPENT_COLOR;
+    this.plate.alpha = ready ? 0.92 : 0.6;
   }
-  showPlate(v: boolean) { this.plate.visible = v; }
+  showPlate(_v: boolean) { /* always shown */ }
   hit() { /* inert */ }
   die(_e: number, done: () => void) { done(); }
   destroy() { this.root.destroy({ children: true }); }

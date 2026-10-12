@@ -12,6 +12,7 @@ import { fmtInt } from '@shared/format';
 import { paragonXpToNext, xpToNext } from '@shared/progression';
 import type { BuffView } from '@shared/protocol';
 import type { ClassId } from '@shared/types';
+import { SHRINES } from '@shared/shrines';
 import { BuffGlyph, DashGlyph, SkillGlyph } from './Glyphs';
 import { HealthGlobe, ResourceGlobe } from './Globes';
 import { RESOURCE_STYLES, cap, clamp01, hex, useCooldownTotal } from './util';
@@ -151,10 +152,10 @@ const BUFF_META: Record<string, { name: string; shape: string; color: string }> 
   eternal_gyre: { name: 'Eternal Gyre', shape: 'shield', color: '#e0e0f0' },
   shield: { name: 'Shield', shape: 'shield', color: '#7fb4ff' },
   haste: { name: 'Haste', shape: 'bolt', color: '#ffe36a' },
-  // Field shrines (server/src/sim/instance.ts SHRINE): two minutes, combat only.
-  shrine_empowered: { name: 'Hearthfire Altar', shape: 'flame', color: '#ff7a4a' },
-  shrine_frenzied: { name: 'Quickening Altar', shape: 'bolt', color: '#ffe36a' },
-  shrine_keen: { name: 'Keen Altar', shape: 'crit', color: '#7fd3ff' },
+  // Field shrines (shared/src/shrines.ts): two minutes, combat only.
+  shrine_empowered: { name: SHRINES.empowered.name, shape: 'flame', color: '#ff7a4a' },
+  shrine_frenzied: { name: SHRINES.frenzied.name, shape: 'bolt', color: '#ffe36a' },
+  shrine_keen: { name: SHRINES.keen.name, shape: 'crit', color: '#7fd3ff' },
   // Warrior M1 (docs/rework/depth/WARRIOR.md §3–§7): colours follow the source skill / set motif.
   rend_haste: { name: 'Bloodletter’s Pace', shape: 'bolt', color: '#e0503c' },
   gale_stitched: { name: 'Gale-Stitched', shape: 'up', color: '#cfe6ee' },
