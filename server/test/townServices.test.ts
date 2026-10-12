@@ -45,7 +45,7 @@ test('every artisan/stash/shrine op rejects far, wrong NPC, spoofed position and
       f.near(role); const p = (f.s.rec!.inst as Instance).players[0]; p.deadMs = 500; p.hp = 0;
       assert.match(f.cmd(op as CmdOp).err!, /Stand beside/, `${op}: dead`);
     }
-    f.near('waypoint'); assert.equal(f.cmd('travel', { zone: 'whispering_glade' }).ok, true);
+    f.near('waypoint'); assert.equal(f.cmd('travel', { zone: 'rillwake_crossing' }).ok, true);
     for (const op of Object.keys(SERVICE_ROLE)) assert.match(f.cmd(op as CmdOp).err!, /Stand beside/, `${op}: field`);
     assert.equal(f.cmd('travel', { zone: 'hearthmere' }).ok, true, 'field return preserved');
   } finally { await f.world.shutdown(); }
@@ -152,10 +152,12 @@ test('solid walls block service access even inside interaction radius; travel ch
     f.at(wx+wall.nx*32,wy+wall.ny*32);
     assert.ok(64<n.interactionRadius,'failure must come from the wall, not distance');
     assert.match(f.cmd('stashDeposit', { itemId: 'fake' }).err!, /Stand beside/);
-    f.near('paragon'); assert.match(f.cmd('travel', { zone: 'whispering_glade' }).err!, /Stand beside/);
-    const p = inst.map.portals.find(p => p.to === 'whispering_glade')!; f.at(p.x, p.y);
-    assert.equal(f.cmd('travel', { zone: 'ashen_hollow' }).ok, false, 'wrong exit rejected');
-    assert.equal(f.cmd('travel', { zone: 'whispering_glade' }).ok, true); f.cmd('leave');
+    // the west gate leads to Rillwake Crossing (worlds DECISIONS D-W19: the old fields are retired)
+    f.near('paragon'); assert.match(f.cmd('travel', { zone: 'rillwake_crossing' }).err!, /Stand beside/);
+    const p = inst.map.portals.find(p => p.to === 'rillwake_crossing')!; f.at(p.x, p.y);
+    assert.equal(f.cmd('travel', { zone: 'bracken_sluice' }).ok, false, 'wrong exit rejected');
+    assert.equal(f.cmd('travel', { zone: 'whispering_glade' }).ok, false, 'retired fields stay closed');
+    assert.equal(f.cmd('travel', { zone: 'rillwake_crossing' }).ok, true); f.cmd('leave');
     f.near('obelisk'); assert.equal(f.cmd('riftOpen', { difficulty: 0 }).ok, true);
     f.near('paragon'); assert.match(f.cmd('riftEnter').err!, /Stand beside/);
     const town = f.s.rec!.inst as Instance, portal = town.portals.find(p => p.kind === 'portal')!;
