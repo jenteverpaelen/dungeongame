@@ -1315,17 +1315,17 @@ async function testWorld() {
   check('welcome is the first message and carries entity id + zone', townPlayers.every((p) => p.sent[0]?.t === 'welcome' && (p.sent[0] as { you: number }).you > 0));
   check('login placed everyone in a town zone', townPlayers.every((p) => (p.rec as { kind: string }).kind === 'town'));
 
-  // Fields: 31 players -> channel 1 takes 30, 31st opens channel 2; least-full thereafter.
+  // Fields (Rillwake Crossing: the retired Glade is closed to non-debug travel, worlds D-W19): 31 players -> channel 1 takes 30, 31st opens channel 2; least-full thereafter.
   const f = townPlayers.slice(0, 31);
-  const results = f.map((p) => world.travel(p as never, 'whispering_glade'));
-  let glade = channelsOf('whispering_glade');
+  const results = f.map((p) => world.travel(p as never, 'rillwake_crossing'));
+  let glade = channelsOf('rillwake_crossing');
   check('field channels cap at 30 and open a new channel when full', results.every((r) => r.ok) && glade.length === 2 && glade[0].players === 30 && glade[1].players === 1, glade);
-  const extra = world.travel(townPlayers[40] as never, 'whispering_glade');
-  glade = channelsOf('whispering_glade');
+  const extra = world.travel(townPlayers[40] as never, 'rillwake_crossing');
+  glade = channelsOf('rillwake_crossing');
   check('next arrival goes to the least-full channel (2)', extra.ok && glade[1].players === 2 && glade[0].players === 30, glade);
   const full = world.channel(townPlayers[40] as never, 1);
   check('switching into a full channel is refused', !full.ok && /full/.test(full.err ?? ''), full);
-  const ashen = world.travel(f[0] as never, 'ashen_hollow');
+  const ashen = world.travel(f[0] as never, 'cinderwash_kilns');
   check('field to field travel is refused (waypoint is in town)', !ashen.ok, ashen);
 
   // Leaving puts players back into their home town channel.
@@ -1336,9 +1336,9 @@ async function testWorld() {
   // Empty field channel 2 is destroyed after 5 minutes, channel 1 stays.
   for (const p of [f[30], townPlayers[40]]) world.leave(p as never);
   world.maintain(Date.now() + 4 * 60_000);
-  check('empty field channel 2 survives 4 minutes', channelsOf('whispering_glade').length === 2);
+  check('empty field channel 2 survives 4 minutes', channelsOf('rillwake_crossing').length === 2);
   world.maintain(Date.now() + 5 * 60_000 + 2_000);
-  glade = channelsOf('whispering_glade');
+  glade = channelsOf('rillwake_crossing');
   check('empty field channel 2 is destroyed after 5 minutes; channel 1 is kept', glade.length === 1 && glade[0].channel === 1, glade);
 
   // Rifts: destroyed 60 s after becoming empty; portal removed with it.
