@@ -175,7 +175,7 @@ export function normalizeSave(save: CharacterSave): CharacterSave {
   save.skillPoints = Math.floor(num(save.skillPoints, 0));
   save.difficulty = Math.floor(num(save.difficulty, 0, 0, 13));
   save.lastSeen = num(save.lastSeen, Date.now());
-  if (!ZONES[save.lastZone]) save.lastZone = 'hearthmere';
+  if (!ZONES[save.lastZone] || ZONES[save.lastZone].retired) save.lastZone = 'hearthmere'; // D-W19: retired fields send you home
 
   const m = (save.materials ??= { scrap: 0, dust: 0, crystal: 0, soul: 0, deathsBreath: 0 });
   for (const k of ['scrap', 'dust', 'crystal', 'soul', 'deathsBreath'] as const) m[k] = Math.floor(num(m[k], 0));

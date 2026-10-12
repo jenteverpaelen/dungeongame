@@ -31,7 +31,7 @@ export function bakeMapTerrain(map: MapData): Baked {
     for(const p of map.adventure.paths){g.beginPath();p.points.forEach((a,i)=>i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]));g.strokeStyle='#b49d70';g.lineWidth=p.width;g.stroke();}
     // open-field holes read as what they are: water blue, cliffs dark rock
     const holeLand=(b:{footprint:number[][]})=>map.adventure!.paint?.landscape.find(l=>l.polygon===b.footprint||(l.polygon.length===b.footprint.length&&l.polygon[0][0]===b.footprint[0][0]&&l.polygon[0][1]===b.footprint[0][1]));
-    for(const b of map.adventure.geometry.buildings){const k=b.hole?holeLand(b)?.kind:undefined;poly(b.footprint,k==='water'||k==='deep'?'#2f5d6e':k?'#3a3632':'#30383b');}
+    for(const b of map.adventure.geometry.buildings){const k=b.hole?holeLand(b)?.kind:undefined;poly(b.footprint,k==='water'||k==='deep'?'#2f5d6e':k==='reeds'?'#4a5a3a':k?'#3a3632':'#30383b');}
     return {map,key:mapKey(map),canvas:c};
   }
   if (map.town) {

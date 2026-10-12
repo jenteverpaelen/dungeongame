@@ -175,8 +175,8 @@ const npcs: TownData['npcs'] = [
 ];
 
 const portals: TownData['portals'] = [
-  { x: 1345, y: 1985, to: 'whispering_glade', label: 'To The Whispering Glade' },
-  { x: 5060, y: 2010, to: 'ashen_hollow', label: 'To Ashen Hollow' },
+  // D-W19: the old fields are retired; the west gate leads onto the Water Road (Act I starts in Rillwake Crossing).
+  { x: 1345, y: 1985, to: 'rillwake_crossing', label: 'To Rillwake Crossing' },
 ];
 
 // ─────────────────────────── solid props (circles) ───────────────────────────

@@ -72,7 +72,7 @@ export function WaypointPanel() {
   const world = useU((s) => s.world);
   const char = useU((s) => s.char);
   const [busy, setBusy] = useState<string | null>(null);
-  const zones = Object.values(ZONES).filter((z) => z.kind === 'town' || z.kind === 'field');
+  const zones = Object.values(ZONES).filter((z) => (z.kind === 'town' || z.kind === 'field') && !z.retired);
   const reachable = (z: ZoneDef) => z.id !== zone?.zone && (!char || (zoneUnlocked(char, z.id) && zoneLevelAllowed(char, z.id)));
   const [pick, setPick] = useState<string | null>(null);
   const selId = pick && zones.some((z) => z.id === pick) ? pick : (zones.find(reachable) ?? zones.find((z) => z.id === zone?.zone) ?? zones[0])?.id;

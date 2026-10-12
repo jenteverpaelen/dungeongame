@@ -3928,14 +3928,8 @@
   {
    "x": 1345,
    "y": 1985,
-   "to": "whispering_glade",
-   "label": "To The Whispering Glade"
-  },
-  {
-   "x": 5060,
-   "y": 2010,
-   "to": "ashen_hollow",
-   "label": "To Ashen Hollow"
+   "to": "rillwake_crossing",
+   "label": "To Rillwake Crossing"
   }
  ],
  "districts": [

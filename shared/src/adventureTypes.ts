@@ -4,8 +4,8 @@ import type { Prop, NpcSpot, Portal } from './mapgen';
 import type { Item } from './types';
 
 /** Zone biomes of the painted zone kit (docs/rework/worlds/DESIGN.md §1). */
-export type Biome = 'meadow' | 'sluice' | 'quarry' | 'kiln' | 'fen' | 'salt' | 'ridge' | 'ward' | 'pump' | 'cistern' | 'array';
-export type ZoneGroundKind = 'grass' | 'meadow' | 'dirt' | 'mud' | 'flag' | 'cobble' | 'planks' | 'stone' | 'moss' | 'sand' | 'ash' | 'cinder' | 'salt' | 'slate' | 'gravel' | 'garden' | 'tile';
+export type Biome = 'meadow' | 'sluice' | 'quarry' | 'highland' | 'kiln' | 'fen' | 'salt' | 'ridge' | 'ward' | 'pump' | 'cistern' | 'array';
+export type ZoneGroundKind = 'grass' | 'meadow' | 'dirt' | 'mud' | 'flag' | 'cobble' | 'planks' | 'stone' | 'moss' | 'sand' | 'ash' | 'cinder' | 'salt' | 'slate' | 'gravel' | 'garden' | 'tile' | 'drygrass' | 'snow';
 export type CritterKind = 'birds' | 'crows' | 'gulls' | 'butterflies' | 'fish' | 'bats' | 'rats' | 'hares' | 'deer' | 'moths' | 'frogs';
 /** Visual-only description of a painted zone. Collision never reads it; the server never sends it (both sides import it). */
 export interface ZonePaint {

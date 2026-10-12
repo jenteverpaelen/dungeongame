@@ -5,9 +5,9 @@ and build "huge square open maps" like Diablo and Path of Exile, with bigger and
 Quest moments that pan the camera must show something ("it took my camera somewhere … and nothing was happening
 there"; the mill reveal zoomed on "a round spinning thing in the trees"). Objects must not float or stand in walls.
 
-Status: **Rillwake Crossing is the prototype**, waiting for the owner's look. The other eleven zones follow the same kit
-after that, and the two old fields (Whispering Glade, Ashen Hollow) go once the bots, pace gate, parity arena and AFK
-bands that use them have moved (see §6).
+Status (2026-10-12): the owner approved the Rillwake prototype; all eight field zones are rebuilt with the kit (Act I:
+Rillwake, Bracken, Cairnspill, Cinderwash, Kilnwatch; Act II: Sablefen, Saltwind; Act III: Shiverline, Beaconbreak), and
+the two old fields are retired from the game world (DECISIONS D-W19). The three dungeons keep rooms and corridors.
 
 ## 1. Evidence (REFERENCES W9–W11, plus W2/W4/W5/W8)
 
@@ -55,6 +55,23 @@ Not found: published D3/PoE zone dimensions or monsters-per-screen. Sizes below 
 The mill is a house on the race's south bank with its wheel on the east wall, standing in the race mouth; the brake
 is beside the wheel. All quest ids, contacts and world states are unchanged.
 
+### All rebuilt fields (2026-10-12, `.local/bal/zone-check.ts`)
+
+| Zone (act) | Walkable screens | Monsters | Champions | Rares | Per screen |
+|---|---|---|---|---|---|
+| Rillwake Crossing (I) | 52.5 | 466 | 18 | 9 | 8.9 |
+| Bracken Sluice (I) | 50.8 | 617 | 19 | 9 | 12.1 |
+| Cairnspill Terraces (I) | 54.1 | 713 | 32 | 3 | 13.2 |
+| Cinderwash Kilns (I) | 54.7 | 763 | 19 | 8 | 13.9 |
+| Kilnwatch Crown (I) | 54.1 | 716 | 35 | 14 | 13.2 |
+| Sablefen Causeway (II) | 50.5 | 667 | 22 | 5 | 13.2 |
+| Saltwind Pans (II) | 54.8 | 656 | 51 | 10 | 12.0 |
+| Shiverline Escarpment (III) | 60.8 | 761 | 30 | 6 | 12.5 |
+| Beaconbreak Ward (III) | 59.0 | 745 | 13 | 8 | 12.6 |
+
+Rillwake keeps its approved 5–9 filler packs; the others use 6–12 (owner 2026-10-12). Every authored route is walkable,
+every quest object approachable, every phased prop stands against an edge (tests).
+
 ## 4. Quest reveals (render/worldPhases.ts, render/scene.ts)
 
 Before, a world change switched its visuals at once while the camera was still on its way, so the camera arrived at
@@ -82,7 +99,27 @@ All timings are **[P] placeholders** judged by eye at 1920×1080. Reduced motion
 
 ## 6. Still to do
 
-* Rebuild bracken, pumpworks, cairnspill, cinderwash, kilnwatch, sablefen, saltwind, lockglass, shiverline,
-  beaconbreak and hollowstar with the kit.
-* Before removing Whispering Glade and Ashen Hollow, move the sim levelling bot, the pace gate, the parity-harness arena
-  (`whispering_glade`) and the AFK band references to the new zones.
+* Measure XP, gold and items per hour in the new fields with the levelling bot (density is 9–14 monsters per screen,
+  above the old fields'); the pace gate itself stays on the retired Glade arena (D-W19).
+* Dungeons (Pumpworks, Lockglass, Hollowstar) keep their rooms-and-corridors layout; widen or vary them if the owner asks.
+
+## 7. Acts with their own vibe (owner 2026-10-12: "act 1 this rillwake vibe, act 2 maybe different and then act 3 too")
+
+Evidence: D3 swaps the whole setting per act — gloomy forests and graveyards, then bright sandy vistas and oases, then
+tundra and military structures (W12). D4 gives each region its own palette, weather, fog, props and materials, and
+sets its towns in warm tones against a cooler region (W13). Outdoors stay sharp and colourful so enemies read; dungeons
+keep the dark ambience (W14).
+
+| | Act I — Water Road & Upper Road (L1–20) | Act II — Salt Road (L20–35) | Act III — Ridge Signals (L35–50) |
+|---|---|---|---|
+| Setting | temperate river country rising into green highlands (the approved Rillwake look) | sun-bleached salt marsh and salt pans by the sea | snowbound heights, signal beacons and a fortified ward under siege |
+| Palette | greens, warm earth, grey stone | pale blonde and rust grasses, dark rocks, white crust, blue brine (W13 Dry Steppes) | snow, slate, dark pines; warm firelight only at beacons and camps (W13 Fractured Peaks) |
+| Light | neutral daylight (unchanged) | warm, high-key tint | cool blue tint |
+| Weather | none; mist over water | wind-blown dust and salt specks | falling snow |
+| Zones / biomes | Rillwake (meadow), Bracken (sluice), Pumpworks (dungeon); Cairnspill (quarry), Cinderwash and Kilnwatch become **highland**: green moor with the kilns scorching only their own yards | Sablefen (fen retuned to a golden brackish marsh), Saltwind (salt), Lockglass (dungeon) | Shiverline (ridge, snow ground), Beaconbreak (ward, snow on cobble), Hollowstar (dungeon) |
+| Monster leads | river and wood creatures; kiln imps, cultists and brutes in the kiln yards | brine crabs, saltglass skimmers, salt guards | ridge harriers, rimehorns, signal adepts |
+| Critters | birds, butterflies, frogs, deer, hares | gulls, crows | crows |
+
+Tints, weather densities and palette values are **[P] placeholders** judged by eye at 1920×1080; weather is one
+screen-space layer with a fixed sprite count, thinned by Graphics → ambient life and off for reduced motion (low-end
+rule). Dungeons keep their own dark look in every act.

@@ -11,7 +11,7 @@ export function worldConnections():WorldConnection[] {
   const add=(from:string,to:string,kind:WorldConnection['kind'])=>connections.push({from,to,kind});
   for(const p of town.portals)add(town.id,p.to,'exit');
   for(const a of Object.values(ADVENTURES))for(const p of a.portals)add(a.id,p.to,'exit');
-  for(const z of Object.values(ZONES))if(z.kind==='field') {
+  for(const z of Object.values(ZONES))if(z.kind==='field'&&!z.retired) {
     // Existing procedural fields always have their home portal; authored fields own theirs.
     if(!ADVENTURES[z.id])add(z.id,town.id,'exit');
     add(town.id,z.id,'waypoint');

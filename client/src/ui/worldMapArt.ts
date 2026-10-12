@@ -11,8 +11,6 @@ export interface MapNode { x: number; y: number; biome: Biome; act: 0 | 1 | 2 | 
 export const MAP_W = 1000, MAP_H = 600;
 export const WORLD_LAYOUT: Record<string, MapNode> = {
   hearthmere: { x: 170, y: 468, biome: 'town', act: 0 },
-  whispering_glade: { x: 78, y: 318, biome: 'forest', act: 0 },
-  ashen_hollow: { x: 338, y: 532, biome: 'ash', act: 0 },
   rillwake_crossing: { x: 262, y: 345, biome: 'river', act: 1 },
   bracken_sluice: { x: 372, y: 238, biome: 'marsh', act: 1 },
   reedvault_pumpworks: { x: 222, y: 150, biome: 'works', act: 1 },
@@ -22,7 +20,7 @@ export const WORLD_LAYOUT: Record<string, MapNode> = {
   sablefen_causeway: { x: 792, y: 470, biome: 'fen', act: 2 },
   saltwind_pans: { x: 896, y: 352, biome: 'salt', act: 2 },
   lockglass_cistern: { x: 920, y: 506, biome: 'cistern', act: 2 },
-  shiverline_escarpment: { x: 846, y: 206, biome: 'cliffs', act: 2 },
+  shiverline_escarpment: { x: 846, y: 206, biome: 'cliffs', act: 3 },
   beaconbreak_ward: { x: 690, y: 132, biome: 'ruins', act: 3 },
   hollowstar_array: { x: 536, y: 92, biome: 'array', act: 3 },
 };
@@ -101,10 +99,11 @@ function paintBiome(c: Paint, id: string, n: MapNode) {
       scatter(10, 70, 40, (px, py) => tree(c, px, py, 0.9, false));
       break;
     case 'ash': case 'ashhill':
-      blob(c, x, y, 95, '#6e6258', 0.85, seed);
-      blob(c, x + 10, y + 6, 55, '#8a5a3a', 0.35, seed + 3);
+      // Act I highland moor (docs/rework/worlds/OPEN.md §7): green-grey ground, the kilns scorch only their yards
+      blob(c, x, y, 95, '#66704e', 0.85, seed);
+      blob(c, x + 10, y + 6, 50, '#7a5a3a', 0.3, seed + 3);
       for (let k = 0; k < 9; k++) { const px = x + (hash(k, 1, seed) - 0.5) * 140, py = y + (hash(k, 2, seed) - 0.5) * 80; line(c, [[px, py], [px + 8, py + 3], [px + 12, py - 2]], 'rgba(40,24,20,0.6)', 1); }
-      if (n.biome === 'ashhill') { hill(c, x, y + 12, 56, 46, '#7a6a5a'); poly(c, [[x - 10, y - 30], [x - 6, y - 40], [x, y - 33], [x + 6, y - 41], [x + 10, y - 30]], '#c9a65a', INK, 1); }
+      if (n.biome === 'ashhill') { hill(c, x, y + 12, 56, 46, '#6e7458'); poly(c, [[x - 10, y - 30], [x - 6, y - 40], [x, y - 33], [x + 6, y - 41], [x + 10, y - 30]], '#c9a65a', INK, 1); }
       else for (let k = 0; k < 3; k++) { const px = x - 34 + k * 30; rrectKiln(c, px, y + 8); }
       for (let k = 0; k < 4; k++) { c.save(); c.globalAlpha = 0.35; c.filter = 'blur(3px)'; ellipse(c, x - 30 + k * 22, y - 30 - k * 6, 10, 6, '#c8c0b8'); c.restore(); }
       break;

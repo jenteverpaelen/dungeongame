@@ -403,6 +403,7 @@ export class World {
     if (!cur) return fail('Not in a zone');
     const def = ZONES[zoneId];
     if (!def || def.kind === 'rift') return fail('Unknown destination');
+    if (def.retired && process.env.ENABLE_DEBUG !== '1') return fail('Unknown destination'); // D-W19: test arenas only
     if (!zoneUnlocked(s.save,zoneId)) return fail('Complete the preceding story quest to open this route');
     if (!zoneLevelAllowed(s.save,zoneId)) return fail(`${def.name} requires level ${def.levelBand[0]}`);
     if (def.kind === 'town') {

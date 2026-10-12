@@ -32,6 +32,7 @@ import { inPolygon } from '@shared/townGeometry';
 import { baselineY } from '@shared/townDepth';
 import { motionReduced, preferences } from '../game/preferences';
 import { ZoneGround } from './art/zoneGround';
+import { WeatherLayer, actLook } from './actWeather';
 import { QuestGuide } from './questGuide';
 import { BarkBubbles, type Speaker } from './barks';
 import { BARKS } from '@shared/data/barks';
@@ -92,6 +93,8 @@ export class Scene {
   /** Story presentation (F-QST-08): a short camera pan to a world change that just happened (docs/rework/quests/DESIGN.md §7). */
   private revealPan:{x:number;y:number;t:number;asked:number}|null=null;
   private zoneGround:ZoneGround|null=null;
+  /** Act weather (dust on the Salt Road, snow on the Ridge Signals; docs/rework/worlds/OPEN.md §7). */
+  private weather:WeatherLayer|null=null;
   onReveal:((key:string)=>void)|null=null;
   private barks=new BarkBubbles();
   /** Ambient speakers: statics with lines plus visual-only residents (filled by setMap / TownLife). */
@@ -148,8 +151,10 @@ export class Scene {
     this.adventureLife?.destroy();this.adventureLife=null;
     this.critters?.destroy();this.critters=null;
     this.phases?.destroy();this.phases=null;this.revealPan=null;this.zoneGround=null;
+    this.weather?.destroy({children:true});this.weather=null;
     this.townProgress?.destroy();this.townProgress=null;
-    this.root.tint=map.town?.lighting?.ambient??0xffffff;
+    // Each act lights its field zones its own way (docs/rework/worlds/OPEN.md §7); towns keep their own ambient.
+    this.root.tint=map.town?.lighting?.ambient??actLook(map.zone)?.tint??0xffffff;
     for (const c of [this.ground, this.decals]) for (const ch of c.removeChildren()) ch.destroy({ children: true });
     for (const p of this.props) p.view.destroy({ children: true });
     for (const s of this.statics) s.view.destroy();
@@ -218,6 +223,8 @@ export class Scene {
       this.phases=new WorldPhases(map.adventure,this.entities);
       this.groundFx.addChildAt(this.phases.ground,0);
     }
+    const look=actLook(map.zone);
+    if(look?.weather){this.weather=new WeatherLayer(look.weather,look.count);this.aboveFx.addChild(this.weather);}
     this.cam.x = map.entry.x;
     this.cam.y = map.entry.y;
   }
@@ -436,6 +443,7 @@ export class Scene {
     }
     this.questGuide.update(me,ui.get().screen==='game');
     this.phases?.update(viewDt,this.time,this.cam.x,this.cam.y,halfW,halfH);
+    this.weather?.update(viewDt,this.time,this.cam.x,this.cam.y,halfW,halfH);
     for (const s of this.statics) {
       const vis = !s.hidden && s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1;
       s.view.root.visible = vis;
