@@ -7,10 +7,10 @@
 
 import type { InstanceApi, PlayerLink } from '../src/contracts';
 import {
-  BASES, CLASSES, CollisionWorld, DIFFICULTIES, LEGENDARIES, MONSTERS, Rng, SETS, SKILLS, TILE, ZONES, computeStats,
-  createCharacter, generateItem, isBlockedTile, monsterHp, runeUnlockLevel, skillsForClass, slotsForKind, xpToNext, zoneSeed,
+  BASES, CLASSES, CollisionWorld, DIFFICULTIES, ELEMENT_INDEX, LEGENDARIES, MONSTERS, Rng, SETS, SKILLS, TILE, ZONES, computeStats,
+  PARAGON_STATS, armorReduction, createCharacter, generateItem, isBlockedTile, monsterHp, paragonPoints, resistReduction, runeUnlockLevel, skillsForClass, slotsForKind, xpToNext, zoneSeed,
   F_CHANNEL, F_DEAD, STATE_STRIDE, type CharacterSave, type ClassId, type DerivedStats, type EntDesc, type GameEvent,
-  type Item, type ItemKind, type S2C, type Slot, type Snapshot,
+  type Item, type ItemKind, type ParagonCategory, type S2C, type Slot, type Snapshot,
 } from '../src/shared';
 import { Instance, createInstance } from '../src/sim/instance';
 import { peekIdForHarness, resetIdsForHarness } from '../src/sim/ids';
@@ -23,7 +23,7 @@ import { shotBlocked } from '../src/sim/effects';
 import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
 import { encode } from '../src/net/codec';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { LoadGauge, QUIET_GAUGE_MS } from './perfGauge';
 
 // Deterministic runs: every Math.random draw (bot wandering, the loot RNG's seed) comes from one seeded PRNG,
@@ -35,6 +35,8 @@ Math.random = () => simRng.next();
 // Calibration runs substitute the balance tables from the environment: TOUGH='[[1,1],[10,20],...]' DAMAGE='[...]'
 if (process.env.TOUGH) { const t = JSON.parse(process.env.TOUGH) as [number, number][]; tuningOverrides.levelToughness = (l) => interpolateLog(l, t); }
 if (process.env.DAMAGE) { const t = JSON.parse(process.env.DAMAGE) as [number, number][]; tuningOverrides.levelDamage = (l) => interpolateLog(l, t); }
+// ORDEAL='[[hp, dmg], …]' (ten pairs, Ordeal I–X): try another ladder without editing shared/src/progression.ts.
+if (process.env.ORDEAL) (JSON.parse(process.env.ORDEAL) as [number, number][]).forEach(([hp, dmg], i) => { DIFFICULTIES[4 + i].hp = hp; DIFFICULTIES[4 + i].dmg = dmg; });
 
 // ─────────────────────────── Checks ───────────────────────────
 
@@ -78,6 +80,10 @@ class FakeLink implements PlayerLink {
   bytesish = 0;
   log: GameEvent[] = [];
   keepLog = false;
+  /** Endgame ladder: damage to this player in the last 5 s, one record per death, damage taken per source. */
+  hurt: { tick: number; a: number; src: string }[] = [];
+  deathRecs: DeathRec[] = [];
+  hurtBySrc: Record<string, number> = {};
 
   constructor(readonly save: CharacterSave) {
     this.sessionId = `s-${save.name}`;
@@ -138,6 +144,13 @@ class FakeLink implements PlayerLink {
         this.evV[`dmgsrc:${src}`] = (this.evV[`dmgsrc:${src}`] ?? 0) + 1;
       }
     }
+    if (ev.e === 'dmg' && ev.t === this.myId && this.myId) {
+      const src = hurtSource(this.descs, ev.s, ev.el);
+      this.hurt.push({ tick: this.tickNo, a: ev.a, src });
+      while (this.hurt.length && this.hurt[0].tick < this.tickNo - 100) this.hurt.shift();
+      this.hurtBySrc[src] = (this.hurtBySrc[src] ?? 0) + ev.a;
+    }
+    if (ev.e === 'die' && ev.t === this.myId && this.myId && this.me) this.deathRecs.push(deathRecord(this.hurt, this.tickNo, this.me.mhp));
     if (ev.e === 'die') {
       const d = this.descs.get(ev.t);
       const t0 = this.firstHit.get(ev.t);
@@ -154,6 +167,28 @@ class FakeLink implements PlayerLink {
 
   n(key: string) { return this.evV[key] ?? this.ev[key] ?? 0; }
   sawSummon(t: string) { for (const d of this.descs.values()) if (d.k === 'summon' && d.t === t) return true; return false; }
+}
+
+/** One player death: the biggest single hit and the damage of the last 1 s / 3 s as a share of max life, the source that
+ *  dealt most of the last 3 s, and how many hits landed in those 3 s. */
+interface DeathRec { maxHit: number; burst1: number; burst3: number; killer: string; hits3: number }
+const TIER_LABEL = ['', '/champion', '/rare', '/minion', '/boss', '/goblin'];
+function hurtSource(descs: Map<number, EntDesc>, s: number | undefined, el: number): string {
+  const element = ELEMENT_INDEX[el] ?? '?';
+  if (s === undefined) return `ground ${element}`;
+  const d = descs.get(s);
+  if (!d || d.k !== 'mob') return `${d?.k ?? 'unknown'} ${element}`;
+  return `${d.t}${TIER_LABEL[d.el ?? 0] ?? ''}${d.af?.length ? `[${d.af.join('+')}]` : ''} ${element}`;
+}
+function deathRecord(hurt: { tick: number; a: number; src: string }[], tick: number, mhp: number): DeathRec {
+  let maxHit = 0, b1 = 0, b3 = 0, hits3 = 0;
+  const bySrc: Record<string, number> = {};
+  for (const h of hurt) {
+    if (h.tick >= tick - 60) { b3 += h.a; hits3++; bySrc[h.src] = (bySrc[h.src] ?? 0) + h.a; maxHit = Math.max(maxHit, h.a); }
+    if (h.tick >= tick - 20) b1 += h.a;
+  }
+  const killer = Object.entries(bySrc).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '?';
+  return { maxHit: maxHit / mhp, burst1: b1 / mhp, burst3: b3 / mhp, killer, hits3 };
 }
 
 // ─────────────────────────── Characters ───────────────────────────
@@ -221,12 +256,14 @@ const BUILDS: Record<ClassId, { slots: string[]; runes: Record<string, string> }
   mage: { slots: ['meteor', 'black_hole', 'frost_nova', 'magic_weapon'], runes: { magic_missile: 'seeker', meteor: 'star_pact', black_hole: 'spellsteal', frost_nova: 'bone_chill', magic_weapon: 'force_weapon' } },
 };
 
-function makeChar(cls: ClassId, level: number, opts: { endgame?: boolean } = {}): CharacterSave {
+type Build = { slots: string[]; runes: Record<string, string>; primary?: string };
+function makeChar(cls: ClassId, level: number, opts: { endgame?: boolean; build?: Build } = {}): CharacterSave {
   const save = createCharacter(`Bot${cls}${level}_${seedCounter}`, cls, seedCounter++);
   if (level > 1) {
     save.level = level;
     save.skillPoints = level - 1;
-    const b = BUILDS[cls];
+    const b: Build = opts.build ?? BUILDS[cls];
+    if (b.primary) save.skills.primary = b.primary;
     save.skills.slots = b.slots.map((s) => (SKILLS[s].unlock <= level ? s : null));
     for (const [sk, rune] of Object.entries(b.runes)) {
       const def = SKILLS[sk];
@@ -449,16 +486,18 @@ function fieldScenario(cls: ClassId, level: number, endgame: boolean) {
 }
 
 /** `refitFloor`: the class is on the depth budget before the Torment re-fit — only a progress floor is checked. */
-function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen', refitFloor?: number) {
+/** `opts` (endgame ladder): another character (`save`, a ready save), a time cap in minutes, a label and quiet output. */
+interface RiftOpts { save?: () => CharacterSave; minutes?: number; label?: string; quiet?: boolean }
+function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: boolean, theme: 'glade' | 'ashen', refitFloor?: number, opts: RiftOpts = {}) {
   let completed = 0;
   const inst = newRift(level, difficulty, theme, () => completed++);
-  const save = makeChar(cls, level, { endgame });
+  const save = opts.save ? opts.save() : makeChar(cls, level, { endgame });
   const link = new FakeLink(save);
   link.myId = inst.addPlayer(link);
   const bot = new Bot(inst, link, cls === 'warrior');
   const mobs0 = inst.mobs.length;
   let guardianAt = -1, doneAt = -1, maxProg = 0;
-  const cap = 20 * 60 * 12; // 12 simulated minutes
+  const cap = 20 * 60 * (opts.minutes ?? 12); // 12 simulated minutes
   const t0 = performance.now();
   const ticks = run(inst, cap, [bot], (t) => {
     if (process.env.SIM_TRACE && t % 200 === 0) {
@@ -476,16 +515,17 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   const ms = performance.now() - t0;
   const rs = inst.riftState()!;
   const p = inst.players[0];
-  const label = `${cls} L${level}${endgame ? ' (set)' : ''} rift ${DIFFICULTIES[difficulty].name}`;
+  const label = opts.label ?? `${cls} L${level}${endgame ? ' (set)' : ''} rift ${DIFFICULTIES[difficulty].name}`;
   const dur = (t: number) => `${Math.floor(t / 20 / 60)}:${String(Math.floor((t / 20) % 60)).padStart(2, '0')}`;
   const kpm = p.kills / (ticks / 20 / 60);
+  if (opts.quiet) { inst.destroy(); return { link, doneAt, guardianAt, maxProg, deaths: save.stats.deaths, kpm, label }; }
   console.log(`${label}: ${mobs0} monsters placed, progress ${fmt(maxProg)}%, guardian at ${guardianAt >= 0 ? dur(guardianAt) : '—'}, done at ${doneAt >= 0 ? dur(doneAt) : '—'}, kills ${p.kills} (${fmt(kpm)}/min), deaths ${save.stats.deaths}, level ${level}→${save.level}, tick avg ${fmt(ms / ticks, 3)}ms`);
   console.log(`   ${ttkLine(link)}  boss TTK ${link.ttk[4] ? fmt(link.ttk[4][0] / 1000) + 's' : '—'}`);
   if (process.env.SIM_DEBUG) console.log('   ', JSON.stringify(Object.fromEntries(Object.entries(link.evV).filter(([k]) => /^(cast|dmgsrc|aoe|tele):/.test(k)))), 'dealt', Math.round(p.dealt).toExponential(2), 'sheet', Math.round(p.ctx.d.sheetDps).toExponential(2));
   if (refitFloor !== undefined) {
     // Floor mode: riftFloor checks the median over its maps.
     inst.destroy();
-    return { link, doneAt, maxProg, deaths: save.stats.deaths, kpm, label };
+    return { link, doneAt, guardianAt, maxProg, deaths: save.stats.deaths, kpm, label };
   }
   check(maxProg >= 100, `${label}: progress reached 100 (${fmt(maxProg)})`);
   check(guardianAt >= 0, `${label}: guardian spawned`);
@@ -496,25 +536,183 @@ function riftScenario(cls: ClassId, level: number, difficulty: number, endgame: 
   check(!!link.me && [...link.ents.values()].some((e) => e.desc.k === 'portal'), `${label}: portal replicated`);
   summary.push(`${label.padEnd(44)} ${fmt(kpm).padStart(6)} kills/min   rift ${doneAt >= 0 ? dur(doneAt) : 'DNF'} (guardian ${guardianAt >= 0 ? dur(guardianAt) : '—'}), deaths ${save.stats.deaths}`);
   inst.destroy();
-  return { link, doneAt, maxProg, deaths: save.stats.deaths, kpm, label };
+  return { link, doneAt, guardianAt, maxProg, deaths: save.stats.deaths, kpm, label };
 }
 
 /**
- * L70 Torment II progress floor before the Torment re-fit (lead 2026-10-11, the same rule as the pace gate): the median
- * over three maps (the seed and two fixed offsets, each with its own fresh per-class state) must reach `floor` % in 12
- * minutes. One map alone was a coin: 9 seeds gave the ranger 21.5–90.4 % (median 56 %) and the warrior 5.6–100 % (median
- * 77 %), the misses all death spirals on one map (9–20 deaths) [M, FOUNDATION.md §13.15]. Each map is printed for context.
- * `SIM_WEAK_KIT=<class>` gives that class its L70 rare kit instead of the set kit (the proof that a real collapse fails).
+ * L70 Ordeal ladder floors (re-fit 2026-10-12, docs/rework/balance/LADDER.md), the median over three maps (the seed and two
+ * fixed offsets, each with its own fresh per-class state; one map alone was a coin, its misses death spirals on one map
+ * [M, FOUNDATION.md §13.15]). The 6-piece set kit without Lantern Ranks must clear Ordeal I (100 % in 12 minutes;
+ * measured 100 / 100 / 100 % for warrior / ranger / mage on the ladder grid) and reach `floor` % of Ordeal II (95 / 81 /
+ * 100 %). `SIM_WEAK_KIT=<class>` gives that class its L70 rare kit instead (16–19 % of Ordeal I: the proof that a real
+ * collapse fails).
  */
 const RIFT_FLOOR_SEEDS = [SIM_SEED, SIM_SEED + 1, SIM_SEED + 2];
 function riftFloor(cls: ClassId, floor: number) {
   const endgame = process.env.SIM_WEAK_KIT !== cls;
-  const runs = RIFT_FLOOR_SEEDS.map((seed) => freshStreams(70, () => riftScenario(cls, 70, 5, endgame, 'ashen', floor), seed));
-  const prog = runs.map((r) => r.maxProg).sort((a, b) => a - b), med = prog[prog.length >> 1];
-  const label = runs[0].label;
-  console.log(`   ${label} floor: ${runs.map((r, i) => `seed ${RIFT_FLOOR_SEEDS[i]} ${fmt(r.maxProg)}% (${r.deaths} deaths)`).join(', ')} → median ${fmt(med)}%`);
-  check(med >= floor, `${label}: median progress of ${runs.length} maps ≥ ${floor}% in 12 minutes before the Torment re-fit (${prog.map((p) => fmt(p)).join(' / ')})`);
-  summary.push(`${label.padEnd(44)} median ${fmt(med)}% of ${runs.length} maps in 12 min (${runs.map((r) => `${fmt(r.maxProg)}%/${r.deaths}d`).join(', ')}; depth budget, Torment re-fit pending)`);
+  for (const [diff, need] of [[4, 100], [5, floor]] as const) {
+    const runs = RIFT_FLOOR_SEEDS.map((seed) => freshStreams(70, () => riftScenario(cls, 70, diff, endgame, 'ashen', need), seed));
+    const prog = runs.map((r) => r.maxProg).sort((a, b) => a - b), med = prog[prog.length >> 1];
+    const label = runs[0].label;
+    console.log(`   ${label} floor: ${runs.map((r, i) => `seed ${RIFT_FLOOR_SEEDS[i]} ${fmt(r.maxProg)}% (${r.deaths} deaths)`).join(', ')} → median ${fmt(med)}%`);
+    check(med >= need, `${label}: median progress of ${runs.length} maps ≥ ${need}% in 12 minutes (${prog.map((p) => fmt(p)).join(' / ')})`);
+    summary.push(`${label.padEnd(44)} median ${fmt(med)}% of ${runs.length} maps in 12 min (${runs.map((r) => `${fmt(r.maxProg)}%/${r.deaths}d`).join(', ')})`);
+  }
+}
+
+// ─────────────────────────── Endgame ladder (docs/rework/balance/LADDER.md) ───────────────────────────
+
+/** Lantern Rank points spent in the order D3 guides commonly recommend for Paragon 2.0 [K, LADDER.md §2]: Core movement
+ *  speed then the main stat; Offense cooldown, attack speed, crit chance, crit damage; Defense life, armor, all
+ *  resistance, regeneration; Utility area, resource cost, life on hit, gold find. */
+const LANTERN_ORDER: Record<ParagonCategory, string[]> = {
+  core: ['p_ms', 'p_main'], offense: ['p_cdr', 'p_ias', 'p_chc', 'p_chd'], defense: ['p_life', 'p_armor', 'p_allres', 'p_regen'], utility: ['p_area', 'p_rcr', 'p_loh', 'p_gf'],
+};
+function spendLantern(save: CharacterSave, rank: number) {
+  save.paragon.level = rank;
+  save.paragon.spent = {};
+  const pts = paragonPoints(rank);
+  for (const [cat, order] of Object.entries(LANTERN_ORDER) as [ParagonCategory, string[]][]) {
+    let left = pts[cat];
+    for (const id of order) {
+      const def = PARAGON_STATS.find((d) => d.id === id)!;
+      const n = def.cap ? Math.min(def.cap, left) : left;
+      if (n > 0) save.paragon.spent[id] = n;
+      left -= n;
+    }
+  }
+}
+
+/** Legendary-only kits: each class's best measured legendary-only kit for the bar's main skill (the parity audits'
+ *  pool runs, RANGER/WARRIOR/MAGE-PARITY.json `kits.legendary`; mage waist and legs stay rares there too). */
+const LEG_KITS: Record<ClassId, { build: Build; equipment: Partial<Record<Slot, string>>; cube: (string | null)[] }> = {
+  warrior: {
+    build: { slots: ['whirlwind', 'battle_rage', 'muster_standard', 'ground_stomp'], runes: BUILDS.warrior.runes },
+    equipment: { mainhand: 'ninefold_gale', head: 'brass_warhorn_helm', shoulders: 'belfry_pauldrons', chest: 'fissure_lined_breastplate', hands: 'stonecount_gauntlets', wrists: 'anvil_vambraces', waist: 'eternal_gyre', legs: 'gale_stitched_legguards', feet: 'quakestep_sabatons', neck: 'seething_sigil', ring1: 'threshers_knot', ring2: 'rally_knot' },
+    cube: ['millwheel_edge', 'furycord_belt', null],
+  },
+  ranger: {
+    build: { slots: ['sentry', 'quarry_mark', 'companion', 'rain_of_vengeance'], runes: BUILDS.ranger.runes },
+    equipment: { mainhand: 'kennel_wood_bow', offhand: 'sappers_pack', head: 'hawkfeather_cap', shoulders: 'huntsmans_pauldrons', chest: 'gearwright_heart', hands: 'bowyers_gloves', wrists: 'coiled_wire_bracers', waist: 'fuse_cord_belt', legs: 'skimmers_leggings', feet: 'wingbeat_boots', neck: 'roost_charm', ring1: 'raincount_ring', ring2: 'weathervane_ring' },
+    cube: ['bolt_throwers_arbalest', 'snarehand_gloves', 'whistle_charm'],
+  },
+  mage: {
+    build: { slots: ['meteor', 'magic_weapon', 'frost_nova', 'black_hole'], runes: BUILDS.mage.runes },
+    equipment: { mainhand: 'cindervane', head: 'horizon_cowl', shoulders: 'starfall_mantle', chest: 'winterbound_robe', hands: 'glasswrights_wraps', wrists: 'runeweaver_cuffs', feet: 'rimewalker_slippers', neck: 'craterheart_amulet', ring1: 'static_loop', ring2: 'echoing_bead' },
+    cube: ['thousand_missiles', 'void_heart', 'rimecourt_band'],
+  },
+};
+/** Ladder kits, weakest to strongest in intent: L70 rares; the class set at 4 pieces with the weapon, amulet and one
+ *  ring legendary and one Cube power; the full 6-piece kit of `gearEndgame`; a legendary-only kit. */
+type LadderKit = 'rare' | 'set4' | 'set6' | 'leg';
+const LADDER_KITS: LadderKit[] = ['rare', 'set4', 'set6', 'leg'];
+function dropBlockedOffhand(save: CharacterSave) {
+  const w = BASES[save.equipment.mainhand!.base].weapon;
+  if ((w?.twoHanded && !w.ranged) || save.equipment.mainhand!.base === 'staff') delete save.equipment.offhand;
+}
+function ladderSave(cls: ClassId, kit: LadderKit, lantern: number): CharacterSave {
+  const save = kit === 'leg' ? makeChar(cls, 70, { build: LEG_KITS[cls].build }) : makeChar(cls, 70, { endgame: kit === 'set6' });
+  if (kit === 'set4') {
+    const set = SETS[CLASS_SET[cls]];
+    for (const piece of set.pieces.slice(0, 4)) equip(save, generateItem(gearRng, { ilvl: 70, classId: cls, rarity: 'set', set: set.id, base: piece.base }));
+    for (const slot of ['mainhand', 'neck', 'ring1'] as Slot[]) {
+      const leg = CLASS_LEGS[cls][slot];
+      if (leg) equip(save, generateItem(gearRng, { ilvl: 70, classId: cls, rarity: 'legendary', legendary: leg }), slot);
+    }
+    dropBlockedOffhand(save);
+    save.cube.level = 4;
+    save.cube.learned = [CLASS_CUBE[cls][0]!];
+    save.cube.equipped = [CLASS_CUBE[cls][0], null, null];
+  }
+  if (kit === 'leg') {
+    const k = LEG_KITS[cls];
+    for (const [slot, leg] of Object.entries(k.equipment) as [Slot, string][]) equip(save, generateItem(gearRng, { ilvl: 70, classId: cls, rarity: 'legendary', legendary: leg }), slot);
+    dropBlockedOffhand(save);
+    save.cube.level = 8;
+    save.cube.learned = k.cube.filter((x): x is string => !!x);
+    save.cube.equipped = [...k.cube];
+  }
+  spendLantern(save, lantern);
+  return save;
+}
+
+interface LadderRun { prog: number; doneMin: number; deaths: number; kpm: number; recs: DeathRec[]; hurt: Record<string, number> }
+interface LadderCell { cls: ClassId; kit: string; lantern: number; diff: number; runs: LadderRun[]; medProg: number; medDone: number; medDeaths: number }
+/** One cell: the same character on the three riftFloor maps (each in its own fresh state), `minutes` cap each. */
+function ladderCell(cls: ClassId, kit: string, lantern: number, diff: number, minutes: number, mk: () => CharacterSave): LadderCell {
+  const runs = RIFT_FLOOR_SEEDS.map((seed) => freshStreams(70, () => {
+    const r = riftScenario(cls, 70, diff, true, 'ashen', undefined, { save: mk, minutes, quiet: true });
+    return { prog: r.maxProg, doneMin: r.doneAt >= 0 ? r.doneAt / 20 / 60 : Infinity, deaths: r.deaths, kpm: r.kpm, recs: r.link.deathRecs, hurt: r.link.hurtBySrc };
+  }, seed));
+  const mid = <T>(a: T[], k: (x: T) => number) => a.map(k).sort((x, y) => x - y)[a.length >> 1];
+  return { cls, kit, lantern, diff, runs, medProg: mid(runs, (r) => r.prog), medDone: mid(runs, (r) => r.doneMin), medDeaths: mid(runs, (r) => r.deaths) };
+}
+const fmtMin = (m: number) => (Number.isFinite(m) ? `${Math.floor(m)}:${String(Math.floor((m % 1) * 60)).padStart(2, '0')}` : 'DNF');
+const eliteless = (k: string) => k.replace(/\[.*\]/, '[elite]');
+function ladderLine(c: LadderCell): string {
+  const recs = c.runs.flatMap((r) => r.recs);
+  const one = recs.filter((d) => d.maxHit >= 0.999).length, burst = recs.filter((d) => d.maxHit < 0.999 && d.burst1 >= 0.999).length;
+  const killers: Record<string, number> = {};
+  for (const d of recs) killers[eliteless(d.killer)] = (killers[eliteless(d.killer)] ?? 0) + 1;
+  const top = Object.entries(killers).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, n]) => `${k}×${n}`).join(', ');
+  const maxHit = recs.length ? Math.max(...recs.map((d) => d.maxHit)) : 0;
+  return `${c.cls.padEnd(7)} ${c.kit.padEnd(5)} L${String(c.lantern).padEnd(5)} ${DIFFICULTIES[c.diff].name.padEnd(11)} median ${fmt(c.medProg).padStart(5)}% done ${fmtMin(c.medDone).padStart(5)} deaths ${c.medDeaths}`
+    + `  | maps ${c.runs.map((r) => `${fmt(r.prog, 0)}%/${fmtMin(r.doneMin)}/${r.deaths}d`).join(' ')}`
+    + (recs.length ? `  | deaths: one-shot ${one}, 1s-burst ${burst}, other ${recs.length - one - burst}; max hit ${fmt(maxHit * 100, 0)}% life; ${top}` : '');
+}
+function ladderRow(c: LadderCell) {
+  metricRows.push({ ladder: 1, cls: c.cls, kit: c.kit, lantern: c.lantern, diff: c.diff, diffName: DIFFICULTIES[c.diff].name, medProg: c.medProg, medDone: Number.isFinite(c.medDone) ? c.medDone : null, medDeaths: c.medDeaths,
+    maps: c.runs.map((r) => ({ prog: r.prog, done: Number.isFinite(r.doneMin) ? r.doneMin : null, deaths: r.deaths, kpm: r.kpm, recs: r.recs, hurt: r.hurt })) });
+}
+/** `sim.ts ladder [classes] [kits] [lanterns] [difficulties] [minutes]` — the measurement grid of LADDER.md §1. A kit
+ *  stops climbing once all three maps stay under 25 %. */
+function ladderScenario(classes: ClassId[], kits: LadderKit[], lanterns: number[], diffs: number[], minutes: number) {
+  console.log(`\n== Endgame ladder: L70, median of ${RIFT_FLOOR_SEEDS.length} rift maps, ${minutes}-minute cap ==`);
+  for (const cls of classes) for (const kit of kits) for (const lantern of lanterns) {
+    lanternWorth(ladderSave(cls, kit, lantern), `${cls} ${kit} L${lantern} Lantern worth`);
+    for (const diff of diffs) {
+      const c = ladderCell(cls, kit, lantern, diff, minutes, () => ladderSave(cls, kit, lantern));
+      console.log(ladderLine(c));
+      ladderRow(c);
+      if (c.runs.every((r) => r.prog < 25)) break;
+    }
+  }
+}
+
+/** What a character's Lantern Ranks are worth on the sheet: damage (sheet DPS) and toughness (life ÷ damage taken). */
+function lanternWorth(save: CharacterSave, label: string) {
+  const withL = computeStats(save);
+  const spent = save.paragon.spent;
+  save.paragon.spent = {};
+  const without = computeStats(save);
+  save.paragon.spent = spent;
+  const ehp = (d: DerivedStats) => d.life / ((1 - armorReduction(d.armor, 70)) * (1 - resistReduction(d.allRes, 70)));
+  console.log(`${label}: sheet DPS ×${fmt(withL.sheetDps / without.sheetDps, 2)} (${fmtC(without.sheetDps)} → ${fmtC(withL.sheetDps)}), life ×${fmt(withL.life / without.life, 2)} (${fmtC(without.life)} → ${fmtC(withL.life)}),`
+    + ` toughness ×${fmt(ehp(withL) / ehp(without), 2)} (armor ${fmt(armorReduction(withL.armor, 70) * 100)}% / resist ${fmt(resistReduction(withL.allRes, 70) * 100)}% DR), CDR ${fmt(without.cdr)} → ${fmt(withL.cdr)}%, crit ${fmt(without.chc)}/${fmt(without.chd, 0)} → ${fmt(withL.chc)}/${fmt(withL.chd, 0)}%, regen ${fmtC(withL.lifeRegen)}/s, life per hit ${fmtC(withL.lifePerHit)}`);
+}
+
+/** `sim.ts herorift <save.json> [difficulties] [minutes]` — replays a saved hero (any save version the server loads)
+ *  through rifts on the three riftFloor maps. The file is only read; nothing is written. */
+async function heroRift(file: string, diffs: number[], minutes: number) {
+  const { normalizeSave } = await import('../src/persistence');
+  const proto = normalizeSave(JSON.parse(readFileSync(file, 'utf8')) as CharacterSave);
+  const cls = proto.classId;
+  const json = JSON.stringify(proto);
+  const mk = () => { const s = JSON.parse(json) as CharacterSave; s.name = `Hero_${seedCounter++}`; s.stats.deaths = 0; s.stats.rifts = 0; return s; };
+  const d = computeStats(proto);
+  console.log(`\n== Saved hero: ${cls} L${proto.level}, Lantern ${proto.paragon.level}, spent ${JSON.stringify(proto.paragon.spent)}, Cube ${proto.cube.equipped.filter(Boolean).length} powers ==`);
+  console.log(`   sheet DPS ${fmtC(d.sheetDps)}, life ${fmtC(d.life)}, armor ${fmtC(d.armor)} (${fmt(armorReduction(d.armor, 70) * 100)}% DR), all res ${fmtC(d.allRes)} (${fmt(resistReduction(d.allRes, 70) * 100)}% DR), regen ${fmtC(d.lifeRegen)}/s, life per hit ${fmtC(d.lifePerHit)}, elite DR ${fmt(d.eliteDR)}%`);
+  lanternWorth(mk(), '   Lantern worth (as spent)');
+  for (const diff of diffs) {
+    const c = ladderCell(cls, 'hero', proto.paragon.level, diff, minutes, mk);
+    console.log(ladderLine(c));
+    ladderRow(c);
+    const hurt: Record<string, number> = {};
+    for (const r of c.runs) for (const [k, v] of Object.entries(r.hurt)) hurt[eliteless(k)] = (hurt[eliteless(k)] ?? 0) + v;
+    const tot = Object.values(hurt).reduce((a, b) => a + b, 0) || 1;
+    console.log(`   damage taken by source: ${Object.entries(hurt).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${k} ${fmt(v / tot * 100, 0)}%`).join(', ')}`);
+    for (const r of c.runs) for (const rec of r.recs.slice(0, 4)) console.log(`     death: max hit ${fmt(rec.maxHit * 100, 0)}% life, last 1 s ${fmt(rec.burst1 * 100, 0)}%, last 3 s ${fmt(rec.burst3 * 100, 0)}% in ${rec.hits3} hits, mostly ${rec.killer}`);
+  }
 }
 
 /** Put a player next to a fresh pack in a field and let one skill/rune do its thing. */
@@ -1820,7 +2018,7 @@ if (!only || only === 'rift') {
       // 54.6 / 53.0 / 66.4 / 79.4 / 61.0 / 22.9 %, mage 58.1 (default) / 93.0 / 100 / 42.7 / 73.9 / 89.3 / 87.2 / 71.3 /
       // 77.9 %. The runs under 30 % are death spirals on one map (9–20 deaths), so the floor is the median of 3 maps
       // (riftFloor; lead decision, FOUNDATION.md §13.15).
-      riftFloor(cls, 30);
+      riftFloor(cls, 70);
   }
 }
 if (!only || only === 'skills') skillCoverage();
@@ -1839,6 +2037,9 @@ if (only === 'threat') threatScenario((process.argv[3] ?? '1,5,10,20').split(','
 if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
 if (only === 'budget') perfBudgetScenario();
 if (only === 'gauge') gaugeScenario();
+if (only === 'ladder') ladderScenario((process.argv[3] ?? 'warrior,ranger,mage').split(',') as ClassId[], (process.argv[4] ?? LADDER_KITS.join(',')).split(',') as LadderKit[],
+  (process.argv[5] ?? '0,200,700,1500').split(',').map(Number), (process.argv[6] ?? '4,5,6,7,8,9,10,11,12,13').split(',').map(Number), Number(process.argv[7] ?? 12));
+if (only === 'herorift') await heroRift(process.argv[3], (process.argv[4] ?? '4,5,6,7,8').split(',').map(Number), Number(process.argv[5] ?? 12));
 if (only === 'leveling') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) levelingScenario(cls, Number(process.argv[3] ?? 25));
 
 if (process.env.SIM_JSON) {

@@ -54,9 +54,14 @@ export const DIFFICULTIES: Difficulty[] = [
   { name: 'Normal', hp: 2, dmg: 1.3, xpBonus: 75, goldBonus: 75, legendaryBonus: 0, minLevel: 1 },
   { name: 'Hard', hp: 4, dmg: 1.7, xpBonus: 150, goldBonus: 150, legendaryBonus: 0, minLevel: 1 },
   { name: 'Severe', hp: 8, dmg: 2.2, xpBonus: 250, goldBonus: 250, legendaryBonus: 0, minLevel: 1 },
+  // Ordeal life: 10 × 1.6^i (re-fit 2026-10-12, docs/rework/balance/LADDER.md). It was 16 × 2^i, set when full set kits
+  // were worth up to ×387; the depth program capped sets to ×13–29 and a full set with 700 Lantern Ranks could no longer
+  // beat Ordeal III (owner). Diablo III steps monster life ×1.6 from Hard to Torment VI [S, Blizzard difficulty guide];
+  // measured on the rift ladder grid (`sim.ts ladder`), a 6-piece set with 700 Lantern Ranks now clears Ordeal II–III in
+  // 12 minutes and reaches half of Ordeal IV–V; Ordeal I starts above Severe (8). Damage per step unchanged.
   ...roman.map((r, i) => ({
     name: `Ordeal ${r}`,
-    hp: 16 * Math.pow(2, i),
+    hp: 10 * Math.pow(1.6, i),
     dmg: 2.8 * Math.pow(1.3, i),
     xpBonus: 400 + 250 * i,
     goldBonus: 400 + 250 * i,
