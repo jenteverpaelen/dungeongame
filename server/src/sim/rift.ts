@@ -80,7 +80,7 @@ export class RiftRuntime {
     let x = inst.map.entry.x, y = inst.map.entry.y;
     if (near) ({ x, y } = nearPlayer(inst, near, 280));
     const def = MONSTERS[RIFT_GUARDIANS[inst.zone.theme] ?? 'gorgemaw'];
-    const pack: Pack = { id: -1, kind: 'boss', alive: 1, slot: -1 };
+    const pack: Pack = { id: -1, kind: 'boss', alive: 1, slot: -1, itemFor: null };
     const m = createMob(inst, def, inst.level, x, y, { tier: 4, pack, players: Math.max(1, Math.min(4, inst.players.length)) });
     m.state = 'chase';
     if (near) m.target = near.id;
@@ -156,7 +156,7 @@ export function debugBoss(inst: Instance, p: Player): string | null {
   }
   const pos = nearPlayer(inst, p, 360);
   const def = MONSTERS[RIFT_GUARDIANS[inst.zone.theme === 'ashen' ? 'ashen' : 'glade']];
-  const pack: Pack = { id: -1, kind: 'boss', alive: 1, slot: -1 };
+  const pack: Pack = { id: -1, kind: 'boss', alive: 1, slot: -1, itemFor: null };
   const m = createMob(inst, def, playerZoneLevel(inst, p), pos.x, pos.y, { tier: 4, pack, difficulty: zoneDifficulty(inst, p) });
   m.state = 'chase';
   m.target = p.id;

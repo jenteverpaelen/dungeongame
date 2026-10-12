@@ -22,6 +22,9 @@ export interface ClassDef {
   primary: string;
   /** Auto-attack engagement range in world units. */
   attackRange: number;
+  /** Less damage taken from every source, percent: D3 gives its melee classes 30 % because they must stand in the
+   *  pack [K]. Added 2026-10-12 with the early-threat pass (docs/rework/balance/EARLY.md). */
+  innateDR?: number;
   /** Starting base stats at level 1 (Diablo 3: main 10, vit 9, others 8). */
   base: { str: number; dex: number; int: number; vit: number };
   /** Per-level gains (Diablo 3: +3 main, +2 vit, +1 others). */
@@ -54,6 +57,7 @@ export const CLASSES: Record<ClassId, ClassDef> = {
     offhands: ['shield'],
     primary: 'cleave',
     attackRange: 86,
+    innateDR: 30,
     base: { str: 10, dex: 8, int: 8, vit: 9 },
     perLevel: { str: 3, dex: 1, int: 1, vit: 2 },
     appearance: { skin: 0xf2c9a0, hair: 0x6b3a1f, hairStyle: 'spiky', eyes: 0x1a1a1a },

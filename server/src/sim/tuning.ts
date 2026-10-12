@@ -31,12 +31,28 @@ export const GOBLIN_ESCAPE_MS = 25000;
 /** Goblins use only ELITE_HP_MULT[5] (×9) × this, not def.hp, which would double count. */
 export const GOBLIN_HP_MULT = 2;
 
+/** Damage per hit by elite tier (normal, champion, rare, minion, boss, goblin). Before 2026-10-12 elites only had more
+ *  life, so a champion pack (3–4 monsters) hurt less than a trash pack (6–14) and could be stood in on Story [M,
+ *  `sim.ts threat`]. Rare ×1.5: PoE's hidden rare-monster "50% more damage" [SN, poewiki Soul Conduit monster
+ *  modifier table; flagged there as needing citations]; D3 rare leaders hit harder than their minions [SN, Diablo wiki].
+ *  Champion ×1.25 [P]: between PoE magic monsters (−20% damage, +20% speed) and the rare. Minions keep trash damage.
+ *  Full up to level 45, fading out by 60 like LEVEL_DAMAGE: the endgame keeps its tuning until the Ordeal re-fit. */
+export const ELITE_DMG_MULT = [1, 1.25, 1.5, 1, 1, 1] as const;
+export function eliteDamageMult(tier: number, level: number): number {
+  const fade = Math.min(1, Math.max(0, (60 - level) / 15));
+  return 1 + ((ELITE_DMG_MULT[tier] ?? 1) - 1) * fade;
+}
+
 /** Champions and rares get this on top of ELITE_HP_MULT so elites take a few seconds even for AoE builds.
  *  Ramped in over the first levels (fresh characters only have their primary attack). */
 export const ELITE_TOUGHNESS = 2.5;
 export const ELITE_TOUGHNESS_FULL_LEVEL = 15;
+/** Factor at level 1. 0.85 since 2026-10-12: champions and rares now hit harder (ELITE_DMG_MULT), so the first elites are
+ *  shorter, more dangerous fights; it also restores the margin on the owner's L1–4 champion time-to-kill target (4.8 s),
+ *  which the game before met only on lucky seeds (median of 9 seeds 4.9 s) [M]. */
+export const ELITE_TOUGHNESS_START = 0.85;
 export function eliteToughness(level: number): number {
-  return 1 + (ELITE_TOUGHNESS - 1) * Math.min(1, Math.max(0, level - 1) / (ELITE_TOUGHNESS_FULL_LEVEL - 1));
+  return ELITE_TOUGHNESS_START + (ELITE_TOUGHNESS - ELITE_TOUGHNESS_START) * Math.min(1, Math.max(0, level - 1) / (ELITE_TOUGHNESS_FULL_LEVEL - 1));
 }
 
 /** Level toughness: weapon damage and main stats outgrow the base life curve (`monsterHp`, ×1.123 per level) by
@@ -59,9 +75,16 @@ export function levelToughness(level: number, table = LEVEL_TOUGHNESS): number {
   return interpolateLog(level, table);
 }
 
-/** Monster damage per hit is multiplied by this per-level factor so that the longer fights `levelToughness` creates do
- *  not simply multiply the damage a character takes per kill. Calibrated like LEVEL_TOUGHNESS (same harness). */
-export const LEVEL_DAMAGE: readonly (readonly [level: number, factor: number])[] = [[1, 0.4], [5, 0.4], [10, 0.5], [70, 0.5]];
+/** Monster damage per hit is multiplied by this per-level factor. 2026-10-10 it was cut to ×0.4–0.5 so the longer fights
+ *  `levelToughness` creates would not multiply the damage taken per kill; the owner then found that levelling characters
+ *  could stand in any pack on Story (2026-10-12). Measured with `sim.ts threat` (stand still beside one pack, auto attacks
+ *  only, organic gear): at ×0.4–0.5 a Story champion pack cost 4–25 % of life; at ×1 at levels 1–5 it costs 40–75 % for
+ *  the warrior and ranger, while the ranger and mage still lost under 15 % from level 10 (they clear elites in 4–5 s),
+ *  hence ×1.2 for 20–35. Chosen over 9 seeds of the levelling bot (`scripts/bot-metrics.ts run`, 120 min): damage taken
+ *  ×1.5–5, the level reached after two hours unchanged (warrior 26→27, ranger 28→27, mage 26→26); a bot that never
+ *  dodges now dies 2–34 times an hour in the early bands. Levels 1–3 a little gentler for brand-new characters [M].
+ *  Levels 60–70 stay at ×0.5 until the Ordeal ladder re-fit (endgame lane). */
+export const LEVEL_DAMAGE: readonly (readonly [level: number, factor: number])[] = [[1, 0.6], [4, 0.8], [10, 1], [20, 1.2], [35, 1.2], [45, 1], [60, 0.5], [70, 0.5]];
 export function levelDamage(level: number, table = LEVEL_DAMAGE): number {
   if (tuningOverrides.levelDamage) return tuningOverrides.levelDamage(level);
   return interpolateLog(level, table);

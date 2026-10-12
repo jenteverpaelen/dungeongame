@@ -162,7 +162,7 @@ export class Spawner {
     const { level, diff } = this.levelFor(s.x, s.y);
     const authored = inst.map.adventure?.encounters[i];
     if (authored) {
-      const pack: Pack = { id:packSeq++,kind:'custom',alive:0,slot:i };
+      const pack: Pack = { id:packSeq++,kind:'custom',alive:0,slot:i,itemFor:null };
       for(const member of authored.members) {
         const def=MONSTERS[member.type], x=s.x+member.dx, y=s.y+member.dy;
         if(!def || !inst.cw.isFree(x,y,def.radius))throw new Error(`Invalid authored spawn ${authored.id}/${member.type}`);
@@ -310,7 +310,7 @@ export function spawnPack(inst: Instance, x: number, y: number, level: number, s
   const roster = themeMonsters(theme);
   const roll = inst.rng.next();
   const kind: Pack['kind'] = o.kind ?? (roll < CHAMPION_CHANCE ? 'champion' : roll < CHAMPION_CHANCE + RARE_CHANCE ? 'rare' : 'trash');
-  const pack: Pack = { id: packSeq++, kind, alive: 0, slot };
+  const pack: Pack = { id: packSeq++, kind, alive: 0, slot, itemFor: null };
   const players = playersFor(inst, x, y);
   const add = (def: MonsterDef, tier: EliteTier, affixes: string[] = [], name?: string) => {
     const pos = freePos(inst, x, y, 60 + pack.alive * 10, def.radius);
@@ -348,7 +348,7 @@ export function spawnPack(inst: Instance, x: number, y: number, level: number, s
 
 export function spawnGoblin(inst: Instance, x: number, y: number, level: number, dormant = false, difficulty?: number): Mob {
   const pos = freePos(inst, x, y, 40, MONSTERS.treasure_goblin.radius);
-  const pack: Pack = { id: packSeq++, kind: 'goblin', alive: 1, slot: -1 };
+  const pack: Pack = { id: packSeq++, kind: 'goblin', alive: 1, slot: -1, itemFor: null };
   const m = createMob(inst, MONSTERS.treasure_goblin, level, pos.x, pos.y, { tier: 5, pack, dormant, players: playersFor(inst, x, y), difficulty });
   inst.counters.goblins++;
   for (const p of inst.playersNear(x, y, 1600)) inst.emitTo(p.id, { e: 'notice', text: 'A Hoardling appears!', kind: 'info' });

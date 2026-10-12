@@ -36,8 +36,9 @@ for (const [cls, level, zone] of [['warrior', 8, 'whispering_glade'], ['ranger',
     assert.deepEqual(replay.summary, rec.summary);
 
     // Changed inputs: for one second from the first moving tick after 10 s the hero walks the other way (movement input
-    // is legitimately ignored while dead, rooted or channelling, so the window starts where the hero walks).
-    const from = rec.inputs.find(i => i.tick >= 200 && (i.mx || i.my))!.tick;
+    // is legitimately ignored while dead, rooted or channelling, so the window starts where the hero walks: since the
+    // 2026-10-12 early-danger pass a starter-geared hero can be dead at the first moving tick).
+    const from = rec.inputs.find(i => i.tick >= 200 && (i.mx || i.my) && i.free)!.tick;
     const changed = rec.inputs.map(i => (i.tick >= from && i.tick < from + 20 ? { ...i, mx: -i.mx, my: -i.my } : i));
     const diverged = run({ ...base, mode: 'replay', inputs: changed });
     const at = firstDivergence(rec.tickHashes, diverged.tickHashes);

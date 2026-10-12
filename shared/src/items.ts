@@ -351,6 +351,8 @@ export interface DropContext {
   inRift: boolean;
   /** Affix globeChance of the player: elites drop health globes this % more often. */
   globeChance?: number;
+  /** At least this many equipment items from a field kill (the last champion of a pack that gave this player none). */
+  minItems?: number;
 }
 
 export type Drop =
@@ -360,30 +362,68 @@ export type Drop =
   | { type: 'mat'; mat: 'deathsBreath'; amount: number }
   | { type: 'globe' };
 
+/** Bad-luck protection at level 60+ (endgame): equipment misses since the last Legendary or Set. */
 export const PITY_THRESHOLD = 45;
+
+// Drop tables, early-game pass 2026-10-12 (docs/rework/balance/EARLY.md). The owner: "nothing is dropping … elites etc
+// should have way more chances of dropping something and so does little mobs, however legendary rank plus items should
+// be way rarer, common and yellow drops should occasionally happen". Measured before: a quest zone has no champion
+// packs and 2–4 rare elites (Rillwake Crossing: 103 ordinary, 3 rares), and a rare elite dropped 0.28 items on average,
+// so a full clear gave ~2 items [M]. Values interpolate in log space between the level anchors.
+const lerpLog = (level: number, t: readonly (readonly [number, number])[]): number => {
+  if (level <= t[0][0]) return t[0][1];
+  for (let i = 1; i < t.length; i++) if (level <= t[i][0]) {
+    const [l0, f0] = t[i - 1], [l1, f1] = t[i];
+    return Math.exp(Math.log(f0) + (Math.log(f1) - Math.log(f0)) * (level - l0) / (l1 - l0));
+  }
+  return t[t.length - 1][1];
+};
+/** Legendary / Set share of equipment drops by character level before difficulty, rift and magic find. Level 60+ keeps
+ *  the endgame value (1.2 %, endgame lane); while levelling it is 3–6× rarer: Diablo IV cut low-level legendary drops
+ *  in its Season 10 hotfix for the same reason [SN, Icy Veins]. */
+const LEGENDARY_SHARE: readonly (readonly [number, number])[] = [[1, 0.002], [20, 0.004], [40, 0.008], [60, 0.012]];
+/** Bad-luck protection while levelling: about the mean gap at that level's share (it protects, it does not pace),
+ *  45 from level 60 [P]. With 250 at level 1 it produced most early Legendaries once field drops rose. */
+const PITY_BY_LEVEL: readonly (readonly [number, number])[] = [[1, 600], [20, 400], [40, 200], [60, PITY_THRESHOLD]];
+export const pityThreshold = (level: number): number => Math.round(lerpLog(level, PITY_BY_LEVEL));
+export const legendaryShare = (level: number): number => lerpLog(level, LEGENDARY_SHARE);
+/** White / blue / yellow weights: mostly blue, whites and yellows now and then (owner: "common and yellow drops should
+ *  occasionally happen"); elites lean to yellow. Level 5 Story: 23 / 70 / 7 % (elites 22 / 66 / 12 %); level 70
+ *  Ordeal III 5 / 50 / 45 %, near the old 9 / 40 / 51 % (endgame economy). Before: white 48−0.6·lvl (half of all early
+ *  drops), blue 36, yellow 10+0.25·lvl (+12 elites). Yellows are the power source while levelling: at 12+0.2·lvl
+ *  (+20 elites) they rose ×4 an hour and the levelling bot gained 3–4 levels in two hours; at 6+0.25·lvl (+10) still
+ *  ×2.6 and 2–3 levels [M, 9 seeds of scripts/bot-metrics.ts run 120]. */
+export function rarityWeights(level: number, difficulty: number, elite: boolean): { normal: number; magic: number; rare: number } {
+  return { normal: Math.max(5, 18 - level * 0.25 - difficulty * 3), magic: 50, rare: 4 + level * 0.25 + difficulty * 4 + (elite ? 4 : 0) };
+}
 
 export function rollRarity(rng: Rng, ctx: DropContext): Rarity {
   const lvl = ctx.level;
   const diff = ctx.difficulty;
-  let legendary = 0.012 * (1 + 0.3 * diff) * (ctx.inRift ? 1.4 : 1) * (1 + ctx.magicFind / 100);
+  let legendary = legendaryShare(lvl) * (1 + 0.3 * diff) * (ctx.inRift ? 1.4 : 1) * (1 + ctx.magicFind / 100);
   // Guardians always end up with a Legendary (see rollDrops); goblins are a jackpot, not a loot machine.
   if (ctx.elite === 4) legendary = 0.2;
   if (ctx.elite === 5) legendary = 0.12;
-  if (ctx.pity >= PITY_THRESHOLD) legendary = 1;
+  if (ctx.pity >= pityThreshold(lvl)) legendary = 1;
   if (rng.chance(legendary)) return rng.chance(0.25) ? 'set' : 'legendary';
-  const normalW = Math.max(8, 48 - lvl * 0.6 - diff * 4);
-  const magicW = 36;
-  const rareW = 10 + lvl * 0.25 + diff * 3 + (ctx.elite ? 12 : 0);
-  return rng.weighted([['normal', normalW], ['magic', magicW], ['rare', rareW]] as const);
+  const w = rarityWeights(lvl, diff, !!ctx.elite);
+  return rng.weighted([['normal', w.normal], ['magic', w.magic], ['rare', w.rare]] as const);
 }
 
 export const NORMAL_GOLD_DROP_CHANCE = 0.22;
 /** Owner requested fewer all-equipment drops; non-equipment budgets are unchanged. */
 export const EQUIPMENT_DROP_SCALE = 2 / 3;
-/** Further factor for ordinary, champion, rare and minion kills only ("too many drops", owner 2026-10-10). Boss and
- *  treasure-goblin batches are rewards for effort and keep `EQUIPMENT_DROP_SCALE`. Calibrated against items per hour
- *  of a levelling bot (docs/rework/BALANCE.md): 2/3 × 1/6 = 1/9 of the original per-kill rate. */
-export const FIELD_DROP_FACTOR = 1 / 6;
+/** Equipment per kill for ordinary, champion, rare-elite and minion kills (bosses and treasure goblins keep their
+ *  batches × `EQUIPMENT_DROP_SCALE`). 2026-10-10 these were cut to 1/9 of the original rate ("too many drops"), tuned
+ *  on a dense test field at ~100 kills a minute; in the quest zones (~15–20 kills a minute, few elites) that left almost
+ *  nothing. References: Path of Exile — ~16 % base item chance for a normal monster, magic monsters +600 % and rare
+ *  monsters +1400 % item quantity [SN, poewiki IIQ / Soul Conduit]; Diablo IV Season 11 — every champion pack and elite
+ *  guarantees equipment [SN, Icy Veins]; Diablo III Loot 2.0 — fewer but better drops [S]. Ordinary 2 % (an eighth of
+ *  PoE's base, D3's fewer-but-better), champions 60 % each (a pack of 3–4 drops ~2 and nearly never nothing), rare
+ *  elites 2 + 50 % of a third (≈ PoE's ×15), minions 5 % [P]. Rillwake Crossing clear: ~2 → ~9.5 items. */
+export const FIELD_ITEMS = { ordinary: 0.015, champion: 0.35, rareMin: 1, rareExtra: 0.4, minion: 0.03 } as const;
+/** Chance that an ordinary kill drops equipment (difficulty adds 8 % per step, as before). */
+export const ordinaryItemChance = (difficulty: number): number => FIELD_ITEMS.ordinary * (1 + difficulty * 0.08);
 /** Gems and Death's Breath from ordinary, champion, rare and minion kills. They fed gear power (sockets, upgrades) at
  *  ~200 per hour each; they had only fallen with the kill rate while equipment fell ×8, so they get the same treatment
  *  in a gentler form. Boss and goblin batches are untouched. */
@@ -397,18 +437,21 @@ export function goldAmount(rng: Rng, level: number, goldFind: number): number {
 export function rollDrops(rng: Rng, ctx: DropContext, goldFind: number, equipmentScale = EQUIPMENT_DROP_SCALE): { drops: Drop[]; pity: number } {
   const drops: Drop[] = [];
   let pity = ctx.pity;
-  const originalCount = (() => {
-    switch (ctx.elite) {
-      case 0: return rng.chance(0.075 * (1 + ctx.difficulty * 0.08)) ? 1 : 0;
-      case 1: return rng.int(1, 2);
-      case 2: return rng.int(2, 3);
-      case 3: return rng.chance(0.15) ? 1 : 0;
-      case 4: return rng.int(5, 7);
-      case 5: return rng.int(3, 5);
-    }
-  })();
-  const scaledCount = originalCount * Math.max(0, Math.min(1, equipmentScale * (ctx.elite >= 4 ? 1 : FIELD_DROP_FACTOR)));
-  const itemCount = Math.floor(scaledCount) + (scaledCount % 1 > 0 && rng.chance(scaledCount % 1) ? 1 : 0);
+  // Field kills: FIELD_ITEMS (an equipmentScale other than the default scales them in proportion, for audits).
+  const field = equipmentScale / EQUIPMENT_DROP_SCALE;
+  const chance = (p: number) => rng.chance(Math.min(1, p * field)) ? 1 : 0;
+  let itemCount: number;
+  if (ctx.elite <= 3) {
+    itemCount = ctx.elite === 0 ? chance(ordinaryItemChance(ctx.difficulty))
+      : ctx.elite === 1 ? chance(FIELD_ITEMS.champion)
+      : ctx.elite === 3 ? chance(FIELD_ITEMS.minion)
+      : Math.round(FIELD_ITEMS.rareMin * field) + chance(FIELD_ITEMS.rareExtra);
+    itemCount = Math.max(itemCount, ctx.minItems ?? 0);
+  } else {
+    const originalCount = ctx.elite === 4 ? rng.int(5, 7) : rng.int(3, 5);
+    const scaledCount = originalCount * Math.max(0, Math.min(1, equipmentScale));
+    itemCount = Math.floor(scaledCount) + (scaledCount % 1 > 0 && rng.chance(scaledCount % 1) ? 1 : 0);
+  }
   for (let i = 0; i < itemCount; i++) {
     const rarity = rollRarity(rng, { ...ctx, pity });
     const item = generateItem(rng, {

@@ -181,7 +181,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
 
   const armorDR = armorReduction(armor, level);
   const resDR = resistReduction(allRes, level);
-  const toughness = life / ((1 - armorDR) * (1 - resDR));
+  const toughness = life / ((1 - armorDR) * (1 - resDR) * (1 - (cls.innateDR ?? 0) / 100));
   const lifeRegen = (acc.lifeRegen ?? 0) + life * ((paragonPct.lifeRegen ?? 0) / 100);
   const lifePerHit = (acc.lifePerHit ?? 0) + life * ((paragonPct.lifePerHit ?? 0) / 100);
 

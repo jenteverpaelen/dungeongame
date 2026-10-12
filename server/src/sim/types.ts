@@ -100,6 +100,9 @@ export interface Pack {
   alive: number;
   /** Index of the map spawn point this pack came from (-1 = ad-hoc). */
   slot: number;
+  /** Champion packs: players this pack has already given equipment (the last champion owes one to everyone else).
+   *  Set at creation (null) so every Pack keeps one hidden class. */
+  itemFor: Set<number> | null;
 }
 
 export interface BossState {

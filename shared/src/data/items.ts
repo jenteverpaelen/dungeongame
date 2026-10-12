@@ -140,8 +140,9 @@ export const ARMOR_KINDS: ItemKind[] = ['head', 'shoulders', 'chest', 'hands', '
 
 // ─────────────────────────── Affixes ───────────────────────────
 
-/** fixed: the same range at every item level (flat resource per kill). */
-export type AffixScale = 'stat' | 'pct' | 'flat' | 'res' | 'fixed';
+/** fixed: the same range at every item level (flat resource per kill). life: healing that follows the life it heals
+ *  (LIFE_SHARE). */
+export type AffixScale = 'stat' | 'pct' | 'flat' | 'res' | 'fixed' | 'life';
 
 export interface AffixDef {
   stat: StatId;
@@ -188,8 +189,8 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'lifePct', primary: true, ranges: { head: [10, 15], shoulders: [10, 15], chest: [10, 15], legs: [10, 15], neck: [14, 18], ring: [10, 15], offhand: [10, 15] }, weight: 7, scale: 'pct', label: (v) => `+${pctFmt(v)}% Life` },
   { stat: 'armor', primary: true, ranges: ALL_ARMOR([397, 465]), weight: 7, scale: 'res', label: (v) => `+${intFmt(v)} Armor` },
   { stat: 'allRes', primary: true, ranges: { ...ALL_ARMOR([91, 100]), neck: [91, 100], ring: [91, 100] }, weight: 7, scale: 'res', label: (v) => `+${intFmt(v)} All Resistance` },
-  { stat: 'lifePerHit', primary: true, ranges: { weapon1h: [4000, 6000], weapon2h: [6000, 8000], hands: [3000, 4500], ring: [3000, 4500], neck: [3000, 4500], wrists: [3000, 4500], offhand: [3000, 4500] }, weight: 5, scale: 'flat', label: (v) => `Heal ${intFmt(v)} on Hit` },
-  { stat: 'lifeRegen', primary: true, ranges: { chest: [2000, 4000], legs: [2000, 4000], ring: [2000, 4000], shoulders: [2000, 4000] }, weight: 4, scale: 'flat', label: (v) => `+${intFmt(v)} Life Regeneration` },
+  { stat: 'lifePerHit', primary: true, ranges: { weapon1h: [4000, 6000], weapon2h: [6000, 8000], hands: [3000, 4500], ring: [3000, 4500], neck: [3000, 4500], wrists: [3000, 4500], offhand: [3000, 4500] }, weight: 5, scale: 'life', label: (v) => `Heal ${intFmt(v)} on Hit` },
+  { stat: 'lifeRegen', primary: true, ranges: { chest: [2000, 4000], legs: [2000, 4000], ring: [2000, 4000], shoulders: [2000, 4000] }, weight: 4, scale: 'life', label: (v) => `+${intFmt(v)} Life Regeneration` },
   { stat: 'ms', primary: true, ranges: { feet: [10, 12] }, weight: 14, scale: 'pct', label: (v) => `+${pctFmt(v)}% Movement Speed` },
   { stat: 'elite', primary: true, ranges: { weapon1h: [5, 8], weapon2h: [5, 8], neck: [5, 8], offhand: [5, 8] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)}% Damage to Elites` },
   { stat: 'eliteDR', primary: true, ranges: { chest: [5, 7], shoulders: [5, 7], neck: [5, 7], offhand: [5, 7] }, weight: 3, scale: 'pct', label: (v) => `−${pctFmt(v)}% Damage from Elites` },
@@ -198,7 +199,7 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'goldFind', primary: false, ranges: { ...ALL_ARMOR([15, 25]), neck: [15, 25], ring: [15, 25], weapon1h: [15, 25], weapon2h: [15, 25] }, weight: 6, scale: 'pct', label: (v) => `+${pctFmt(v)}% Gold from Enemies` },
   { stat: 'xpPct', primary: false, ranges: { ...ALL_ARMOR([4, 8]), neck: [4, 8], ring: [4, 8] }, weight: 5, scale: 'pct', label: (v) => `+${pctFmt(v)}% Experience from Kills` },
   { stat: 'thorns', primary: false, ranges: { ...ALL_ARMOR([1500, 2500]), offhand: [1500, 2500] }, weight: 5, scale: 'flat', label: (v) => `Strike back for ${intFmt(v)} when hit in melee` },
-  { stat: 'lifePerKill', primary: false, ranges: { weapon1h: [5000, 8000], weapon2h: [6000, 10000], ...ALL_ARMOR([3000, 5000]) }, weight: 5, scale: 'flat', label: (v) => `Heal ${intFmt(v)} on Kill` },
+  { stat: 'lifePerKill', primary: false, ranges: { weapon1h: [5000, 8000], weapon2h: [6000, 10000], ...ALL_ARMOR([3000, 5000]) }, weight: 5, scale: 'life', label: (v) => `Heal ${intFmt(v)} on Kill` },
   { stat: 'resourceRegen', primary: false, ranges: { head: [1, 2], neck: [1, 2], ring: [1, 2], offhand: [1, 2] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)} Resource Regeneration per Second` },
   // ── Shared-items wave (ITEMS-SHARED.md §5): ranges and labels from the bible; weights [P] = the existing specialist
   //    band: 3 for primaries (element damage, eliteDR) and 4 for secondaries (resourceRegen), FOUNDATION.md §12. Appended: AFFIXES order is part of the RNG contract.
@@ -222,7 +223,7 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'globeHeal', primary: false, ranges: { waist: [15, 25], legs: [15, 25], ring: [15, 25] }, weight: 4, scale: 'pct', label: (v) => `Mending orbs restore ${pctFmt(v)}% more Life` },
   { stat: 'globeChance', primary: false, ranges: { chest: [10, 20], legs: [10, 20], feet: [10, 20] }, weight: 4, scale: 'pct', label: (v) => `Elites have ${pctFmt(v)}% more chance to drop a mending orb` },
   { stat: 'moveWhileChannel', primary: false, ranges: { legs: [10, 15], feet: [10, 15] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)}% movement speed while channeling` },
-  { stat: 'lifeOnControl', primary: false, ranges: { hands: [2000, 3000], wrists: [2000, 3000] }, weight: 4, scale: 'flat', label: (v) => `Stunning, freezing or immobilising an enemy heals ${intFmt(v)} Life` },
+  { stat: 'lifeOnControl', primary: false, ranges: { hands: [2000, 3000], wrists: [2000, 3000] }, weight: 4, scale: 'life', label: (v) => `Stunning, freezing or immobilising an enemy heals ${intFmt(v)} Life` },
   { stat: 'chillOnHit', primary: false, ranges: { weapon1h: [5, 10], weapon2h: [5, 10], hands: [5, 10] }, weight: 4, scale: 'pct', label: (v) => `${pctFmt(v)}% chance on hit to chill enemies for 1 s` },
 ];
 
@@ -232,10 +233,31 @@ export const affixFits = (a: AffixDef, base: BaseItem): boolean =>
 
 export const AFFIX_BY_STAT: Record<string, AffixDef> = Object.fromEntries(AFFIXES.map((a) => [a.stat, a]));
 
+/**
+ * Life of a character in an ilvl-matched rare kit, as a share of level 70 (mean of 12 kits per level, `computeStats`
+ * life; .local measurement 2026-10-12 [M]). Healing affixes (`life` scale) follow it so they heal the same share of life
+ * at every level: on the old `flat` curve (t^2.4) they healed 3–6× more of a character's life at levels 10–40 than at 70
+ * (regeneration 2–4.5 % of life per second, Heal on Hit 3–9.5 % per enemy per 100 ms), so nothing could hurt a
+ * levelling character standing in a pack (`sim.ts threat`). Level 70 values are unchanged.
+ */
+const LIFE_SHARE: readonly (readonly [number, number])[] = [
+  [1, 0.00114], [5, 0.00184], [10, 0.0034], [15, 0.0068], [20, 0.0139], [25, 0.0213], [30, 0.0272], [35, 0.0336],
+  [40, 0.086], [45, 0.183], [50, 0.277], [60, 0.625], [65, 0.786], [70, 1],
+];
+function lifeShare(ilvl: number): number {
+  const l = Math.max(1, Math.min(70, ilvl));
+  for (let i = 1; i < LIFE_SHARE.length; i++) {
+    const [l1, f1] = LIFE_SHARE[i];
+    if (l <= l1) { const [l0, f0] = LIFE_SHARE[i - 1]; return Math.exp(Math.log(f0) + (Math.log(f1) - Math.log(f0)) * (l - l0) / (l1 - l0)); }
+  }
+  return 1;
+}
+
 /** Main stat values grow quadratically with item level; percentage stats grow gently. */
 export function affixScale(scale: AffixScale, ilvl: number): number {
   const t = Math.max(1, Math.min(70, ilvl)) / 70;
   switch (scale) {
+    case 'life': return lifeShare(ilvl);
     case 'stat': return Math.max(0.004, t * t);
     case 'flat': return Math.max(0.003, Math.pow(t, 2.4));
     case 'res': return Math.max(0.02, Math.pow(t, 1.6));

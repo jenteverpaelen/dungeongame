@@ -14,7 +14,7 @@ import {
 } from '../src/shared';
 import { Instance, createInstance } from '../src/sim/instance';
 import { peekIdForHarness, resetIdsForHarness } from '../src/sim/ids';
-import { resetPacksForHarness } from '../src/sim/spawner';
+import { resetPacksForHarness, spawnPack } from '../src/sim/spawner';
 import { resetItemIdsForHarness } from '../../shared/src/items';
 import { interpolateLog, levelDamage, levelToughness, tuningOverrides } from '../src/sim/tuning';
 import { createMob } from '../src/sim/monsters';
@@ -65,6 +65,10 @@ class FakeLink implements PlayerLink {
   evV: Record<string, number> = {};
   /** first damage tick / death tick per mob, for time-to-kill. */
   firstHit = new Map<number, number>();
+  /** Ticks this player has spent dead so far, and its value at each mob's first hit. A kill with a player death between
+   *  the first hit and the kill (the dead time and the walk back from the respawn point are not kill time) is left out
+   *  of `ttk` and counted in `ttkBroken`: it only mattered once monsters could kill a levelling character (2026-10-12). */
+  deadTicks = 0; private deadAt = new Map<number, number>(); ttkBroken: Record<number, number> = {};
   ttk: Record<number, number[]> = {};
   descs = new Map<number, EntDesc>();
   tickNo = 0;
@@ -93,6 +97,7 @@ class FakeLink implements PlayerLink {
   private recv(msg: S2C) {
     if (msg.t !== 's') return;
     this.snaps++;
+    if (this.me && this.me.dead > 0 && msg.tick > this.tickNo) this.deadTicks += msg.tick - this.tickNo;
     this.tickNo = msg.tick;
     this.ack = msg.ack;
     this.me = msg.me;
@@ -127,7 +132,7 @@ class FakeLink implements PlayerLink {
     if (ev.e === 'pickup' && ev.lk === 'item') this.evV[`item:${ev.rarity}`] = (this.evV[`item:${ev.rarity}`] ?? 0) + 1;
     if (ev.e === 'pickup' && ev.lk !== 'item') this.evV[`other:${ev.lk}`] = (this.evV[`other:${ev.lk}`] ?? 0) + (ev.lk === 'gold' || ev.lk === 'mat' ? ev.amount ?? 1 : 1);
     if (ev.e === 'dmg' && ev.t !== this.myId && this.descs.get(ev.t)?.k !== 'player') {
-      if (!this.firstHit.has(ev.t)) this.firstHit.set(ev.t, this.tickNo);
+      if (!this.firstHit.has(ev.t)) { this.firstHit.set(ev.t, this.tickNo); this.deadAt.set(ev.t, this.deadTicks); }
       if (ev.s !== undefined) {
         const src = ev.s === this.myId ? 'me' : this.descs.get(ev.s)?.k === 'summon' ? `summon:${this.descs.get(ev.s)!.t}` : 'other';
         this.evV[`dmgsrc:${src}`] = (this.evV[`dmgsrc:${src}`] ?? 0) + 1;
@@ -136,7 +141,10 @@ class FakeLink implements PlayerLink {
     if (ev.e === 'die') {
       const d = this.descs.get(ev.t);
       const t0 = this.firstHit.get(ev.t);
-      if (d && d.k === 'mob' && t0 !== undefined) (this.ttk[d.el ?? 0] ??= []).push((this.tickNo - t0) * 50);
+      if (d && d.k === 'mob' && t0 !== undefined) {
+        if (this.deadTicks !== (this.deadAt.get(ev.t) ?? this.deadTicks)) this.ttkBroken[d.el ?? 0] = (this.ttkBroken[d.el ?? 0] ?? 0) + 1;
+        else (this.ttk[d.el ?? 0] ??= []).push((this.tickNo - t0) * 50);
+      }
     }
     if (ev.e === 'proj') {
       const d = this.descs.get(ev.s);
@@ -1235,6 +1243,79 @@ function masterProbe(level: number, diffs: number[]) {
   }
 }
 
+/**
+ * `threat`: early danger (owner 2026-10-12: "early game nothing barely does damage, i can just sit and facetank
+ * everything"). A character with the organic gear of the engaged bot at that level stands still beside one pack and
+ * lets the automatic attacks and auto-cast skills fight: no moving, no dash, no potion. `stand` = that fight (life lost,
+ * lowest life, death, time to clear); `passive` = the same pack against a character that never attacks (time to die,
+ * capped at 60 s). Packs are spawned on the character after the field's own monsters are removed.
+ */
+function threatScenario(levels: number[], diffs: number[], kinds: ('trash' | 'champion' | 'rare')[]) {
+  // THREAT_DMG="1:1,45:1,60:0.5": try another LEVEL_DAMAGE table without editing tuning.ts
+  const table = process.env.THREAT_DMG?.split(',').map((p) => p.split(':').map(Number) as [number, number]);
+  if (table) tuningOverrides.levelDamage = (l) => interpolateLog(l, table);
+  console.log(`
+== Threat: stand still beside one pack (organic gear, auto attacks + auto-cast only; median of 3 packs) ==`);
+  console.log('  class   lvl  diff      pack       stand: lost %life  lowest %  deaths  clear s   passive: die s');
+  const out: Record<string, unknown>[] = [];
+  for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) for (const level of levels) {
+    // THREAT_KIT=organic: the engaged bot's own drops (slow: it plays up to the level); default: makeChar's
+    // ilvl-matched rare kit, the well-geared case (if that character is threatened, an organic one is too).
+    const organic = process.env.THREAT_KIT === 'organic';
+    const played = level <= 1 ? createCharacter(`Thr${cls}`, cls, seedCounter++) : organic ? playEngagedTo(cls, level, 240).save : makeChar(cls, level);
+    for (const d of diffs) for (const kind of kinds) {
+      const rows: { lost: number; low: number; died: boolean; clear: number; die: number }[] = [];
+      for (let k = 0; k < 3; k++) {
+        const one = (passive: boolean) => {
+          const save = structuredClone(played);
+          save.difficulty = d; save.stats.deaths = 0;
+          if (passive) save.skills.autoCast = save.skills.slots.map(() => 'paused' as const);
+          const inst = newField(level >= 12 ? 'ashen_hollow' : 'whispering_glade', 9300 + level * 7 + k);
+          const link = new FakeLink(save);
+          link.myId = inst.addPlayer(link);
+          const p = inst.players[0];
+          for (const m of [...inst.mobs]) inst.removeMob(m);
+          inst.tick();
+          const before = new Set(inst.mobs.map((m) => m.id));
+          spawnPack(inst, p.x + 70, p.y, save.level, -1, { kind, difficulty: d });
+          const pack = new Set(inst.mobs.filter((m) => !m.dead && !before.has(m.id)).map((m) => m.id));
+          if (process.env.THREAT_TRACE && k === 0) {
+            const m0 = inst.mobs.find((m) => pack.has(m.id))!, dd = p.ctx.d as unknown as Record<string, number>;
+            console.log(`    [${passive ? 'passive' : 'stand'}] L${save.level} life ${Math.round(p.mhp)} regen ${fmt(dd.lifeRegen ?? 0, 1)}/s perHit ${fmt(dd.lifePerHit ?? 0, 1)} recovery ${fmt(dd.recovery ?? 0, 1)}/s armorDR ${fmt((dd.armorDR ?? 0) * 100, 0)}% | pack ${pack.size} × ${m0.def.id} hit ${fmt(m0.dmg, 1)} (${fmt((m0.dmg / p.mhp) * 100, 1)}% life) t${m0.tier}`);
+          }
+          let low = p.hp / p.mhp, died = false, clearAt = -1, dieAt = -1;
+          const taken0 = p.taken, cap = 20 * 60;
+          for (let t = 0; t < cap; t++) {
+            if (passive) p.atkCdMs = 1e9;
+            // only this pack: the field spawner refills its own packs while the test runs
+            for (const m of [...inst.mobs]) if (!pack.has(m.id) && !m.dead) inst.removeMob(m);
+            inst.tick();
+            if (process.env.THREAT_TRACE && k === 0 && t % 40 === 0) {
+              const near = inst.mobs.filter((m) => pack.has(m.id) && !m.dead).map((m) => `${Math.round(Math.hypot(m.x - p.x, m.y - p.y))}/${m.state}`).slice(0, 4).join(' ');
+              console.log(`      t=${t / 20}s hp ${Math.round(p.hp)}/${Math.round(p.mhp)} taken ${Math.round(p.taken - taken0)} pack ${near}`);
+            }
+            low = Math.min(low, Math.max(0, p.hp) / p.mhp);
+            if (p.hp <= 0 || p.deadMs > 0) { died = true; dieAt = t; break; }
+            if (!inst.mobs.some((m) => !m.dead && pack.has(m.id))) { clearAt = t; break; }
+          }
+          const lost = (p.taken - taken0) / p.mhp;
+          inst.destroy();
+          return { lost, low, died, clearAt, dieAt };
+        };
+        const stand = one(false), still = one(true);
+        rows.push({ lost: stand.lost * 100, low: stand.low * 100, died: stand.died, clear: stand.clearAt < 0 ? NaN : stand.clearAt / 20, die: still.dieAt < 0 ? 60 : still.dieAt / 20 });
+      }
+      const med = (f: (r: typeof rows[number]) => number) => { const v = rows.map(f).filter((x) => !Number.isNaN(x)).sort((a, b) => a - b); return v.length ? v[v.length >> 1] : NaN; };
+      const row = { class: cls, level: played.level, difficulty: DIFFICULTIES[d].name, pack: kind, lostPct: med((r) => r.lost), lowestPct: med((r) => r.low), deaths: rows.filter((r) => r.died).length, clearS: med((r) => r.clear), passiveDieS: med((r) => r.die) };
+      out.push(row);
+      const f = (n: number, w: number) => (Number.isNaN(n) ? '—' : fmt(n, 0)).padStart(w);
+      console.log(`  ${cls.padEnd(7)} ${String(played.level).padStart(3)}  ${row.difficulty.padEnd(9)} ${kind.padEnd(9)} ${f(row.lostPct, 17)}% ${f(row.lowestPct, 8)}% ${String(row.deaths).padStart(6)}/3 ${f(row.clearS, 7)}  ${f(row.passiveDieS, 15)}`);
+    }
+  }
+  if (process.env.THREAT_JSON) writeFileSync(process.env.THREAT_JSON, JSON.stringify(out, null, 1));
+  tuningOverrides.levelDamage = null;
+}
+
 /** `fit`: play the engaged bot through the levels, freeze a copy of the character at every fifth level and find, for
  *  each copy, the monster-life factor at which its median trash time-to-kill equals `target` seconds. */
 function fitScenario(cls: ClassId, minutes: number, target: number, marks: number[]) {
@@ -1754,6 +1835,7 @@ if (only === 'calibrate') calibrateToughness(Number(process.argv[3] ?? 1), (proc
 if (only === 'curve') toughnessCurve(Number(process.argv[3] ?? 20), (process.argv[4] ?? '1,2,4,8,16,32,64').split(',').map(Number));
 if (only === 'fit') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) fitScenario(cls, Number(process.argv[3] ?? 90), Number(process.argv[4] ?? 1), (process.argv[5] ?? '3,5,8,10,13,15,18,20,25,30,35,40,45,50,55,60,65,70').split(',').map(Number));
 if (only === 'riftstall') riftStallHunt((process.argv[3] ?? 'mage') as ClassId, Number(process.argv[4] ?? 1), Number(process.argv[5] ?? 12));
+if (only === 'threat') threatScenario((process.argv[3] ?? '1,5,10,20').split(',').map(Number), (process.argv[4] ?? '0,1,2,3').split(',').map(Number), (process.argv[5] ?? 'trash,champion,rare').split(',') as ('trash' | 'champion' | 'rare')[]);
 if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
 if (only === 'budget') perfBudgetScenario();
 if (only === 'gauge') gaugeScenario();

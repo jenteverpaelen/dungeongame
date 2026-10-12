@@ -1,7 +1,7 @@
 // Damage model (ARCHITECTURE 1.3): Diablo-3 multiplicative buckets, crits, area damage, DoTs, defences.
 import { boundedCombat, combatInteger } from '../../../shared/src/combatBounds';
 
-import { ELEMENT_INDEX, armorReduction, modVar, resistReduction, type Element } from '../shared';
+import { CLASSES, ELEMENT_INDEX, armorReduction, modVar, resistReduction, type Element } from '../shared';
 import { addOwnedDot, chillMob, elIdx, getBuff } from './effects';
 import { onEliteDamaged } from './elites';
 import type { Instance } from './instance';
@@ -252,7 +252,7 @@ export function skillGain(p: Player, rt: SkillRuntime, amount: number) {
 /** Damage-taken multiplier of a player vs a monster of `level` (armor, resists, elite DR, whirlwind DR). */
 export function defenseMult(p: Player, level: number, elite: boolean): number {
   const d = p.ctx.d;
-  let mult = (1 - armorReduction(d.armor, level)) * (1 - resistReduction(d.allRes, level));
+  let mult = (1 - armorReduction(d.armor, level)) * (1 - resistReduction(d.allRes, level)) * (1 - (CLASSES[p.save.classId].innateDR ?? 0) / 100);
   if (elite) mult *= 1 - Math.min(75, d.eliteDR) / 100;
   if (p.channel && p.channel.skill === 'whirlwind') {
     const ww = p.ctx.modsOf('whirlwind');

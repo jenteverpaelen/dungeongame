@@ -15,7 +15,8 @@ import { Rng, autoSlotSkills, computeStats, createCharacter, ZONES, type S2C, ty
 import { createInstance, type Instance } from '../../src/sim/instance';
 import type { PlayerLink } from '../../src/contracts';
 
-export interface RecordedInput { tick: number; mx: number; my: number; dash?: 1; cast?: { slot: number; skill: string } }
+/** `free`: when recorded, the hero was alive and not channelling, so a movement input takes effect that tick. */
+export interface RecordedInput { tick: number; mx: number; my: number; dash?: 1; cast?: { slot: number; skill: string }; free?: 1 }
 export interface ReplayConfig { seed: number; cls: ClassId; level: number; zone: string; ticks: number; mode: 'record' | 'replay'; inputs?: RecordedInput[] }
 export interface ReplayResult { inputs: RecordedInput[]; tickHashes: string[]; final: string; summary: Record<string, number> }
 
@@ -55,6 +56,7 @@ export function runReplay(cfg: ReplayConfig): ReplayResult {
         const near = l < 90;
         const input: RecordedInput = { tick: t, mx: near || l < 1 ? 0 : Math.round((dx / l) * 100) / 100, my: near || l < 1 ? 0 : Math.round((dy / l) * 100) / 100 };
         if (p.hp < p.mhp * 0.35 && p.mv.dashCdMs <= 0) input.dash = 1;
+        if (p.deadMs <= 0 && !p.channel) input.free = 1;
         const slot = Math.floor(t / 40) % 4, skill = save.skills.slots[slot];
         if (t % 40 === 20 && skill) input.cast = { slot, skill };
         now = [input];

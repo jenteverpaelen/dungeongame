@@ -19,7 +19,7 @@ import { attackCooldownMul, tickBehaviours } from './behaviours';
 import { fractureLine } from './fracture';
 import { tickMobStatus } from './status';
 import {
-  AGGRO_RANGE, DORMANT_RANGE, GOBLIN_ESCAPE_MS, eliteToughness, levelDamage, levelToughness, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
+  AGGRO_RANGE, DORMANT_RANGE, eliteDamageMult, GOBLIN_ESCAPE_MS, eliteToughness, levelDamage, levelToughness, GOBLIN_HP_MULT, HP_PER_EXTRA_PLAYER, LEASH_RANGE, MELEE_SLACK, MIN_WINDUP_MS,
   PACK_ALERT_RANGE, WINDUP_MULT,
 } from './tuning';
 import type { Mob, Pack, Player } from './types';
@@ -45,6 +45,12 @@ export interface MobOpts {
   difficulty?: number;
 }
 
+/** Damage per hit before the attack's own multipliers. Champions and rare elites hit harder than trash (ELITE_DMG_MULT);
+ *  bosses and authored encounter bosses keep their own tuning. */
+function damageFor(def: MonsterDef, tier: EliteTier, level: number, diff: number, boss: boolean): number {
+  return monsterDmg(level) * levelDamage(level) * def.dmg * DIFFICULTIES[diff].dmg * (boss ? 1 : eliteDamageMult(tier, level));
+}
+
 function lifeFor(def: MonsterDef, tier: EliteTier, level: number, diff: number, affixes: string[], players: number): number {
   const typeMult = tier === 5 ? GOBLIN_HP_MULT : def.hp;
   let hp = monsterHp(level) * levelToughness(level) * typeMult * ELITE_HP_MULT[tier] * DIFFICULTIES[diff].hp;
@@ -65,7 +71,7 @@ export function createMob(inst: Instance, def: MonsterDef, level: number, x: num
     kind: 'mob', id: nextId(), def, type: o.dummy ? 'training_dummy' : def.id, tier, level, diff,
     name: o.name ?? def.name, affixes, hp, mhp: hp,
     speed: def.speed * (fast ? 1.4 : 1),
-    dmg: monsterDmg(level) * levelDamage(level) * def.dmg * DIFFICULTIES[diff].dmg,
+    dmg: damageFor(def, tier, level, diff, tier === 4 || !!o.combat),
     windupMs: Math.max(MIN_WINDUP_MS, def.attack.windupMs * WINDUP_MULT) * (fast ? 0.75 : 1),
     cooldownMs: def.attack.cooldownMs * (fast ? 0.85 : 1),
     flags: 0, attackSeq: 0, state: 'idle', target: 0,
@@ -95,7 +101,7 @@ export function relevel(m: Mob, level: number, diff: number, players: number) {
   m.level = level;
   m.diff = diff;
   m.mhp = m.hp = lifeFor(m.def, m.tier, level, diff, m.affixes, players);
-  m.dmg = monsterDmg(level) * levelDamage(level) * m.def.dmg * DIFFICULTIES[diff].dmg;
+  m.dmg = damageFor(m.def, m.tier, level, diff, !!m.boss);
   m.descVer++;
 }
 

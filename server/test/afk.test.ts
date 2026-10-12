@@ -53,7 +53,8 @@ test('own measured rate is used, never above the band median; legacy saves keep 
 
 test('gains per kill follow the live ordinary-kill rules (Monte Carlo of rollDrops + salvage)', () => {
   for (const level of [10, 30, 60]) {
-    const rng = new Rng(4040 + level), n = 400_000;
+    // 1M kills: at level 60 only ~10 % of the 2 % equipment drops are white, so 400k left the scrap check at ~3σ noise.
+    const rng = new Rng(4040 + level), n = 1_000_000;
     let gold = 0; const mats = { scrap: 0, dust: 0, crystal: 0 };
     for (let i = 0; i < n; i++) {
       const { drops } = rollDrops(rng, { level, difficulty: 0, elite: 0, classId: 'ranger', magicFind: 0, pity: 0, inRift: false }, 0);

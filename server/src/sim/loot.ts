@@ -63,11 +63,12 @@ function payloadOf(d: Drop, difficulty: number): LootPayload {
   }
 }
 
-/** Roll and spawn the drops of one monster for one player. */
-export function dropFor(inst: Instance, p: Player, x: number, y: number, level: number, tier: EliteTier, difficulty = inst.difficulty) {
+/** Roll and spawn the drops of one monster for one player. Returns whether equipment dropped. */
+export function dropFor(inst: Instance, p: Player, x: number, y: number, level: number, tier: EliteTier, difficulty = inst.difficulty, minItems = 0): boolean {
   const { drops, pity } = rollDrops(inst.lootRng, {
     level, difficulty, elite: tier, classId: p.save.classId,
     magicFind: 0, pity: p.save.lootPity ?? 0, inRift: inst.kind === 'rift', globeChance: p.ctx.d.globeChance,
+    ...(minItems > 0 ? { minItems } : {}),
   }, p.ctx.d.goldFind);
   p.save.lootPity = pity;
   for (const d of drops) {
@@ -77,10 +78,16 @@ export function dropFor(inst: Instance, p: Player, x: number, y: number, level: 
       inst.emitTo(p.id, { e: 'notice', text: `${prefix}${d.item.name}`, kind: 'legendary' });
     }
   }
+  return drops.some((d) => d.type === 'item');
 }
 
+/** A monster's drops for one player. Every champion pack gives each player at least one piece of equipment (Diablo IV
+ *  Season 11 guarantees equipment from every champion pack [SN, Icy Veins]): the last champion pays what the pack owes. */
 export function dropForMob(inst: Instance, p: Player, m: Mob) {
-  dropFor(inst, p, m.x, m.y, m.level, m.tier, m.diff);
+  const pack = m.tier === 1 ? m.pack : null;
+  const owed = !!pack && pack.alive <= 0 && !pack.itemFor?.has(p.id);
+  const got = dropFor(inst, p, m.x, m.y, m.level, m.tier, m.diff, owed ? 1 : 0);
+  if (pack && got) (pack.itemFor ??= new Set()).add(p.id);
 }
 
 /** Gold pile spilled by a treasure goblin while being hit. */

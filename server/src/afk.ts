@@ -17,7 +17,7 @@ import { economySnapshot, recordEconomy } from '../../shared/src/economy';
 import { AFK_EFFICIENCY, AFK_MAX_HOURS } from '../../shared/src/constants';
 import { AFK_BAND_KPM } from '../../shared/src/data/afkRates';
 import { ZONES } from '../../shared/src/data/zones';
-import { EQUIPMENT_DROP_SCALE, FIELD_DROP_FACTOR, NORMAL_GOLD_DROP_CHANCE, baseGoldAmount } from '../../shared/src/items';
+import { NORMAL_GOLD_DROP_CHANCE, baseGoldAmount, legendaryShare, ordinaryItemChance, rarityWeights } from '../../shared/src/items';
 import { clamp } from '../../shared/src/math';
 import { addXp, monsterXp } from '../../shared/src/progression';
 import { computeStats } from '../../shared/src/stats';
@@ -33,10 +33,6 @@ const AFK_MAX_AWAY_MS = AFK_MAX_HOURS * 3_600_000;
 export const LEGACY_KILLS_PER_MINUTE = 60;
 /** [P] Minimum field time in one session before its kill rate becomes the character's own rate. */
 export const RATE_MIN_FIELD_MINUTES = 5;
-/** Ordinary-kill equipment drop chance before scaling (shared/src/items.ts rollDrops, elite 0, Normal). */
-const TRASH_ITEM_CHANCE = 0.075;
-/** Legendary / set share of ordinary drops before magic find (rollRarity); offline finds exclude it. */
-const TRASH_LEGENDARY_SHARE = 0.012;
 
 /** Measured engaged-bot kills/min for a level (the band containing it; the last band beyond the table). */
 export function bandKillsPerMinute(level: number): number {
@@ -55,8 +51,9 @@ export function afkRate(save: Pick<CharacterSave, 'afk' | 'level'>): { rate: num
 
 /** Expected salvage materials per ordinary kill at a monster level (live drop, rarity and salvage rules). */
 export function salvagePerKill(level: number): { scrap: number; dust: number; crystal: number } {
-  const items = TRASH_ITEM_CHANCE * EQUIPMENT_DROP_SCALE * FIELD_DROP_FACTOR * (1 - TRASH_LEGENDARY_SHARE);
-  const n = Math.max(8, 48 - level * 0.6), mg = 36, r = 10 + level * 0.25, sum = n + mg + r;
+  // The live ordinary-kill rules (shared/src/items.ts rollDrops / rollRarity, Story); offline finds exclude Legendaries.
+  const items = ordinaryItemChance(0) * (1 - legendaryShare(level));
+  const w = rarityWeights(level, 0, false), n = w.normal, mg = w.magic, r = w.rare, sum = n + mg + r;
   const pN = n / sum, pM = mg / sum, pR = r / sum;
   return {
     scrap: items * pN * (1 + Math.floor(level / 25)),
