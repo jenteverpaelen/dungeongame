@@ -114,7 +114,7 @@ export function PartyPanel() {
           <div class="so-list">
             {directory?.entries.map(entry => <div class="so-row online" key={entry.id}>
               <i class="so-dot" />
-              <div class="so-who"><b>{entry.leader} · {entry.activity}</b><span>Level {entry.level} · {entry.members}/{PARTY_MAX} · {ZONES[entry.zone]?.name ?? entry.zone} · Channel {entry.channel}</span></div>
+              <div class="so-who"><b>{entry.leader} · {entry.activity}</b><span>Level {entry.level} · {entry.members}/{PARTY_MAX} · {ZONES[entry.zone]?.name ?? entry.zone}{entry.channel ? ` · Channel ${entry.channel}` : ''}</span></div>
               <button class="btn primary" disabled={busy || !!party.id || !party.enabled} onClick={() => void act('join', { group: entry.id })}>Join</button>
             </div>)}
             {directory && !directory.entries.length && <div class="so-empty"><UiIcon name="map" size={34} /><b>No open groups right now</b><span>List your own from the Members section.</span></div>}

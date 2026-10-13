@@ -15,7 +15,7 @@ import type { CreateInstance, InstanceApi } from './contracts';
 import { encode } from './net/codec';
 import type { Session } from './net/session';
 import { FIELD_CHANNEL_CAP, PARTY_MAX, PLAYER_RADIUS, TOWN_CHANNEL_CAP } from '../../shared/src/constants';
-import { FIELD_IDS, ZONES, type Theme, type ZoneKind } from '../../shared/src/data/zones';
+import { ZONES, type Theme, type ZoneKind } from '../../shared/src/data/zones';
 import { Rng } from '../../shared/src/math';
 import { zoneSeed, type MapData } from '../../shared/src/mapgen';
 import { CollisionWorld } from '../../shared/src/movement';
@@ -69,6 +69,12 @@ export interface InstRec {
 
 const TOWN_ID = Object.values(ZONES).find((z) => z.kind === 'town')!.id;
 const EMPTY_CHANNEL_DESTROY_MS = 5 * 60_000;
+/** Private fields (owner 2026-10-13): a party, or a hero on their own, gets its own instance of a field and meets only
+ *  its party there, as in Path of Exile; town keeps its shared channels. An empty one closes after 8 minutes, Path of
+ *  Exile's timer for areas with two or fewer exits [S] (docs/rework/OWNER-LIST-2026-10-13.md batch 5). */
+const EMPTY_FIELD_DESTROY_MS = 8 * 60_000;
+const MAX_FIELDS = Number(process.env.MAX_FIELD_INSTANCES ?? 64);
+const PRIVATE_FIELD = 'Fields are private to you and your party; channels are only in town';
 const WORLD_INFO_MS = 5_000;
 const MAX_CHANNELS_PER_ZONE = 16;
 const MAX_RIFTS = Number(process.env.MAX_RIFTS ?? 64);
@@ -137,7 +143,6 @@ export class World {
     await purgeDue(this.erasureDeps());
     this.create = await loadCreateInstance();
     this.channelRec(TOWN_ID, 1);
-    for (const id of FIELD_IDS) this.channelRec(id, 1);
   }
 
   /** Advance every instance one 50 ms step. A throwing instance must not take the world down. */
@@ -166,7 +171,7 @@ export class World {
       const idle = now - rec.emptySince;
       if (rec.rift) {
         if (idle >= EMPTY_RIFT_DESTROY_MS) this.destroyRift(rec.rift);
-      } else if (rec.kind === 'dungeon' && idle >= EMPTY_CHANNEL_DESTROY_MS) {
+      } else if (rec.kind === 'dungeon' && idle >= EMPTY_CHANNEL_DESTROY_MS || rec.kind === 'field' && rec.channel === 0 && idle >= EMPTY_FIELD_DESTROY_MS) {
         rec.inst.destroy();this.recs.delete(rec.key);this.tickErrAt.delete(rec.key);
       } else if (rec.channel > 1 && rec.hostedRifts.size === 0 && idle >= EMPTY_CHANNEL_DESTROY_MS) {
         this.destroyChannel(rec);
@@ -266,6 +271,30 @@ export class World {
       if (!best || rec.members.size < best.members.size) best = rec;
     }
     return best ?? this.channelRec(zoneId, this.nextChannelNumber(zoneId));
+  }
+
+  /** A private field `s` may enter: this zone's, with room, and nobody inside outside `s`'s party. */
+  private fieldOpenTo(s: Session, rec: InstRec, zoneId = rec.zoneId): boolean {
+    return rec.kind === 'field' && rec.channel === 0 && rec.zoneId === zoneId && rec.members.size < PARTY_MAX
+      && [...rec.members].every((m) => m === s || this.parties.together(s, m));
+  }
+
+  /** The field instance a hero enters: one a party member is already in (Path of Exile regroups a party the same way),
+   *  else the party's own or the hero's own; never one a stranger is in. */
+  private fieldRec(s: Session, zoneId: string): InstRec | string {
+    const party = this.parties.view(s).id;
+    if (party) for (const rec of this.recs.values()) if (rec.members.size > 0 && this.fieldOpenTo(s, rec, zoneId)) return rec;
+    const base = `field#${party ?? s.save.id}#${zoneId}`;
+    let key = base, n = 1, rec = this.recs.get(key);
+    while (rec && !this.fieldOpenTo(s, rec, zoneId)) { key = `${base}#${++n}`; rec = this.recs.get(key); }
+    if (rec) return rec;
+    if ([...this.recs.values()].filter((r) => r.kind === 'field').length >= MAX_FIELDS) return 'Every field is busy right now; try again shortly';
+    const def = ZONES[zoneId];
+    // Channel 1's seed: the same authored field and spawns everyone used to share.
+    const inst = this.create({ zoneId, channel: 0, key, seed: zoneSeed(zoneId, 1), theme: def.theme });
+    rec = { key, zoneId, kind: 'field', channel: 0, inst, members: new Set(), emptySince: Date.now(), hostedRifts: new Set() };
+    this.recs.set(key, rec);
+    return rec;
   }
 
   private destroyChannel(rec: InstRec): void {
@@ -404,7 +433,7 @@ export class World {
     return ok({ zone: target.zoneId, channel: target.channel });
   }
 
-  /** Waypoint travel. `channel` is optional; without it fields pick the least-full channel. */
+  /** Waypoint travel. `channel` picks a town channel; fields are private (fieldRec). */
   travel(s: Session, zoneId: string, channel?: number): CmdResult {
     const cur = s.rec;
     if (!cur) return fail('Not in a zone');
@@ -443,14 +472,10 @@ export class World {
       return ok({zone:zoneId,channel:0});
     }
     if (!nearWaypoint && !nearExit) return fail('Stand beside the Waypoint or the exit to that destination');
-    let target: InstRec;
-    if (channel !== undefined) {
-      const r = this.resolveChannel(zoneId, channel);
-      if (typeof r === 'string') return fail(r);
-      target = r;
-    } else {
-      target = this.pickChannel(zoneId);
-    }
+    if (channel !== undefined) return fail(PRIVATE_FIELD);
+    const picked = this.fieldRec(s, zoneId);
+    if (typeof picked === 'string') return fail(picked);
+    const target = picked;
     if(cur.kind==='town')s.homeTown = cur.key;
     let arrival:{x:number;y:number}|undefined;
     if(cur.inst.map.adventure) {
@@ -521,7 +546,8 @@ export class World {
     if (!town.inst.canInteract(s, tp.px, tp.py, 110)) return fail('Stand beside your portal');
     let target = this.recs.get(tp.key);
     const def = ZONES[tp.zoneId];
-    if (!target && def?.kind === 'field') target = this.pickChannel(tp.zoneId); // field channels can be reopened
+    // A closed private field reopens; one a former party member still holds is not entered.
+    if (def?.kind === 'field' && (!target || !this.fieldOpenTo(s, target))) { const r = this.fieldRec(s, tp.zoneId); target = typeof r === 'string' ? undefined : r; }
     if (!target || (def?.kind !== 'field' && target.members.size >= PARTY_MAX)) { this.closeTownPortal(s.save.id); return fail('The way back has closed'); }
     this.closeTownPortal(s.save.id);
     s.homeTown = town.key;
@@ -548,6 +574,7 @@ export class World {
     const cur = s.rec;
     if (!cur) return fail('Not in a zone');
     if (cur.kind === 'rift' || cur.kind === 'dungeon') return fail('Private instances have no channels');
+    if (cur.kind === 'field') return fail(PRIVATE_FIELD);
     if (!Number.isInteger(n) || n < 1) return fail('Invalid channel');
     if (n === cur.channel) return fail(`You are already in channel ${n}`);
     const target = this.resolveChannel(cur.zoneId, n);

@@ -101,14 +101,15 @@ export function WaypointPanel() {
           <div class="wp-chips">
             <span class="chip">{z.kind === 'town' ? 'Safe haven' : `Level ${z.levelBand[0]}–${z.levelBand[1]}`}</span>
             {here && <span class="chip here">You are here</span>}
-            <span class="chip dim"><UiIcon name="party" size={12} /> {fmtInt(total)} {total === 1 ? 'hero' : 'heroes'}</span>
+            {z.kind === 'town' && <span class="chip dim"><UiIcon name="party" size={12} /> {fmtInt(total)} {total === 1 ? 'hero' : 'heroes'}</span>}
           </div>
           <p>{z.blurb}</p>
         </div>
       </div>
       {locked && <p class="so-warn" role="status">Complete the preceding story quest to open this route.</p>}
       {!locked && tooLow && <p class="so-warn" role="status">This area needs level {lowest}.</p>}
-      <div class="co-bar"><h3>Channels</h3><span class="co-sub">{here ? 'Switch to a quieter channel of this zone.' : 'Travelling places you in the least crowded channel.'}</span></div>
+      {z.kind !== 'town' && <p class="wp-private"><UiIcon name="party" size={14} /> A private field: only you and your party are here. Everyone meets in town.</p>}
+      {z.kind === 'town' && <><div class="co-bar"><h3>Channels</h3><span class="co-sub">{here ? 'Switch to a quieter channel of this zone.' : 'Travelling places you in the least crowded channel.'}</span></div>
       <div class="wp-chans">
         {chans.length === 0 && <span class="wp-ch idle">No active channels</span>}
         {chans.map((c) => {
@@ -129,7 +130,7 @@ export function WaypointPanel() {
             </button>
           );
         })}
-      </div>
+      </div></>}
       <div class="wp-go">
         {here
           ? <span class="wp-here"><UiIcon name="pin" size={16} /> You are standing at this waypoint</span>
@@ -156,7 +157,7 @@ export function WaypointPanel() {
                     <small>{x.kind === 'town' ? 'Safe haven' : `Level ${x.levelBand[0]}–${x.levelBand[1]}`}</small>
                   </span>
                   <span class="wp-row-s">
-                    {here ? <em class="wp-pin"><UiIcon name="pin" size={14} /></em> : locked ? <UiIcon name="lock" size={16} /> : <span class="wp-pop"><UiIcon name="party" size={12} />{fmtInt(n)}</span>}
+                    {here ? <em class="wp-pin"><UiIcon name="pin" size={14} /></em> : locked ? <UiIcon name="lock" size={16} /> : x.kind === 'town' ? <span class="wp-pop"><UiIcon name="party" size={12} />{fmtInt(n)}</span> : null}
                   </span>
                 </button>
               );

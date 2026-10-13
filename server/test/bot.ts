@@ -399,7 +399,7 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('welcome carries derived stats', b.derived.life > 0 && b.derived.weaponMax > 0, b.derived.life);
   c('derived equals shared computeStats(char)', JSON.stringify(b.derived) === JSON.stringify(computeStats(b.char)));
   c('placed in town channel', b.zone.kind === 'town' && b.zone.zone === 'hearthmere' && b.zone.channel >= 1, b.zone);
-  c('welcome has world info', !!b.world && b.world.online >= 1 && b.world.channels.length >= 3);
+  c('welcome has world info (town channels; fields are private)', !!b.world && b.world.online >= 1 && b.world.channels.length >= 1 && b.world.channels.every((x) => x.zone === 'hearthmere'));
   const gotSnap = await b.waitFor(() => b.snapshots >= 3, 4000);
   c('receives snapshots after welcome', !!gotSnap);
   const firstSnap = b.snap;
@@ -898,29 +898,27 @@ async function testClass(url: string, classId: ClassId, dataDir: string | null) 
   c('equipped class gear for the field', equipped >= 5, equipped);
   c('derived still consistent with computeStats after many equips', JSON.stringify(b.derived) === JSON.stringify(computeStats(b.char)));
   r = await b.cmd('travel', { zone: 'whispering_glade' });
-  c('travel to the field', r.ok && b.zone.zone === 'whispering_glade' && b.zone.kind === 'field' && b.zone.channel >= 1, { r, zone: b.zone });
+  c('travel to the field (a private instance: no channel)', r.ok && b.zone.zone === 'whispering_glade' && b.zone.kind === 'field' && b.zone.channel === 0, { r, zone: b.zone });
   c('zone message precedes snapshots (first snapshot after each zone message describes the player)', b.zones.length >= 3 && b.orderViolations === 0, { zones: b.zones.length, violations: b.orderViolations });
   r = await b.cmd('travel', { zone: 'ashen_hollow' });
   c('field-to-field travel needs the waypoint', !r.ok, r);
-  const ch1 = b.zone.channel;
-  r = await b.cmd('channel', { n: ch1 + 1 });
-  c('channel switch opens the next channel', r.ok && b.zone.channel === ch1 + 1, { r, zone: b.zone });
-  r = await b.cmd('channel', { n: ch1 + 7 });
-  c('arbitrary channel numbers rejected', !r.ok, r);
-  r = await b.cmd('channel', { n: ch1 });
-  c('switch back to the first channel', r.ok && b.zone.channel === ch1, r);
+  const field1 = b.zone.instance;
+  r = await b.cmd('channel', { n: 1 });
+  c('channel switching in a private field rejected', !r.ok && /private/.test(r.err ?? ''), r);
   r = await b.cmd('travel', { zone: 'hearthmere', channel: 1 });
   c('travel to town with an explicit channel', r.ok && b.zone.kind === 'town' && b.zone.channel === 1, { r, zone: b.zone });
-  r = await b.cmd('travel', { zone: 'whispering_glade', channel: ch1 });
-  c('travel to a field with an explicit channel', r.ok && b.zone.kind === 'field' && b.zone.channel === ch1, { r, zone: b.zone });
+  r = await b.cmd('travel', { zone: 'whispering_glade', channel: 1 });
+  c('travel to a field with a channel number rejected', !r.ok && /private/.test(r.err ?? ''), r);
+  r = await b.cmd('travel', { zone: 'whispering_glade' });
+  c('back into the same private field while it stays open', r.ok && b.zone.kind === 'field' && b.zone.instance === field1, { r, zone: b.zone, field1 });
   await b.waitFor(() => b.me && b.snapshots > 0, 3000);
 
   await fieldPlay(b, c, FIELD_SECONDS);
 
   r = await b.cmd('travel', { zone: 'hearthmere' });
   c('travel back to town from the field', r.ok && b.zone.kind === 'town', { r, zone: b.zone });
-  const world2 = await b.waitFor(() => (b.world && b.world.channels.length >= 4 ? b.world : null), 7000);
-  c('periodic world info lists town and field channels', !!world2 && world2.channels.some((x) => x.zone === 'whispering_glade' && x.channel === ch1 + 1), world2);
+  const world2 = await b.waitFor(() => (b.world && b.world.channels.length >= 1 ? b.world : null), 7000);
+  c('periodic world info lists town channels only (fields are private)', !!world2 && world2.channels.every((x) => x.zone === 'hearthmere'), world2);
 
   // ── persistence
   section2(tag, 'persistence');
@@ -1294,7 +1292,7 @@ function fakeSession(name: string, level = 70) {
 }
 
 async function testWorld() {
-  section('world manager (in-process, stub simulation): caps, least-full, garbage collection');
+  section('world manager (in-process, stub simulation): town caps, private fields, garbage collection');
   process.env.SIM_STUB = '1';
   const { World } = await import('../src/world');
   const world = new World();
@@ -1315,16 +1313,16 @@ async function testWorld() {
   check('welcome is the first message and carries entity id + zone', townPlayers.every((p) => p.sent[0]?.t === 'welcome' && (p.sent[0] as { you: number }).you > 0));
   check('login placed everyone in a town zone', townPlayers.every((p) => (p.rec as { kind: string }).kind === 'town'));
 
-  // Fields (Rillwake Crossing: the retired Glade is closed to non-debug travel, worlds D-W19): 31 players -> channel 1 takes 30, 31st opens channel 2; least-full thereafter.
+  // Fields are private (owner 2026-10-13, as in Path of Exile): every hero on their own gets an own instance of Rillwake
+  // Crossing (the retired Glade is closed to non-debug travel, worlds D-W19); parties share one (server/test/party.test.ts).
   const f = townPlayers.slice(0, 31);
   const results = f.map((p) => world.travel(p as never, 'rillwake_crossing'));
-  let glade = channelsOf('rillwake_crossing');
-  check('field channels cap at 30 and open a new channel when full', results.every((r) => r.ok) && glade.length === 2 && glade[0].players === 30 && glade[1].players === 1, glade);
-  const extra = world.travel(townPlayers[40] as never, 'rillwake_crossing');
-  glade = channelsOf('rillwake_crossing');
-  check('next arrival goes to the least-full channel (2)', extra.ok && glade[1].players === 2 && glade[0].players === 30, glade);
-  const full = world.channel(townPlayers[40] as never, 1);
-  check('switching into a full channel is refused', !full.ok && /full/.test(full.err ?? ''), full);
+  const fieldKey = (p: ReturnType<typeof fakeSession>) => (p.rec as { key: string }).key;
+  check('31 heroes on their own get 31 private field instances', results.every((r) => r.ok) && new Set(f.map(fieldKey)).size === 31
+    && f.every((p) => (p.rec as { kind: string; channel: number }).kind === 'field' && (p.rec as { channel: number }).channel === 0), results.find((r) => !r.ok));
+  check('private fields are not listed as channels', channelsOf('rillwake_crossing').length === 0, channelsOf('rillwake_crossing'));
+  const sw = world.channel(f[1] as never, 1);
+  check('channel switching in a field is refused', !sw.ok && /private/.test(sw.err ?? ''), sw);
   const ashen = world.travel(f[0] as never, 'cinderwash_kilns');
   check('field to field travel is refused (waypoint is in town)', !ashen.ok, ashen);
 
@@ -1333,13 +1331,15 @@ async function testWorld() {
   const back = world.travel(f[0] as never, 'hearthmere');
   check('returning to town goes back to the home channel when it has room', back.ok && (f[0].rec as { key: string }).key === home, { home, now: (f[0].rec as { key: string }).key });
 
-  // Empty field channel 2 is destroyed after 5 minutes, channel 1 stays.
-  for (const p of [f[30], townPlayers[40]]) world.leave(p as never);
-  world.maintain(Date.now() + 4 * 60_000);
-  check('empty field channel 2 survives 4 minutes', channelsOf('rillwake_crossing').length === 2);
-  world.maintain(Date.now() + 5 * 60_000 + 2_000);
-  glade = channelsOf('rillwake_crossing');
-  check('empty field channel 2 is destroyed after 5 minutes; channel 1 is kept', glade.length === 1 && glade[0].channel === 1, glade);
+  // An empty private field stays 8 minutes (Path of Exile's timer), so a hero can step out and back; then it closes.
+  const fields = () => world.stats().instances.filter((i) => i.kind === 'field').length;
+  const before = fields(), gone = fieldKey(f[30]);
+  world.leave(f[30] as never);
+  world.maintain(Date.now() + 7 * 60_000);
+  check('an empty private field survives 7 minutes', fields() === before, { before, now: fields() });
+  const empty = world.stats().instances.filter((i) => i.kind === 'field' && i.players === 0).length; // f[30]'s, and f[0]'s (went home above)
+  world.maintain(Date.now() + 8 * 60_000 + 2_000);
+  check('empty private fields are destroyed after 8 minutes; occupied ones stay', empty === 2 && fields() === before - empty && !world.stats().instances.some((i) => i.key === gone), { before, empty, now: fields() });
 
   // Rifts: destroyed 60 s after becoming empty; portal removed with it.
   const opener = townPlayers[60];

@@ -85,6 +85,30 @@ test('actual World login, command routing, zone transfer, private health frames 
   }finally{for(const s of peers)if(s.rec)world.logout(s);await world.shutdown();}
 });
 
+test('private fields (owner 2026-10-13): a party shares one instance, strangers never meet there',async()=>{
+  const world=new World();await world.init();const peers:Session[]=[];
+  const atWaypoint=(s:Session)=>{const rec=s.rec!,n=rec.inst.map.town!.npcs.find(x=>x.role==='waypoint')!;rec.inst.removePlayer(s);s.entityId=rec.inst.addPlayer(s,{x:n.approach[0],y:n.approach[1]});};
+  const enter=(s:Session)=>{atWaypoint(s);const r=world.travel(s,'rillwake_crossing');assert(r.ok,r.err??'travel failed');};
+  try{
+    for(const name of ['FieldA','FieldB','FieldC']){
+      const save=createCharacter(name,'ranger',102);
+      const s={save,derived:computeStats(save),sessionId:name,rec:null,homeTown:null,hold:null,send(){},sendRaw(){},markDirty(){},saveNow(){},autosave(){},shutdown(){},changed(){},kick(){}} as unknown as Session;
+      peers.push(s);world.login(s,(you,zone)=>({t:'welcome',you,char:save,derived:s.derived,zone,time:0,world:world.infoFor(s)}));
+    }
+    const [a,b,c]=peers;assert(runCommand(a,world,'party',{action:'invite',name:b.save.name}).ok);
+    assert(runCommand(b,world,'party',{action:'accept',invite:world.parties.view(b).incoming[0].id}).ok);
+    enter(a);enter(c);enter(b);
+    assert.equal(b.rec!.key,a.rec!.key,'the second party member joins the first one\'s field');
+    assert.notEqual(c.rec!.key,a.rec!.key,'a stranger gets an own field');
+    assert.equal(a.rec!.members.size,2);assert.equal(c.rec!.members.size,1);assert.equal(a.rec!.channel,0);
+    assert(!world.channel(c,1).ok);
+    // Leaving the party keeps you where you are until you travel; then the field you enter is your own.
+    assert(runCommand(b,world,'party',{action:'leave'}).ok);assert.equal(b.rec!.key,a.rec!.key);
+    assert(world.travel(b,'hearthmere').ok);enter(b);
+    assert.notEqual(b.rec!.key,a.rec!.key);assert.equal(b.rec!.members.size,1);
+  }finally{for(const s of peers)if(s.rec)world.logout(s);await world.shutdown();}
+});
+
 test('public directory joins revalidate capacity and disappear on leadership changes or unlisting',()=>{
   const f=fixture(),[a,b,c,d,e]=f.peers;
   assert(f.cmd(a,'list',{activity:'story'}).ok);const group=f.parties.directory(b).entries[0].id;

@@ -72,3 +72,26 @@ D-R3 Diablo IV: a path or direction marker on the minimap toward the tracked obj
 | "The waypoint tracker can be made a bit more modern and better working" | measured problems first: the trail's dots were 2 radii apart and faint on cobbles, nothing showed the way once the goal was off screen, a two-target step led to the first target while the tracker measured to the nearest, the minimap marked only that first target, and long titles were cut ("The …", "Pressure B…") because the destination shared their line. Now: denser crumbs with three sparks running toward the goal and a pulsing ring at its end (D-R1, kept quieter than the crumbs); a marker pinned to the screen edge with an arrow and the distance ("72 m", or "Rillwake Crossing · 41 m" for another zone's exit), hidden on screen and under 4 m (D-R2); the trail picks the nearest remaining target every 0.5 s, the same point the tracker measures; the minimap and Tab map mark every remaining target, pinned to the minimap rim (D-R3); tracker titles keep their whole line, the distance ends the objective text (`render/questGuide.ts`, `ui/hud/Minimap.tsx`, `ui/panels/questTracker.tsx`). Spacing, spark speed and HUD insets are [P] | D-R1–D-R3 |
 
 Every item on the list is done.
+
+## Batch 5: private fields (owner decision)
+
+The owner asked "isnt it better to have mobs for each player? ... i can imagine on release 20 ppl on 1 mob pack is kinda
+weird no? unless in party then shared". Options shown: private fields per party (Path of Exile, Last Epoch, Diablo III
+games of four), a shared world with credit for everyone (Diablo IV, Guild Wars 2), or small shared channels (Lost Ark, WoW
+sharding) [K]. Owner: "do private fields per party then i guess".
+
+Reference E-R1: Path of Exile keeps an empty area instance 15 minutes, or 8 minutes for areas with two or fewer exits; a
+new instance is made after that (an older official explanation quoted on https://www.pathofexile.com/forum/view-thread/518788) [S, old].
+
+| What | Basis |
+|---|---|
+| Every field zone is a private instance: a hero on their own gets their own, a party shares one; entering a field joins the instance a party member is already in (otherwise the party's), never one a stranger is in. Leaving a party keeps you where you are until you travel (`server/src/world.ts fieldRec`) | owner, E-R1 |
+| An empty private field closes after 8 minutes, so a town portal or a quick trip to town comes back to the same monsters; after that the portal back opens a fresh one | E-R1 |
+| Town keeps its shared channels (100 per channel); fields have no channels, the Waypoint says "A private field: only you and your party are here. Everyone meets in town.", the zone plate says "Private field" | owner |
+| Cost measured with the real simulation: about 2.2 MB of heap and 0.03 ms of world tick per field instance, the first instance builds in 138 ms; at most 64 field instances (`MAX_FIELD_INSTANCES`) ≈ 140 MB, inside the Hetzner service's 700 MB [M, `.local/bal/field-memory.ts`] | measured |
+
+## Verify notes for batches 1–5
+
+- `client-bindings`: the test rebound "move up" to T, which is now the town portal key, so it uses G; Tab is tested both ways (moves focus while a window is open and with Shift, toggles the map otherwise).
+- `depth` (Ranger parity D3): adding the resource-on-crit affix reshuffles the seeded rares of every parity kit. Seed 101 alone put Pitch Mortar at 0.76 (hard limit 0.80); the same seed already swung 0.84–1.14 between seeds before the change, and over the audit's three seeds D3 moved 1.00 → 0.95. The Ranger gate now uses the three seeds (all mains 0.88–0.99, 18 s) [M].
+- `perf-budget`: snapshot bandwidth +16.5 % over the 2026-10-11 baseline (limit +15 %). With the new affix weighted 0 the scenario is byte-identical to 7ff65dd (+11.7 %), so the extra comes from the scenario hero's reshuffled gear, not from protocol or code; the baseline was re-recorded with `--record` (the tool's path for an intended change). Tick time back to back on the same laptop: 7ff65dd 1.94–2.07 ms, now 2.11–2.14 ms per round of 4 (budget 10 ms) [M]. The pace baseline was not touched.

@@ -64,7 +64,7 @@ export function SocialPanel() {
           </form>
           <div class="so-list">
             {list.slice(current * SOCIAL_PAGE_SIZE, (current + 1) * SOCIAL_PAGE_SIZE).map(f => {
-              const detail = tab === 'friends' ? (f.online ? `Level ${f.level} · ${ZONES[f.zone ?? '']?.name ?? 'Travelling'} · Channel ${f.channel}` : 'Unavailable') : '';
+              const detail = tab === 'friends' ? (f.online ? `Level ${f.level} · ${ZONES[f.zone ?? '']?.name ?? 'Travelling'}${f.channel ? ` · Channel ${f.channel}` : ''}` : 'Unavailable') : '';
               return <div class={cls('so-row', tab === 'friends' && f.online && 'online')} key={f.name}>
                 <i class="so-dot" aria-label={f.online ? 'Online' : 'Offline'} />
                 <div class="so-who"><b>{f.name}</b>{detail && <span>{detail}</span>}</div>

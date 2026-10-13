@@ -299,7 +299,7 @@ export function ZonePlate() {
     <div class="zone-plate">
       <div class="zp-name">{zone.name}</div>
       <div class="zp-sub">
-        {!inRift && <span>{zone.kind==='dungeon'?questText('quest.pump.solo'):`Channel ${zone.channel}`}</span>}
+        {!inRift && <span>{zone.kind==='dungeon'?questText('quest.pump.solo'):zone.kind==='field'?'Private field':`Channel ${zone.channel}`}</span>}
         {inRift && rift && <span class="zp-clock">{fmtClock(rift.elapsedMs)}</span>}
         {diff && <span class="zp-diff">{diff}</span>}
       </div>
