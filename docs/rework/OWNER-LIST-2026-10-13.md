@@ -101,6 +101,22 @@ The owner asked: "are there pop ups on screen for friend request and party invit
 
 The four-client quest tests now form a party before entering the field, since only a party shares a private field.
 
+## Batch 7: the level-up banner on the live server
+
+The owner: "i dont see that level 2 notice on the live server its weird". Measured: the server sends the level event on kills and quest turn-ins, in town and in private fields, and the client draws the banner in the dev and the production build. With reduce motion on (the game setting, or Windows' animation setting, which the live address follows until the player chooses), every animation is cut to 1 ms; a notice's animation is its whole life and ends invisible, so it was never seen (opacity 0 measured). Notices, the pickup log and panel banners now keep their length under reduce motion as a fade without movement (opacity 1 measured; `client/src/ui/styles/tokens.css`).
+
+## Batch 8: companions
+
+A player in chat: the Companion skill "doesnt really do anything" although maxed. Measured on slapbox (level 70, Raven, tier 3, two ravens): 6 % of the damage over 25 s of fighting, the ravens hanging at the hero's side. Causes found:
+
+| Cause | Fix | Basis |
+|---|---|---|
+| a flying companion whose next step was blocked by a wall or cover stopped for good; a walking one pressed against fences, buildings and cliffs (no pathfinding): at the town's training dummies two ravens and two wolves dealt 0 | fliers slide along walls and cover; a companion that has not closed in for 1.2 s appears at a free spot beside where it was heading (`server/src/sim/summons.ts`). After: wolf, raven and bat each strike 18 times in the same window, about 40 % of a level 30 hero's damage with only the primary attack [M] | bug; ARPG pets warping back into play [K] |
+| a companion more than 60 units short of striking range walked at its normal speed, so packs died before it arrived | it closes in at 2.2× speed [P] | owner |
+| only the Heron showed its strike | the raven strikes with a lightning arc from the bird, wolf and badger bites close as two crossing swipes, the bat's as a flurry of three; a short flash in the strike's element (`client/src/render/vfx/aoe.ts beastBite`) | hit feedback for every damage source [K] |
+
+Damage numbers are unchanged. slapbox's two ravens now deal 7–10 % at level 70, where packs still die almost at once. Ranger parity D3 stays inside 0.80–1.25 (Companion 0.99, Rain of Vengeance 0.85, Pitch Mortar 0.92) [M]. More Companion damage would be a balance change, not made here.
+
 ## Verify notes for batches 1–5
 
 - `client-bindings`: the test rebound "move up" to T, which is now the town portal key, so it uses G; Tab is tested both ways (moves focus while a window is open and with Shift, toggles the map otherwise).

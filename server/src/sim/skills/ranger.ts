@@ -610,13 +610,19 @@ function companionAi(inst: Instance, s: Summon, p: Player, dtMs: number, dtS: nu
   if (tgt) {
     const range = s.type === 'heron' ? 200 : s.type === 'raven' ? 60 : 14;
     const reach = s.r + tgt.r + range;
-    moveSummon(inst, s, tgt.x, tgt.y, speed, dtS, reach);
+    // A companion more than 60 units short of striking range closes in at a lunge, so it reaches the fight before a pack
+    // the hero is clearing is gone [P] (docs/rework/OWNER-LIST-2026-10-13.md batch 8).
+    const gap = Math.hypot(tgt.x - s.x, tgt.y - s.y) - reach;
+    moveSummon(inst, s, tgt.x, tgt.y, gap > 60 ? speed * 2.2 : speed, dtS, reach);
     if (Math.hypot(tgt.x - s.x, tgt.y - s.y) <= reach + 4 && s.fireMs <= 0) {
       s.fireMs = 1000;
       faceTo(s, tgt.x);
       s.attackSeq++;
       s.attackFlagMs = 250;
       if (s.type === 'heron') inst.emit({ e: 'beam', v: 'heron_spear', x: Math.round(s.x), y: Math.round(s.y - 10), tx: Math.round(tgt.x), ty: Math.round(tgt.y), el: elIdx(skillElement(rt)), d: 160 }, tgt.x, tgt.y, p.id);
+      // Every other companion's strike shows where it lands: the raven's as an arc from the bird, the rest as a bite.
+      else if (s.type === 'raven') inst.emit({ e: 'beam', v: 'arc', x: Math.round(s.x), y: Math.round(s.y - 18), tx: Math.round(tgt.x), ty: Math.round(tgt.y - 8), el: elIdx(skillElement(rt)), d: 160 }, tgt.x, tgt.y, p.id);
+      else inst.emit({ e: 'aoe', v: 'beast_bite', x: Math.round(tgt.x), y: Math.round(tgt.y), r: 20, d: 0, el: elIdx(skillElement(rt)), s: s.id, a: s.type === 'bat' ? 1 : 0 }, tgt.x, tgt.y, p.id);
       beastHit(inst, p, tgt, companionStrike(p), s);
       if (s.type === 'heron' && !tgt.dead) chillMob(tgt, 1500, inst, p);
     }

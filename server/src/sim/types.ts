@@ -271,6 +271,8 @@ export interface Summon extends Hashed {
   ty: number;
   /** Hydra head index / variant. */
   aux: number;
+  /** Fliers: how long this one has been blocked with no way forward (moveSummon). */
+  stuckMs?: number;
   attackFlagMs: number;
   faceLeft: boolean;
   moving: boolean;

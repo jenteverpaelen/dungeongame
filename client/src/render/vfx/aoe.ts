@@ -100,6 +100,7 @@ export class AoeFx {
       case 'grenade': this.explosion(ev.x, ev.y, r, ev.el === EL_PHYS ? EL_FIRE : ev.el, 0.7, mine); break;
       case 'explode': this.explosion(ev.x, ev.y, r, ev.el, 1, mine); break;
       case 'dustdevil_hit': this.dustdevil(ev.x, ev.y, r); break;
+      case 'beast_bite': this.beastBite(ev.x, ev.y, r, ev.el, ev.a ?? 0); break;
       case 'whirl': this.whirl(ev.x, ev.y, r, ev.el); break;
       case 'cleave':
         // The cast already drew the arc toward its target; a 360° Cleave's second (opposite) arc still draws.
@@ -610,6 +611,21 @@ export class AoeFx {
     s.flash(x, y, 24, Math.max(40, r * 1.4), 0xd6c2ff, 0.12, 0.9);
     for (let i = 0; i < 3; i++) this.combat.zigzag(x, y - 24, rand(0, TAU), rand(16, 30), 0xe6dcff, 0.12);
     for (let i = 0, n = s.n(5); i < n; i++) s.spark(x, y, 24, rand(0, TAU), rand(140, 260), 10, 0xb9a2ff, 0.2);
+  }
+
+  /** A companion's strike (owner 2026-10-13): a wolf or badger bite closes as two crossing swipes, a bat's as a flurry of
+   *  three small ones; a short flash and a few sparks in the strike's element. */
+  beastBite(x: number, y: number, r: number, el: number, kind: number): void {
+    const V = this.V, s = V.sys, T = s.T;
+    const col = el === EL_PHYS ? 0xfff0d8 : pal(el).main, bat = kind === 1;
+    const base = rand(0, TAU), n = bat ? 3 : 2;
+    for (let i = 0; i < n; i++) {
+      V.after(i * (bat ? 0.04 : 0.06), () => {
+        this.slashes.spawn({ tex: T.swipeThin, x, y, z: WAIST - 4 + i * 4, r: r * (bat ? 0.75 : 1), rot: base + (bat ? i * 2.1 : i * Math.PI), vr: bat ? 14 : 9, life: 0.2, color: bat ? 0xc9a2ff : col, alpha: 0.95, grow: [0.75, 1.05], squash: 0.5 });
+      });
+    }
+    s.flash(x, y, WAIST, r * 1.2, bat ? 0xd8c0ff : col, 0.1, 0.35);
+    for (let i = 0, m = s.n(3); i < m; i++) s.spark(x, y, WAIST, rand(0, TAU), rand(90, 170), 8, bat ? 0xe6d6ff : 0xfff4dc, 0.14);
   }
 
   dustdevil(x: number, y: number, r: number): void {
