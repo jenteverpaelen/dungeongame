@@ -657,8 +657,8 @@ export class PlayerArt implements PlayerView {
     }
     const fxs = heroFx();
     if (wk === 'bow' || wk === 'xbow' || wk === 'hxbow') {
-      this.nockArrow = fxs.make('arrow') as Sprite;
-      this.body.addChild(this.nockArrow);
+      // only a bow nocks an arrow (placeBow places it); a crossbow's bolt is part of its drawing
+      if (wk === 'bow') { this.nockArrow = fxs.make('arrow') as Sprite; this.body.addChild(this.nockArrow); } else this.nockArrow = null;
       for (let i = 0; i < 5; i++) {
         const s = fxs.make('arrow') as Sprite;
         const st = new Sprite(fx().streak);

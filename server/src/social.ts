@@ -103,7 +103,7 @@ export class Social {
     const messageId=randomUUID();
     for(const peer of recipients){
       if(peer!==s&&(this.blocked(s,peer)||has(this.state(peer).muted,s.save.name)||(ch!=='zone'&&!this.enabled(peer))))continue;
-      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(item?{item}:{}),...(build?{build}:{}),...(ch==='whisper'?{to:recipients[1].save.name}:{})};
+      const message={t:'chat' as const,ch:ch as ChatChannel,from:s.save.name,cls:s.save.classId,text,messageId,...(s.staffRole?{role:s.staffRole}:{}),...(item?{item}:{}),...(build?{build}:{}),...(ch==='whisper'?{to:recipients[1].save.name}:{})};
       this.community?.remember(peer,message);peer.send(message);
     }
     return {ok:true};

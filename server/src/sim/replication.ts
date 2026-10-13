@@ -32,7 +32,7 @@ function playerFlags(p: Player): number {
 }
 
 function descPlayer(p: Player): EntDesc {
-  return { id: p.id, k: 'player', t: p.save.classId, n: p.name, lv: p.save.level, r: p.r, look: playerLook(p.save), pl: p.save.paragon.level };
+  return { id: p.id, k: 'player', t: p.save.classId, n: p.name, lv: p.save.level, r: p.r, look: playerLook(p.save), pl: p.save.paragon.level, ...(p.link.staffRole ? { st: p.link.staffRole } : {}) };
 }
 
 function descMob(m: Mob): EntDesc {

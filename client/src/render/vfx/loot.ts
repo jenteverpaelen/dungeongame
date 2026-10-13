@@ -15,7 +15,7 @@ import { preferences } from '../../game/preferences';
 import { text } from '../../i18n/messages';
 import { lookFx } from '@shared/gearVisual';
 import { gearSigilTexture } from '../art/gearFx';
-import { FABLED_LIGHT, TOP_COLORS } from '../art/gearStyle';
+import { FABLED_LIGHT } from '../art/gearStyle';
 
 function labelText(l: LootView, quality: boolean): string {
   if (!quality || l.lk !== 'item' || !l.rarity) return l.name;
@@ -52,9 +52,10 @@ function beamStyleByRarity(l: LootView): BeamStyle | null {
   // Outer colour follows RARITY_COLORS so a colour-vision preset recolours beams too (default = #ef6c2a / #34c79a).
   const set = l.rarity === 'set';
   const c = cssToInt(set ? RARITY_COLORS.set : RARITY_COLORS.legendary);
-  if (l.ancient === 2) return { outer: FABLED_LIGHT, core: 0xffffff, width: 74, height: 540, glow: TOP_COLORS[2] };
-  if (l.ancient === 1) return { outer: c, core: 0xffc48a, width: 64, height: 520, glow: TOP_COLORS[1] };
+  // the rarity keeps the outer beam and glow; the grade shows in the core (white-gold starlight / ember)
   const glow = c === (set ? 0x34c79a : 0xef6c2a) ? (set ? 0x3ad6a6 : 0xf07a34) : lerpColor(c, 0xffffff, 0.06);
+  if (l.ancient === 2) return { outer: c, core: FABLED_LIGHT, width: 74, height: 540, glow };
+  if (l.ancient === 1) return { outer: c, core: 0xffc48a, width: 64, height: 520, glow };
   return { outer: c, core: set ? 0xc8f5e6 : 0xffd8a8, width: 54, height: 450, glow };
 }
 
@@ -304,7 +305,7 @@ class LootItemView implements EntityView {
     const padX = 7, padY = 3;
     const w = Math.ceil(txt.width + padX * 2), h = Math.ceil(txt.height + padY * 2) - 2;
     const special = l.rarity === 'legendary' || l.rarity === 'set';
-    const border = l.ancient === 2 ? TOP_COLORS[2] : l.ancient === 1 ? TOP_COLORS[1] : special ? lerpColor(col, 0x000000, 0.25) : lerpColor(col, 0x000000, 0.55);
+    const border = special ? lerpColor(col, 0x000000, 0.25) : lerpColor(col, 0x000000, 0.55); // rarity first, also for Kindled / Fabled
     const bg = new Graphics()
       .roundRect(-w / 2, -h, w, h, 3).fill({ color: 0x0b0806, alpha: 0.82 })
       .roundRect(-w / 2, -h, w, h, 3).stroke({ width: special || l.ancient ? 1.5 : 1, color: border, alpha: special ? 0.95 : 0.6 });

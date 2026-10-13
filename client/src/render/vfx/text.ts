@@ -12,7 +12,7 @@ const NUMBER_SCALE = { small: 0.8, normal: 1, large: 1.3 } as const;
 import { getGlyphAtlas, type GlyphAtlas } from './atlas';
 import { clamp, easeOut, easeOut3, toBgr } from './util';
 
-export const enum NumKind { Normal, Crit, Dot, Taken, Heal }
+export const enum NumKind { Normal, Crit, Dot, Taken, Heal, Xp }
 
 export interface NumOpts {
   kind: NumKind;
@@ -24,6 +24,8 @@ export interface NumOpts {
   big?: number;
   /** Merge key (target id + category); 0 = never merge. */
   key: number;
+  /** Merge window in seconds (default 0.18, 0.3 on a crowded screen). */
+  merge?: number;
   /** Lane key (target id): consecutive numbers on one target alternate positions. */
   lane?: number;
 }
@@ -37,7 +39,8 @@ interface Num {
   thick: boolean;
   amount: number; count: number; crit: boolean;
   prefix: string;
-  out: Particle[]; fil: Particle[]; adv: number[]; width: number;
+  suffix: string;
+  out: Particle[]; fil: Particle[]; adv: number[]; gap: number[]; width: number;
   key: number; lastAdd: number; born: number;
   merged: boolean; dead: boolean;
   opts: NumOpts;
@@ -55,6 +58,8 @@ const STYLE = {
   [NumKind.Dot]: { px: 15.5, fill: 0xffffff, outline: 0x140b06, life: 0.85, thick: false, pop: 1.0, popDur: 0.01, rise: [30, 44] },
   [NumKind.Taken]: { px: 21, fill: 0xff4a3a, outline: 0x2a0000, life: 1.0, thick: true, pop: 1.35, popDur: 0.1, rise: [40, 56] },
   [NumKind.Heal]: { px: 16, fill: 0x7dff8a, outline: 0x062008, life: 1.0, thick: false, pop: 1.2, popDur: 0.1, rise: [34, 46] },
+  // XP from a kill: its own colour (not the gold of crits), slower so it reads after the hit numbers [P]
+  [NumKind.Xp]: { px: 17, fill: 0xb7a6ff, outline: 0x140a2a, life: 1.35, thick: false, pop: 1.15, popDur: 0.1, rise: [40, 54] },
 } as const;
 
 export class CombatText {
@@ -101,7 +106,7 @@ export class CombatText {
       if (!rec) { rec = { singles: [], merged: null, seen: now }; this.recs.set(o.key, rec); }
       rec.seen = now;
       const m = rec.merged;
-      if (m && !m.dead && now - m.lastAdd < (crowded ? 0.3 : 0.18) && m.age < 1.2) {
+      if (m && !m.dead && now - m.lastAdd < (o.merge ?? (crowded ? 0.3 : 0.18)) && m.age < 1.2) {
         this.absorb(m, amount, o.kind === NumKind.Crit);
         return;
       }
@@ -151,8 +156,9 @@ export class CombatText {
       pop: still ? 1 : merged ? 1.45 : st.pop, popDur: st.popDur, bumpAt: -1,
       thick: st.thick || merged,
       amount, count: 1, crit: o.kind === NumKind.Crit,
-      prefix: o.kind === NumKind.Heal ? '+' : '',
-      out: [], fil: [], adv: [], width: 0,
+      prefix: o.kind === NumKind.Heal || o.kind === NumKind.Xp ? '+' : '',
+      suffix: o.kind === NumKind.Xp ? ' XP' : '',
+      out: [], fil: [], adv: [], gap: [], width: 0,
       key: o.key, lastAdd: this.time, born: this.time,
       merged, dead: false, opts: o,
     };
@@ -246,20 +252,24 @@ export class CombatText {
   }
 
   private setText(n: Num): void {
-    const s = n.prefix + fmtCompact(n.amount);
+    const s = n.prefix + fmtCompact(n.amount) + n.suffix;
     for (const p of n.out) this.pool.push(p);
     for (const p of n.fil) this.pool.push(p);
-    n.out.length = 0; n.fil.length = 0; n.adv.length = 0;
+    n.out.length = 0; n.fil.length = 0; n.adv.length = 0; n.gap.length = 0;
+    let gapNext = 0;
     const A = this.atlas;
     const outSet = n.thick ? A.outC : A.outN;
     let w = 0;
     for (const ch of s) {
+      // a space is a gap before the next glyph (the atlas has no space glyph)
+      if (ch === ' ') { const g = A.size * 0.34; gapNext += g; w += g; continue; }
       const o = outSet[ch];
       if (!o) continue;
       n.out.push(this.glyph(o));
       n.fil.push(this.glyph(A.fill[ch]));
       const a = A.adv[ch] ?? A.size * 0.6;
       n.adv.push(a);
+      n.gap.push(gapNext); gapNext = 0;
       w += a;
     }
     n.width = w * SPACING;
@@ -324,6 +334,7 @@ export class CombatText {
     const k = n.out.length;
     for (let i = 0; i < k; i++) {
       const adv = n.adv[i] * gs;
+      cx += (n.gap[i] ?? 0) * gs;
       const gx = cx + adv / 2;
       const o = n.out[i];
       o.x = gx; o.y = y; o.scaleX = gs; o.scaleY = gs; o.color = cOut;

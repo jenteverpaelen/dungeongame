@@ -21,7 +21,7 @@ export interface FrontView {
 
 export type PanelId = 'inventory' | 'skills' | 'paragon' | 'cube' | 'waypoint' | 'obelisk' | 'help' | 'debug' | 'stash' | 'settings' | 'adventure' | 'worldmap' | 'runSummary' | 'character' | 'merchant' | 'party' | 'social' | 'inspect' | 'community' | 'collection' | 'dialogue' | 'bounty' | 'bench';
 
-export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string; item?:import('@shared/types').Item; build?: import('@shared/buildCode').BuildCode }
+export interface ChatLine { id: number; ch: import('@shared/social').ChatChannel | 'system'; role?: import('@shared/protocol').StaffRole; from?: string; to?:string; cls?: ClassId; text: string; at: number;messageId?:string; item?:import('@shared/types').Item; build?: import('@shared/buildCode').BuildCode }
 export interface Notice { id: number; text: string; kind: 'rift' | 'boss' | 'info' | 'legendary' | 'warn' | 'level'; at: number }
 export interface PickupLine { id: number; lk: LootView['lk']; name: string; rarity?: string; amount?: number; at: number }
 export interface AfkReport { ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
@@ -127,7 +127,7 @@ export const ui = new Store<UIState>({
   screen: 'select', connected: false, error: null,
   front: { step: 'title', hero: null, hover: null, focus: null, cls: 'warrior', appearance: classAppearance('warrior'), gear: true, yaw: 0 },
   account: { mode: 'off', username: null, characters: [], busy: false, error: null, codes: null, open: false, picked: null },
-  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'zone',chatTarget:'',
+  char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'world',chatTarget:'',
   panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
   target: null, interact: null, dialogue: null, reading: null, hold: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });

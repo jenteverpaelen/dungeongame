@@ -258,7 +258,8 @@ export class Game {
         break;
       }
       case 'chat':
-        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item, build:m.build });
+        pushChat({ ch: m.ch, from: m.from, to:m.to, cls: m.cls, text: m.text,messageId:m.messageId, item:m.item, build:m.build, ...(m.role ? { role: m.role } : {}) });
+        if (m.ch === 'system' && m.role === 'dev') pushNotice(m.text, 'info'); // staff announcement
         break;
       case 'afk':
         ui.set({ afk: m });
@@ -454,13 +455,15 @@ export class Game {
     const typing = document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement;
     if (k === 'Escape') {
       if (st.chatOpen) ui.set({ chatOpen: false });
-      else closeAllPanels();
+      else if (Object.values(st.panels).some(Boolean)) closeAllPanels();
+      else if (st.screen === 'game' && !st.account.open) togglePanel('settings', true);
       (document.activeElement as HTMLElement | null)?.blur?.();
       return;
     }
     if (typing || st.screen !== 'game') return;
     if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
-    if (k === 'Enter') { ui.set({ chatOpen: true }); this.input.clear(); return; }
+    // Enter opens chat in Global so a quick message reaches everyone (owner 2026-10-13); the picker changes it per message.
+    if (k === 'Enter') { ui.set({ chatOpen: true, chatChannel: 'world' }); this.input.clear(); return; }
     if (k === 'j') { if(st.panels.adventure)togglePanel('adventure',false);else openJournal();return; }
     if (k === 'm') { togglePanel('worldmap'); return; }
     if (k === 'u') {

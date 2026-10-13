@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { CLASSES } from '@shared/data/classes';
 import { AFFIX_BY_STAT, GEMS } from '@shared/data/items';
-import { BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
+import { CUBE_FUNCTIONS, gemName, salvageYield } from '@shared/cube';
 import { fmtCompact, fmtInt } from '@shared/format';
 import { INVENTORY_COLS, INVENTORY_SIZE } from '@shared/constants';
 import { canClassUse } from '@shared/items';
@@ -11,7 +11,7 @@ import { compareItem, computeStats } from '@shared/stats';
 import type { CharacterSave, Item, Materials, Rarity, Slot } from '@shared/types';
 import { pushNotice, togglePanel, ui } from '../store';
 import { characterText } from '@shared/data/characterMessages';
-import { Check, PanelFrame, Wealth } from './common';
+import { PanelFrame, Wealth } from './common';
 import { cubeUI, invUI, setCubeItem, stashUI } from './cubestate';
 import { beginDrag, canDropOn, justDragged, useDrag } from './dnd';
 import { SlotGlyph } from './glyphs';
@@ -326,56 +326,10 @@ function GemGrid({ char }: { char: CharacterSave }) {
 
 // ───────────────────────────── salvage ─────────────────────────────
 
-const RARITY_NAME: Record<Rarity, string> = { normal: 'Normal', magic: 'Magic', rare: 'Rare', legendary: 'Legendary', set: 'Set' };
-
-function sumYield(items: Item[]): Partial<Materials> {
-  const out: Partial<Materials> = {};
-  for (const it of items) for (const [k, v] of Object.entries(salvageYield(it)) as [keyof Materials, number][]) out[k] = (out[k] ?? 0) + v;
-  return out;
-}
-
 function YieldChips({ y }: { y: Partial<Materials> }) {
   const e = MATERIAL_ORDER.filter((m) => (y[m] ?? 0) > 0);
   if (!e.length) return <span class="yield none">nothing</span>;
   return <span class="yield">{e.map((m) => <span key={m}><MatIcon id={m} size={16} /><b>{fmtInt(y[m]!)}</b></span>)}</span>;
-}
-
-function SalvageMenu({ char }: { char: CharacterSave }) {
-  const sel = useRef<Record<string, boolean>>({ normal: true, magic: true, rare: false });
-  const open = useLocal(invUI, (s) => s.salvageMenu);
-  const [, rerender] = useForce();
-  if (!open) return null;
-  const rarities = BULK_SALVAGE_RARITIES.filter((r) => sel.current[r]);
-  const items = char.inventory.filter((i): i is Item => !!i && !i.protected && !i.vendorStock && rarities.includes(i.rarity));
-  return (
-    <div class="menu salvage-menu">
-      <div class="menu-t">Salvage All</div>
-      {BULK_SALVAGE_RARITIES.map((r) => {
-        const n = char.inventory.filter((i) => i && !i.protected && !i.vendorStock && i.rarity === r).length;
-        return (
-          <div class="menu-row" key={r}>
-            <Check on={!!sel.current[r]} onChange={(v) => { sel.current[r] = v; rerender(); }}>
-              <span class={`rar-name r-${r}`}>{RARITY_NAME[r]}</span>
-            </Check>
-            <em>{n}</em>
-          </div>
-        );
-      })}
-      <div class="menu-sum">You will receive <YieldChips y={sumYield(items)} /></div>
-      <div class="menu-note">Protected, merchant stock, Legendary and Set items are never salvaged in bulk.</div>
-      <div class="menu-act">
-        <button class="btn sm" onClick={() => invUI.set({ salvageMenu: false })}>Cancel</button>
-        <button class="btn sm primary" disabled={!items.length} onClick={() => { invUI.set({ salvageMenu: false }); void run('salvageAll', { rarities }); }}>
-          Salvage {items.length}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function useForce(): [number, () => void] {
-  const [n, set] = useState(0);
-  return [n, () => set((x) => x + 1)];
 }
 
 function ConfirmDialog({ char }: { char: CharacterSave }) {
@@ -415,7 +369,6 @@ export function InventoryPanel() {
   const protectMode = useLocal(invUI, s => s.protectMode);
   const char = useU((s) => s.char);
   const tab = useLocal(invUI, (s) => s.tab);
-  const menuOpen = useLocal(invUI, (s) => s.salvageMenu);
   const drag = useDrag();
   if (!char) return null;
   const used = char.inventory.filter(Boolean).length;
@@ -431,9 +384,6 @@ export function InventoryPanel() {
         </div>
         <div class="bag-tools">
           <ProtectionButton />
-          <button class={cls('btn sm', menuOpen && 'on')} onClick={() => invUI.set({ salvageMenu: !menuOpen })} {...textTipHandlers(() => ({ title: 'Salvage', lines: ['Shift + right-click an item to salvage it.', 'Salvage All breaks down every Normal, Magic or Rare item you tick.'] }), 'salv')}>
-            Salvage All
-          </button>
           <div class={cls('trash', drag?.kind === 'bag' && 'drop-ok')} data-drop="trash" {...textTipHandlers(() => ({ title: 'Destroy', lines: ['Drag an item here to destroy it.'] }), 'trash')}>
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
               <path d="M3.5 4.6 H12.5 L11.7 14 H4.3 Z M2.4 4.6 H13.6 M6 4.6 V2.8 H10 V4.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
@@ -445,7 +395,6 @@ export function InventoryPanel() {
       <div class="bag-wrap">
         {protectMode && <div class="cw-note">Click a bag or worn item to protect or unprotect it. Choose Done to finish.</div>}
         {tab === 'items' ? <BagGrid char={char} /> : <GemGrid char={char} />}
-        <SalvageMenu char={char} />
         <ConfirmDialog char={char} />
       </div>
     </PanelFrame>

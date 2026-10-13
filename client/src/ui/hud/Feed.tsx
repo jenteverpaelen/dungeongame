@@ -83,13 +83,20 @@ export function PickupLog() {
 
 const IDLE_FADE_MS = 9000;
 
+/** What players call each channel ('world' reaches everyone online: Global). */
+export const CHANNEL_LABEL: Record<string, string> = { world: 'Global', zone: 'Zone', party: 'Party', guild: 'Guild', trade: 'Trade', lfg: 'LFG', whisper: 'Whisper', system: 'System' };
+/** One colour per channel (tag, prompt and picker) [P], after WoW's default chat colours. */
+export const CHANNEL_COLOR: Record<string, string> = { world: '#f0c879', zone: '#e9dfcb', party: '#9fb4ff', guild: '#6fdc8c', trade: '#ffb27a', lfg: '#8fd8ff', whisper: '#ff8fe0', system: '#e6c36a' };
+const SEND_ORDER = ['world', 'zone', 'party', 'guild', 'trade', 'lfg', 'whisper'] as const;
+
 function ChatRow({ l, idle }: { l: ChatLine; idle: boolean }) {
   const open=useUI(s=>s.chatOpen),me=useUI(s=>s.char?.name);
-  if (l.ch === 'system') return <div class={`chat-line sys${idle ? ' idle' : ''}`}>{l.text}</div>;
+  if (l.ch === 'system') return <div class={`chat-line sys${idle ? ' idle' : ''}`}>{l.role === 'dev' && <span class="chat-staff">✦ DEV</span>}{l.text}</div>;
   return (
     <div class={`chat-line${idle ? ' idle' : ''}`}>
-      <span class="chat-tag">[{l.ch==='whisper'?`Whisper → ${l.to}`:l.ch==='lfg'?'LFG':l.ch}]</span>
-      <button class="chat-name interactive" style={{ color: l.cls ? CLASS_TEXT[l.cls] : '#d9ccb2' }} onClick={()=>{if(l.from)whisperTo(l.from===ui.get().char?.name?(l.to??l.from):l.from);}} title="Whisper to this character">{l.from ?? '?'}</button>
+      <span class="chat-tag" style={{ color: CHANNEL_COLOR[l.ch] }}>[{l.ch==='whisper'?`Whisper → ${l.to}`:CHANNEL_LABEL[l.ch] ?? l.ch}]</span>
+      {l.role === 'dev' && <span class="chat-staff" title="Hearthfall developer">✦ DEV</span>}
+      <button class={`chat-name interactive${l.role === 'dev' ? ' staff' : ''}`} style={{ color: l.role === 'dev' ? undefined : l.cls ? CLASS_TEXT[l.cls] : '#d9ccb2' }} onClick={()=>{if(l.from)whisperTo(l.from===ui.get().char?.name?(l.to??l.from):l.from);}} title="Whisper to this character">{l.from ?? '?'}</button>
       <span class="chat-sep">:</span> {l.build ? <BuildCard l={l} /> : l.item ? <button class="chat-name interactive" style={{color:RARITY_COLORS[l.item.rarity]}} {...itemHover(()=>l.item??null,{compare:true})}>{l.text}</button> : <span class="chat-text">{l.text}</span>}
       {open&&l.messageId&&l.from&&l.from!==me&&<button class="chat-name interactive" onClick={()=>{ui.set({chatOpen:false});reportMessage(l.from!,l.messageId!);}} title="Report this received message"> · Report</button>}
     </div>
@@ -109,7 +116,7 @@ function ChatInput() {
     if (e.key === 'Enter') {
       e.preventDefault();
       const t = text.trim();
-      if (t) sendChat(t.slice(0, 200),ch,target);
+      if (t) sendChat(t.slice(0, 200),ch,target); // slash commands (/w, /p, /g, /global …) are the server's (session.slash)
       setText('');
       close();
     } else if (e.key === 'Escape') {
@@ -120,17 +127,19 @@ function ChatInput() {
   };
   return (
     <div class="interactive" onKeyDown={e=>e.stopPropagation()}>
-    <div class="chat-audiences">{CHAT_CHANNELS.map(channel=><button class={`btn tiny${channel===ch?' primary':''}`} onClick={()=>{ui.set({chatChannel:channel});ref.current?.focus();}}>{channel==='lfg'?'LFG':channel}</button>)}</div>
     {ch==='whisper'&&<label class="chat-recipient">To <input aria-label="Whisper recipient" maxLength={16} value={target} onInput={e=>ui.set({chatTarget:e.currentTarget.value})}/></label>}
     <div class="chat-input">
-      <span class="chat-prompt">{ch==='whisper'?`To ${target||'…'}`:ch}</span>
+      <select class="chat-prompt" aria-label="Send to channel" value={ch} style={{ color: CHANNEL_COLOR[ch] }}
+        onChange={(e) => { ui.set({ chatChannel: (e.currentTarget as HTMLSelectElement).value as (typeof CHAT_CHANNELS)[number] }); ref.current?.focus(); }}>
+        {SEND_ORDER.filter((c) => (CHAT_CHANNELS as readonly string[]).includes(c)).map((c) => <option key={c} value={c}>{CHANNEL_LABEL[c]}</option>)}
+      </select>
       <input
         ref={ref}
         value={text}
         maxLength={200}
         spellcheck={false}
         autocomplete="off"
-        placeholder="Press Enter to send, Esc to cancel"
+        placeholder={ch === 'world' ? 'Everyone online sees this · Enter sends, Esc cancels' : 'Enter sends, Esc cancels'}
         onInput={(e) => setText((e.currentTarget as HTMLInputElement).value)}
         onKeyDown={onKeyDown}
       />
@@ -142,7 +151,7 @@ function ChatInput() {
 // Channel view tabs (MMO convention): filter what the log shows; a channel tab also becomes the send channel.
 const CHAT_VIEWS = ['all', ...CHAT_CHANNELS, 'system'] as const;
 type ChatView = (typeof CHAT_VIEWS)[number];
-const VIEW_LABEL = (v: ChatView) => v === 'lfg' ? 'LFG' : v[0].toUpperCase() + v.slice(1);
+const VIEW_LABEL = (v: ChatView) => v === 'all' ? 'All' : CHANNEL_LABEL[v] ?? v;
 let rememberedView: ChatView = 'all';
 
 export function Chat() {
@@ -154,18 +163,19 @@ export function Chat() {
   const now = useNow(1000, lines.length > 0 && !open);
   const newest = lines.length ? lines[lines.length - 1].at : 0;
   const idle = !open && now - newest > IDLE_FADE_MS;
-  if (!lines.length && !open) return null;
+
   const pick = (v: ChatView) => { rememberedView = v; setView(v); if ((CHAT_CHANNELS as readonly string[]).includes(v)) ui.set({ chatChannel: v as (typeof CHAT_CHANNELS)[number] }); };
   return (
     <div class={`hud-chat${open ? ' is-open' : ''}${idle ? ' is-idle' : ''}`}>
       {open && <div class="chat-tabs interactive" role="tablist" aria-label="Chat channels">
         {CHAT_VIEWS.map((v) => <button key={v} role="tab" aria-selected={view === v} class={`chat-tab${view === v ? ' on' : ''}`} onClick={() => pick(v)}>{VIEW_LABEL(v)}</button>)}
       </div>}
-      <div class="chat-lines">
+      {(lines.length > 0 || open) && <div class="chat-lines">
         {lines.map((l) => <ChatRow key={l.id} l={l} idle={!open && now - l.at > IDLE_FADE_MS} />)}
         {open && !lines.length && <div class="chat-line sys">No messages in {VIEW_LABEL(view)} yet.</div>}
-      </div>
+      </div>}
       {open && <ChatInput />}
+      {!open && <div class="chat-hint"><kbd>Enter</kbd> to chat · <b style={{ color: CHANNEL_COLOR.world }}>Global</b></div>}
     </div>
   );
 }

@@ -12,12 +12,16 @@ export interface InputHandlers {
 
 export class Input {
   private down = new Set<string>();
+  /** The last button a mouse or touch pressed: Space/Enter on it belong to the game, not to the button. */
+  private pointerButton: Element | null = null;
   mouseX = 0;
   mouseY = 0;
 
   constructor(private h: InputHandlers, private keys: BindingStore = bindings) {
     window.addEventListener('keydown', this.onDown);
     window.addEventListener('keyup', this.onUp);
+    window.addEventListener('pointerdown', (e) => { this.pointerButton = (e.target as Element | null)?.closest?.('button, [role="button"], [role="tab"]') ?? null; }, { capture: true });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Tab') this.pointerButton = null; }, { capture: true });
     window.addEventListener('blur', () => this.down.clear());
     window.addEventListener('focusin', () => this.down.clear());
     window.addEventListener('mousemove', (e) => { this.mouseX = e.clientX; this.mouseY = e.clientY; keys.setDevice('keyboard'); });
@@ -52,7 +56,8 @@ export class Input {
     // Native button activation must not dash. Keep movement/hotkeys available
     // after a mouse click leaves an ordinary game button focused.
     const target = e.target as Element | null;
-    const button = target?.closest?.('button, [role="button"], [role="tab"]');
+    let button = target?.closest?.('button, [role="button"], [role="tab"]') as HTMLElement | null;
+    if (button && (e.key === ' ' || e.key === 'Enter') && button === this.pointerButton) { button.blur(); button = null; }
     if (target?.closest?.('select, [role="slider"], [data-controls-editor]') || (button && (e.key === ' ' || e.key === 'Enter'))) {
       this.down.clear();
       if (e.key === 'Escape' || e.key === 'F1') { if (e.key === 'F1') e.preventDefault(); this.h.onHotkey(e.key, e); }

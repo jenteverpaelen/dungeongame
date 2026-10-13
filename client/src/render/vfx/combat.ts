@@ -7,10 +7,11 @@ import { EL_ARCANE, EL_COLD, EL_FIRE, EL_HOLY, EL_LIGHT, EL_POISON, TAU, lerpCol
 
 type Dmg = Extract<GameEvent, { e: 'dmg' }>;
 type Heal = Extract<GameEvent, { e: 'heal' }>;
+type Xp = Extract<GameEvent, { e: 'xp' }>;
 type Die = Extract<GameEvent, { e: 'die' }>;
 
 const BLEED = 0xff8f80;
-const CAT_MINE = 1, CAT_OTHER = 2, CAT_TAKEN = 3, CAT_HEAL = 4;
+const CAT_MINE = 1, CAT_OTHER = 2, CAT_TAKEN = 3, CAT_HEAL = 4, CAT_XP = 5;
 
 export class Combat {
   private lastSpark = new Map<number, number>();
@@ -93,6 +94,14 @@ export class Combat {
       for (const [k, t] of this.lastSpark) if (now - t > 2) this.lastSpark.delete(k);
       for (const [k, t] of this.lastFlash) if (now - t > 2) this.lastFlash.delete(k);
     }
+  }
+
+  /** "+N XP" over the hero; kills within 0.7 s add up into one number (a pack reads as one gain). */
+  xp(ev: Xp): void {
+    if (ev.t !== this.V.ctx.myId() || ev.a < 1) return;
+    const b = this.V.body(ev.t);
+    const x = b ? b.x - 14 : ev.x, y = b ? b.y - b.h - 16 : ev.y - 46;
+    this.text.spawn(ev.a, x, y, { kind: NumKind.Xp, key: ev.t * 8 + CAT_XP, merge: 0.7 });
   }
 
   heal(ev: Heal): void {

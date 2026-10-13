@@ -220,6 +220,8 @@ export class World {
   }
 
   get onlineCount(): number { return this.players.size; }
+  /** Everyone online (staff tools, server/src/staff.ts). */
+  sessions(): Iterable<Session> { return this.players; }
 
   // ─────────────────────────── Instances ───────────────────────────
 

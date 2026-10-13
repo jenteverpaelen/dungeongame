@@ -18,6 +18,7 @@ import type { Mob, Player } from './sim/types';
 import { planQuestDelivery } from '../../shared/src/questDelivery';
 import { addXp } from '../../shared/src/progression';
 import { bountyClaim, creditBountyKill, creditBountyWave } from './bounties';
+import { announceProgress } from './sim/players';
 
 /** Proximity + line of sight to a contact where this player sees it (phasing, docs/rework/quests/DESIGN.md §4). */
 function near(s:Session, target:QuestTarget):boolean {
@@ -147,9 +148,13 @@ export function questCommand(s:Session,a:Record<string,unknown>):CmdResult {
       const pick=a.pick==='alt'&&questHasPick(q)?'alt':'main';
       const plan=planQuestReward(s.save,q,claimState,pick);
       if('error' in plan)return fail(plan.error);
+      const levelBefore=s.save.level;
       Object.assign(s.save,plan.save);
       if(plan.save.trackedQuest===undefined)delete s.save.trackedQuest;
       s.changed(plan.levels>0||plan.paragons>0);
+      // The reward's XP takes the same level-up path as kill XP: the level-up moment plays, new skills slot themselves.
+      const p=inst?(inst as unknown as Instance).players.find(x=>x.link===s):undefined;
+      if(p&&(plan.levels>0||plan.paragons>0))announceProgress(inst as unknown as Instance,p,levelBefore,plan);
       return ok();
     } else if(a.action==='objectiveTalk') {
       const step=q.steps[state.step];

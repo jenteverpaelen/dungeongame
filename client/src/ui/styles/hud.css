@@ -927,7 +927,15 @@
 .chat-lines { display: flex; flex-direction: column; gap: calc(var(--u) * 1); padding: calc(var(--u) * 6) calc(var(--u) * 12) calc(var(--u) * 6) calc(var(--u) * 10); background: linear-gradient(90deg, rgba(8, 6, 4, 0.58), rgba(8, 6, 4, 0.32) 75%, rgba(8, 6, 4, 0)); border-left: calc(var(--u) * 2) solid rgba(140, 106, 56, 0.6); }
 .hud-chat.is-open .chat-lines { background: linear-gradient(90deg, rgba(8, 6, 4, 0.82), rgba(8, 6, 4, 0.6) 80%, rgba(8, 6, 4, 0.1)); border-left-color: var(--bronze-2); }
 .chat-line { font-size: var(--f-m); line-height: 1.32; color: var(--text); text-shadow: 0 1px 2px #000, 0 0 4px rgba(0, 0, 0, 0.9); transition: opacity 0.5s; word-break: break-word; }
-.chat-line.idle { opacity: 0.4; }
+.chat-line.idle { opacity: 0.62; }
+/* Closed chat: a visible way in (owner 2026-10-13: chat should be more obvious). */
+.chat-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: calc(var(--u) * 4); padding: 3px 10px 3px 6px; font-size: var(--f-xs); color: var(--t-2); background: rgba(8, 6, 4, 0.7); border: 1px solid var(--line-1); border-radius: 3px; pointer-events: none; }
+.chat-hint kbd { font: 700 11px/1 var(--font-body); padding: 2px 5px; border-radius: 2px; color: var(--t-1); background: #2a2016; border: 1px solid var(--line-2); }
+/* Staff badge: the developer's mark before the name, and their name in the badge colour. */
+.chat-staff { display: inline-block; margin-right: 5px; padding: 0 5px; font: 700 10.5px/1.5 var(--font-body); letter-spacing: 0.06em; color: #1b1205; background: linear-gradient(180deg, #ffe08a, #f0a83a); border-radius: 2px; box-shadow: 0 0 6px rgba(255, 196, 80, 0.55); vertical-align: 1px; }
+.chat-name.staff { color: #ffd36a; text-shadow: 0 0 6px rgba(255, 190, 70, 0.6), 0 1px 2px #000; }
+select.chat-prompt { appearance: none; height: 100%; min-height: calc(var(--u) * 32); background: rgba(0, 0, 0, 0.25); border: 0; border-right: 1px solid rgba(201, 164, 92, 0.25); cursor: pointer; }
+select.chat-prompt option { color: var(--text); background: #1a130c; }
 .chat-line.sys { color: #e6c36a; font-style: italic; }
 .chat-name { font-weight: 700; border:0; background:none; padding:0; font-family:inherit; font-size:inherit; cursor:pointer; }
 .chat-audiences { display:flex; gap:4px; flex-wrap:wrap; padding-top:8px; }

@@ -803,7 +803,7 @@ function bakeFxAtlas(): FxTextures {
 // (crits / merged numbers) and a fill layer. Numbers draw all outlines of a number first, then its fills,
 // so tightly-kerned digits never cut into each other; tint recolours fill and outline independently.
 
-export const GLYPH_CHARS = '0123456789.,-+!%KMBTQaiSxpOcNoDc∞';
+export const GLYPH_CHARS = '0123456789.,-+!%KMBTQaiSxpOcNoDc∞XP';
 const CW = 76, CH = 96, BASE = 72;
 export const GLYPH_SIZE = 54;
 

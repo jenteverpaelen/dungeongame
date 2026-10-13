@@ -31,6 +31,12 @@ const accountEnv = (process.env.ACCOUNTS ?? 'off').toLowerCase();
 export const ACCOUNT_MODE: 'off' | 'optional' | 'required' = accountEnv === 'required' ? 'required' : accountEnv === 'optional' || accountEnv === '1' ? 'optional' : 'off';
 export const ALLOW_LEGACY_LOGIN = process.env.ALLOW_LEGACY_LOGIN === '1';
 
+const nameList = (v: string | undefined) => new Set((v ?? '').split(',').map((x) => x.trim().toLowerCase()).filter(Boolean));
+/** Staff accounts (developer badge in chat and over the head, moderation commands in chat, server/src/staff.ts). */
+export const STAFF_ACCOUNTS = nameList(process.env.STAFF_ACCOUNTS);
+/** Staff by hero name, only on debug test servers (ENABLE_DEBUG=1): there accounts can be off and names are not owned. */
+export const STAFF_CHARACTERS = process.env.ENABLE_DEBUG === '1' && process.env.DISABLE_DEBUG !== '1' ? nameList(process.env.STAFF_CHARACTERS) : new Set<string>();
+
 export const AUTOSAVE_MS = 30_000;
 export const EMPTY_RIFT_DESTROY_MS = 60_000;
 export const RIFT_PORTAL_MS = 60_000;

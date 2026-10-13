@@ -55,6 +55,7 @@ export function killMob(inst: Instance, m: Mob, killer: Player | null, el: Eleme
     p.kills++;
     if (eliteKill) p.save.stats.elites++;
     grantXp(inst, p, xp);
+    inst.emitTo(p.id, { e: 'xp', t: p.id, a: Math.max(1, Math.round(xp)), x: Math.round(m.x), y: Math.round(m.y) });
     if (!m.noReward && !riftGuardian) dropForMob(inst, p, m);
     if (p === killer) {
       if (p.ctx.d.lifePerKill > 0) healPlayer(inst, p, p.ctx.d.lifePerKill, true);

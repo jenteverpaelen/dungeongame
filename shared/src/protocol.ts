@@ -5,7 +5,7 @@ import type { Theme, ZoneKind } from './data/zones';
 import type { EliteTier } from './items';
 import type { AncientTier, CharacterSave, ClassId, DerivedStats, ItemKind, ItemLook, Materials, Rarity } from './types';
 
-export const PROTOCOL_VERSION = 28; // 28: health potion (in.potion, me.potionCd); 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
+export const PROTOCOL_VERSION = 29; // 29: xp event, chat role, staff desc (owner list 2026-10-13); 28: health potion (in.potion, me.potionCd); 27: build tools (loadouts, build codes, dummy bench), depth classes; 26: merge of 24 (stash tabs stashMove/stashBuyTab, afk fields) and 25 (gear look V2 packed fx); 25: gear look V2
 /** Sent when `hello` carries another protocol version. The client reloads itself once on seeing exactly this text. */
 export const CLIENT_OUTDATED_MESSAGE = 'Your game is out of date. Please refresh the page.';
 // Existing transport budgets, shared with the connection-local receipt window.
@@ -74,6 +74,7 @@ export interface EntDesc {
   sc?: number;        // scale
   look?: PlayerLook;
   owner?: number;     // summons / loot owner
+  st?: StaffRole;     // players: staff badge over the head
   loot?: LootView;
   pl?: number;        // paragon level (players)
 }
@@ -113,6 +114,8 @@ export interface MeState {
 export type GameEvent =
   | { e: 'dmg'; t: number; a: number; c?: 1; el: number; s?: number; k?: 1; p?: 1; dot?: 1 }
   | { e: 'heal'; t: number; a: number }
+  /** XP a kill gave this player (sent only to them): amount and the monster's position. */
+  | { e: 'xp'; t: number; a: number; x: number; y: number }
   | { e: 'die'; t: number; el: number; x: number; y: number; big?: 1 }
   | { e: 'cast'; s: number; sk: string; r?: string; x: number; y: number; tx: number; ty: number; rad?: number }
   | { e: 'proj'; id: number; s: number; v: string; x: number; y: number; vx: number; vy: number; life: number; el: number; h?: number; sz?: number }
@@ -190,7 +193,7 @@ export type S2C =
   | Snapshot
   | { t: 'char'; char: CharacterSave; derived: DerivedStats }
   | { t: 'res'; id: number; ok: boolean; err?: string; data?: unknown }
-  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item; build?: import('./buildCode').BuildCode }
+  | { t: 'chat'; ch: import('./social').ChatChannel | 'system'; from?: string; to?:string; cls?: ClassId; text: string;messageId?:string; item?:import('./types').Item; build?: import('./buildCode').BuildCode; role?: StaffRole }
   | { t: 'afk'; ms: number; xp: number; gold: number; kills: number; mats: Partial<Materials>; zone: string; levels: number;
       /** v2 breakdown (F-MET-02): kills/min used, whether it is the hero's own measured rate, the offline share, cap hit. */
       rate?: number; basis?: 'own' | 'assumed'; efficiency?: number; capped?: boolean }
@@ -224,6 +227,8 @@ export type AuthOp = 'status' | 'register' | 'login' | 'resume' | 'logout' | 're
   // Devices & activity, personal data (export, deletion with a grace period); all need a logged-in socket before `hello`.
   | 'sessions' | 'revoke' | 'export' | 'deleteAccount' | 'cancelDeletion' | 'deleteCharacter' | 'restoreCharacter';
 export type AccountMode = 'off' | 'optional' | 'required';
+/** Staff accounts named by the server operator (STAFF_ACCOUNTS): their chat lines and nameplates carry a badge. */
+export type StaffRole = 'dev';
 /** The refusal for `hello` with `existing` when no hero has that name. */
 export const NO_SUCH_HERO_MESSAGE = 'No hero with that name was found. Check the spelling.';
 /** `deleteAt`: the hero is scheduled for deletion at this time (epoch ms) and cannot be played until restored. */

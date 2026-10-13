@@ -18,6 +18,8 @@ export interface PlayerLink {
   send(msg: S2C): void;
   /** The save changed: infrastructure persists it and sends a throttled `char` update. */
   markDirty(): void;
+  /** Staff role (developer badge over the head), from the server's settings. */
+  readonly staffRole?: import('../../shared/src/protocol').StaffRole;
 }
 
 export interface InstanceOptions {

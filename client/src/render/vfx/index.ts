@@ -112,6 +112,7 @@ export class Vfx {
     switch (ev.e) {
       case 'dmg': this.combat.dmg(ev); break;
       case 'heal': this.combat.heal(ev); break;
+      case 'xp': this.combat.xp(ev); break;
       case 'die': this.combat.die(ev); break;
       case 'proj': this.projs.spawn(ev); break;
       case 'pend': this.projs.end(ev); break;

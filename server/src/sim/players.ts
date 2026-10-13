@@ -271,17 +271,23 @@ function respawnInPlace(inst: Instance, p: Player) {
 
 /** Grant XP (already multiplied), handle level-ups / paragon levels, events, stat refresh. */
 export function grantXp(inst: Instance, p: Player, xp: number) {
+  const before = p.save.level;
+  const r = addXp(p.save, Math.max(1, Math.round(xp)));
+  announceProgress(inst, p, before, r);
+}
+
+/** What a level or paragon gain does, wherever the XP came from (kills, bounties, quest rewards): new skills slot
+ *  themselves, stats refresh, the resource refills and the level event plays the client's level-up moment. */
+export function announceProgress(inst: Instance, p: Player, levelBefore: number, gained: { levels: number; paragons: number }) {
   const save = p.save;
-  const before = save.level;
-  const r = addXp(save, Math.max(1, Math.round(xp)));
-  if (r.levels > 0) {
-    recordIntro(p.save,'level');
-    autoSlotSkills(save, before);
+  if (gained.levels > 0) {
+    recordIntro(save,'level');
+    autoSlotSkills(save, levelBefore);
     refreshPlayerStats(inst, p, false);
     p.res = CLASSES[save.classId].resource.id === 'fury' ? p.res : p.mres;
     inst.emit({ e: 'level', t: p.id, lv: save.level }, p.x, p.y, p.id);
   }
-  if (r.paragons > 0) {
+  if (gained.paragons > 0) {
     p.descVer++;
     inst.emit({ e: 'paragon', t: p.id, lv: save.paragon.level }, p.x, p.y, p.id);
   }

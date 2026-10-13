@@ -480,6 +480,8 @@ export interface TipContent {
 
 let ptr = { x: 0, y: 0 };
 let tipBlocked = false;
+/** The element the visible tooltip belongs to; the tooltip hides when it is removed (its window closed). */
+let anchor: HTMLElement | null = null;
 /** Tooltips are suppressed while dragging (set by the drag layer). */
 export function setTipBlocked(b: boolean) { tipBlocked = b; if (b) hideTip(); }
 let layerEl: HTMLDivElement | null = null;
@@ -511,6 +513,7 @@ export function showTip(content: TipContent, x?: number, y?: number) {
 }
 
 export function hideTip() {
+  anchor = null;
   if (tipStore.get().content) tipStore.set({ content: null });
   if (layerEl) layerEl.style.visibility = 'hidden';
 }
@@ -534,6 +537,13 @@ export function TipLayer() {
   }, []);
 
   useLayoutEffect(() => { place(); }, [content]);
+
+  // A window that closes under the cursor removes the hovered element without a pointerleave: watch the anchor.
+  useEffect(() => {
+    if (!content) return;
+    const timer = setInterval(() => { if (anchor && !document.contains(anchor)) hideTip(); }, 100);
+    return () => clearInterval(timer);
+  }, [content]);
 
   // Items can move under a stationary cursor: re-resolve the hovered content on every character update.
   useEffect(() => {
@@ -565,7 +575,7 @@ export function tipHandlers(build: () => TipContent | null, isBlocked?: () => bo
       if (tipBlocked || isBlocked?.()) return;
       ptr = { x: e.clientX, y: e.clientY };
       const c = build();
-      if (c) showTip(c); else hideTip();
+      if (c) { showTip(c); anchor = e.currentTarget as HTMLElement | null; } else hideTip();
     },
     onPointerMove: (e) => { if (tipStore.get().content) moveTip(e.clientX, e.clientY); },
     onPointerLeave: () => hideTip(),

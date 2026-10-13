@@ -683,8 +683,14 @@ export const SOUNDS: Record<string, SoundDef> = {
   roar: {
     gain: 0.75, max: 1, vary: 0.03, pri: true,
     layers: [
-      { p: { freq: 95, attack: 0.08, sustain: 0.5, release: 0.6, shape: 2, slide: -0.25, noise: 0.6, filter: -700 } },
-      { p: { freq: 60, attack: 0.1, sustain: 0.5, release: 0.5, shape: 0, slide: -0.2 }, gain: 0.6 },
+      // growl: a raspy sawtooth (noise on the pitch) that swells up, then drops back at the end
+      { p: { freq: 190, attack: 0.07, sustain: 0.32, release: 0.42, shape: 2, slide: 0.3, jump: -60, jumpTime: 0.34, noise: 0.35, filter: -1600 }, gain: 0.85 },
+      // throat: a second raspy voice a fifth above, for the open-mouthed part
+      { p: { freq: 285, attack: 0.09, sustain: 0.28, release: 0.38, shape: 2, slide: 0.25, jump: -90, jumpTime: 0.34, noise: 0.25, filter: -2000 }, gain: 0.45 },
+      // breath: noise with the low end cut so it hisses instead of rumbling
+      { p: { freq: 1200, attack: 0.05, sustain: 0.3, release: 0.45, shape: 4, noise: 1, filter: 700 }, gain: 0.12 },
+      // weight: a short low thump at the onset only
+      { p: { freq: 75, attack: 0.01, release: 0.2, shape: 0, slide: -0.3 }, gain: 0.4, exp: 0.08 },
     ],
   },
 

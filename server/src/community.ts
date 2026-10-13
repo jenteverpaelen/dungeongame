@@ -64,6 +64,8 @@ export class Community {
     if(!this.state.reports.some(r=>r.at<=now-REPORT_RETENTION_MS)&&!this.state.audit.some(r=>r.at<=now-REPORT_RETENTION_MS)&&!this.state.sanctions.some(s=>s.until!==0&&s.until<=now))return;
     await this.mutate(s=>{s.reports=s.reports.filter(r=>r.at>now-REPORT_RETENTION_MS);s.audit=s.audit.filter(r=>r.at>now-REPORT_RETENTION_MS);s.sanctions=s.sanctions.filter(r=>r.until===0||r.until>now);return {ok:true};});
   }
+  /** Reports nobody has resolved yet (staff /reports). */
+  openReports(){return this.state.reports.filter(r=>!r.resolved);}
   banned(id:string){return this.state.sanctions.some(s=>s.target===id&&s.kind==='ban'&&(s.until===0||s.until>Date.now()));}
   canSpeak(s:Session){return !this.state.sanctions.some(x=>x.target===s.save.id&&(x.until===0||x.until>Date.now()));}
   filter(text:string){return (!this.state.filter.links||!/(?:https?:\/\/|www\.)\S+/i.test(text))&&!this.state.filter.phrases.some(p=>text.toLowerCase().includes(p.toLowerCase()));}

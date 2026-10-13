@@ -5,12 +5,13 @@ import { isHeroAppearance } from '../../../shared/src/appearance';
 import { startIntro } from '../../../shared/src/onboarding';
 import {CHAT_MAX_LEN,CHAT_BURST,CHAT_REFILL_MS} from '../../../shared/src/social';
 import {EMOTES} from '../../../shared/src/community';
+import { staffCommand } from '../staff';
 export {CHAT_MAX_LEN} from '../../../shared/src/social';
 import { randomUUID } from 'node:crypto';
 import { WebSocket } from 'ws';
 import type { RawData } from 'ws';
 import { FieldRateMeter, applyAfkGains } from '../afk';
-import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS, OFFLINE_REWARDS } from '../config';
+import { ACCOUNT_MODE, ALLOW_LEGACY_LOGIN, AUTOSAVE_MS, OFFLINE_REWARDS, STAFF_ACCOUNTS, STAFF_CHARACTERS } from '../config';
 import { runCommand } from '../commands';
 import type { PlayerLink } from '../contracts';
 import { CorruptCharacterError, SaveWriteError, UnsupportedSaveVersionError, NAME_RE, characterId, loadCharacter, saveCharacter } from '../persistence';
@@ -18,7 +19,7 @@ import { fail, type CmdResult, type InstRec, type World } from '../world';
 import { isClassId } from '../../../shared/src/data/classes';
 import { createCharacter, playerLook } from '../../../shared/src/character';
 import { clamp } from '../../../shared/src/math';
-import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, NO_SUCH_HERO_MESSAGE, PROTOCOL_VERSION, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
+import { CLIENT_OUTDATED_MESSAGE, MAX_MESSAGES_PER_SECOND, NO_SUCH_HERO_MESSAGE, PROTOCOL_VERSION, type StaffRole, type AuthCharacter, type AuthOp, type C2S, type CmdOp, type S2C } from '../../../shared/src/protocol';
 import { AccountsBusyError, MAX_CHARACTERS_PER_ACCOUNT } from '../accounts';
 import { buildAccountExport } from '../erasure';
 import type { AccountInfo } from '../../../shared/src/protocol';
@@ -29,6 +30,8 @@ import { decode, encode } from './codec';
 import { CommandReceipts } from './commandReceipts';
 import { isPersistedCommand, validCommandState } from '../../../shared/src/commandState';
 import { initializeCommandState, persistedCommand } from './persistedCommands';
+/** Shown for /help (staff see their commands first). */
+const HELP_LINE = 'Chat: /global (everyone), /z zone, /p party, /g guild, /w Name message, /trade, /lfg. Emotes: /wave, /thanks, /cheer, /ready. Contacts, titles, guilds and reports are in Social. /who lists players.';
 
 /** Messages accepted per second per connection; the rest are dropped. */
 export const MAX_MSGS_PER_SEC = MAX_MESSAGES_PER_SECOND;
@@ -67,6 +70,12 @@ export class Session implements PlayerLink {
   private charId = '';
   /** Username once `auth` succeeded on this connection (before `hello`). */
   private account: string | null = null;
+  /** Staff role from the server's settings (STAFF_ACCOUNTS; STAFF_CHARACTERS on debug test servers). */
+  get staffRole(): StaffRole | undefined {
+    if (this.account && STAFF_ACCOUNTS.has(this.account.toLowerCase())) return 'dev';
+    if (this.save && STAFF_CHARACTERS.has(this.save.name.toLowerCase())) return 'dev';
+    return undefined;
+  }
   /** The session token this connection authenticated with (to mark "this device" and keep it on "sign out others"). */
   private token: string | null = null;
   private authBusy = false;
@@ -344,13 +353,17 @@ export class Session implements PlayerLink {
 
   private slash(text: string): void {
     const cmd = text.slice(1).split(' ')[0].toLowerCase();
+    // Staff commands first (server/src/staff.ts); /help and /who then show the staff versions.
+    if (this.staffRole && staffCommand(this, text, () => this.world.sessions(), this.world.community)) { if (cmd === 'help') this.world.systemMessage(this, HELP_LINE); return; }
     if(Object.hasOwn(EMOTES,cmd)){this.world.chat(this,EMOTES[cmd as keyof typeof EMOTES]);return;}
     switch (cmd) {
       case 'who': this.world.systemMessage(this, `${this.world.onlineCount} player${this.world.onlineCount === 1 ? '' : 's'} online.`); break;
-      case 'help': this.world.systemMessage(this, 'Chat: /w Name message, /p, /g, /world, /trade, /lfg. Emotes: /wave, /thanks, /cheer, /ready. Contacts, titles, guilds and reports are in Social. /who lists players.'); break;
+      case 'help': this.world.systemMessage(this, HELP_LINE); break;
       case 'w': case 'whisper': {const [,name,...words]=text.split(' ');this.world.chat(this,words.join(' '),'whisper',name);break;}
       case 'p': case 'party': this.world.chat(this,text.slice(cmd.length+2),'party');break;
       case 'world': case 'trade': case 'lfg': this.world.chat(this,text.slice(cmd.length+2),cmd);break;
+      case 'global': this.world.chat(this,text.slice(cmd.length+2),'world');break;
+      case 'z': case 'zone': this.world.chat(this,text.slice(cmd.length+2),'zone');break;
       case 'g': case 'guild':this.world.chat(this,text.slice(cmd.length+2),'guild');break;
       default: this.world.systemMessage(this, 'Unknown command. Try /help.');
     }

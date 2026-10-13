@@ -8,7 +8,7 @@ import { itemProtectionReason } from '@shared/itemProtection';
 import { VENDOR_SALVAGE_REASON } from '@shared/merchant';
 import { validCommandState } from '@shared/commandState';
 import {
-  CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, UPGRADE_CHANCE, canAfford, canEnchantAffix, cubeXpToNext, enchantCost, extractCost, fuseCost,
+  BULK_SALVAGE_RARITIES, CUBE_FUNCTIONS, CUBE_XP, FORTUNE_PER_FAIL, UPGRADE_CHANCE, canAfford, canEnchantAffix, cubeXpToNext, enchantCost, extractCost, fuseCost,
   gemName, gemRemoveCost, maxSockets, reforgeCost, salvageXp, salvageYield, socketCost, transmuteCost, upgradeChance, upgradeCost,
   type Cost, type CubeOp,
 } from '@shared/cube';
@@ -20,7 +20,7 @@ import { ARTISAN_FUNCTIONS, ARTISAN_NAMES } from '@shared/townServices';
 import { ui, togglePanel } from '../store';
 import { WORKSHOP_QUESTS } from '@shared/data/workshopQuests';
 import { questAvailable, questCompleted } from '@shared/quests';
-import { Bar, CostList, PanelFrame, Paged } from './common';
+import { Bar, Check, CostList, PanelFrame, Paged } from './common';
 import { cubeUI, setCubeItem } from './cubestate';
 import { canDropOn, useDrag } from './dnd';
 import { CubeEmblem, GemIcon, IconArrowRight, IconCheck, IconChevron, IconDelta, IconLock, IconStar4, MatIcon, MATERIAL_ORDER, gemColor, lighten } from './icons';
@@ -130,8 +130,34 @@ function Note({ children, tone }: { children: ComponentChildren; tone?: 'warn' }
   return <div class={cls('cw-note', tone)}>{children}</div>;
 }
 
+/** Salvage everything of the ticked rarities at once (moved here from the bag, owner 2026-10-13). */
+const BULK_NAME: Record<string, string> = { normal: 'Normal', magic: 'Magic', rare: 'Rare' };
+function BulkSalvage({ char }: { char: CharacterSave }) {
+  const [sel, setSel] = useState<Record<string, boolean>>({ normal: true, magic: true, rare: false });
+  const rarities = BULK_SALVAGE_RARITIES.filter((r) => sel[r]);
+  const items = char.inventory.filter((i): i is Item => !!i && !i.protected && !i.vendorStock && rarities.includes(i.rarity));
+  const total: Partial<Materials> = {};
+  for (const it of items) for (const [k, v] of Object.entries(salvageYield(it)) as [keyof Materials, number][]) total[k] = (total[k] ?? 0) + v;
+  return (
+    <div class="cv bulk-salvage">
+      <div class="menu-t">Salvage all</div>
+      {BULK_SALVAGE_RARITIES.map((r) => (
+        <div class="menu-row" key={r}>
+          <Check on={!!sel[r]} onChange={(v) => setSel({ ...sel, [r]: v })}><span class={`rar-name r-${r}`}>{BULK_NAME[r] ?? r}</span></Check>
+          <em>{char.inventory.filter((i) => i && !i.protected && !i.vendorStock && i.rarity === r).length}</em>
+        </div>
+      ))}
+      <div class="cv-row"><label>You will receive</label><YieldChips y={total} /></div>
+      <Note>Protected, merchant stock, Legendary and Set items are never salvaged in bulk.</Note>
+      <div class="menu-act">
+        <button class="btn sm primary" disabled={!items.length} onClick={() => void run('salvageAll', { rarities })}>Salvage {items.length}</button>
+      </div>
+    </div>
+  );
+}
+
 function SalvageView({ item }: { item: Item | null }) {
-  if (!item) return <Hint>Place an item to see what it breaks down into.</Hint>;
+  if (!item) return <Hint>Place an item to see what it breaks down into, or salvage everything of a rarity below.</Hint>;
   return (
     <div class="cv">
       <div class="cv-row"><label>You will receive</label><YieldChips y={salvageYield(item)} /></div>
@@ -657,6 +683,7 @@ export function CubePanel() {
               {(!locked || fn === 'socket') && (
                 <>
                   {fn === 'salvage' && <SalvageView item={item} />}
+                  {fn === 'salvage' && !item && <BulkSalvage char={char} />}
                   {fn === 'fuse' && <FuseView char={char} sel={fuseKey} onSel={setFuseSel} />}
                   {fn === 'enchant' && <EnchantView item={item} char={char} />}
                   {fn === 'upgrade' && <UpgradeView item={item} />}

@@ -27,8 +27,43 @@ export function createNameplate(V: VfxCore, desc: EntDesc, isMe: boolean): Namep
   if (desc.k !== 'mob') return null;
   const tier = desc.el ?? 0;
   V.register(desc.id, 'mob', desc.t, tier);
-  if (tier !== 1 && tier !== 2) return null;
-  return elitePlate(V, desc, tier);
+  if (tier === 1 || tier === 2) return elitePlate(V, desc, tier);
+  if (tier === 4) return null; // bosses: the screen-wide boss bar
+  return mobBar(V);
+}
+
+/** The small life bar over normal monsters, minions and the Hoardling: a dark frame, a damage chip and the red fill. */
+const MOB_W = 40, MOB_H = 5;
+function mobBar(V: VfxCore): Nameplate {
+  const root = new Container({ label: 'mob-bar' });
+  const inner = new Container();
+  root.addChild(inner);
+  const sprite = (tint: number, x: number, y: number, w: number, h: number, alpha = 1) => {
+    const s = new Sprite(Texture.WHITE); s.tint = tint; s.alpha = alpha; s.position.set(x, y); s.width = w; s.height = h; inner.addChild(s); return s;
+  };
+  sprite(0x0c0806, -MOB_W / 2 - 1.5, -MOB_H - 3, MOB_W + 3, MOB_H + 3, 0.92);
+  const chip = sprite(0xffe2b0, -MOB_W / 2, -MOB_H - 1.5, MOB_W, MOB_H);
+  const fill = sprite(0xb8241a, -MOB_W / 2, -MOB_H - 1.5, MOB_W, MOB_H);
+  const fade = fader(V, root, inner);
+  let chipFrac = 1, lastHp = 1, chipHold = 0, last = V.real;
+  return {
+    root,
+    update(hp: number, flags: number, hovered: boolean) {
+      fade(hovered);
+      const f = clamp(hp, 0, 1);
+      if (f < lastHp) chipHold = 0.25;
+      lastHp = f;
+      const dt = clamp(V.real - last, 0, 0.1);
+      last = V.real;
+      if (chipHold > 0) chipHold -= dt;
+      else chipFrac += (f - chipFrac) * Math.min(1, dt * 6);
+      if (chipFrac < f) chipFrac = f;
+      fill.width = Math.max(0.001, MOB_W * f);
+      chip.width = Math.max(0.001, MOB_W * chipFrac);
+      root.visible = root.visible && (flags & F_DEAD) === 0;
+    },
+    destroy() { root.destroy({ children: true }); },
+  };
 }
 
 function text(str: string, size: number, tint: number): BitmapText {
@@ -75,6 +110,22 @@ function playerPlate(V: VfxCore, desc: EntDesc, isMe: boolean): Nameplate {
   if (setId) name.tint = lerpColor(color, 0xffffff, 0.35);
   inner.addChild(badge, lvl, name);
   if (setMark) inner.addChild(setMark);
+  if (desc.st === 'dev') {
+    const dev = new Container({ label: 'staff-tag' });
+    const tag = text('DEV', 12, 0x1b1205);
+    const w = tag.width + 25, h = 16;
+    const shine = new Sprite(V.T.glow);
+    shine.anchor.set(0.5); shine.blendMode = 'add'; shine.tint = 0xffc04a; shine.alpha = 0.55;
+    shine.width = w + 30; shine.height = 26; shine.position.set(0, h / 2);
+    const bg = new Graphics().roundRect(-w / 2, 0, w, h, 3).fill({ color: 0xf2b94a }).roundRect(-w / 2, 0, w, h, 3).stroke({ width: 1, color: 0x5a3a0a });
+    const star = new Graphics().poly([0, -4.5, 1.3, -1.3, 4.5, 0, 1.3, 1.3, 0, 4.5, -1.3, 1.3, -4.5, 0, -1.3, -1.3]).fill({ color: 0x1b1205 });
+    star.position.set(-w / 2 + 9, h / 2);
+    tag.position.set(-w / 2 + 16, 1);
+    dev.addChild(shine, bg, star, tag);
+    dev.position.set(0, title ? -49 : -36);
+    inner.addChild(dev);
+    name.tint = 0xffd36a;
+  }
   const layout = (lv: number, pl: number) => {
     lvl.text = pl > 0 ? `P${pl}` : `${lv}`;
     lvl.tint = pl > 0 ? 0x9fb4ff : 0xe8d9a8;
