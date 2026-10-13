@@ -31,6 +31,18 @@ test('friends require mutual presence consent; hiding/blocking suppresses locati
   assert(f.cmd(a,'block',b.save.name).ok);assert(!f.social.view(a).friends[0].online);assert(!f.social.view(b).friends[0].online);
   assert(f.cmd(a,'unblock',b.save.name).ok);f.live.delete(b);f.social.disconnected(b);assert.deepEqual(f.social.view(a).friends,[{name:b.save.name,online:false}]);
 });
+test('friend adds: the hero you add sees a 30 s notice until they add you back, once per pair per 10 minutes, never across a block',()=>{
+  const f=fixture(),[a,b,c]=f.peers;
+  assert(f.cmd(a,'add',b.save.name).ok);assert.deepEqual(f.social.view(b).requests,[a.save.name]);assert.deepEqual(f.social.view(a).requests,[]);
+  assert(f.cmd(b,'add',a.save.name).ok);assert.deepEqual(f.social.view(b).requests,[],'added back: the notice is gone');
+  assert.deepEqual(f.social.view(a).requests,[],'adding someone who already added you is not a request');
+  assert(f.cmd(a,'remove',b.save.name).ok);assert(f.cmd(a,'add',b.save.name).ok);assert(f.cmd(b,'remove',a.save.name).ok);
+  assert.deepEqual(f.social.view(b).requests,[],'add, remove, add again within 10 minutes: no second notice');
+  assert(f.cmd(c,'block',a.save.name).ok);assert(f.cmd(a,'add',c.save.name).ok);assert.deepEqual(f.social.view(c).requests,[],'blocked: never notified');
+  const real=Date.now;
+  try{assert(f.cmd(b,'add',c.save.name).ok);assert.deepEqual(f.social.view(c).requests,[b.save.name]);Date.now=()=>real()+30_001;assert.deepEqual(f.social.view(c).requests,[],'gone after 30 s');}
+  finally{Date.now=real;}
+});
 test('whisper privacy, party membership, block/mute, channels and text normalization select only allowed recipients',()=>{
   const f=fixture(),[a,b,c]=f.peers;
   assert(!f.social.chat(a,'private','whisper',b.save.name).ok);

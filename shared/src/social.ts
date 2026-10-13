@@ -10,7 +10,10 @@ export const CHAT_CHANNELS:readonly ChatChannel[]=['zone','world','party','trade
 export type WhisperPolicy='all'|'contacts'|'off';
 export interface SocialState {revision:1;friends:string[];blocked:string[];muted:string[];presence:'contacts'|'hidden';whispers:WhisperPolicy;inspect?:WhisperPolicy;title?:string}
 export interface FriendView {name:string;online:boolean;classId?:ClassId;level?:number;zone?:string;channel?:number}
-export interface SocialView {friends:FriendView[];blocked:string[];muted:string[];presence:SocialState['presence'];whispers:WhisperPolicy;inspect:WhisperPolicy;enabled:boolean;supported:boolean}
+/** requests: online heroes who added you in the last FRIEND_NOTICE_MS and whom you have not added (the "added you" popup). */
+export interface SocialView {friends:FriendView[];blocked:string[];muted:string[];presence:SocialState['presence'];whispers:WhisperPolicy;inspect:WhisperPolicy;enabled:boolean;supported:boolean;requests?:string[]}
+/** How long "X added you as a friend" stays on screen, and how soon the same pair may cause it again (add/remove spam). */
+export const FRIEND_NOTICE_MS=30_000,FRIEND_NOTICE_REPEAT_MS=10*60_000;
 export const emptySocial=():SocialState=>({revision:1,friends:[],blocked:[],muted:[],presence:'contacts',whispers:'contacts'});
 export function validSocial(v:unknown):v is SocialState {
   const s=v as SocialState|undefined;

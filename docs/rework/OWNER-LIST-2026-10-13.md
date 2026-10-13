@@ -90,6 +90,17 @@ new instance is made after that (an older official explanation quoted on https:/
 | Town keeps its shared channels (100 per channel); fields have no channels, the Waypoint says "A private field: only you and your party are here. Everyone meets in town.", the zone plate says "Private field" | owner |
 | Cost measured with the real simulation: about 2.2 MB of heap and 0.03 ms of world tick per field instance, the first instance builds in 138 ms; at most 64 field instances (`MAX_FIELD_INSTANCES`) ≈ 140 MB, inside the Hetzner service's 700 MB [M, `.local/bal/field-memory.ts`] | measured |
 
+## Batch 6: invite and friend popups
+
+The owner asked: "are there pop ups on screen for friend request and party invites etc? that u see a pop up if someone adds or invites u for like idk 30 secs to a min". Before: a number on the Party button and a "Party invitation" button under the portrait; adding a friend told the other hero nothing.
+
+| What | Basis |
+|---|---|
+| A party invite opens a prompt at the top centre, "Name invites you to their party" with Accept and Decline and a bar for the 60 s the invite lasts (the existing server expiry) | World of Warcraft's invite prompt [K]; owner's 30 s–1 min |
+| Adding someone shows them "Name added you as a friend" with Add back and Dismiss for 30 s; adding them back answers it; the same pair can cause it once per 10 minutes (no add/remove spam); never across a block (`server/src/social.ts`, `client/src/ui/hud/SocialPrompts.tsx`) | Battle.net and Steam friend requests [K]; owner |
+
+The four-client quest tests now form a party before entering the field, since only a party shares a private field.
+
 ## Verify notes for batches 1–5
 
 - `client-bindings`: the test rebound "move up" to T, which is now the town portal key, so it uses G; Tab is tested both ways (moves focus while a window is open and with Shift, toggles the map otherwise).

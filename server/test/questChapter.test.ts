@@ -97,12 +97,21 @@ test('full bag, overflow and duplicate item ownership cannot partially grant a m
   }finally{catalogue.splice(catalogue.indexOf(q),1);await f.world.shutdown();}
 });
 
+// Private fields (owner 2026-10-13): heroes share a field only as a party. Invites are paced 1 s apart per leader.
+const partyUp=(world:World,heroes:{s:Session}[])=>{
+  let now=Date.now();
+  for(const h of heroes.slice(1)){
+    now+=1100;assert(world.parties.command(heroes[0].s,{action:'invite',name:h.s.save.name},now).ok);
+    assert(world.parties.command(h.s,{action:'accept',invite:world.parties.view(h.s,now).incoming[0].id},now).ok);
+  }
+};
+
 test('four clients: family credit, personal kills, late acceptance, disconnect and rejoin never award an old death',async()=>{
   const f=await fixture(),q=definition('chapter_family'),personal=definition('chapter_personal');
   q.steps=[{id:'slimes',kind:'kill',zone:'rillwake_crossing',target:'road',monsterFamily:'slime',count:2,text:'q.silent_wheel.warden'}];
   personal.steps=[{...q.steps[0],credit:'killer'}];catalogue.push(q,personal);
   try {
-    const heroes=[f,f.add(),f.add(),f.add()];
+    const heroes=[f,f.add(),f.add(),f.add()];partyUp(f.world,heroes);
     for(const h of heroes){h.toField();assert(h.quest(personal,'accept').ok);}
     for(const h of [heroes[0],heroes[2],heroes[3]])assert(h.quest(q,'accept').ok);
     const mobs=f.inst().mobs.filter(m=>m.adventureSite==='road'&&m.def.family==='slime');assert(mobs.length>=3);

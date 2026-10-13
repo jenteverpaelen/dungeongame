@@ -149,10 +149,19 @@ for(const cls of ['warrior','mage','ranger'] as const)test(`${cls}: connected qu
   }finally{await f.world.shutdown();}
 });
 
+// Private fields (owner 2026-10-13): heroes share a field only as a party. Invites are paced 1 s apart per leader.
+const partyUp=(world:World,heroes:{s:Session}[])=>{
+  let now=Date.now();
+  for(const h of heroes.slice(1)){
+    now+=1100;assert(world.parties.command(heroes[0].s,{action:'invite',name:h.s.save.name},now).ok);
+    assert(world.parties.command(h.s,{action:'accept',invite:world.parties.view(h.s,now).incoming[0].id},now).ok);
+  }
+};
+
 test('four clients: only accepted, local and living witnesses receive the authored keeper credit',async()=>{
   const f=await fixture();
   try {
-    const heroes=[f,f.add(),f.add(),f.add()];
+    const heroes=[f,f.add(),f.add(),f.add()];partyUp(f.world,heroes);
     for(const h of heroes) {
       h.save.quests={silent_wheel:{revision:2,step:4,claimed:true},high_water:{revision:2,step:3,claimed:true},under_spillway:{revision:2,step:2,claimed:false}};
       h.waypoint();assert(h.travel('bracken_sluice').ok);h.at(...near(h.inst(),'keeper'));

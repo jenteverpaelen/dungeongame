@@ -1,5 +1,6 @@
 // HUD root. Mounted once into #ui by main.ts; switches between the class select, the connecting screen and the in-game HUD.
 
+import { SocialPrompts } from './SocialPrompts';
 import '../styles/hud.css';
 import '../styles/account.css';
 import '../styles/quests.css';
@@ -43,6 +44,7 @@ function GameHud() {
       <ReadingCard />
       <HoldBar />
       <RecallBar />
+      {ready && <SocialPrompts />}
       <ContextualGuidance />
       <DeathScreen />
       <HelpPanel />

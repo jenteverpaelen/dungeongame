@@ -1,4 +1,4 @@
-import {CHAT_CHANNELS,CHAT_MAX_LEN,emptySocial,SOCIAL_LIMIT,validSocial,type ChatChannel,type SocialState,type SocialView} from '../../shared/src/social';
+import {CHAT_CHANNELS,CHAT_MAX_LEN,emptySocial,FRIEND_NOTICE_MS,FRIEND_NOTICE_REPEAT_MS,SOCIAL_LIMIT,validSocial,type ChatChannel,type SocialState,type SocialView} from '../../shared/src/social';
 import type {Session} from './net/session';
 import { BUILD_CODE_RE, decodeBuild, type BuildCode } from '../../shared/src/buildCode';
 import type {Parties} from './party';
@@ -14,6 +14,9 @@ const fail=(err:string):CmdResult=>({ok:false,err});
 export class Social {
   community?:Community;
   private sent=new Map<string,string>();
+  /** Target save id -> who added them and when (FRIEND_NOTICE_MS); `from>to` -> last notice (FRIEND_NOTICE_REPEAT_MS). */
+  private notices=new Map<string,{from:string;at:number}[]>();
+  private noticed=new Map<string,number>();
   constructor(private sessions:()=>Iterable<Session>,private parties:Parties,private disabled=new Set((process.env.SOCIAL_DISABLED_CHANNELS??'').split(',').filter(Boolean))){}
   private state(s:Session):SocialState {return validSocial(s.save.social)?s.save.social:emptySocial();}
   private supported(s:Session){return s.save.social===undefined||validSocial(s.save.social);}
@@ -29,9 +32,26 @@ export class Social {
     return {friends:state.friends.map(name=>{
       const peer=this.online(name),visible=peer&&this.enabled(peer)&&!this.blocked(s,peer)&&this.mutual(s,peer)&&this.state(peer).presence==='contacts';
       return visible?{name:peer.save.name,online:true,classId:peer.save.classId,level:peer.save.level,zone:peer.rec?.zoneId,channel:peer.rec?.channel}:{name,online:false};
-    }),blocked:state.blocked,muted:state.muted,presence:state.presence,whispers:state.whispers,inspect:state.inspect??'contacts',enabled:this.enabled(s),supported:this.supported(s)};
+    }),blocked:state.blocked,muted:state.muted,presence:state.presence,whispers:state.whispers,inspect:state.inspect??'contacts',enabled:this.enabled(s),supported:this.supported(s),
+    requests:this.requests(s,state)};
   }
-  tick(){for(const s of this.sessions()){const social=this.view(s),key=JSON.stringify(social);if(key!==this.sent.get(s.save.id)){this.sent.set(s.save.id,key);s.send({t:'social',social});}}}
+  private requests(s:Session,state:SocialState):string[]{
+    const now=Date.now();
+    return (this.notices.get(s.save.id)??[]).filter(n=>{const peer=this.online(n.from);return now-n.at<FRIEND_NOTICE_MS&&!has(state.friends,n.from)&&!!peer&&!this.blocked(s,peer);}).map(n=>n.from);
+  }
+  private notifyAdded(s:Session,name:string){
+    const peer=this.online(name),now=Date.now();
+    if(!peer||peer===s||this.blocked(s,peer)||has(this.state(peer).friends,s.save.name))return;
+    const pair=`${s.save.id}>${peer.save.id}`;
+    if(now-(this.noticed.get(pair)??-Infinity)<FRIEND_NOTICE_REPEAT_MS)return;
+    this.noticed.set(pair,now);
+    this.notices.set(peer.save.id,[...(this.notices.get(peer.save.id)??[]).filter(n=>now-n.at<FRIEND_NOTICE_MS&&n.from!==s.save.name),{from:s.save.name,at:now}]);
+  }
+  private prune(now=Date.now()){
+    for(const [id,list] of this.notices){const live=list.filter(n=>now-n.at<FRIEND_NOTICE_MS);if(live.length)this.notices.set(id,live);else this.notices.delete(id);}
+    for(const [pair,at] of this.noticed)if(now-at>=FRIEND_NOTICE_REPEAT_MS)this.noticed.delete(pair);
+  }
+  tick(){this.prune();for(const s of this.sessions()){const social=this.view(s),key=JSON.stringify(social);if(key!==this.sent.get(s.save.id)){this.sent.set(s.save.id,key);s.send({t:'social',social});}}}
   disconnected(s:Session){this.sent.delete(s.save.id);this.tick();}
   command(s:Session,a:Record<string,unknown>):CmdResult{
     if(this.online(s.save.name)!==s)return fail('Join the world before changing contacts');
@@ -57,7 +77,13 @@ export class Social {
         state[list].push(name);
       }else state[list]=state[list].filter(n=>n.toLowerCase()!==name.toLowerCase());
     }
-    s.save.social=state;s.changed(action==='title');this.parties.pruneInvites();return {ok:true};
+    s.save.social=state;s.changed(action==='title');this.parties.pruneInvites();
+    if(action==='add'&&typeof a.name==='string'){
+      // Adding someone back answers their notice for good.
+      const mine=this.notices.get(s.save.id);if(mine)this.notices.set(s.save.id,mine.filter(n=>n.from.toLowerCase()!==a.name!.toString().toLowerCase()));
+      this.notifyAdded(s,a.name);
+    }
+    return {ok:true};
   }
   inspect(s:Session,a:Record<string,unknown>):CmdResult{
     const peer=typeof a.name==='string'?this.online(a.name):undefined,policy=peer&&(this.state(peer).inspect??'contacts');
