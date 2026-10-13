@@ -193,3 +193,15 @@ kbd, .kbd {
 @media (prefers-reduced-motion: reduce) {
   :root:not([data-motion]) *, :root:not([data-motion]) *::before, :root:not([data-motion]) *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }
+/* Messages whose animation is their whole life and ends invisible (the top-centre notices such as the level-up banner,
+   the pickup log, panel banners) keep their length under reduced motion as a fade without movement: cut to 1 ms they
+   jumped to their last frame and were never seen (owner 2026-10-13: no level-up banner on the live server). */
+@keyframes lifeFade { 0% { opacity: 0; } 6% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+:root[data-motion="reduced"] .notice { animation: lifeFade 2.5s linear both !important; }
+:root[data-motion="reduced"] .pickup { animation: lifeFade 6s linear both !important; }
+:root[data-motion="reduced"] .banner { animation: lifeFade 3s linear forwards !important; }
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion]) .notice { animation: lifeFade 2.5s linear both !important; }
+  :root:not([data-motion]) .pickup { animation: lifeFade 6s linear both !important; }
+  :root:not([data-motion]) .banner { animation: lifeFade 3s linear forwards !important; }
+}
