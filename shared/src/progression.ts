@@ -21,8 +21,13 @@ export const ELITE_XP_MULT = [1, 4, 6, 1.5, 40, 8];
  *  measurements and the reference points this was set against. Story awards are unaffected (see `storyXp`). */
 export const KILL_XP_SCALE = 0.2;
 
+/** Kill XP while levelling (owner 2026-10-13): ×1.5 through level 10, fading to ×1 at level 20 [P]. */
+export function earlyKillXpMult(level: number): number {
+  return 1 + 0.5 * Math.max(0, Math.min(1, (20 - level) / 10));
+}
+
 export function monsterXp(level: number, eliteTier: number, difficulty: number): number {
-  return Math.round(KILL_XP_SCALE * (12 * Math.pow(level, 1.7) + 10) * (ELITE_XP_MULT[eliteTier] ?? 1) * (1 + DIFFICULTIES[difficulty].xpBonus / 100));
+  return Math.round(KILL_XP_SCALE * earlyKillXpMult(level) * (12 * Math.pow(level, 1.7) + 10) * (ELITE_XP_MULT[eliteTier] ?? 1) * (1 + DIFFICULTIES[difficulty].xpBonus / 100));
 }
 
 /** Base monster life at a level, before monster type, elite and difficulty multipliers. */

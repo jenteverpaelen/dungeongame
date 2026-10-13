@@ -58,13 +58,13 @@ const legendarySource = (id: string, roll?: number): PowerSource => ({ kind: 'le
 
 // ─────────────── content ───────────────
 
-test('content: 13 shared legendaries, 80 bases, 55 affixes, an Inscription pool; everything validates', () => {
+test('content: 13 shared legendaries, 80 bases, 56 affixes, an Inscription pool; everything validates', () => {
   assert.deepEqual(validateContent(), []);
   for (const id of ['patchwork_signet', 'journeymans_ring', 'watchkeepers_hood', 'kilnwatch_spaulders', 'hearthguard_coat', 'ink_stained_gloves', 'causeway_waders',
     'ridgewalker_boots', 'surveyors_plumb', 'brine_tally', 'signal_horn_charm', 'lockglass_cincture', 'wardkeepers_cuffs']) assert(LEGENDARIES[id] && !LEGENDARIES[id].classes, id);
   assert.deepEqual(LEGENDARIES.ouroboros_loop.range, [60, 80], 'the bible\'s owner-visible Ouroboros cut');
   assert.equal(LEGENDARIES.patchwork_signet.extractable, false); assert.equal(LEGENDARIES.journeymans_ring.extractable, false);
-  assert.equal(Object.keys(BASES).length, 80); assert.equal(AFFIXES.length, 55);
+  assert.equal(Object.keys(BASES).length, 80); assert.equal(AFFIXES.length, 56); // 56: resource per critical hit (owner 2026-10-13)
   const legacyShapes = new Set(Object.values(BASES).slice(0, 42).map((b) => b.shape));
   for (const b of Object.values(BASES).slice(42)) assert(legacyShapes.has(b.shape), `${b.id} falls back to an existing look shape`);
   assert(blocksOffhand(BASES.censer) && blocksOffhand(BASES.staff) && !blocksOffhand(BASES.longbow) && blocksOffhand(BASES.maul2h));
@@ -226,13 +226,14 @@ test('engine: cooldown recovery buffs, control immunity by kind, stack filters o
 
 test('affixes: tag-keyed ones become templates; DR, dash, control durations, globes, channel speed, life on control, chill on hit', () => {
   const src = affixPowerSources({ summonDmg: 12, primaryDmg: 0, spenderDmg: 10, cooldownDmg: 0, areaRadius: 8, channelCost: 12, summonDuration: 0, buffDuration: 0,
-    pierceChance: 9, dotDmg: 15, vsControlled: 6, resourceOnKill: 3 });
+    pierceChance: 9, dotDmg: 15, vsControlled: 6, resourceOnKill: 3, resourceOnCrit: 4 });
   assert.equal(src.length, 1); assert.equal(src[0].kind, 'affix');
   const rt = buildPowerRuntime(src);
   assert.equal(rt.mods.get('sentry')?.dmg, 12); assert.equal(rt.mods.get('rend')?.dmg, 10); assert.equal(rt.mods.get('whirlwind')?.cost, -12);
   assert.equal(rt.mods.get('multishot')?.pierce, 9); assert(rt.dotRules.length === 3 && rt.dotRules[0].strength === 1.15); assert.equal(rt.procs.kill?.[0].resource, 3);
+  assert.equal(rt.procs.crit?.[0].resource, 4); assert.equal(rt.procs.crit?.[0].icdMs, 250); // resource per critical hit, at most every 250 ms
   assert.deepEqual(affixPowerSources({ summonDmg: 0, primaryDmg: 0, spenderDmg: 0, cooldownDmg: 0, areaRadius: 0, channelCost: 0, summonDuration: 0, buffDuration: 0,
-    pierceChance: 0, dotDmg: 0, vsControlled: 0, resourceOnKill: 0 }), [], 'no affixes, no source');
+    pierceChance: 0, dotDmg: 0, vsControlled: 0, resourceOnKill: 0, resourceOnCrit: 0 }), [], 'no affixes, no source');
   const withAffix = (stat: string, value: number) => (s: CharacterSave) => {
     const it = generateItem(new Rng(5), { ilvl: 70, classId: s.classId, rarity: 'rare', base: 'chest_mail', smartChance: 1 });
     it.affixes = [{ stat: stat as Item['affixes'][number]['stat'], value, min: value, max: value, primary: true }];

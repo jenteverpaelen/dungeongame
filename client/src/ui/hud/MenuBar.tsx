@@ -11,6 +11,7 @@ import { PARAGON_CATEGORIES, paragonPoints, paragonSpent } from '@shared/progres
 import { MAX_LEVEL } from '@shared/constants';
 import type { CharacterSave } from '@shared/types';
 import { UiIcon, type UiIconName } from './UiIcons';
+import { session } from '../../net/api';
 
 interface Entry { id: string; icon: UiIconName; label: string; panel: PanelId; action?: Action; note: string }
 const ENTRIES: Entry[] = [
@@ -49,6 +50,8 @@ export function MenuBar() {
   const panels = useUI((s) => s.panels);
   const invites = useUI((s) => s.party?.incoming.length ?? 0);
   const keys = useLocal(bindings, () => Object.fromEntries(ENTRIES.filter((e) => e.action).map((e) => [e.id, bindings.label(e.action!)])) as Record<string, string>);
+  const portalKey = useLocal(bindings, () => bindings.label('townPortal'));
+  const inTown = useUI((s) => s.zone?.kind === 'town'), casting = useUI((s) => !!s.recall);
   if (!char) return null;
   const bagUsed = char.inventory.filter(Boolean).length, bagFull = bagUsed >= char.inventory.length - 2;
   const jp = journalPip(char);
@@ -62,6 +65,13 @@ export function MenuBar() {
   const visible = ENTRIES.filter((e) => e.id !== 'paragon' || char.level >= MAX_LEVEL);
   return (
     <nav class="hud-menu interactive" aria-label="Game menu">
+      <button type="button" class={`hm-btn hm-portal${casting ? ' open' : ''}`} disabled={inTown} aria-label={`Town portal (${portalKey})`}
+        onClick={() => session.townPortal()}
+        {...textTipHandlers(() => ({ title: 'Town portal', sub: `Shortcut ${portalKey}`, lines: [inTown ? 'You are in town.' : 'Stand still for 3 seconds to open a portal to Hearthmere. A portal there brings you back to this spot.'] }), 'menu-portal')}>
+        <UiIcon name="house" size={26} />
+        <span class="hm-key">{portalKey}</span>
+      </button>
+      <i class="hm-sep" aria-hidden="true" />
       {visible.map((e) => {
         const open = !!panels[e.panel];
         const pip = pips[e.id];

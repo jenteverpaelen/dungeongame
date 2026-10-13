@@ -37,6 +37,8 @@ export interface AuthResult { ok: boolean; err?: string; data?: unknown }
 /** Start the game with a character (class select screen). Installed by main.ts. */
 export const session = {
   interact: () => {},
+  /** Town portal cast (game.ts townPortal). Installed by game.ts. */
+  townPortal: () => {},
   start: (_name: string, _classId: 'warrior' | 'ranger' | 'mage', _options?:{appearance?:import('@shared/appearance').HeroAppearance;tutorial?:boolean;existing?:boolean}) => {},
   /** Account request before `hello` (login, register, recover, devices, export, deletion…). Installed by main.ts. */
   auth: async (_op: Exclude<import('@shared/protocol').AuthOp, 'status'>, _fields?: AuthFields): Promise<AuthResult> => ({ ok: false, err: 'Not connected' }),

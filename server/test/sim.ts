@@ -19,6 +19,7 @@ import { resetItemIdsForHarness } from '../../shared/src/items';
 import { interpolateLog, levelDamage, levelToughness, tuningOverrides } from '../src/sim/tuning';
 import { createMob } from '../src/sim/monsters';
 import { pickTarget } from '../src/sim/brain';
+import { skillCost } from '../src/sim/playerctx';
 import { shotBlocked } from '../src/sim/effects';
 import { strikeMob } from '../src/sim/damage';
 import type { Mob } from '../src/sim/types';
@@ -2035,6 +2036,64 @@ if (only === 'calibrate') calibrateToughness(Number(process.argv[3] ?? 1), (proc
 if (only === 'curve') toughnessCurve(Number(process.argv[3] ?? 20), (process.argv[4] ?? '1,2,4,8,16,32,64').split(',').map(Number));
 if (only === 'fit') for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) fitScenario(cls, Number(process.argv[3] ?? 90), Number(process.argv[4] ?? 1), (process.argv[5] ?? '3,5,8,10,13,15,18,20,25,30,35,40,45,50,55,60,65,70').split(',').map(Number));
 if (only === 'riftstall') riftStallHunt((process.argv[3] ?? 'mage') as ClassId, Number(process.argv[4] ?? 1), Number(process.argv[5] ?? 12));
+/**
+ * `resource [levels]`: how the class resources behave under automatic casting (owner 2026-10-13). The engaged bot plays a
+ * field for three minutes with an ilvl-matched rare kit (the endgame kit at 70); while monsters are within 700 units it
+ * counts: the bar's average fill, the share of time it sits under 15 %, how often a slotted cooldown skill is ready but
+ * waits for resource, spender casts per minute and kills per minute.
+ */
+function resourceScenario(levels: number[]) {
+  console.log(`
+== Resource: three minutes in a field, automatic casting (median of 3 runs) ==`);
+  console.log('  class   lvl  bar avg %  bar<15 %  cd skill blocked %  spender casts/min  kills/min');
+  for (const cls of ['warrior', 'ranger', 'mage'] as ClassId[]) for (const level of levels) {
+    const rows: number[][] = [];
+    for (let k = 0; k < 3; k++) {
+      const save = makeChar(cls, level, { endgame: level >= 70 });
+      const inst = newField(level >= 12 ? 'ashen_hollow' : 'whispering_glade', 7100 + level * 13 + k);
+      const link = new FakeLink(save);
+      link.myId = inst.addPlayer(link);
+      const bot = new Bot(inst, link, cls === 'warrior');
+      const p = inst.players[0];
+      let combat = 0, fill = 0, low = 0, cdReady = 0, cdBlocked = 0, spends = 0, lastRes = p.res;
+      // RES_TRACE=1: casts per slotted skill (a cast moves its cooldown or recast clock forward)
+      const casts = new Map<string, number>(), clock = new Map<string, number>();
+      const kills0 = p.kills;
+      for (let t = 0; t < 3 * 1200; t++) {
+        bot.step(); inst.tick();
+        if (process.env.RES_TRACE && k === 0) for (const rt of p.ctx.slots) {
+          if (!rt) continue;
+          const v = rt.def.cooldown > 0 ? p.readyAt.get(rt.def.id) ?? 0 : p.recastAt.get(rt.def.id) ?? 0;
+          if (v > (clock.get(rt.def.id) ?? 0)) casts.set(rt.def.id, (casts.get(rt.def.id) ?? 0) + 1);
+          clock.set(rt.def.id, v);
+        }
+        if (p.hp <= 0 || p.deadMs > 0) { p.hp = p.mhp; p.deadMs = 0; }
+        if (!inst.queryMobs(p.x, p.y, 700).some((m) => !m.dead)) { lastRes = p.res; continue; }
+        combat++;
+        fill += p.res / p.mres; if (p.res < p.mres * 0.15) low++;
+        for (const rt of p.ctx.slots) {
+          if (!rt || rt.def.cost <= 0 || rt.def.cooldown <= 0) continue;
+          if ((p.readyAt.get(rt.def.id) ?? 0) <= inst.t) { cdReady++; if (p.res < skillCost(p, rt)) cdBlocked++; }
+        }
+        // a drop of at least the cheapest no-cooldown spender's cost in one tick counts as a spender cast
+        const cheap = Math.min(...p.ctx.slots.filter((rt) => rt && rt.def.cost > 0 && rt.def.cooldown <= 0).map((rt) => skillCost(p, rt!)), Infinity);
+        if (Number.isFinite(cheap) && lastRes - p.res >= cheap * 0.9) spends++;
+        lastRes = p.res;
+      }
+      const minutes = combat / 1200;
+      if (process.env.RES_TRACE && k === 0) {
+        const slots = p.ctx.slots.map((rt) => rt ? `${rt.def.id}(cost ${Math.round(skillCost(p, rt))}, cd ${rt.def.cooldown}s, ${rt.def.auto.when}) x${casts.get(rt.def.id) ?? 0}` : '-');
+        console.log(`    ${cls} L${level} max ${Math.round(p.mres)}: ${slots.join(' | ')}`);
+      }
+      rows.push([100 * fill / Math.max(1, combat), 100 * low / Math.max(1, combat), 100 * cdBlocked / Math.max(1, cdReady), spends / Math.max(0.01, minutes), (p.kills - kills0) / 3]);
+      inst.destroy();
+    }
+    const med = (i: number) => rows.map((r) => r[i]).sort((a, b) => a - b)[1];
+    console.log(`  ${cls.padEnd(7)} ${String(level).padStart(3)}  ${fmt(med(0), 0).padStart(9)}  ${fmt(med(1), 0).padStart(8)}  ${fmt(med(2), 0).padStart(18)}  ${fmt(med(3), 0).padStart(17)}  ${fmt(med(4), 0).padStart(9)}`);
+  }
+}
+
+if (only === 'resource') resourceScenario((process.argv[3] ?? '5,15,30,50,70').split(',').map(Number));
 if (only === 'threat') threatScenario((process.argv[3] ?? '1,5,10,20').split(',').map(Number), (process.argv[4] ?? '0,1,2,3').split(',').map(Number), (process.argv[5] ?? 'trash,champion,rare').split(',') as ('trash' | 'champion' | 'rare')[]);
 if (only === 'masterprobe') masterProbe(Number(process.argv[3] ?? 13), (process.argv[4] ?? '0,1,2,3').split(',').map(Number));
 if (only === 'budget') perfBudgetScenario();

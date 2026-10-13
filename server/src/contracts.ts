@@ -39,7 +39,8 @@ export interface InstanceOptions {
 }
 
 export interface PortalSpec {
-  kind: 'rift' | 'town';
+  /** rift: into a Faultline; town: back to town; back: a hero's town portal back to where they recalled from. */
+  kind: 'rift' | 'town' | 'back';
   x: number;
   y: number;
   label: string;
@@ -66,6 +67,10 @@ export interface InstanceApi {
   partyStatus?(link:PlayerLink):{hp:number;mhp:number;dead:boolean}|null;
   /** Live authoritative position + line of sight. Caller supplies a server-owned NPC/portal location. */
   canInteract(link: PlayerLink, x: number, y: number, radius: number): boolean;
+  /** Where the player stands and the damage it has taken so far (town portal cast checks); null = not here. */
+  playerSpot?(link: PlayerLink): { x: number; y: number; taken: number; dead: boolean } | null;
+  /** One event for this player only (town portal cast bar). */
+  emitToPlayer?(link: PlayerLink, ev: import('../../shared/src/protocol').GameEvent): void;
   requestSkillCast?(link: PlayerLink, slot: number, skill: string): string | null;
   /** Build tools: the exact damage sheet of the player's skills (server/src/sim/breakdown.ts); null = not ready. */
   buildSheet?(link: PlayerLink, skills?: readonly string[]): import('../../shared/src/buildSheet').BuildSheet | null;

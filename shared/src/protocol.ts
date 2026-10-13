@@ -114,6 +114,8 @@ export interface MeState {
 export type GameEvent =
   | { e: 'dmg'; t: number; a: number; c?: 1; el: number; s?: number; k?: 1; p?: 1; dot?: 1 }
   | { e: 'heal'; t: number; a: number }
+  /** Town portal cast (sent only to the caster): ms > 0 starts the bar, 0 ends it (done or interrupted). */
+  | { e: 'recall'; t: number; ms: number }
   /** XP a kill gave this player (sent only to them): amount and the monster's position. */
   | { e: 'xp'; t: number; a: number; x: number; y: number }
   | { e: 'die'; t: number; el: number; x: number; y: number; big?: 1 }
@@ -219,7 +221,7 @@ export type CmdOp = 'onboarding'
   | 'skillSlot' | 'skillRune' | 'skillTier' | 'skillReset' | 'skillNode' | 'skillPrimary' | 'skillAutoCast' | 'targetPriority' | 'skillCast' | 'skillAutoRule' | 'passive'
   | 'paragon' | 'paragonReset'
   | 'buildSheet' | 'bench' | 'loadout' | 'applyBuild'
-  | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'channel'
+  | 'travel' | 'riftOpen' | 'riftEnter' | 'leave' | 'townPortal' | 'portalBack' | 'channel'
   | 'debug';
 
 /** Account operations, sent before `hello`. `status` is only ever a server notice. */

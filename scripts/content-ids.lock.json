@@ -352,6 +352,7 @@
       "primaryDmg",
       "rangedDR",
       "rcr",
+      "resourceOnCrit",
       "resourceOnKill",
       "resourceRegen",
       "skillDmg",

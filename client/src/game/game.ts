@@ -76,6 +76,7 @@ export class Game {
 
   constructor(private app: Application) {
     session.interact = () => this.interact();
+    session.townPortal = () => this.townPortal();
     this.world = new ClientWorld({ onAdd: (e) => this.scene.onAdd(e), onRemove: (e) => this.scene.onRemove(e) });
     this.scene = new Scene(app, this.world);
     // Story presentation (F-QST-08): a world change pans the camera to it and says what happened in one line.
@@ -244,6 +245,7 @@ export class Game {
         ui.set({ screen: 'game', char: m.char, derived: m.derived, world: m.world });
         break;
       case 'zone':
+        ui.set({ recall: null }); // a cast never survives a zone change (the town portal ends in town)
         this.enterZone(m.zone, m.you);
         break;
       case 's':
@@ -371,6 +373,9 @@ export class Game {
       case 'notice':
         pushNotice(ev.text, ev.kind);
         break;
+      case 'recall':
+        ui.set({ recall: ev.ms > 0 ? { start: performance.now(), ms: ev.ms } : null });
+        break;
       case 'pickup':
         if(ev.t===myId&&ev.lk==='item')funnel.event('loot');
         if (ev.t === myId) ui.set((st) => ({ pickups: [...st.pickups.slice(-7), { id: Math.random(), lk: ev.lk, name: ev.name, rarity: ev.rarity, amount: ev.amount, at: performance.now() }] }));
@@ -462,6 +467,7 @@ export class Game {
     }
     if (typing || st.screen !== 'game') return;
     if (k === 'F3') { e.preventDefault(); this.scene.toggleCollision(); return; }
+    if (k === 'Tab') { ui.set((s) => ({ overlayMap: !s.overlayMap })); return; } // Path of Exile's overlay map
     // Enter opens chat in Global so a quick message reaches everyone (owner 2026-10-13); the picker changes it per message.
     if (k === 'Enter') { ui.set({ chatOpen: true, chatChannel: 'world' }); this.input.clear(); return; }
     if (k === 'j') { if(st.panels.adventure)togglePanel('adventure',false);else openJournal();return; }
@@ -475,7 +481,14 @@ export class Game {
     const panels: Record<string, PanelId> = { i: 'inventory', b: 'inventory', k: 'skills', p: 'paragon', o: 'settings', F1: 'help', F2: 'debug' };
     if (panels[k]) { togglePanel(panels[k]); return; }
     if (k === 'e') this.interact();
+    if (k === 't') this.townPortal();
     void e;
+  }
+
+  /** Town portal (Diablo III's): a short cast the server times; moving or a hit interrupts it. */
+  townPortal() {
+    if (ui.get().screen !== 'game') return;
+    void this.conn?.cmd('townPortal').then((r) => { if (!r.ok && r.err) pushNotice(r.err, 'warn'); });
   }
 
   private interact() {
@@ -529,6 +542,7 @@ export class Game {
     if (s?.portalTo) { void this.conn?.cmd(zone?.kind === 'rift' ? 'leave' : 'travel', { zone: s.portalTo }); return; }
     if (this.nearestDummy(x, y)) { togglePanel('bench', true); return; }
     const portal = this.nearestPortalEntity(x, y);
+    if (portal?.desc.t === 'back') { void this.conn?.cmd('portalBack').then((r) => { if (!r.ok && r.err) pushNotice(r.err, 'warn'); }); return; }
     if (portal) void this.conn?.cmd(zone?.kind === 'town' ? 'riftEnter' : 'leave');
   }
 
@@ -629,7 +643,7 @@ export class Game {
       else if (s?.role) interact = { role: s.role, name: s.name };
       else if (s?.portalTo) interact = { role: 'waypoint', name: s.name };
       else if (this.nearestDummy(px, py)) interact = { role: 'dummy', name: this.nearestDummy(px, py)!.desc.n ?? 'Training Dummy' };
-      else if (this.nearestPortalEntity(px, py)) interact = { role: 'obelisk', name: this.world.zone?.kind === 'town' ? 'Enter the Faultline' : 'Return to Hearthmere' };
+      else if (this.nearestPortalEntity(px, py)) { const pe = this.nearestPortalEntity(px, py)!; interact = { role: 'obelisk', name: pe.desc.t === 'back' ? 'Return through the portal' : this.world.zone?.kind === 'town' ? 'Enter the Faultline' : 'Return to Hearthmere' }; }
     }
     const sameTarget = st.target && target && st.target.id === target.id && Math.abs(st.target.hpFrac - target.hpFrac) < 0.005;
     const patch: Partial<ReturnType<typeof ui.get>> = { dps };

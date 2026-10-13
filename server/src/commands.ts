@@ -691,6 +691,8 @@ const channel: Handler = (s, a, world) => world.channel(s, int(a, 'n', 1, 999));
 const riftOpen: Handler = (s, a, world) => world.riftOpen(s, int(a, 'difficulty', 0, DIFFICULTIES.length - 1, s.save.difficulty));
 const riftEnter: Handler = (s, _a, world) => world.riftEnter(s);
 const leave: Handler = (s, _a, world) => world.leave(s);
+const townPortal: Handler = (s, _a, world) => world.townPortal(s);
+const portalBack: Handler = (s, _a, world) => world.portalBack(s);
 
 // ─────────────────────────── Debug (prototype tools) ───────────────────────────
 
@@ -847,7 +849,7 @@ const HANDLERS: Record<CmdOp, Handler> = {
   bench: (s, a) => benchToolCommand(s, a),
   loadout: (s, a) => loadoutCommand(s, a),
   applyBuild: (s, a) => applyBuildCommand(s, a),
-  travel, riftOpen, riftEnter, leave, channel,
+  travel, riftOpen, riftEnter, leave, townPortal, portalBack, channel,
   debug,
 };
 

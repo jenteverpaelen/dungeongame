@@ -1,7 +1,7 @@
 // Keyboard input shares its bindings with Settings, Help and HUD prompts.
 import { bindings, CAST_ACTIONS, refreshKeyboardLayout, type Action, type BindingStore } from './bindings';
 
-const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i', skills: 'k', paragon: 'p', cube: 'u', settings: 'o', journal:'j', map:'m' };
+const HOTKEYS: Partial<Record<Action, string>> = { interact: 'e', inventory: 'i', skills: 'k', paragon: 'p', cube: 'u', settings: 'o', journal:'j', map:'m', townPortal: 't' };
 
 export interface InputHandlers {
   onDash(): void;
@@ -64,6 +64,7 @@ export class Input {
       return;
     }
     const k = e.code;
+    if (k === 'Tab' && !e.shiftKey && !document.querySelector('.panel, [role="dialog"]')) { e.preventDefault(); if (!e.repeat) this.h.onHotkey('Tab', e); return; }
     const action = this.keys.action(k);
     if (action === 'dash') { e.preventDefault(); if (!e.repeat) this.h.onDash(); return; }
     if (action === 'potion') { e.preventDefault(); if (!e.repeat) this.h.onPotion?.(); return; }

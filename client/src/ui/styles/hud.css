@@ -891,6 +891,14 @@
 .notice-burst { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 520); height: calc(var(--u) * 190); transform: translate(-50%, -50%); background: radial-gradient(ellipse at center, rgba(255, 210, 110, 0.38), transparent 66%); animation: burstPulse 2.5s ease-out both; pointer-events: none; }
 .notice-level.paragon .notice-burst { background: radial-gradient(ellipse at center, rgba(140, 120, 255, 0.4), transparent 66%); }
 
+/* Town portal button (MenuBar.tsx) and its cast bar (QuestMoments.tsx RecallBar) */
+.hm-btn.hm-portal:disabled { opacity: 0.45; cursor: default; }
+.hm-sep { width: 1px; align-self: stretch; margin: 6px 3px; background: linear-gradient(180deg, transparent, var(--line-2, #5a4429), transparent); }
+.recall-bar .hold-track i { background: linear-gradient(90deg, #6fa8ff, #b8d4ff); }
+
+/* Tab overlay map (OverlayMap.tsx): see-through, above the world, under every HUD element and window. */
+.overlay-map { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; }
+
 /* ═════════════════════════ Left column: pickups + chat ═════════════════════════ */
 
 .hud-leftcol {

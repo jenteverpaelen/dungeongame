@@ -33,5 +33,21 @@ judged by eye at 1920×1080.
 | "i had a set item before and it was kindled so it showed orange while set items should show green" | rarity colour first everywhere: Kindled/Fabled are an inner ring + glow in the slot and the beam's core, never the frame, beam or label border | owner |
 | "make slapbox account the developer account with a cool symbol and tags and colours in chat and give moderation tools" | `STAFF_ACCOUNTS` (server setting) makes accounts staff: gold DEV tag with a star over the head, ✦ DEV badge and gold name in chat, staff commands /announce /who /kick /mute /unmute /ban /unban /reports /resolve (server/src/staff.ts), sanctions audited in the community ledger with their reason | A6 |
 
-Still to do from the list (in progress): early challenge, Hatred early, early XP, Tab map, town portal (T),
-skills window without pages, waypoint tracker.
+## Batch 2: danger, XP, resources, Tab map, town portal
+
+More references: B-R1 Diablo III Hatred regeneration on quivers (Ninth Cirri Satchel "+1.35–1.50 Hatred per second",
+https://di.diablowiki.net/The_Ninth_Cirri_Satchel) and Hatred sustain advice (https://us.forums.blizzard.com/en/d3/t/how-to-restore-hatred-question/23791) [S];
+B-R2 Arcane Power on Critical Hit on sources/wands, The Swami "3–4 Arcane Power" (https://www.diablowiki.net/Arcane_Power_on_Critical_Hit) [S];
+B-R3 Fury: built by fighting, drains out of combat, Unforgiving removes the drain (https://www.diablowiki.net/Fury) [S];
+B-R4 Path of Exile mana: regeneration auras, leech, reduced cost, flasks (https://steamcommunity.com/app/238960/discussions/0/522730701646877804) [S, old].
+
+| Owner's words | What changed | Basis |
+|---|---|---|
+| "early level the mobs still hit 1 it feels like no challenge killing anything" | LEVEL_DAMAGE levels 1–15 ×1.2–2.2 (was ×0.6–1): with the levelling bot's own gear a hero who never attacks now falls in 4–24 s beside a Story pack at levels 3–10 (was 13–60 s), a fighting one loses 8–58 % of life to a pack at levels 1–5 [M, `sim.ts threat`, THREAT_KIT=organic]; level 20+ unchanged | B1 |
+| "monsters should give a lil more experience atleast early game" | kill XP ×1.5 through level 10, fading to ×1 at level 20 [P]; quest and bounty XP unchanged | owner |
+| "hatred is a little bit too much of an issue early game" + "even late game ... very annoying on resources" + "mainly cause some stuff doesnt have a cooldown and it just spams it" | measured (`sim.ts resource`, 3 min in a field, rare kit): Ranger bar 9–15 %, a ready cooldown skill waited for resource 49–80 % of the time; Mage 21–35 % / 31–40 % [M]. Automatic no-cooldown spenders now pool: they start at 60 % of the bar and spend until the next cast is unaffordable, and never take what a cooldown skill ready within 1 s needs (server/src/sim/brain.ts). Fury (built by fighting, drains) and buff/summon skills are not pooled. After: Ranger bar 26–39 %, blocked 0–20 %; Mage 35–41 %, 0–8 %; kills per minute unchanged within noise [M] | B-R1, B-R3 |
+| "builds and items should help with that ... investigate how poe and diablo do it" | resource stays a build concern: existing cost reduction, maximum resource, regeneration and resource per kill, plus a new affix **+N resource per critical hit** (weapons 2–4 / two-handers 3–5, off-hands and helms 2–4, at most once per 250 ms) [P values] | B-R2, B-R4 |
+| "when pressing tab it should open like path of exile kind of a transparant map of the layout that ur in" | Tab toggles a see-through overlay of the zone (walkable outline, roads, water/cliffs) centred on the hero with quest marks, people, waypoints, portals, players, elites and bosses (client/src/ui/hud/OverlayMap.tsx); with a window open Tab keeps moving keyboard focus | PoE overlay, D2 automap [K] |
+| "there should be a button to just teleport to town ... like diablo it should leave behind a portal ... T could be a good keybind" | T (rebindable) or the house button in the menu bar: a 3 s cast [P] that moving, a hit or dying interrupts (server-timed), then town with "Name's portal" by the Faultstone that returns to the exact spot (same instance while it exists; a field channel reopens) | A7 |
+
+Still to do from the list: skills window without pages, waypoint tracker.

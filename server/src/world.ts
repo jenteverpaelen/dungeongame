@@ -95,6 +95,8 @@ async function loadCreateInstance(): Promise<CreateInstance> {
   return sim.createInstance;
 }
 
+/** Town portal cast time [P]: Diablo III's Town Portal is a short cast that moving or a hit interrupts [K]. */
+const RECALL_MS = 3000;
 export class World {
   private create!: CreateInstance;
   private recs = new Map<string, InstRec>();
@@ -140,6 +142,7 @@ export class World {
 
   /** Advance every instance one 50 ms step. A throwing instance must not take the world down. */
   tick(): void {
+    if (this.recalls.size) this.tickRecalls(Date.now());
     for (const rec of this.recs.values()) {
       try {
         rec.inst.tick();
@@ -352,6 +355,8 @@ export class World {
   /** The player disconnects: leave the instance and forget it. The caller persists the save. */
   logout(s: Session): void {
     this.players.delete(s);
+    this.recalls.delete(s);
+    this.closeTownPortal(s.save.id);
     this.parties.disconnected(s);
     this.social.disconnected(s);
     this.community.disconnected(s);
@@ -458,6 +463,78 @@ export class World {
     this.enter(s, target, arrival, this.zoneAnnounce);
     s.saveNow();
     return ok({ zone: zoneId, channel: target.channel });
+  }
+
+  // ─────────────────────────── Town portal (owner 2026-10-13; Diablo III's Town Portal) ───────────────────────────
+
+  /** Casts in progress: RECALL_MS standing still; moving, a hit, dying or changing zone interrupts. */
+  private recalls = new Map<Session, { endsAt: number; x: number; y: number; taken: number; key: string }>();
+  /** Each hero's way back: the town channel and spot of the portal, and where it leads. */
+  private townPortals = new Map<string, { townKey: string; portalId: number; px: number; py: number; key: string; zoneId: string; x: number; y: number }>();
+
+  /** Start the cast (the T key or the HUD button). */
+  townPortal(s: Session): CmdResult {
+    const cur = s.rec;
+    if (!cur) return fail('Not in a zone');
+    if (cur.kind === 'town') return fail('You are already in town');
+    const spot = cur.inst.playerSpot?.(s);
+    if (!spot) return fail('Not in a zone');
+    if (spot.dead) return fail('You cannot open a portal while dead');
+    const going = this.recalls.get(s);
+    if (going) return ok({ ms: Math.max(0, going.endsAt - Date.now()) });
+    this.recalls.set(s, { endsAt: Date.now() + RECALL_MS, x: spot.x, y: spot.y, taken: spot.taken, key: cur.key });
+    cur.inst.emitToPlayer?.(s, { e: 'recall', t: 0, ms: RECALL_MS });
+    return ok({ ms: RECALL_MS });
+  }
+
+  private tickRecalls(now: number): void {
+    for (const [s, r] of [...this.recalls]) {
+      const cur = s.rec, spot = cur && cur.key === r.key ? cur.inst.playerSpot?.(s) : null;
+      const why = !spot ? 'changed zone' : spot.dead ? 'died' : Math.hypot(spot.x - r.x, spot.y - r.y) > 12 ? 'moved' : spot.taken > r.taken ? 'were hit' : null;
+      if (why || !cur) {
+        this.recalls.delete(s);
+        cur?.inst.emitToPlayer?.(s, { e: 'recall', t: 0, ms: 0 });
+        if (spot) this.systemMessage(s, `Town portal interrupted: you ${why}.`);
+        continue;
+      }
+      if (now < r.endsAt) continue;
+      this.recalls.delete(s);
+      cur.inst.emitToPlayer?.(s, { e: 'recall', t: 0, ms: 0 });
+      this.closeTownPortal(s.save.id);
+      const back = { key: r.key, zoneId: cur.zoneId, x: r.x, y: r.y };
+      if (!this.goHome(s).ok) continue;
+      const town = s.rec;
+      if (!town || town.kind !== 'town') continue;
+      const taken = [...this.openRiftsOf(town).map((m) => m.portalAt), ...[...this.townPortals.values()].filter((p) => p.townKey === town.key).map((p) => ({ x: p.px, y: p.py }))];
+      const at = this.portalSpot(town.inst.map, taken);
+      const portalId = town.inst.spawnPortal({ kind: 'back', x: at.x, y: at.y, label: `${s.save.name}'s portal`, ttlMs: 0 });
+      town.inst.emitToPlayer?.(s, { e: 'recall', t: 0, ms: 0 }); // the end of the cast, from the zone the hero is in now
+      this.townPortals.set(s.save.id, { townKey: town.key, portalId, px: at.x, py: at.y, ...back });
+    }
+  }
+
+  /** Step through your town portal: back to the spot you left, in the same instance while it still exists. */
+  portalBack(s: Session): CmdResult {
+    const town = s.rec, tp = this.townPortals.get(s.save.id);
+    if (!town || town.kind !== 'town') return fail('Your portal is in town');
+    if (!tp || tp.townKey !== town.key) return fail('This is not your portal');
+    if (!town.inst.canInteract(s, tp.px, tp.py, 110)) return fail('Stand beside your portal');
+    let target = this.recs.get(tp.key);
+    const def = ZONES[tp.zoneId];
+    if (!target && def?.kind === 'field') target = this.pickChannel(tp.zoneId); // field channels can be reopened
+    if (!target || (def?.kind !== 'field' && target.members.size >= PARTY_MAX)) { this.closeTownPortal(s.save.id); return fail('The way back has closed'); }
+    this.closeTownPortal(s.save.id);
+    s.homeTown = town.key;
+    this.enter(s, target, { x: tp.x, y: tp.y }, this.zoneAnnounce);
+    s.saveNow();
+    return ok({ zone: tp.zoneId });
+  }
+
+  private closeTownPortal(id: string): void {
+    const tp = this.townPortals.get(id);
+    if (!tp) return;
+    this.townPortals.delete(id);
+    try { this.recs.get(tp.townKey)?.inst.removeEntity(tp.portalId); } catch (err) { console.error('[world] removing a town portal failed:', err); }
   }
 
   leave(s: Session): CmdResult {

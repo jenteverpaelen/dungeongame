@@ -216,6 +216,12 @@ export class Instance implements InstanceApi {
 
   // ─────────────────────────── InstanceApi ───────────────────────────
 
+  playerSpot(link: PlayerLink): { x: number; y: number; taken: number; dead: boolean } | null {
+    const p = this.byLink.get(link); return p ? { x: p.x, y: p.y, taken: p.taken, dead: p.deadMs > 0 || p.hp <= 0 } : null;
+  }
+  emitToPlayer(link: PlayerLink, ev: GameEvent): void {
+    const p = this.byLink.get(link); if (p) this.emitTo(p.id, ev);
+  }
   partyStatus(link:PlayerLink):{hp:number;mhp:number;dead:boolean}|null {
     const p=this.byLink.get(link);return p?{hp:p.hp,mhp:p.mhp,dead:p.deadMs>0}:null;
   }

@@ -441,7 +441,7 @@ export interface PortalEnt {
   id: number;
   x: number;
   y: number;
-  to: 'town' | 'rift';
+  to: 'town' | 'rift' | 'back';
   name: string;
   /** Remaining life (ms); Infinity = permanent. */
   lifeMs: number;
@@ -528,6 +528,8 @@ export interface Player extends Hashed {
   /** Resource before the last bar cast of each skill without a cooldown: inside the recast window a recast is refused only
    *  while the resource is back at or above it (the last cast was refunded or free; playerctx.MIN_RECAST_MS). */
   recastRes: Map<string, number>;
+  /** No-cooldown spenders currently spending a pooled bar (brain.ts pooling); empty = all are filling. */
+  pooling: Set<string>;
   attackFlagMs: number;
   castFlagMs: number;
   buffs: Buff[];

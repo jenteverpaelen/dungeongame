@@ -1,6 +1,6 @@
 // Player combat brain (ARCHITECTURE 1.4): auto-attack while moving + auto-cast of the 4 slotted skills.
 
-import { ACQUIRE_BUFFER, TICK_MS } from '../shared';
+import { ACQUIRE_BUFFER, CLASSES, TICK_MS } from '../shared';
 import { autoCastMode } from '../../../shared/src/autoCast';
 import { autoRuleForSlot, DEFAULT_AUTO_RULE, type AutoCastRule } from '../../../shared/src/autoCastRules';
 import type { TargetPriority } from '../../../shared/src/targetPriority';
@@ -194,6 +194,32 @@ export function validateManualCast(p: Player, slot: number, skill: string): stri
   return null;
 }
 
+/** Pooling for automatic no-cooldown spenders [P]: start spending at this share of the bar, keep spending until the next
+ *  cast is unaffordable; never spend what a slotted cooldown skill that is ready within POOL_LOOKAHEAD_MS needs. */
+export const POOL_START = 0.6;
+export const POOL_LOOKAHEAD_MS = 1000;
+/** Only resources that refill on their own pool (Hatred, Arcane Power); Fury is built by fighting and drains, so it is spent as
+ *  it comes (as a Diablo III Barbarian does). Buffs and summons are kept up, not pooled. */
+function pools(p: Player, rt: SkillRuntime): boolean {
+  const r = CLASSES[p.save.classId].resource;
+  return r.regenPerSec > 0 && r.decayPerSec <= 0 && rt.def.auto.when !== 'maintainBuff' && rt.def.auto.when !== 'maintainSummon';
+}
+function poolAllows(inst: Instance, p: Player, rt: SkillRuntime, cost: number): boolean {
+  let reserve = 0;
+  for (const o of p.ctx.slots) {
+    if (!o || o === rt || o.def.cooldown <= 0 || o.def.auto.when === 'channel') continue;
+    const c = skillCost(p, o);
+    if (c > 0 && (p.readyAt.get(o.def.id) ?? 0) - inst.t <= POOL_LOOKAHEAD_MS) reserve = Math.max(reserve, c);
+  }
+  if (p.res - cost < reserve) return false;
+  const id = rt.def.id;
+  if (!p.pooling.has(id)) {
+    if (p.res < Math.max(cost + reserve, p.mres * POOL_START)) return false;
+    p.pooling.add(id);
+  }
+  return true;
+}
+
 /** Both entry paths spend through the same budget. Only automatic trigger rules differ. */
 function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolean, rule: Readonly<AutoCastRule> = DEFAULT_AUTO_RULE): string | null {
   const id = rt.def.id;
@@ -214,8 +240,10 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   }
   const cost = skillCost(p, rt);
   const floor = p.ctx.powers.debt.length ? debtFloor(p, id) : 0; // resource debt (engine wave 2)
-  if (floor === 0 ? p.res < cost : p.res - cost < floor) return `Not enough resource for ${rt.def.name}`;
+  if (floor === 0 ? p.res < cost : p.res - cost < floor) { p.pooling.delete(id); return `Not enough resource for ${rt.def.name}`; }
   if (!manual && (!automaticFilters(inst,p,rt,rule,cost) || !ruleHolds(inst,p,rt,rule))) return 'Automatic condition not met';
+  // No-cooldown spenders under automatic casting pool their resource (poolAllows); resource-debt skills keep their floor.
+  if (!manual && cost > 0 && rt.def.cooldown <= 0 && floor === 0 && rule.reservePct <= 0 && pools(p, rt) && !poolAllows(inst, p, rt, cost)) return 'Pooling resource';
   const tracked = p.ctx.powers.rules.spendRefund.length ? trackCast(inst, p, id, cost) : false;
   const resBefore = p.res;
   p.acting = id;
@@ -223,6 +251,7 @@ function trySlotCast(inst: Instance, p: Player, rt: SkillRuntime, manual: boolea
   p.acting = undefined;
   if (!cast) { if (tracked) p.pw!.cast = null; return `No valid target for ${rt.def.name}`; }
   p.res -= cost;
+  if (p.res < cost) p.pooling.delete(id); // the burst is over: fill the bar again
   // Power procs: every resource-spending cast (Seal of the Patient Thief shortens all active cooldowns), every cast.
   if (cost > 0) firePowerProcs(inst, p, 'spend', { skill: id });
   firePowerProcs(inst, p, 'cast', { skill: id });

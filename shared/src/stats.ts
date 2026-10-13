@@ -220,6 +220,7 @@ export function computeStats(save: CharacterSave, opts: StatsOptions = {}): Deri
     summonDuration: acc.summonDuration ?? 0,
     buffDuration: acc.buffDuration ?? 0,
     resourceOnKill: acc.resourceOnKill ?? 0,
+    resourceOnCrit: acc.resourceOnCrit ?? 0,
     pierceChance: acc.pierceChance ?? 0,
     meleeDR: acc.meleeDR ?? 0,
     rangedDR: acc.rangedDR ?? 0,

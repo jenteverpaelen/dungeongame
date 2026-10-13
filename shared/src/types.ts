@@ -30,7 +30,7 @@ export type StatId =
   | 'ms' | 'pickup' | 'goldFind' | 'xpPct' | 'thorns' | 'maxResource' | 'resourceRegen'
   | 'dmgPct' | 'flatMin' | 'flatMax' | 'weaponDmgPct' | 'sockets'
   // Shared-items wave affixes (docs/rework/depth/ITEMS-SHARED.md §5)
-  | 'dotDmg' | 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'vsControlled' | 'areaRadius' | 'channelCost' | 'ccDuration' | 'summonDuration' | 'buffDuration' | 'resourceOnKill' | 'pierceChance' | 'meleeDR' | 'rangedDR' | 'dashCdr' | 'ccReduction' | 'globeHeal' | 'globeChance' | 'moveWhileChannel' | 'lifeOnControl' | 'chillOnHit';
+  | 'dotDmg' | 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'vsControlled' | 'areaRadius' | 'channelCost' | 'ccDuration' | 'summonDuration' | 'buffDuration' | 'resourceOnKill' | 'pierceChance' | 'meleeDR' | 'rangedDR' | 'dashCdr' | 'ccReduction' | 'globeHeal' | 'globeChance' | 'moveWhileChannel' | 'lifeOnControl' | 'chillOnHit' | 'resourceOnCrit';
 
 /** Visual description of an item, used for paper-doll rendering on characters and for icons. */
 export interface ItemLook {
@@ -250,6 +250,8 @@ export interface DerivedStats {
   summonDuration: number;
   buffDuration: number;
   resourceOnKill: number;
+  /** Resource per critical hit (affix), at most once per 250 ms. */
+  resourceOnCrit: number;
   pierceChance: number;
   meleeDR: number;
   rangedDR: number;

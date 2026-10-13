@@ -86,6 +86,8 @@ export interface UIState {
   artisan: Artisan;
   chat: ChatLine[];
   chatOpen: boolean;
+  /** Tab overlay map over the game (OverlayMap.tsx). */
+  overlayMap: boolean;
   notices: Notice[];
   pickups: PickupLine[];
   afk: AfkReport | null;
@@ -99,6 +101,8 @@ export interface UIState {
   reading: { title: string; text: string; at: number } | null;
   /** Hold-to-use in progress (repair objectives): the game loop cancels it if the hero walks away. */
   hold: { quest: string; step: string; target: string; name: string; ms: number; start: number; x: number; y: number; radius: number } | null;
+  /** Town portal cast in progress (server 'recall' event). */
+  recall: { start: number; ms: number } | null;
   /** Pending enchant choice (D3 Mystic: keep original or pick one of two). */
   enchant: { itemId: string; affix: number; options: AffixRoll[] } | null;
   fps: number;
@@ -128,8 +132,8 @@ export const ui = new Store<UIState>({
   front: { step: 'title', hero: null, hover: null, focus: null, cls: 'warrior', appearance: classAppearance('warrior'), gear: true, yaw: 0 },
   account: { mode: 'off', username: null, characters: [], busy: false, error: null, codes: null, open: false, picked: null },
   char: null, derived: null, me: null, myId: 0, zone: null, rift: null, dungeon:null, fieldEvents:[], lastRun:null, world: null,party:null,social:null,inspectionName:'',reportContext:null,chatChannel:'world',chatTarget:'',
-  panels: {}, artisan: 'cube', chat: [], chatOpen: false, notices: [], pickups: [], afk: null,
-  target: null, interact: null, dialogue: null, reading: null, hold: null, enchant: null, fps: 0, ping: 0, dps: 0,
+  panels: {}, artisan: 'cube', chat: [], chatOpen: false, overlayMap: false, notices: [], pickups: [], afk: null,
+  target: null, interact: null, dialogue: null, reading: null, hold: null, recall: null, enchant: null, fps: 0, ping: 0, dps: 0,
 });
 
 /** Subscribe a component to a slice of UI state. Re-renders only when the selected value changes (shallow). */

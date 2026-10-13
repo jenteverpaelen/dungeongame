@@ -19,12 +19,14 @@ import { BenchReadout } from '../panels/bench';
 import { ContextualGuidance } from './Guidance';
 import {PartyFrames} from '../panels/party';
 import { MenuBar } from './MenuBar';
-import { HoldBar, ReadingCard } from './QuestMoments';
+import { HoldBar, ReadingCard, RecallBar } from './QuestMoments';
+import { OverlayMap } from './OverlayMap';
 
 function GameHud() {
   const ready = useUI((s) => !!(s.char && s.me));
   return (
     <>
+      {ready && <OverlayMap />}
       {ready && <PlayerPlate />}
       {ready && <PartyFrames />}
       <TargetFrame />
@@ -40,6 +42,7 @@ function GameHud() {
       <BenchReadout />
       <ReadingCard />
       <HoldBar />
+      <RecallBar />
       <ContextualGuidance />
       <DeathScreen />
       <HelpPanel />

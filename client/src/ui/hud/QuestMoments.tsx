@@ -20,6 +20,24 @@ export function ReadingCard() {
   </button>;
 }
 
+/** Town portal cast bar (the hold bar's look). */
+export function RecallBar() {
+  const recall = useUI((s) => s.recall);
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (!recall) return;
+    let raf = 0; const loop = () => { tick((n) => n + 1); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop); return () => cancelAnimationFrame(raf);
+  }, [recall]);
+  if (!recall) return null;
+  const k = Math.min(1, (performance.now() - recall.start) / recall.ms);
+  return <div class="hold-bar recall-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(k * 100)}>
+    <span class="hold-name">Town portal</span>
+    <span class="hold-track"><i style={{ width: `${k * 100}%` }} /></span>
+    <span class="hold-hint">Stand still · moving or a hit stops it</span>
+  </div>;
+}
+
 export function HoldBar() {
   const hold = useUI((s) => s.hold);
   const [, tick] = useState(0);

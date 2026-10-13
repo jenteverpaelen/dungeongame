@@ -9,11 +9,12 @@ export const ACTIONS = [
   ['paragon', text('controls.paragon.label')], ['cube', text('controls.cube.label')], ['settings', text('controls.settings.label')],
   ['journal', text('controls.journal.label')],
   ['map', text('controls.map.label')],
+  ['townPortal', text('controls.townPortal.label')],
   ['cast1', text('controls.cast1.label')], ['cast2', text('controls.cast2.label')],
   ['cast3', text('controls.cast3.label')], ['cast4', text('controls.cast4.label')],
 ] as const;
 export const CAST_ACTIONS = ['cast1', 'cast2', 'cast3', 'cast4'] as const;
-const ADDED_ACTIONS = ['journal', 'map', ...CAST_ACTIONS, 'potion'] as const;
+const ADDED_ACTIONS = ['journal', 'map', ...CAST_ACTIONS, 'potion', 'townPortal'] as const;
 export type Action = typeof ACTIONS[number][0];
 export type Bindings = Readonly<Record<Action, readonly [string, string | null]>>;
 export const BINDINGS_KEY = 'hearthfall.bindings.v1';
@@ -23,6 +24,7 @@ const defaults: Record<Action, [string, string | null]> = {
   paragon: ['KeyP', null], cube: ['KeyU', null], settings: ['KeyO', null],
   journal: ['KeyJ', null],
   map: ['KeyM', null],
+  townPortal: ['KeyT', null],
   cast1: ['Digit1', null], cast2: ['Digit2', null], cast3: ['Digit3', null], cast4: ['Digit4', null],
 };
 function freeze(values: Record<Action, [string, string | null]>): Bindings {

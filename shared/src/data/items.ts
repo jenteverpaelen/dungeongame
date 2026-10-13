@@ -225,6 +225,8 @@ export const AFFIXES: AffixDef[] = [
   { stat: 'moveWhileChannel', primary: false, ranges: { legs: [10, 15], feet: [10, 15] }, weight: 4, scale: 'pct', label: (v) => `+${pctFmt(v)}% movement speed while channeling` },
   { stat: 'lifeOnControl', primary: false, ranges: { hands: [2000, 3000], wrists: [2000, 3000] }, weight: 4, scale: 'life', label: (v) => `Stunning, freezing or immobilising an enemy heals ${intFmt(v)} Life` },
   { stat: 'chillOnHit', primary: false, ranges: { weapon1h: [5, 10], weapon2h: [5, 10], hands: [5, 10] }, weight: 4, scale: 'pct', label: (v) => `${pctFmt(v)}% chance on hit to chill enemies for 1 s` },
+  // Appended 2026-10-13 (owner: resource sustain from items, as Diablo III's Arcane Power on Critical Hit): RNG contract keeps the order.
+  { stat: 'resourceOnCrit', primary: true, ranges: { weapon1h: [2, 4], weapon2h: [3, 5], offhand: [2, 4], head: [2, 4] }, weight: 3, scale: 'fixed', label: (v) => `+${intFmt(v)} resource per critical hit` },
 ];
 
 /** Can this affix roll on this base? (kind range + the ranged-only rule). */
@@ -368,7 +370,7 @@ export const MAGIC_PREFIX: Partial<Record<StatId, string>> = {
   str: 'Mighty', dex: 'Nimble', int: 'Wise', vit: 'Hale', chc: 'Keen', chd: 'Brutal', ias: 'Swift', cdr: 'Timeless',
   armor: 'Sturdy', allRes: 'Warded', lifePct: 'Stout', area: 'Sweeping', weaponDmgPct: 'Vicious', ms: 'Fleet', elite: 'Slayer’s',
   dotDmg: 'Festering', summonDmg: 'Shepherd’s', primaryDmg: 'Striking', spenderDmg: 'Spendthrift', cooldownDmg: 'Patient', vsControlled: 'Pinning',
-  areaRadius: 'Broad', channelCost: 'Humming', ccDuration: 'Binding', summonDuration: 'Lingering', buffDuration: 'Lingering', resourceOnKill: 'Reaping',
+  areaRadius: 'Broad', channelCost: 'Humming', ccDuration: 'Binding', summonDuration: 'Lingering', buffDuration: 'Lingering', resourceOnKill: 'Reaping', resourceOnCrit: 'Insight',
   pierceChance: 'Piercing', meleeDR: 'Braced', rangedDR: 'Sheltered', dashCdr: 'Quick-footed',
 };
 export const MAGIC_SUFFIX: Partial<Record<StatId, string>> = {

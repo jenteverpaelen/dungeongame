@@ -19,7 +19,7 @@ import { BAKE_PX, mapKey, bakeMapTerrain, type Baked } from '../mapTerrain';
 
 // ───────────────────────── icon painters (canvas px, origin at the marker centre) ─────────────────────────
 
-function dot(g: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string, halo?: string) {
+export function dot(g: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string, halo?: string) {
   if (halo) { g.fillStyle = halo; g.beginPath(); g.arc(x, y, r + 3, 0, 6.2832); g.fill(); }
   g.fillStyle = fill;
   g.strokeStyle = 'rgba(0,0,0,.85)';
@@ -27,7 +27,7 @@ function dot(g: CanvasRenderingContext2D, x: number, y: number, r: number, fill:
   g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); g.stroke();
 }
 
-function skull(g: CanvasRenderingContext2D, x: number, y: number, s: number) {
+export function skull(g: CanvasRenderingContext2D, x: number, y: number, s: number) {
   g.save(); g.translate(x, y); g.scale(s, s);
   g.fillStyle = 'rgba(255,40,30,.28)'; g.beginPath(); g.arc(0, 0, 1.5, 0, 6.2832); g.fill();
   g.fillStyle = '#e8584a'; g.strokeStyle = '#1a0504'; g.lineWidth = 0.22;
@@ -39,12 +39,12 @@ function skull(g: CanvasRenderingContext2D, x: number, y: number, s: number) {
   g.restore();
 }
 
-function diamond(g: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string) {
+export function diamond(g: CanvasRenderingContext2D, x: number, y: number, r: number, fill: string) {
   g.fillStyle = fill; g.strokeStyle = 'rgba(0,0,0,.85)'; g.lineWidth = 1.5;
   g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y); g.lineTo(x, y + r); g.lineTo(x - r, y); g.closePath(); g.fill(); g.stroke();
 }
 
-function npcIcon(g: CanvasRenderingContext2D, role: string, x: number, y: number) {
+export function npcIcon(g: CanvasRenderingContext2D, role: string, x: number, y: number) {
   switch (role) {
     case 'blacksmith': case 'jeweler': case 'mystic':
       dot(g, x, y, 6, role === 'blacksmith' ? '#dca877' : role === 'jeweler' ? '#77dfc1' : '#c6a2ee');
@@ -69,12 +69,12 @@ function npcIcon(g: CanvasRenderingContext2D, role: string, x: number, y: number
   }
 }
 
-function portalIcon(g: CanvasRenderingContext2D, x: number, y: number, t: number) {
+export function portalIcon(g: CanvasRenderingContext2D, x: number, y: number, t: number) {
   g.strokeStyle = 'rgba(0,0,0,.85)'; g.lineWidth = 4.4; g.beginPath(); g.ellipse(x, y, 4.4, 6.4, 0, 0, 6.2832); g.stroke();
   g.strokeStyle = `rgba(${150 + 40 * Math.sin(t * 3) | 0},170,255,1)`; g.lineWidth = 2.4; g.beginPath(); g.ellipse(x, y, 4.4, 6.4, 0, 0, 6.2832); g.stroke();
 }
 
-function meArrow(g: CanvasRenderingContext2D, x: number, y: number, heading: number) {
+export function meArrow(g: CanvasRenderingContext2D, x: number, y: number, heading: number) {
   g.save(); g.translate(x, y); g.rotate(heading + 1.5708);
   g.scale(1.35, 1.35);
   g.fillStyle = 'rgba(242,213,140,.22)'; g.beginPath(); g.arc(0, 0, 14, 0, 6.2832); g.fill();
@@ -181,7 +181,7 @@ const MM_FONT = 'bold 8px Arial';
 const fontSet = new WeakMap<CanvasRenderingContext2D, string>();
 /** Quest marks are painted once per category and glyph (setting ctx.font per marker every frame forces style work). */
 const marks = new Map<string, HTMLCanvasElement>();
-function markCanvas(cat: MarkCat, glyph: string): HTMLCanvasElement {
+export function markCanvas(cat: MarkCat, glyph: string): HTMLCanvasElement {
   const key = cat + glyph; let c = marks.get(key);
   if (!c) { c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d')!; g.translate(24, 24); paintQuestMark(g, cat, glyph, 20); marks.set(key, c); }
   return c;
@@ -190,7 +190,7 @@ interface QuestInfo { key: unknown; mapKey: string; point: { x: number; y: numbe
 let questCache: QuestInfo | null = null;
 /** Focused objective, every tracked objective in this zone, contact marks and bounty targets; recomputed only when the
  *  character save object or the map changes. */
-function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char']): QuestInfo {
+export function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char']): QuestInfo {
   if (questCache && questCache.key === save && questCache.mapKey === baked.key) return questCache;
   const map = baked.map, zone = map.zone;
   const quest = save ? trackedQuest(save) : null, focusObj = save && quest ? questObjective(save, quest) : null;

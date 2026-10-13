@@ -83,8 +83,13 @@ export function levelToughness(level: number, table = LEVEL_TOUGHNESS): number {
  *  hence ×1.2 for 20–35. Chosen over 9 seeds of the levelling bot (`scripts/bot-metrics.ts run`, 120 min): damage taken
  *  ×1.5–5, the level reached after two hours unchanged (warrior 26→27, ranger 28→27, mage 26→26); a bot that never
  *  dodges now dies 2–34 times an hour in the early bands. Levels 1–3 a little gentler for brand-new characters [M].
- *  Levels 60–70 stay at ×0.5 until the Ordeal ladder re-fit (endgame lane). */
-export const LEVEL_DAMAGE: readonly (readonly [level: number, factor: number])[] = [[1, 0.6], [4, 0.8], [10, 1], [20, 1.2], [35, 1.2], [45, 1], [60, 0.5], [70, 0.5]];
+ *  Levels 60–70 stay at ×0.5 until the Ordeal ladder re-fit (endgame lane).
+ *  2026-10-13 (owner: "early level the mobs still hit 1 it feels like no challenge"): measured with `sim.ts threat` and the
+ *  levelling bot's own gear (THREAT_KIT=organic), a hero who never attacked survived 13–60 s beside a Story pack at levels
+ *  3–15 and an ordinary hit was ~1 % of life; levels 1–15 now ×1.2–2.2, so that hero falls in 4–24 s at levels 3–10 and a
+ *  fighting one loses 8–58 % of life to a pack at levels 1–5 [M] (docs/rework/OWNER-LIST-2026-10-13.md B1). Level 20+
+ *  unchanged. */
+export const LEVEL_DAMAGE: readonly (readonly [level: number, factor: number])[] = [[1, 1.2], [4, 2], [10, 2.2], [15, 1.6], [20, 1.2], [35, 1.2], [45, 1], [60, 0.5], [70, 0.5]];
 export function levelDamage(level: number, table = LEVEL_DAMAGE): number {
   if (tuningOverrides.levelDamage) return tuningOverrides.levelDamage(level);
   return interpolateLog(level, table);

@@ -87,7 +87,7 @@ export function nodePowerSources(save: Pick<CharacterSave, 'classId' | 'level' |
  * source, so they cannot change any earlier product.
  */
 export function affixPowerSources(d: Pick<DerivedStats, 'summonDmg' | 'primaryDmg' | 'spenderDmg' | 'cooldownDmg' | 'areaRadius' | 'channelCost'
-  | 'summonDuration' | 'buffDuration' | 'pierceChance' | 'dotDmg' | 'vsControlled' | 'resourceOnKill'>): PowerSource[] {
+  | 'summonDuration' | 'buffDuration' | 'pierceChance' | 'dotDmg' | 'vsControlled' | 'resourceOnKill' | 'resourceOnCrit'>): PowerSource[] {
   const effects: PowerEffect[] = [];
   const mods = (tag: Parameters<typeof tagQuery>[0], m: Record<string, number>) => effects.push({ kind: 'skillMods', tags: tagQuery(tag), mods: m });
   if (d.summonDmg > 0) mods('summon', { dmg: d.summonDmg });
@@ -102,6 +102,7 @@ export function affixPowerSources(d: Pick<DerivedStats, 'summonDmg' | 'primaryDm
   if (d.dotDmg > 0) for (const dot of ['bleed', 'burn', 'poison'] as const) effects.push({ kind: 'dot', dot, strengthPct: 100 + d.dotDmg });
   if (d.vsControlled > 0) effects.push({ kind: 'conditional', when: { targetState: 'immobilised' }, bucket: 'hit', pct: d.vsControlled });
   if (d.resourceOnKill > 0) effects.push({ kind: 'proc', on: 'kill', resource: d.resourceOnKill });
+  if (d.resourceOnCrit > 0) effects.push({ kind: 'proc', on: 'crit', icdMs: 250, resource: d.resourceOnCrit });
   return effects.length ? [{ kind: 'affix', id: 'affixes', roll: 1, effects }] : [];
 }
 const tagQuery = (t: 'summon' | 'primary' | 'spender' | 'cooldown' | 'area' | 'channel' | 'buff' | 'projectile') => ({ anyOf: [t] });
