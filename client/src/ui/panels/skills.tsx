@@ -41,7 +41,8 @@ export const skillsUI = new Local<{ selected: string | null; assign: number | nu
   { selected: null, assign: null, mode: { kind: 'skill' }, tab: 'runes', filter: 'all', page: 0 });
 
 /** Cards per page: two columns × five rows fit the one-screen budget with the passives underneath. */
-const PAGE_SIZE = 10;
+/** Every skill of a class fits on one screen (12 per class); the category chips only filter. */
+const PAGE_SIZE = 99;
 const ELEMENT_COLOR: Record<Element, string> = {
   physical: '#e2d8c4', fire: '#ff8a3d', cold: '#7fd3ff', lightning: '#d6c2ff', poison: '#8fd16a', arcane: '#c39bff', holy: '#ffe9a0',
 };
@@ -297,7 +298,7 @@ function SkillBrowser({ char, list }: { char: CharacterSave; list: SkillDef[] })
           <button class="btn sm" disabled={p === pages - 1} aria-label="Next page" onClick={() => skillsUI.set({ page: p + 1 })}><IconChevron dir="right" /></button>
         </span>}
       </header>
-      {list.length > PAGE_SIZE && <div class="sk-filters" role="tablist" aria-label="Skill categories">
+      {list.length > 6 && <div class="sk-filters" role="tablist" aria-label="Skill categories">
         <button role="tab" aria-selected={filter === 'all'} class={cls('st-chip', filter === 'all' && 'on')} onClick={() => skillsUI.set({ filter: 'all', page: 0 })}>All <em>{list.length}</em></button>
         {order.map((c) => <button key={c} role="tab" aria-selected={filter === c} class={cls('st-chip', filter === c && 'on')}
           onClick={() => skillsUI.set({ filter: c, page: 0 })}>{c} <em>{list.filter((s) => categoryOf(s) === c).length}</em></button>)}
@@ -366,13 +367,14 @@ function Tiers({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         const owned = i < cur, next = i === cur && !locked, cost = TIER_COSTS[i];
         return (
           <div key={i} class={cls('sk-tier', owned && 'owned', next && 'next', !owned && !next && 'future')}>
-            <div class="sk-tier-top"><span class="sk-tier-n">{ROMAN[i]}</span><b>{t.name}</b>{advanced && <AdvChip tip={`tier-${skill.id}-${i}`} title={t.name} lines={[modsText(t.mods)]} />}</div>
-            <p>{t.desc}</p>
-            <div class="sk-tier-act">
-              {owned ? <span class="chip good"><IconCheck size={10} /> Active</span>
-                : next ? <SpendButton skill={skill} char={char} label />
-                : <span class={cls('sk-tier-cost', char.skillPoints < cost && 'short')}>{locked ? 'Skill locked' : `After tier ${ROMAN[i - 1]}`} · <IconStar4 size={11} />{cost}</span>}
+            <div class="sk-tier-top"><span class="sk-tier-n">{ROMAN[i]}</span><b>{t.name}</b>{advanced && <AdvChip tip={`tier-${skill.id}-${i}`} title={t.name} lines={[modsText(t.mods)]} />}
+              <span class="sk-tier-act">
+                {owned ? <span class="chip good"><IconCheck size={10} /> Active</span>
+                  : next ? <SpendButton skill={skill} char={char} />
+                  : <span class={cls('sk-tier-cost', char.skillPoints < cost && 'short')}>{locked ? 'Locked' : <><IconStar4 size={11} />{cost}</>}</span>}
+              </span>
             </div>
+            <p>{t.desc}</p>
           </div>
         );
       })}
@@ -390,13 +392,14 @@ function Runes({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         const need = runeUnlockLevel(skill, i), locked = skillLocked || need > char.level, on = cur === r.id;
         return (
           <button key={r.id} class={cls('sk-rune', on && 'on', locked && 'locked')} disabled={locked} style={{ '--rc': hex(skill.icon.color) }}
-            aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}>
+            aria-pressed={on} onClick={() => void run('skillRune', { skill: skill.id, rune: on ? null : r.id })}
+            {...textTipHandlers(() => ({ title: r.name, lines: [r.desc], sub: locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip' }), `rune-tip-${skill.id}-${r.id}`)}>
             <span class="sk-rune-top"><span class="sk-rune-ic">{locked ? <IconLock size={12} /> : on ? <IconCheck size={12} /> : 'ABCDE'[i]}</span><b>{r.name}</b>{advanced && <AdvChip tip={`rune-${skill.id}-${r.id}`} title={r.name} lines={[modsText(r.mods), ...(r.effects ?? []).map((e) => describeEffect(e)), r.addTags?.length || r.tags?.length ? `Adds tags: ${[...(r.addTags ?? r.tags ?? [])].map(tagWord).join(', ')}` : '', r.removeTags?.length ? `Removes tags: ${r.removeTags.map(tagWord).join(', ')}` : '']} />}</span>
-            <p>{r.desc}</p>
-            <em>{locked ? `Unlocks at level ${need}` : on ? 'Equipped · click to remove' : 'Click to equip'}</em>
+            <em>{locked ? `Level ${need}` : on ? 'Equipped' : 'Equip'}</em>
           </button>
         );
       })}
+      <p class="sk-rune-desc">{(() => { const r = skill.runes.find((x) => x.id === cur); return r ? <><b>{r.name}:</b> {r.desc}</> : 'No rune equipped. Hover a rune to read it, click to equip it.'; })()}</p>
     </div>
   );
 }
@@ -429,34 +432,31 @@ function nodeState(skill: SkillDef, node: NodeDef, char: CharacterSave): 'max' |
 }
 
 function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
-  const advanced = useAdvanced();
   const nodes = skill.nodes ?? [];
-  const [focusId, setFocus] = useState(nodes[0]?.id ?? '');
   const [busy, setBusy] = useState(false);
-  if (!nodes.length) return (
-    <div class="sk-tree-empty">
-      <IconDiamond size={22} />
-      <b>No specialization tree yet</b>
-      <p>This skill has no specialization nodes in this version. Trees arrive with the next skill content; your specialization points wait for them.</p>
-    </div>
-  );
+  if (!nodes.length) return null;
   const ranks = nodesOf(char, skill.id);
-  const focus = nodes.find((n) => n.id === focusId) ?? nodes[0];
-  const rank = Math.min(focus.maxRank, ranks[focus.id] ?? 0);
-  const buyErr = nodeBuyError(char, skill.id, focus.id), refundErr = nodeRefundError(char, skill.id, focus.id);
-  const act = async (delta: 1 | -1) => { setBusy(true); try { await run('skillNode', { skill: skill.id, node: focus.id, delta }); } finally { setBusy(false); } };
-  const spent = treeSpent(skill, ranks), total = treeBuyableRanks(skill), all = treeTotalRanks(skill), left = specPointsAvailable(char);
-  const at = (n: NodeDef) => ({ x: ((n.pos.col + 0.5) / NODE_GRID.cols) * 100, y: ((n.pos.row + 0.5) / NODE_GRID.rows) * 100 });
-  const unlockAt = nodeUnlockLevel(skill, focus);
+  const act = async (node: NodeDef, delta: 1 | -1) => {
+    const err = delta > 0 ? nodeBuyError(char, skill.id, node.id) : nodeRefundError(char, skill.id, node.id);
+    if (err) { pushNotice(err, 'warn'); return; }
+    setBusy(true); try { await run('skillNode', { skill: skill.id, node: node.id, delta }); } finally { setBusy(false); }
+  };
+  const spent = treeSpent(skill, ranks), left = specPointsAvailable(char);
+  const rows = Math.max(1, ...nodes.map((n) => n.pos.row + 1)); // only the rows this tree uses
+  const at = (n: NodeDef) => ({ x: ((n.pos.col + 0.5) / NODE_GRID.cols) * 100, y: ((n.pos.row + 0.5) / rows) * 100 });
+  const tip = (n: NodeDef) => {
+    const r = Math.min(n.maxRank, ranks[n.id] ?? 0), unlockAt = nodeUnlockLevel(skill, n), err = nodeBuyError(char, skill.id, n.id);
+    const needs = [...(n.requires ?? []).map((q) => `Needs ${nodes.find((x) => x.id === q.node)?.name ?? q.node} rank ${q.rank}`), ...(unlockAt > skill.unlock ? [`Needs level ${unlockAt}`] : [])];
+    return { title: `${n.name} · rank ${r} / ${n.maxRank}`, lines: [r > 0 ? `Now: ${describeNode(n, r)}` : 'Not learned yet', ...(r < n.maxRank ? [`Next: ${describeNode(n, r + 1)}`] : []), ...needs],
+      sub: r >= n.maxRank ? 'Highest rank · right-click refunds' : err ? err : `Click to learn rank ${r + 1} (${NODE_RANK_COST} point) · right-click refunds` };
+  };
   return (
-    <div class="sk-tree">
-      <div class="sk-tree-sum">
-        <span><IconDiamond size={11} /> <b>{spent}</b> of {total} ranks{all > total ? ` (the tree holds ${all})` : ' in this tree'}</span>
-        <span>{fmtInt(left)} specialization {left === 1 ? 'point' : 'points'} left</span>
+    <div class="sk-tree compact">
+      <div class="sk-d-sec"><span>Specialization</span><em>{spent} of {treeBuyableRanks(skill)} ranks · <IconDiamond size={10} /> {fmtInt(left)} {left === 1 ? 'point' : 'points'} left · click learns, right-click refunds</em>
         <button class="btn sm" disabled={!spent || busy} onClick={() => void run('skillReset', { skill: skill.id })}
           {...textTipHandlers(() => ({ title: `Reset ${skill.name}`, lines: ['Refunds this skill’s tiers and clears its tree. Free.'] }), 'tree-reset')}>Reset skill</button>
       </div>
-      <div class="sk-tree-grid" style={{ '--cols': NODE_GRID.cols, '--rows': NODE_GRID.rows }}>
+      <div class="sk-tree-grid" style={{ '--cols': NODE_GRID.cols, '--rows': rows }}>
         <svg class="sk-tree-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {nodes.flatMap((n) => (n.requires ?? []).map((r) => {
             const from = nodes.find((x) => x.id === r.node);
@@ -468,35 +468,15 @@ function NodeTree({ skill, char }: { skill: SkillDef; char: CharacterSave }) {
         {nodes.map((n) => {
           const r = Math.min(n.maxRank, ranks[n.id] ?? 0), st = nodeState(skill, n, char);
           return (
-            <button key={n.id} class={cls('sk-node', st, focus.id === n.id && 'focus')} style={{ gridColumn: n.pos.col + 1, gridRow: n.pos.row + 1 }}
-              aria-pressed={focus.id === n.id} aria-label={`${n.name}, rank ${r} of ${n.maxRank}`} onClick={() => setFocus(n.id)}>
+            <button key={n.id} class={cls('sk-node', st)} style={{ gridColumn: n.pos.col + 1, gridRow: n.pos.row + 1 }} disabled={busy}
+              aria-label={`${n.name}, rank ${r} of ${n.maxRank}. Click to learn a rank, right-click to refund.`}
+              onClick={() => void act(n, 1)} onContextMenu={(e) => { e.preventDefault(); void act(n, -1); }}
+              {...textTipHandlers(() => tip(n), `node-tip-${skill.id}-${n.id}-${r}`)}>
               <b>{n.name}</b>
               <span class="sk-node-pips">{Array.from({ length: n.maxRank }, (_, i) => <i key={i} class={i < r ? 'on' : ''} />)}<small>{st === 'locked' ? <IconLock size={10} /> : `${r}/${n.maxRank}`}</small></span>
             </button>
           );
         })}
-      </div>
-      <div class="sk-node-detail">
-        <div class="sk-node-dh"><b>{focus.name}</b>{advanced && <AdvChip tip={`node-${skill.id}-${focus.id}`} title={`${focus.name} — per rank`} lines={[...focus.ranks.map((r, i) => `Rank ${i + 1}: ${modsText(r) || 'no numeric mods'}`), ...(focus.effects ?? []).map((e) => `Template (× rank): ${describeEffect(e)}`)]} />}<em>Rank {rank} / {focus.maxRank}</em></div>
-        <dl class="sk-node-dl">
-          <dt>Now</dt><dd>{rank > 0 ? describeNode(focus, rank) : <span class="dim">Not learned</span>}</dd>
-          {rank < focus.maxRank && <><dt>Next</dt><dd class="next">{describeNode(focus, rank + 1)}</dd></>}
-          {(focus.requires?.length || unlockAt > skill.unlock) ? <><dt>Needs</dt><dd>
-            {focus.requires?.map((r) => {
-              const other = nodes.find((x) => x.id === r.node), ok = Math.min(other?.maxRank ?? 0, ranks[r.node] ?? 0) >= r.rank;
-              return <span key={r.node} class={cls('sk-need', ok && 'ok')}>{ok ? <IconCheck size={10} /> : <IconLock size={10} />} {other?.name ?? r.node} rank {r.rank}</span>;
-            })}
-            {unlockAt > skill.unlock && <span class={cls('sk-need', char.level >= unlockAt && 'ok')}>{char.level >= unlockAt ? <IconCheck size={10} /> : <IconLock size={10} />} Level {unlockAt}</span>}
-          </dd></> : null}
-        </dl>
-        <div class="sk-node-act">
-          <button class="btn primary sm" disabled={busy || !!buyErr} onClick={() => void act(1)}>
-            {rank >= focus.maxRank ? 'Highest rank' : <>Learn rank {rank + 1} · <IconDiamond size={9} /> {NODE_RANK_COST}</>}
-          </button>
-          <button class="btn sm" disabled={busy || !!refundErr} onClick={() => void act(-1)}>Refund rank</button>
-          {buyErr && rank < focus.maxRank && <span class="pn-note" role="status">{buyErr}</span>}
-          {!buyErr && refundErr && rank > 0 && <span class="pn-note" role="status">{refundErr}</span>}
-        </div>
       </div>
     </div>
   );
@@ -514,8 +494,8 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
   const slotIdx = char.skills.slots.indexOf(skill.id);
   const total = treeBuyableRanks(skill);
   // The Specialization view appears once the class has any tree (no dead feature before content ships).
-  const tabs: [SkillsTab, string][] = [['runes', 'Runes & tiers'], ...(trees ? [['tree', total ? `Specialization ${treeSpent(skill, nodesOf(char, skill.id))}/${total}` : 'Specialization'] as [SkillsTab, string]] : []), ['cast', 'Casting'], ['numbers', 'Numbers']];
-  const view = !trees && tab === 'tree' ? 'runes' : tab;
+  const tabs: [SkillsTab, string][] = [['runes', 'Build'], ['cast', 'Casting'], ['numbers', 'Numbers']];
+  const view = tab === 'cast' || tab === 'numbers' ? tab : 'runes'; // 'runes' = the Build view (tiers, runes and tree)
   return (
     <div class="sk-detail">
       <div class="sk-d-head">
@@ -552,8 +532,8 @@ function SkillDetail({ skill, char, trees }: { skill: SkillDef; char: CharacterS
         <Tiers skill={skill} char={char} />
         <div class="sk-d-sec"><span>Runes</span><em>Pick one · unlock at levels {skill.runes.map((_, i) => runeUnlockLevel(skill, i)).join(', ')}</em></div>
         <Runes skill={skill} char={char} />
+        {trees && total > 0 && <NodeTree key={skill.id} skill={skill} char={char} />}
       </>}
-      {view === 'tree' && <NodeTree key={skill.id} skill={skill} char={char} />}
       {view === 'numbers' && <Numbers skill={skill} char={char} />}
       {view === 'cast' && (slotIdx >= 0 ? <Casting skill={skill} char={char} slot={slotIdx} />
         : <p class="pn-note sk-cast-hint">{skill.kind === 'primary' ? 'The primary attack is always active; it needs no casting rules.' : locked ? `Reach level ${skill.unlock} to use this skill.` : 'Put this skill in a slot to set when it casts automatically.'}</p>)}

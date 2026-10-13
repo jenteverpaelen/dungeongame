@@ -1166,3 +1166,34 @@
 .sk-pdetail .sk-plist.many .sk-pcard { min-width: 0; }
 .sk-pdetail .sk-plist.many .sk-pcard b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sk-tag-word { padding: 1px 7px; font: 700 11px/1.5 var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--t-2); background: rgba(0, 0, 0, 0.3); border: 1px solid var(--line-2); border-radius: 9px; }
+
+/* Skills window on one screen (owner 2026-10-13: no pages, nothing behind another click; docs/rework/OWNER-LIST-2026-10-13.md C1):
+   compact skill cards so all twelve fit, five runes in one row with the equipped rune's text below, a shorter tree. */
+.sk-cards { gap: 6px; }
+.sk-card { min-height: 58px; padding: 6px 8px 6px 6px; gap: 8px; }
+.sk-card-ic { width: 40px; height: 40px; }
+.sk-card-top b { font-size: 15px; }
+.sk-card-main { gap: 2px; }
+.sk-card-foot { min-height: 22px; gap: 6px; }
+.sk-runes, .sk-runes.many { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.sk-runes .sk-rune, .sk-runes.many .sk-rune { padding: 7px 8px; gap: 4px; }
+.sk-runes .sk-rune-top b { font-size: 14px; }
+.sk-rune-desc { grid-column: 1 / -1; margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--t-2); }
+.sk-rune-desc b { color: var(--t-1); }
+.sk-tree.compact { margin-top: 0; gap: 8px; }
+.sk-tree.compact .sk-tree-grid { grid-template-rows: repeat(var(--rows), 50px); gap: 12px 40px; }
+.sk-d-sec { margin: 12px 0 6px; }
+.sk-runes .sk-rune-top b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.12; }
+.sk-d-desc { margin: 8px 0 6px; }
+.sk-tier { padding: 8px 10px; gap: 4px; }
+.sk-tier-top .sk-tier-act { margin-left: auto; min-height: 0; flex: none; }
+.sk-tree.compact .sk-tree-grid { grid-template-rows: repeat(var(--rows), 44px); gap: 8px 40px; }
+.sk-tree.compact .sk-node { padding: 4px 10px; gap: 3px; }
+.sk-d-sec { margin: 9px 0 5px; }
+.pn-skills .sk-top { padding-bottom: 8px; margin-bottom: 10px; }
+/* unlocked cards drop the kind and element line (the detail shows it); locked cards keep it for their unlock level */
+.sk-card:not(.locked) .sk-card-sub { display: none; }
+.sk-card { min-height: 52px; }
+.sk-d-sec > .btn { order: 4; align-self: center; margin: -4px 0; }
+.sk-d-sec > em svg { color: var(--arcane); vertical-align: -1px; }
+.sk-tree.compact { gap: 0; }

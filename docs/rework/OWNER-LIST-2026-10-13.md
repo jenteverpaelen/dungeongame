@@ -50,4 +50,12 @@ B-R4 Path of Exile mana: regeneration auras, leech, reduced cost, flasks (https:
 | "when pressing tab it should open like path of exile kind of a transparant map of the layout that ur in" | Tab toggles a see-through overlay of the zone (walkable outline, roads, water/cliffs) centred on the hero with quest marks, people, waypoints, portals, players, elites and bosses (client/src/ui/hud/OverlayMap.tsx); with a window open Tab keeps moving keyboard focus | PoE overlay, D2 automap [K] |
 | "there should be a button to just teleport to town ... like diablo it should leave behind a portal ... T could be a good keybind" | T (rebindable) or the house button in the menu bar: a 3 s cast [P] that moving, a hit or dying interrupts (server-timed), then town with "Name's portal" by the Faultstone that returns to the exact spot (same instance while it exists; a field channel reopens) | A7 |
 
-Still to do from the list: skills window without pages, waypoint tracker.
+## Batch 3: skills window
+
+References: C-R1 Diablo IV skill tree: left-click allocates a point, right-click refunds it, hovering shows the current and next rank [K]; C-R2 Path of Exile passive tree: allocate by clicking the node itself [K].
+
+| Owner's words | What changed | Basis |
+|---|---|---|
+| "skills shouldn't have 2 pages to scroll through to see all skills, it should all be easily visible and also for upgrading the speciliazation etc nothing should be behind another click it should all be clear and easy" | all 12 skills of a class on one screen (the category chips only filter); the selected skill's tiers, runes and specialization tree sit together in one Build view, Casting and Numbers stay as advanced tabs; a tree node learns a rank on click and refunds on right-click, its tooltip shows now / next / needs; runes are one row with the equipped rune's text below. The window is 845 px tall at 1920×1080 (ends above the orbs and skill bar) and fits at 1280×720 [M, `.local/scn/skills-fit.mjs`] | C-R1, C-R2 |
+
+Still to do from the list: waypoint tracker.
