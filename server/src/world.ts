@@ -128,6 +128,13 @@ export class World {
   private lastInfoAt = 0;
   private tickErrAt = new Map<string, number>();
   private rng = new Rng((Math.random() * 0xffffffff) >>> 0);
+  /** Opaque per-hero tokens for private instance keys: /healthz lists keys publicly and character ids follow names. */
+  private ownerTokens = new Map<string, string>();
+  private ownerToken(s: Session): string {
+    let t = this.ownerTokens.get(s.save.id);
+    if (!t) this.ownerTokens.set(s.save.id, (t = this.rng.seed().toString(36) + this.rng.seed().toString(36)));
+    return t;
+  }
 
   // ─────────────────────────── Lifecycle ───────────────────────────
 
@@ -284,7 +291,7 @@ export class World {
   private fieldRec(s: Session, zoneId: string): InstRec | string {
     const party = this.parties.view(s).id;
     if (party) for (const rec of this.recs.values()) if (rec.members.size > 0 && this.fieldOpenTo(s, rec, zoneId)) return rec;
-    const base = `field#${party ?? s.save.id}#${zoneId}`;
+    const base = `field#${party ?? this.ownerToken(s)}#${zoneId}`;
     let key = base, n = 1, rec = this.recs.get(key);
     while (rec && !this.fieldOpenTo(s, rec, zoneId)) { key = `${base}#${++n}`; rec = this.recs.get(key); }
     if (rec) return rec;
@@ -454,7 +461,7 @@ export class World {
       if(channel!==undefined)return fail('Private dungeons have no public channels');
       if(!nearExit)return fail('Enter through the physical dungeon entrance');
       const group=this.parties.view(s).id;
-      const key=`dungeon#${group??s.save.id}#${zoneId}`;
+      const key=`dungeon#${group??this.ownerToken(s)}#${zoneId}`;
       let target=this.recs.get(key);
       if(target?.members.size===0&&target.inst.dungeonState?.()?.phase==='done'){
         target.inst.destroy();this.recs.delete(key);this.tickErrAt.delete(key);target=undefined;
