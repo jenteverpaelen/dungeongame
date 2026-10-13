@@ -95,9 +95,9 @@ test('input releases independent alternates and rejects movement repeats after c
   fire('keydown', 'KeyD'); keys.capture(false); fire('keydown', 'KeyD', { repeat: true });
   assert.deepEqual(input.move(), { x: 0, y: 0 });
   fire('keydown', 'KeyD'); fire('blur'); fire('keydown', 'KeyD', { repeat: true }); assert.equal(input.move().x, 0);
-  fire('keydown', 'KeyW'); keys.assign('up', 0, 'KeyT'); assert.equal(input.move().y, 0);
+  fire('keydown', 'KeyW'); keys.assign('up', 0, 'KeyG'); assert.equal(input.move().y, 0);
   fire('keydown', 'KeyW'); assert.equal(input.move().y, 0);
-  fire('keydown', 'KeyT'); assert.equal(input.move().y, -1); fire('focusin'); assert.equal(input.move().y, 0);
+  fire('keydown', 'KeyG'); assert.equal(input.move().y, -1); fire('focusin'); assert.equal(input.move().y, 0);
 }));
 
 test('manual keys preserve older custom number assignments and reject repeats, modifiers and text entry', () => {
@@ -123,7 +123,15 @@ test('remapped actions respect native forms, capture, modifiers, repeat and Tab 
     { target: { tagName: 'INPUT' } }, { target: { tagName: 'TEXTAREA' } }, { target: { isContentEditable: true } },
     { target: { closest: (q: string) => q.includes('data-controls-editor') } }]) fire('keydown', 'KeyY', extra);
   keys.capture(true); fire('keydown', 'KeyY'); keys.capture(false); assert.deepEqual(hits, ['dash']);
-  assert.equal(fire('keydown', 'Tab').defaultPrevented, false);
+  // Tab moves keyboard focus while a window is open and with Shift; with nothing open it toggles the overlay map.
+  const doc = Object.getOwnPropertyDescriptor(globalThis, 'document'); let windowOpen = true;
+  Object.defineProperty(globalThis, 'document', { configurable: true, value: { querySelector: () => (windowOpen ? {} : null) } });
+  try {
+    assert.equal(fire('keydown', 'Tab').defaultPrevented, false);
+    windowOpen = false; assert.equal(fire('keydown', 'Tab', { shiftKey: true }).defaultPrevented, false);
+    assert.equal(fire('keydown', 'Tab').defaultPrevented, true); fire('keydown', 'Tab', { repeat: true });
+  } finally { if (doc) Object.defineProperty(globalThis, 'document', doc); else Reflect.deleteProperty(globalThis, 'document'); }
+  assert.deepEqual(hits.splice(1), ['Tab']);
   keys.reset(); fire('keydown', 'Space', { key: ' ', target: { closest: (q: string) => q.includes('button') } });
   assert.deepEqual(hits, ['dash']); fire('keydown', 'KeyB'); fire('keydown', 'F1'); fire('keydown', 'KeyE');
   assert.deepEqual(hits, ['dash', 'i', 'F1', 'e']);

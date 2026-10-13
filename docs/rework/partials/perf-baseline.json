@@ -1,5 +1,5 @@
 {
- "recorded": "2026-10-11",
+ "recorded": "2026-10-13",
  "machine": "AMD Ryzen 7 7435HS ×16, win32",
  "schema": 1,
  "rounds": 600,
@@ -17,16 +17,16 @@
   150
  ],
  "roundMs": {
-  "avg": 1.872,
-  "p50": 1.63,
-  "p95": 3.675,
-  "p99": 5.227,
-  "max": 7.256
+  "avg": 2.136,
+  "p50": 1.963,
+  "p95": 3.693,
+  "p99": 4.872,
+  "max": 7.647
  },
  "snapshotBytes": {
-  "perClientPerSecAvg": 81504,
-  "perClientPerSecMax": 94267,
-  "largestMessage": 14221
+  "perClientPerSecAvg": 94959,
+  "perClientPerSecMax": 106065,
+  "largestMessage": 14471
  },
  "budget": {
   "roundAvgMs": 10,

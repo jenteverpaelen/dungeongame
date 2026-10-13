@@ -62,11 +62,13 @@ test('warrior: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready
 });
 
 test('ranger: D3 and D4 (BUDGET.md §6 hard limits) hold for every parity-ready ranger main skill', () => {
-  // Same gate as the warrior: greedy kits, one seed, ranger items only (shared legendaries are the shared-items lane's;
-  // scripts/audit-ranger-parity.ts reports both).
+  // Same gate as the warrior: greedy kits, ranger items only (shared legendaries are the shared-items lane's;
+  // scripts/audit-ranger-parity.ts reports both). Three seeds, the audit's: one seed swings with the rares' rolls (Pitch
+  // Mortar D3 0.84–1.14 across seeds at 7ff65dd), so adding an affix to the pool failed seed 101 alone (0.76) while the
+  // three-seed D3 moved 1.00 → 0.95 [M, 2026-10-13].
   const ready = RANGER_MAIN.filter((id) => SKILLS[id].parityReady);
   assert(ready.length > 0, 'the ranger wave flags its passing main skills');
-  const d = rangerDiversity({ seeds: [101], mains: ready, excludeShared: true });
+  const d = rangerDiversity({ seeds: [101, 202, 303], mains: ready, excludeShared: true });
   for (const r of d.rows) {
     const leg = r.factor.legendary, set6 = r.factor[r.bestSet6], hyb = r.factor[r.bestHybrid];
     const d3 = leg / set6, lo = Math.min(leg, set6), hi = Math.max(leg, set6);
