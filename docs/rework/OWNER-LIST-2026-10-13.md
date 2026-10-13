@@ -58,4 +58,17 @@ References: C-R1 Diablo IV skill tree: left-click allocates a point, right-click
 |---|---|---|
 | "skills shouldn't have 2 pages to scroll through to see all skills, it should all be easily visible and also for upgrading the speciliazation etc nothing should be behind another click it should all be clear and easy" | all 12 skills of a class on one screen (the category chips only filter); the selected skill's tiers, runes and specialization tree sit together in one Build view, Casting and Numbers stay as advanced tabs; a tree node learns a rank on click and refunds on right-click, its tooltip shows now / next / needs; runes are one row with the equipped rune's text below. The window is 845 px tall at 1920×1080 (ends above the orbs and skill bar) and fits at 1280×720 [M, `.local/scn/skills-fit.mjs`] | C-R1, C-R2 |
 
-Still to do from the list: waypoint tracker.
+## Batch 4: waypoint tracker
+
+References: D-R1 Fable II "breadcrumb trail": a sparkling gold line on the ground to the objective that reroutes when the
+player leaves it; one preview found it too bright and pulling the eye from the fight (GamesRadar https://www.gamesradar.com/fable-2-fresh-look/2,
+Joystiq/Engadget hands-on https://www.engadget.com/2008-07-16-joystiq-e3-hands-on-fable-2.html, Shacknews https://www.shacknews.com/article/54748/new-fable-2-screenshots-and) [S];
+D-R2 World of Warcraft map pins with an in-world beacon; the popular addons add a distance label, screen-edge arrows and hide it when close
+(Waypoint Enhancer https://www.curseforge.com/wow/addons/waypoint-enhancer-better-blizzard-waypoints-style) [S, addon pages];
+D-R3 Diablo IV: a path or direction marker on the minimap toward the tracked objective (https://diamondlobby.com/diablo/diablo-4/how-to-track-objectives-diablo-4/) [S, weak].
+
+| Owner's words | What changed | Basis |
+|---|---|---|
+| "The waypoint tracker can be made a bit more modern and better working" | measured problems first: the trail's dots were 2 radii apart and faint on cobbles, nothing showed the way once the goal was off screen, a two-target step led to the first target while the tracker measured to the nearest, the minimap marked only that first target, and long titles were cut ("The …", "Pressure B…") because the destination shared their line. Now: denser crumbs with three sparks running toward the goal and a pulsing ring at its end (D-R1, kept quieter than the crumbs); a marker pinned to the screen edge with an arrow and the distance ("72 m", or "Rillwake Crossing · 41 m" for another zone's exit), hidden on screen and under 4 m (D-R2); the trail picks the nearest remaining target every 0.5 s, the same point the tracker measures; the minimap and Tab map mark every remaining target, pinned to the minimap rim (D-R3); tracker titles keep their whole line, the distance ends the objective text (`render/questGuide.ts`, `ui/hud/Minimap.tsx`, `ui/panels/questTracker.tsx`). Spacing, spark speed and HUD insets are [P] | D-R1–D-R3 |
+
+Every item on the list is done.

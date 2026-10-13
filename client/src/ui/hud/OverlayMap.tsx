@@ -90,7 +90,7 @@ export function OverlayMap() {
       const baked = { map, key: mapKey(map), canvas: outline.canvas } as ReturnType<typeof bakeMapTerrain>;
       const q = questInfo(baked, ui.get().char);
       for (const o of q.objectives) g.drawImage(markCanvas(o.cat, '◆'), px(o.x) - 11, py(o.y) - 11, 22, 22);
-      if (q.point) g.drawImage(markCanvas(q.pointCat, '◆'), px(q.point.x) - 15, py(q.point.y) - 15, 30, 30);
+      for (const p of q.points) g.drawImage(markCanvas(q.pointCat, '◆'), px(p.x) - 15, py(p.y) - 15, 30, 30);
       for (const n of map.npcs) npcIcon(g, n.role, px(n.x), py(n.y));
       for (const m of q.markers) g.drawImage(markCanvas(m.cat, m.glyph), px(m.x) - 13, py(m.y) - 25, 26, 26);
       for (const p of map.portals) portalIcon(g, px(p.x), py(p.y), now / 1000);

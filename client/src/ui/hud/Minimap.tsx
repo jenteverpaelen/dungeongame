@@ -124,7 +124,7 @@ function drawMinimap(g: CanvasRenderingContext2D, baked: Baked | null, ents: Ite
   const q = questInfo(baked, save);
   // Every tracked quest's objective in this zone (small, category colour), the focused one large and clamped to the rim.
   for (const o of q.objectives) { const x = px(o.x), y = py(o.y); if ((x - C) ** 2 + (y - C) ** 2 <= (C - 8) ** 2) g.drawImage(markCanvas(o.cat, '◆'), x - 9, y - 9, 18, 18); }
-  if (q.point) { const [x, y] = clampTo(px(q.point.x), py(q.point.y)); g.drawImage(markCanvas(q.pointCat, '◆'), x - 13, y - 13, 26, 26); }
+  for (const p of q.points) { const [x, y] = clampTo(px(p.x), py(p.y)); g.drawImage(markCanvas(q.pointCat, '◆'), x - 13, y - 13, 26, 26); }
   const r2 = (C + 12) * (C + 12);
   for (const n of baked.map.npcs) { const x = px(n.x), y = py(n.y); if ((x - C) ** 2 + (y - C) ** 2 <= r2) npcIcon(g, n.role, x, y); }
   for (const m of q.markers) { const x = px(m.x), y = py(m.y) - 12; if ((x - C) ** 2 + (y - C) ** 2 <= r2) g.drawImage(markCanvas(m.cat, m.glyph), x - 12, y - 12, 24, 24); }
@@ -186,7 +186,7 @@ export function markCanvas(cat: MarkCat, glyph: string): HTMLCanvasElement {
   if (!c) { c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d')!; g.translate(24, 24); paintQuestMark(g, cat, glyph, 20); marks.set(key, c); }
   return c;
 }
-interface QuestInfo { key: unknown; mapKey: string; point: { x: number; y: number } | null; pointCat: MarkCat; markers: { x: number; y: number; cat: MarkCat; glyph: string }[]; objectives: { x: number; y: number; cat: MarkCat }[] }
+interface QuestInfo { key: unknown; mapKey: string; points: { x: number; y: number }[]; pointCat: MarkCat; markers: { x: number; y: number; cat: MarkCat; glyph: string }[]; objectives: { x: number; y: number; cat: MarkCat }[] }
 let questCache: QuestInfo | null = null;
 /** Focused objective, every tracked objective in this zone, contact marks and bounty targets; recomputed only when the
  *  character save object or the map changes. */
@@ -194,7 +194,12 @@ export function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char'])
   if (questCache && questCache.key === save && questCache.mapKey === baked.key) return questCache;
   const map = baked.map, zone = map.zone;
   const quest = save ? trackedQuest(save) : null, focusObj = save && quest ? questObjective(save, quest) : null;
-  const point = (save && focusObj && questPoint(map, focusObj, save, undefined, focusObj.targets)) || null;
+  // Every remaining target of the focused step (the trail leads to the nearest); another zone's step marks its exit once.
+  const points: QuestInfo['points'] = [];
+  if (save && focusObj) for (const t of focusObj.targets ?? [focusObj.target]) {
+    const p = questPoint(map, { zone: focusObj.zone, target: t }, save);
+    if (p && !points.some((q) => q.x === p.x && q.y === p.y)) points.push({ x: p.x, y: p.y });
+  }
   const markers: QuestInfo['markers'] = [], objectives: QuestInfo['objectives'] = [];
   if (save) {
     for (const n of map.npcs) {
@@ -214,7 +219,7 @@ export function questInfo(baked: Baked, save: ReturnType<typeof ui.get>['char'])
       b.picks.forEach((id, i) => { const d = bountyDef(zone, id); if (!d || b.done & (1 << i) || d.kind === 'hunt') return; const p = questPoint(map, { zone, target: d.target }, save); if (p) objectives.push({ x: p.x, y: p.y, cat: 'bounty' }); });
     }
   }
-  questCache = { key: save, mapKey: baked.key, point, pointCat: quest ? questCategory(quest) : 'story', markers, objectives };
+  questCache = { key: save, mapKey: baked.key, points, pointCat: quest ? questCategory(quest) : 'story', markers, objectives };
   return questCache;
 }
 

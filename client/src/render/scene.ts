@@ -111,6 +111,7 @@ export class Scene {
     this.text.addChild(this.barks.root);
     app.stage.addChild(this.root);
     this.groundFx.addChild(this.questGuide.root);
+    this.text.addChild(this.questGuide.marker);
     // gear ground effects (sigils, light columns, movement ribbons, footprints) sit beneath every telegraph
     this.groundFx.addChildAt(this.gearUnder, 0);
     setGearUnderlay(this.gearUnder);
@@ -308,7 +309,7 @@ export class Scene {
   }
 
   clearEntities() {
-    this.questGuide.root.visible=false;
+    this.questGuide.hide();
     for (const e of [...this.active]) this.destroyView(e);
     this.active.clear();
   }
@@ -441,7 +442,7 @@ export class Scene {
       }
       this.questStamp=questSave;
     }
-    this.questGuide.update(me,ui.get().screen==='game');
+    this.questGuide.update(me,ui.get().screen==='game',{camX:this.cam.x,camY:this.cam.y,halfW,halfH,zoom:this.cam.zoom,time:this.time});
     this.phases?.update(viewDt,this.time,this.cam.x,this.cam.y,halfW,halfH);
     this.weather?.update(viewDt,this.time,this.cam.x,this.cam.y,halfW,halfH);
     for (const s of this.statics) {

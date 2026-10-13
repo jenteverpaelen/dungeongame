@@ -39,8 +39,8 @@ function Row({ save, q, zone, me, focus }: { save: CharacterSave; q: QuestDef; z
   const act = (action: string) => void run('quest', questRequest(q, s, undefined, action));
   return <div class={`qt-row ${cat} ${focus ? 'focus' : ''} ${ready ? 'ready' : ''}`}>
     <button class="qt-row-main" title={t('quest.journal.open')} onClick={() => { openJournal(); ui.set({ journalQuest: q.id }); }}>
-      <span class="qt-row-head"><QuestGlyph cat={cat} glyph={ready ? '?' : !s ? '!' : '◆'} /><strong>{t(q.title)}</strong><em>{where(save, q, zone, me)}</em></span>
-      <span class="qt-obj">{text}</span>
+      <span class="qt-row-head"><QuestGlyph cat={cat} glyph={ready ? '?' : !s ? '!' : '◆'} /><strong>{t(q.title)}</strong></span>
+      <span class="qt-obj">{text} <em class="qt-where">{where(save, q, zone, me)}</em></span>
       {count > 1 && !ready && <span class="qt-bar" aria-label={`${done} of ${count}`}><i style={{ width: `${Math.min(100, done / count * 100)}%` }} /></span>}
     </button>
     {s && <span class="qt-row-tools">
